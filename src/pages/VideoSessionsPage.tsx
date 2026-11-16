@@ -89,7 +89,7 @@ export function VideoSessionsPage() {
 
       <div role="tablist" aria-label="Filter sessions" className="mb-4 inline-flex gap-1 rounded-xl border border-border bg-bg-primary p-1">
         {FILTERS.map((f) => (
-          <button key={f.value} type="button" role="tab" aria-selected={filter === f.value} onClick={() => setFilter(f.value)} className={`focus-ring rounded-lg px-3 py-1.5 text-xs font-medium ${filter === f.value ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}>
+          <button key={f.value} type="button" role="tab" aria-selected={filter === f.value} onClick={() => setFilter(f.value)} className={`focus-ring rounded-lg px-3 py-1.5 text-xs font-medium ${filter === f.value ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}>
             {f.label}
           </button>
         ))}

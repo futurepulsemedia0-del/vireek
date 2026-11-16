@@ -88,19 +88,19 @@ export const SOURCE_TYPE_LABELS: Record<RecoverySourceType, string> = {
 
 export const SOURCE_TYPE_COLORS: Record<RecoverySourceType, string> = {
   missed_call: 'bg-danger/10 text-danger',
-  voicemail: 'bg-warning-500/10 text-warning-500',
-  not_booked: 'bg-warning-500/10 text-warning-500',
+  voicemail: 'bg-warning-subtle text-warning',
+  not_booked: 'bg-warning-subtle text-warning',
   declined_quote: 'bg-danger/10 text-danger',
   expired_quote: 'bg-bg-tertiary text-text-secondary',
   cancelled_job: 'bg-danger/10 text-danger',
-  quote_financing_stalled: 'bg-warning-500/10 text-warning-500',
-  quote_accepted_unbooked: 'bg-warning-500/10 text-warning-500',
+  quote_financing_stalled: 'bg-warning-subtle text-warning',
+  quote_accepted_unbooked: 'bg-warning-subtle text-warning',
   job_completed_unbilled: 'bg-danger/10 text-danger',
   invoice_overdue: 'bg-danger/10 text-danger',
   invoice_rejected: 'bg-danger/10 text-danger',
   membership_cancelled: 'bg-bg-tertiary text-text-secondary',
   membership_churned: 'bg-danger/10 text-danger',
-  job_parts_unbilled: 'bg-warning-500/10 text-warning-500',
+  job_parts_unbilled: 'bg-warning-subtle text-warning',
   payment_failed: 'bg-danger/10 text-danger',
 };
 
@@ -113,8 +113,8 @@ export const STATUS_LABELS: Record<RecoveryStatus, string> = {
 
 export const STATUS_COLORS: Record<RecoveryStatus, string> = {
   open: 'bg-danger/10 text-danger',
-  contacted: 'bg-warning-500/10 text-warning-500',
-  recovered: 'bg-success-500/10 text-success-500',
+  contacted: 'bg-warning-subtle text-warning',
+  recovered: 'bg-success-subtle text-success',
   written_off: 'bg-bg-tertiary text-text-secondary',
 };
 

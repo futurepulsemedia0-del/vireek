@@ -22,7 +22,7 @@ import {
 } from '@/lib/equipmentPassport';
 import { formatDate } from '@/lib/technicianIdentity';
 
-const WARRANTY_DOT = { active: 'bg-success-500', expiring: 'bg-warning-500', expired: 'bg-text-secondary/40', unknown: 'bg-text-secondary/20' } as const;
+const WARRANTY_DOT = { active: 'bg-success', expiring: 'bg-warning', expired: 'bg-text-secondary/40', unknown: 'bg-text-secondary/20' } as const;
 
 const WARRANTY_FILTERS = ['all', 'active', 'expiring', 'expired', 'unknown'] as const;
 type WarrantyFilter = (typeof WARRANTY_FILTERS)[number];
@@ -117,7 +117,7 @@ export function EquipmentPassportsPage() {
             spellCheck={false}
             className="focus-ring min-w-0 flex-1 rounded-lg border border-border bg-bg-primary px-3 py-2 font-mono text-sm text-text-primary"
           />
-          <button type="button" onClick={openCode} className="focus-ring rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:opacity-90">Open passport</button>
+          <button type="button" onClick={openCode} className="focus-ring rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-on-accent hover:opacity-90">Open passport</button>
         </div>
       </section>
 
@@ -201,7 +201,7 @@ export function EquipmentPassportsPage() {
                       </p>
                     </>
                   ) : (
-                    <p className="inline-flex items-center gap-1 rounded-full bg-warning-500/10 px-2.5 py-1 text-[11px] font-medium text-warning-500">
+                    <p className="inline-flex items-center gap-1 rounded-full bg-warning-subtle px-2.5 py-1 text-[11px] font-medium text-warning">
                       <Lock size={11} aria-hidden="true" /> Scan the label to verify
                     </p>
                   )}

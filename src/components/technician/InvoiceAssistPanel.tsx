@@ -65,14 +65,14 @@ export function InvoiceAssistPanel({ jobId }: { jobId: string }) {
             <button type="button" className="min-h-[48px] rounded-md border border-border px-3 text-text-primary" onClick={() => void load()}>{tt('retry')}</button></p>
         )}
         {state.k === 'ready' && (state.flags.length === 0
-          ? <p className="flex items-center gap-2 text-success-500"><CheckCircle2 className="h-4 w-4" aria-hidden="true" />{tt('invoiceAssistNone')}</p>
+          ? <p className="flex items-center gap-2 text-success"><CheckCircle2 className="h-4 w-4" aria-hidden="true" />{tt('invoiceAssistNone')}</p>
           : (
             <>
               <p className="text-text-secondary">{tt('invoiceAssistIntro')}</p>
               <ul className="space-y-2">
                 {state.flags.map((f, i) => (
-                  <li key={i} className="flex items-start gap-2 rounded-md border border-warning-500/40 bg-warning-500/10 p-2 text-base text-text-primary">
-                    <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-warning-500" aria-hidden="true" />{flagText(f, tt)}
+                  <li key={i} className="flex items-start gap-2 rounded-md border border-warning/40 bg-warning-subtle p-2 text-base text-text-primary">
+                    <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-warning" aria-hidden="true" />{flagText(f, tt)}
                   </li>
                 ))}
               </ul>

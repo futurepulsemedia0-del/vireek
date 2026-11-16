@@ -165,7 +165,7 @@ export function draftToQuotePayload(draft: TieredEstimateDraft, userId: string) 
 // ============================================================
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder transition-colors';
 
 // ============================================================
 // PHOTO STRIP
@@ -253,7 +253,7 @@ function PhotoStrip({
                   value={photo.caption}
                   onChange={(e) => onUpdate(photo.id, { caption: e.target.value })}
                   placeholder="Caption for the customer"
-                  className="focus-ring w-full rounded-lg bg-transparent px-1 py-1 text-xs text-text-primary placeholder:text-text-secondary/60"
+                  className="focus-ring w-full rounded-lg bg-transparent px-1 py-1 text-xs text-text-primary placeholder:text-text-placeholder"
                 />
                 <div className="flex items-center gap-1.5">
                   <select
@@ -925,10 +925,10 @@ export function TieredEstimateBuilder({
     
       {/* Errors */}
       {errors.length > 0 && (
-        <ul className="space-y-1 rounded-xl border border-warning-500/30 bg-warning-500/[0.06] px-3 py-2">
+        <ul className="space-y-1 rounded-xl border border-warning/30 bg-warning-subtle px-3 py-2">
           {errors.map((e) => (
             <li key={e} className="flex items-start gap-1.5 text-xs text-text-secondary">
-              <AlertCircle size={12} className="mt-0.5 shrink-0 text-warning-500" />
+              <AlertCircle size={12} className="mt-0.5 shrink-0 text-warning" />
               {e}
             </li>
           ))}
@@ -976,7 +976,7 @@ export function TieredEstimateBuilder({
             type="button"
             onClick={() => void handleSave()}
             disabled={!canSave || saving}
-            className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50"
+            className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent transition-all hover:brightness-110 disabled:opacity-50"
           >
             {saving && <Loader2 size={14} className="animate-spin" />}
             Save estimate

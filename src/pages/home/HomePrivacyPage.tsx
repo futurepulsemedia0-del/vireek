@@ -122,7 +122,7 @@ export function HomePrivacyPage() {
             onClick={() => void run('ai', async () => { await updateSettings({ aiEnabled: !(profile?.ai_enabled ?? false) }); await refresh(); await loadHistory(); })}
             className={`focus-ring relative h-7 w-12 shrink-0 rounded-full transition ${profile?.ai_enabled ? 'bg-accent' : 'bg-bg-tertiary'}`}
           >
-            <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all ${profile?.ai_enabled ? 'left-[22px]' : 'left-0.5'}`} />
+            <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-bg-secondary shadow transition-all ${profile?.ai_enabled ? 'left-[22px]' : 'left-0.5'}`} />
           </button>
         </div>
       </Card>

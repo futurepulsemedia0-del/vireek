@@ -40,7 +40,7 @@ import { PromoCodePanel } from '@/components/promos/PromoCodePanel';
 import { repriceDocumentPromos } from '@/lib/promoCodes';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder transition-colors';
 
 type FilterKey = 'open' | 'won' | 'lost' | 'all';
 
@@ -117,7 +117,7 @@ function QuoteAmountEditor({
           setSaving(false);
           setEditing(false);
         }}
-        className="focus-ring flex h-8 w-8 items-center justify-center rounded-lg text-success-500 hover:bg-success-500/10"
+        className="focus-ring flex h-8 w-8 items-center justify-center rounded-lg text-success hover:bg-success-subtle"
         aria-label="Save amount"
       >
         <Check size={14} />
@@ -243,7 +243,7 @@ function PhotoEstimatePanel({ onResult }: { onResult: (r: { line_items: QuoteLin
           type="button"
           onClick={handleEstimate}
           disabled={files.length === 0 || loading}
-          className="focus-ring flex items-center gap-1.5 rounded-lg bg-cta px-3 py-1.5 text-xs font-semibold text-white transition-all hover:brightness-110 disabled:opacity-50"
+          className="focus-ring flex items-center gap-1.5 rounded-lg bg-cta px-3 py-1.5 text-xs font-semibold text-on-cta transition-all hover:brightness-110 disabled:opacity-50"
         >
           {loading ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />}
           {loading ? 'Analyzing…' : 'Generate estimate'}
@@ -362,8 +362,8 @@ function QuoteBuilderForm({
         }}
       />
       {form.ai_generated && (
-        <div className="mb-3 flex items-start gap-2 rounded-xl border border-warning-500/30 bg-warning-500/10 p-3">
-          <Sparkles size={14} className="mt-0.5 shrink-0 text-warning-500" />
+        <div className="mb-3 flex items-start gap-2 rounded-xl border border-warning/30 bg-warning-subtle p-3">
+          <Sparkles size={14} className="mt-0.5 shrink-0 text-warning" />
           <p className="text-xs leading-relaxed text-text-secondary">
             <span className="font-semibold text-text-primary">AI-generated — review before sending.</span>{' '}
             Detected: {form.ai_detected_issue} ({severityLabel('')}). Prices below are ballpark estimates only —
@@ -459,7 +459,7 @@ function QuoteBuilderForm({
         <p className="text-sm font-semibold text-text-primary">
           Total: {formatCents(totals.totalCents)}
           {totals.discountCents > 0 && (
-            <span className="ml-2 text-xs font-normal text-success-500">(−{formatCents(totals.discountCents)} promo)</span>
+            <span className="ml-2 text-xs font-normal text-success">(−{formatCents(totals.discountCents)} promo)</span>
           )}
         </p>
         <div className="flex gap-2">
@@ -474,7 +474,7 @@ function QuoteBuilderForm({
             type="button"
             onClick={handleSave}
             disabled={saving || form.tax.pending || !form.customer_name.trim()}
-            className="focus-ring rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50"
+            className="focus-ring rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent transition-all hover:brightness-110 disabled:opacity-50"
           >
             Save quote
           </button>
@@ -835,7 +835,7 @@ export function QuotesPage() {
                     setTieredQuoteId(null);
                     setTieredDraft(emptyTieredDraft());
                   }}
-                  className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-medium text-white transition-all hover:brightness-110"
+                  className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-medium text-on-accent transition-all hover:brightness-110"
                 >
                   <Images size={14} /> New visual estimate
                 </button>
@@ -916,7 +916,7 @@ export function QuotesPage() {
                         <p className="text-xs text-text-secondary">
                           {formatCents(calculateQuoteTotals(quote.line_items, quote.tax_percent, quote.promo_discount_cents ?? 0).totalCents)}
                           {(quote.promo_codes?.length ?? 0) > 0 && (
-                            <span className="text-success-500"> ({quote.promo_codes.join(', ')})</span>
+                            <span className="text-success"> ({quote.promo_codes.join(', ')})</span>
                           )}{' '}
                           ·{' '}
                           {isTieredQuote(quote)
@@ -924,7 +924,7 @@ export function QuotesPage() {
                             : `${quote.line_items.length} item${quote.line_items.length === 1 ? '' : 's'}`}
                         </p>
                         {describeEngagement(quote) && (
-                          <p className="mt-0.5 flex items-center gap-1 text-xs text-text-secondary/80">
+                          <p className="mt-0.5 flex items-center gap-1 text-xs text-text-muted">
                             <Eye size={11} /> {describeEngagement(quote)}
                           </p>
                         )}
@@ -954,7 +954,7 @@ export function QuotesPage() {
                           <button
                             type="button"
                             onClick={() => handleSendItemizedQuote(quote)}
-                            className="focus-ring flex items-center gap-1 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white hover:brightness-110"
+                            className="focus-ring flex items-center gap-1 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent hover:brightness-110"
                           >
                             <Send size={12} /> Send
                           </button>
@@ -1050,8 +1050,8 @@ export function QuotesPage() {
             <p className="text-2xl font-bold text-text-primary">{formatMoney(stats.openValue)}</p>
             <p className="text-xs text-text-secondary">Open quote value</p>
           </div>
-          <div className="rounded-2xl border border-warning-500/30 bg-warning-500/5 p-4">
-            <p className="text-2xl font-bold text-warning-500">{stats.needsFollowUpCount}</p>
+          <div className="rounded-2xl border border-warning/30 bg-warning-subtle p-4">
+            <p className="text-2xl font-bold text-warning">{stats.needsFollowUpCount}</p>
             <p className="text-xs text-text-secondary">Need a follow-up</p>
           </div>
         </div>
@@ -1063,7 +1063,7 @@ export function QuotesPage() {
               type="button"
               onClick={() => setFilter(f.key)}
               className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                filter === f.key ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
+                filter === f.key ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
               }`}
             >
               {f.label}
@@ -1083,7 +1083,7 @@ export function QuotesPage() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border py-10 text-center">
-            <FileText className="mx-auto mb-2 h-6 w-6 text-text-secondary/50" />
+            <FileText className="mx-auto mb-2 h-6 w-6 text-graphic-muted" />
             <p className="text-sm text-text-secondary">
               {filter === 'open'
                 ? 'No open quotes right now — quoted leads will show up here.'
@@ -1101,7 +1101,7 @@ export function QuotesPage() {
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   className={`rounded-2xl border p-4 ${
-                    stale ? 'border-warning-500/30 bg-warning-500/[0.04]' : 'border-border bg-bg-secondary'
+                    stale ? 'border-warning/30 bg-warning-subtle' : 'border-border bg-bg-secondary'
                   }`}
                 >
                   <div className="flex flex-wrap items-center justify-between gap-3">
@@ -1135,7 +1135,7 @@ export function QuotesPage() {
                         <button
                           type="button"
                           onClick={() => handleSetOutcome(lead, 'won')}
-                          className="focus-ring rounded-lg px-2.5 py-1.5 text-xs font-medium text-success-500 hover:bg-success-500/10"
+                          className="focus-ring rounded-lg px-2.5 py-1.5 text-xs font-medium text-success hover:bg-success-subtle"
                         >
                           Won
                         </button>
@@ -1151,7 +1151,7 @@ export function QuotesPage() {
                     {lead.stage !== 'quoted' && (
                       <span
                         className={`rounded-full px-3 py-1 text-xs font-medium ${
-                          lead.stage === 'won' ? 'bg-success-500/10 text-success-500' : 'bg-danger/10 text-danger'
+                          lead.stage === 'won' ? 'bg-success-subtle text-success' : 'bg-danger/10 text-danger'
                         }`}
                       >
                         {lead.stage === 'won' ? 'Won' : 'Lost'}
@@ -1164,7 +1164,7 @@ export function QuotesPage() {
           </div>
         )}
 
-        <p className="mt-6 flex items-center gap-1.5 text-xs text-text-secondary/70">
+        <p className="mt-6 flex items-center gap-1.5 text-xs text-text-muted">
           <RefreshCw size={12} />
           Itemized quotes above create a real link the customer can accept or decline. This lower section
           tracks follow-ups on any lead you&rsquo;ve quoted &mdash; itemized or not &mdash; so nothing sits

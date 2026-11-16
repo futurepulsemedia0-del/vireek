@@ -190,11 +190,11 @@ export function GoalOrchestratorPage() {
               />
             </label>
           </div>
-          {error && <p className="text-xs text-red-500">{error}</p>}
+          {error && <p className="text-xs text-danger">{error}</p>}
           <button
             type="submit"
             disabled={!vision.trim() || submitting}
-            className="focus-ring flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-white disabled:opacity-40"
+            className="focus-ring flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-on-accent disabled:opacity-40"
           >
             {submitting ? <Loader2 size={15} className="animate-spin" /> : <Sparkles size={15} />}
             {submitting ? 'Decomposing…' : 'Decompose into strategies & actions'}

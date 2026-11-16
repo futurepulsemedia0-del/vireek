@@ -37,7 +37,7 @@ function Stat({ label, value, tone }: { label: string; value: string; tone?: 'go
   return (
     <div className="rounded-xl border border-border bg-bg-primary px-3 py-2">
       <p className="text-[10px] uppercase tracking-wide text-text-secondary">{label}</p>
-      <p className={`text-sm font-semibold ${tone === 'bad' ? 'text-danger' : tone === 'good' ? 'text-success-500' : 'text-text-primary'}`}>{value}</p>
+      <p className={`text-sm font-semibold ${tone === 'bad' ? 'text-danger' : tone === 'good' ? 'text-success' : 'text-text-primary'}`}>{value}</p>
     </div>
   );
 }
@@ -54,7 +54,7 @@ function EvidencePanel({ h }: { h: FieldHypothesis }) {
         <Stat label="FDR q-value" value={`${d.q_value}`} />
       </div>
       <p className="flex items-start gap-1.5 text-[11px] text-text-secondary">
-        <ShieldCheck size={13} className="mt-0.5 shrink-0 text-success-500" />
+        <ShieldCheck size={13} className="mt-0.5 shrink-0 text-success" />
         <span>
           Survived {d.tested_segments}-segment multiple-testing control (Benjamini–Hochberg).
           {d.adjusted_p !== null
@@ -132,7 +132,7 @@ function HypothesisCard({ h, onChanged }: { h: FieldHypothesis; onChanged: () =>
           {h.status === 'proposed' && (
             <div className="flex items-center justify-between gap-2 rounded-xl border border-dashed border-border p-3">
               <p className="text-xs text-text-secondary">Candidate causes have not been generated yet.</p>
-              <button type="button" disabled={busy !== null} className={`${btn} bg-accent text-white`}
+              <button type="button" disabled={busy !== null} className={`${btn} bg-accent text-on-accent`}
                 onClick={() => void run('causes', async () => { await requestCauses(h.id); onChanged(); }, 'AI could not propose causes right now')}>
                 {spinner('causes') ?? <Sparkles size={13} />} Generate causes
               </button>
@@ -180,7 +180,7 @@ function HypothesisCard({ h, onChanged }: { h: FieldHypothesis; onChanged: () =>
                 <li><span className="text-text-primary">Stop rule:</span> {design.stop_rule}</li>
               </ul>
               {design.underpowered && (
-                <p className="mt-2 rounded-lg bg-warning-500/10 px-2 py-1 text-warning-500">
+                <p className="mt-2 rounded-lg bg-warning-subtle px-2 py-1 text-warning">
                   This would take over 180 days at your current volume — consider testing a broader segment.
                 </p>
               )}
@@ -190,7 +190,7 @@ function HypothesisCard({ h, onChanged }: { h: FieldHypothesis; onChanged: () =>
           {/* Actions by status */}
           <div className="flex flex-wrap items-center gap-2">
             {h.status === 'ready' && design && (
-              <button type="button" disabled={busy !== null} className={`${btn} bg-accent text-white`}
+              <button type="button" disabled={busy !== null} className={`${btn} bg-accent text-on-accent`}
                 onClick={() => void run('start', async () => {
                   const t = await startExperiment(h);
                   toast(`Experiment started — ${t.treatment} treatment / ${t.control} control jobs tagged`, 'success');
@@ -213,7 +213,7 @@ function HypothesisCard({ h, onChanged }: { h: FieldHypothesis; onChanged: () =>
                   {spinner('measure') ?? <Microscope size={13} />} Check progress
                 </button>
                 {progress && (
-                  <button type="button" disabled={busy !== null} className={`${btn} bg-accent text-white`}
+                  <button type="button" disabled={busy !== null} className={`${btn} bg-accent text-on-accent`}
                     onClick={() => void run('conclude', async () => {
                       const r = await concludeExperiment(h);
                       toast(`Verdict: ${r.verdict}`, r.verdict === 'accepted' ? 'success' : 'info');
@@ -239,7 +239,7 @@ function HypothesisCard({ h, onChanged }: { h: FieldHypothesis; onChanged: () =>
 
           {/* Verdict */}
           {finished && h.experiment_result && (
-            <div className={`rounded-xl border p-3 text-xs ${h.status === 'accepted' ? 'border-success-500/40 bg-success-500/5' : h.status === 'rejected' ? 'border-danger/40 bg-danger/5' : 'border-border bg-bg-primary'}`}>
+            <div className={`rounded-xl border p-3 text-xs ${h.status === 'accepted' ? 'border-success/40 bg-success-subtle' : h.status === 'rejected' ? 'border-danger/40 bg-danger/5' : 'border-border bg-bg-primary'}`}>
               <p className="mb-1 flex items-center gap-1.5 font-medium text-text-primary"><BookCheck size={13} /> {STATUS_LABELS[h.status]} · {fmtDate(h.decided_at)}</p>
               <p className="text-text-secondary">{h.verdict_reasoning}</p>
               {h.playbook_entry_id && <p className="mt-1 text-text-secondary">Saved to Organizational Memory as {h.status === 'accepted' ? 'a winning playbook' : 'a failure pattern'}.</p>}
@@ -289,7 +289,7 @@ export function FieldScientistPage() {
             </p>
           </div>
           <button type="button" disabled={running} onClick={() => void handleDiscover()}
-            className="focus-ring flex shrink-0 items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-medium text-white disabled:opacity-40">
+            className="focus-ring flex shrink-0 items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-medium text-on-accent disabled:opacity-40">
             {running ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />} Discover hypotheses
           </button>
         </div>
@@ -305,7 +305,7 @@ export function FieldScientistPage() {
           <div className="space-y-2">{[0, 1].map((i) => <div key={i} className="h-20 animate-pulse rounded-2xl bg-bg-tertiary" />)}</div>
         ) : items.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border py-10 text-center">
-            <Microscope className="mx-auto mb-2 h-6 w-6 text-text-secondary/50" />
+            <Microscope className="mx-auto mb-2 h-6 w-6 text-graphic-muted" />
             <p className="mx-auto max-w-sm text-sm text-text-secondary">
               No hypotheses yet. Run discovery once you have a few months of completed jobs with callbacks tracked.
             </p>

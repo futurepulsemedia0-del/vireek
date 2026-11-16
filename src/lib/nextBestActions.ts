@@ -29,8 +29,8 @@ export interface NextBestAction {
 }
 
 export const CATEGORY_META: Record<NextBestActionCategory, { label: string; className: string }> = {
-  estimate_risk: { label: 'Estimate at risk', className: 'bg-warning-500/10 text-warning-500' },
-  invoice_risk: { label: 'Invoice at risk', className: 'bg-danger-500/10 text-danger-500' },
+  estimate_risk: { label: 'Estimate at risk', className: 'bg-warning-subtle text-warning' },
+  invoice_risk: { label: 'Invoice at risk', className: 'bg-danger-subtle text-danger' },
   churn_risk: { label: 'Churn risk', className: 'bg-accent/10 text-accent' },
   capacity_gap: { label: 'Open capacity', className: 'bg-bg-tertiary text-text-secondary' },
 };

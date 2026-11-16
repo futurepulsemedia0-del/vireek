@@ -492,7 +492,7 @@ export function validateBrand(name: string, website: string, color: string, exis
   if (n.length > 80) return 'Keep the brand name under 80 characters.';
   if (existing.some((b) => b.id !== editingId && b.name.trim().toLowerCase() === n.toLowerCase())) return 'A brand with this name already exists.';
   if (website.trim() && !URL_RE.test(website.trim())) return 'Website must start with http:// or https://';
-  if (color.trim() && !COLOR_RE.test(color.trim())) return 'Color must look like #1A2B3C.';
+  if (color.trim() && !COLOR_RE.test(color.trim())) return 'Color must look like #2F2E28.';
   return null;
 }
 

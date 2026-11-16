@@ -30,9 +30,9 @@ const linkBtn =
 
 const URGENCY_TONE = {
   low: 'bg-bg-tertiary text-text-secondary',
-  medium: 'bg-warning-500/10 text-warning-500',
+  medium: 'bg-warning-subtle text-warning',
   high: 'bg-danger/10 text-danger',
-  critical: 'bg-danger text-white',
+  critical: 'bg-danger text-on-danger',
 } as const;
 
 const CHANNEL_ICON: Record<ActionChannel, ReactNode> = {
@@ -75,7 +75,7 @@ function TextPromptDialog({
   const valid = !required || text.trim().length >= 3;
   return (
     <>
-      <div className="fixed inset-0 z-[130] bg-black/40 backdrop-blur-sm" onClick={onCancel} aria-hidden="true" />
+      <div className="fixed inset-0 z-[130] bg-overlay/40 backdrop-blur-sm" onClick={onCancel} aria-hidden="true" />
       <div
         ref={ref} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="col-prompt-title"
         className="fixed left-1/2 top-1/2 z-[140] w-[92vw] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border bg-bg-secondary p-6 shadow-card-hover"
@@ -157,7 +157,7 @@ function CaseDrawer({ c, ownerId, onClose, onChanged }: { c: CollectionCase; own
 
   return (
     <>
-      <div className="fixed inset-0 z-[110] bg-black/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+      <div className="fixed inset-0 z-[110] bg-overlay/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
       <aside
         ref={ref} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="col-case-title"
         className="fixed inset-x-0 bottom-0 z-[120] max-h-[92vh] overflow-y-auto rounded-t-2xl border border-border bg-bg-secondary p-5 shadow-card-hover sm:inset-y-0 sm:left-auto sm:right-0 sm:max-h-none sm:w-[460px] sm:rounded-none sm:rounded-l-2xl sm:p-6"
@@ -196,7 +196,7 @@ function CaseDrawer({ c, ownerId, onClose, onChanged }: { c: CollectionCase; own
           <Button type="button" size="sm" className="mt-3 w-full" disabled={busy === 'promise'} onClick={submitPromise}>
             <CalendarCheck size={14} /> {c.promise_id ? 'Replace promise' : 'Record promise'}
           </Button>
-          {c.broken_promises > 0 && <p className="mt-2 text-xs text-warning-500">{c.broken_promises} earlier promise{c.broken_promises === 1 ? '' : 's'} broken on this invoice.</p>}
+          {c.broken_promises > 0 && <p className="mt-2 text-xs text-warning">{c.broken_promises} earlier promise{c.broken_promises === 1 ? '' : 's'} broken on this invoice.</p>}
         </section>
 
         {/* Hold */}
@@ -332,7 +332,7 @@ function SequenceEditor({ initial, onClose, onSaved }: { initial: SequenceDraft;
 
   return (
     <>
-      <div className="fixed inset-0 z-[110] bg-black/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+      <div className="fixed inset-0 z-[110] bg-overlay/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
       <div
         ref={ref} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="col-seq-title"
         className="fixed inset-x-0 bottom-0 z-[120] max-h-[94vh] overflow-y-auto rounded-t-2xl border border-border bg-bg-secondary p-5 shadow-card-hover sm:inset-x-auto sm:left-1/2 sm:top-1/2 sm:bottom-auto sm:w-[94vw] sm:max-w-2xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:p-6"
@@ -644,10 +644,10 @@ export function CollectionsPage() {
             {TABS.map((t) => (
               <button
                 key={t.id} type="button" role="tab" aria-selected={tab === t.id} id={`col-tab-${t.id}`} aria-controls={`col-panel-${t.id}`} onClick={() => setTab(t.id)}
-                className={`focus-ring shrink-0 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors ${tab === t.id ? 'bg-accent text-white' : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'}`}
+                className={`focus-ring shrink-0 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors ${tab === t.id ? 'bg-accent text-on-accent' : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'}`}
               >
                 {t.label}
-                {!!t.badge && <span className={`ml-1.5 rounded-full px-1.5 text-[11px] font-semibold ${tab === t.id ? 'bg-white/20' : 'bg-warning-500/20 text-warning-500'}`}>{t.badge}</span>}
+                {!!t.badge && <span className={`ml-1.5 rounded-full px-1.5 text-[11px] font-semibold ${tab === t.id ? 'bg-bg-secondary/20' : 'bg-warning-subtle text-warning'}`}>{t.badge}</span>}
               </button>
             ))}
           </div>
@@ -656,7 +656,7 @@ export function CollectionsPage() {
           {tab === 'cases' && (
             <section role="tabpanel" id="col-panel-cases" aria-labelledby="col-tab-cases">
               {sequences.length === 0 && overview.totals.open_invoices > 0 && (
-                <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-warning-500/30 bg-warning-500/5 p-4 text-sm">
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-warning/30 bg-warning-subtle p-4 text-sm">
                   <span className="text-text-primary">No dunning sequence yet, so no reminder tasks are being created.</span>
                   <Button type="button" size="sm" disabled={busy === 'seed'} onClick={() => void createStandard()}>Create standard sequence</Button>
                 </div>
@@ -903,7 +903,7 @@ function CaseStatus({ c }: { c: CollectionCase }) {
       {c.on_hold && <Pill className="bg-bg-tertiary text-text-secondary"><Pause size={10} />On hold</Pill>}
       {c.escalation_level > 0 && <Pill className="bg-danger/10 text-danger"><ShieldAlert size={10} />L{c.escalation_level}</Pill>}
       {c.promise_amount_cents && c.promise_date && <Pill className="bg-accent/10 text-accent"><CalendarCheck size={10} />{usd(c.promise_amount_cents)} by {fmtDate(c.promise_date)}</Pill>}
-      {c.pending_actions > 0 && !c.on_hold && <Pill className="bg-warning-500/10 text-warning-500">{c.pending_actions} to do</Pill>}
+      {c.pending_actions > 0 && !c.on_hold && <Pill className="bg-warning-subtle text-warning">{c.pending_actions} to do</Pill>}
       {c.broken_promises > 0 && <Pill className="bg-danger/10 text-danger">{c.broken_promises} broken</Pill>}
     </>
   );

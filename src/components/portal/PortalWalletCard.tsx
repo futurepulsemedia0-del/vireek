@@ -50,7 +50,7 @@ export function PortalWalletCard({ portalToken }: { portalToken: string }) {
               type="button"
               onClick={() => void add(o)}
               disabled={busy !== null}
-              className="focus-ring inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-accent/90 disabled:opacity-60"
+              className="focus-ring inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent transition-colors hover:bg-accent/90 disabled:opacity-60"
             >
               {busy === o.subject_id && <Loader2 className="h-3 w-3 animate-spin" aria-hidden />} Add to Wallet
             </button>

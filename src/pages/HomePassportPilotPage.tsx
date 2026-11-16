@@ -350,7 +350,7 @@ export function HomePassportPilotPage() {
               <Button className="mt-3" disabled={busy || !shareConsent || !snapshotId} onClick={issueShare}>Create link</Button>
 
               {issued && (
-                <div className="mt-4 rounded-xl border border-success-500/30 bg-success-500/5 p-4" role="status">
+                <div className="mt-4 rounded-xl border border-success/30 bg-success-subtle p-4" role="status">
                   <p className="text-sm font-medium text-text-primary">Copy this link now — it is shown only once.</p>
                   <div className="mt-2 flex flex-wrap items-center gap-2">
                     <code className="min-w-0 flex-1 break-all rounded bg-bg-secondary p-2 text-xs">{shareUrl(window.location.origin, issued.token)}</code>

@@ -11,33 +11,33 @@ import {
 } from '@/lib/homeHealthScore';
 
 const TIER_TEXT: Record<HealthTier, string> = {
-  excellent: 'text-success-500',
-  good: 'text-success-500',
-  fair: 'text-warning-500',
-  at_risk: 'text-danger-500',
-  critical: 'text-danger-500',
+  excellent: 'text-success',
+  good: 'text-success',
+  fair: 'text-warning',
+  at_risk: 'text-danger',
+  critical: 'text-danger',
 };
 
 const TIER_BAR: Record<HealthTier, string> = {
-  excellent: 'bg-success-500',
-  good: 'bg-success-500',
-  fair: 'bg-warning-500',
-  at_risk: 'bg-danger-500',
-  critical: 'bg-danger-500',
+  excellent: 'bg-success',
+  good: 'bg-success',
+  fair: 'bg-warning',
+  at_risk: 'bg-danger',
+  critical: 'bg-danger',
 };
 
 const TIER_STROKE: Record<HealthTier, string> = {
-  excellent: 'stroke-success-500',
-  good: 'stroke-success-500',
-  fair: 'stroke-warning-500',
-  at_risk: 'stroke-danger-500',
-  critical: 'stroke-danger-500',
+  excellent: 'stroke-success',
+  good: 'stroke-success',
+  fair: 'stroke-warning',
+  at_risk: 'stroke-danger',
+  critical: 'stroke-danger',
 };
 
 const RISK_BADGE: Record<RiskLevel, string> = {
-  high: 'bg-danger-500/10 text-danger-500',
-  medium: 'bg-warning-500/10 text-warning-500',
-  low: 'bg-success-500/10 text-success-500',
+  high: 'bg-danger-subtle text-danger',
+  medium: 'bg-warning-subtle text-warning',
+  low: 'bg-success-subtle text-success',
 };
 
 const CONFIDENCE_COPY: Record<ScoreConfidence, string> = {
@@ -109,7 +109,7 @@ export function HomeHealthScoreCard({ twin }: { twin: PropertyTwin }) {
             <p className={`text-lg font-semibold ${TIER_TEXT[tier]}`}>{TIER_LABELS[tier]}</p>
             {gain >= 3 && projectedScore !== null && (
               <p className="mt-1 flex items-center gap-1 text-xs text-text-secondary">
-                <TrendingUp size={12} className="text-success-500" />
+                <TrendingUp size={12} className="text-success" />
                 Reaches {projectedScore} once open service items are resolved
               </p>
             )}

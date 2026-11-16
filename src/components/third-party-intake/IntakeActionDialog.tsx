@@ -40,7 +40,7 @@ export function IntakeActionDialog({ row, action, busy, serverError, onCancel, o
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={busy ? undefined : onCancel}
-            className="fixed inset-0 z-[110] bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 z-[110] bg-overlay/40 backdrop-blur-sm"
           />
           <motion.div
             ref={ref}

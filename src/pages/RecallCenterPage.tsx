@@ -58,14 +58,14 @@ import {
 } from '@/lib/recallMatching';
 
 const FIELD =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/70';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder';
 const FILTERS = Object.keys(FILTER_LABELS) as OutreachFilter[];
 const CHANNELS = Object.keys(CHANNEL_LABELS) as OutreachChannel[];
 
 const SEVERITY_STYLE: Record<RecallSeverity, string> = {
   critical: 'bg-danger/10 text-danger',
   high: 'bg-danger/10 text-danger',
-  medium: 'bg-warning-500/10 text-warning-500',
+  medium: 'bg-warning-subtle text-warning',
   low: 'bg-bg-tertiary text-text-secondary',
 };
 
@@ -193,7 +193,7 @@ function OutreachCard({
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
           <span
-            className={`rounded-full px-2.5 py-1 text-xs font-semibold ${urgency === 'urgent' ? 'bg-danger/10 text-danger' : urgency === 'high' ? 'bg-warning-500/10 text-warning-500' : 'bg-bg-tertiary text-text-secondary'}`}
+            className={`rounded-full px-2.5 py-1 text-xs font-semibold ${urgency === 'urgent' ? 'bg-danger/10 text-danger' : urgency === 'high' ? 'bg-warning-subtle text-warning' : 'bg-bg-tertiary text-text-secondary'}`}
             title="Priority score (0-100)"
           >
             {urgency === 'urgent' ? 'Urgent' : urgency === 'high' ? 'High' : 'Standard'} · {row.priority_score}
@@ -203,7 +203,7 @@ function OutreachCard({
       </div>
 
       <div className="mt-2 flex flex-wrap gap-1.5 text-[11px]">
-        <span className={`rounded-full px-2 py-0.5 ${row.applicability === 'applies' ? 'bg-success-500/10 text-success-500' : 'bg-warning-500/10 text-warning-500'}`}>
+        <span className={`rounded-full px-2 py-0.5 ${row.applicability === 'applies' ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning'}`}>
           {row.applicability === 'applies' ? 'Confirmed affected' : 'Needs verification'} · {MATCH_LABELS[row.match_method]}
         </span>
         {row.priority_reasons

@@ -294,7 +294,7 @@ export function TakeoffDetailPage() {
                 Plan quality: {project.plan_quality ?? 'unknown'} · Scale: {project.scale_note ?? 'not found'} · {rooms.length} room{rooms.length === 1 ? '' : 's'} · {items.length} line{items.length === 1 ? '' : 's'}
               </p>
               {[...project.warnings, ...project.missing_info].length > 0 && (
-                <ul className="mt-3 space-y-1 text-sm text-warning-500">
+                <ul className="mt-3 space-y-1 text-sm text-warning">
                   {[...project.warnings, ...project.missing_info].map((w, i) => <li key={i} className="flex gap-2"><AlertTriangle size={14} className="mt-0.5 shrink-0" aria-hidden />{w}</li>)}
                 </ul>
               )}
@@ -422,7 +422,7 @@ export function TakeoffDetailPage() {
 
             <Section title="Review & create quote">
               {project.status === 'converted' ? (
-                <p className="flex items-center gap-2 text-sm text-success-500"><CheckCircle2 size={16} aria-hidden /> A draft quote was created from this takeoff.</p>
+                <p className="flex items-center gap-2 text-sm text-success"><CheckCircle2 size={16} aria-hidden /> A draft quote was created from this takeoff.</p>
               ) : (
                 <>
                   <p className="text-sm text-text-secondary">
@@ -430,7 +430,7 @@ export function TakeoffDetailPage() {
                     {accuracy.hitRate != null ? ` · AI accepted unchanged on ${Math.round(accuracy.hitRate * 100)}% of reviewed lines` : ''}
                   </p>
                   {gate.blockers.length > 0 && (
-                    <ul className="mt-3 space-y-1 text-sm text-warning-500">
+                    <ul className="mt-3 space-y-1 text-sm text-warning">
                       {gate.blockers.map((b) => <li key={b.code} className="flex gap-2"><AlertTriangle size={14} className="mt-0.5 shrink-0" aria-hidden />{b.message}</li>)}
                     </ul>
                   )}

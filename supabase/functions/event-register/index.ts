@@ -141,18 +141,18 @@ Deno.serve(async (req: Request) => {
           }).toString();
 
         const joinButton = joinUrl
-          ? `<a href="${escapeHtml(joinUrl)}" style="display: inline-block; margin: 8px 8px 0 0; padding: 12px 24px; background: #111827; color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 14px;">Join link</a>`
+          ? `<a href="${escapeHtml(joinUrl)}" style="display: inline-block; margin: 8px 8px 0 0; padding: 12px 24px; background: #1C1B15; color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 14px;">Join link</a>`
           : "";
 
-        const html = `<div style="font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1a1a1a;">
-          <p style="font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #6b7280; margin: 0 0 16px;">You're registered</p>
+        const html = `<div style="font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1c1b15;">
+          <p style="font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #73726c; margin: 0 0 16px;">You're registered</p>
           <h1 style="font-size: 22px; margin: 0 0 8px;">${escapeHtml(event.title)}</h1>
           <p style="margin: 0 0 4px; font-size: 15px;">${escapeHtml(when)}</p>
-          <p style="margin: 0 0 20px; font-size: 15px; color: #4b5563;">${escapeHtml(where)}</p>
+          <p style="margin: 0 0 20px; font-size: 15px; color: #595852;">${escapeHtml(where)}</p>
           <p style="margin: 0 0 8px; font-size: 15px;">Hi ${escapeHtml(name)}, your spot is saved.</p>
           ${joinButton}
-          <a href="${escapeHtml(calendarUrl)}" style="display: inline-block; margin: 8px 0 0; padding: 12px 24px; background: #f3f4f6; color: #111827; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 14px;">Add to Google Calendar</a>
-          <p style="margin-top: 24px; font-size: 13px; color: #9ca3af;">Event details and updates: <a href="${escapeHtml(pageUrl)}" style="color: #6b7280;">${escapeHtml(pageUrl)}</a></p>
+          <a href="${escapeHtml(calendarUrl)}" style="display: inline-block; margin: 8px 0 0; padding: 12px 24px; background: #faf9f5; color: #1C1B15; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 14px;">Add to Google Calendar</a>
+          <p style="margin-top: 24px; font-size: 13px; color: #a9a8a2;">Event details and updates: <a href="${escapeHtml(pageUrl)}" style="color: #73726c;">${escapeHtml(pageUrl)}</a></p>
         </div>`;
 
         const text = [

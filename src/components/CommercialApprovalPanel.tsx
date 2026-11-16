@@ -129,7 +129,7 @@ export function CommercialApprovalPanel({ invoice, ownerId, isOwner, pdfInput, o
       </div>
 
       {reasons.length > 0 && (
-        <div role="alert" className="mt-3 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-900">
+        <div role="alert" className="mt-3 rounded-lg border border-danger-subtle-border bg-danger-subtle p-3 text-sm text-danger-strong">
           <p className="flex items-center gap-1.5 font-semibold"><ShieldAlert size={14} /> Blocked - sending is disabled until this is fixed</p>
           <ul className="mt-1 list-disc pl-5">
             {reasons.map((r) => (
@@ -145,7 +145,7 @@ export function CommercialApprovalPanel({ invoice, ownerId, isOwner, pdfInput, o
         </div>
       )}
       {reasons.length === 0 && warnings.length > 0 && (
-        <p className="mt-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-900">{warnings.map((w) => REASON_LABELS[w.code] ?? w.message).join(' - ')}</p>
+        <p className="mt-3 rounded-lg bg-warning-subtle p-3 text-sm text-warning-strong">{warnings.map((w) => REASON_LABELS[w.code] ?? w.message).join(' - ')}</p>
       )}
       {reasons.length === 0 && warnings.length === 0 && (stage === 'draft' || stage === 'blocked_needs_approval') && (
         <p className="mt-3 flex items-center gap-1.5 text-sm text-text-secondary"><ShieldCheck size={14} /> Ready to send: PO, amount and completion proof check out.</p>
@@ -197,7 +197,7 @@ export function CommercialApprovalPanel({ invoice, ownerId, isOwner, pdfInput, o
           ))}
         </div>
       )}
-      {tracking?.rejection_reason && stage === 'rejected' && <p className="mt-2 text-sm text-red-700">Rejected: {tracking.rejection_reason}</p>}
+      {tracking?.rejection_reason && stage === 'rejected' && <p className="mt-2 text-sm text-danger-strong">Rejected: {tracking.rejection_reason}</p>}
 
       <div className="mt-4">
         <Button size="sm" variant="secondary" disabled={!!busy} onClick={() => void packet()}>
@@ -206,9 +206,9 @@ export function CommercialApprovalPanel({ invoice, ownerId, isOwner, pdfInput, o
       </div>
 
       {draft && (
-        <div className="mt-4 rounded-lg border border-amber-300 bg-amber-50 p-3">
-          <p className="text-xs font-semibold uppercase text-amber-900">{draft.status === 'pending_review' ? 'Draft - review required' : `Draft ${draft.status}`} - never sent automatically</p>
-          <p className="mt-1 text-xs text-amber-900">{draft.disclaimer}</p>
+        <div className="mt-4 rounded-lg border border-warning-subtle-border bg-warning-subtle p-3">
+          <p className="text-xs font-semibold uppercase text-warning-strong">{draft.status === 'pending_review' ? 'Draft - review required' : `Draft ${draft.status}`} - never sent automatically</p>
+          <p className="mt-1 text-xs text-warning-strong">{draft.disclaimer}</p>
           <pre className="mt-2 max-h-48 overflow-auto whitespace-pre-wrap text-sm text-text-primary">{draft.body}</pre>
           {draft.status === 'pending_review' && (
             <div className="mt-2 flex gap-2">

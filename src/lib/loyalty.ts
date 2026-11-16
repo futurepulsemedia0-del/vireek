@@ -167,7 +167,7 @@ export type Tone = 'success' | 'warning' | 'neutral' | 'danger';
 
 export const TONE_CLASS: Record<Tone, string> = {
   success: 'bg-success/10 text-success',
-  warning: 'bg-warning-500/10 text-warning-500',
+  warning: 'bg-warning-subtle text-warning',
   neutral: 'bg-bg-tertiary text-text-secondary',
   danger: 'bg-danger/10 text-danger',
 };

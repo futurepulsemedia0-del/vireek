@@ -33,7 +33,7 @@ interface EmptyStateProps {
 const TONE: Record<EmptyStateVariant, { box: string; chip: string }> = {
   'no-data': { box: 'border-border bg-bg-secondary/50', chip: 'bg-accent/10 text-accent' },
   'no-results': { box: 'border-border bg-bg-secondary/50', chip: 'bg-accent/10 text-accent' },
-  'no-permission': { box: 'border-warning-500/30 bg-warning-500/5', chip: 'bg-warning-500/10 text-warning-500' },
+  'no-permission': { box: 'border-warning/30 bg-warning-subtle', chip: 'bg-warning-subtle text-warning' },
   'load-failed': { box: 'border-danger/30 bg-danger/5', chip: 'bg-danger/10 text-danger' },
 };
 
@@ -132,7 +132,7 @@ export function EmptyState({
             <button
               type="button"
               onClick={primary.onClick}
-              className="focus-ring rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110"
+              className="focus-ring rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-on-cta transition-all hover:brightness-110"
             >
               {primary.label}
             </button>
@@ -172,7 +172,7 @@ export function EmptyState({
 // ============================================================
 
 export function EmptyStateInline({ text, className = '' }: { text: string; className?: string }) {
-  return <p className={`text-xs text-text-secondary/60 ${className}`}>{text}</p>;
+  return <p className={`text-xs text-text-muted ${className}`}>{text}</p>;
 }
 
 // ============================================================

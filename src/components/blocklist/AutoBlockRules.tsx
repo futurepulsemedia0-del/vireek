@@ -202,9 +202,9 @@ export function AutoBlockRules({ ownerId, userId, onChanged }: AutoBlockRulesPro
                     aria-checked={r.enabled}
                     aria-label={`${r.enabled ? 'Turn off' : 'Turn on'} ${r.name}`}
                     onClick={() => void handleToggle(r)}
-                    className={`focus-ring relative h-5 w-9 rounded-full transition-colors ${r.enabled ? 'bg-success-500' : 'bg-bg-tertiary'}`}
+                    className={`focus-ring relative h-5 w-9 rounded-full transition-colors ${r.enabled ? 'bg-success' : 'bg-bg-tertiary'}`}
                   >
-                    <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all ${r.enabled ? 'left-[18px]' : 'left-0.5'}`} />
+                    <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-bg-secondary shadow transition-all ${r.enabled ? 'left-[18px]' : 'left-0.5'}`} />
                   </button>
                   <button type="button" className="focus-ring rounded-lg p-2 text-text-secondary hover:bg-bg-tertiary" aria-label={`Edit ${r.name}`} onClick={() => { setErrors([]); setDraft({ id: r.id, name: r.name, kind: r.kind, enabled: r.enabled, config: r.config }); }}>
                     <Pencil size={14} />
@@ -249,7 +249,7 @@ export function AutoBlockRules({ ownerId, userId, onChanged }: AutoBlockRulesPro
                 <Input label="Within (hours)" type="number" inputMode="numeric" value={draft.config.windowHours ?? ''} onChange={(e) => setConfig({ windowHours: num(e.target.value) })} helperText={`${RULE_LIMITS.windowHours.min}–${RULE_LIMITS.windowHours.max}`} />
               </div>
             )}
-            {draft.kind === 'anonymous' && <p className="rounded-xl bg-warning-500/10 p-3 text-xs text-text-primary">Some real customers call with caller ID hidden. Use this rule only if you are sure you do not need those calls.</p>}
+            {draft.kind === 'anonymous' && <p className="rounded-xl bg-warning-subtle p-3 text-xs text-text-primary">Some real customers call with caller ID hidden. Use this rule only if you are sure you do not need those calls.</p>}
             {errors.length > 0 && (
               <ul className="space-y-0.5" role="alert">
                 {errors.map((m) => (

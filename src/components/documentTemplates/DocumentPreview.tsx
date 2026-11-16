@@ -90,7 +90,7 @@ export function DocumentPreview({ design, data }: { design: DocumentDesign; data
           style={{
             fontWeight: 700,
             fontSize: base + 1,
-            color: band ? onBand : data.stamp.tone === 'success' ? '#168257' : data.stamp.tone === 'danger' ? '#C83737' : theme.primary,
+            color: band ? onBand : data.stamp.tone === 'success' ? '#007C2C' : data.stamp.tone === 'danger' ? '#D4222A' : theme.primary,
           }}
         >
           {S(data.stamp.text)}
@@ -207,8 +207,8 @@ export function DocumentPreview({ design, data }: { design: DocumentDesign; data
                 style={{
                   display: 'grid',
                   gridTemplateColumns: grid,
-                  background: table.zebra && ri % 2 === 1 ? 'rgb(247,247,250)' : undefined,
-                  borderBottom: table.zebra ? undefined : '0.5px solid rgb(225,225,232)',
+                  background: table.zebra && ri % 2 === 1 ? 'rgb(250,249,245)' : undefined,
+                  borderBottom: table.zebra ? undefined : '0.5px solid rgb(232,230,220)',
                 }}
               >
                 {r.map((cell, i) => (
@@ -257,7 +257,7 @@ export function DocumentPreview({ design, data }: { design: DocumentDesign; data
                   justifyContent: 'space-between',
                   padding: '3px 8px 0 0',
                   fontWeight: r.bold ? 700 : 400,
-                  color: r.tone === 'success' ? '#168257' : r.tone === 'danger' ? '#C83737' : theme.primary,
+                  color: r.tone === 'success' ? '#007C2C' : r.tone === 'danger' ? '#D4222A' : theme.primary,
                 }}
               >
                 <span>{S(r.label)}</span>
@@ -333,7 +333,7 @@ export function DocumentPreview({ design, data }: { design: DocumentDesign; data
               justifyContent: 'space-between',
               flexDirection: brandRight ? 'row-reverse' : 'row',
               gap: 16,
-              borderBottom: band ? undefined : '1px solid rgb(225,225,232)',
+              borderBottom: band ? undefined : '1px solid rgb(232,230,220)',
             }}
           >
             {brand}
@@ -349,7 +349,7 @@ export function DocumentPreview({ design, data }: { design: DocumentDesign; data
             style={{
               margin: `24px ${M}px ${M - 8}px`,
               paddingTop: 8,
-              borderTop: '0.8px solid rgb(225,225,232)',
+              borderTop: '0.8px solid rgb(232,230,220)',
               display: 'flex',
               justifyContent: 'space-between',
               gap: 16,

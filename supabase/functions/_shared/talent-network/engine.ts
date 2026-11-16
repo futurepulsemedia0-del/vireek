@@ -106,6 +106,6 @@ export function referenceEmail(args: { refereeName: string; workerName: string; 
     `<p>Hi ${escapeHtml(args.refereeName)},</p>` +
     `<p><strong>${escapeHtml(args.workerName)}</strong> listed you as a professional reference on ${escapeHtml(site)}.</p>` +
     `<p><a href="${escapeHtml(args.url)}">Share your reference (about 2 minutes)</a></p>` +
-    `<p style="color:#666;font-size:12px">The link expires in 14 days. If you don't know this person, ignore this email.</p>`;
+    `<p style="color:#73726C;font-size:12px">The link expires in 14 days. If you don't know this person, ignore this email.</p>`;
   return { subject, html, text };
 }

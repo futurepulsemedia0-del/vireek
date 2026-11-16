@@ -63,7 +63,7 @@ export function AssessmentPanel({ draft, dirty, saving, onChange, onSave, onRese
                             role="radio"
                             aria-checked={selected}
                             onClick={() => onChange(q.key, opt.value)}
-                            className={`focus-ring min-h-[44px] rounded-xl border px-3 py-2 text-sm font-medium transition-colors ${selected ? 'border-accent bg-accent text-white' : 'border-border bg-bg-primary text-text-secondary hover:border-accent/40 hover:text-text-primary'}`}
+                            className={`focus-ring min-h-[44px] rounded-xl border px-3 py-2 text-sm font-medium transition-colors ${selected ? 'border-accent bg-accent text-on-accent' : 'border-border bg-bg-primary text-text-secondary hover:border-accent/40 hover:text-text-primary'}`}
                           >
                             {opt.label}
                           </button>

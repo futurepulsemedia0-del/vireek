@@ -76,10 +76,10 @@ export const SEGMENT_LABELS: Record<LtvSegment, string> = {
 
 export const SEGMENT_COLORS: Record<LtvSegment, string> = {
   new_customer: 'bg-accent/10 text-accent',
-  vip_growing: 'bg-success-500/10 text-success-500',
+  vip_growing: 'bg-success-subtle text-success',
   vip_at_risk: 'bg-danger/10 text-danger',
   core_stable: 'bg-bg-tertiary text-text-secondary',
-  reactivation_candidate: 'bg-warning-500/10 text-warning-500',
+  reactivation_candidate: 'bg-warning-subtle text-warning',
   low_value: 'bg-bg-tertiary text-text-secondary',
 };
 

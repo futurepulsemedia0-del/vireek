@@ -40,7 +40,7 @@ function Switch({ checked, onChange, label, disabled }: { checked: boolean; onCh
   return (
     <button type="button" role="switch" aria-checked={checked} aria-label={label} disabled={disabled} onClick={() => onChange(!checked)}
       className={`focus-ring relative h-6 w-11 shrink-0 rounded-full transition-colors disabled:opacity-50 ${checked ? 'bg-accent' : 'bg-bg-tertiary'}`}>
-      <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${checked ? 'translate-x-[22px]' : 'translate-x-0.5'}`} />
+      <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-bg-secondary shadow-sm transition-transform ${checked ? 'translate-x-[22px]' : 'translate-x-0.5'}`} />
     </button>
   );
 }
@@ -161,7 +161,7 @@ export function GoogleBookingPage() {
             <ul className="mt-3 grid gap-2 sm:grid-cols-2">
               {checks.map((c) => (
                 <li key={c.id} className="flex items-start gap-2 text-sm">
-                  {c.ok ? <CheckCircle2 size={18} className="mt-0.5 shrink-0 text-green-500" /> : <AlertCircle size={18} className="mt-0.5 shrink-0 text-amber-500" />}
+                  {c.ok ? <CheckCircle2 size={18} className="mt-0.5 shrink-0 text-success" /> : <AlertCircle size={18} className="mt-0.5 shrink-0 text-warning" />}
                   <span><span className="text-text-primary">{c.label}</span>{!c.ok && c.hint && <span className="block text-xs text-text-secondary">{c.hint}</span>}</span>
                 </li>
               ))}
@@ -247,7 +247,7 @@ export function GoogleBookingPage() {
                       </div>
                     </div>
                     <p className="mt-2 break-words text-xs text-text-secondary">{describeDesired(p)}</p>
-                    {p.last_error && <p className="mt-2 text-xs text-amber-500">Last attempt: {p.last_error.replace(/_/g, ' ')}</p>}
+                    {p.last_error && <p className="mt-2 text-xs text-warning">Last attempt: {p.last_error.replace(/_/g, ' ')}</p>}
                   </li>
                 ))}
               </ul>

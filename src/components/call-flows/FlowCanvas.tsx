@@ -116,7 +116,7 @@ export function FlowCanvas({ config, ctx, selectedId, issues, simulation, readOn
     const ring = waiting
       ? 'border-accent ring-2 ring-accent/40'
       : onPath
-        ? 'border-success-500 ring-2 ring-success-500/30'
+        ? 'border-success ring-2 ring-success/30'
         : selected
           ? 'border-accent ring-2 ring-accent/30'
           : hasError
@@ -218,9 +218,9 @@ export function FlowCanvas({ config, ctx, selectedId, issues, simulation, readOn
       )}
 
       {orphanBlocks.length > 0 && (
-        <section aria-label="Steps not connected to the flow" className="rounded-2xl border border-dashed border-warning-500/50 p-3">
+        <section aria-label="Steps not connected to the flow" className="rounded-2xl border border-dashed border-warning/50 p-3">
           <p className="mb-2 flex items-center gap-2 text-xs font-semibold text-text-primary">
-            <Bot size={14} className="text-warning-500" /> Not connected yet — these steps never run until you link them
+            <Bot size={14} className="text-warning" /> Not connected yet — these steps never run until you link them
           </p>
           <ul className="space-y-3">{orphanBlocks}</ul>
         </section>

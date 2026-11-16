@@ -149,7 +149,7 @@ export function AutomationMarketplacePage() {
                   onClick={() => setActiveCategory(category)}
                   className={`focus-ring rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
                     activeCategory === category
-                      ? 'border-accent bg-accent text-white'
+                      ? 'border-accent bg-accent text-on-accent'
                       : 'border-border bg-bg-secondary text-text-secondary hover:border-accent/40 hover:text-text-primary'
                   }`}
                 >
@@ -188,7 +188,7 @@ export function AutomationMarketplacePage() {
                       </div>
                     </div>
 
-                    <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-text-secondary/70">
+                    <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-text-muted">
                       {template.category}
                     </p>
                     <h3 className="mt-1.5 text-lg font-semibold text-text-primary">{template.name}</h3>
@@ -246,7 +246,7 @@ export function AutomationMarketplacePage() {
                     </div>
 
                     {install && (
-                      <p className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-success-500">
+                      <p className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-success">
                         <Check size={13} />
                         {install.status === 'active' ? 'Installed & active' : 'Installed — paused'}
                       </p>

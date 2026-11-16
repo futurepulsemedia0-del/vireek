@@ -84,7 +84,7 @@ export function RegionalPacksSettingsPage() {
         <div role="tablist" aria-label="Regional packs sections" className="mb-5 flex gap-1 overflow-x-auto rounded-xl border border-border bg-bg-secondary p-1">
           {TABS.map((t) => (
             <button key={t.id} role="tab" id={`tab-${t.id}`} aria-selected={tab === t.id} aria-controls={`panel-${t.id}`} onClick={() => setTab(t.id)}
-              className={`min-h-[40px] shrink-0 rounded-lg px-4 text-sm font-semibold transition-colors ${tab === t.id ? 'bg-accent text-white' : 'text-text-secondary hover:bg-bg-tertiary'}`}>{t.label}</button>
+              className={`min-h-[40px] shrink-0 rounded-lg px-4 text-sm font-semibold transition-colors ${tab === t.id ? 'bg-accent text-on-accent' : 'text-text-secondary hover:bg-bg-tertiary'}`}>{t.label}</button>
           ))}
         </div>
 
@@ -177,7 +177,7 @@ function ValidatorLab({ enabled }: { enabled: PackCode[] }) {
           {a && (
             <ul className="text-xs" aria-live="polite">
               {a.valid && <li className="text-success">Looks valid → {[a.normalized.line1, a.normalized.city, a.normalized.subdivision, a.normalized.postalCode].filter(Boolean).join(', ')}</li>}
-              {a.issues.map((i) => <li key={i.code + i.field} className={i.severity === 'error' ? 'text-danger' : 'text-warning-500'}>{i.message}</li>)}
+              {a.issues.map((i) => <li key={i.code + i.field} className={i.severity === 'error' ? 'text-danger' : 'text-warning'}>{i.message}</li>)}
             </ul>
           )}
         </div>

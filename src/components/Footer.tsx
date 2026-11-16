@@ -344,7 +344,7 @@ function NewsletterSection() {
                     ? 'text-danger'
                     : state === 'success'
                       ? 'text-success'
-                      : 'text-text-secondary/60 group-focus-within:text-accent'
+                      : 'text-graphic-muted group-focus-within:text-accent'
                 }`}
               />
               <input
@@ -359,7 +359,7 @@ function NewsletterSection() {
                 disabled={state === 'loading' || state === 'success'}
                 aria-label="Email address"
                 aria-invalid={state === 'error'}
-                className="w-full bg-transparent py-3.5 pl-3 pr-3 text-[0.95rem] text-text-primary placeholder:text-text-secondary/50 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+                className="w-full bg-transparent py-3.5 pl-3 pr-3 text-[0.95rem] text-text-primary placeholder:text-text-placeholder focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
               />
             </div>
 
@@ -367,7 +367,7 @@ function NewsletterSection() {
             <button
               type="submit"
               disabled={state === 'loading' || state === 'success'}
-              className="group relative inline-flex h-[52px] items-center justify-center gap-2 overflow-hidden rounded-xl bg-accent px-6 font-semibold text-white shadow-glow-accent transition-all duration-200 ease-out hover:brightness-110 hover:shadow-[0_10px_30px_-8px_rgb(var(--accent-primary)/0.5)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-80 sm:px-7"
+              className="group relative inline-flex h-[52px] items-center justify-center gap-2 overflow-hidden rounded-xl bg-accent px-6 font-semibold text-on-accent shadow-glow-accent transition-all duration-200 ease-out hover:brightness-110 hover:shadow-[0_10px_30px_-8px_rgb(var(--accent-primary)/0.5)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-80 sm:px-7"
             >
               {/* Shimmer sweep on hover */}
               <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full" />
@@ -448,13 +448,13 @@ function NewsletterSection() {
         </form>
 
         {/* Trust indicators */}
-        <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-text-secondary/70">
+        <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-text-muted">
           <span className="flex items-center gap-1.5">
-            <ShieldCheck className="h-3.5 w-3.5 text-text-secondary/50" />
+            <ShieldCheck className="h-3.5 w-3.5 text-graphic-muted" />
             No spam, unsubscribe anytime
           </span>
           <span className="flex items-center gap-1.5">
-            <Sparkles className="h-3.5 w-3.5 text-text-secondary/50" />
+            <Sparkles className="h-3.5 w-3.5 text-graphic-muted" />
             Join 2,000+ contractors
           </span>
         </div>
@@ -537,8 +537,8 @@ const { t } = useTranslation();
                     >
                       {link.label === 'Status' && (
                         <span className="relative flex h-1.5 w-1.5 shrink-0">
-                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success-500 opacity-75" />
-                          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-success-500" />
+                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" />
+                          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-success" />
                         </span>
                       )}
                       {link.label}
@@ -557,8 +557,8 @@ const { t } = useTranslation();
             and LanguageSwitcher (moved here from Header.tsx) is the same
             live control already used site-wide (backed by i18next). */}
         <div className="mt-10 flex flex-col items-center gap-4 sm:mt-12 sm:flex-row sm:justify-between">
-          <span className="flex items-center gap-2 text-xs font-medium text-text-secondary/70">
-            <CreditCard className="h-4 w-4 text-text-secondary/50" />
+          <span className="flex items-center gap-2 text-xs font-medium text-text-muted">
+            <CreditCard className="h-4 w-4 text-graphic-muted" />
             Secure payments powered by Stripe
           </span>
           <div className="flex items-center gap-2">

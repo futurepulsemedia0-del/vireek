@@ -106,7 +106,7 @@ export function AcademyPage() {
                 {allDone && (
                   <Link
                     to="/academy/certificate"
-                    className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white transition-all hover:brightness-110"
+                    className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-on-accent transition-all hover:brightness-110"
                   >
                     <GraduationCap size={16} /> Get your certificate
                   </Link>
@@ -119,7 +119,7 @@ export function AcademyPage() {
         <section className="px-6 py-10">
           <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1fr_360px]">
             <div>
-              <div className="aspect-video w-full overflow-hidden rounded-2xl border border-border bg-black">
+              <div className="aspect-video w-full overflow-hidden rounded-2xl border border-border bg-overlay">
                 <iframe
                   key={activeLesson.id}
                   src={activeLesson.videoUrl}
@@ -137,12 +137,12 @@ export function AcademyPage() {
                   <button
                     type="button"
                     onClick={() => markComplete(activeLesson.id)}
-                    className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110"
+                    className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent transition-all hover:brightness-110"
                   >
                     <CheckCircle2 size={16} /> Mark lesson complete
                   </button>
                 ) : (
-                  <span className="flex items-center gap-1.5 text-sm font-medium text-success-500">
+                  <span className="flex items-center gap-1.5 text-sm font-medium text-success">
                     <CheckCircle2 size={16} /> Completed
                   </span>
                 )}
@@ -185,7 +185,7 @@ export function AcademyPage() {
                           }`}
                         >
                           {isDone ? (
-                            <CheckCircle2 size={16} className="shrink-0 text-success-500" />
+                            <CheckCircle2 size={16} className="shrink-0 text-success" />
                           ) : (
                             <PlayCircle size={16} className="shrink-0 text-text-secondary" />
                           )}

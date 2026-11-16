@@ -113,7 +113,7 @@ export function BusinessInfoStep({ data, update, onNext, onSkip, saving }: StepP
                 }
               }}
               placeholder="Add a custom service…"
-              className="focus-ring flex-1 rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60"
+              className="focus-ring flex-1 rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder"
             />
             <button
               type="button"

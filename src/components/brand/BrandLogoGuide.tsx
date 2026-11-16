@@ -42,7 +42,7 @@ function Panel({ children, className = '', label }: { children: React.ReactNode;
   );
 }
 
-function Example({ ok, caption, children, bg = 'bg-white' }: { ok: boolean; caption: string; children: React.ReactNode; bg?: string }) {
+function Example({ ok, caption, children, bg = 'bg-bg-secondary' }: { ok: boolean; caption: string; children: React.ReactNode; bg?: string }) {
   return (
     <figure className="overflow-hidden rounded-2xl border border-border bg-bg-secondary">
       <div className={`relative flex h-36 items-center justify-center overflow-hidden ${bg}`}>
@@ -67,16 +67,16 @@ export function BrandLogoGuide() {
     <div className="mt-12 space-y-16">
       {/* Primary versions — fixed-color files so the panels are correct in either theme */}
       <div className="grid gap-6 sm:grid-cols-2">
-        <Panel className="!bg-[#FAF9F5] text-neutral-500" label="Full color — on light backgrounds">
+        <Panel className="!bg-[#FAF9F5] text-text-muted" label="Full color — on light backgrounds">
           <img src="/brand/vireek-wordmark-color.svg" alt="Vireek wordmark, full color" width={260} height={64} className="h-16 w-auto" />
         </Panel>
-        <Panel className="!bg-[#141413] text-neutral-400" label="Dark-background version">
+        <Panel className="!bg-[#141413] text-text-muted" label="Dark-background version">
           <img src="/brand/vireek-wordmark-reverse.svg" alt="Vireek wordmark, dark-background version" width={260} height={64} className="h-16 w-auto" />
         </Panel>
-        <Panel className="!bg-[#FAF9F5] text-neutral-500" label="Horizontal lockup">
+        <Panel className="!bg-[#FAF9F5] text-text-muted" label="Horizontal lockup">
           <img src="/brand/vireek-lockup-horizontal-color.svg" alt="Vireek horizontal lockup" width={260} height={64} className="h-14 w-auto" />
         </Panel>
-        <Panel className="!bg-[#FAF9F5] text-neutral-500" label="Symbol and app tile">
+        <Panel className="!bg-[#FAF9F5] text-text-muted" label="Symbol and app tile">
           <div className="flex items-center gap-8">
             <img src="/brand/vireek-symbol-color.svg" alt="Vireek symbol" width={52} height={56} className="h-14 w-auto" />
             <img src="/brand/vireek-tile.svg" alt="Vireek app tile" width={56} height={56} className="h-14 w-14" />
@@ -187,7 +187,7 @@ export function BrandLogoGuide() {
           <Example ok caption="Dark-background version on dark." bg="bg-[#141413]">
             <img src="/brand/vireek-wordmark-reverse.svg" alt="" aria-hidden="true" className="h-10 w-auto" />
           </Example>
-          <Example ok caption="One-color white on a photo with a dark scrim." bg="bg-gradient-to-br from-slate-700 to-slate-900">
+          <Example ok caption="One-color white on a photo with a dark scrim." bg="bg-gradient-to-br from-surface-inverse to-surface-inverse">
             <img src="/brand/vireek-wordmark-white.svg" alt="" aria-hidden="true" className="h-10 w-auto" />
           </Example>
           <Example ok caption="Symbol when space is tight (avatars, tabs).">

@@ -28,7 +28,7 @@ export function UpgradeSuggestionNotice({ suggestion, onAction, className = '' }
       <button
         type="button"
         onClick={onAction}
-        className="focus-ring flex shrink-0 items-center justify-center gap-1.5 self-start whitespace-nowrap rounded-xl bg-cta px-4 py-2 text-sm font-semibold text-white transition-all duration-150 hover:brightness-110 active:brightness-95 sm:self-center"
+        className="focus-ring flex shrink-0 items-center justify-center gap-1.5 self-start whitespace-nowrap rounded-xl bg-cta px-4 py-2 text-sm font-semibold text-on-cta transition-all duration-150 hover:brightness-110 active:brightness-95 sm:self-center"
       >
         See {target.name}
         <ArrowRight size={14} aria-hidden="true" />

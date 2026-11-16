@@ -123,20 +123,20 @@ export interface TruthPolicyRow {
 // ---------------------------------------------------------------------------
 
 export const VERDICT_META: Record<TruthVerdict, { label: string; tone: string; summary: string }> = {
-  verified: { label: 'Verified', tone: 'bg-success-500/10 text-success-500', summary: 'Fresh, corroborated and conflict-free — agents may act on it.' },
+  verified: { label: 'Verified', tone: 'bg-success-subtle text-success', summary: 'Fresh, corroborated and conflict-free — agents may act on it.' },
   conflict: { label: 'Conflict', tone: 'bg-danger/10 text-danger', summary: 'Trusted sources disagree. Agents are blocked until you resolve it.' },
   expired: { label: 'Expired', tone: 'bg-danger/10 text-danger', summary: 'Every record has passed its expiry date.' },
-  stale: { label: 'Stale', tone: 'bg-warning-500/10 text-warning-500', summary: 'Older than the freshness limit — re-verify before agents act.' },
+  stale: { label: 'Stale', tone: 'bg-warning-subtle text-warning', summary: 'Older than the freshness limit — re-verify before agents act.' },
   unverified: { label: 'Unverified', tone: 'bg-bg-tertiary text-text-secondary', summary: 'No verified record exists.' },
-  low_confidence: { label: 'Low confidence', tone: 'bg-warning-500/10 text-warning-500', summary: 'Below the confidence this fact requires. Add evidence or an authority.' },
-  insufficient_corroboration: { label: 'Needs 2nd source', tone: 'bg-warning-500/10 text-warning-500', summary: 'Policy requires more independent sources.' },
+  low_confidence: { label: 'Low confidence', tone: 'bg-warning-subtle text-warning', summary: 'Below the confidence this fact requires. Add evidence or an authority.' },
+  insufficient_corroboration: { label: 'Needs 2nd source', tone: 'bg-warning-subtle text-warning', summary: 'Policy requires more independent sources.' },
   denied: { label: 'Denied', tone: 'bg-danger/10 text-danger', summary: 'The verified value does not permit this action.' },
 };
 
 export const STATE_META: Record<FactState, { label: string; tone: string }> = {
-  fresh: { label: 'Fresh', tone: 'text-success-500' },
-  aging: { label: 'Aging', tone: 'text-warning-500' },
-  stale: { label: 'Stale', tone: 'text-warning-500' },
+  fresh: { label: 'Fresh', tone: 'text-success' },
+  aging: { label: 'Aging', tone: 'text-warning' },
+  stale: { label: 'Stale', tone: 'text-warning' },
   expired: { label: 'Expired', tone: 'text-danger' },
 };
 

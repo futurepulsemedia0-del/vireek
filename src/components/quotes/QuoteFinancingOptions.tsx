@@ -61,7 +61,7 @@ export function QuoteFinancingOptions({ quoteToken }: { quoteToken: string }) {
           </div>
           <button
             type="button" onClick={apply} disabled={!ack || busy}
-            className="mt-3 inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+            className="mt-3 inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-on-accent disabled:cursor-not-allowed disabled:opacity-50"
           >
             {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <ExternalLink className="h-4 w-4" aria-hidden="true" />}
             {busy ? 'Opening…' : `Check my options with ${data.partner_name}`}

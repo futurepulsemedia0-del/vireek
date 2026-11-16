@@ -61,7 +61,7 @@ function QrFallback({ platform }: { platform: ReturnType<typeof detectPlatform> 
   return (
     <div role="status" className="flex flex-col items-start gap-3 rounded-xl border border-border bg-bg-primary p-3 sm:flex-row sm:items-center">
       {desktop && dataUrl ? (
-        <img src={dataUrl} width={88} height={88} alt="QR code that opens this quote on your phone" className="rounded-lg bg-white p-1" />
+        <img src={dataUrl} width={88} height={88} alt="QR code that opens this quote on your phone" className="rounded-lg bg-bg-secondary p-1" />
       ) : null}
       <p className="text-sm text-text-secondary">
         {desktop
@@ -137,7 +137,7 @@ export function QuoteArSection({ token, quoteOpen, rawOptions }: Props) {
                 aria-pressed={unit === u}
                 onClick={() => setUnit(u)}
                 className={`focus-ring min-h-[40px] px-4 text-sm font-medium transition-colors ${
-                  unit === u ? 'bg-accent text-white' : 'bg-bg-secondary text-text-secondary hover:text-text-primary'
+                  unit === u ? 'bg-accent text-on-accent' : 'bg-bg-secondary text-text-secondary hover:text-text-primary'
                 }`}
               >
                 {u === 'in' ? 'Inches' : 'cm'}

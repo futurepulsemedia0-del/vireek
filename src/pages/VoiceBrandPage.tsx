@@ -37,7 +37,7 @@ const hint = 'text-sm text-text-secondary';
 
 function LegalNote({ children }: { children: string }) {
   return (
-    <p className="mt-3 flex items-start gap-2 rounded-xl bg-warning-500/10 p-3 text-xs text-warning-500">
+    <p className="mt-3 flex items-start gap-2 rounded-xl bg-warning-subtle p-3 text-xs text-warning">
       <TriangleAlert size={14} className="mt-0.5 shrink-0" /> <span>{children}</span>
     </p>
   );
@@ -227,8 +227,8 @@ function AudioTab() {
           <Textarea label="Options (one per line: key|label)" rows={5} value={optionsText} onChange={(e) => setOptionsText(e.target.value)} />
         </div>
         <ul className="mt-3 space-y-1 text-sm" role="status">
-          {verdict.issues.length === 0 && <li className="text-success-500">Meets the Vireek IVR standard.</li>}
-          {verdict.issues.map((i, idx) => <li key={idx} className={i.severity === 'error' ? 'text-danger' : 'text-warning-500'}>{i.severity === 'error' ? 'Error' : 'Tip'}: {i.message}</li>)}
+          {verdict.issues.length === 0 && <li className="text-success">Meets the Vireek IVR standard.</li>}
+          {verdict.issues.map((i, idx) => <li key={idx} className={i.severity === 'error' ? 'text-danger' : 'text-warning'}>{i.severity === 'error' ? 'Error' : 'Tip'}: {i.message}</li>)}
         </ul>
         <p className="mt-3 text-xs text-text-secondary">Spoken: {buildIvrScript(menu)}</p>
       </div>
@@ -248,7 +248,7 @@ function TelephonyTab() {
       <div className={card}>
         <Input label="Business name" value={name} onChange={(e) => setName(e.target.value)} />
         <p className="mt-3 text-sm text-text-primary">Caller-ID name (CNAM, max 15): <strong>{cnam.suggested || '—'}</strong></p>
-        {name && cnam.issues.map((m) => <p key={m} className="text-xs text-warning-500">{m}</p>)}
+        {name && cnam.issues.map((m) => <p key={m} className="text-xs text-warning">{m}</p>)}
         <p className={`mt-2 ${hint}`}>Display is carrier-dependent and not guaranteed on every network.</p>
       </div>
       <div className={card}>

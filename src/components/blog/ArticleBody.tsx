@@ -90,7 +90,7 @@ export function CtaCard({
 const CALLOUT = {
   tip: { Icon: Lightbulb, label: 'Tip', box: 'border-accent/30 bg-accent/[0.04]', chip: 'bg-accent/15 text-accent' },
   stat: { Icon: BarChart3, label: 'Stat', box: 'border-accent/30 bg-accent/[0.04]', chip: 'bg-accent/15 text-accent' },
-  warning: { Icon: AlertTriangle, label: 'Warning', box: 'border-amber-500/40 bg-amber-500/10', chip: 'bg-amber-500/15 text-amber-600 dark:text-amber-400' },
+  warning: { Icon: AlertTriangle, label: 'Warning', box: 'border-warning/40 bg-warning-subtle', chip: 'bg-warning-subtle text-warning' },
 } as const;
 
 function Blocks({ blocks, slug }: { blocks: Block[]; slug: string }) {
@@ -173,7 +173,7 @@ function Blocks({ blocks, slug }: { blocks: Block[]; slug: string }) {
               <ol key={i} role="list" className="space-y-4">
                 {b.items.map((it, j) => (
                   <li key={j} className="flex gap-4 rounded-2xl border border-border bg-bg-secondary p-5">
-                    <span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent text-sm font-bold text-white">{j + 1}</span>
+                    <span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent text-sm font-bold text-on-accent">{j + 1}</span>
                     <span className="pt-0.5 text-text-primary"><InlineContent nodes={it} /></span>
                   </li>
                 ))}

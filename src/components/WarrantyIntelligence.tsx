@@ -109,7 +109,7 @@ export function WarrantyIntelligence() {
   return (
     <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
       <div className="flex items-start gap-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-warning-500/10 text-warning-500">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-warning-subtle text-warning">
           <ShieldAlert size={18} />
         </span>
         <div>
@@ -125,7 +125,7 @@ export function WarrantyIntelligence() {
 
       {rows.length === 0 ? (
         <div className="mt-6 flex items-center gap-2 text-sm text-text-secondary">
-          <ShieldCheck size={16} className="shrink-0 text-success-500" />
+          <ShieldCheck size={16} className="shrink-0 text-success" />
           Nothing expiring in the next {WARNING_WINDOW_DAYS} days — every active unit is covered.
         </div>
       ) : (
@@ -140,7 +140,7 @@ export function WarrantyIntelligence() {
                 <p className="truncate text-sm text-text-primary">{row.label}</p>
                 <p className="truncate text-xs text-text-secondary">{row.customerName}</p>
               </div>
-              <span className={`shrink-0 text-xs font-medium ${row.daysLeft < 0 ? 'text-danger' : 'text-warning-500'}`}>
+              <span className={`shrink-0 text-xs font-medium ${row.daysLeft < 0 ? 'text-danger' : 'text-warning'}`}>
                 {row.daysLeft < 0 ? `Expired ${formatDate(row.expiresAt)}` : `${row.daysLeft}d left · ${formatDate(row.expiresAt)}`}
               </span>
             </Link>

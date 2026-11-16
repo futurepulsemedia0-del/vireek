@@ -82,7 +82,7 @@ export function TodayTasksCard() {
           </span>
           <div>
             <h2 className="text-sm font-semibold text-text-primary">Today</h2>
-            <p className="text-xs text-text-secondary/70">
+            <p className="text-xs text-text-muted">
               {status === 'ready' && tasks.length > 0
                 ? `${tasks.length} due${overdueCount > 0 ? ` · ${overdueCount} overdue` : ''}`
                 : 'Tasks due today'}
@@ -145,7 +145,7 @@ export function TodayTasksCard() {
                   </div>
                   {(t.priority === 'urgent' || t.priority === 'high') && (
                     <span
-                      className={`h-2 w-2 shrink-0 rounded-full ${t.priority === 'urgent' ? 'bg-danger' : 'bg-warning-500'}`}
+                      className={`h-2 w-2 shrink-0 rounded-full ${t.priority === 'urgent' ? 'bg-danger' : 'bg-warning'}`}
                       title={t.priority === 'urgent' ? 'Urgent' : 'High priority'}
                       role="img"
                       aria-label={t.priority === 'urgent' ? 'Urgent' : 'High priority'}

@@ -107,7 +107,7 @@ export function ExpertAssistThreadPage() {
 
       <main className="mx-auto max-w-lg space-y-3 px-4 py-4">
         {canClaim && (
-          <button onClick={handleClaim} className="w-full rounded-lg bg-accent py-3 font-semibold text-white">
+          <button onClick={handleClaim} className="w-full rounded-lg bg-accent py-3 font-semibold text-on-accent">
             Claim this request
           </button>
         )}
@@ -142,7 +142,7 @@ export function ExpertAssistThreadPage() {
                 placeholder="Resolution summary (saved to knowledge base)"
                 className="flex-1 rounded-md border border-border bg-bg-secondary px-2 py-2 text-sm"
               />
-              <button onClick={handleResolve} className="rounded-md bg-success-500 px-3 py-2 text-sm font-medium text-white">Resolve</button>
+              <button onClick={handleResolve} className="rounded-md bg-success px-3 py-2 text-sm font-medium text-on-success">Resolve</button>
             </div>
           )}
           <div className="flex items-center gap-2">
@@ -153,10 +153,10 @@ export function ExpertAssistThreadPage() {
               placeholder="Type a message…"
               className="flex-1 rounded-md border border-border bg-bg-secondary px-3 py-2 text-sm"
             />
-            <button onClick={handleSendText} className="rounded-md bg-accent px-3 py-2 text-sm font-medium text-white">Send</button>
+            <button onClick={handleSendText} className="rounded-md bg-accent px-3 py-2 text-sm font-medium text-on-accent">Send</button>
             <input ref={fileInputRef} type="file" accept="image/*" capture="environment" onChange={handlePhotoPick} className="hidden" id="expert-photo-input" />
             <button onClick={() => fileInputRef.current?.click()} className="rounded-md border border-border px-3 py-2 text-sm">📷</button>
-            <button onClick={recording ? stopRecording : startRecording} className={`rounded-md px-3 py-2 text-sm ${recording ? 'bg-danger text-white' : 'border border-border'}`}>
+            <button onClick={recording ? stopRecording : startRecording} className={`rounded-md px-3 py-2 text-sm ${recording ? 'bg-danger text-on-danger' : 'border border-border'}`}>
               {recording ? '⏹' : '🎙'}
             </button>
           </div>

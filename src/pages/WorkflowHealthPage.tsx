@@ -214,7 +214,7 @@ export function WorkflowHealthPage() {
                         type="button"
                         disabled={busy}
                         onClick={() => void confirmTakeover(jobId)}
-                        className="focus-ring rounded-xl bg-accent px-3 py-2 text-xs font-medium text-white disabled:opacity-40"
+                        className="focus-ring rounded-xl bg-accent px-3 py-2 text-xs font-medium text-on-accent disabled:opacity-40"
                       >
                         {busy ? 'Saving…' : 'Confirm takeover'}
                       </button>

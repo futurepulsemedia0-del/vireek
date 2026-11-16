@@ -153,14 +153,14 @@ export function GlossaryPage() {
                 {/* Search */}
                 <div className="mx-auto mt-10 max-w-2xl">
                   <div className="group relative flex items-center rounded-2xl border border-border bg-bg-secondary shadow-card transition-colors focus-within:border-accent/50 dark:shadow-card-dark">
-                    <Search className="ml-5 h-5 w-5 shrink-0 text-text-secondary/60 group-focus-within:text-accent" />
+                    <Search className="ml-5 h-5 w-5 shrink-0 text-graphic-muted group-focus-within:text-accent" />
                     <input
                       type="text"
                       value={query}
                       onChange={(e) => setQuery(e.target.value)}
                       placeholder="Search terms…"
                       aria-label="Search the glossary"
-                      className="w-full bg-transparent py-4 pl-3 pr-5 text-base text-text-primary placeholder:text-text-secondary/50 focus:outline-none"
+                      className="w-full bg-transparent py-4 pl-3 pr-5 text-base text-text-primary placeholder:text-text-placeholder focus:outline-none"
                     />
                   </div>
                 </div>

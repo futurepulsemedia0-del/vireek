@@ -22,14 +22,14 @@ function Lightbox({ src, alt, onClose }: { src: string; alt: string; onClose: ()
   const ref = useFocusTrap(true);
   useEscapeToClose(true, onClose);
   return (
-    <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/80 p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-[90] flex items-center justify-center bg-overlay/80 p-4" onClick={onClose}>
       <div ref={ref} role="dialog" aria-modal="true" aria-label={alt} tabIndex={-1} className="relative max-h-full max-w-3xl" onClick={(e) => e.stopPropagation()}>
         <img src={src} alt={alt} className="max-h-[85vh] w-auto max-w-full rounded-xl object-contain" />
         <button
           type="button"
           onClick={onClose}
           aria-label="Close photo"
-          className="focus-ring absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white"
+          className="focus-ring absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full bg-overlay/60 text-white"
         >
           <X size={16} />
         </button>
@@ -136,19 +136,19 @@ const PART_STATUS_LABEL: Record<RequiredPartRow['status'], string> = {
 };
 const PART_STATUS_CLASS: Record<RequiredPartRow['status'], string> = {
   needed: 'bg-bg-tertiary text-text-secondary',
-  allocated: 'bg-blue-500/10 text-blue-500',
-  installed: 'bg-success-500/10 text-success-500',
+  allocated: 'bg-info-subtle text-info',
+  installed: 'bg-success-subtle text-success',
   backordered: 'bg-danger/10 text-danger',
 };
 
 function Readiness({ row }: { row: RequiredPartRow }) {
   if (row.status === 'installed') return null;
   if (row.readiness_status === 'ready') {
-    return <Pill className="bg-success-500/10 text-success-500">In stock{row.source_location_name ? ` · ${row.source_location_name}` : ''}</Pill>;
+    return <Pill className="bg-success-subtle text-success">In stock{row.source_location_name ? ` · ${row.source_location_name}` : ''}</Pill>;
   }
   if (row.readiness_status === 'short') {
     return (
-      <Pill className="bg-warning-500/10 text-warning-500">
+      <Pill className="bg-warning-subtle text-warning">
         Short by {row.shortage_quantity}
         {row.source_location_name ? ` · ${row.source_location_name}` : ''}
       </Pill>
@@ -205,7 +205,7 @@ export function JobPartsCard({ required, used }: { required: SectionState<Requir
                 {summary.installed}/{summary.total} installed
               </Pill>
               {summary.atRisk > 0 && (
-                <Pill className="bg-warning-500/10 text-warning-500">
+                <Pill className="bg-warning-subtle text-warning">
                   {summary.atRisk} at risk
                 </Pill>
               )}

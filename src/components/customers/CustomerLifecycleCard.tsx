@@ -204,7 +204,7 @@ export function CustomerLifecycleCard({ customerId }: { customerId: string }) {
           )}
 
           {warnings.length > 0 && (
-            <ul className="space-y-1 text-xs text-warning-500" aria-label="Missing data">
+            <ul className="space-y-1 text-xs text-warning" aria-label="Missing data">
               {warnings.map((w) => (
                 <li key={w}>{w}</li>
               ))}

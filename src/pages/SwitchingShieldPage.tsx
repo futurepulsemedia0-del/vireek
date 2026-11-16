@@ -13,11 +13,11 @@ import {
 } from '@/lib/switchingShield';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder';
 const ghostBtn =
   'focus-ring flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs text-text-secondary transition-colors hover:text-text-primary disabled:opacity-50';
 const primaryBtn =
-  'focus-ring flex items-center gap-1 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white transition-all hover:brightness-110 disabled:opacity-50';
+  'focus-ring flex items-center gap-1 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent transition-all hover:brightness-110 disabled:opacity-50';
 
 type Filter = 'active' | 'saved' | 'closed' | 'all';
 const FILTERS: { key: Filter; label: string }[] = [
@@ -89,7 +89,7 @@ function ActionRow({ action, phone, onDone }: { action: ShieldAction; phone: str
               {(['accepted', 'declined', 'no_response'] as ShieldOutcome[]).map((o) => (
                 <button key={o} type="button" disabled={busy}
                   onClick={() => run(async () => { await setActionOutcome(action.id, o); })}
-                  className={`focus-ring rounded-full px-2.5 py-0.5 text-[11px] capitalize transition-colors ${action.outcome === o ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>
+                  className={`focus-ring rounded-full px-2.5 py-0.5 text-[11px] capitalize transition-colors ${action.outcome === o ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>
                   {o.replace('_', ' ')}
                 </button>
               ))}
@@ -228,7 +228,7 @@ function SettingsPanel({ settings, onSaved }: { settings: ShieldSettings; onSave
       <div className="mt-2 flex flex-wrap gap-2">
         {ALL_OFFERS.map((o) => (
           <button key={o} type="button" onClick={() => toggleOffer(o)} aria-pressed={s.enabled_offers.includes(o)}
-            className={`focus-ring rounded-full px-3 py-1 text-xs transition-colors ${s.enabled_offers.includes(o) ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary'}`}>
+            className={`focus-ring rounded-full px-3 py-1 text-xs transition-colors ${s.enabled_offers.includes(o) ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary'}`}>
             {OFFER_LABELS[o]}
           </button>
         ))}
@@ -335,7 +335,7 @@ export function SwitchingShieldPage() {
         <div className="flex flex-wrap gap-2" role="tablist">
           {FILTERS.map((f) => (
             <button key={f.key} type="button" role="tab" aria-selected={filter === f.key} onClick={() => setFilter(f.key)}
-              className={`focus-ring rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${filter === f.key ? 'bg-accent text-white' : 'bg-bg-secondary text-text-secondary hover:text-text-primary'}`}>
+              className={`focus-ring rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${filter === f.key ? 'bg-accent text-on-accent' : 'bg-bg-secondary text-text-secondary hover:text-text-primary'}`}>
               {f.label}
             </button>
           ))}

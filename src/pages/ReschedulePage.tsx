@@ -141,7 +141,7 @@ export function ReschedulePage() {
 
           {done && (
             <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="text-center">
-              <CheckCircle2 size={28} className="mx-auto mb-3 text-success-500" />
+              <CheckCircle2 size={28} className="mx-auto mb-3 text-success" />
               <h1 className="text-lg font-semibold text-text-primary">You're all set</h1>
               <p className="mt-2 text-sm text-text-secondary">
                 Your appointment is now scheduled for {formatSlot(done)}.

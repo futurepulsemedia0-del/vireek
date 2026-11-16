@@ -339,7 +339,7 @@ function ActionCard({
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className="font-semibold text-text-primary">{o.customer_name ?? 'Customer'}</span>
                     <span className="text-text-secondary">{new Date(o.original_datetime).toLocaleDateString()} → {new Date(o.proposed_datetime).toLocaleDateString()}</span>
-                    <Pill className={o.status === 'accepted' ? 'bg-success-500/10 text-success-500' : o.status === 'failed' ? 'bg-danger/10 text-danger' : 'bg-bg-secondary text-text-secondary'}>{o.status}</Pill>
+                    <Pill className={o.status === 'accepted' ? 'bg-success-subtle text-success' : o.status === 'failed' ? 'bg-danger/10 text-danger' : 'bg-bg-secondary text-text-secondary'}>{o.status}</Pill>
                   </div>
                   {o.status === 'failed' && o.failure_reason && <p className="mt-1 text-danger">{o.failure_reason}</p>}
                   {o.status === 'offered' && (
@@ -357,7 +357,7 @@ function ActionCard({
       )}
 
       {res && (
-        <div className="mt-3 rounded-xl border border-success-500/30 bg-success-500/5 p-3 text-xs">
+        <div className="mt-3 rounded-xl border border-success/30 bg-success-subtle p-3 text-xs">
           <p className="font-semibold text-text-primary">Measured {res.measured_on}</p>
           <p className="mt-1 text-text-secondary">
             Revenue vs baseline forecast: {fmtMoneyCents(res.realized_revenue_delta_cents)} (predicted {fmtMoneyCents(res.predicted_revenue_delta_cents)}
@@ -569,7 +569,7 @@ export function SeasonalRevenueStabilizerPage() {
                 <ul className="grid gap-2 sm:grid-cols-2">
                   {report.windows.map((w) => (
                     <li key={w.start} className="flex items-center justify-between rounded-xl border border-border p-3 text-sm">
-                      <span><Pill className={w.kind === 'peak' ? 'bg-danger/10 text-danger' : 'bg-warning-500/10 text-warning-500'}>{w.kind}</Pill> <span className="ml-2 text-text-primary">{fmtWeek(w.start)} – {fmtWeek(w.end)}</span></span>
+                      <span><Pill className={w.kind === 'peak' ? 'bg-danger/10 text-danger' : 'bg-warning-subtle text-warning'}>{w.kind}</Pill> <span className="ml-2 text-text-primary">{fmtWeek(w.start)} – {fmtWeek(w.end)}</span></span>
                       <span className="text-xs text-text-secondary">{Math.round(w.avg_ratio * 100)}% of average · {w.weeks} wk</span>
                     </li>
                   ))}

@@ -64,7 +64,7 @@ function CodeBlock({ label, code }: { label: string; code: string }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-border bg-bg-tertiary">
       <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
-        <span className="text-xs font-semibold uppercase tracking-wider text-text-secondary/70">{label}</span>
+        <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">{label}</span>
       </div>
       <pre className="overflow-x-auto px-4 py-4 text-[13px] leading-relaxed text-text-primary">
         <code>{code}</code>
@@ -122,7 +122,7 @@ export function SdksPage() {
                   onClick={() => setLang(option)}
                   className={`focus-ring rounded-full border px-5 py-2 text-sm font-semibold transition-colors ${
                     lang === option
-                      ? 'border-accent bg-accent text-white'
+                      ? 'border-accent bg-accent text-on-accent'
                       : 'border-border bg-bg-secondary text-text-secondary hover:border-accent/40 hover:text-text-primary'
                   }`}
                 >

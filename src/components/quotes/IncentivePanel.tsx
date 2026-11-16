@@ -20,7 +20,7 @@ const selectClass =
 
 const SEVERITY_TONE = {
   critical: 'text-danger',
-  warning: 'text-warning-500',
+  warning: 'text-warning',
   info: 'text-text-secondary',
 } as const;
 
@@ -105,13 +105,13 @@ function EvaluationCard({ e }: { e: ProgramEvaluation }) {
               <li key={`f-${t}`} className="text-danger">✕ {t}</li>
             ))}
             {e.verify.map((t) => (
-              <li key={`v-${t}`} className="text-warning-500">? {t}</li>
+              <li key={`v-${t}`} className="text-warning">? {t}</li>
             ))}
             {e.warnings.map((t) => (
-              <li key={`w-${t}`} className="text-warning-500">! {t}</li>
+              <li key={`w-${t}`} className="text-warning">! {t}</li>
             ))}
             {e.met.map((t) => (
-              <li key={`m-${t}`} className="text-success-500">✓ {t}</li>
+              <li key={`m-${t}`} className="text-success">✓ {t}</li>
             ))}
           </ul>
           {e.source_url && (

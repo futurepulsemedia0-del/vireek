@@ -69,7 +69,7 @@ function StatCard({
   tone?: 'default' | 'warning' | 'danger';
 }) {
   const toneColor =
-    tone === 'danger' ? 'text-danger' : tone === 'warning' ? 'text-warning-500' : 'text-text-primary';
+    tone === 'danger' ? 'text-danger' : tone === 'warning' ? 'text-warning' : 'text-text-primary';
   return (
     <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
       <div className="flex items-center gap-2 text-text-secondary">
@@ -173,7 +173,7 @@ function DailyUsageChart({ data }: { data: { date: string; minutes: number }[] }
         const x = padding.left + i * (barW + barGap);
         const h = (d.minutes / maxVal) * plotH;
         const y = padding.top + plotH - h;
-        return <rect key={d.date} x={x} y={y} width={Math.max(barW, 1)} height={h} rx={1.5} fill="rgb(37 99 235)" />;
+        return <rect key={d.date} x={x} y={y} width={Math.max(barW, 1)} height={h} rx={1.5} fill="rgb(169 59 15)" />;
       })}
       {data.length > 0 && (
         <>
@@ -359,8 +359,8 @@ export function UsageDashboardPage() {
         <>
           {/* Overage warning */}
           {!unlimited && projectedOverageMinutes > 0 && (
-            <div className="mb-5 flex items-start gap-3 rounded-2xl border border-warning-500/30 bg-warning-500/10 p-4">
-              <AlertTriangle size={18} className="mt-0.5 shrink-0 text-warning-500" />
+            <div className="mb-5 flex items-start gap-3 rounded-2xl border border-warning/30 bg-warning-subtle p-4">
+              <AlertTriangle size={18} className="mt-0.5 shrink-0 text-warning" />
               <div className="flex-1">
                 <p className="text-sm font-medium text-text-primary">
                   On pace to go {projectedOverageMinutes} minutes over your plan this month
@@ -373,7 +373,7 @@ export function UsageDashboardPage() {
               <button
                 type="button"
                 onClick={() => navigate('/dashboard/billing')}
-                className="focus-ring flex shrink-0 items-center gap-1 rounded-lg bg-warning-500/20 px-3 py-1.5 text-xs font-semibold text-warning-500 transition-opacity hover:opacity-80"
+                className="focus-ring flex shrink-0 items-center gap-1 rounded-lg bg-warning-subtle px-3 py-1.5 text-xs font-semibold text-warning transition-opacity hover:opacity-80"
               >
                 Upgrade <ArrowRight size={13} />
               </button>

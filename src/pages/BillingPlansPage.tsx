@@ -146,7 +146,7 @@ function PlanCard({ plan, live, isCurrent, scheduledAt, kind, blockReason, onSel
         {isCurrent ? (
           <span className="rounded-full bg-accent/10 px-2.5 py-1 text-xs font-medium text-accent">Current</span>
         ) : plan.recommended ? (
-          <span className="rounded-full bg-success-500/10 px-2.5 py-1 text-xs font-medium text-success-500">
+          <span className="rounded-full bg-success-subtle px-2.5 py-1 text-xs font-medium text-success">
             Most popular
           </span>
         ) : null}
@@ -162,7 +162,7 @@ function PlanCard({ plan, live, isCurrent, scheduledAt, kind, blockReason, onSel
       <ul className="mt-4 flex-1 space-y-2">
         {plan.features.slice(0, 6).map((feature) => (
           <li key={feature} className="flex items-start gap-2 text-xs text-text-secondary">
-            <Check size={14} className="mt-0.5 shrink-0 text-success-500" aria-hidden="true" />
+            <Check size={14} className="mt-0.5 shrink-0 text-success" aria-hidden="true" />
             <span>{feature}</span>
           </li>
         ))}
@@ -247,7 +247,7 @@ function ChangePlanDialog({ plan, currentPlan, minutesUsed, onClose, onApplied }
 
   return (
     <div className="fixed inset-0 z-[60] flex items-end justify-center p-0 sm:items-center sm:p-4">
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={submitting ? undefined : onClose} aria-hidden="true" />
+      <div className="absolute inset-0 bg-overlay/30 backdrop-blur-sm" onClick={submitting ? undefined : onClose} aria-hidden="true" />
       <div
         ref={dialogRef}
         role="dialog"
@@ -262,8 +262,8 @@ function ChangePlanDialog({ plan, currentPlan, minutesUsed, onClose, onApplied }
 
         <div className="mt-4 space-y-4" aria-live="polite">
           {notice && (
-            <p className="flex items-start gap-2 rounded-xl border border-warning-500/30 bg-warning-500/10 p-3 text-xs text-text-primary">
-              <AlertTriangle size={14} className="mt-0.5 shrink-0 text-warning-500" aria-hidden="true" />
+            <p className="flex items-start gap-2 rounded-xl border border-warning/30 bg-warning-subtle p-3 text-xs text-text-primary">
+              <AlertTriangle size={14} className="mt-0.5 shrink-0 text-warning" aria-hidden="true" />
               {notice}
             </p>
           )}
@@ -325,7 +325,7 @@ function ChangePlanDialog({ plan, currentPlan, minutesUsed, onClose, onApplied }
                   {preview.lines.map((line, index) => (
                     <li key={`${line.description}-${index}`} className="flex items-start justify-between gap-3">
                       <span className="text-text-secondary">{line.description}</span>
-                      <span className={`shrink-0 font-medium ${line.amountMinor < 0 ? 'text-success-500' : 'text-text-primary'}`}>
+                      <span className={`shrink-0 font-medium ${line.amountMinor < 0 ? 'text-success' : 'text-text-primary'}`}>
                         {formatMinor(line.amountMinor, preview.currency)}
                       </span>
                     </li>
@@ -334,7 +334,7 @@ function ChangePlanDialog({ plan, currentPlan, minutesUsed, onClose, onApplied }
               )}
 
               {preview.creditMinor > 0 && (
-                <p className="text-xs text-success-500">
+                <p className="text-xs text-success">
                   {formatMinor(preview.creditMinor, preview.currency)} credit will be applied to your next invoice.
                 </p>
               )}
@@ -344,8 +344,8 @@ function ChangePlanDialog({ plan, currentPlan, minutesUsed, onClose, onApplied }
               )}
 
               {preview.kind === 'downgrade' && usageImpact.exceedsTarget && (
-                <p className="flex items-start gap-2 rounded-xl border border-warning-500/30 bg-warning-500/10 p-3 text-xs text-text-primary">
-                  <AlertTriangle size={14} className="mt-0.5 shrink-0 text-warning-500" aria-hidden="true" />
+                <p className="flex items-start gap-2 rounded-xl border border-warning/30 bg-warning-subtle p-3 text-xs text-text-primary">
+                  <AlertTriangle size={14} className="mt-0.5 shrink-0 text-warning" aria-hidden="true" />
                   <span>
                     You&apos;ve used {minutesUsed} min this month, more than {plan.name}&apos;s {plan.minutes}
                     {usageImpact.estimatedOverageUsd !== null
@@ -418,12 +418,12 @@ function ComparisonTable({ currentPlanId }: { currentPlanId: PlanId }) {
                   <td key={plan.id} className="px-4 py-3 text-text-primary">
                     {value === true ? (
                       <>
-                        <Check size={16} className="text-success-500" aria-hidden="true" />
+                        <Check size={16} className="text-success" aria-hidden="true" />
                         <span className="sr-only">Included</span>
                       </>
                     ) : value === false ? (
                       <>
-                        <Minus size={16} className="text-text-secondary/60" aria-hidden="true" />
+                        <Minus size={16} className="text-graphic-muted" aria-hidden="true" />
                         <span className="sr-only">Not included</span>
                       </>
                     ) : (
@@ -597,9 +597,9 @@ export function BillingPlansPage() {
       {status === 'ready' && !profileLoading && state && (
         <div className="space-y-6">
           {paymentIssue && (
-            <div className="flex flex-col gap-3 rounded-2xl border border-warning-500/30 bg-warning-500/10 p-4 sm:flex-row sm:items-center sm:justify-between" role="alert">
+            <div className="flex flex-col gap-3 rounded-2xl border border-warning/30 bg-warning-subtle p-4 sm:flex-row sm:items-center sm:justify-between" role="alert">
               <p className="flex items-start gap-2 text-sm text-text-primary">
-                <AlertTriangle size={18} className="mt-0.5 shrink-0 text-warning-500" aria-hidden="true" />
+                <AlertTriangle size={18} className="mt-0.5 shrink-0 text-warning" aria-hidden="true" />
                 Your last payment didn&apos;t go through. Update your payment method to change plans.
               </p>
               <Link
@@ -669,7 +669,7 @@ export function BillingPlansPage() {
                   aria-label="Minutes used this month"
                 >
                   <div
-                    className={`h-full rounded-full transition-all ${usagePercent >= 90 ? 'bg-danger' : usagePercent >= 80 ? 'bg-warning-500' : 'bg-accent'}`}
+                    className={`h-full rounded-full transition-all ${usagePercent >= 90 ? 'bg-danger' : usagePercent >= 80 ? 'bg-warning' : 'bg-accent'}`}
                     style={{ width: `${usagePercent}%` }}
                   />
                 </div>

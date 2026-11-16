@@ -51,7 +51,7 @@ export function NpsForm({ context, onDone, onSkip, skipLabel = 'Not now' }: NpsF
                 className="peer sr-only"
                 aria-label={`${n} out of 10`}
               />
-              <span className="flex h-9 cursor-pointer items-center justify-center rounded-lg border border-border bg-bg-primary text-xs font-semibold text-text-secondary transition-colors hover:border-accent/60 peer-checked:border-accent peer-checked:bg-accent peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-accent/50">
+              <span className="flex h-9 cursor-pointer items-center justify-center rounded-lg border border-border bg-bg-primary text-xs font-semibold text-text-secondary transition-colors hover:border-accent/60 peer-checked:border-accent peer-checked:bg-accent peer-checked:text-on-accent peer-focus-visible:ring-2 peer-focus-visible:ring-accent/50">
                 {n}
               </span>
             </label>

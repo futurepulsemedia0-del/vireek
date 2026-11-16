@@ -24,7 +24,7 @@ export function RenewalRateCard() {
   return (
     <div className="h-full rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
       <div className="flex items-center justify-between">
-        <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-success-500/10 text-success-500">
+        <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-success-subtle text-success">
           <RotateCcw size={20} />
         </span>
         <Link
@@ -47,7 +47,7 @@ export function RenewalRateCard() {
           <dl className="mt-4 grid grid-cols-2 gap-3 border-t border-border pt-4 text-xs">
             <div>
               <dt className="text-text-secondary">Revenue at risk</dt>
-              <dd className={`mt-0.5 text-sm font-semibold ${kpis.at_risk_cents > 0 ? 'text-warning-500' : 'text-text-primary'}`}>{formatUsd(kpis.at_risk_cents)}</dd>
+              <dd className={`mt-0.5 text-sm font-semibold ${kpis.at_risk_cents > 0 ? 'text-warning' : 'text-text-primary'}`}>{formatUsd(kpis.at_risk_cents)}</dd>
             </div>
             <div>
               <dt className="text-text-secondary">Auto-charge ready</dt>

@@ -172,7 +172,7 @@ export function DestinationCard({ dest, runs, syncState, now, summary, onEdit, o
         <ul className="mt-4 space-y-1.5" aria-label="Connection checks">
           {checks.map((c) => (
             <li key={c.name} className="flex items-start gap-2 text-sm">
-              {c.ok ? <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-success-500" /> : <XCircle size={16} className="mt-0.5 shrink-0 text-danger" />}
+              {c.ok ? <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-success" /> : <XCircle size={16} className="mt-0.5 shrink-0 text-danger" />}
               <span className="text-text-primary">
                 <span className="font-medium">{c.name}</span>
                 {c.detail ? <span className="text-text-secondary"> — {c.detail}</span> : null}

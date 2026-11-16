@@ -60,7 +60,7 @@ export function SubprocessorsPage() {
                 </a>
                 , at the level of individual vendors.
               </p>
-              <p className="mt-3 text-sm text-text-secondary/70">Last updated: {SUBPROCESSORS_LAST_UPDATED}</p>
+              <p className="mt-3 text-sm text-text-muted">Last updated: {SUBPROCESSORS_LAST_UPDATED}</p>
             </motion.div>
 
             <div className="mt-12 space-y-10">

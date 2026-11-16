@@ -71,8 +71,8 @@ export const INVOICE_STATUS_META: Record<SubscriptionInvoiceStatus, { label: str
 };
 
 export const TONE_CLASSES: Record<StatusTone, string> = {
-  success: 'bg-success-500/10 text-success-500',
-  warning: 'bg-warning-500/10 text-warning-500',
+  success: 'bg-success-subtle text-success',
+  warning: 'bg-warning-subtle text-warning',
   danger: 'bg-danger/10 text-danger',
   neutral: 'bg-bg-tertiary text-text-secondary',
 };

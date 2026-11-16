@@ -223,7 +223,7 @@ export default function MarketingPage() {
                 <StatCard icon={Gift} label="Referral codes (all time)" value={referralCodes.length} />
                 <div className="sm:col-span-3 bg-bg-secondary border border-border rounded-xl p-5 mt-2">
                   <div className="flex items-center gap-2 mb-3">
-                    <Flame className="w-5 h-5 text-warning-500" />
+                    <Flame className="w-5 h-5 text-warning" />
                     <h2 className="font-semibold text-text-primary">Hottest leads &amp; customers</h2>
                   </div>
                   {scores.length === 0 ? (
@@ -246,7 +246,7 @@ export default function MarketingPage() {
 
             {tab === 'segments' && (
               <div>
-                <button onClick={createSegment} className="mb-4 inline-flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-lg text-sm font-medium">
+                <button onClick={createSegment} className="mb-4 inline-flex items-center gap-2 px-4 py-2 bg-accent text-on-accent rounded-lg text-sm font-medium">
                   <Plus className="w-4 h-4" /> New segment
                 </button>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -311,7 +311,7 @@ export default function MarketingPage() {
 
             {tab === 'referrals' && (
               <div>
-                <button onClick={createReferralCode} className="mb-4 inline-flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-lg text-sm font-medium">
+                <button onClick={createReferralCode} className="mb-4 inline-flex items-center gap-2 px-4 py-2 bg-accent text-on-accent rounded-lg text-sm font-medium">
                   <Plus className="w-4 h-4" /> Issue referral code
                 </button>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

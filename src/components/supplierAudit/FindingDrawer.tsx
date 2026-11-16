@@ -54,11 +54,11 @@ export function FindingDrawer({ finding: f, data, businessName, timeZone, onClos
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end" role="dialog" aria-modal="true" aria-label="Finding details">
-      <button type="button" aria-label="Close" className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <button type="button" aria-label="Close" className="absolute inset-0 bg-overlay/40" onClick={onClose} />
       <aside className="relative flex h-full w-full flex-col overflow-y-auto bg-bg-primary shadow-2xl sm:max-w-xl">
         <header className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-border bg-bg-primary p-4">
           <div className="min-w-0">
-            <div className="mb-1 flex flex-wrap gap-2"><Pill cls="bg-accent/10 text-accent">{TYPE_LABELS[f.finding_type]}</Pill><Pill cls="bg-bg-tertiary text-text-secondary">{STATUS_LABELS[f.status]}</Pill><Pill cls="bg-warning-500/10 text-warning-500">Estimate</Pill></div>
+            <div className="mb-1 flex flex-wrap gap-2"><Pill cls="bg-accent/10 text-accent">{TYPE_LABELS[f.finding_type]}</Pill><Pill cls="bg-bg-tertiary text-text-secondary">{STATUS_LABELS[f.status]}</Pill><Pill cls="bg-warning-subtle text-warning">Estimate</Pill></div>
             <h2 className="text-base font-bold text-text-primary">{f.title}</h2>
           </div>
           <button type="button" onClick={onClose} className={btnGhost} aria-label="Close"><X size={16} /></button>
@@ -73,13 +73,13 @@ export function FindingDrawer({ finding: f, data, businessName, timeZone, onClos
               ))}
             </div>
             <div className="mt-3 flex flex-wrap items-center gap-2"><BandPill band={f.confidence_band} value={f.confidence} /><RiskPill risk={f.deadline_risk} />{f.deadline && <span className="text-xs text-text-secondary">Deadline {f.deadline}</span>}</div>
-            {f.recovered_cents > 0 && <p className="mt-3 rounded-xl bg-success-500/10 p-3 text-sm font-medium text-success-500">Confirmed recovered: {money(f.recovered_cents)} (measured from receipts)</p>}
+            {f.recovered_cents > 0 && <p className="mt-3 rounded-xl bg-success-subtle p-3 text-sm font-medium text-success">Confirmed recovered: {money(f.recovered_cents)} (measured from receipts)</p>}
             <p className="mt-3 text-xs text-text-secondary">{LIKELY_OWED_WORDING}. Not legal or financial advice.</p>
           </section>
 
           <section><h3 className="mb-2 text-sm font-semibold text-text-primary">How this was calculated</h3>
             <ol className="list-decimal space-y-1 pl-5 text-sm text-text-secondary">{f.how_calculated.map((s, i) => <li key={i}>{s}</li>)}</ol>
-            {f.warnings.length > 0 && <ul className="mt-3 space-y-1 rounded-xl border border-warning-500/30 bg-warning-500/5 p-3 text-xs text-text-primary">{f.warnings.map((w, i) => <li key={i}>• {w}</li>)}</ul>}
+            {f.warnings.length > 0 && <ul className="mt-3 space-y-1 rounded-xl border border-warning/30 bg-warning-subtle p-3 text-xs text-text-primary">{f.warnings.map((w, i) => <li key={i}>• {w}</li>)}</ul>}
           </section>
 
           <section><h3 className="mb-2 text-sm font-semibold text-text-primary">Evidence</h3>
@@ -94,7 +94,7 @@ export function FindingDrawer({ finding: f, data, businessName, timeZone, onClos
 
           {active && (
             <section className="space-y-3"><h3 className="text-sm font-semibold text-text-primary">Claim packet</h3>
-              <ul className="space-y-1 text-sm">{checklist.map((c, i) => <li key={i} className={c.ok ? 'text-text-secondary' : c.blocking ? 'font-medium text-danger' : 'text-warning-500'}>{c.ok ? '✓' : c.blocking ? '✗ Missing:' : '!'} {c.label}{c.note ? ` — ${c.note}` : ''}</li>)}</ul>
+              <ul className="space-y-1 text-sm">{checklist.map((c, i) => <li key={i} className={c.ok ? 'text-text-secondary' : c.blocking ? 'font-medium text-danger' : 'text-warning'}>{c.ok ? '✓' : c.blocking ? '✗ Missing:' : '!'} {c.label}{c.note ? ` — ${c.note}` : ''}</li>)}</ul>
               <label className="block text-xs font-medium text-text-secondary">Draft message to your rep (never sent automatically)
                 <textarea className={`${inputClass} mt-1`} rows={8} value={message} onChange={(e) => setMessage(e.target.value)} disabled={packet?.status === 'approved' || packet?.status === 'marked_sent'} /></label>
               <div className="flex flex-wrap gap-2">
@@ -106,7 +106,7 @@ export function FindingDrawer({ finding: f, data, businessName, timeZone, onClos
                 <div className="space-y-2 rounded-xl border border-border p-3"><p className="text-xs text-text-secondary">Approved. Send it yourself (email or portal) — Vireek never submits claims. Then record it here.</p>
                   <input className={inputClass} placeholder="Optional note (who you sent it to)" value={sentNote} onChange={(e) => setSentNote(e.target.value)} maxLength={500} />
                   <button type="button" className={btnPrimary} disabled={busy !== null} onClick={() => run('sent', async () => { await markPacketSent(packet.id, sentNote); }, 'Marked as sent')}><Send size={16} /> I sent it — mark as sent</button></div>)}
-              {packet?.status === 'marked_sent' && <p className="text-sm text-success-500">Marked as sent {packet.sent_marked_at?.slice(0, 10)}.</p>}
+              {packet?.status === 'marked_sent' && <p className="text-sm text-success">Marked as sent {packet.sent_marked_at?.slice(0, 10)}.</p>}
               {!packet && <p className="text-xs text-text-secondary">Save the draft first, then approve it. Nothing is sent without your approval.</p>}
             </section>
           )}

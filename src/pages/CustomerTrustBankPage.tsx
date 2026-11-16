@@ -68,9 +68,9 @@ export function CustomerTrustBankPage() {
 
       {!loadingAlerts && alerts.length > 0 && (
         <div className="mb-6 space-y-3">
-          <h2 className="flex items-center gap-1.5 text-sm font-semibold text-danger-500"><AlertTriangle size={14} /> Trust eroding — act soon</h2>
+          <h2 className="flex items-center gap-1.5 text-sm font-semibold text-danger"><AlertTriangle size={14} /> Trust eroding — act soon</h2>
           {alerts.map((a) => (
-            <div key={a.customer_id} className="rounded-2xl border border-danger-500/30 bg-danger-500/5 p-4">
+            <div key={a.customer_id} className="rounded-2xl border border-danger/30 bg-danger-subtle p-4">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="text-sm font-semibold text-text-primary">{a.headline}</p>
@@ -123,8 +123,8 @@ export function CustomerTrustBankPage() {
                           onClick={() => log(c.id, type)}
                           className={`focus-ring rounded-full border px-2.5 py-1 text-xs font-medium disabled:opacity-50 ${
                             MANUAL_EVENT_META[type].delta > 0
-                              ? 'border-success-500/30 text-success-500 hover:bg-success-500/10'
-                              : 'border-danger-500/30 text-danger-500 hover:bg-danger-500/10'
+                              ? 'border-success/30 text-success hover:bg-success-subtle'
+                              : 'border-danger/30 text-danger hover:bg-danger-subtle'
                           }`}
                         >
                           {MANUAL_EVENT_META[type].label} ({MANUAL_EVENT_META[type].delta > 0 ? '+' : ''}{MANUAL_EVENT_META[type].delta})
@@ -140,7 +140,7 @@ export function CustomerTrustBankPage() {
                         {events.map((e) => (
                           <li key={e.id} className="flex items-center justify-between text-xs text-text-secondary">
                             <span>{EVENT_LABELS[e.event_type]}{e.source === 'auto' ? ' · auto' : ''}</span>
-                            <span className={e.delta > 0 ? 'text-success-500' : 'text-danger-500'}>{e.delta > 0 ? '+' : ''}{e.delta} · {new Date(e.created_at).toLocaleDateString()}</span>
+                            <span className={e.delta > 0 ? 'text-success' : 'text-danger'}>{e.delta > 0 ? '+' : ''}{e.delta} · {new Date(e.created_at).toLocaleDateString()}</span>
                           </li>
                         ))}
                       </ul>

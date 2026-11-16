@@ -162,7 +162,7 @@ export function FuelImportPanel({ cards, imports, onImported, onViewAnomalies }:
           </div>
 
           {preview.unknownCards.length > 0 && (
-            <p role="status" className="mt-3 rounded-xl border border-warning-500/30 bg-warning-500/10 px-4 py-3 text-sm text-text-primary">
+            <p role="status" className="mt-3 rounded-xl border border-warning/30 bg-warning-subtle px-4 py-3 text-sm text-text-primary">
               {preview.unknownCards.length} card{preview.unknownCards.length === 1 ? '' : 's'} in this file aren’t registered ({preview.unknownCards.map((c) => `••${c}`).join(', ')}).
               They’ll import and be flagged — register them under Cards and they’ll match automatically.
             </p>

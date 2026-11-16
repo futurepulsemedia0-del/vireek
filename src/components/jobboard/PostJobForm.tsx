@@ -233,8 +233,8 @@ export function PostJobForm({ jobs, areas, initialJobId, defaultExpiryMinutes, a
             className={`focus-ring rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
               priority === p
                 ? p === 'urgent'
-                  ? 'bg-cta text-white'
-                  : 'bg-accent text-white'
+                  ? 'bg-cta text-on-cta'
+                  : 'bg-accent text-on-accent'
                 : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
             }`}
           >

@@ -19,7 +19,7 @@ import {
 type Tab = 'postings' | 'applicants' | 'engagements';
 const selectClass = 'w-full rounded-xl border border-border bg-bg-secondary px-3.5 py-3 text-sm text-text-primary focus:border-accent focus:outline-none';
 const STATUS_TONE: Record<PostingStatus, string> = {
-  draft: 'bg-bg-tertiary text-text-secondary', open: 'bg-green-500/10 text-green-500', paused: 'bg-amber-500/10 text-amber-500',
+  draft: 'bg-bg-tertiary text-text-secondary', open: 'bg-success-subtle text-success', paused: 'bg-warning-subtle text-warning',
   filled: 'bg-accent/10 text-accent', closed: 'bg-bg-tertiary text-text-secondary',
 };
 
@@ -173,7 +173,7 @@ export function TalentNetworkPage() {
                   <select id="pe-eng" className={selectClass} value={ed.engagement_type} onChange={(e) => setEd('engagement_type', e.target.value as PostingInput['engagement_type'])}>
                     <option value="w2">W-2 employee</option><option value="1099">1099 contractor</option>
                   </select>
-                  {ed.engagement_type === '1099' && <p className="mt-1 text-xs text-amber-500">Contractor classification is a legal determination (ABC-test states). Confirm with your advisor.</p>}
+                  {ed.engagement_type === '1099' && <p className="mt-1 text-xs text-warning">Contractor classification is a legal determination (ABC-test states). Confirm with your advisor.</p>}
                 </div>
                 <div>
                   <label htmlFor="pe-refs" className="mb-1.5 block text-sm font-medium text-text-primary">References required</label>
@@ -184,7 +184,7 @@ export function TalentNetworkPage() {
               </div>
               <label className="flex items-center gap-3 text-sm text-text-primary"><input type="checkbox" checked={ed.requires_license} onChange={(e) => setEd('requires_license', e.target.checked)} />A verified trade license is required</label>
               <label className="flex items-start gap-3 text-sm text-text-primary"><input type="checkbox" className="mt-1" checked={ed.requires_background_check} onChange={(e) => setEd('requires_background_check', e.target.checked)} /><span>Require a background check <span className="text-text-secondary">(runs only after a conditional offer, with the candidate’s authorization, and follows an individualized-review process)</span></span></label>
-              {formError && <p role="alert" className="text-sm text-red-500">{formError}</p>}
+              {formError && <p role="alert" className="text-sm text-danger">{formError}</p>}
               <div className="flex flex-wrap gap-3">
                 <Button disabled={saving} onClick={() => void save('open')}>{saving ? 'Saving…' : 'Publish'}</Button>
                 <Button variant="secondary" disabled={saving} onClick={() => void save('draft')}>Save draft</Button>

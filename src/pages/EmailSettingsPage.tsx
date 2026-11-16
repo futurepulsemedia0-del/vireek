@@ -73,7 +73,7 @@ function formFromState(state: EmailSettingsState | null): EmailSettingsInput {
 function StatusPill({ status }: { status: DomainStatus }) {
   const map: Record<DomainStatus, { cls: string; Icon: typeof Check }> = {
     verified: { cls: 'bg-success/10 text-success', Icon: CheckCircle2 },
-    pending: { cls: 'bg-warning-500/10 text-warning-500', Icon: Clock },
+    pending: { cls: 'bg-warning-subtle text-warning', Icon: Clock },
     failed: { cls: 'bg-danger/10 text-danger', Icon: XCircle },
     not_started: { cls: 'bg-bg-tertiary text-text-secondary', Icon: Clock },
   };
@@ -268,8 +268,8 @@ export function EmailSettingsPage() {
         {status === 'ready' && state && (
           <div className="space-y-6">
             {!state.platform.emailConfigured && (
-              <div role="status" className="flex items-start gap-3 rounded-2xl border border-warning-500/30 bg-warning-500/10 p-4 text-sm text-text-primary">
-                <AlertTriangle size={18} className="mt-0.5 shrink-0 text-warning-500" aria-hidden="true" />
+              <div role="status" className="flex items-start gap-3 rounded-2xl border border-warning/30 bg-warning-subtle p-4 text-sm text-text-primary">
+                <AlertTriangle size={18} className="mt-0.5 shrink-0 text-warning" aria-hidden="true" />
                 <p>Email sending isn't configured on this workspace yet, so domain verification and replies are unavailable. Contact support to enable it.</p>
               </div>
             )}
@@ -481,7 +481,7 @@ export function EmailSettingsPage() {
               <label className="flex cursor-pointer items-start gap-3">
                 <input
                   type="checkbox"
-                  className="focus-ring mt-1 h-4 w-4 rounded border-border accent-[var(--color-accent,#2563eb)]"
+                  className="focus-ring mt-1 h-4 w-4 rounded border-border accent-accent"
                   checked={form.inboundEnabled}
                   onChange={(e) => setForm((f) => ({ ...f, inboundEnabled: e.target.checked }))}
                 />

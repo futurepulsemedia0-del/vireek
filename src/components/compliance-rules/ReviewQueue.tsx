@@ -23,7 +23,7 @@ const areaClass =
   'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 font-mono text-xs text-text-primary transition-colors focus-visible:border-accent';
 
 const STATUS_STYLE: Record<VersionStatus, string> = {
-  draft: 'bg-bg-tertiary text-text-secondary', in_review: 'bg-warning-500/10 text-warning-500', approved: 'bg-success-500/10 text-success-500',
+  draft: 'bg-bg-tertiary text-text-secondary', in_review: 'bg-warning-subtle text-warning', approved: 'bg-success-subtle text-success',
   rejected: 'bg-danger/10 text-danger', retired: 'bg-bg-tertiary text-text-secondary',
 };
 const FILTERS: Array<VersionStatus | 'all'> = ['in_review', 'draft', 'rejected', 'approved', 'retired', 'all'];
@@ -140,7 +140,7 @@ export function ReviewQueue({ role, userId }: Props) {
 
   return (
     <div className="space-y-4">
-      <p role="note" className="rounded-xl border border-warning-500/40 bg-warning-500/10 p-3 text-sm text-text-primary">
+      <p role="note" className="rounded-xl border border-warning/40 bg-warning-subtle p-3 text-sm text-text-primary">
         <strong>Legal review required.</strong> Approving a rule means a qualified attorney has confirmed the cited sources and the rule text for the stated jurisdiction and effective date. Name the reviewer when you approve.
       </p>
 
@@ -290,7 +290,7 @@ export function ReviewQueue({ role, userId }: Props) {
                   {events.map((e) => (
                     <li key={e.id} className="text-xs text-text-secondary">
                       {new Date(e.createdAt).toLocaleString()} · <strong className="text-text-primary">{e.action}</strong> by {e.actorEmail ?? 'system'}
-                      {e.selfReview && <span className="ml-1 rounded bg-warning-500/10 px-1 text-warning-500">self-review</span>}
+                      {e.selfReview && <span className="ml-1 rounded bg-warning-subtle px-1 text-warning">self-review</span>}
                       {e.notes && <span> — {e.notes}</span>}
                     </li>
                   ))}

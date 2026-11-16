@@ -77,7 +77,7 @@ export function DocsSearch() {
           onKeyDown={onKeyDown}
         >
           <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-overlay/40 backdrop-blur-sm"
             onClick={close}
             aria-hidden="true"
           />

@@ -199,13 +199,13 @@ export function RevenueAutopsyPage() {
                         <textarea id={`ra-n-${f.id}`} value={note} maxLength={500} rows={2} onChange={(e) => setNote(e.target.value)} className="focus-ring w-full rounded-lg border border-border bg-bg-secondary px-3 py-2 text-sm text-text-primary" />
                         <div className="flex justify-end gap-2">
                           <button type="button" className={`${btn} text-text-secondary`} onClick={() => setEditing(null)} disabled={busy !== null}>Cancel</button>
-                          <button type="button" className={`${btn} bg-accent text-white`} disabled={busy !== null} onClick={() => void confirm(f, cause !== f.root_cause)}>{busy === `c-${f.id}` ? 'Saving…' : 'Save and confirm'}</button>
+                          <button type="button" className={`${btn} bg-accent text-on-accent`} disabled={busy !== null} onClick={() => void confirm(f, cause !== f.root_cause)}>{busy === `c-${f.id}` ? 'Saving…' : 'Save and confirm'}</button>
                         </div>
                       </div>
                     ) : (
                       !f.reviewed && (
                         <div className="mt-3 flex flex-wrap gap-2">
-                          <button type="button" className={`${btn} bg-accent text-white`} disabled={busy !== null} onClick={() => void confirm(f, false, '')}>{busy === `c-${f.id}` ? 'Saving…' : 'Confirm cause'}</button>
+                          <button type="button" className={`${btn} bg-accent text-on-accent`} disabled={busy !== null} onClick={() => void confirm(f, false, '')}>{busy === `c-${f.id}` ? 'Saving…' : 'Confirm cause'}</button>
                           <button type="button" className={`${btn} border border-border text-text-primary`} disabled={busy !== null} onClick={() => startEdit(f)}>Correct it</button>
                         </div>
                       )

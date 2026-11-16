@@ -46,10 +46,10 @@ export function AuthLogo({ size = 'h-12 w-12' }: { size?: string }) {
 export function GoogleIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
-      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+      <path fill="rgb(var(--info-graphic))" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+      <path fill="rgb(var(--success-graphic))" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+      <path fill="rgb(var(--warning-graphic))" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
+      <path fill="rgb(var(--danger-graphic))" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
     </svg>
   );
 }
@@ -104,8 +104,8 @@ export const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
               showError
                 ? 'text-danger'
                 : showSuccess
-                  ? 'text-success-500'
-                  : 'text-text-secondary/50'
+                  ? 'text-success'
+                  : 'text-text-muted'
             }`}
           >
             {icon}
@@ -114,13 +114,13 @@ export const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
             ref={ref}
             id={id}
             type={inputType}
-            className={`focus-ring w-full rounded-xl border bg-bg-primary py-3 ps-11 text-base text-text-primary transition-all duration-200 placeholder:text-text-secondary/50 ${
+            className={`focus-ring w-full rounded-xl border bg-bg-primary py-3 ps-11 text-base text-text-primary transition-all duration-200 placeholder:text-text-placeholder ${
               showPasswordToggle ? 'pe-12' : 'pe-4'
             } ${
               showError
                 ? 'border-danger/50 focus-visible:border-danger'
                 : showSuccess
-                  ? 'border-success-500/50 focus-visible:border-success-500'
+                  ? 'border-success/50 focus-visible:border-success'
                   : 'border-border focus-visible:border-accent focus-visible:shadow-[0_0_0_3px_rgb(var(--accent-primary)/0.08)]'
             } ${className}`}
             aria-invalid={showError || undefined}
@@ -134,7 +134,7 @@ export const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
               type="button"
               onClick={() => setShowPw((v) => !v)}
               aria-label={showPw ? 'Hide password' : 'Show password'}
-              className="focus-ring absolute end-0.5 top-1/2 flex h-11 w-11 -translate-y-1/2 touch-manipulation items-center justify-center rounded-lg text-text-secondary/60 transition-colors hover:text-text-primary active:text-text-primary"
+              className="focus-ring absolute end-0.5 top-1/2 flex h-11 w-11 -translate-y-1/2 touch-manipulation items-center justify-center rounded-lg text-text-muted transition-colors hover:text-text-primary active:text-text-primary"
             >
               {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
@@ -146,7 +146,7 @@ export const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0, opacity: 0 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-success-500"
+                className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-success"
               >
                 <Check size={18} />
               </motion.span>
@@ -258,8 +258,8 @@ export function AuthSidePanel() {
                 <p className="text-xs text-text-secondary">Sarah is answering…</p>
               </div>
               <span className="ml-auto flex h-2 w-2">
-                <span className="absolute inline-flex h-2 w-2 animate-ping rounded-full bg-success-500 opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-success-500" />
+                <span className="absolute inline-flex h-2 w-2 animate-ping rounded-full bg-success opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
               </span>
             </div>
             <div className="mt-4 space-y-2">
@@ -271,7 +271,7 @@ export function AuthSidePanel() {
                   transition={{ delay: 0.5 + i * 0.15, duration: 0.4 }}
                   className="flex items-center gap-2 rounded-lg border border-border/40 bg-bg-tertiary/50 px-3 py-2"
                 >
-                  <Check size={14} className="shrink-0 text-success-500" />
+                  <Check size={14} className="shrink-0 text-success" />
                   <span className="text-xs text-text-secondary">{step}</span>
                 </motion.div>
               ))}
@@ -296,7 +296,7 @@ export function AuthSidePanel() {
               { icon: 'lock', label: 'Encrypted at rest' },
               { icon: 'check', label: 'No card required' },
             ].map((badge) => (
-              <div key={badge.label} className="flex items-center gap-2 text-xs font-medium text-text-secondary/70">
+              <div key={badge.label} className="flex items-center gap-2 text-xs font-medium text-text-muted">
                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent/10 text-accent">
                   {badge.icon === 'shield' && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>}
                   {badge.icon === 'lock' && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>}
@@ -338,17 +338,17 @@ export function AuthBanner({
         className={`flex items-start gap-3 rounded-xl border px-4 py-3 ${
           isError
             ? 'border-danger/30 bg-danger/5'
-            : 'border-success-500/30 bg-success-500/5'
+            : 'border-success/30 bg-success-subtle'
         }`}
       >
         {isError ? (
           <AlertCircle size={18} className="mt-0.5 shrink-0 text-danger" />
         ) : (
-          <Check size={18} className="mt-0.5 shrink-0 text-success-500" />
+          <Check size={18} className="mt-0.5 shrink-0 text-success" />
         )}
         <p
           className={`flex-1 text-sm leading-relaxed ${
-            isError ? 'text-danger' : 'text-success-500'
+            isError ? 'text-danger' : 'text-success'
           }`}
         >
           {message}
@@ -359,7 +359,7 @@ export function AuthBanner({
             onClick={onDismiss}
             aria-label="Dismiss"
             className={`focus-ring shrink-0 rounded p-0.5 transition-colors ${
-              isError ? 'text-danger/70 hover:text-danger' : 'text-success-500/70 hover:text-success-500'
+              isError ? 'text-danger hover:text-danger' : 'text-success hover:text-success'
             }`}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
@@ -378,7 +378,7 @@ export function AuthDivider() {
   return (
     <div className="my-6 flex items-center gap-4">
       <span className="h-px flex-1 bg-border" />
-      <span className="text-xs font-medium uppercase tracking-wider text-text-secondary/60">
+      <span className="text-xs font-medium uppercase tracking-wider text-text-muted">
         or
       </span>
       <span className="h-px flex-1 bg-border" />
@@ -442,7 +442,7 @@ export function AuthSubmitButton({
     <button
       type="submit"
       disabled={loading || disabled}
-      className="focus-ring group relative mt-6 flex h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-accent text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:brightness-110 hover:shadow-glow-accent active:brightness-90 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:brightness-100 disabled:hover:shadow-sm"
+      className="focus-ring group relative mt-6 flex h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-accent text-sm font-semibold text-on-accent shadow-sm transition-all duration-200 hover:brightness-110 hover:shadow-glow-accent active:brightness-90 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:brightness-100 disabled:hover:shadow-sm"
     >
       {loading ? (
         <>
@@ -465,7 +465,7 @@ export function AuthSubmitButton({
 
 export function AuthLegalLine() {
   return (
-    <p className="mt-6 flex items-center justify-center gap-1.5 text-center text-xs leading-relaxed text-text-secondary/60">
+    <p className="mt-6 flex items-center justify-center gap-1.5 text-center text-xs leading-relaxed text-text-muted">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
       <span>
         By continuing, you agree to our{' '}

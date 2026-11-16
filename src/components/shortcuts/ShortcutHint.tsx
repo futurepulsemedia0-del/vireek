@@ -28,7 +28,7 @@ export function KeyCaps({ binding, platform, className = '' }: KeyCapsProps) {
     >
       {steps.map((step, i) => (
         <span key={i} className="inline-flex items-center gap-1" aria-hidden="true">
-          {i > 0 && <span className="text-[10px] text-text-secondary/60">{then}</span>}
+          {i > 0 && <span className="text-[10px] text-text-muted">{then}</span>}
           {step.map((k, j) => (
             <kbd
               key={j}

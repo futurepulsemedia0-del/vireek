@@ -90,7 +90,7 @@ export function PublicTechnicianPassportPage() {
                 <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-center">
                   <IndexRing score={snap.index} tier={snap.tier} />
                   <div className="min-w-0 flex-1">
-                    <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-success-500">
+                    <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-success">
                       <ShieldCheck size={14} /> Verified by Vireek
                     </p>
                     <div className="mt-1 flex flex-wrap items-center gap-2">
@@ -158,8 +158,8 @@ export function PublicTechnicianPassportPage() {
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-success-500/30 bg-success-500/5 p-5 text-xs text-text-secondary">
-                <p className="font-medium text-success-500">Integrity verified</p>
+              <div className="rounded-2xl border border-success/30 bg-success-subtle p-5 text-xs text-text-secondary">
+                <p className="font-medium text-success">Integrity verified</p>
                 <p className="mt-1">
                   Issued {formatDate(result.issued_at)} by the {result.issued_by_role === 'technician' ? 'technician' : 'employer'} · valid until{' '}
                   {formatDate(result.expires_at)}. This snapshot is sealed and cannot be altered.

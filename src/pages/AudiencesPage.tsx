@@ -645,7 +645,7 @@ function ChipPicker({
           }}
           onBlur={commitDraft}
           placeholder="Type a value and press Enter"
-          className="focus-ring w-full rounded-xl border border-border bg-bg-secondary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60 focus-visible:border-accent"
+          className="focus-ring w-full rounded-xl border border-border bg-bg-secondary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder focus-visible:border-accent"
         />
       )}
       {!allowCustom && <span id={id} tabIndex={-1} className="sr-only">Select one or more values</span>}

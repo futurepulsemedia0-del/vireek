@@ -217,8 +217,8 @@ export function JobCloseoutPanel({ job }: { job: { id: string } }) {
           <ul className="mt-2 space-y-1">
             {s.evidence.map((e) => (
               <li key={e.key} className="flex flex-wrap items-center gap-2 text-xs">
-                {e.present ? <CheckCircle2 size={13} className="text-success" /> : <AlertTriangle size={13} className="text-warning-500" />}
-                <span className={e.present ? 'text-text-primary' : 'text-warning-500'}>{evidenceLabel(e.key)}</span>
+                {e.present ? <CheckCircle2 size={13} className="text-success" /> : <AlertTriangle size={13} className="text-warning" />}
+                <span className={e.present ? 'text-text-primary' : 'text-warning'}>{evidenceLabel(e.key)}</span>
                 {e.ref && <span className="text-text-secondary">· {e.ref}</span>}
                 {e.manual && !closed && (
                   e.present ? (
@@ -305,7 +305,7 @@ export function JobCloseoutPanel({ job }: { job: { id: string } }) {
         )}
 
         {!closed && s.status === 'awaiting_approval' && !submitCheck.ok && (
-          <p className="mt-1 text-[11px] text-warning-500">{submitCheck.reason}</p>
+          <p className="mt-1 text-[11px] text-warning">{submitCheck.reason}</p>
         )}
 
         {isPending && pending && (

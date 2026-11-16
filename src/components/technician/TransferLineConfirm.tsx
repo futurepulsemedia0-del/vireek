@@ -94,7 +94,7 @@ export function TransferLineConfirm({ line, stage, onConfirmed, large = false }:
           </p>
         </div>
         {confirmedAt !== null && !editing && (
-          <span className="flex flex-shrink-0 items-center gap-1 rounded-full bg-success-500/10 px-2.5 py-1 text-xs font-medium text-success-500">
+          <span className="flex flex-shrink-0 items-center gap-1 rounded-full bg-success-subtle px-2.5 py-1 text-xs font-medium text-success">
             <Check className="h-3.5 w-3.5" aria-hidden />
             {confirmedQty} {scanned ? 'scanned' : 'by hand'}
           </span>
@@ -129,7 +129,7 @@ export function TransferLineConfirm({ line, stage, onConfirmed, large = false }:
               type="button"
               disabled={busy}
               onClick={() => setScanOpen(true)}
-              className={`focus-ring flex items-center gap-1.5 rounded-xl bg-accent font-semibold text-white disabled:opacity-50 ${btn}`}
+              className={`focus-ring flex items-center gap-1.5 rounded-xl bg-accent font-semibold text-on-accent disabled:opacity-50 ${btn}`}
             >
               <ScanLine className="h-4 w-4" aria-hidden /> Scan to confirm
             </button>

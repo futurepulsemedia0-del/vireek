@@ -46,18 +46,18 @@ export const MEASURE_LABELS: Record<MeasureType, string> = {
 export const MEASURE_OPTIONS = (Object.keys(MEASURE_LABELS) as MeasureType[]).map((value) => ({ value, label: MEASURE_LABELS[value] }));
 
 export const STATUS_META: Record<EvalStatus, { label: string; tone: string }> = {
-  eligible: { label: 'Eligible', tone: 'bg-success-500/10 text-success-500' },
-  likely: { label: 'Likely', tone: 'bg-warning-500/10 text-warning-500' },
+  eligible: { label: 'Eligible', tone: 'bg-success-subtle text-success' },
+  likely: { label: 'Likely', tone: 'bg-warning-subtle text-warning' },
   needs_info: { label: 'Needs info', tone: 'bg-accent/10 text-accent' },
-  ineligible: { label: 'Not eligible', tone: 'bg-danger-500/10 text-danger-500' },
+  ineligible: { label: 'Not eligible', tone: 'bg-danger-subtle text-danger' },
 };
 
 export const STAGE_META: Record<ReplacementStage, { label: string; tone: string }> = {
   unknown: { label: 'Age unknown', tone: 'bg-bg-primary text-text-secondary' },
-  early: { label: 'Early life', tone: 'bg-success-500/10 text-success-500' },
-  mid: { label: 'Mid life', tone: 'bg-success-500/10 text-success-500' },
-  late: { label: 'Plan replacement', tone: 'bg-warning-500/10 text-warning-500' },
-  past_life: { label: 'Past expected life', tone: 'bg-danger-500/10 text-danger-500' },
+  early: { label: 'Early life', tone: 'bg-success-subtle text-success' },
+  mid: { label: 'Mid life', tone: 'bg-success-subtle text-success' },
+  late: { label: 'Plan replacement', tone: 'bg-warning-subtle text-warning' },
+  past_life: { label: 'Past expected life', tone: 'bg-danger-subtle text-danger' },
 };
 
 export const LEVEL_LABELS: Record<IncentiveLevel, string> = {

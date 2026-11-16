@@ -233,7 +233,7 @@ export function FeatureFlagsAdminPage() {
                               onClick={() => onToggle(f)}
                               className={`focus-ring relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors disabled:opacity-50 ${f.enabled ? 'bg-accent' : 'bg-bg-tertiary border border-border'}`}
                             >
-                              <span className={`inline-block h-5 w-5 rounded-full bg-white shadow transition-transform ${f.enabled ? 'translate-x-6 rtl:-translate-x-6' : 'translate-x-1 rtl:-translate-x-1'}`} />
+                              <span className={`inline-block h-5 w-5 rounded-full bg-bg-secondary shadow transition-transform ${f.enabled ? 'translate-x-6 rtl:-translate-x-6' : 'translate-x-1 rtl:-translate-x-1'}`} />
                             </button>
                           </div>
 

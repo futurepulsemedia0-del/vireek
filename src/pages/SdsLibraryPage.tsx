@@ -81,7 +81,7 @@ function SdsDetailDialog({ doc, onClose, onOpenFile }: { doc: SdsDocument; onClo
 
   return (
     <div className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center sm:p-4">
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+      <div className="absolute inset-0 bg-overlay/30 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
       <div
         ref={dialogRef}
         role="dialog"
@@ -234,7 +234,7 @@ export function SdsLibraryPage() {
         <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
           <StatCard label="Active sheets" value={stats.total} />
           <StatCard label="Signal word: Danger" value={stats.danger} tone={stats.danger > 0 ? 'text-danger' : 'text-text-primary'} />
-          <StatCard label="Needs review" value={stats.needsReview} tone={stats.needsReview > 0 ? 'text-warning-500' : 'text-text-primary'} />
+          <StatCard label="Needs review" value={stats.needsReview} tone={stats.needsReview > 0 ? 'text-warning' : 'text-text-primary'} />
           <StatCard label="With a file" value={`${stats.withFile} / ${stats.total}`} tone="text-success" />
         </div>
       )}
@@ -259,7 +259,7 @@ export function SdsLibraryPage() {
                   role="tab"
                   aria-selected={filters.status === tab.key}
                   onClick={() => patch({ status: tab.key })}
-                  className={`focus-ring whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${filters.status === tab.key ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}
+                  className={`focus-ring whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${filters.status === tab.key ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}
                 >
                   {tab.label}
                 </button>
@@ -279,7 +279,7 @@ export function SdsLibraryPage() {
                 type="button"
                 aria-pressed={filters.attentionOnly}
                 onClick={() => patch({ attentionOnly: !filters.attentionOnly })}
-                className={`focus-ring inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-sm font-medium transition-colors ${filters.attentionOnly ? 'border-warning-500 bg-warning-500/10 text-warning-500' : 'border-border bg-bg-secondary text-text-secondary hover:text-text-primary'}`}
+                className={`focus-ring inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-sm font-medium transition-colors ${filters.attentionOnly ? 'border-warning bg-warning-subtle text-warning' : 'border-border bg-bg-secondary text-text-secondary hover:text-text-primary'}`}
               >
                 <CalendarClock size={14} aria-hidden="true" /> Needs review
               </button>

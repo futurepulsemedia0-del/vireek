@@ -165,7 +165,7 @@ export function CreativeDetail({ creative: c, imageUrl, businessName, brand, bus
 
   return (
     <>
-      <div className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm" onClick={onClose} aria-hidden />
+      <div className="fixed inset-0 z-[100] bg-overlay/40 backdrop-blur-sm" onClick={onClose} aria-hidden />
       <div
         ref={dialogRef}
         tabIndex={-1}
@@ -190,9 +190,9 @@ export function CreativeDetail({ creative: c, imageUrl, businessName, brand, bus
         </div>
 
         {c.warnings.length > 0 && (
-          <div role="note" className="mb-4 rounded-xl border border-warning-500/40 bg-warning-500/10 p-3 text-sm text-text-primary">
+          <div role="note" className="mb-4 rounded-xl border border-warning/40 bg-warning-subtle p-3 text-sm text-text-primary">
             <p className="mb-1 flex items-center gap-2 font-medium">
-              <TriangleAlert className="h-4 w-4 shrink-0 text-warning-500" aria-hidden /> Check before you publish
+              <TriangleAlert className="h-4 w-4 shrink-0 text-warning" aria-hidden /> Check before you publish
             </p>
             <ul className="list-disc space-y-0.5 pl-9 text-text-secondary">
               {c.warnings.map((w) => (
@@ -331,7 +331,7 @@ export function CreativeDetail({ creative: c, imageUrl, businessName, brand, bus
               <div className="space-y-2">
                 {checks.map((chk) => (
                   <p key={chk.id} className="flex items-start gap-2 text-sm text-text-primary">
-                    {chk.ok ? <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success-500" aria-hidden /> : <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-warning-500" aria-hidden />}
+                    {chk.ok ? <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success" aria-hidden /> : <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-warning" aria-hidden />}
                     <span>
                       {chk.label}
                       <span className="sr-only">{chk.ok ? ' — passed' : ' — needs attention'}</span>

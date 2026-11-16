@@ -59,7 +59,7 @@ export const PART_NECESSITY_LABELS: Record<PartNecessity, string> = {
 };
 
 export const WARRANTY_STATUS_META: Record<WarrantyStatus, { label: string; className: string }> = {
-  active: { label: 'Warranty active', className: 'bg-success-500/10 text-success-500' },
+  active: { label: 'Warranty active', className: 'bg-success-subtle text-success' },
   expired: { label: 'Warranty expired', className: 'bg-bg-tertiary text-text-secondary' },
   unknown: { label: 'Warranty unknown', className: 'bg-bg-tertiary text-text-secondary' },
 };

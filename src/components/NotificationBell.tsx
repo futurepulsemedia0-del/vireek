@@ -43,11 +43,11 @@ const TYPE_ICON: Record<NotificationRow['type'], typeof Bell> = {
 
 const TYPE_COLOR: Record<NotificationRow['type'], string> = {
   emergency_call: 'bg-danger/10 text-danger',
-  usage_alert: 'bg-warning-500/10 text-warning-500',
+  usage_alert: 'bg-warning-subtle text-warning',
   ai_insight: 'bg-ai/10 text-ai',
   job_update: 'bg-accent/10 text-accent',
-  warranty_alert: 'bg-warning-500/10 text-warning-500',
-  quote_viewed: 'bg-success-500/10 text-success-500',
+  warranty_alert: 'bg-warning-subtle text-warning',
+  quote_viewed: 'bg-success-subtle text-success',
   comment_mention: 'bg-accent/10 text-accent',
   comment_reply: 'bg-accent/10 text-accent',
   system: 'bg-bg-tertiary text-text-secondary',
@@ -176,7 +176,7 @@ export function NotificationBell() {
       >
         <Bell size={18} />
         {unreadCount > 0 && (
-          <span className="absolute -right-1 -top-1 flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-danger px-1 text-[10px] font-bold leading-none text-white">
+          <span className="absolute -right-1 -top-1 flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-danger px-1 text-[10px] font-bold leading-none text-on-danger">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -312,7 +312,7 @@ export function NotificationBell() {
                             {!n.is_read && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />}
                           </span>
                           <span className="mt-0.5 block truncate text-xs text-text-secondary">{n.message}</span>
-                          <span className="mt-0.5 flex items-center gap-1.5 text-[11px] text-text-secondary/60">
+                          <span className="mt-0.5 flex items-center gap-1.5 text-[11px] text-text-muted">
                             {timeAgo(n.created_at)}
                             <span aria-hidden="true">·</span>
                             {TYPE_LABEL[n.type] ?? 'System'}

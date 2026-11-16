@@ -31,16 +31,16 @@ const usd = (n: number) => USD.format(Math.round(n));
 const pct = (n: number) => `${Math.round(n * 100)}%`;
 const monthYear = (iso: string) => new Date(`${iso}T00:00:00`).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
 
-const inputClass = 'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60';
+const inputClass = 'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder';
 const labelClass = 'mb-1.5 block text-xs font-medium text-text-secondary';
-const primaryBtn = 'focus-ring flex items-center gap-1.5 rounded-xl bg-cta px-3.5 py-2 text-xs font-semibold text-white disabled:opacity-50';
+const primaryBtn = 'focus-ring flex items-center gap-1.5 rounded-xl bg-cta px-3.5 py-2 text-xs font-semibold text-on-cta disabled:opacity-50';
 const smallBtn = 'focus-ring flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:border-accent/50 hover:text-accent disabled:opacity-50';
 
 const URGENCY_STYLE: Record<Urgency, string> = {
-  critical: 'bg-danger/10 text-danger', high: 'bg-warning-500/10 text-warning-500', medium: 'bg-accent/10 text-accent', low: 'bg-bg-primary text-text-secondary',
+  critical: 'bg-danger/10 text-danger', high: 'bg-warning-subtle text-warning', medium: 'bg-accent/10 text-accent', low: 'bg-bg-primary text-text-secondary',
 };
 const GRADE_STYLE: Record<RiskGrade, string> = {
-  A: 'text-success-500', B: 'text-success-500', C: 'text-accent', D: 'text-warning-500', E: 'text-danger',
+  A: 'text-success', B: 'text-success', C: 'text-accent', D: 'text-warning', E: 'text-danger',
 };
 const CREDIT_OPTIONS: ReadonlyArray<{ value: CreditBand; label: string }> = [
   { value: 'unknown', label: 'Not known yet' }, { value: 'excellent', label: 'Excellent (740+)' }, { value: 'good', label: 'Good (680–739)' },
@@ -80,7 +80,7 @@ function Stat({ icon, label, value, note }: { icon: React.ReactNode; label: stri
 }
 
 function Bar({ value, tone }: { value: number; tone: 'ok' | 'warn' | 'bad' }) {
-  const color = tone === 'ok' ? 'bg-success-500' : tone === 'warn' ? 'bg-warning-500' : 'bg-danger';
+  const color = tone === 'ok' ? 'bg-success' : tone === 'warn' ? 'bg-warning' : 'bg-danger';
   return (
     <div className="h-1.5 w-full overflow-hidden rounded-full bg-bg-primary" role="img" aria-label={`${Math.round(value)} of 100`}>
       <div className={`h-full rounded-full ${color}`} style={{ width: `${Math.max(2, Math.min(100, value))}%` }} />
@@ -116,8 +116,8 @@ function ItemRow({ item, row, busy, onRun, ctx, inputs, schemaReady }: ItemRowPr
           <div className="mb-1.5 flex flex-wrap items-center gap-2">
             <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${URGENCY_STYLE[item.urgency]}`}>{URGENCY_LABELS[item.urgency]}</span>
             <span className="rounded-full bg-bg-secondary px-2 py-0.5 text-[11px] font-medium text-text-secondary">{ACTION_LABELS[item.action]}</span>
-            {!item.actionable && <span className="rounded-full bg-warning-500/10 px-2 py-0.5 text-[11px] font-medium text-warning-500">Estimate — verify first</span>}
-            {row && row.status !== 'open' && <span className="rounded-full bg-success-500/10 px-2 py-0.5 text-[11px] font-medium text-success-500">{ACTION_STATUS_LABELS[row.status]}</span>}
+            {!item.actionable && <span className="rounded-full bg-warning-subtle px-2 py-0.5 text-[11px] font-medium text-warning">Estimate — verify first</span>}
+            {row && row.status !== 'open' && <span className="rounded-full bg-success-subtle px-2 py-0.5 text-[11px] font-medium text-success">{ACTION_STATUS_LABELS[row.status]}</span>}
           </div>
           <p className="text-sm font-semibold text-text-primary">{item.title}</p>
           <p className="mt-1 text-xs text-text-secondary">
@@ -320,7 +320,7 @@ export function HomeCapitalPlanPage() {
       </div>
 
       {!schemaReady && (
-        <div className="rounded-xl border border-warning-500/40 bg-warning-500/10 p-4 text-sm text-warning-500">
+        <div className="rounded-xl border border-warning/40 bg-warning-subtle p-4 text-sm text-warning">
           Run the 20270410000000_home_capital_underwriting migration to save snapshots and track quotes, jobs, financing and warranty claims per recommendation. The plan itself works without it.
         </div>
       )}

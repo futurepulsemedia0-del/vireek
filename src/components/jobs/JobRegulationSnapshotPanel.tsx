@@ -155,14 +155,14 @@ export function JobRegulationSnapshotPanel({ job }: { job: { id: string } }) {
                   onChange={(e) => setReason(e.target.value)}
                   maxLength={500}
                   placeholder="e.g. Re-checked after code update"
-                  className="focus-ring mt-1 block w-full rounded-lg border border-border bg-bg-secondary px-2 py-1 text-xs text-text-primary placeholder:text-text-secondary/60"
+                  className="focus-ring mt-1 block w-full rounded-lg border border-border bg-bg-secondary px-2 py-1 text-xs text-text-primary placeholder:text-text-placeholder"
                 />
               </label>
               <button
                 type="button"
                 onClick={() => void record()}
                 disabled={recording || !isValidIsoDate(asOf)}
-                className="focus-ring flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white hover:opacity-90 disabled:opacity-50"
+                className="focus-ring flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent hover:opacity-90 disabled:opacity-50"
               >
                 {recording ? <Loader2 size={13} className="animate-spin" /> : <Lock size={13} />}
                 {latest ? 'Re-check & seal' : 'Record & seal'}
@@ -171,8 +171,8 @@ export function JobRegulationSnapshotPanel({ job }: { job: { id: string } }) {
           )}
 
           {latest && latest.drifted && (
-            <div className="rounded-lg border border-warning-500/30 bg-warning-500/5 p-3">
-              <p className="text-xs font-medium text-warning-500">Knowledge changed after this record</p>
+            <div className="rounded-lg border border-warning/30 bg-warning-subtle p-3">
+              <p className="text-xs font-medium text-warning">Knowledge changed after this record</p>
               <ul className="mt-1 list-disc space-y-0.5 pl-4 text-xs text-text-primary">
                 {latest.drift.map((d) => (
                   <li key={d.key}>{describeDrift(d)}</li>

@@ -32,16 +32,16 @@ import {
 } from '@/lib/externalWorld';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder';
 
 const SEVERITY_STYLES: Record<InsightSeverity, { label: string; cls: string }> = {
   act: { label: 'Act', cls: 'bg-danger/10 text-danger' },
-  watch: { label: 'Watch', cls: 'bg-warning-500/10 text-warning-500' },
+  watch: { label: 'Watch', cls: 'bg-warning-subtle text-warning' },
   info: { label: 'Info', cls: 'bg-bg-secondary text-text-secondary' },
 };
 
 const IMPACT_STYLES: Record<FactImpact, string> = {
-  positive: 'bg-success-500/10 text-success-500',
+  positive: 'bg-success-subtle text-success',
   negative: 'bg-danger/10 text-danger',
   neutral: 'bg-bg-secondary text-text-secondary',
 };
@@ -237,7 +237,7 @@ export function ExternalWorldTab({ model }: { model: WorldModel }) {
           <button
             onClick={() => handleSync(false)}
             disabled={syncing || propertyCount === 0}
-            className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent/90 disabled:opacity-60"
+            className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent hover:bg-accent/90 disabled:opacity-60"
           >
             {syncing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />} Sync external data
           </button>
@@ -284,7 +284,7 @@ export function ExternalWorldTab({ model }: { model: WorldModel }) {
               ))}
             </div>
             <p className="flex items-start gap-1.5 text-xs text-text-primary">
-              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-warning-500" /> {i.action}
+              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-warning" /> {i.action}
             </p>
             <p className="text-[11px] text-text-secondary">Sources: {i.sources.join(', ')}</p>
           </div>
@@ -350,7 +350,7 @@ export function ExternalWorldTab({ model }: { model: WorldModel }) {
         <button
           onClick={handleAddFact}
           disabled={savingFact}
-          className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent/90 disabled:opacity-60"
+          className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent hover:bg-accent/90 disabled:opacity-60"
         >
           {savingFact ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />} Add fact
         </button>

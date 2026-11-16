@@ -76,7 +76,7 @@ export function CloseoutRulesPanel({ programs, settings, today, onChanged }: {
 
   return (
     <div className="space-y-5">
-      <div className="rounded-xl border border-warning-500/40 bg-warning-500/10 p-3 text-xs text-text-primary" role="note">
+      <div className="rounded-xl border border-warning/40 bg-warning-subtle p-3 text-xs text-text-primary" role="note">
         <strong>Not legal advice.</strong> {RULES_DISCLAIMER}
       </div>
 
@@ -108,7 +108,7 @@ export function CloseoutRulesPanel({ programs, settings, today, onChanged }: {
                   {p.requires_pre_approval ? ' · pre-approval required' : ''}
                 </p>
                 <p className="mt-1 text-xs text-text-secondary">Needs: {p.required_evidence.length ? p.required_evidence.map((k) => EVIDENCE_LABELS[k]).join(', ') : 'nothing specified'}</p>
-                <p className={`mt-2 flex items-center gap-1 text-xs ${fresh === 'fresh' ? 'text-text-secondary' : 'font-semibold text-warning-500'}`}>
+                <p className={`mt-2 flex items-center gap-1 text-xs ${fresh === 'fresh' ? 'text-text-secondary' : 'font-semibold text-warning'}`}>
                   {fresh !== 'fresh' && <AlertTriangle size={12} />}
                   {fresh === 'unverified' ? 'Unverified — add a source and date' : `Verified ${p.last_verified_on}${fresh === 'stale' ? ' — time to re-verify' : ''}`}
                   {url && <a href={url} target="_blank" rel="noopener noreferrer" className="ml-2 inline-flex items-center gap-0.5 text-accent underline">source <ExternalLink size={11} /></a>}

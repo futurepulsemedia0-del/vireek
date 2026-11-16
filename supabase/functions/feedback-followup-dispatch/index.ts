@@ -29,7 +29,7 @@ Deno.serve(async (req: Request) => {
       const to = u?.user?.email;
       if (!to || !r.email_body) throw new Error("no recipient");
       const text = `${r.email_body}\n\n— The Vireek team\nYou received this because you agreed to be contacted about your feedback.`;
-      const html = `<p>${esc(r.email_body).replace(/\n/g, "<br>")}</p><p>— The Vireek team</p><p style="color:#6b7280;font-size:12px">You received this because you agreed to be contacted about your feedback.</p>`;
+      const html = `<p>${esc(r.email_body).replace(/\n/g, "<br>")}</p><p>— The Vireek team</p><p style="color:#73726c;font-size:12px">You received this because you agreed to be contacted about your feedback.</p>`;
       const res = await sendEmail(to, "Following up on your Vireek feedback", html, text);
       if (!res.ok) throw new Error(res.error ?? "send failed");
       await admin.from("feedback_followups").update({ email_status: "sent", email_error: null }).eq("id", r.id);

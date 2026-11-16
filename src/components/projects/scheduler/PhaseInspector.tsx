@@ -88,7 +88,7 @@ export function PhaseInspector(p: Props) {
       {conflicts.length > 0 && (
         <ul className="space-y-1.5" aria-label="Issues for this phase">
           {conflicts.map((c) => (
-            <li key={c.id} className={`rounded-xl px-3 py-2 text-sm ${c.severity === 'error' ? 'bg-danger-500/10 text-danger-500' : c.severity === 'warning' ? 'bg-warning-500/15 text-warning-500' : 'bg-bg-tertiary text-text-secondary'}`}>
+            <li key={c.id} className={`rounded-xl px-3 py-2 text-sm ${c.severity === 'error' ? 'bg-danger-subtle text-danger' : c.severity === 'warning' ? 'bg-warning-subtle text-warning' : 'bg-bg-tertiary text-text-secondary'}`}>
               {c.message}{c.hint ? <span className="block text-xs opacity-80">{c.hint}</span> : null}
             </li>
           ))}
@@ -123,7 +123,7 @@ export function PhaseInspector(p: Props) {
                 <input aria-label={`Lag in working days for ${nameOf(d.predecessor_id)}`} type="number" min={MIN_LAG_DAYS} max={MAX_LAG_DAYS} defaultValue={d.lag_days} disabled={busy || closed}
                   onBlur={(e) => { const v = Math.round(Number(e.target.value)); if (Number.isFinite(v) && v >= MIN_LAG_DAYS && v <= MAX_LAG_DAYS && v !== d.lag_days) p.onUpdateDep(d.id, { lag_days: v }); }}
                   className="focus-ring w-20 rounded-lg border border-border bg-bg-primary px-2 py-1.5 text-sm" />
-                <button type="button" aria-label={`Remove link from ${nameOf(d.predecessor_id)}`} disabled={busy || closed} onClick={() => p.onRemoveDep(d.id)} className="focus-ring rounded-lg p-1.5 text-text-secondary hover:bg-bg-tertiary hover:text-danger-500"><Trash2 size={14} aria-hidden="true" /></button>
+                <button type="button" aria-label={`Remove link from ${nameOf(d.predecessor_id)}`} disabled={busy || closed} onClick={() => p.onRemoveDep(d.id)} className="focus-ring rounded-lg p-1.5 text-text-secondary hover:bg-bg-tertiary hover:text-danger"><Trash2 size={14} aria-hidden="true" /></button>
               </li>
             ))}
           </ul>

@@ -43,7 +43,7 @@ import {
 } from '@/lib/digitalTwin';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder';
 const HORIZON_OPTIONS = [4, 8, 12, 26];
 
 // ============================================================
@@ -349,7 +349,7 @@ export function BusinessDigitalTwinPage() {
                         onChange={(e) => updateLever(l.id, { value: Number(e.target.value) })}
                         title={LEVER_VALUE_HINTS[l.type]}
                       />
-                      <span className="hidden flex-1 truncate text-xs text-text-secondary/70 md:block">{LEVER_VALUE_HINTS[l.type]}</span>
+                      <span className="hidden flex-1 truncate text-xs text-text-muted md:block">{LEVER_VALUE_HINTS[l.type]}</span>
                       <button onClick={() => removeLever(l.id)} className="focus-ring rounded-lg p-1 text-text-secondary hover:text-danger">
                         <X className="h-3.5 w-3.5" />
                       </button>
@@ -365,7 +365,7 @@ export function BusinessDigitalTwinPage() {
                 <button
                   onClick={handleSaveAndRun}
                   disabled={saving}
-                  className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent/90 disabled:opacity-60"
+                  className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent hover:bg-accent/90 disabled:opacity-60"
                 >
                   {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
                   Save & run simulation
@@ -402,7 +402,7 @@ export function BusinessDigitalTwinPage() {
                         {formatDollars(r.summary.cash_delta_expected)} projected
                       </p>
                       {r.accuracy_score != null ? (
-                        <p className="text-xs text-success-500">Compared to reality: {formatPct(r.accuracy_score * 100)} accurate</p>
+                        <p className="text-xs text-success">Compared to reality: {formatPct(r.accuracy_score * 100)} accurate</p>
                       ) : (
                         <p className="text-xs text-text-secondary">Not yet compared to what actually happened</p>
                       )}
@@ -465,7 +465,7 @@ function LabeledInput({ label, value, onChange }: { label: string; value: number
 }
 
 function SummaryCard({ label, value, tone }: { label: string; value: string; tone?: 'good' | 'bad' }) {
-  const color = tone === 'good' ? 'text-success-500' : tone === 'bad' ? 'text-danger' : 'text-text-primary';
+  const color = tone === 'good' ? 'text-success' : tone === 'bad' ? 'text-danger' : 'text-text-primary';
   return (
     <div className="rounded-xl border border-border p-3">
       <p className="text-[11px] text-text-secondary">{label}</p>
@@ -498,7 +498,7 @@ function RecordOutcomeModal({ run, onClose, onSaved }: { run: TwinRun; onClose: 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/40 p-4">
       <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md rounded-2xl bg-bg-primary p-5 shadow-xl">
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-base font-semibold text-text-primary">What actually happened?</h3>
@@ -515,7 +515,7 @@ function RecordOutcomeModal({ run, onClose, onSaved }: { run: TwinRun; onClose: 
         </div>
         <div className="mt-5 flex justify-end gap-2">
           <button onClick={onClose} className="focus-ring rounded-xl border border-border px-4 py-2 text-sm text-text-primary hover:bg-bg-secondary">Cancel</button>
-          <button onClick={submit} disabled={saving} className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent/90 disabled:opacity-60">
+          <button onClick={submit} disabled={saving} className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent hover:bg-accent/90 disabled:opacity-60">
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />} Save
           </button>
         </div>

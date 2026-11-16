@@ -22,7 +22,7 @@ const selectClass =
   'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-3 text-base text-text-primary transition-colors focus-visible:border-accent';
 const sectionClass = 'mb-6 rounded-2xl border border-border bg-bg-secondary p-5';
 const h3Class = 'mb-2 mt-5 text-xs font-semibold uppercase tracking-wide text-text-secondary';
-const TONE = { replace: 'text-accent', repair: 'text-success-500', neutral: 'text-text-secondary' } as const;
+const TONE = { replace: 'text-accent', repair: 'text-success', neutral: 'text-text-secondary' } as const;
 
 const num = (v: string): number | null => (v.trim() === '' || !Number.isFinite(Number(v)) ? null : Number(v));
 const ratings = (a: string, b: string, c: string, d: string): EfficiencyRatings => ({ seer2: num(a), hspf2: num(b), afue: num(c), uef: num(d) });
@@ -39,7 +39,7 @@ function Field({ label, id, children }: { label: string; id: string; children: R
 function CostChart({ result }: { result: AdvisorResult }) {
   const w = 520, h = 180, pad = 36;
   const series = [
-    { label: 'Repair', pts: result.repair.cumulativeByYear, cls: 'stroke-success-500' },
+    { label: 'Repair', pts: result.repair.cumulativeByYear, cls: 'stroke-success' },
     { label: 'Replace', pts: result.replace.cumulativeByYear, cls: 'stroke-accent' },
   ];
   const max = Math.max(1, ...series.flatMap((s) => s.pts));
@@ -58,7 +58,7 @@ function CostChart({ result }: { result: AdvisorResult }) {
         <text x={pad} y={14} className="fill-text-secondary text-[10px]">{usd(max)}</text>
       </svg>
       <figcaption className="mt-1 flex gap-4 text-xs text-text-secondary">
-        <span className="text-success-500">● Repair</span><span className="text-accent">● Replace</span><span>Cumulative expected spending</span>
+        <span className="text-success">● Repair</span><span className="text-accent">● Replace</span><span>Cumulative expected spending</span>
       </figcaption>
     </figure>
   );
@@ -392,7 +392,7 @@ export function RepairReplaceAdvisorPage() {
                 <Button size="sm" onClick={handlePdf} disabled={pdfBusy}><Download size={16} aria-hidden="true" />{pdfBusy ? 'Building…' : 'Download proposal PDF'}</Button>
                 <Button size="sm" variant="secondary" onClick={handleCopy}><Copy size={16} aria-hidden="true" />Copy summary</Button>
               </div>
-              {rebateNote && <p className="mt-3 text-xs text-warning-500" role="status">Rebates were left out: {rebateNote}</p>}
+              {rebateNote && <p className="mt-3 text-xs text-warning" role="status">Rebates were left out: {rebateNote}</p>}
             </section>
 
             <section className={sectionClass}>

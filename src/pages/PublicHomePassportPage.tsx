@@ -86,7 +86,7 @@ export function PublicHomePassportPage() {
           {snap && result && (
             <>
               <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
-                <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-success-500">
+                <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-success">
                   <ShieldCheck size={14} aria-hidden="true" /> Verified by Vireek
                   {result.recipient_type ? ` · Prepared for: ${RECIPIENT_LABELS[result.recipient_type]}` : ''}
                 </p>
@@ -97,8 +97,8 @@ export function PublicHomePassportPage() {
 
               <HomePassportView data={snap} />
 
-              <div className="rounded-2xl border border-success-500/30 bg-success-500/5 p-5 text-xs text-text-secondary">
-                <p className="font-medium text-success-500">Integrity verified</p>
+              <div className="rounded-2xl border border-success/30 bg-success-subtle p-5 text-xs text-text-secondary">
+                <p className="font-medium text-success">Integrity verified</p>
                 <p className="mt-1">
                   Issued {formatPassportDate(result.issued_at)} with the homeowner&apos;s consent · valid until{' '}
                   {formatPassportDate(result.expires_at)}. Records are derived from the service provider&apos;s job data and

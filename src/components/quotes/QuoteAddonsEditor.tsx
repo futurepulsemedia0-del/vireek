@@ -13,7 +13,7 @@ import type { QuoteOptionalItem } from '@/lib/quoteAddons';
 import type { EstimateOption } from '@/lib/estimates';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder transition-colors';
 
 interface PartChoice {
   id: string;

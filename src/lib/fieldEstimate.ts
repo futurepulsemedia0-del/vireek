@@ -95,7 +95,7 @@ export const FIELD_LIMITS = {
 export const SEVERITY_META: Record<FieldSeverity, { label: string; className: string }> = {
   low: { label: 'Low priority', className: 'bg-bg-tertiary text-text-secondary' },
   medium: { label: 'Medium priority', className: 'bg-accent/10 text-accent' },
-  high: { label: 'High priority', className: 'bg-warning-500/10 text-warning-500' },
+  high: { label: 'High priority', className: 'bg-warning-subtle text-warning' },
   emergency: { label: 'Emergency', className: 'bg-danger/10 text-danger' },
 };
 

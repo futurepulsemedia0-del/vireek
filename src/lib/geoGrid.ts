@@ -160,7 +160,7 @@ export const BUCKET_LABELS: Record<RankBucket, string> = {
 /** Tailwind classes per bucket (design tokens only, so light/dark themes keep working). */
 export const BUCKET_STYLES: Record<RankBucket, string> = {
   top3: 'bg-success/20 text-success border-success/40',
-  top10: 'bg-warning-500/20 text-warning-500 border-warning-500/40',
+  top10: 'bg-warning-subtle text-warning border-warning/40',
   top20: 'bg-danger/15 text-danger border-danger/30',
   missing: 'bg-bg-tertiary text-text-secondary border-border',
   error: 'bg-bg-secondary text-text-secondary border-dashed border-border',

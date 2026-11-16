@@ -19,18 +19,18 @@ export const ENTITY_TYPES = [
 export type EntityType = (typeof ENTITY_TYPES)[number];
 
 export const ENTITY_TYPE_META: Record<EntityType, { code: string; label: string; plural: string; hint: string; color: string }> = {
-  person: { code: 'PER', label: 'Person', plural: 'People', hint: 'A human: customer, occupant, owner', color: '#3b82f6' },
-  company: { code: 'CMP', label: 'Company', plural: 'Companies', hint: 'A legal organisation or business account', color: '#8b5cf6' },
-  property: { code: 'PRP', label: 'Property', plural: 'Properties', hint: 'A building, unit or service site', color: '#14b8a6' },
-  equipment: { code: 'EQP', label: 'Equipment', plural: 'Equipment', hint: 'A physical unit with a serial number', color: '#f59e0b' },
-  service: { code: 'SVC', label: 'Service', plural: 'Services', hint: 'A job, visit or service event', color: '#ec4899' },
-  technician: { code: 'TEC', label: 'Technician', plural: 'Technicians', hint: 'A field professional identity', color: '#22c55e' },
-  contractor: { code: 'CTR', label: 'Contractor', plural: 'Contractors', hint: 'An external contracting party', color: '#f97316' },
-  part: { code: 'PRT', label: 'Part', plural: 'Parts', hint: 'A component or consumable', color: '#a855f7' },
-  agent: { code: 'AGT', label: 'Agent', plural: 'Agents', hint: 'An AI or automated actor', color: '#06b6d4' },
-  outcome: { code: 'OUT', label: 'Outcome', plural: 'Outcomes', hint: 'The result of a service', color: '#84cc16' },
-  evidence: { code: 'EVD', label: 'Evidence', plural: 'Evidence', hint: 'A proof artefact: photo, reading, signature', color: '#64748b' },
-  transaction: { code: 'TXN', label: 'Transaction', plural: 'Transactions', hint: 'Money moving: invoice, payment, claim', color: '#eab308' },
+  person: { code: 'PER', label: 'Person', plural: 'People', hint: 'A human: customer, occupant, owner', color: '#3d8ef6' },
+  company: { code: 'CMP', label: 'Company', plural: 'Companies', hint: 'A legal organisation or business account', color: '#6c6fff' },
+  property: { code: 'PRP', label: 'Property', plural: 'Properties', hint: 'A building, unit or service site', color: '#34c759' },
+  equipment: { code: 'EQP', label: 'Equipment', plural: 'Equipment', hint: 'A physical unit with a serial number', color: '#ffcc00' },
+  service: { code: 'SVC', label: 'Service', plural: 'Services', hint: 'A job, visit or service event', color: '#ff375f' },
+  technician: { code: 'TEC', label: 'Technician', plural: 'Technicians', hint: 'A field professional identity', color: '#34c759' },
+  contractor: { code: 'CTR', label: 'Contractor', plural: 'Contractors', hint: 'An external contracting party', color: '#f9774c' },
+  part: { code: 'PRT', label: 'Part', plural: 'Parts', hint: 'A component or consumable', color: '#7e6bfd' },
+  agent: { code: 'AGT', label: 'Agent', plural: 'Agents', hint: 'An AI or automated actor', color: '#6eacff' },
+  outcome: { code: 'OUT', label: 'Outcome', plural: 'Outcomes', hint: 'The result of a service', color: '#30d158' },
+  evidence: { code: 'EVD', label: 'Evidence', plural: 'Evidence', hint: 'A proof artefact: photo, reading, signature', color: '#73726c' },
+  transaction: { code: 'TXN', label: 'Transaction', plural: 'Transactions', hint: 'Money moving: invoice, payment, claim', color: '#caa100' },
 };
 
 export const isEntityType = (v: unknown): v is EntityType =>

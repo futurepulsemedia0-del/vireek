@@ -230,7 +230,7 @@ function TaxPreview({ enabledPacks, registrations }: { enabledPacks: PackCode[];
               {result.reverseCharge && <dt className="col-span-2 font-medium text-success">Reverse charge — customer accounts for the tax</dt>}
               <dt className="font-semibold text-text-primary">Total</dt><dd className="text-right font-semibold text-text-primary">{formatMinor(result.grossMinor, currency, profile?.locale)}</dd>
             </dl>
-            {[...result.warnings].map((w) => <p key={w.code + w.message} className="flex items-start gap-2 text-xs text-warning-500"><AlertTriangle size={14} className="mt-0.5 shrink-0" aria-hidden="true" /> {w.message}</p>)}
+            {[...result.warnings].map((w) => <p key={w.code + w.message} className="flex items-start gap-2 text-xs text-warning"><AlertTriangle size={14} className="mt-0.5 shrink-0" aria-hidden="true" /> {w.message}</p>)}
             {result.notes.map((n) => <p key={n} className="text-xs text-text-secondary">{n}</p>)}
           </div>
         )}

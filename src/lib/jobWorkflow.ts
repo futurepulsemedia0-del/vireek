@@ -53,23 +53,23 @@ export const WORKFLOW_STATUS_META: Record<WorkflowStatus, WorkflowStatusMeta> = 
   waiting_on_parts: {
     label: 'Waiting on parts',
     description: 'A part has to arrive before the job can continue.',
-    dot: 'bg-orange-500',
+    dot: 'bg-warning',
     border: 'border-t-orange-500',
-    badge: 'bg-orange-500/10 text-orange-500',
+    badge: 'bg-warning-subtle text-warning',
   },
   waiting_on_customer: {
     label: 'Waiting on customer',
     description: 'We need an approval, access or an answer from the customer.',
-    dot: 'bg-blue-500',
+    dot: 'bg-info',
     border: 'border-t-blue-500',
-    badge: 'bg-blue-500/10 text-blue-500',
+    badge: 'bg-info-subtle text-info',
   },
   needs_follow_up: {
     label: 'Needs follow-up',
     description: 'Someone on the team must reach out or check back.',
-    dot: 'bg-warning-500',
+    dot: 'bg-warning',
     border: 'border-t-warning-500',
-    badge: 'bg-warning-500/10 text-warning-500',
+    badge: 'bg-warning-subtle text-warning',
   },
   return_visit_needed: {
     label: 'Return visit needed',
@@ -290,8 +290,8 @@ export function computeSla(
 
 export const SLA_TONE: Record<SlaState, string> = {
   none: 'bg-bg-tertiary text-text-secondary',
-  on_track: 'bg-success-500/10 text-success-500',
-  at_risk: 'bg-warning-500/10 text-warning-500',
+  on_track: 'bg-success-subtle text-success',
+  at_risk: 'bg-warning-subtle text-warning',
   breached: 'bg-danger/10 text-danger',
 };
 

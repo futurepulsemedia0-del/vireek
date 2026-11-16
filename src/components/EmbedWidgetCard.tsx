@@ -70,7 +70,7 @@ export function EmbedWidgetCard() {
             className="focus-ring absolute right-2 top-2.5 flex h-7 w-7 items-center justify-center rounded-lg text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
             aria-label="Copy embed code"
           >
-            {copied ? <Check size={14} className="text-success-500" /> : <Copy size={14} />}
+            {copied ? <Check size={14} className="text-success" /> : <Copy size={14} />}
           </button>
         </div>
       </div>

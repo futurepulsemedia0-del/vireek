@@ -175,10 +175,10 @@ export const STATUS_LABELS: Record<GuaranteeStatus, string> = {
 
 export const STATUS_COLORS: Record<GuaranteeStatus, string> = {
   verifying: 'bg-accent/10 text-accent',
-  verified: 'bg-success-500/10 text-success-500',
+  verified: 'bg-success-subtle text-success',
   claim_open: 'bg-danger/10 text-danger',
-  recovering: 'bg-warning-500/10 text-warning-500',
-  recovered: 'bg-success-500/10 text-success-500',
+  recovering: 'bg-warning-subtle text-warning',
+  recovered: 'bg-success-subtle text-success',
   expired: 'bg-bg-tertiary text-text-secondary',
   voided: 'bg-bg-tertiary text-text-secondary',
 };

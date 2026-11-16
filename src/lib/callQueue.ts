@@ -79,11 +79,11 @@ export interface QueueItem extends QueueCandidate {
 }
 
 export const REASON_META: Record<QueueReason, { label: string; className: string; base: number }> = {
-  unhappy_customer: { label: 'Unhappy customer', className: 'bg-danger-500/10 text-danger-500', base: 75 },
+  unhappy_customer: { label: 'Unhappy customer', className: 'bg-danger-subtle text-danger', base: 75 },
   callback: { label: 'Callback', className: 'bg-accent/10 text-accent', base: 70 },
-  abandoned_booking: { label: 'Abandoned booking', className: 'bg-warning-500/10 text-warning-500', base: 60 },
-  unpaid_invoice: { label: 'Unpaid invoice', className: 'bg-danger-500/10 text-danger-500', base: 55 },
-  quote_followup: { label: 'Quote follow-up', className: 'bg-warning-500/10 text-warning-500', base: 50 },
+  abandoned_booking: { label: 'Abandoned booking', className: 'bg-warning-subtle text-warning', base: 60 },
+  unpaid_invoice: { label: 'Unpaid invoice', className: 'bg-danger-subtle text-danger', base: 55 },
+  quote_followup: { label: 'Quote follow-up', className: 'bg-warning-subtle text-warning', base: 50 },
   expiring_membership: { label: 'Membership', className: 'bg-accent/10 text-accent', base: 45 },
   churn_risk: { label: 'Win-back', className: 'bg-bg-tertiary text-text-secondary', base: 35 },
 };

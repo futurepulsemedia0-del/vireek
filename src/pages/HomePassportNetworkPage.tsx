@@ -37,16 +37,16 @@ const selectClass =
   'focus-ring rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary';
 
 const VERIFICATION_STYLE: Record<Verification, string> = {
-  verified: 'bg-success-500/10 text-success-500',
+  verified: 'bg-success-subtle text-success',
   system: 'bg-accent/10 text-accent',
   human: 'bg-bg-primary text-text-secondary',
-  inferred: 'bg-warning-500/10 text-warning-500',
-  unverified: 'bg-danger-500/10 text-danger-500',
+  inferred: 'bg-warning-subtle text-warning',
+  unverified: 'bg-danger-subtle text-danger',
 };
 
 const SEVERITY_STYLE = {
-  high: 'bg-danger-500/10 text-danger-500',
-  medium: 'bg-warning-500/10 text-warning-500',
+  high: 'bg-danger-subtle text-danger',
+  medium: 'bg-warning-subtle text-warning',
   low: 'bg-bg-primary text-text-secondary',
 } as const;
 
@@ -79,7 +79,7 @@ function Stat({ icon, label, value, hint }: { icon: React.ReactNode; label: stri
 }
 
 function Bar({ pct, tone }: { pct: number; tone: 'ok' | 'warn' | 'bad' }) {
-  const color = tone === 'ok' ? 'bg-success-500' : tone === 'warn' ? 'bg-warning-500' : 'bg-danger-500';
+  const color = tone === 'ok' ? 'bg-success' : tone === 'warn' ? 'bg-warning' : 'bg-danger';
   return (
     <div className="h-1.5 w-full overflow-hidden rounded-full bg-bg-primary" role="presentation">
       <div className={`h-full rounded-full ${color}`} style={{ width: `${Math.max(0, Math.min(100, pct))}%` }} />
@@ -200,7 +200,7 @@ function LedgerTab({ p, domain, setDomain, eqName }: {
       <div className="mb-4 flex flex-wrap gap-2">
         <input
           type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search records…" aria-label="Search records"
-          className="focus-ring min-w-[12rem] flex-1 rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60"
+          className="focus-ring min-w-[12rem] flex-1 rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder"
         />
         <select className={selectClass} value={domain} onChange={(e) => setDomain(e.target.value as PassportDomain | 'all')} aria-label="Filter by type">
           <option value="all">All types</option>
@@ -238,7 +238,7 @@ function SystemsTab({ p, codes }: { p: HomePassport; codes: Record<string, strin
               <p className="text-sm font-semibold text-text-primary">{s.label}</p>
               {code
                 ? <Link to={`/dashboard/equipment-passports/${code}`} className={linkBtn}><QrCode size={12} /> Passport</Link>
-                : <span className={`${chipBase} bg-warning-500/10 text-warning-500`}>No passport</span>}
+                : <span className={`${chipBase} bg-warning-subtle text-warning`}>No passport</span>}
             </div>
             <p className="mt-1 text-xs text-text-secondary">
               {s.ageYears !== null ? `${s.ageYears} yrs old` : 'Age unknown'} · {s.completedVisits} visit{s.completedVisits === 1 ? '' : 's'} · {s.repairVisits} repair{s.repairVisits === 1 ? '' : 's'}
@@ -486,12 +486,12 @@ export function HomePassportNetworkPage() {
         </div>
 
         {loaded.warnings.sources.length > 0 && (
-          <div role="status" className="rounded-xl border border-warning-500/40 bg-warning-500/10 p-3 text-xs text-warning-500">
+          <div role="status" className="rounded-xl border border-warning/40 bg-warning-subtle p-3 text-xs text-warning">
             Some sources could not be read ({loaded.warnings.sources.join(', ')}). The passport is shown without them, so its trust score may be understated.
           </div>
         )}
         {!loaded.inputs.graph.schemaReady && (
-          <div role="status" className="rounded-xl border border-warning-500/40 bg-warning-500/10 p-3 text-xs text-warning-500">
+          <div role="status" className="rounded-xl border border-warning/40 bg-warning-subtle p-3 text-xs text-warning">
             The Home Lifetime Graph migration has not been applied, so permits, contractors and ownership history are unavailable.
           </div>
         )}

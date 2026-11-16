@@ -30,15 +30,15 @@ const INSIGHT_CONFIG: Record<
 > = {
   pattern: {
     icon: Info,
-    color: 'text-blue-500',
-    bgColor: 'bg-blue-500/10',
+    color: 'text-info',
+    bgColor: 'bg-info-subtle',
     borderColor: 'border-l-blue-500',
     label: 'Pattern',
   },
   suggestion: {
     icon: Lightbulb,
-    color: 'text-violet-500',
-    bgColor: 'bg-violet-500/10',
+    color: 'text-accent',
+    bgColor: 'bg-accent-subtle',
     borderColor: 'border-l-violet-500',
     label: 'Suggestion',
   },
@@ -102,7 +102,7 @@ function InsightCard({
             → {insight.recommended_action}
           </p>
         )}
-        <p className="mt-2 text-xs text-text-secondary/60">{formatTimeAgo(insight.created_at)}</p>
+        <p className="mt-2 text-xs text-text-muted">{formatTimeAgo(insight.created_at)}</p>
       </div>
       <button
         type="button"
@@ -244,7 +244,7 @@ export function InsightsPage() {
             type="button"
             onClick={handleRefresh}
             disabled={refreshing}
-            className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110 disabled:opacity-50"
+            className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-on-cta transition-all hover:brightness-110 disabled:opacity-50"
           >
             <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
             {refreshing ? 'Analyzing…' : 'Refresh Insights'}
@@ -305,7 +305,7 @@ export function InsightsPage() {
               type="button"
               onClick={handleRefresh}
               disabled={refreshing}
-              className="focus-ring mt-4 flex items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110 disabled:opacity-50"
+              className="focus-ring mt-4 flex items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-on-cta transition-all hover:brightness-110 disabled:opacity-50"
             >
               <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
               {refreshing ? 'Analyzing…' : 'Generate Insights'}
@@ -315,7 +315,7 @@ export function InsightsPage() {
 
         {/* Footer note */}
         {!loading && hasInsights && (
-          <p className="mt-6 text-center text-xs text-text-secondary/50">
+          <p className="mt-6 text-center text-xs text-text-muted">
             Insights are generated from your last 30 days of data. Dismissed insights won't reappear.
           </p>
         )}

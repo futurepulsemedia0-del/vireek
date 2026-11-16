@@ -53,7 +53,7 @@ export function WarrantyReimbursementPanel({ refreshKey = 0 }: { refreshKey?: nu
           {unpaid.map((r) => (
             <li key={r.claim_id} className="flex justify-between text-text-secondary">
               <span>{r.manufacturer ?? 'Manufacturer'} · {r.customer_name ?? 'Customer'} · {r.status}</span>
-              <span className="text-warning-500">{r.days_unpaid} days since submitted</span>
+              <span className="text-warning">{r.days_unpaid} days since submitted</span>
             </li>
           ))}
         </ul>

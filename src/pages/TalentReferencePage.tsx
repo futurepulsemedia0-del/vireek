@@ -73,7 +73,7 @@ export function TalentReferencePage() {
                 <div className="flex gap-2">
                   {[1, 2, 3, 4, 5].map((n) => (
                     <button key={n} type="button" aria-pressed={rating === n} onClick={() => setRating(n)}
-                      className={`h-11 w-11 rounded-xl border text-sm font-semibold ${rating === n ? 'border-accent bg-accent text-white' : 'border-border bg-bg-secondary text-text-primary'}`}>{n}</button>
+                      className={`h-11 w-11 rounded-xl border text-sm font-semibold ${rating === n ? 'border-accent bg-accent text-on-accent' : 'border-border bg-bg-secondary text-text-primary'}`}>{n}</button>
                   ))}
                 </div>
               </fieldset>
@@ -82,7 +82,7 @@ export function TalentReferencePage() {
                 <div className="flex gap-2">
                   {[['yes', 'Yes'], ['unsure', 'Not sure'], ['no', 'No']].map(([v, l]) => (
                     <button key={v} type="button" aria-pressed={rehire === v} onClick={() => setRehire(v)}
-                      className={`rounded-xl border px-4 py-2 text-sm ${rehire === v ? 'border-accent bg-accent text-white' : 'border-border bg-bg-secondary text-text-primary'}`}>{l}</button>
+                      className={`rounded-xl border px-4 py-2 text-sm ${rehire === v ? 'border-accent bg-accent text-on-accent' : 'border-border bg-bg-secondary text-text-primary'}`}>{l}</button>
                   ))}
                 </div>
               </fieldset>
@@ -96,7 +96,7 @@ export function TalentReferencePage() {
                 </div>
               </fieldset>
               <Textarea label="Anything else employers should know? (optional)" value={comment} onChange={(e) => setComment(e.target.value)} maxLength={800} rows={4} />
-              {error && <p role="alert" className="flex items-center gap-2 text-sm text-red-500"><TriangleAlert size={14} aria-hidden="true" />{error}</p>}
+              {error && <p role="alert" className="flex items-center gap-2 text-sm text-danger"><TriangleAlert size={14} aria-hidden="true" />{error}</p>}
               <Button onClick={() => void submit()} disabled={busy}>{busy ? 'Submitting…' : 'Submit reference'}</Button>
             </div>
           )}

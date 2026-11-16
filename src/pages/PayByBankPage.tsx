@@ -22,7 +22,7 @@ const TONE: Record<Tone, string> = {
   neutral: 'border-border bg-bg-tertiary text-text-secondary',
   accent: 'border-accent/30 bg-accent/10 text-accent',
   success: 'border-success/30 bg-success/10 text-success',
-  warning: 'border-warning-500/30 bg-warning-500/10 text-warning-500',
+  warning: 'border-warning/30 bg-warning-subtle text-warning',
   danger: 'border-danger/30 bg-danger/10 text-danger',
 };
 
@@ -31,7 +31,7 @@ const Pill = ({ tone, children }: { tone: Tone; children: React.ReactNode }) => 
 );
 
 function Kpi({ label, value, hint, tone }: { label: string; value: string; hint?: string; tone?: 'danger' | 'success' | 'warning' }) {
-  const color = tone === 'danger' ? 'text-danger' : tone === 'success' ? 'text-success' : tone === 'warning' ? 'text-warning-500' : 'text-text-primary';
+  const color = tone === 'danger' ? 'text-danger' : tone === 'success' ? 'text-success' : tone === 'warning' ? 'text-warning' : 'text-text-primary';
   return (
     <div className="rounded-2xl border border-border bg-bg-secondary p-4">
       <p className="text-[10px] font-medium uppercase tracking-wide text-text-secondary">{label}</p>
@@ -260,7 +260,7 @@ export function PayByBankPage() {
                   )}
                 </div>
                 {enabled && capability !== 'active' && (
-                  <p className="mt-3 text-xs text-warning-500" role="status">Bank payments are on but won’t appear for customers until Stripe shows “active”.</p>
+                  <p className="mt-3 text-xs text-warning" role="status">Bank payments are on but won’t appear for customers until Stripe shows “active”.</p>
                 )}
                 <ul className="mt-4 space-y-1 text-xs text-text-secondary">
                   <li>• Failed or returned debits are handled automatically and the customer is notified.</li>
@@ -344,7 +344,7 @@ export function PayByBankPage() {
                             <span className="text-xs text-text-secondary">{describeSettlement(a)}</span>
                           </div>
                           {problem && <p className="mt-2 text-xs text-danger" role="alert">{problem}</p>}
-                          {a.accounting_error && <p className="mt-1 text-xs text-warning-500">Ledger: {a.accounting_error}</p>}
+                          {a.accounting_error && <p className="mt-1 text-xs text-warning">Ledger: {a.accounting_error}</p>}
                           {needsInvoice && (
                             <div className="mt-3 flex flex-wrap gap-2">
                               <Button size="sm" variant="secondary" disabled={busyId === a.id} onClick={() => void openLink(a)}><Link2 className="h-4 w-4" aria-hidden="true" /> Link to invoice</Button>
@@ -363,7 +363,7 @@ export function PayByBankPage() {
       </div>
 
       {linking && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4 sm:items-center" role="dialog" aria-modal="true" aria-label="Link payment to an invoice"
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-overlay/50 p-4 sm:items-center" role="dialog" aria-modal="true" aria-label="Link payment to an invoice"
           onKeyDown={(e) => { if (e.key === 'Escape') setLinking(null); }}>
           <div className="w-full max-w-md rounded-2xl border border-border bg-bg-primary p-5 shadow-xl">
             <h2 className="text-base font-semibold text-text-primary">Link {formatCents(linking.amount_cents)} to an invoice</h2>

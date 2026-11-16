@@ -90,7 +90,7 @@ export function ImpersonateDialog({ open, accountId, accountLabel, onClose }: Im
 
   return (
     <>
-      <div className="fixed inset-0 z-[110] bg-black/50 backdrop-blur-sm" onClick={grant ? undefined : cancel} aria-hidden="true" />
+      <div className="fixed inset-0 z-[110] bg-overlay/50 backdrop-blur-sm" onClick={grant ? undefined : cancel} aria-hidden="true" />
       <div
         ref={ref}
         tabIndex={-1}
@@ -102,7 +102,7 @@ export function ImpersonateDialog({ open, accountId, accountLabel, onClose }: Im
       >
         <div className="flex items-start justify-between gap-3 border-b border-border p-5">
           <div className="flex min-w-0 items-start gap-3">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-warning-500/10 text-warning-500"><ShieldAlert size={18} /></span>
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-warning-subtle text-warning"><ShieldAlert size={18} /></span>
             <div className="min-w-0">
               <h2 className="text-base font-semibold text-text-primary">Sign in as customer</h2>
               <p className="truncate text-xs text-text-secondary">{accountLabel}</p>
@@ -116,8 +116,8 @@ export function ImpersonateDialog({ open, accountId, accountLabel, onClose }: Im
         <div className="space-y-4 overflow-y-auto p-5">
           {grant ? (
             <>
-              <div className="flex items-start gap-3 rounded-xl bg-warning-500/10 p-4">
-                <AlertTriangle size={18} className="mt-0.5 shrink-0 text-warning-500" />
+              <div className="flex items-start gap-3 rounded-xl bg-warning-subtle p-4">
+                <AlertTriangle size={18} className="mt-0.5 shrink-0 text-warning" />
                 <p className="text-sm text-text-primary">
                   Open this link in a <strong>private / incognito window</strong>. Opening it in this browser replaces your own staff session.
                   Everything you do there is done as the customer and is logged. Target session length: {IMPERSONATION_MINUTES} minutes.

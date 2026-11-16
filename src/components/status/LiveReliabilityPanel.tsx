@@ -40,7 +40,7 @@ export function LiveReliabilityPanel() {
             {active.map((i) => (<li key={i.id} className="text-text-primary"><strong>{i.title}</strong> — {i.summary}</li>))}
           </ul>
         ) : (
-          <p className="mt-3 text-sm text-success-500">No active incidents detected by automated monitoring.</p>
+          <p className="mt-3 text-sm text-success">No active incidents detected by automated monitoring.</p>
         )}
         <p className="mt-3 text-xs text-text-secondary"><a className="underline" href={`${FEED_URL}?format=atom`}>Subscribe to the incident feed (Atom)</a></p>
       </div>

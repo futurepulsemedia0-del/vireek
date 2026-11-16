@@ -178,7 +178,7 @@ export function OperatingCadencePage() {
               tabIndex={active === t.key ? 0 : -1}
               onClick={() => selectTab(t.key)}
               onKeyDown={(e) => onTabKey(e, i)}
-              className={`focus-ring min-h-[40px] whitespace-nowrap rounded-xl px-4 text-sm font-medium transition-colors ${active === t.key ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}
+              className={`focus-ring min-h-[40px] whitespace-nowrap rounded-xl px-4 text-sm font-medium transition-colors ${active === t.key ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}
             >
               {t.label}
             </button>

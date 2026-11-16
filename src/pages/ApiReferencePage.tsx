@@ -34,7 +34,7 @@ import {
 
 /** One entry per route in the contract the API runs on (same list the OpenAPI spec is built from). */
 const OPERATIONS = listOperations();
-const METHOD_CLASS = 'rounded-md bg-success-500/10 px-2 py-0.5 font-mono text-xs font-bold text-success-500';
+const METHOD_CLASS = 'rounded-md bg-success-subtle px-2 py-0.5 font-mono text-xs font-bold text-success';
 
 function SEO() {
   useSEO({
@@ -262,7 +262,7 @@ export function ApiReferencePage() {
                               <li
                                 key={code}
                                 className={`rounded-md px-2 py-0.5 font-mono text-[11px] font-semibold ${
-                                  code === '200' ? 'bg-success-500/10 text-success-500' : 'bg-bg-tertiary text-text-secondary'
+                                  code === '200' ? 'bg-success-subtle text-success' : 'bg-bg-tertiary text-text-secondary'
                                 }`}
                               >
                                 {code}

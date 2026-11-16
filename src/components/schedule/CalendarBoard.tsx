@@ -19,11 +19,11 @@ type JobStatus = Job['job_status'];
 
 const STATUS_DOT: Record<JobStatus, string> = {
   scheduled: 'bg-accent',
-  en_route: 'bg-blue-500',
-  in_progress: 'bg-warning-500',
-  completed: 'bg-success-500',
+  en_route: 'bg-info',
+  in_progress: 'bg-warning',
+  completed: 'bg-success',
   cancelled: 'bg-danger',
-  no_show: 'bg-warning-500',
+  no_show: 'bg-warning',
 };
 
 function formatTime(iso: string | null): string {
@@ -77,7 +77,7 @@ export function CalendarJobCard({
       <p className="mt-1.5 truncate text-sm font-semibold text-text-primary">{job.customer_name}</p>
       {job.service_type && <p className="truncate text-xs text-text-secondary">{job.service_type}</p>}
       {job.address && (
-        <p className="mt-1 flex items-center gap-1 truncate text-xs text-text-secondary/80" title={job.address}>
+        <p className="mt-1 flex items-center gap-1 truncate text-xs text-text-muted" title={job.address}>
           <MapPin size={11} className="shrink-0" /> {job.address}
         </p>
       )}
@@ -173,7 +173,7 @@ export function WeekGrid({
             </div>
             <div className="flex flex-1 flex-col gap-2 overflow-y-auto">
               {jobs.length === 0 ? (
-                <p className="mt-4 text-center text-xs text-text-secondary/60">No jobs</p>
+                <p className="mt-4 text-center text-xs text-text-muted">No jobs</p>
               ) : (
                 jobs.map((job) => (
                   <DraggableCalendarCard
@@ -234,7 +234,7 @@ export function DayLanes({
             </div>
             <div className="flex flex-1 flex-col gap-2 overflow-y-auto">
               {jobs.length === 0 ? (
-                <p className="mt-4 text-center text-xs text-text-secondary/60">No jobs scheduled</p>
+                <p className="mt-4 text-center text-xs text-text-muted">No jobs scheduled</p>
               ) : (
                 jobs.map((job) => (
                   <DraggableCalendarCard
@@ -276,12 +276,12 @@ export function UnscheduledStrip({
       className="mt-5 rounded-2xl border border-dashed border-border bg-bg-secondary/60 p-4 shadow-card dark:shadow-card-dark"
     >
       <div className="mb-3 flex items-center gap-2">
-        <AlertTriangle size={16} className="text-warning-500" />
+        <AlertTriangle size={16} className="text-warning" />
         <h3 className="text-sm font-semibold text-text-primary">Needs Scheduling</h3>
         <span className="rounded-full bg-bg-tertiary px-2 py-0.5 text-[11px] font-semibold text-text-secondary">{jobs.length}</span>
       </div>
       {jobs.length === 0 ? (
-        <p className="text-xs text-text-secondary/70">
+        <p className="text-xs text-text-muted">
           Every open job has a date. Drag a job card here to pull it off the schedule without deleting it.
         </p>
       ) : (

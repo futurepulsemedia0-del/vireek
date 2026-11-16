@@ -67,8 +67,8 @@ export const STATUS_LABELS: Record<MilestoneStatus, string> = {
 export const STATUS_COLORS: Record<MilestoneStatus, string> = {
   not_started: 'bg-bg-tertiary text-text-secondary',
   in_progress: 'bg-cta/15 text-cta',
-  done: 'bg-success-500/15 text-success-500',
-  at_risk: 'bg-warning-500/15 text-warning-500',
+  done: 'bg-success-subtle text-success',
+  at_risk: 'bg-warning-subtle text-warning',
   blocked: 'bg-error-500/15 text-error-500',
 };
 

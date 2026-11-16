@@ -35,9 +35,9 @@ import {
 } from '@/lib/chatNotificationsApi';
 
 const TONE_CLASS: Record<Tone, string> = {
-  success: 'bg-success-500/10 text-success-500',
-  danger: 'bg-danger-500/10 text-danger-500',
-  warning: 'bg-warning-500/10 text-warning-500',
+  success: 'bg-success-subtle text-success',
+  danger: 'bg-danger-subtle text-danger',
+  warning: 'bg-warning-subtle text-warning',
   neutral: 'bg-bg-tertiary text-text-secondary',
 };
 
@@ -165,7 +165,7 @@ export function ChatNotificationsPanel({ isOwner }: { isOwner: boolean }) {
     return (
       <Card className="mt-10 p-6">
         <div className="flex items-center justify-between gap-3">
-          <p className="flex items-center gap-2 text-sm text-danger-500"><AlertTriangle size={16} /> {loadError}</p>
+          <p className="flex items-center gap-2 text-sm text-danger"><AlertTriangle size={16} /> {loadError}</p>
           <Button variant="secondary" size="sm" onClick={() => { setLoading(true); void refresh(); }}>Retry</Button>
         </div>
       </Card>
@@ -206,7 +206,7 @@ export function ChatNotificationsPanel({ isOwner }: { isOwner: boolean }) {
                 </div>
                 <Pill tone={health.tone}>{health.tone === 'success' && <Check size={12} />}{health.tone === 'danger' && <AlertTriangle size={12} />}{health.label}</Pill>
               </div>
-              {conn?.status === 'error' && conn.last_error && <p className="mt-3 text-xs text-danger-500">{conn.last_error}</p>}
+              {conn?.status === 'error' && conn.last_error && <p className="mt-3 text-xs text-danger">{conn.last_error}</p>}
               {isOwner ? (
                 <div className="mt-4 flex gap-2">
                   {(!conn || conn.status === 'error') && (
@@ -271,7 +271,7 @@ export function ChatNotificationsPanel({ isOwner }: { isOwner: boolean }) {
                   )}
                 </div>
               )}
-              {channelError[active] && <p className="mb-3 text-sm text-danger-500">{channelError[active]}</p>}
+              {channelError[active] && <p className="mb-3 text-sm text-danger">{channelError[active]}</p>}
 
               <ul className="space-y-3">
                 {CHAT_EVENTS.map((def) => {

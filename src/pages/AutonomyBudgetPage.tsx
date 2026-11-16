@@ -28,7 +28,7 @@ import {
 const RISK_LEVELS: RiskLevel[] = ['low', 'medium', 'high', 'critical'];
 const PERIODS: BudgetPeriod[] = ['daily', 'weekly', 'monthly'];
 const STATUS_COLOR: Record<string, string> = {
-  running: 'text-accent', completed: 'text-success-500', terminated_budget_exceeded: 'text-error-500',
+  running: 'text-accent', completed: 'text-success', terminated_budget_exceeded: 'text-error-500',
 };
 
 const emptyForm = {
@@ -182,7 +182,7 @@ export function AutonomyBudgetPage() {
             </div>
           </div>
 
-          <button onClick={handleSave} disabled={saving} className="focus-ring mt-3 flex items-center gap-2 rounded-xl bg-cta px-4 py-2 text-sm font-medium text-white disabled:opacity-60">
+          <button onClick={handleSave} disabled={saving} className="focus-ring mt-3 flex items-center gap-2 rounded-xl bg-cta px-4 py-2 text-sm font-medium text-on-cta disabled:opacity-60">
             {saving ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />} Save budget
           </button>
         </div>

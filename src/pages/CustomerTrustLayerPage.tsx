@@ -65,7 +65,7 @@ function BadgeDots({ badges }: { badges: JobTrustScore['badges'] }) {
         <span
           key={b.key}
           title={badges[b.key] ? b.label : b.pending}
-          className={`flex h-5 w-5 items-center justify-center rounded-full ${badges[b.key] ? 'bg-success-500/15 text-success-500' : 'bg-bg-tertiary text-text-secondary/50'}`}
+          className={`flex h-5 w-5 items-center justify-center rounded-full ${badges[b.key] ? 'bg-success-subtle text-success' : 'bg-bg-tertiary text-text-muted'}`}
         >
           <Check size={11} />
         </span>
@@ -126,7 +126,7 @@ function RecordSignalForm({ jobId, onSaved }: { jobId: string; onSaved: () => vo
             key={s}
             type="button"
             onClick={() => { setSignal(s); setValues({}); }}
-            className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium ${signal === s ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
+            className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium ${signal === s ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
           >
             {SIGNAL_FORMS[s].title}
           </button>
@@ -224,7 +224,7 @@ function JobTrustDetail({ row, publicEnabled, onChanged }: { row: JobTrustScore;
                   {SIGNAL_LABELS[d.signal]} <span className="text-text-secondary">· weight {byWeight.get(d.signal) ?? d.weight}</span>
                 </span>
                 <span className="flex items-center gap-1.5 font-medium text-text-primary">
-                  {d.verified && <Check size={12} className="text-success-500" aria-label="Verified" />}
+                  {d.verified && <Check size={12} className="text-success" aria-label="Verified" />}
                   {Math.round(d.score)}
                 </span>
               </div>
@@ -366,7 +366,7 @@ export function CustomerTrustLayerPage() {
             onClick={() => void togglePublic()}
             className={`focus-ring relative h-6 w-11 shrink-0 rounded-full transition-colors disabled:opacity-50 ${publicEnabled ? 'bg-accent' : 'bg-bg-tertiary'}`}
           >
-            <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${publicEnabled ? 'left-[22px]' : 'left-0.5'}`} />
+            <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-bg-secondary shadow transition-all ${publicEnabled ? 'left-[22px]' : 'left-0.5'}`} />
           </button>
         </div>
 
@@ -395,7 +395,7 @@ export function CustomerTrustLayerPage() {
               </div>
               <div className="rounded-2xl border border-border bg-bg-secondary p-3">
                 <p className="text-[11px] text-text-secondary">Trusted Service™</p>
-                <p className="text-lg font-semibold text-success-500">{summary.trusted}</p>
+                <p className="text-lg font-semibold text-success">{summary.trusted}</p>
               </div>
               <div className="rounded-2xl border border-border bg-bg-secondary p-3">
                 <p className="text-[11px] text-text-secondary">At risk</p>
@@ -432,7 +432,7 @@ export function CustomerTrustLayerPage() {
                   key={key}
                   type="button"
                   onClick={() => setFilter(key)}
-                  className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium ${filter === key ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
+                  className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium ${filter === key ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
                 >
                   {label}
                 </button>

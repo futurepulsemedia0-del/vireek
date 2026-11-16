@@ -76,7 +76,7 @@ export function NpsPrompt() {
     >
       {phase === 'thanks' ? (
         <p id="nps-prompt-title" role="status" className="flex items-center gap-2 text-sm font-semibold text-text-primary">
-          <CheckCircle2 size={18} className="text-success-500" aria-hidden="true" /> Thank you — your feedback goes straight to our team.
+          <CheckCircle2 size={18} className="text-success" aria-hidden="true" /> Thank you — your feedback goes straight to our team.
         </p>
       ) : (
         <>

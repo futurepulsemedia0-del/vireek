@@ -93,10 +93,10 @@ const TABS: { key: TabKey; label: string }[] = [
 ];
 
 const TIER_STYLE: Record<RiskTier, string> = {
-  critical: 'bg-rose-100 text-rose-800 dark:bg-rose-500/10 dark:text-rose-400',
-  high: 'bg-amber-100 text-amber-800 dark:bg-amber-500/10 dark:text-amber-400',
-  watch: 'bg-sky-100 text-sky-800 dark:bg-sky-500/10 dark:text-sky-400',
-  healthy: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400',
+  critical: 'bg-danger-subtle text-danger-strong',
+  high: 'bg-warning-subtle text-warning-strong',
+  watch: 'bg-info-subtle text-info-strong',
+  healthy: 'bg-success-subtle text-success-strong',
 };
 const TIER_LABEL: Record<RiskTier, string> = { critical: 'Critical', high: 'High', watch: 'Watch', healthy: 'Healthy' };
 const SEV_STYLE: Record<Severity, string> = {
@@ -450,7 +450,7 @@ export function PartsIntelligencePage() {
           </div>
           <div className="flex items-center gap-2">
             <span className="flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-[11px] text-text-secondary">
-              <Radio size={12} className="text-emerald-500" />
+              <Radio size={12} className="text-success" />
               Live{updatedAt ? ` · ${updatedAt.toLocaleTimeString()}` : ''}
             </span>
             <Button variant="secondary" size="sm" onClick={() => setTick((t) => t + 1)} disabled={loading}>
@@ -517,7 +517,7 @@ export function PartsIntelligencePage() {
                     <option value="healthy">Healthy</option>
                   </select>
                   <label className="flex min-h-[48px] items-center gap-2 text-sm text-text-secondary">
-                    <input type="checkbox" checked={recallOnly} onChange={(e) => setRecallOnly(e.target.checked)} className="h-4 w-4 accent-[var(--accent,#2563eb)]" />
+                    <input type="checkbox" checked={recallOnly} onChange={(e) => setRecallOnly(e.target.checked)} className="h-4 w-4 accent-accent" />
                     Recalls only
                   </label>
                 </div>
@@ -569,7 +569,7 @@ export function PartsIntelligencePage() {
                               <td className="px-2 py-2 text-right tabular-nums">{s.forecast.daysOfCover === null ? '—' : `${Math.round(s.forecast.daysOfCover)}d`}</td>
                               <td className="px-2 py-2 text-right tabular-nums">{Math.round(s.forecast.expected30d)}</td>
                               <td className="px-2 py-2 text-center">
-                                {s.row.recall_count > 0 ? <ShieldAlert size={14} className="mx-auto text-rose-500" aria-label="Recall linked" /> : '—'}
+                                {s.row.recall_count > 0 ? <ShieldAlert size={14} className="mx-auto text-danger" aria-label="Recall linked" /> : '—'}
                               </td>
                               <td className="px-2 py-2 text-right tabular-nums">{s.row.compatible_units || '—'}</td>
                               <td className="px-2 py-2 text-right tabular-nums">{s.failures12m || '—'}</td>
@@ -827,7 +827,7 @@ function DetailTabs({ tab, selected, detail, intel, marketInput, qty, setQty, wo
                     <span className={`${chip} ${s.inStock ? TIER_STYLE.healthy : 'bg-bg-tertiary text-text-secondary'}`}>{s.inStock ? `${s.available} in stock` : 'Out of stock'}</span>
                     <span className="tabular-nums">{formatCents(s.effectiveCents)}</span>
                     {s.savingsCents !== null && s.savingsCents !== 0 && (
-                      <span className={`text-xs ${s.savingsCents > 0 ? 'text-emerald-600' : 'text-rose-600'}`}>{s.savingsCents > 0 ? 'saves' : 'costs'} {formatCents(Math.abs(s.savingsCents))}</span>
+                      <span className={`text-xs ${s.savingsCents > 0 ? 'text-success' : 'text-danger'}`}>{s.savingsCents > 0 ? 'saves' : 'costs'} {formatCents(Math.abs(s.savingsCents))}</span>
                     )}
                   </span>
                 </li>

@@ -61,10 +61,10 @@ export interface SequenceDraft { id: string | null; name: string; is_default: bo
 
 export const BUCKETS: { bucket: Bucket; label: string; tone: string }[] = [
   { bucket: 'current', label: 'Current', tone: 'bg-success' },
-  { bucket: '1-30', label: '1–30 days', tone: 'bg-warning-500' },
-  { bucket: '31-60', label: '31–60 days', tone: 'bg-orange-500' },
+  { bucket: '1-30', label: '1–30 days', tone: 'bg-warning' },
+  { bucket: '31-60', label: '31–60 days', tone: 'bg-warning' },
   { bucket: '61-90', label: '61–90 days', tone: 'bg-danger' },
-  { bucket: '90+', label: '90+ days', tone: 'bg-red-700' },
+  { bucket: '90+', label: '90+ days', tone: 'bg-danger-strong' },
 ];
 
 export const CHANNELS: { channel: StepChannel; label: string }[] = [

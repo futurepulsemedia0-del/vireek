@@ -323,12 +323,12 @@ export function InspectionReportDetail({
         ) : (
           <>
             <div className="h-2 overflow-hidden rounded-full bg-bg-tertiary" role="progressbar" aria-valuenow={progress.percent} aria-valuemin={0} aria-valuemax={100} aria-label="Checklist completion">
-              <div className={`h-full rounded-full ${progress.percent === 100 ? 'bg-success' : 'bg-warning-500'}`} style={{ width: `${progress.percent}%` }} />
+              <div className={`h-full rounded-full ${progress.percent === 100 ? 'bg-success' : 'bg-warning'}`} style={{ width: `${progress.percent}%` }} />
             </div>
             <ul className="divide-y divide-border/70">
               {report.checklist.map((item, i) => (
                 <li key={`${item.label}-${i}`} className="flex items-start gap-3 py-2.5">
-                  {item.done ? <CheckCircle2 size={18} className="mt-0.5 shrink-0 text-success" aria-label="Completed" /> : <Circle size={18} className="mt-0.5 shrink-0 text-warning-500" aria-label="Not completed" />}
+                  {item.done ? <CheckCircle2 size={18} className="mt-0.5 shrink-0 text-success" aria-label="Completed" /> : <Circle size={18} className="mt-0.5 shrink-0 text-warning" aria-label="Not completed" />}
                   <span className="min-w-0 flex-1 break-words text-sm text-text-primary">{item.label}</span>
                   {item.completed_at && <span className="shrink-0 text-xs text-text-secondary">{formatDate(item.completed_at)}</span>}
                 </li>
@@ -418,7 +418,7 @@ export function InspectionReportDetail({
           ) : (
             <>
               <div className="flex flex-wrap items-center gap-2">
-                <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${share === 'active' ? 'bg-success/10 text-success' : 'bg-warning-500/10 text-warning-500'}`}>{SHARE_STATE_LABEL[share]}</span>
+                <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${share === 'active' ? 'bg-success/10 text-success' : 'bg-warning-subtle text-warning'}`}>{SHARE_STATE_LABEL[share]}</span>
                 <span className="text-xs text-text-secondary">
                   {report.share_expires_at ? `Expires ${formatDate(report.share_expires_at)}` : 'No expiry'} · {report.view_count} view{report.view_count === 1 ? '' : 's'}
                   {report.last_viewed_at ? ` · last ${formatDateTime(report.last_viewed_at)}` : ''}
@@ -482,7 +482,7 @@ export function InspectionReportDetail({
           ) : (
             <>
               <p className="text-sm text-text-secondary">Send the customer a secure link to review this report and sign it electronically.</p>
-              {share !== 'active' && <p role="status" className="text-sm text-warning-500">Enable the customer link first — the signing page links to the report.</p>}
+              {share !== 'active' && <p role="status" className="text-sm text-warning">Enable the customer link first — the signing page links to the report.</p>}
               <div className="grid gap-4 sm:grid-cols-3">
                 <Input label="Signer name" value={signer.name} required error={signerTouched && !signer.name.trim() ? 'Required' : undefined} onChange={(e) => setSigner({ ...signer, name: e.target.value })} />
                 <Input label="Email" type="email" inputMode="email" value={signer.email} onChange={(e) => setSigner({ ...signer, email: e.target.value })} />
@@ -506,7 +506,7 @@ export function InspectionReportDetail({
             {report.pdf_generated_at ? `Last generated ${formatDateTime(report.pdf_generated_at)}.` : 'Generate a branded PDF with the checklist and photos. It is also offered to the customer on their link.'}
             {stale && ' The report changed since — regenerate to refresh it.'}
           </p>
-          {isDraft && dirty && <p role="status" className="text-sm text-warning-500">Save your changes before generating the PDF.</p>}
+          {isDraft && dirty && <p role="status" className="text-sm text-warning">Save your changes before generating the PDF.</p>}
           <div className="flex flex-wrap gap-2">
             <Button type="button" size="sm" onClick={handlePdf} disabled={busy !== null || (isDraft && dirty)}>
               {busy === 'pdf' ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : <Download size={16} aria-hidden="true" />}

@@ -49,18 +49,18 @@ import {
 } from '@/lib/sageIntacct';
 
 const ACTION_STYLE: Record<LogAction, string> = {
-  created: 'bg-success-500/10 text-success-500',
+  created: 'bg-success-subtle text-success',
   updated: 'bg-accent/10 text-accent',
   linked: 'bg-accent/10 text-accent',
-  voided: 'bg-warning-500/10 text-warning-500',
-  conflict: 'bg-warning-500/10 text-warning-500',
+  voided: 'bg-warning-subtle text-warning',
+  conflict: 'bg-warning-subtle text-warning',
   skipped: 'bg-bg-tertiary text-text-secondary',
   error: 'bg-error-500/10 text-error-500',
 };
 const RUN_STYLE: Record<IaRun['status'], string> = {
   running: 'bg-accent/10 text-accent',
-  success: 'bg-success-500/10 text-success-500',
-  partial: 'bg-warning-500/10 text-warning-500',
+  success: 'bg-success-subtle text-success',
+  partial: 'bg-warning-subtle text-warning',
   failed: 'bg-error-500/10 text-error-500',
 };
 const selectCls = 'rounded-lg border border-border bg-bg-primary px-2.5 py-1.5 text-sm text-text-primary focus:border-accent focus:outline-none';
@@ -135,7 +135,7 @@ function MappingPanel({ conn, onSaved }: { conn: IaConnection; onSaved: () => vo
     <section className="space-y-4" aria-labelledby="ia-mapping">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 id="ia-mapping" className="text-lg font-semibold text-text-primary">Mapping &amp; conflict rules</h2>
-        <button type="button" onClick={save} disabled={!dirty || saving || !check.ok} className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">
+        <button type="button" onClick={save} disabled={!dirty || saving || !check.ok} className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-on-accent disabled:cursor-not-allowed disabled:opacity-50">
           {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} Save mapping
         </button>
       </div>
@@ -149,7 +149,7 @@ function MappingPanel({ conn, onSaved }: { conn: IaConnection; onSaved: () => vo
             <div key={entity} className="p-4">
               <div className="flex flex-wrap items-center gap-3">
                 <label className="flex min-w-[9rem] items-center gap-2.5">
-                  <input type="checkbox" checked={es.enabled} onChange={(e) => patch(entity, { enabled: e.target.checked })} className="h-4 w-4 accent-[var(--color-accent,#2563eb)]" aria-label={`Sync ${meta.label}`} />
+                  <input type="checkbox" checked={es.enabled} onChange={(e) => patch(entity, { enabled: e.target.checked })} className="h-4 w-4 accent-accent" aria-label={`Sync ${meta.label}`} />
                   <span className="font-medium text-text-primary">{meta.label}</span>
                 </label>
                 <span className="hidden text-xs text-text-secondary lg:inline">{meta.vireekLabel} ↔ {meta.intacctLabel}</span>
@@ -199,7 +199,7 @@ function MappingPanel({ conn, onSaved }: { conn: IaConnection; onSaved: () => vo
       <div className="rounded-2xl border border-border bg-bg-secondary p-4">
         <h3 className="font-medium text-text-primary">Defaults for records Vireek creates in Sage Intacct</h3>
         <p className="mb-3 mt-1 text-xs text-text-secondary">Sage Intacct needs these to accept new invoices and payments. Nothing is sent for a record whose default is missing; it is listed in the log instead.</p>
-        {optError && <p className="mb-3 text-sm text-warning-500">Could not load your Sage Intacct lists: {optError}</p>}
+        {optError && <p className="mb-3 text-sm text-warning">Could not load your Sage Intacct lists: {optError}</p>}
         <div className="grid gap-4 sm:grid-cols-2">
           {pickList('Revenue account for invoice lines', 'revenueAccountNo', (options?.accounts ?? []).map((a) => ({ id: a.id, name: `${a.id} · ${a.name}` })), 'Used for lines whose Vireek revenue account is not linked. Required to send invoices.')}
           {pickList('Sales tax account', 'taxAccountNo', (options?.accounts ?? []).map((a) => ({ id: a.id, name: `${a.id} · ${a.name}` })), 'Tax is sent to and read from this account, so it is never booked as revenue. Required for invoices that carry tax.')}
@@ -252,11 +252,11 @@ function ConflictsPanel({ conn, refreshKey, onChanged }: { conn: IaConnection; r
   return (
     <section className="space-y-3" aria-labelledby="ia-conflicts">
       <h2 id="ia-conflicts" className="flex items-center gap-2 text-lg font-semibold text-text-primary">
-        <AlertTriangle size={18} className="text-warning-500" /> Needs your decision ({rows.length})
+        <AlertTriangle size={18} className="text-warning" /> Needs your decision ({rows.length})
       </h2>
       <ul className="space-y-3">
         {rows.map((c) => (
-          <li key={c.link_id} className="rounded-2xl border border-warning-500/40 bg-warning-500/5 p-4">
+          <li key={c.link_id} className="rounded-2xl border border-warning/40 bg-warning-subtle p-4">
             <p className="text-sm font-medium text-text-primary">{ENTITY_META[c.entity].label.replace(/s$/, '')}</p>
             {c.reason && <p className="mt-1 text-sm text-text-secondary">{c.reason}</p>}
             {c.fields.length > 0 && (
@@ -406,7 +406,7 @@ function ConnectForm({ onConnected }: { onConnected: () => void }) {
         <label className="flex flex-col gap-1.5 text-sm"><span className="font-medium text-text-primary">Password</span><input className={inputCls} type="password" value={f.password} onChange={set('password')} autoComplete="new-password" required /></label>
       </div>
       {error && <p role="alert" className="text-sm text-error-500">{error}</p>}
-      <button type="submit" disabled={busy} className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
+      <button type="submit" disabled={busy} className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-on-accent disabled:opacity-50">
         {busy ? <Loader2 size={16} className="animate-spin" /> : <Link2 size={16} />} {busy ? 'Verifying with Sage Intacct…' : 'Connect Sage Intacct'}
       </button>
     </form>
@@ -509,13 +509,13 @@ export function SageIntacctSyncPage() {
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-3">
               <h1 className="text-xl font-bold text-text-primary sm:text-2xl">Sage Intacct</h1>
-              <Badge cls="bg-warning-500/10 text-warning-500"><FlaskConical size={12} /> {NOT_LIVE_VERIFIED_LABEL}</Badge>
+              <Badge cls="bg-warning-subtle text-warning"><FlaskConical size={12} /> {NOT_LIVE_VERIFIED_LABEL}</Badge>
               <LiveIndicator status={live} />
             </div>
             <p className="text-sm text-text-secondary">Two-way sync of GL accounts, customers, invoices and payments.</p>
           </div>
         </div>
-        <p role="note" className="rounded-xl border border-warning-500/40 bg-warning-500/5 px-4 py-3 text-sm text-text-secondary">{NOT_LIVE_VERIFIED_NOTE}</p>
+        <p role="note" className="rounded-xl border border-warning/40 bg-warning-subtle px-4 py-3 text-sm text-text-secondary">{NOT_LIVE_VERIFIED_NOTE}</p>
 
         {loading ? (
           <div className="h-40 animate-pulse rounded-2xl bg-bg-tertiary" aria-busy="true" aria-label="Loading Sage Intacct connection" />
@@ -530,15 +530,15 @@ export function SageIntacctSyncPage() {
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="truncate text-base font-semibold text-text-primary">{conn.company_name ?? `Company ${conn.company_id}`}{conn.entity_id ? ` · ${conn.entity_id}` : ''}</p>
-                    {needsReconnect ? <Badge cls="bg-error-500/10 text-error-500"><AlertTriangle size={12} /> Needs reconnect</Badge> : running ? <Badge cls="bg-accent/10 text-accent"><Loader2 size={12} className="animate-spin" /> Syncing</Badge> : <Badge cls="bg-success-500/10 text-success-500"><CheckCircle2 size={12} /> Connected</Badge>}
+                    {needsReconnect ? <Badge cls="bg-error-500/10 text-error-500"><AlertTriangle size={12} /> Needs reconnect</Badge> : running ? <Badge cls="bg-accent/10 text-accent"><Loader2 size={12} className="animate-spin" /> Syncing</Badge> : <Badge cls="bg-success-subtle text-success"><CheckCircle2 size={12} /> Connected</Badge>}
                   </div>
                   <p className="mt-1 text-sm text-text-secondary">Last synced {timeAgo(conn.last_synced_at)}{conn.last_error ? ` · ${conn.last_error}` : ''}</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {needsReconnect ? (
-                    <button type="button" onClick={() => setReconnecting(true)} className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white"><Link2 size={16} /> Reconnect</button>
+                    <button type="button" onClick={() => setReconnecting(true)} className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-on-accent"><Link2 size={16} /> Reconnect</button>
                   ) : (
-                    <button type="button" onClick={() => void sync(false)} disabled={!!busy || running} className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
+                    <button type="button" onClick={() => void sync(false)} disabled={!!busy || running} className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-on-accent disabled:opacity-50">
                       <RefreshCw size={16} className={running || busy === 'sync' ? 'animate-spin' : ''} /> Sync now
                     </button>
                   )}

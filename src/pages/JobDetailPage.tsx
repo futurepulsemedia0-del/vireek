@@ -496,8 +496,8 @@ export function JobDetailPage() {
   <MessagesSquare size={13} aria-hidden="true" /> Chat
 </Link>
             <Pill className={STATUS_BADGE[j.job_status]}>{STATUS_LABELS[j.job_status]}</Pill>
-            {j.quality_check_passed === true && <Pill className="bg-success-500/10 text-success-500">Quality check passed</Pill>}
-            {j.quality_check_passed === false && <Pill className="bg-warning-500/10 text-warning-500">Quality check failed</Pill>}
+            {j.quality_check_passed === true && <Pill className="bg-success-subtle text-success">Quality check passed</Pill>}
+            {j.quality_check_passed === false && <Pill className="bg-warning-subtle text-warning">Quality check failed</Pill>}
             <span className="text-xs text-text-secondary" title={j.id}>
               #{j.id.slice(0, 8)}
             </span>

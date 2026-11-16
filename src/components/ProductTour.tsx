@@ -158,10 +158,10 @@ export function ProductTour({ open, onFinish, checklistHref }: Props) {
         <div
           aria-hidden="true"
           className="pointer-events-none fixed rounded-2xl ring-2 ring-accent transition-all duration-200"
-          style={{ ...spot, boxShadow: '0 0 0 9999px rgba(8, 10, 24, 0.62)' }}
+          style={{ ...spot, boxShadow: '0 0 0 9999px rgba(20, 20, 19, 0.62)' }}
         />
       ) : (
-        <div aria-hidden="true" className="fixed inset-0 bg-black/60" />
+        <div aria-hidden="true" className="fixed inset-0 bg-overlay/60" />
       )}
       {/* Click-catcher so the page behind is inert while the tour is open. */}
       <div className="fixed inset-0" aria-hidden="true" />

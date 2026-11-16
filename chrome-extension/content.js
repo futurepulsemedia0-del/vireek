@@ -67,7 +67,7 @@
   if (!settings.inlineButtons || settings.blockedHosts.includes(location.hostname)) return;
 
   // ---- inline buttons
-  const CSS = `:host{all:initial}button{all:initial;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;margin:0 3px;border-radius:9px;background:#203ad8;color:#fff;cursor:pointer;vertical-align:middle;opacity:.78;font:600 10px/1 system-ui}button:hover,button:focus-visible{opacity:1;outline:2px solid #6c82ff;outline-offset:1px}svg{width:10px;height:10px;fill:currentColor}`;
+  const CSS = `:host{all:initial}button{all:initial;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;margin:0 3px;border-radius:9px;background:#ae3600;color:#fff;cursor:pointer;vertical-align:middle;opacity:.78;font:600 10px/1 system-ui}button:hover,button:focus-visible{opacity:1;outline:2px solid #f9774c;outline-offset:1px}svg{width:10px;height:10px;fill:currentColor}`;
   const ICON =
     '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg>';
   let count = 0;
@@ -165,12 +165,12 @@
     const top = Math.min(Math.max(8, r.bottom + 6), window.innerHeight - 150);
     const left = Math.min(Math.max(8, r.left), window.innerWidth - 270);
     root.innerHTML = `<style>
-      :host{all:initial}.c{position:fixed;z-index:2147483647;top:${top}px;left:${left}px;width:256px;box-sizing:border-box;padding:12px;border-radius:12px;background:#fdfcfa;color:#17171a;border:1px solid #e7e5e0;box-shadow:0 12px 32px rgba(0,0,0,.18);font:13px/1.4 system-ui,sans-serif}
-      @media (prefers-color-scheme:dark){.c{background:#101115;color:#f2f1ee;border-color:#24252c}}
+      :host{all:initial}.c{position:fixed;z-index:2147483647;top:${top}px;left:${left}px;width:256px;box-sizing:border-box;padding:12px;border-radius:12px;background:#faf9f5;color:#141413;border:1px solid #e8e6dc;box-shadow:0 12px 32px rgba(0,0,0,.18);font:13px/1.4 system-ui,sans-serif}
+      @media (prefers-color-scheme:dark){.c{background:#1C1C1A;color:#faf9f5;border-color:#2e2e2c}}
       b{display:block;font-size:15px;margin-bottom:8px}.r{display:flex;gap:6px}
-      button{all:initial;box-sizing:border-box;flex:1;text-align:center;padding:7px 6px;border-radius:8px;cursor:pointer;font:600 12px system-ui;border:1px solid #e7e5e0;color:inherit}
-      button.p{background:#203ad8;border-color:#203ad8;color:#fff}button:focus-visible{outline:2px solid #6c82ff}button[disabled]{opacity:.5;cursor:default}
-      .s{margin-top:8px;min-height:18px;font-size:12px}.e{color:#c83030}.k{color:#168458}
+      button{all:initial;box-sizing:border-box;flex:1;text-align:center;padding:7px 6px;border-radius:8px;cursor:pointer;font:600 12px system-ui;border:1px solid #e8e6dc;color:inherit}
+      button.p{background:#ae3600;border-color:#ae3600;color:#fff}button:focus-visible{outline:2px solid #f9774c}button[disabled]{opacity:.5;cursor:default}
+      .s{margin-top:8px;min-height:18px;font-size:12px}.e{color:#e40b24}.k{color:#009638}
     </style><div class="c" role="dialog" aria-label="Vireek"><b dir="ltr"></b>
       <div class="r"><button class="p" data-a="call"></button><button data-a="lead"></button><button data-a="x"></button></div><div class="s" role="status"></div></div>`;
     root.querySelector('b').textContent = formatPhone(e164);

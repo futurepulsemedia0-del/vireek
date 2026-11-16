@@ -61,15 +61,15 @@ const BOARD_COLUMNS = [
     ],
   },
   {
-    key: 'en_route', label: 'En Route', dot: 'bg-blue-500', border: 'border-t-blue-500',
+    key: 'en_route', label: 'En Route', dot: 'bg-info', border: 'border-t-blue-500',
     jobs: [{ name: 'Marcus R.', job: 'Burst pipe repair', time: '2:30 PM', tech: 'Tech A' }],
   },
   {
-    key: 'in_progress', label: 'In Progress', dot: 'bg-warning-500', border: 'border-t-warning-500',
+    key: 'in_progress', label: 'In Progress', dot: 'bg-warning', border: 'border-t-warning-500',
     jobs: [{ name: 'Tom H.', job: 'Fence installation', time: 'Started 1:15 PM', tech: 'Tech B' }],
   },
   {
-    key: 'completed', label: 'Completed', dot: 'bg-success-500', border: 'border-t-success-500',
+    key: 'completed', label: 'Completed', dot: 'bg-success', border: 'border-t-success-500',
     jobs: [
       { name: 'Lisa M.', job: 'Outlet replacement', time: '11:40 AM', tech: 'Tech B' },
       { name: 'Sarah L.', job: 'HVAC tune-up', time: '9:20 AM', tech: 'Tech A' },
@@ -238,7 +238,7 @@ function CallsTab() {
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <p className="truncate text-sm font-semibold text-text-primary">{call.name}</p>
-                <span className="shrink-0 text-[0.65rem] text-text-secondary/70">{call.duration}</span>
+                <span className="shrink-0 text-[0.65rem] text-text-muted">{call.duration}</span>
               </div>
               <p className="truncate text-xs text-text-secondary">{call.reason}</p>
             </div>
@@ -385,10 +385,10 @@ export function DashboardPreview() {
           {/* Browser chrome */}
           <div className="flex items-center gap-2 border-b border-border bg-bg-tertiary px-4 py-3 sm:px-5">
             <span className="h-2.5 w-2.5 rounded-full bg-danger/40" />
-            <span className="h-2.5 w-2.5 rounded-full bg-warning-500/40" />
+            <span className="h-2.5 w-2.5 rounded-full bg-warning/40" />
             <span className="h-2.5 w-2.5 rounded-full bg-success/40" />
             <div className="ml-3 hidden items-center gap-1.5 rounded-lg border border-border bg-bg-primary px-3 py-1 sm:flex">
-              <span className="text-[0.65rem] text-text-secondary/60">app.vireek.com/dashboard</span>
+              <span className="text-[0.65rem] text-text-muted">app.vireek.com/dashboard</span>
             </div>
             <span className="ml-auto flex items-center gap-1.5 text-xs font-medium text-success">
               <span className="relative flex h-2 w-2">

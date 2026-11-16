@@ -10,11 +10,11 @@ export function GenomeStrip({ dna }: { dna: GenomeDna }) {
           className={`rounded-xl border px-3 py-2 ${s.kind === 'profile' ? 'border-accent/30 bg-accent/5' : 'border-border bg-bg-primary'}`}
         >
           <dt className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-text-secondary">
-            <span className="tabular-nums text-text-secondary/60">{String(i + 1).padStart(2, '0')}</span>
+            <span className="tabular-nums text-text-muted">{String(i + 1).padStart(2, '0')}</span>
             {s.label}
           </dt>
           <dd
-            className={`mt-0.5 truncate text-sm font-medium ${s.filled ? 'text-text-primary' : 'text-text-secondary/60'}`}
+            className={`mt-0.5 truncate text-sm font-medium ${s.filled ? 'text-text-primary' : 'text-text-muted'}`}
             title={s.value}
           >
             {s.value}

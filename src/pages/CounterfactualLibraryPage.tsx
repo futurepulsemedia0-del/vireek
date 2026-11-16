@@ -24,8 +24,8 @@ import {
 } from '@/lib/counterfactuals';
 
 const CONFIDENCE_STYLES: Record<Counterfactual['confidence'], string> = {
-  high: 'bg-success-500/15 text-success-500',
-  medium: 'bg-warning-500/15 text-warning-500',
+  high: 'bg-success-subtle text-success',
+  medium: 'bg-warning-subtle text-warning',
   low: 'bg-bg-tertiary text-text-secondary',
 };
 

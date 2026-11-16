@@ -51,19 +51,19 @@ export const TAG_MAX_COUNT = 10;
 export const TAG_MAX_LENGTH = 30;
 
 export const CHANNELS: readonly ChannelMeta[] = [
-  { id: 'facebook', label: 'Facebook', group: 'social', limit: BODY_MAX, dot: 'bg-blue-500' },
-  { id: 'instagram', label: 'Instagram', group: 'social', limit: 2200, dot: 'bg-pink-500' },
-  { id: 'google_business', label: 'Google Business Profile', group: 'social', limit: 1500, dot: 'bg-emerald-500' },
-  { id: 'linkedin', label: 'LinkedIn', group: 'social', limit: 3000, dot: 'bg-sky-600' },
-  { id: 'x', label: 'X (Twitter)', group: 'social', limit: 280, dot: 'bg-slate-500' },
-  { id: 'tiktok', label: 'TikTok', group: 'social', limit: 2200, dot: 'bg-fuchsia-500' },
-  { id: 'youtube', label: 'YouTube', group: 'social', limit: BODY_MAX, dot: 'bg-red-500' },
-  { id: 'nextdoor', label: 'Nextdoor', group: 'social', limit: BODY_MAX, dot: 'bg-lime-600' },
-  { id: 'blog', label: 'Blog / website', group: 'owned', limit: BODY_MAX, dot: 'bg-indigo-500' },
-  { id: 'email', label: 'Email', group: 'direct', limit: BODY_MAX, dot: 'bg-amber-500' },
-  { id: 'sms', label: 'SMS', group: 'direct', limit: 480, dot: 'bg-teal-500' },
-  { id: 'direct_mail', label: 'Direct mail', group: 'direct', limit: BODY_MAX, dot: 'bg-orange-500' },
-  { id: 'other', label: 'Other', group: 'owned', limit: BODY_MAX, dot: 'bg-zinc-400' },
+  { id: 'facebook', label: 'Facebook', group: 'social', limit: BODY_MAX, dot: 'bg-info' },
+  { id: 'instagram', label: 'Instagram', group: 'social', limit: 2200, dot: 'bg-accent' },
+  { id: 'google_business', label: 'Google Business Profile', group: 'social', limit: 1500, dot: 'bg-success' },
+  { id: 'linkedin', label: 'LinkedIn', group: 'social', limit: 3000, dot: 'bg-info' },
+  { id: 'x', label: 'X (Twitter)', group: 'social', limit: 280, dot: 'bg-text-muted' },
+  { id: 'tiktok', label: 'TikTok', group: 'social', limit: 2200, dot: 'bg-accent' },
+  { id: 'youtube', label: 'YouTube', group: 'social', limit: BODY_MAX, dot: 'bg-danger' },
+  { id: 'nextdoor', label: 'Nextdoor', group: 'social', limit: BODY_MAX, dot: 'bg-success' },
+  { id: 'blog', label: 'Blog / website', group: 'owned', limit: BODY_MAX, dot: 'bg-accent' },
+  { id: 'email', label: 'Email', group: 'direct', limit: BODY_MAX, dot: 'bg-warning' },
+  { id: 'sms', label: 'SMS', group: 'direct', limit: 480, dot: 'bg-success' },
+  { id: 'direct_mail', label: 'Direct mail', group: 'direct', limit: BODY_MAX, dot: 'bg-warning' },
+  { id: 'other', label: 'Other', group: 'owned', limit: BODY_MAX, dot: 'bg-text-muted' },
 ];
 
 const CHANNEL_BY_ID = new Map<string, ChannelMeta>(CHANNELS.map((c) => [c.id, c]));

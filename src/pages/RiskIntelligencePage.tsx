@@ -21,7 +21,7 @@ import {
 import { buildRiskInputs, fetchRiskPolicy, saveRiskPolicy } from '@/lib/riskIntelligenceApi';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder transition-colors';
 
 interface Row {
   job: Job;
@@ -126,7 +126,7 @@ function PolicyCard({
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+            className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent hover:opacity-90 disabled:opacity-50"
           >
             {saving && <Loader2 size={14} className="animate-spin" />}
             Save policy
@@ -266,7 +266,7 @@ export function RiskIntelligencePage() {
                 type="button"
                 onClick={() => setFilter(f)}
                 className={`focus-ring rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                  filter === f ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
+                  filter === f ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
                 }`}
               >
                 {f === 'all' ? 'All' : LEVEL_LABELS[f]}

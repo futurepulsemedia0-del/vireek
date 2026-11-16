@@ -15,7 +15,7 @@ export function UnsavedChangesDialog({ open, saving, canSave, onSave, onDiscard,
   if (!open) return null;
   return (
     <>
-      <div className="fixed inset-0 z-[110] bg-black/40" onClick={onStay} aria-hidden="true" />
+      <div className="fixed inset-0 z-[110] bg-overlay/40" onClick={onStay} aria-hidden="true" />
       <div
         ref={ref}
         tabIndex={-1}
@@ -25,7 +25,7 @@ export function UnsavedChangesDialog({ open, saving, canSave, onSave, onDiscard,
         aria-describedby={bodyId}
         className="fixed left-1/2 top-1/2 z-[120] w-[92vw] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border bg-bg-secondary p-6 shadow-card-hover dark:shadow-card-hover-dark"
       >
-        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-warning-500/10 text-warning-500">
+        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-warning-subtle text-warning">
           <TriangleAlert size={20} aria-hidden="true" />
         </span>
         <h2 id={titleId} className="mt-4 text-base font-semibold text-text-primary">

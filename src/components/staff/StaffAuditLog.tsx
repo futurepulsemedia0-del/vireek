@@ -6,7 +6,7 @@ import { Skeleton } from '@/components/Skeleton';
 import { AUDIT_ACTION_LABELS, fetchStaffAudit, type StaffAuditEntry } from '@/lib/staffCustomers';
 
 const TONE: Record<string, string> = {
-  impersonation_start: 'bg-warning-500/10 text-warning-500',
+  impersonation_start: 'bg-warning-subtle text-warning',
   impersonation_end: 'bg-bg-tertiary text-text-secondary',
   impersonation_denied: 'bg-danger/10 text-danger',
   account_view: 'bg-accent/10 text-accent',

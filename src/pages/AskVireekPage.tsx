@@ -41,15 +41,15 @@ import {
 const MAX_QUESTION = 500;
 
 const VERDICT_STYLE: Record<Verdict, { label: string; className: string } | null> = {
-  yes: { label: 'Yes', className: 'bg-emerald-500/10 text-emerald-500' },
+  yes: { label: 'Yes', className: 'bg-success-subtle text-success' },
   no: { label: 'No', className: 'bg-danger/10 text-danger' },
-  conditional: { label: 'Only if…', className: 'bg-amber-500/10 text-amber-500' },
+  conditional: { label: 'Only if…', className: 'bg-warning-subtle text-warning' },
   info: null,
 };
 
 const CONFIDENCE_STYLE = {
-  high: 'bg-emerald-500/10 text-emerald-500',
-  medium: 'bg-amber-500/10 text-amber-500',
+  high: 'bg-success-subtle text-success',
+  medium: 'bg-warning-subtle text-warning',
   low: 'bg-danger/10 text-danger',
 } as const;
 
@@ -114,7 +114,7 @@ function AnswerView({
                 </p>
                 {f.impact_usd !== null && (
                   <span
-                    className={`shrink-0 text-sm font-semibold ${f.impact_usd < 0 ? 'text-danger' : 'text-emerald-500'}`}
+                    className={`shrink-0 text-sm font-semibold ${f.impact_usd < 0 ? 'text-danger' : 'text-success'}`}
                   >
                     {f.impact_usd > 0 ? '+' : ''}
                     {formatUsd(f.impact_usd)}
@@ -168,8 +168,8 @@ function AnswerView({
             </div>
           )}
           {answer.data_gaps.length > 0 && (
-            <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-text-secondary">
-              <p className="mb-1 flex items-center gap-1 font-semibold text-amber-500">
+            <div className="rounded-xl border border-warning/30 bg-warning-subtle p-3 text-xs text-text-secondary">
+              <p className="mb-1 flex items-center gap-1 font-semibold text-warning">
                 <AlertTriangle size={13} /> Data gaps
               </p>
               <ul className="list-inside list-disc space-y-0.5">
@@ -238,7 +238,7 @@ function AnswerView({
               aria-label="This answer was helpful"
               aria-pressed={feedback === 'helpful'}
               onClick={() => onFeedback(messageId, 'helpful')}
-              className={`focus-ring rounded-lg p-1.5 hover:bg-bg-tertiary ${feedback === 'helpful' ? 'text-emerald-500' : ''}`}
+              className={`focus-ring rounded-lg p-1.5 hover:bg-bg-tertiary ${feedback === 'helpful' ? 'text-success' : ''}`}
             >
               <ThumbsUp size={15} />
             </button>
@@ -490,7 +490,7 @@ export function AskVireekPage() {
                   <div key={t.id} className="flex justify-end">
                     <p
                       dir="auto"
-                      className="max-w-[85%] whitespace-pre-line rounded-2xl rounded-br-md bg-accent px-4 py-2.5 text-sm text-white"
+                      className="max-w-[85%] whitespace-pre-line rounded-2xl rounded-br-md bg-accent px-4 py-2.5 text-sm text-on-accent"
                     >
                       {t.content}
                     </p>

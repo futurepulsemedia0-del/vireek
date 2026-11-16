@@ -278,7 +278,7 @@ export function TimeOffPage() {
             </div>
 
             {jobsFailed && (
-              <div role="status" className="rounded-xl border border-warning-500/30 bg-warning-500/10 p-3 text-sm text-text-primary">
+              <div role="status" className="rounded-xl border border-warning/30 bg-warning-subtle p-3 text-sm text-text-primary">
                 We couldn't load scheduled jobs, so conflicts and open slots may be incomplete.{' '}
                 <button type="button" className="focus-ring rounded font-semibold text-accent underline" onClick={() => void load()}>
                   Retry
@@ -387,7 +387,7 @@ export function TimeOffPage() {
                     <li key={`${item.type}-${item.id}`} className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-bg-secondary p-4">
                       <div className="flex min-w-0 items-start gap-3">
                         <span
-                          className={`mt-1 h-8 w-1 shrink-0 rounded-full ${item.type === 'blackout' ? 'bg-danger' : 'bg-warning-500'}`}
+                          className={`mt-1 h-8 w-1 shrink-0 rounded-full ${item.type === 'blackout' ? 'bg-danger' : 'bg-warning'}`}
                           aria-hidden="true"
                         />
                         <div className="min-w-0">

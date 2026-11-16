@@ -104,7 +104,7 @@ function NotifySignup() {
         }}
         placeholder="you@company.com"
         aria-label="Email address"
-        className={`focus-ring w-full rounded-xl border bg-bg-secondary px-4 py-3 text-sm text-text-primary placeholder:text-text-secondary/60 ${
+        className={`focus-ring w-full rounded-xl border bg-bg-secondary px-4 py-3 text-sm text-text-primary placeholder:text-text-placeholder ${
           state === 'error' ? 'border-danger/60' : 'border-border'
         }`}
       />

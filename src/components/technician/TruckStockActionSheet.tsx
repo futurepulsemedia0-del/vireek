@@ -158,7 +158,7 @@ export function TruckStockActionSheet({ item, onTruck, mode, jobs, vendors, from
 
   return (
     <div className="fixed inset-0 z-40 flex items-end justify-center sm:items-center" role="presentation">
-      <button type="button" aria-label="Close" tabIndex={-1} onClick={onClose} className="absolute inset-0 bg-black/50" />
+      <button type="button" aria-label="Close" tabIndex={-1} onClick={onClose} className="absolute inset-0 bg-overlay/50" />
       <form
         role="dialog"
         aria-modal="true"
@@ -184,7 +184,7 @@ export function TruckStockActionSheet({ item, onTruck, mode, jobs, vendors, from
                   </span>
                 </>
               ) : (
-                <span className="text-warning-500">Not on your truck's list</span>
+                <span className="text-warning">Not on your truck's list</span>
               )}
             </p>
           </div>
@@ -228,7 +228,7 @@ export function TruckStockActionSheet({ item, onTruck, mode, jobs, vendors, from
           </div>
 
           {overUse && (
-            <p role="status" className="flex gap-2 rounded-xl bg-warning-500/10 p-3 text-sm text-warning-500">
+            <p role="status" className="flex gap-2 rounded-xl bg-warning-subtle p-3 text-sm text-warning">
               <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" aria-hidden />
               <span>
                 The truck shows {Math.max(avail, 0)}. It will still be recorded — you used it — and flagged so the office can fix the count.
@@ -300,7 +300,7 @@ export function TruckStockActionSheet({ item, onTruck, mode, jobs, vendors, from
               value={note}
               onChange={(e) => setNote(e.target.value.slice(0, 500))}
               placeholder={mode === 'request' ? 'e.g. needed for tomorrow’s 8am job' : mode === 'return' ? 'e.g. wrong size' : 'e.g. replaced failed unit'}
-              className="h-12 w-full rounded-xl border border-border bg-bg-secondary px-3 text-base text-text-primary placeholder:text-text-secondary/60 focus:border-accent focus:outline-none"
+              className="h-12 w-full rounded-xl border border-border bg-bg-secondary px-3 text-base text-text-primary placeholder:text-text-placeholder focus:border-accent focus:outline-none"
             />
           </label>
 
@@ -319,7 +319,7 @@ export function TruckStockActionSheet({ item, onTruck, mode, jobs, vendors, from
               <ArrowDownToLine className="h-4 w-4" aria-hidden /> Record &amp; scan next
             </button>
           )}
-          <button type="submit" className="h-12 flex-1 rounded-xl bg-accent text-sm font-semibold text-white active:scale-[0.98]">
+          <button type="submit" className="h-12 flex-1 rounded-xl bg-accent text-sm font-semibold text-on-accent active:scale-[0.98]">
             {submitLabel}
           </button>
         </div>

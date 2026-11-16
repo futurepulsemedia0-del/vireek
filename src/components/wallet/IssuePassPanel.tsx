@@ -107,7 +107,7 @@ export function IssuePassPanel({ kind, onIssued }: { kind: WalletKind; onIssued:
 
       {result && (
         <div className="mt-3 flex items-center gap-3 rounded-xl border border-border bg-bg-primary p-3">
-          {qr && <img src={qr} alt="QR code for the wallet link" width={96} height={96} className="rounded bg-white p-1" />}
+          {qr && <img src={qr} alt="QR code for the wallet link" width={96} height={96} className="rounded bg-bg-secondary p-1" />}
           <div className="min-w-0 flex-1">
             <p className="break-all text-xs text-text-primary">{result.url}</p>
             <Button size="sm" variant="ghost" onClick={() => void copy()} className="mt-1">{copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />} {copied ? 'Copied' : 'Copy link'}</Button>

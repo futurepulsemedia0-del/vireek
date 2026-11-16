@@ -33,11 +33,11 @@ import {
 type Program = Omit<LoyaltyProgram, 'account_owner_id'>;
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder transition-colors';
 const btnClass =
   'focus-ring inline-flex items-center justify-center gap-1.5 rounded-xl border border-border bg-bg-secondary px-4 py-2 text-sm font-medium text-text-primary transition-colors hover:bg-bg-tertiary disabled:opacity-50';
 const primaryBtn =
-  'focus-ring inline-flex items-center justify-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50';
+  'focus-ring inline-flex items-center justify-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent transition-all hover:brightness-110 disabled:opacity-50';
 
 const fmtDate = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString() : '—');
 const fmtPts = (n: number) => n.toLocaleString();
@@ -46,7 +46,7 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
   const ref = useFocusTrap(true);
   useEscapeToClose(true, onClose);
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4" onMouseDown={onClose}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-overlay/50 p-0 sm:items-center sm:p-4" onMouseDown={onClose}>
       <div
         ref={ref}
         role="dialog"
@@ -215,7 +215,7 @@ function DetailModal({ account, onClose, onAdjust }: { account: LoyaltyAccount; 
                 <p className="text-xs text-text-secondary">{fmtDate(r.created_at)}{r.expires_at ? ` · expires ${fmtDate(r.expires_at)}` : ''}</p>
               </div>
               <div className="text-right">
-                <p className={`font-semibold ${r.points > 0 ? 'text-success-500' : 'text-text-primary'}`}>{r.points > 0 ? '+' : ''}{fmtPts(r.points)}</p>
+                <p className={`font-semibold ${r.points > 0 ? 'text-success' : 'text-text-primary'}`}>{r.points > 0 ? '+' : ''}{fmtPts(r.points)}</p>
                 <p className="text-xs text-text-secondary">bal {fmtPts(r.balance_after)}</p>
               </div>
             </li>
@@ -407,14 +407,14 @@ export function PointsLedgerPage() {
       </div>
 
       {!loading && !failed && !program.enabled && (
-        <div className="mb-4 rounded-xl border border-warning-500/30 bg-warning-500/10 px-4 py-3 text-sm text-text-primary">
+        <div className="mb-4 rounded-xl border border-warning/30 bg-warning-subtle px-4 py-3 text-sm text-text-primary">
           The program is switched off, so nothing is earned or redeemable yet. Turn it on under Settings.
         </div>
       )}
 
       <div className="mb-4 flex gap-1.5 overflow-x-auto pb-1" role="tablist" aria-label="Loyalty sections">
         {TABS.map((t) => (
-          <button key={t.key} type="button" role="tab" aria-selected={tab === t.key} onClick={() => setTab(t.key)} className={`focus-ring shrink-0 rounded-full px-3.5 py-1.5 text-sm font-medium ${tab === t.key ? 'bg-accent text-white' : 'bg-bg-secondary text-text-secondary hover:text-text-primary'}`}>{t.label}</button>
+          <button key={t.key} type="button" role="tab" aria-selected={tab === t.key} onClick={() => setTab(t.key)} className={`focus-ring shrink-0 rounded-full px-3.5 py-1.5 text-sm font-medium ${tab === t.key ? 'bg-accent text-on-accent' : 'bg-bg-secondary text-text-secondary hover:text-text-primary'}`}>{t.label}</button>
         ))}
       </div>
 
@@ -478,7 +478,7 @@ export function PointsLedgerPage() {
                             {r.promo_code ? ` · code ${r.promo_code}` : ''}
                           </p>
                         </div>
-                        <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${r.active ? 'bg-success-500/10 text-success-500' : 'bg-bg-tertiary text-text-secondary'}`}>{r.active ? 'Active' : 'Paused'}</span>
+                        <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${r.active ? 'bg-success-subtle text-success' : 'bg-bg-tertiary text-text-secondary'}`}>{r.active ? 'Active' : 'Paused'}</span>
                       </button>
                     </li>
                   ))}

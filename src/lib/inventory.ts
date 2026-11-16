@@ -163,9 +163,9 @@ export const STOCKOUT_RISK_LABELS: Record<StockoutRisk, string> = {
 };
 
 export const STOCKOUT_RISK_COLORS: Record<StockoutRisk, string> = {
-  critical: '#ef4444',
-  low: '#f59e0b',
-  ok: '#10b981',
+  critical: '#ff2d55',
+  low: '#ffcc00',
+  ok: '#34c759',
 };
 
 export const READINESS_STATUS_LABELS: Record<ReadinessStatus, string> = {

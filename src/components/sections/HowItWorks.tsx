@@ -62,7 +62,7 @@ export function HowItWorks() {
               className="group grid grid-cols-1 items-center gap-4 py-7 sm:grid-cols-[auto_1fr_auto] sm:gap-8 sm:py-9 md:gap-12"
             >
               <div className="flex items-center gap-4 sm:gap-5">
-                <span className="font-display text-4xl font-semibold tabular-nums text-border transition-colors duration-300 group-hover:text-accent/30 sm:text-5xl">
+                <span className="font-display text-4xl font-semibold tabular-nums text-border transition-colors duration-300 group-hover:text-accent sm:text-5xl">
                   {num}
                 </span>
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent sm:h-12 sm:w-12">

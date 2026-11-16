@@ -204,9 +204,9 @@ Deno.serve(async (req: Request) => {
       } else {
         const subject = `${business}: following up on your service`;
         const html =
-          `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.55;color:#111">` +
+          `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.55;color:#141413">` +
           `<p>${esc(message).replace(/\n/g, "<br>")}</p>` +
-          `<p style="color:#555">- ${esc(business)}</p></div>`;
+          `<p style="color:#595852">- ${esc(business)}</p></div>`;
         const result = await sendGatedEmail(admin, ownerId, to, subject, html, `${message}\n\n- ${business}`, {
           purpose: "service",
           customerId,

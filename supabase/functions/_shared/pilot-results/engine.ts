@@ -217,8 +217,8 @@ export function renderPilotBlock(p: PilotResults, currency: string, pageUrl: str
   const rows = compareFigures(p.baseline, p.now, p.estimate_fields);
   const fee = computeFee(p.recovered.counted_cents, p.fee_pct);
   const label = (r: CompareRow) => `${r.label}${r.estimate ? " (estimate)" : ""}`;
-  const td = "padding:8px 4px;border-bottom:1px solid #eeeef2";
-  const html = `<h2 style="margin:18px 0 8px;font-size:15px;color:#171717">Pilot results</h2>
+  const td = "padding:8px 4px;border-bottom:1px solid #f0eee6";
+  const html = `<h2 style="margin:18px 0 8px;font-size:15px;color:#141413">Pilot results</h2>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:13px;border-collapse:collapse">
 <tr><th align="left" style="${td}">Metric</th><th align="right" style="${td}">Baseline</th><th align="right" style="${td}">Now</th></tr>
 ${rows.map((r) => `<tr><td style="${td}">${esc(label(r))}</td><td align="right" style="${td}">${esc(formatValue(r, r.baseline, currency))}</td><td align="right" style="${td};font-weight:600">${esc(formatValue(r, r.now, currency))}</td></tr>`).join("")}
@@ -226,7 +226,7 @@ ${rows.map((r) => `<tr><td style="${td}">${esc(label(r))}</td><td align="right" 
 <tr><td style="${td}">Not counted (no preceding action)</td><td align="right" style="${td}">—</td><td align="right" style="${td}">${esc(formatMoney(p.recovered.not_counted_cents, currency))} (${p.recovered.not_counted_count})</td></tr>
 <tr><td style="${td}">Hours spent (manual entry)</td><td align="right" style="${td}">—</td><td align="right" style="${td}">${esc(hoursLabel(p.hours_minutes))}</td></tr>
 ${fee === null ? "" : `<tr><td style="${td}">Fee at ${esc(p.fee_pct)}% (display only, never charged automatically)</td><td align="right" style="${td}">—</td><td align="right" style="${td}">${esc(formatMoney(fee, currency))}</td></tr>`}
-</table><p style="margin:8px 0 0;font-size:12px"><a href="${esc(pageUrl)}" style="color:#203ad8">Open Pilot Results</a></p>`;
+</table><p style="margin:8px 0 0;font-size:12px"><a href="${esc(pageUrl)}" style="color:#ae3600">Open Pilot Results</a></p>`;
   const text = [
     "Pilot results (baseline -> now):",
     ...rows.map((r) => `  ${label(r)}: ${formatValue(r, r.baseline, currency)} -> ${formatValue(r, r.now, currency)}`),

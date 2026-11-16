@@ -51,7 +51,7 @@ export function CadenceModal({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={() => !busy && onClose()}
-            className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 z-[100] bg-overlay/40 backdrop-blur-sm"
           />
           <motion.div
             ref={ref}
@@ -83,7 +83,7 @@ export function CadenceModal({
 
 export function ErrorBlock({ message, onRetry }: { message: string; onRetry: () => void }) {
   return (
-    <div role="alert" className="flex flex-col items-center rounded-2xl border border-danger/30 bg-danger-500/5 px-6 py-12 text-center">
+    <div role="alert" className="flex flex-col items-center rounded-2xl border border-danger/30 bg-danger-subtle px-6 py-12 text-center">
       <AlertTriangle className="text-danger" size={26} />
       <p className="mt-3 text-sm font-semibold text-text-primary">Couldn’t load this section</p>
       <p className="mt-1 max-w-sm text-sm text-text-secondary">{message}</p>
@@ -127,7 +127,7 @@ export function Sparkline({ values, tone, label }: { values: (number | null)[]; 
     pen = true;
   });
   const lastIdx = values.length - 1 - [...values].reverse().findIndex((v) => v !== null);
-  const color = tone === 'success' ? 'text-success-500' : tone === 'danger' ? 'text-danger' : 'text-text-secondary';
+  const color = tone === 'success' ? 'text-success' : tone === 'danger' ? 'text-danger' : 'text-text-secondary';
   return (
     <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} role="img" aria-label={`${label} trend, last ${nums.length} weeks`} className={color}>
       <path d={d} fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
@@ -137,7 +137,7 @@ export function Sparkline({ values, tone, label }: { values: (number | null)[]; 
 }
 
 export const STATUS_PILL = {
-  green: 'bg-success-500/10 text-success-500',
-  red: 'bg-danger-500/10 text-danger-500',
+  green: 'bg-success-subtle text-success',
+  red: 'bg-danger-subtle text-danger',
   none: 'bg-bg-tertiary text-text-secondary',
 } as const;

@@ -173,7 +173,7 @@ export function MassIncidentsPage() {
         </div>
       </div>
 
-      {status === 'reconnecting' && <p role="status" className="mb-4 rounded-xl border border-warning-500/30 bg-warning-500/5 px-3 py-2 text-sm text-text-primary">{t('offline')}</p>}
+      {status === 'reconnecting' && <p role="status" className="mb-4 rounded-xl border border-warning/30 bg-warning-subtle px-3 py-2 text-sm text-text-primary">{t('offline')}</p>}
 
       <div role="tablist" aria-label={t('title')} className="mb-4 flex flex-wrap gap-1" onKeyDown={onTabKey}>
         {tabBtn('incidents', t('tabIncidents'))}

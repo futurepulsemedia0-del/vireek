@@ -95,7 +95,7 @@ export function WinCardPublicPage() {
 
             <div className="flex flex-wrap items-center gap-3">
               {state.data.cta && (
-                <button type="button" onClick={goCta} disabled={busy} className="focus-ring rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60">
+                <button type="button" onClick={goCta} disabled={busy} className="focus-ring rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-on-accent transition-opacity hover:opacity-90 disabled:opacity-60">
                   See how it works
                 </button>
               )}
@@ -118,7 +118,7 @@ export function WinCardPublicPage() {
                   ))}
                 </div>
                 <div className="mt-3 flex gap-2">
-                  <button type="button" onClick={submitReport} disabled={busy} className="focus-ring rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">Send report</button>
+                  <button type="button" onClick={submitReport} disabled={busy} className="focus-ring rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-on-accent disabled:opacity-60">Send report</button>
                   <button type="button" onClick={() => setReporting(false)} className="focus-ring rounded-xl border border-border px-4 py-2 text-sm text-text-secondary hover:text-text-primary">Cancel</button>
                 </div>
               </fieldset>

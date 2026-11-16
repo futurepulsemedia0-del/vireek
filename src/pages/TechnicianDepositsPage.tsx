@@ -104,7 +104,7 @@ export function TechnicianDepositsPage() {
             </div>
           </section>
         )}
-        {success && <p role="status" className="text-sm font-medium text-success-500">{success}</p>}
+        {success && <p role="status" className="text-sm font-medium text-success">{success}</p>}
 
         {data && data.batches.length > 0 && (
           <section className="rounded-lg border border-border bg-bg-secondary p-3">

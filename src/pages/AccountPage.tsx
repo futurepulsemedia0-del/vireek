@@ -199,7 +199,7 @@ export function AccountPage() {
                   type="button"
                   onClick={handleChangeEmail}
                   disabled={savingEmail || !newEmail.trim()}
-                  className="focus-ring rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+                  className="focus-ring rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent disabled:opacity-50"
                 >
                   {savingEmail ? t('account.email.saving') : t('account.email.save')}
                 </button>
@@ -271,7 +271,7 @@ export function AccountPage() {
           type="button"
           onClick={handleChangePassword}
           disabled={savingPassword || !newPassword || !confirmPassword}
-          className="focus-ring mt-4 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+          className="focus-ring mt-4 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent transition-opacity hover:opacity-90 disabled:opacity-50"
         >
           {savingPassword ? t('account.password.updating') : t('account.password.update')}
         </button>

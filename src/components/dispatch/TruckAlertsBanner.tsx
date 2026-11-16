@@ -50,7 +50,7 @@ export function TruckAlertsBanner() {
     <div
       role="status"
       className={`flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border px-3 py-2 text-sm ${
-        critical > 0 ? 'border-danger/30 bg-danger/10 text-danger' : 'border-warning-500/30 bg-warning-500/10 text-warning-500'
+        critical > 0 ? 'border-danger/30 bg-danger/10 text-danger' : 'border-warning/30 bg-warning-subtle text-warning'
       }`}
     >
       <Truck className="h-4 w-4 flex-shrink-0" aria-hidden />

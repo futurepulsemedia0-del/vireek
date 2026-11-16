@@ -32,9 +32,9 @@ import {
 const inputCls = 'focus-ring rounded-xl border border-border bg-bg-secondary px-3 py-2 text-sm text-text-primary';
 
 const STATUS_STYLES: Record<string, string> = {
-  ok: 'bg-success-500/10 text-success-500',
-  executed: 'bg-success-500/10 text-success-500',
-  pending_approval: 'bg-warning-500/10 text-warning-500',
+  ok: 'bg-success-subtle text-success',
+  executed: 'bg-success-subtle text-success',
+  pending_approval: 'bg-warning-subtle text-warning',
   received: 'bg-bg-tertiary text-text-secondary',
   executing: 'bg-accent/10 text-accent',
   rejected: 'bg-danger/10 text-danger',
@@ -150,11 +150,11 @@ export function AgentNetworkPage() {
         ) : (
           <>
             {newKey && (
-              <div className="rounded-2xl border border-warning-500/40 bg-warning-500/5 p-5">
-                <div className="mb-2 flex items-center gap-2"><KeyRound size={16} className="text-warning-500" /><p className="text-sm font-semibold text-text-primary">Copy this key now — it is shown only once</p></div>
+              <div className="rounded-2xl border border-warning/40 bg-warning-subtle p-5">
+                <div className="mb-2 flex items-center gap-2"><KeyRound size={16} className="text-warning" /><p className="text-sm font-semibold text-text-primary">Copy this key now — it is shown only once</p></div>
                 <code className="block break-all rounded-xl bg-bg-tertiary p-3 text-xs text-text-primary">{newKey}</code>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <button onClick={() => copy(newKey, 'Key copied.')} className="focus-ring flex items-center gap-1.5 rounded-xl bg-cta px-3 py-1.5 text-xs font-medium text-white"><Copy size={12} /> Copy key</button>
+                  <button onClick={() => copy(newKey, 'Key copied.')} className="focus-ring flex items-center gap-1.5 rounded-xl bg-cta px-3 py-1.5 text-xs font-medium text-on-cta"><Copy size={12} /> Copy key</button>
                   <button onClick={() => copy(mcpClientConfig(newKey), 'MCP config copied.')} className="focus-ring flex items-center gap-1.5 rounded-xl bg-bg-tertiary px-3 py-1.5 text-xs font-medium text-text-primary"><Copy size={12} /> Copy MCP config</button>
                   <button onClick={() => setNewKey(null)} className="focus-ring rounded-xl px-3 py-1.5 text-xs text-text-secondary">I saved it</button>
                 </div>
@@ -175,7 +175,7 @@ export function AgentNetworkPage() {
             <div className="rounded-2xl border border-border bg-bg-secondary p-5">
               <div className="mb-4 flex items-center justify-between">
                 <p className="text-sm font-semibold text-text-primary">Connected agents</p>
-                <button onClick={() => setShowForm((s) => !s)} className="focus-ring flex items-center gap-1.5 rounded-xl bg-cta px-3 py-1.5 text-xs font-medium text-white">
+                <button onClick={() => setShowForm((s) => !s)} className="focus-ring flex items-center gap-1.5 rounded-xl bg-cta px-3 py-1.5 text-xs font-medium text-on-cta">
                   <Plus size={12} /> {showForm ? 'Cancel' : 'Connect an agent'}
                 </button>
               </div>
@@ -198,7 +198,7 @@ export function AgentNetworkPage() {
                         <input type="checkbox" checked={scopes.includes(s)} onChange={() => toggleScope(s)} className="mt-0.5 h-4 w-4 rounded border-border accent-accent" />
                         <span>
                           {AGENT_SCOPE_META[s].label}
-                          {AGENT_SCOPE_META[s].write && <span className="ml-2 rounded-full bg-warning-500/10 px-2 py-0.5 text-[10px] font-medium text-warning-500">changes data · needs approval</span>}
+                          {AGENT_SCOPE_META[s].write && <span className="ml-2 rounded-full bg-warning-subtle px-2 py-0.5 text-[10px] font-medium text-warning">changes data · needs approval</span>}
                         </span>
                       </label>
                     ))}
@@ -209,7 +209,7 @@ export function AgentNetworkPage() {
                       Write tools are held for human approval in Agent Governance by default. You can allow specific actions to run automatically there.
                     </div>
                   )}
-                  <button disabled={creating} onClick={handleCreate} className="focus-ring flex items-center gap-1.5 rounded-xl bg-cta px-4 py-2 text-sm font-medium text-white disabled:opacity-50">
+                  <button disabled={creating} onClick={handleCreate} className="focus-ring flex items-center gap-1.5 rounded-xl bg-cta px-4 py-2 text-sm font-medium text-on-cta disabled:opacity-50">
                     {creating ? <Loader2 size={14} className="animate-spin" /> : <KeyRound size={14} />} Create key
                   </button>
                 </div>
@@ -235,7 +235,7 @@ export function AgentNetworkPage() {
                         </div>
                         <div className="mt-2 flex flex-wrap gap-1.5">
                           {c.scopes.map((s) => (
-                            <span key={s} className={`rounded-full px-2 py-0.5 text-[10px] ${AGENT_SCOPE_META[s]?.write ? 'bg-warning-500/10 text-warning-500' : 'bg-bg-tertiary text-text-secondary'}`}>{s}</span>
+                            <span key={s} className={`rounded-full px-2 py-0.5 text-[10px] ${AGENT_SCOPE_META[s]?.write ? 'bg-warning-subtle text-warning' : 'bg-bg-tertiary text-text-secondary'}`}>{s}</span>
                           ))}
                         </div>
                         <p className="mt-2 text-xs text-text-secondary">
@@ -265,7 +265,7 @@ export function AgentNetworkPage() {
                         <tr key={k.id} className="border-t border-border">
                           <td className="py-2 pr-3 whitespace-nowrap">{fmt(k.created_at)}</td>
                           <td className="pr-3">{k.client_name}</td>
-                          <td className="pr-3">{k.tool}{k.is_write && <span className="ml-1 text-warning-500">●</span>}</td>
+                          <td className="pr-3">{k.tool}{k.is_write && <span className="ml-1 text-warning">●</span>}</td>
                           <td className="pr-3 uppercase">{k.protocol}</td>
                           <td className="pr-3 text-text-secondary">{summarizeCallArgs(k.tool, k.args)}{k.error_code ? ` ${k.error_code}` : ''}</td>
                           <td className="pr-3">{k.latency_ms ?? '—'}</td>

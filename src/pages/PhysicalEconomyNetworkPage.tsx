@@ -120,8 +120,8 @@ const RAIL_ICONS: Record<PenRail, LucideIcon> = {
 
 const LEVEL_META: Record<RailLevel, { label: string; className: string }> = {
   off: { label: 'Not started', className: 'bg-bg-tertiary text-text-secondary' },
-  partial: { label: 'In progress', className: 'bg-warning-500/10 text-warning-500' },
-  live: { label: 'Live', className: 'bg-success-500/15 text-success-500' },
+  partial: { label: 'In progress', className: 'bg-warning-subtle text-warning' },
+  live: { label: 'Live', className: 'bg-success-subtle text-success' },
 };
 
 const selectClass =
@@ -685,7 +685,7 @@ function MyRequestCard({
     req.status === 'open'
       ? 'bg-accent/10 text-accent'
       : req.status === 'accepted' || req.status === 'completed'
-        ? 'bg-success-500/10 text-success-500'
+        ? 'bg-success-subtle text-success'
         : 'bg-bg-tertiary text-text-secondary';
 
   return (
@@ -974,7 +974,7 @@ function EngagementCard({
         <p className="mt-3 text-xs text-text-secondary">Waiting for the provider to report completion.</p>
       )}
       {eng.status === 'disputed' && (
-        <p className="mt-3 text-xs text-warning-500">
+        <p className="mt-3 text-xs text-warning">
           The two reports disagree. Vireek reviews disputed jobs; the fee is frozen until then.
         </p>
       )}
@@ -1263,11 +1263,11 @@ export function PhysicalEconomyNetworkPage() {
             role="tab"
             aria-selected={tab === t.key}
             onClick={() => setTab(t.key)}
-            className={`focus-ring whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${tab === t.key ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}
+            className={`focus-ring whitespace-nowrap rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${tab === t.key ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}
           >
             {t.label}
             {t.key === 'marketplace' && o.protocol.offers_waiting > 0 && (
-              <span className="ml-2 rounded-full bg-white/20 px-1.5 text-[11px]">{o.protocol.offers_waiting}</span>
+              <span className="ml-2 rounded-full bg-bg-secondary/20 px-1.5 text-[11px]">{o.protocol.offers_waiting}</span>
             )}
           </button>
         ))}
@@ -1292,7 +1292,7 @@ export function PhysicalEconomyNetworkPage() {
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-xl font-bold text-text-primary">{node.node_handle}</span>
                       <span
-                        className={`${pill} ${node.status === 'active' ? 'bg-success-500/15 text-success-500' : 'bg-warning-500/10 text-warning-500'}`}
+                        className={`${pill} ${node.status === 'active' ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning'}`}
                       >
                         {node.status === 'active' ? 'Active' : 'Paused'}
                       </span>
@@ -1699,7 +1699,7 @@ export function PhysicalEconomyNetworkPage() {
                   action={
                     integrity ? (
                       <span
-                        className={`${pill} ${integrity.balanced ? 'bg-success-500/15 text-success-500' : 'bg-danger/10 text-danger'}`}
+                        className={`${pill} ${integrity.balanced ? 'bg-success-subtle text-success' : 'bg-danger/10 text-danger'}`}
                       >
                         {integrity.balanced ? `Books balanced (${integrity.groups} entries)` : `${integrity.unbalanced} unbalanced`}
                       </span>

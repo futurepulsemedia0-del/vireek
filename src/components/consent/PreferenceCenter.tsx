@@ -44,7 +44,7 @@ function Switch({
         }`}
       >
         <span
-          className={`absolute top-0.5 block h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 motion-reduce:transition-none start-0.5 ${
+          className={`absolute top-0.5 block h-5 w-5 rounded-full bg-bg-secondary shadow-sm transition-transform duration-200 motion-reduce:transition-none start-0.5 ${
             checked ? 'ltr:translate-x-5 rtl:-translate-x-5' : ''
           }`}
         />
@@ -121,7 +121,7 @@ export default function PreferenceCenter({ onClose }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-[80] flex items-end justify-center bg-black/50 sm:items-center sm:p-6"
+      className="fixed inset-0 z-[80] flex items-end justify-center bg-overlay/50 sm:items-center sm:p-6"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose(false);
       }}

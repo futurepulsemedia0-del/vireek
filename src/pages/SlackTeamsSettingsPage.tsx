@@ -95,9 +95,9 @@ function NoAccess() {
 function StatusPill({ connection }: { connection: ChatConnection | undefined }) {
   if (!connection) return <span className="rounded-full bg-bg-tertiary px-2.5 py-1 text-xs font-medium text-text-secondary">Not connected</span>;
   if (connection.status === 'error') {
-    return <span className="rounded-full bg-warning-500/10 px-2.5 py-1 text-xs font-medium text-warning-500">Needs attention</span>;
+    return <span className="rounded-full bg-warning-subtle px-2.5 py-1 text-xs font-medium text-warning">Needs attention</span>;
   }
-  return <span className="rounded-full bg-success-500/10 px-2.5 py-1 text-xs font-medium text-success-500">Connected</span>;
+  return <span className="rounded-full bg-success-subtle px-2.5 py-1 text-xs font-medium text-success">Connected</span>;
 }
 
 const SELECT_CLASS =
@@ -113,7 +113,7 @@ function Switch({ checked, label, onChange }: { checked: boolean; label: string;
       onClick={() => onChange(!checked)}
       className={`focus-ring relative h-6 w-11 shrink-0 rounded-full border transition-colors ${checked ? 'border-accent bg-accent' : 'border-border bg-bg-tertiary'}`}
     >
-      <span className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${checked ? 'translate-x-5' : ''}`} />
+      <span className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-bg-secondary shadow transition-transform ${checked ? 'translate-x-5' : ''}`} />
     </button>
   );
 }
@@ -258,14 +258,14 @@ function ProviderSection({ provider, configured, connection, rules, onConnect, o
 
       {!configured && !connection && (
         <p role="note" className="mt-4 flex items-start gap-2 rounded-xl border border-dashed border-border bg-bg-primary p-3 text-xs text-text-secondary">
-          <AlertTriangle size={14} className="mt-0.5 shrink-0 text-warning-500" aria-hidden="true" />
+          <AlertTriangle size={14} className="mt-0.5 shrink-0 text-warning" aria-hidden="true" />
           {meta.label} isn't configured on this server yet. Add the {meta.label} secrets from docs/slack-teams-alerts.md, then reload this page.
         </p>
       )}
 
       {connection?.status === 'error' && (
-        <p role="alert" className="mt-4 flex items-start gap-2 rounded-xl border border-warning-500/30 bg-warning-500/10 p-3 text-sm text-text-primary">
-          <AlertTriangle size={16} className="mt-0.5 shrink-0 text-warning-500" aria-hidden="true" />
+        <p role="alert" className="mt-4 flex items-start gap-2 rounded-xl border border-warning/30 bg-warning-subtle p-3 text-sm text-text-primary">
+          <AlertTriangle size={16} className="mt-0.5 shrink-0 text-warning" aria-hidden="true" />
           {connection.lastError ?? `The ${meta.label} connection needs to be re-authorized.`} Alerts are paused until you reconnect.
         </p>
       )}
@@ -380,7 +380,7 @@ function DeliveryRow({ delivery }: { delivery: ChatDelivery }) {
   return (
     <li className="flex items-start gap-3 py-3">
       {ok ? (
-        <CheckCircle2 size={18} className="mt-0.5 shrink-0 text-success-500" aria-label="Sent" />
+        <CheckCircle2 size={18} className="mt-0.5 shrink-0 text-success" aria-label="Sent" />
       ) : (
         <XCircle size={18} className="mt-0.5 shrink-0 text-danger" aria-label="Failed" />
       )}

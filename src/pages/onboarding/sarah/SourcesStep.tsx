@@ -89,7 +89,7 @@ export function SourcesStep({ locale, parentRunId, initialUrl = '', onDone }: Pr
         <ol aria-live="polite" aria-label={t('sources.starting')} className="space-y-2 rounded-xl border border-border bg-bg-primary p-4 text-sm">
           {rows.map((r, i) => (
             <li key={`${r.url}-${i}`} className="flex items-start gap-2 text-text-secondary">
-              {r.status === 'fetched' ? <Check size={16} className="mt-0.5 shrink-0 text-success-500" aria-hidden="true" /> : <CircleAlert size={16} className="mt-0.5 shrink-0 text-danger" aria-hidden="true" />}
+              {r.status === 'fetched' ? <Check size={16} className="mt-0.5 shrink-0 text-success" aria-hidden="true" /> : <CircleAlert size={16} className="mt-0.5 shrink-0 text-danger" aria-hidden="true" />}
               <span className="min-w-0 break-words">
                 <Globe size={12} className="mr-1 inline" aria-hidden="true" />
                 {r.url === 'pasted' ? t('sources.pasteLabel') : displayUrl(r.url)}

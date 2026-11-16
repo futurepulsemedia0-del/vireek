@@ -93,7 +93,7 @@ function AudioPlayer({ url }: { url: string }) {
       <button
         type="button"
         onClick={toggle}
-        className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-white transition-transform hover:scale-105"
+        className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-on-accent transition-transform hover:scale-105"
       >
         {playing ? <Pause size={18} /> : <Play size={18} className="ml-0.5" />}
       </button>
@@ -158,7 +158,7 @@ function VoicemailCard({
           disabled={listened}
           className={`focus-ring flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
             listened
-              ? 'cursor-default bg-success-500/10 text-success-500'
+              ? 'cursor-default bg-success-subtle text-success'
               : 'bg-bg-tertiary text-text-secondary hover:bg-accent/10 hover:text-accent'
           }`}
         >
@@ -266,7 +266,7 @@ export function VoicemailsPage() {
                 onClick={() => setFilter(f)}
                 className={`focus-ring rounded-full px-4 py-1.5 text-sm font-medium capitalize transition-colors ${
                   filter === f
-                    ? 'bg-accent text-white'
+                    ? 'bg-accent text-on-accent'
                     : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
                 }`}
               >

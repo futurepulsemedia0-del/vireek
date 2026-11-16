@@ -60,7 +60,7 @@ function StatusBadge({ framework }: { framework: ComplianceFramework }) {
   return (
     <span
       className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1 text-xs font-semibold ${
-        held ? 'border-success-500/40 bg-success-500/10 text-success-500' : 'border-border bg-bg-tertiary text-text-secondary'
+        held ? 'border-success/40 bg-success-subtle text-success' : 'border-border bg-bg-tertiary text-text-secondary'
       }`}
     >
       <Icon size={14} aria-hidden="true" />
@@ -226,8 +226,8 @@ function EvidenceRequestForm() {
 
   if (state === 'success') {
     return (
-      <div role="status" className="rounded-2xl border border-success-500/40 bg-success-500/10 p-6 text-center sm:p-8">
-        <CheckCircle2 className="mx-auto h-8 w-8 text-success-500" aria-hidden="true" />
+      <div role="status" className="rounded-2xl border border-success/40 bg-success-subtle p-6 text-center sm:p-8">
+        <CheckCircle2 className="mx-auto h-8 w-8 text-success" aria-hidden="true" />
         <h3 className="mt-3 text-lg font-bold text-text-primary">Request received</h3>
         <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-text-secondary">
           Thanks. We&apos;ll reply to <span className="font-semibold text-text-primary">{sentTo}</span> and tell you plainly what we can and

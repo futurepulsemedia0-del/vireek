@@ -136,7 +136,7 @@ function StepUpDialog({ open, onDone, onCancel }: { open: boolean; onDone: () =>
 
   return (
     <>
-      <div className="fixed inset-0 z-[110] bg-black/40 backdrop-blur-sm" aria-hidden="true" />
+      <div className="fixed inset-0 z-[110] bg-overlay/40 backdrop-blur-sm" aria-hidden="true" />
       <div
         className="fixed inset-0 z-[120] flex items-center justify-center p-4"
         onMouseDown={(e) => { if (e.target === e.currentTarget) onCancel(); }}

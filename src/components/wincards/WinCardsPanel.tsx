@@ -60,7 +60,7 @@ export function WinCardsPanel() {
           <h1 className="text-2xl font-bold text-text-primary">Win Cards</h1>
           <p className="text-sm text-text-secondary">Real outcomes, shared on your terms. Nothing is public until you approve it, and names, phone numbers, addresses and exact times are never shown.</p>
         </div>
-        <button type="button" onClick={scan} disabled={scanning || !settings?.enabled || settings?.staff_locked} className="focus-ring inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60">
+        <button type="button" onClick={scan} disabled={scanning || !settings?.enabled || settings?.staff_locked} className="focus-ring inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent disabled:opacity-60">
           {scanning ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : <Trophy size={16} aria-hidden="true" />} Find new wins
         </button>
       </div>
@@ -84,7 +84,7 @@ export function WinCardsPanel() {
                   <p className="text-xs text-text-secondary">Detected {new Date(c.created_at).toLocaleDateString()}</p>
                 </div>
                 <div className="flex gap-2">
-                  <button type="button" onClick={() => setEditing(c)} className="focus-ring rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white">Review card</button>
+                  <button type="button" onClick={() => setEditing(c)} className="focus-ring rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-on-accent">Review card</button>
                   <button type="button" onClick={async () => { const r = await dismissWinCard(c.id); if (!r.ok) toast(r.error, 'error'); await reload(); }} className="focus-ring rounded-xl border border-border px-4 py-2 text-sm text-text-secondary hover:text-text-primary">Dismiss</button>
                 </div>
               </li>
@@ -162,7 +162,7 @@ function ReviewDialog({ card, settings, onClose, onApproved }: { card: WinCard; 
   );
 
   return (
-    <div role="dialog" aria-modal="true" aria-label="Review win card" className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4">
+    <div role="dialog" aria-modal="true" aria-label="Review win card" className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-overlay/50 p-4">
       <div className="w-full max-w-4xl rounded-2xl bg-bg-primary p-5 sm:p-6">
         <h2 className="text-lg font-semibold text-text-primary">Review: {LABEL[card.trigger_type]}</h2>
         <p className="text-sm text-text-secondary">This preview is the exact card that will be public. Everything not ticked stays private.</p>
@@ -170,11 +170,11 @@ function ReviewDialog({ card, settings, onClose, onApproved }: { card: WinCard; 
           <div>
             <div className="mb-2 flex gap-2" role="tablist" aria-label="Card size">
               {(['square', 'og', 'story'] as const).map((f) => (
-                <button key={f} role="tab" aria-selected={fmt === f} onClick={() => setFmt(f)} className={`focus-ring rounded-lg px-3 py-1 text-xs ${fmt === f ? 'bg-accent text-white' : 'border border-border text-text-secondary'}`}>{f === 'square' ? '1080×1080' : f === 'og' ? '1200×630' : '1080×1920 story'}</button>
+                <button key={f} role="tab" aria-selected={fmt === f} onClick={() => setFmt(f)} className={`focus-ring rounded-lg px-3 py-1 text-xs ${fmt === f ? 'bg-accent text-on-accent' : 'border border-border text-text-secondary'}`}>{f === 'square' ? '1080×1080' : f === 'og' ? '1200×630' : '1080×1920 story'}</button>
               ))}
             </div>
             {prev?.svg[fmt] ? <img src={dataUri(prev.svg[fmt])} alt="Preview of the public card" className="max-h-[60vh] w-full rounded-xl border border-border object-contain" /> : <div className="h-64 animate-pulse rounded-xl bg-bg-tertiary" />}
-            {prev?.err && <p role="alert" className="mt-2 text-sm text-red-600">{prev.err}</p>}
+            {prev?.err && <p role="alert" className="mt-2 text-sm text-danger">{prev.err}</p>}
           </div>
           <div className="space-y-3">
             <fieldset className="space-y-2"><legend className="mb-1 text-sm font-medium text-text-primary">Show on the card</legend>
@@ -203,7 +203,7 @@ function ReviewDialog({ card, settings, onClose, onApproved }: { card: WinCard; 
         </div>
         <div className="mt-5 flex justify-end gap-2">
           <button type="button" onClick={onClose} className="focus-ring rounded-xl border border-border px-4 py-2 text-sm text-text-secondary hover:text-text-primary">Cancel</button>
-          <button type="button" onClick={approve} disabled={busy || !!prev?.err || !prev} className="focus-ring rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">{busy ? 'Approving…' : 'Approve and create link'}</button>
+          <button type="button" onClick={approve} disabled={busy || !!prev?.err || !prev} className="focus-ring rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-on-accent disabled:opacity-60">{busy ? 'Approving…' : 'Approve and create link'}</button>
         </div>
       </div>
     </div>
@@ -262,10 +262,10 @@ function LiveCard({ card, origin, onRevoke, onChanged }: { card: WinCard; origin
                   {targets.flatMap((t) => t.channels.map((ch) => <option key={`${t.connectionId}|${ch.id}`} value={`${t.connectionId}|${ch.id}`}>{t.provider === 'slack' ? 'Slack' : 'Teams'} · {ch.name}</option>))}
                 </select>
               </label>
-              <button type="button" disabled={!pick || posting} onClick={async () => { const [cid, ch] = pick.split('|'); setPosting(true); const r = await postWinCardToChat(card.id, cid, ch); setPosting(false); if (!r.ok) toast(r.error, 'error'); else toast('Posted to your team chat', 'success'); }} className="focus-ring rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-60">{posting ? 'Posting…' : 'Post'}</button>
+              <button type="button" disabled={!pick || posting} onClick={async () => { const [cid, ch] = pick.split('|'); setPosting(true); const r = await postWinCardToChat(card.id, cid, ch); setPosting(false); if (!r.ok) toast(r.error, 'error'); else toast('Posted to your team chat', 'success'); }} className="focus-ring rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-on-accent disabled:opacity-60">{posting ? 'Posting…' : 'Post'}</button>
             </div>
           )}
-          <button type="button" onClick={onRevoke} className="focus-ring rounded-lg px-1 py-1 text-xs text-red-600 underline underline-offset-4">Revoke link</button>
+          <button type="button" onClick={onRevoke} className="focus-ring rounded-lg px-1 py-1 text-xs text-danger underline underline-offset-4">Revoke link</button>
         </div>
       </div>
     </li>

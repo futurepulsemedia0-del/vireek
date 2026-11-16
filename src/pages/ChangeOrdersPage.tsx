@@ -160,7 +160,7 @@ function ChangeOrderList({ ownerId, data, failed, load }: { ownerId: string; dat
           <div className="flex flex-wrap items-center gap-3">
             <div role="group" aria-label="Filter by status" className="flex flex-wrap gap-1.5">
               {FILTERS.map((f) => (
-                <button key={f.key} type="button" aria-pressed={filter === f.key} onClick={() => setFilter(f.key)} className={`focus-ring rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${filter === f.key ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>{f.label}</button>
+                <button key={f.key} type="button" aria-pressed={filter === f.key} onClick={() => setFilter(f.key)} className={`focus-ring rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${filter === f.key ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>{f.label}</button>
               ))}
             </div>
             <div className="w-full sm:ml-auto sm:w-64"><Input aria-label="Search change orders" icon={Search} placeholder="Search change orders" value={query} onChange={(e) => setQuery(e.target.value)} className="py-2 text-sm" /></div>
@@ -184,11 +184,11 @@ function ChangeOrderList({ ownerId, data, failed, load }: { ownerId: string; dat
                         <Pill tone={statusTone[st]}>{STATUS_LABEL[st]}</Pill>
                       </div>
                       <div className="mt-3 flex flex-wrap justify-between gap-x-6 gap-y-1 text-xs text-text-secondary">
-                        <span>Total <span className={`font-semibold tabular-nums ${c.total_cents < 0 ? 'text-success-500' : 'text-text-primary'}`}>{formatCents(c.total_cents)}</span></span>
+                        <span>Total <span className={`font-semibold tabular-nums ${c.total_cents < 0 ? 'text-success' : 'text-text-primary'}`}>{formatCents(c.total_cents)}</span></span>
                         <span>{REASON_LABEL[c.reason]}</span>
                         <span>{formatScheduleImpact(c.schedule_impact_days)}</span>
                         <span>{c.responded_at ? `Responded ${formatDate(c.responded_at)}` : c.sent_at ? `Sent ${formatDate(c.sent_at)}` : `Created ${formatDate(c.created_at)}`}</span>
-                        {c.status === 'approved' && !c.invoice_id && c.total_cents > 0 && <span className="font-semibold text-warning-500">Ready to invoice</span>}
+                        {c.status === 'approved' && !c.invoice_id && c.total_cents > 0 && <span className="font-semibold text-warning">Ready to invoice</span>}
                       </div>
                     </Link>
                   </li>

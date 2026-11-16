@@ -61,7 +61,7 @@ export function PublicPaymentPage() {
 
   const shell = (children: React.ReactNode) => (
     <main className="flex min-h-screen items-center justify-center bg-bg-primary px-4 py-10">
-      <div className="w-full max-w-md rounded-2xl border border-border-primary bg-bg-secondary p-6 shadow-sm">{children}</div>
+      <div className="w-full max-w-md rounded-2xl border border-border bg-bg-secondary p-6 shadow-sm">{children}</div>
     </main>
   );
 
@@ -118,7 +118,7 @@ export function PublicPaymentPage() {
         <TipSelector baseCents={summary.amount_cents} presets={summary.presets ?? []} value={tip} onChange={setTip} disabled={submitting} technicianName={summary.technician_first_name} />
       )}
 
-      {receipt && <PricingBreakdown className="border-t border-border-primary pt-4" lines={receipt.lines} totalCents={receipt.totalCents} />}
+      {receipt && <PricingBreakdown className="border-t border-border pt-4" lines={receipt.lines} totalCents={receipt.totalCents} />}
 
       {summary.pricing?.cash_price_cents != null && (
         <p className="text-sm font-medium text-text-primary">Cash or check price: {formatUsd(summary.pricing.cash_price_cents)}</p>
@@ -128,7 +128,7 @@ export function PublicPaymentPage() {
       )}
       
       {summary.auto_renew_offer && (
-        <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border-primary p-3 text-sm text-text-secondary">
+        <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border p-3 text-sm text-text-secondary">
           <input type="checkbox" className="mt-0.5 h-4 w-4" checked={autoRenew} disabled={submitting} onChange={(e) => setAutoRenew(e.target.checked)} />
           <span>
             <span className="font-medium text-text-primary">Renew automatically every {summary.auto_renew_offer.interval === 'monthly' ? 'month' : 'year'}</span>

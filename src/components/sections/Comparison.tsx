@@ -33,10 +33,10 @@ const COLUMNS = [
 
 function CellIcon({ value, highlight }: { value: CellValue; highlight?: boolean }) {
   if (value === 'yes')
-    return <Check size={18} className={`shrink-0 ${highlight ? 'text-accent' : 'text-success-500'}`} strokeWidth={2.5} />;
+    return <Check size={18} className={`shrink-0 ${highlight ? 'text-accent' : 'text-success'}`} strokeWidth={2.5} />;
   if (value === 'partial')
-    return <Minus size={18} className="shrink-0 text-text-secondary/40" strokeWidth={2.5} />;
-  return <X size={18} className="shrink-0 text-danger/50" strokeWidth={2.5} />;
+    return <Minus size={18} className="shrink-0 text-graphic-muted" strokeWidth={2.5} />;
+  return <X size={18} className="shrink-0 text-danger" strokeWidth={2.5} />;
 }
 
 export function Comparison() {

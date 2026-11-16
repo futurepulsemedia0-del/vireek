@@ -54,7 +54,7 @@ export function HowScoreWorks() {
             <p>{t('how.cost')}</p>
           </section>
 
-          <section className="rounded-xl border border-success-500/30 bg-success-500/5 p-4">
+          <section className="rounded-xl border border-success/30 bg-success-subtle p-4">
             <h3 className="mb-1 font-semibold text-text-primary">{t('how.fairnessTitle')}</h3>
             <p>{t('how.fairness')}</p>
           </section>

@@ -66,7 +66,7 @@ export function LegalDocument({ doc }: { doc: LegalDoc }) {
             activeId === s.id ? 'border-accent font-medium text-accent' : 'border-transparent text-text-secondary hover:text-text-primary'
           }`}
         >
-          <span className="mr-1.5 text-text-secondary/50">{i + 1}.</span>
+          <span className="mr-1.5 text-text-muted">{i + 1}.</span>
           {s.title}
         </a>
       ))}
@@ -112,7 +112,7 @@ export function LegalDocument({ doc }: { doc: LegalDoc }) {
                   <a href={`#${s.id}`} className="group flex items-baseline gap-3">
                     <span className="text-accent">{i + 1}.</span>
                     {s.title}
-                    <span aria-hidden="true" className="ml-1 text-base font-normal text-text-secondary/0 transition-colors group-hover:text-text-secondary/60">#</span>
+                    <span aria-hidden="true" className="ml-1 text-base font-normal text-text-secondary/0 transition-colors group-hover:text-graphic-muted">#</span>
                   </a>
                 </h2>
                 <div className="mt-4 space-y-4 text-base leading-relaxed text-text-secondary">

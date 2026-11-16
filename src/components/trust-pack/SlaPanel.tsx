@@ -56,7 +56,7 @@ export function SlaPanel({ ownerId }: { ownerId: string }) {
         </div>
 
         {report.state === 'final' && quote.creditPct > 0 && (
-          <p className="mt-4 rounded-xl bg-emerald-500/5 p-3 text-sm text-text-secondary">
+          <p className="mt-4 rounded-xl bg-success-subtle p-3 text-sm text-text-secondary">
             {data.policy ? <>A <strong className="text-text-primary">{quote.creditPct}%</strong> service credit applies{quote.creditCents > 0 ? ` (${money(quote.creditCents, data.policy.currency)})` : ''}.</>
               : <>Uptime fell below target. Email us within 30 days of month end to claim a {quote.creditPct}% credit under the <a className="text-accent underline" href="/sla">SLA</a>.</>}
           </p>

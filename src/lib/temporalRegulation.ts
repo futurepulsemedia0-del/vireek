@@ -271,8 +271,8 @@ export const EDGE_TYPE_LABELS: Record<EdgeType, string> = {
 };
 
 export const STATUS_META: Record<EntryStatus, { label: string; className: string }> = {
-  in_force: { label: 'In force', className: 'bg-success-500/10 text-success-500' },
-  expired: { label: 'Expired', className: 'bg-warning-500/10 text-warning-500' },
+  in_force: { label: 'In force', className: 'bg-success-subtle text-success' },
+  expired: { label: 'Expired', className: 'bg-warning-subtle text-warning' },
   repealed: { label: 'Repealed', className: 'bg-danger/10 text-danger' },
 };
 
@@ -498,12 +498,12 @@ export function proofLevel(report: SnapshotReport | null): ProofLevel {
 export const PROOF_META: Record<Exclude<ProofLevel, 'none'>, { label: string; className: string; hint: string }> = {
   sealed: {
     label: 'Sealed & verified',
-    className: 'bg-success-500/10 text-success-500',
+    className: 'bg-success-subtle text-success',
     hint: 'The recorded regulations still match today’s knowledge and the hash chain is intact.',
   },
   drifted: {
     label: 'Superseded since',
-    className: 'bg-warning-500/10 text-warning-500',
+    className: 'bg-warning-subtle text-warning',
     hint: 'A later correction changes what was in force on this date. The original record is preserved.',
   },
   tampered: {

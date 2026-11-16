@@ -74,8 +74,8 @@ export function HomeOperatingBudgetCard({ twin }: { twin: PropertyTwin }) {
       </p>
 
       {topRecommendation && (
-        <div className="mt-4 flex items-start gap-3 rounded-xl border border-success-500/30 bg-success-500/10 p-4">
-          <TrendingDown size={18} className="mt-0.5 shrink-0 text-success-500" />
+        <div className="mt-4 flex items-start gap-3 rounded-xl border border-success/30 bg-success-subtle p-4">
+          <TrendingDown size={18} className="mt-0.5 shrink-0 text-success" />
           <div className="min-w-0 text-sm">
             <p className="font-medium text-text-primary">
               {topRecommendation.categoryLabel} maintenance this year lowers your expected 5-year cost by about {formatBudgetUsd(topRecommendation.netSaving5y)}.
@@ -95,7 +95,7 @@ export function HomeOperatingBudgetCard({ twin }: { twin: PropertyTwin }) {
               <li key={y.year} className="flex h-full flex-1 flex-col items-center justify-end gap-1">
                 <span className="text-[10px] tabular-nums text-text-secondary">{formatBudgetUsd(y.total)}</span>
                 <div className="flex w-full flex-1 flex-col justify-end overflow-hidden rounded-md bg-border/40">
-                  <div className="w-full bg-warning-500/70" style={{ height: `${(y.expectedFailure / peak) * 100}%` }} title={`Expected repairs & replacements: ${formatBudgetUsd(y.expectedFailure)}`} />
+                  <div className="w-full bg-warning/70" style={{ height: `${(y.expectedFailure / peak) * 100}%` }} title={`Expected repairs & replacements: ${formatBudgetUsd(y.expectedFailure)}`} />
                   <div className="w-full bg-accent/70" style={{ height: `${(y.maintenance / peak) * 100}%` }} title={`Scheduled maintenance: ${formatBudgetUsd(y.maintenance)}`} />
                 </div>
                 <span className="text-[10px] text-text-secondary">Yr {y.year}</span>
@@ -104,7 +104,7 @@ export function HomeOperatingBudgetCard({ twin }: { twin: PropertyTwin }) {
           </ul>
           <p className="mt-2 flex items-center gap-3 text-[10px] text-text-secondary">
             <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-accent/70" aria-hidden />Maintenance</span>
-            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-warning-500/70" aria-hidden />Repairs &amp; replacements</span>
+            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-warning/70" aria-hidden />Repairs &amp; replacements</span>
           </p>
         </div>
 
@@ -136,7 +136,7 @@ export function HomeOperatingBudgetCard({ twin }: { twin: PropertyTwin }) {
                   <p className="font-medium text-text-primary">{d.label}</p>
                   <p className="text-xs text-text-secondary">{d.detail}</p>
                 </div>
-                <span className={`shrink-0 text-xs font-semibold tabular-nums ${d.fiveYearImpact > 0 ? 'text-danger-500' : 'text-success-500'}`}>
+                <span className={`shrink-0 text-xs font-semibold tabular-nums ${d.fiveYearImpact > 0 ? 'text-danger' : 'text-success'}`}>
                   {d.fiveYearImpact > 0 ? '+' : '−'}{formatBudgetUsd(Math.abs(d.fiveYearImpact))} / 5 yr
                 </span>
               </li>
@@ -156,7 +156,7 @@ export function HomeOperatingBudgetCard({ twin }: { twin: PropertyTwin }) {
               <li key={r.categoryKey} className="rounded-xl border border-border bg-bg-primary p-3 text-sm">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="font-medium text-text-primary">{r.title}</p>
-                  <span className="shrink-0 rounded-full bg-success-500/10 px-2.5 py-0.5 text-xs font-medium tabular-nums text-success-500">
+                  <span className="shrink-0 rounded-full bg-success-subtle px-2.5 py-0.5 text-xs font-medium tabular-nums text-success">
                     Saves ~{formatBudgetUsd(r.netSaving5y)} over 5 yr
                   </span>
                 </div>

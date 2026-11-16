@@ -19,7 +19,7 @@ const KILL_KEYS: readonly KillKey[] = ['kill_outbound_calls', 'kill_sms', 'kill_
 
 const SEVERITY_STYLE: Record<Severity, string> = {
   low: 'bg-bg-tertiary text-text-secondary',
-  medium: 'bg-warning-500/10 text-warning-500',
+  medium: 'bg-warning-subtle text-warning',
   high: 'bg-danger/10 text-danger',
 };
 

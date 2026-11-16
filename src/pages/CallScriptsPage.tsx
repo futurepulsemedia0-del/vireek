@@ -69,8 +69,8 @@ function friendlyError(e: unknown): string {
 function scenarioStatus(script: CallScript | undefined): { label: string; cls: string } {
   if (!script) return { label: 'Not set up', cls: 'bg-bg-tertiary text-text-secondary' };
   if (script.active_version_id && script.challenger_version_id) return { label: 'A/B running', cls: 'bg-accent/10 text-accent' };
-  if (script.active_version_id) return { label: 'Live', cls: 'bg-success-500/10 text-success-500' };
-  return { label: 'Draft', cls: 'bg-warning-500/10 text-warning-500' };
+  if (script.active_version_id) return { label: 'Live', cls: 'bg-success-subtle text-success' };
+  return { label: 'Draft', cls: 'bg-warning-subtle text-warning' };
 }
 
 function ScenarioNav({
@@ -391,7 +391,7 @@ export function CallScriptsPage() {
                       aria-controls={`call-scripts-panel-${t.key}`}
                       onClick={() => setTab(t.key)}
                       className={`focus-ring flex min-h-[40px] flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-lg px-3 text-sm font-medium transition-colors ${
-                        active ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'
+                        active ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'
                       }`}
                     >
                       <Icon size={15} />

@@ -57,8 +57,8 @@ type LoadState =
 type Tone = 'success' | 'warn' | 'danger' | 'accent' | 'neutral';
 
 const TONE_CLASSES: Record<Tone, string> = {
-  success: 'bg-success-500/10 text-success',
-  warn: 'bg-warning-500/10 text-warning-500',
+  success: 'bg-success-subtle text-success',
+  warn: 'bg-warning-subtle text-warning',
   danger: 'bg-danger/10 text-danger',
   accent: 'bg-accent/10 text-accent',
   neutral: 'bg-bg-tertiary text-text-secondary',
@@ -94,7 +94,7 @@ function StatTile({ label, value, hint, tone = 'neutral' }: { label: string; val
   return (
     <div className="rounded-2xl border border-border bg-bg-secondary p-4">
       <p className="text-[11px] font-medium uppercase tracking-wide text-text-secondary">{label}</p>
-      <p className={`mt-1 truncate text-xl font-bold ${tone === 'warn' ? 'text-warning-500' : 'text-text-primary'}`}>{value}</p>
+      <p className={`mt-1 truncate text-xl font-bold ${tone === 'warn' ? 'text-warning' : 'text-text-primary'}`}>{value}</p>
       {hint && <p className="mt-0.5 text-xs text-text-secondary">{hint}</p>}
     </div>
   );
@@ -255,7 +255,7 @@ function InvoicesPanel({
               setVisible(PAGE_SIZE);
             }}
             className={`focus-ring min-h-[36px] rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors ${
-              filter === f ? 'border-accent bg-accent text-white' : 'border-border text-text-secondary hover:text-text-primary'
+              filter === f ? 'border-accent bg-accent text-on-accent' : 'border-border text-text-secondary hover:text-text-primary'
             }`}
           >
             {FILTER_LABELS[f]} ({filterInvoices(invoices, f).length})
@@ -391,7 +391,7 @@ function EquipmentItem({ eq }: { eq: HistoryEquipment }) {
         {next && (
           <div>
             <dt className="text-text-secondary">Next service</dt>
-            <dd className={`font-medium ${nextTone === 'danger' ? 'text-danger' : nextTone === 'warn' ? 'text-warning-500' : 'text-text-primary'}`}>
+            <dd className={`font-medium ${nextTone === 'danger' ? 'text-danger' : nextTone === 'warn' ? 'text-warning' : 'text-text-primary'}`}>
               {formatHistoryDate(next.toISOString())}
               {nextTone === 'danger' ? ' (overdue)' : nextTone === 'warn' ? ' (due soon)' : ''}
             </dd>
@@ -634,12 +634,12 @@ function ReadyView({
               tabIndex={selected ? 0 : -1}
               onClick={() => onTab(t.key)}
               className={`focus-ring flex min-h-[40px] shrink-0 items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-medium transition-colors ${
-                selected ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'
+                selected ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'
               }`}
             >
               <t.icon size={13} aria-hidden="true" />
               {t.label}
-              <span className={`rounded-full px-1.5 text-[10px] ${selected ? 'bg-white/20' : 'bg-bg-tertiary'}`}>{t.count}</span>
+              <span className={`rounded-full px-1.5 text-[10px] ${selected ? 'bg-bg-secondary/20' : 'bg-bg-tertiary'}`}>{t.count}</span>
             </button>
           );
         })}

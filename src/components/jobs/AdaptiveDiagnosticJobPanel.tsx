@@ -141,7 +141,7 @@ export function AdaptiveDiagnosticJobPanel({ job }: { job: Job }) {
       )}
 
       {session?.hazard && (
-        <div role="alert" className="mt-3 flex items-start gap-2 rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs text-red-600 dark:text-red-400">
+        <div role="alert" className="mt-3 flex items-start gap-2 rounded-lg border border-danger/40 bg-danger-subtle px-3 py-2 text-xs text-danger">
           <ShieldAlert size={14} className="mt-0.5 shrink-0" />
           <span>The customer reported a possible safety hazard (gas, burning, sparks or similar). Call them before dispatching.</span>
         </div>
@@ -196,7 +196,7 @@ export function AdaptiveDiagnosticJobPanel({ job }: { job: Job }) {
 
       {session?.outcome_applied_at ? (
         <p className="mt-3 flex items-center gap-2 text-xs text-text-secondary">
-          <CheckCircle2 size={14} className="text-emerald-500" />
+          <CheckCircle2 size={14} className="text-success" />
           Outcome recorded: <strong className="text-text-primary">{session.confirmed_hypothesis === OTHER_OUTCOME ? 'Other (flagged for review)' : (hypLabel.get(session.confirmed_hypothesis ?? '')?.label ?? session.confirmed_hypothesis)}</strong>
           {session.top1_correct != null && <span>· {session.top1_correct ? 'predicted correctly' : 'prediction missed — learned'}</span>}
         </p>

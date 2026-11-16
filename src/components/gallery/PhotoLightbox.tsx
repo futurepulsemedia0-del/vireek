@@ -31,7 +31,7 @@ import { fullUrlFor, type PhotoPatch } from '@/lib/galleryApi';
 import { formatFileSize } from '@/lib/documents';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder';
 const labelClass = 'mb-1 block text-xs font-medium text-text-secondary';
 
 interface Props {
@@ -186,7 +186,7 @@ export function PhotoLightbox(props: Props) {
       role="dialog"
       aria-modal="true"
       aria-label="Photo viewer"
-      className="fixed inset-0 z-[100] flex flex-col bg-black/90 backdrop-blur-sm lg:flex-row"
+      className="fixed inset-0 z-[100] flex flex-col bg-overlay/90 backdrop-blur-sm lg:flex-row"
     >
       {/* Image area */}
       <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-auto p-3 sm:p-6">
@@ -194,7 +194,7 @@ export function PhotoLightbox(props: Props) {
           type="button"
           onClick={onClose}
           aria-label="Close viewer"
-          className="focus-ring absolute right-3 top-3 z-10 rounded-full bg-black/60 p-2 text-white hover:bg-black/80 lg:hidden"
+          className="focus-ring absolute right-3 top-3 z-10 rounded-full bg-overlay/60 p-2 text-white hover:bg-overlay/80 lg:hidden"
         >
           <X size={18} />
         </button>
@@ -203,7 +203,7 @@ export function PhotoLightbox(props: Props) {
             type="button"
             onClick={() => onNavigate(items[index - 1].id)}
             aria-label="Previous photo"
-            className="focus-ring absolute left-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/60 p-2 text-white hover:bg-black/80"
+            className="focus-ring absolute left-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-overlay/60 p-2 text-white hover:bg-overlay/80"
           >
             <ChevronLeft size={22} />
           </button>
@@ -213,7 +213,7 @@ export function PhotoLightbox(props: Props) {
             type="button"
             onClick={() => onNavigate(items[index + 1].id)}
             aria-label="Next photo"
-            className="focus-ring absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-black/60 p-2 text-white hover:bg-black/80"
+            className="focus-ring absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-overlay/60 p-2 text-white hover:bg-overlay/80"
           >
             <ChevronRight size={22} />
           </button>
@@ -233,7 +233,7 @@ export function PhotoLightbox(props: Props) {
             </div>
           ) : !url ? (
             <div
-              className="aspect-[4/3] w-full animate-pulse rounded-xl bg-white/10"
+              className="aspect-[4/3] w-full animate-pulse rounded-xl bg-bg-secondary/10"
               aria-busy="true"
               aria-label="Loading photo"
             />
@@ -247,7 +247,7 @@ export function PhotoLightbox(props: Props) {
           )}
         </div>
         <p
-          className="absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-black/60 px-3 py-1 text-[11px] text-white"
+          className="absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-overlay/60 px-3 py-1 text-[11px] text-white"
           aria-live="polite"
         >
           {index + 1} / {items.length}
@@ -365,7 +365,7 @@ export function PhotoLightbox(props: Props) {
                   type="button"
                   onClick={() => setPinMode((v) => !v)}
                   aria-pressed={pinMode}
-                  className={`focus-ring flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium ${pinMode ? 'bg-accent text-white' : 'text-accent hover:bg-accent/10'}`}
+                  className={`focus-ring flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium ${pinMode ? 'bg-accent text-on-accent' : 'text-accent hover:bg-accent/10'}`}
                 >
                   <MapPin size={12} /> {pinMode ? 'Done pinning' : 'Add pins'}
                 </button>
@@ -398,7 +398,7 @@ export function PhotoLightbox(props: Props) {
               type="button"
               onClick={() => void save()}
               disabled={!dirty || saving}
-              className="focus-ring w-full rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+              className="focus-ring w-full rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {saving ? 'Saving…' : dirty ? 'Save changes' : 'Saved'}
             </button>
@@ -493,7 +493,7 @@ export function PhotoLightbox(props: Props) {
                     type="button"
                     onClick={() => void doPair()}
                     disabled={!pairChoice || pairBusy}
-                    className="focus-ring flex shrink-0 items-center gap-1 rounded-xl bg-accent px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
+                    className="focus-ring flex shrink-0 items-center gap-1 rounded-xl bg-accent px-3 py-2 text-xs font-semibold text-on-accent disabled:opacity-50"
                   >
                     <Link2 size={13} /> Pair
                   </button>

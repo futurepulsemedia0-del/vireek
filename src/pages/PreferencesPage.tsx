@@ -62,7 +62,7 @@ function Switch({
           checked ? 'border-accent bg-accent' : 'border-border bg-bg-tertiary'
         }`}
       >
-        <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all ${checked ? 'left-[22px]' : 'left-0.5'}`} />
+        <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-bg-secondary shadow transition-all ${checked ? 'left-[22px]' : 'left-0.5'}`} />
       </button>
     </div>
   );
@@ -355,7 +355,7 @@ export function PreferencesPage() {
         <div className="mx-auto flex max-w-lg items-center gap-3">
           <p className="min-w-0 flex-1 text-xs text-text-secondary" role="status" aria-live="polite">
             {justSaved && !dirty ? (
-              <span className="inline-flex items-center gap-1.5 font-medium text-success-500">
+              <span className="inline-flex items-center gap-1.5 font-medium text-success">
                 <CheckCircle2 size={14} aria-hidden="true" /> Saved. Thank you!
               </span>
             ) : (

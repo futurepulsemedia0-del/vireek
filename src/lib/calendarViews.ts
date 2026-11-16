@@ -458,11 +458,11 @@ export interface ColorMeta {
 
 const LEGACY_STATUS: Record<string, ColorMeta> = {
   scheduled: { key: 'scheduled', label: 'Scheduled', dot: 'bg-accent' },
-  en_route: { key: 'en_route', label: 'En route', dot: 'bg-blue-500' },
-  in_progress: { key: 'in_progress', label: 'In progress', dot: 'bg-warning-500' },
-  completed: { key: 'completed', label: 'Completed', dot: 'bg-success-500' },
+  en_route: { key: 'en_route', label: 'En route', dot: 'bg-info' },
+  in_progress: { key: 'in_progress', label: 'In progress', dot: 'bg-warning' },
+  completed: { key: 'completed', label: 'Completed', dot: 'bg-success' },
   cancelled: { key: 'cancelled', label: 'Cancelled', dot: 'bg-danger' },
-  no_show: { key: 'no_show', label: 'No-show', dot: 'bg-warning-500' },
+  no_show: { key: 'no_show', label: 'No-show', dot: 'bg-warning' },
 };
 
 const humanize = (s: string) => {
@@ -490,12 +490,12 @@ export function allStatusOptions(): ColorMeta[] {
 export type TradeKey = 'hvac' | 'plumbing' | 'electrical' | 'roofing' | 'restoration' | 'locksmith' | 'general';
 
 const TRADE_META: Record<TradeKey, ColorMeta> = {
-  hvac: { key: 'hvac', label: 'HVAC', dot: 'bg-blue-500' },
-  plumbing: { key: 'plumbing', label: 'Plumbing', dot: 'bg-cyan-500' },
-  electrical: { key: 'electrical', label: 'Electrical', dot: 'bg-warning-500' },
-  roofing: { key: 'roofing', label: 'Roofing', dot: 'bg-orange-500' },
-  restoration: { key: 'restoration', label: 'Restoration', dot: 'bg-success-500' },
-  locksmith: { key: 'locksmith', label: 'Locksmith', dot: 'bg-purple-500' },
+  hvac: { key: 'hvac', label: 'HVAC', dot: 'bg-info' },
+  plumbing: { key: 'plumbing', label: 'Plumbing', dot: 'bg-info' },
+  electrical: { key: 'electrical', label: 'Electrical', dot: 'bg-warning' },
+  roofing: { key: 'roofing', label: 'Roofing', dot: 'bg-warning' },
+  restoration: { key: 'restoration', label: 'Restoration', dot: 'bg-success' },
+  locksmith: { key: 'locksmith', label: 'Locksmith', dot: 'bg-accent' },
   general: { key: 'general', label: 'General', dot: 'bg-text-secondary' },
 };
 
@@ -523,7 +523,7 @@ export function tradeColor(trade: TradeKey): ColorMeta {
 export const ALL_TRADES: readonly ColorMeta[] = Object.values(TRADE_META);
 
 /** Same order & length as the page's TECH_PALETTE so a technician keeps one identity everywhere. */
-const TECH_DOTS = ['bg-accent', 'bg-cta', 'bg-success-500', 'bg-warning-500', 'bg-blue-500', 'bg-danger'] as const;
+const TECH_DOTS = ['bg-accent', 'bg-cta', 'bg-success', 'bg-warning', 'bg-info', 'bg-danger'] as const;
 const UNASSIGNED_DOT = 'bg-text-secondary';
 
 export function technicianColor(technicians: readonly TeamMember[], technicianId: string | null): ColorMeta {

@@ -57,7 +57,7 @@ export function TechnicianRatingForm({ technicianName, value, onChange, disabled
             onMouseLeave={() => setHover(0)}
             className="focus-ring rounded-lg p-1 disabled:opacity-50"
           >
-            <Star size={28} className={shown >= n ? 'fill-warning-500 text-warning-500' : 'text-text-secondary'} />
+            <Star size={28} className={shown >= n ? 'fill-warning text-warning' : 'text-text-secondary'} />
           </button>
         ))}
       </div>
@@ -99,7 +99,7 @@ export function TechnicianRatingForm({ technicianName, value, onChange, disabled
             placeholder={`Anything you'd like to tell us about ${technicianName}? (optional)`}
             className="focus-ring mt-4 w-full resize-none rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-secondary"
           />
-          <p className="mt-1 text-right text-[11px] text-text-secondary/70">
+          <p className="mt-1 text-right text-[11px] text-text-muted">
             {value.comment.length}/{MAX_COMMENT_LENGTH}
           </p>
         </>

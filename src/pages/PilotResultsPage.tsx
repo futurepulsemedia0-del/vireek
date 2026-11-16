@@ -19,7 +19,7 @@ import {
   type HoursEntry, type PilotResults,
 } from '@/lib/pilotResults';
 
-const TREND_STYLE = { better: 'text-success-500', worse: 'text-danger', same: 'text-text-secondary', no_data: 'text-text-secondary' } as const;
+const TREND_STYLE = { better: 'text-success', worse: 'text-danger', same: 'text-text-secondary', no_data: 'text-text-secondary' } as const;
 
 function StatusTable({ title, data, currency }: { title: string; data: PilotResults['claims_by_status']; currency: string }) {
   const entries = Object.entries(data);
@@ -133,7 +133,7 @@ export function PilotResultsPage() {
                   <tbody>
                     {compareFigures(data.baseline, data.now, data.estimate_fields).map((r) => (
                       <tr key={r.key} className="border-t border-border">
-                        <td className="py-2 pr-3">{r.label}{r.estimate && <span className="ml-2 rounded-full bg-warning-500/10 px-2 py-0.5 text-xs text-warning-500">estimate</span>}</td>
+                        <td className="py-2 pr-3">{r.label}{r.estimate && <span className="ml-2 rounded-full bg-warning-subtle px-2 py-0.5 text-xs text-warning">estimate</span>}</td>
                         <td className="py-2 pr-3 text-right">{formatValue(r, r.baseline, currency)}</td>
                         <td className="py-2 pr-3 text-right font-semibold">{formatValue(r, r.now, currency)}</td>
                         <td className={`py-2 text-right ${TREND_STYLE[r.trend]}`}>{r.delta === null ? '—' : `${r.delta > 0 ? '+' : ''}${r.kind === 'money' ? formatMoney(r.delta, currency) : r.delta}`}</td>

@@ -45,10 +45,10 @@ export const SHOCK_TYPE_LABELS: Record<ShockType, string> = {
 };
 
 export const SEVERITY_COLORS: Record<Severity, string> = {
-  low: 'bg-success-500/10 text-success-500',
-  moderate: 'bg-warning-500/10 text-warning-500',
+  low: 'bg-success-subtle text-success',
+  moderate: 'bg-warning-subtle text-warning',
   high: 'bg-danger/10 text-danger',
-  severe: 'bg-danger/20 text-danger',
+  severe: 'bg-danger/20 text-danger-strong',
 };
 
 export const DOMAIN_LABELS: Record<CascadeDomain, string> = {

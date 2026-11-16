@@ -110,7 +110,7 @@ export function CloseoutCaseDrawer({ caseId, focusStepId, customerName, address,
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/40" role="dialog" aria-modal="true" aria-label={`Closeout checklist for ${customerName}`}>
+    <div className="fixed inset-0 z-50 flex justify-end bg-overlay/40" role="dialog" aria-modal="true" aria-label={`Closeout checklist for ${customerName}`}>
       <div className="h-full w-full max-w-2xl overflow-y-auto bg-bg-primary p-5 shadow-2xl">
         <div className="mb-4 flex items-start justify-between gap-3">
           <div>
@@ -164,7 +164,7 @@ export function CloseoutCaseDrawer({ caseId, focusStepId, customerName, address,
                             Source: {safeHttpUrl(program.source_url)
                               ? <a className="inline-flex items-center gap-1 text-accent underline" href={safeHttpUrl(program.source_url)!} target="_blank" rel="noopener noreferrer">open <ExternalLink size={11} /></a>
                               : 'none'} · Last verified {program.last_verified_on ?? 'never'}
-                            {fresh !== 'fresh' && <span className="ml-1 font-semibold text-warning-500">({fresh === 'stale' ? 're-verify this rule' : 'unverified rule'})</span>}
+                            {fresh !== 'fresh' && <span className="ml-1 font-semibold text-warning">({fresh === 'stale' ? 're-verify this rule' : 'unverified rule'})</span>}
                           </p>
                           {program.enrollment_requirements.length > 0 && <p>Enrollment: {program.enrollment_requirements.join(' · ')}</p>}
                         </div>

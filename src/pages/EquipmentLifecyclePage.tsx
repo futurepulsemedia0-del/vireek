@@ -19,9 +19,9 @@ interface AlertRow {
 }
 
 const RISK_STYLES: Record<string, string> = {
-  high: 'bg-danger-500/10 text-danger-500',
-  medium: 'bg-warning-500/10 text-warning-500',
-  low: 'bg-success-500/10 text-success-500',
+  high: 'bg-danger-subtle text-danger',
+  medium: 'bg-warning-subtle text-warning',
+  low: 'bg-success-subtle text-success',
 };
 
 export function EquipmentLifecyclePage() {

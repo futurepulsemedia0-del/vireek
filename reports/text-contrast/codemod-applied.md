@@ -1,0 +1,423 @@
+# text-alpha codemod — APPLIED
+
+files with edits: 254 · edits: 517 · exceptions (not migrated): 1437
+
+## Mapping (from → to)
+- text-text-secondary/70 → text-text-muted: 198
+- text-text-secondary/60 → text-text-muted: 98
+- text-text-secondary/50 → text-text-muted: 46
+- text-text-secondary/50 → text-graphic-muted: 39
+- text-text-secondary/80 → text-text-muted: 37
+- text-text-secondary/60 → text-graphic-muted: 26
+- text-text-secondary/40 → text-graphic-muted: 16
+- text-accent/80 → text-accent: 13
+- text-text-secondary/70 → text-graphic-muted: 8
+- text-accent/30 → text-accent: 5
+- text-danger/70 → text-danger: 4
+- text-danger/60 → text-danger: 4
+- text-accent/40 → text-accent: 4
+- text-text-secondary/30 → text-graphic-muted: 4
+- text-text-secondary/40 → text-text-muted: 3
+- text-danger/50 → text-danger: 3
+- text-success/70 → text-success: 2
+- text-accent/70 → text-accent: 2
+- text-text-secondary/30 → text-text-muted: 2
+- text-accent/10 → text-accent: 1
+- text-text-secondary/25 → text-graphic-muted: 1
+- text-cta/60 → text-cta: 1
+
+## Exceptions by reason
+- opacity-*: manual (restructure or use a token; not auto-migrated): 1308
+- unverifiable: surface unknown (white/black text): 102
+- incidental (alpha 0 / sr-only): 17
+- alpha < 30% on text: ghost decoration, not readable content — remove it or make it a glyph (manual): 6
+- white/black text: surface-dependent, manual: 2
+- no verified token reaches AA on this surface: manual: 1
+- no mapping for text-static-black (meaningful text): 1
+
+## Edits per file
+- src/components/AccessibilityWidget.tsx: 12
+- src/pages/RevenueProtectionPage.tsx: 11
+- src/pages/JobsPage.tsx: 10
+- src/pages/LeadsPage.tsx: 10
+- src/pages/BusinessProfilePage.tsx: 9
+- src/pages/KnowledgeBasePage.tsx: 9
+- src/components/auth/AuthParts.tsx: 7
+- src/components/Footer.tsx: 6
+- src/pages/BusinessIdentityPage.tsx: 6
+- src/pages/OutcomeBenchmarkNetworkPage.tsx: 6
+- src/pages/PricingPage.tsx: 6
+- src/pages/AIReceptionistVsHumanPage.tsx: 5
+- src/pages/StatusPage.tsx: 5
+- src/pages/TechnicianIdentityGraphPage.tsx: 5
+- src/components/CommandPalette.tsx: 4
+- src/components/DashboardNav.tsx: 4
+- src/components/schedule/CalendarBoard.tsx: 4
+- src/components/sections/CaseStudies.tsx: 4
+- src/components/sections/Pricing.tsx: 4
+- src/pages/AlternativePage.tsx: 4
+- src/pages/AssistantPersonaPage.tsx: 4
+- src/pages/BenchmarksPage.tsx: 4
+- src/pages/OperationsLoopPage.tsx: 4
+- src/pages/PricingFlywheelPage.tsx: 4
+- src/pages/RevenueRecoveryLedgerPage.tsx: 4
+- src/pages/TeamPage.tsx: 4
+- src/pages/TestimonialsPage.tsx: 4
+- src/pages/TrustCenterPage.tsx: 4
+- src/components/GlobalSearchPalette.tsx: 3
+- src/components/RevenueRecoveredCard.tsx: 3
+- src/components/operator/OperatorPanel.tsx: 3
+- src/components/sections/AcceptableUseContent.tsx: 3
+- src/components/sections/AiDisclosureContent.tsx: 3
+- src/components/sections/CcpaContent.tsx: 3
+- src/components/sections/CookiePolicyContent.tsx: 3
+- src/components/sections/DmcaContent.tsx: 3
+- src/components/sections/DpaContent.tsx: 3
+- src/components/sections/GdprDpaContent.tsx: 3
+- src/components/sections/Integrations.tsx: 3
+- src/components/sections/LiveActivityStream.tsx: 3
+- src/components/sections/MsaContent.tsx: 3
+- src/components/sections/PricingTeaser.tsx: 3
+- src/components/sections/PrivacyContent.tsx: 3
+- src/components/sections/RefundPolicyContent.tsx: 3
+- src/components/sections/ResponsibleAiContent.tsx: 3
+- src/components/sections/SlaContent.tsx: 3
+- src/components/sections/SmsTermsContent.tsx: 3
+- src/components/sections/SocialProof.tsx: 3
+- src/components/sections/TermsContent.tsx: 3
+- src/components/sections/TrademarkPolicyContent.tsx: 3
+- src/components/sections/VulnerabilityDisclosureContent.tsx: 3
+- src/components/success/PlaybookCard.tsx: 3
+- src/pages/AccessibilityPage.tsx: 3
+- src/pages/AffiliatePage.tsx: 3
+- src/pages/BlogIndexPage.tsx: 3
+- src/pages/BrandGuidelinesPage.tsx: 3
+- src/pages/CaseStudiesPage.tsx: 3
+- src/pages/CommandCenterPage.tsx: 3
+- src/pages/CompetitorPage.tsx: 3
+- src/pages/DeveloperDocsPage.tsx: 3
+- src/pages/EventBusPage.tsx: 3
+- src/pages/GettingStartedPage.tsx: 3
+- src/pages/InventoryPage.tsx: 3
+- src/pages/PhoneNumbersPage.tsx: 3
+- src/pages/QuotesPage.tsx: 3
+- src/pages/ServiceDataExchangePage.tsx: 3
+- src/pages/TechnicianPerformancePage.tsx: 3
+- src/pages/WeatherSurgeIntelligencePage.tsx: 3
+- src/pages/WebhookLogsPage.tsx: 3
+- src/components/ExitIntentCapture.tsx: 2
+- src/components/KeyboardShortcutsModal.tsx: 2
+- src/components/ReworkIntelligence.tsx: 2
+- src/components/VoiceDemoWidget.tsx: 2
+- src/components/call-routing/RoutingSimulator.tsx: 2
+- src/components/failure-genome/GenomeStrip.tsx: 2
+- src/components/integrations/IntegrationRecoveryPanel.tsx: 2
+- src/components/legal/LegalDocument.tsx: 2
+- src/components/outbound/AgentStepsEditor.tsx: 2
+- src/components/passport/EquipmentPassportView.tsx: 2
+- src/components/quality/QualityOverviewTab.tsx: 2
+- src/components/quotes/EstimatePresentation.tsx: 2
+- src/components/schedule/CalendarViews.tsx: 2
+- src/components/sections/Comparison.tsx: 2
+- src/components/sections/CustomerResults.tsx: 2
+- src/components/sections/DashboardPreview.tsx: 2
+- src/components/sections/Emergencyintelligence.tsx: 2
+- src/components/sections/HighlightBanner.tsx: 2
+- src/components/sections/ReviewBadges.tsx: 2
+- src/components/settings/VoiceCloningCard.tsx: 2
+- src/components/support/TicketParts.tsx: 2
+- src/components/timeoff/TimeOffCalendar.tsx: 2
+- src/pages/BusinessScientistPage.tsx: 2
+- src/pages/CallsPage.tsx: 2
+- src/pages/ChangelogPage.tsx: 2
+- src/pages/CustomerRoiPage.tsx: 2
+- src/pages/DispatchBoardPage.tsx: 2
+- src/pages/FeatureMatrixPage.tsx: 2
+- src/pages/FeedbackPage.tsx: 2
+- src/pages/FinancingOfferPage.tsx: 2
+- src/pages/HelpCenterPage.tsx: 2
+- src/pages/InsightsPage.tsx: 2
+- src/pages/JobRoomPage.tsx: 2
+- src/pages/LeadDetailPage.tsx: 2
+- src/pages/LiveCopilotPage.tsx: 2
+- src/pages/OAuthAppsPage.tsx: 2
+- src/pages/OperationalEntropyPage.tsx: 2
+- src/pages/PartnerPortalDashboardPage.tsx: 2
+- src/pages/PressPage.tsx: 2
+- src/pages/PriceBookPage.tsx: 2
+- src/pages/ReferralPage.tsx: 2
+- src/pages/RegretConsolePage.tsx: 2
+- src/pages/TechnicianCapacityPage.tsx: 2
+- src/pages/TechnicianSkillGraphPage.tsx: 2
+- src/pages/TechnicianTrustPassportPage.tsx: 2
+- src/pages/VerificationNetworkPage.tsx: 2
+- src/components/CallSatisfactionWidget.tsx: 1
+- src/components/DailyBriefingCard.tsx: 1
+- src/components/DateRangeFilter.tsx: 1
+- src/components/DeltaBadge.tsx: 1
+- src/components/EmptyState.tsx: 1
+- src/components/EnterpriseDemoBookingCalendar.tsx: 1
+- src/components/KpiStatCard.tsx: 1
+- src/components/NotificationBell.tsx: 1
+- src/components/SinceYesterdayCard.tsx: 1
+- src/components/TechnicianRatingForm.tsx: 1
+- src/components/TodayTasksCard.tsx: 1
+- src/components/TrialBanner.tsx: 1
+- src/components/UpgradeBanner.tsx: 1
+- src/components/UsageLimitBanner.tsx: 1
+- src/components/atlas/FailureAtlasPanel.tsx: 1
+- src/components/booking/IntakeFields.tsx: 1
+- src/components/call-routing/RoutingFlow.tsx: 1
+- src/components/chief-of-staff/TopActions.tsx: 1
+- src/components/content-calendar/CalendarViews.tsx: 1
+- src/components/customers/JobEquipmentLinker.tsx: 1
+- src/components/duplicates/MergeDialog.tsx: 1
+- src/components/failure-genome/PatternCard.tsx: 1
+- src/components/header/MobileNav.tsx: 1
+- src/components/identity/EntityDossier.tsx: 1
+- src/components/integrations/IntegrationRecoveryBanner.tsx: 1
+- src/components/jobs/JobWorkflowBoard.tsx: 1
+- src/components/knowledge-capture/RuleCard.tsx: 1
+- src/components/locations/LocationCard.tsx: 1
+- src/components/locations/LocationSwitcher.tsx: 1
+- src/components/passport/PassportParts.tsx: 1
+- src/components/quality/qualityUi.tsx: 1
+- src/components/recovery/StatementView.tsx: 1
+- src/components/sandbox/ApiPlayground.tsx: 1
+- src/components/sections/BeforeAfter.tsx: 1
+- src/components/sections/EstimateRoiCalculator.tsx: 1
+- src/components/sections/Hero.tsx: 1
+- src/components/sections/HowItWorks.tsx: 1
+- src/components/sections/Industries.tsx: 1
+- src/components/sections/IndustryRoiCalculator.tsx: 1
+- src/components/sections/MissedCallCalculator.tsx: 1
+- src/components/sections/Problem.tsx: 1
+- src/components/sections/RevenueAtRiskPreview.tsx: 1
+- src/components/sections/TrustBar.tsx: 1
+- src/components/sections/WhyVireek.tsx: 1
+- src/components/settings/BookingLinkCard.tsx: 1
+- src/components/settings/LanguagePreferences.tsx: 1
+- src/components/shortcuts/ShortcutHint.tsx: 1
+- src/components/signatures/SignaturePad.tsx: 1
+- src/components/staff/AccountSuccessSection.tsx: 1
+- src/components/success/AdoptionScoreCard.tsx: 1
+- src/components/takeoff/TakeoffItemRow.tsx: 1
+- src/components/today/TodayHome.tsx: 1
+- src/components/trust/ClaimBadge.tsx: 1
+- src/components/whats-new/WhatsNewFeed.tsx: 1
+- src/lib/knowledge.ts: 1
+- src/lib/messageTemplates.ts: 1
+- src/pages/AccessibilityConformancePage.tsx: 1
+- src/pages/ActivityLedgerPage.tsx: 1
+- src/pages/AdvancedRoutingPage.tsx: 1
+- src/pages/AmbassadorPage.tsx: 1
+- src/pages/ApiKeysPage.tsx: 1
+- src/pages/AutomationMarketplacePage.tsx: 1
+- src/pages/BetaProgramPage.tsx: 1
+- src/pages/BillingPage.tsx: 1
+- src/pages/BillingPlansPage.tsx: 1
+- src/pages/BlogPage.tsx: 1
+- src/pages/BookingSettingsPage.tsx: 1
+- src/pages/BusinessDigitalTwinPage.tsx: 1
+- src/pages/BusinessEvolutionRoadmapPage.tsx: 1
+- src/pages/BusinessRealityPage.tsx: 1
+- src/pages/BusinessWorldModelPage.tsx: 1
+- src/pages/CapacityDemandPage.tsx: 1
+- src/pages/CareerPostingPage.tsx: 1
+- src/pages/CareersPage.tsx: 1
+- src/pages/CommunityForumPage.tsx: 1
+- src/pages/CompanyReflexesPage.tsx: 1
+- src/pages/CustomerDetailPage.tsx: 1
+- src/pages/CustomerSitesPage.tsx: 1
+- src/pages/CustomerStoriesPage.tsx: 1
+- src/pages/CustomerTrustLayerPage.tsx: 1
+- src/pages/DashboardPage.tsx: 1
+- src/pages/DataFabricPage.tsx: 1
+- src/pages/DecisionDebtPage.tsx: 1
+- src/pages/DecisionLedgerPage.tsx: 1
+- src/pages/DeveloperChangelogPage.tsx: 1
+- src/pages/DiagnosisCopilotPage.tsx: 1
+- src/pages/EnergyIntelligencePage.tsx: 1
+- src/pages/EnterprisePage.tsx: 1
+- src/pages/ExecutionReliabilityPage.tsx: 1
+- src/pages/FieldScientistPage.tsx: 1
+- src/pages/FirstTimeFixAutopilotPage.tsx: 1
+- src/pages/ForgotPasswordPage.tsx: 1
+- src/pages/GlossaryPage.tsx: 1
+- src/pages/IndustryPage.tsx: 1
+- src/pages/InsightsPublicPage.tsx: 1
+- src/pages/InsightsSettingsPage.tsx: 1
+- src/pages/IntegrationsHubPage.tsx: 1
+- src/pages/IntegrationsPage.tsx: 1
+- src/pages/LeadQualificationPage.tsx: 1
+- src/pages/LearningCompilerPage.tsx: 1
+- src/pages/LoginPage.tsx: 1
+- src/pages/ManifestoPage.tsx: 1
+- src/pages/MarketplacePage.tsx: 1
+- src/pages/NegativeKnowledgeStorePage.tsx: 1
+- src/pages/NotificationsPage.tsx: 1
+- src/pages/OnboardingConciergePage.tsx: 1
+- src/pages/OnboardingGuidePage.tsx: 1
+- src/pages/OperationsCenterPage.tsx: 1
+- src/pages/OrgChartPage.tsx: 1
+- src/pages/OutboundCampaignsPage.tsx: 1
+- src/pages/OutcomePricingPage.tsx: 1
+- src/pages/PartnerPortalCertificationPage.tsx: 1
+- src/pages/PartnerPortalResourcesPage.tsx: 1
+- src/pages/PartnersPage.tsx: 1
+- src/pages/PodcastPage.tsx: 1
+- src/pages/ProfitabilityPage.tsx: 1
+- src/pages/QuoteDetailPage.tsx: 1
+- src/pages/ReportPage.tsx: 1
+- src/pages/ResetPasswordPage.tsx: 1
+- src/pages/ReviewsPage.tsx: 1
+- src/pages/SdksPage.tsx: 1
+- src/pages/SecuritySettingsPage.tsx: 1
+- src/pages/ServiceGuaranteePage.tsx: 1
+- src/pages/ServiceGuaranteePublicPage.tsx: 1
+- src/pages/SignupPage.tsx: 1
+- src/pages/SitemapPage.tsx: 1
+- src/pages/SmsTextBackPage.tsx: 1
+- src/pages/SubprocessorsPage.tsx: 1
+- src/pages/SupportInboxPage.tsx: 1
+- src/pages/SystemRequirementsPage.tsx: 1
+- src/pages/TechnicianApprenticeshipPage.tsx: 1
+- src/pages/UnderpricedJobsPage.tsx: 1
+- src/pages/UnifiedInboxPage.tsx: 1
+- src/pages/UseCasePage.tsx: 1
+- src/pages/VerifiedServicePage.tsx: 1
+- src/pages/VerifyEmailPage.tsx: 1
+- src/pages/VoicemailDropsPage.tsx: 1
+- src/pages/WorkflowsPage.tsx: 1
+- src/pages/hangelogPage.tsx: 1
+
+## Exceptions (file:line raw — reason)
+- src/components/EnterpriseDemoBookingCalendar.tsx:346 `text-text-secondary/30` — no verified token reaches AA on this surface: manual
+- src/components/LiveChatWidget.tsx:204 `text-white/70` — unverifiable: surface unknown (white/black text)
+- src/components/legal/LegalDocument.tsx:115 `text-text-secondary/0` — incidental (alpha 0 / sr-only)
+- src/components/quotes/EstimatePresentation.tsx:123 `text-white/80` — unverifiable: surface unknown (white/black text)
+- src/components/quotes/EstimatePresentation.tsx:126 `text-white/50` — unverifiable: surface unknown (white/black text)
+- src/components/schedule/CalendarViews.tsx:763 `text-black/70` — unverifiable: surface unknown (white/black text)
+- src/components/sections/AcceptableUseContent.tsx:61 `text-text-secondary/0` — incidental (alpha 0 / sr-only)
+- src/components/sections/AiDisclosureContent.tsx:96 `text-text-secondary/0` — incidental (alpha 0 / sr-only)
+- src/components/sections/CcpaContent.tsx:60 `text-text-secondary/0` — incidental (alpha 0 / sr-only)
+- src/components/sections/CookiePolicyContent.tsx:60 `text-text-secondary/0` — incidental (alpha 0 / sr-only)
+- src/components/sections/DmcaContent.tsx:55 `text-text-secondary/0` — incidental (alpha 0 / sr-only)
+- src/components/sections/DpaContent.tsx:63 `text-text-secondary/0` — incidental (alpha 0 / sr-only)
+- src/components/sections/FinalCTA.tsx:65 `text-white/75` — unverifiable: surface unknown (white/black text)
+- src/components/sections/FinalCTA.tsx:67 `text-white/75` — unverifiable: surface unknown (white/black text)
+- src/components/sections/GdprDpaContent.tsx:60 `text-text-secondary/0` — incidental (alpha 0 / sr-only)
+- src/components/sections/MsaContent.tsx:90 `text-text-secondary/0` — incidental (alpha 0 / sr-only)
+- src/components/sections/Pricing.tsx:67 `text-white/85` — unverifiable: surface unknown (white/black text)
+- src/components/sections/PrivacyContent.tsx:69 `text-text-secondary/0` — incidental (alpha 0 / sr-only)
+- src/components/sections/RefundPolicyContent.tsx:61 `text-text-secondary/0` — incidental (alpha 0 / sr-only)
+- src/components/sections/ResponsibleAiContent.tsx:62 `text-text-secondary/0` — incidental (alpha 0 / sr-only)
+- src/components/sections/SlaContent.tsx:61 `text-text-secondary/0` — incidental (alpha 0 / sr-only)
+- src/components/sections/SmsTermsContent.tsx:61 `text-text-secondary/0` — incidental (alpha 0 / sr-only)
+- src/components/sections/TermsContent.tsx:72 `text-text-secondary/0` — incidental (alpha 0 / sr-only)
+- src/components/sections/TrademarkPolicyContent.tsx:61 `text-text-secondary/0` — incidental (alpha 0 / sr-only)
+- src/components/sections/VulnerabilityDisclosureContent.tsx:60 `text-text-secondary/0` — incidental (alpha 0 / sr-only)
+- src/components/teamchat/ChatMessageBubble.tsx:79 `text-white/80` — unverifiable: surface unknown (white/black text)
+- src/components/teamchat/ChatMessageBubble.tsx:122 `text-white/80` — unverifiable: surface unknown (white/black text)
+- src/components/teamchat/ChatVoicePlayer.tsx:66 `text-white/80` — unverifiable: surface unknown (white/black text)
+- src/components/technician/BarcodeScanSheet.tsx:209 `text-white/60` — unverifiable: surface unknown (white/black text)
+- src/components/technician/BarcodeScanSheet.tsx:210 `text-white/80` — unverifiable: surface unknown (white/black text)
+- src/components/technician/BarcodeScanSheet.tsx:229 `placeholder:text-white/50` — white/black text: surface-dependent, manual
+- src/components/video/VideoCallRoom.tsx:98 `text-white/70` — unverifiable: surface unknown (white/black text)
+- src/components/video/VideoCallRoom.tsx:112 `text-white/80` — white/black text: surface-dependent, manual
+- src/components/video/VideoCallRoom.tsx:124 `text-white/60` — unverifiable: surface unknown (white/black text)
+- src/components/video/VideoCallRoom.tsx:131 `text-white/70` — unverifiable: surface unknown (white/black text)
+- src/components/video/VideoCallRoom.tsx:145 `text-white/70` — unverifiable: surface unknown (white/black text)
+- src/components/video/VideoCallRoom.tsx:171 `text-white/70` — unverifiable: surface unknown (white/black text)
+- src/components/video/VideoCallRoom.tsx:188 `text-white/60` — unverifiable: surface unknown (white/black text)
+- src/components/video/VideoLobby.tsx:54 `text-white/70` — unverifiable: surface unknown (white/black text)
+- src/pages/AIReceptionistVsHumanPage.tsx:678 `text-white/80` — unverifiable: surface unknown (white/black text)
+- src/pages/AIReceptionistVsHumanPage.tsx:682 `text-white/85` — unverifiable: surface unknown (white/black text)
+- src/pages/AIReceptionistVsHumanPage.tsx:695 `text-white/90` — unverifiable: surface unknown (white/black text)
+- src/pages/AIReceptionistVsHumanPage.tsx:701 `text-white/70` — unverifiable: surface unknown (white/black text)
+- src/pages/AboutPage.tsx:329 `text-white/85` — unverifiable: surface unknown (white/black text)
+- src/pages/AboutPage.tsx:341 `text-white/70` — unverifiable: surface unknown (white/black text)
+- src/pages/AffiliatePage.tsx:145 `text-text-primary/[0.06]` — alpha < 30% on text: ghost decoration, not readable content — remove it or make it a glyph (manual)
+- src/pages/AffiliatePage.tsx:290 `text-white/90` — unverifiable: surface unknown (white/black text)
+- src/pages/AffiliatePage.tsx:294 `text-white/85` — unverifiable: surface unknown (white/black text)
+- src/pages/AffiliatePage.tsx:305 `text-white/70` — unverifiable: surface unknown (white/black text)
+- src/pages/AlternativePage.tsx:260 `text-white/80` — unverifiable: surface unknown (white/black text)
+- src/pages/AlternativePage.tsx:262 `text-white/85` — unverifiable: surface unknown (white/black text)
+- src/pages/AlternativePage.tsx:268 `text-white/70` — unverifiable: surface unknown (white/black text)
+- src/pages/AmbassadorPage.tsx:184 `text-white/90` — unverifiable: surface unknown (white/black text)
+- src/pages/AmbassadorPage.tsx:188 `text-white/85` — unverifiable: surface unknown (white/black text)
+- src/pages/BetaProgramPage.tsx:307 `text-text-primary/[0.06]` — alpha < 30% on text: ghost decoration, not readable content — remove it or make it a glyph (manual)
+- src/pages/BetaProgramPage.tsx:496 `text-white/90` — unverifiable: surface unknown (white/black text)
+- src/pages/BetaProgramPage.tsx:500 `text-white/85` — unverifiable: surface unknown (white/black text)
+- src/pages/BrandGuidelinesPage.tsx:193 `text-static-black/60` — no mapping for text-static-black (meaningful text)
+- src/pages/BrandGuidelinesPage.tsx:430 `text-white/85` — unverifiable: surface unknown (white/black text)
+- src/pages/BrandGuidelinesPage.tsx:443 `text-white/90` — unverifiable: surface unknown (white/black text)
+- src/pages/BrandGuidelinesPage.tsx:449 `text-white/70` — unverifiable: surface unknown (white/black text)
+- src/pages/CalculatorPage.tsx:78 `text-white/85` — unverifiable: surface unknown (white/black text)
+- src/pages/CalculatorPage.tsx:89 `text-white/70` — unverifiable: surface unknown (white/black text)
+- src/pages/CareersPage.tsx:363 `text-text-primary/[0.06]` — alpha < 30% on text: ghost decoration, not readable content — remove it or make it a glyph (manual)
+- src/pages/CareersPage.tsx:441 `text-white/85` — unverifiable: surface unknown (white/black text)
+- src/pages/CareersPage.tsx:454 `text-white/90` — unverifiable: surface unknown (white/black text)
+- src/pages/CareersPage.tsx:460 `text-white/70` — unverifiable: surface unknown (white/black text)
+- src/pages/ComparePage.tsx:212 `text-white/85` — unverifiable: surface unknown (white/black text)
+- src/pages/ComparePage.tsx:223 `text-white/70` — unverifiable: surface unknown (white/black text)
+- src/pages/CompetitorPage.tsx:340 `text-white/80` — unverifiable: surface unknown (white/black text)
+- src/pages/CompetitorPage.tsx:347 `text-white/85` — unverifiable: surface unknown (white/black text)
+- src/pages/CompetitorPage.tsx:358 `text-white/70` — unverifiable: surface unknown (white/black text)
+- src/pages/CulturePage.tsx:327 `text-white/85` — unverifiable: surface unknown (white/black text)
+- src/pages/CulturePage.tsx:340 `text-white/90` — unverifiable: surface unknown (white/black text)
+- src/pages/CulturePage.tsx:346 `text-white/70` — unverifiable: surface unknown (white/black text)
+- src/pages/CustomerRoiPage.tsx:226 `text-white/90` — unverifiable: surface unknown (white/black text)
+- src/pages/CustomerRoiPage.tsx:230 `text-white/85` — unverifiable: surface unknown (white/black text)
+- src/pages/CustomerRoiPage.tsx:241 `text-white/90` — unverifiable: surface unknown (white/black text)
+- src/pages/CustomerStoriesPage.tsx:217 `text-white/80` — unverifiable: surface unknown (white/black text)
+- src/pages/CustomerStoriesPage.tsx:219 `text-white/85` — unverifiable: surface unknown (white/black text)
+- src/pages/CustomerStoriesPage.tsx:223 `text-white/70` — unverifiable: surface unknown (white/black text)
+- src/pages/DeveloperDocsPage.tsx:383 `text-text-primary/[0.06]` — alpha < 30% on text: ghost decoration, not readable content — remove it or make it a glyph (manual)
+- src/pages/DeveloperDocsPage.tsx:458 `text-white/90` — unverifiable: surface unknown (white/black text)
+- src/pages/DeveloperDocsPage.tsx:462 `text-white/85` — unverifiable: surface unknown (white/black text)
+- src/pages/DeveloperDocsPage.tsx:474 `text-white/70` — unverifiable: surface unknown (white/black text)
+- src/pages/EventsPage.tsx:546 `text-white/90` — unverifiable: surface unknown (white/black text)
+- src/pages/EventsPage.tsx:548 `text-white/85` — unverifiable: surface unknown (white/black text)
+- src/pages/FeatureMatrixPage.tsx:433 `text-white/85` — unverifiable: surface unknown (white/black text)
+- src/pages/FeatureMatrixPage.tsx:445 `text-white/70` — unverifiable: surface unknown (white/black text)
+- src/pages/FeaturesPage.tsx:260 `text-white/85` — unverifiable: surface unknown (white/black text)
+- src/pages/FeaturesPage.tsx:271 `text-white/70` — unverifiable: surface unknown (white/black text)
+- src/pages/HelpPage.tsx:794 `text-white/70` — unverifiable: surface unknown (white/black text)
+- src/pages/HelpPage.tsx:796 `text-white/70` — unverifiable: surface unknown (white/black text)
+- src/pages/IndustriesPage.tsx:114 `text-white/85` — unverifiable: surface unknown (white/black text)
+- src/pages/JobBoardPage.tsx:303 `text-white/80` — unverifiable: surface unknown (white/black text)
+- src/pages/LiveCopilotPage.tsx:249 `text-white/80` — unverifiable: surface unknown (white/black text)
+- src/pages/ManifestoPage.tsx:259 `text-white/85` — unverifiable: surface unknown (white/black text)
+- src/pages/ManifestoPage.tsx:271 `text-white/70` — unverifiable: surface unknown (white/black text)
+- src/pages/NetworkHandoffsPage.tsx:854 `text-white/80` — unverifiable: surface unknown (white/black text)
+- src/pages/PartnersPage.tsx:281 `text-text-primary/[0.06]` — alpha < 30% on text: ghost decoration, not readable content — remove it or make it a glyph (manual)
+- src/pages/PartnersPage.tsx:347 `text-white/90` — unverifiable: surface unknown (white/black text)
+- src/pages/PartnersPage.tsx:351 `text-white/85` — unverifiable: surface unknown (white/black text)
+- src/pages/PartnersPage.tsx:363 `text-white/70` — unverifiable: surface unknown (white/black text)
+- src/pages/PlatformPage.tsx:158 `text-white/85` — unverifiable: surface unknown (white/black text)
+- src/pages/PlatformPage.tsx:169 `text-white/70` — unverifiable: surface unknown (white/black text)
+- src/pages/PressPage.tsx:457 `text-white/85` — unverifiable: surface unknown (white/black text)
+- src/pages/PressPage.tsx:470 `text-white/90` — unverifiable: surface unknown (white/black text)
+- src/pages/PressPage.tsx:476 `text-white/70` — unverifiable: surface unknown (white/black text)
+- src/pages/PricingPage.tsx:374 `text-white/85` — unverifiable: surface unknown (white/black text)
+- src/pages/PricingPage.tsx:595 `text-white/85` — unverifiable: surface unknown (white/black text)
+- src/pages/PricingPage.tsx:607 `text-white/90` — unverifiable: surface unknown (white/black text)
+- src/pages/PricingPage.tsx:613 `text-white/70` — unverifiable: surface unknown (white/black text)
+- src/pages/ReferralPage.tsx:140 `text-text-primary/[0.06]` — alpha < 30% on text: ghost decoration, not readable content — remove it or make it a glyph (manual)
+- src/pages/ReferralPage.tsx:242 `text-white/90` — unverifiable: surface unknown (white/black text)
+- src/pages/ReferralPage.tsx:246 `text-white/85` — unverifiable: surface unknown (white/black text)
+- src/pages/ServicesPage.tsx:229 `text-white/85` — unverifiable: surface unknown (white/black text)
+- src/pages/ServicesPage.tsx:241 `text-white/70` — unverifiable: surface unknown (white/black text)
+- src/pages/SupportInboxPage.tsx:170 `text-white/70` — unverifiable: surface unknown (white/black text)
+- src/pages/SwitchGuidePage.tsx:214 `text-white/80` — unverifiable: surface unknown (white/black text)
+- src/pages/SwitchGuidePage.tsx:221 `text-white/85` — unverifiable: surface unknown (white/black text)
+- src/pages/SwitchGuidePage.tsx:232 `text-white/70` — unverifiable: surface unknown (white/black text)
+- src/pages/SwitchGuidesPage.tsx:140 `text-white/80` — unverifiable: surface unknown (white/black text)
+- src/pages/SwitchGuidesPage.tsx:147 `text-white/85` — unverifiable: surface unknown (white/black text)
+- src/pages/SwitchGuidesPage.tsx:158 `text-white/70` — unverifiable: surface unknown (white/black text)
+- src/pages/TechnicianSchedulePage.tsx:258 `text-white/90` — unverifiable: surface unknown (white/black text)
+- src/pages/UnifiedInboxPage.tsx:306 `text-white/80` — unverifiable: surface unknown (white/black text)
+- src/pages/UnifiedInboxPage.tsx:309 `text-white/70` — unverifiable: surface unknown (white/black text)
+- src/pages/WebinarsPage.tsx:311 `text-white/90` — unverifiable: surface unknown (white/black text)
+- src/pages/WebinarsPage.tsx:315 `text-white/85` — unverifiable: surface unknown (white/black text)

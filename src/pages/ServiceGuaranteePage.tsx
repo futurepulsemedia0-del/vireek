@@ -96,11 +96,11 @@ function Stepper({ checkpoints }: { checkpoints: CheckpointRow[] }) {
         const status = c?.status ?? 'pending';
         const tone =
           status === 'passed'
-            ? 'bg-success-500/15 text-success-500'
+            ? 'bg-success-subtle text-success'
             : status === 'failed'
               ? 'bg-danger/15 text-danger'
               : status === 'voided'
-                ? 'bg-bg-tertiary text-text-secondary/50'
+                ? 'bg-bg-tertiary text-text-muted'
                 : 'bg-bg-tertiary text-text-secondary';
         return (
           <li key={stage} className={`flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-medium ${tone}`}>
@@ -308,7 +308,7 @@ function ClaimPanel({
               {equipment.map((e) => (
                 <li key={e.id}>
                   {[e.make, e.model, e.type].filter(Boolean).join(' ')} ·{' '}
-                  <span className={e.in_warranty ? 'text-success-500' : 'text-text-secondary'}>{e.in_warranty ? 'in manufacturer warranty' : 'out of warranty'}</span>
+                  <span className={e.in_warranty ? 'text-success' : 'text-text-secondary'}>{e.in_warranty ? 'in manufacturer warranty' : 'out of warranty'}</span>
                 </li>
               ))}
             </ul>
@@ -352,7 +352,7 @@ function ClaimPanel({
             </Button>
           </div>
 
-          {candidates && candidates.length === 0 && <p className="text-xs text-warning-500">No dispatchable technician is available without a compliance gap. Resolve credentials first.</p>}
+          {candidates && candidates.length === 0 && <p className="text-xs text-warning">No dispatchable technician is available without a compliance gap. Resolve credentials first.</p>}
           {candidates && candidates.length > 0 && (
             <fieldset className="space-y-1.5">
               <legend className="sr-only">Technician</legend>
@@ -743,7 +743,7 @@ export function ServiceGuaranteePage() {
         ) : (
           <>
             <div className="mb-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
-              <StatCard label="Held without recovery" value={pct(summary.holdRate)} valueClass="text-success-500" hint="of decided guarantees" />
+              <StatCard label="Held without recovery" value={pct(summary.holdRate)} valueClass="text-success" hint="of decided guarantees" />
               <StatCard label="Open claims" value={summary.openClaims} valueClass={summary.openClaims > 0 ? 'text-danger' : 'text-text-primary'} />
               <StatCard label="Verifying now" value={summary.verifying} />
               <StatCard label="Median recovery" value={summary.medianRecoveryHours === null ? '—' : formatDuration(summary.medianRecoveryHours * 60)} hint="claim to fixed" />
@@ -762,7 +762,7 @@ export function ServiceGuaranteePage() {
                   role="tab"
                   aria-selected={filter === f.key}
                   onClick={() => setFilter(f.key)}
-                  className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filter === f.key ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
+                  className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filter === f.key ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
                 >
                   {f.label} ({f.count})
                 </button>

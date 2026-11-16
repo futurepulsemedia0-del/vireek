@@ -91,8 +91,8 @@ function BoardCard({ board, feed, openPostings, busy, onToggle, onSaveSettings }
   const status = !feed.enabled
     ? { text: 'Off', cls: 'bg-bg-tertiary text-text-secondary' }
     : configProblems.length
-      ? { text: 'Needs setup', cls: 'bg-warning-500/10 text-warning-500' }
-      : { text: 'Live', cls: 'bg-success-500/10 text-success-500' };
+      ? { text: 'Needs setup', cls: 'bg-warning-subtle text-warning' }
+      : { text: 'Live', cls: 'bg-success-subtle text-success' };
   const shown = showAll ? blocked : blocked.slice(0, 3);
 
   return (
@@ -119,7 +119,7 @@ function BoardCard({ board, feed, openPostings, busy, onToggle, onSaveSettings }
           }`}
         >
           <span
-            className={`inline-block h-5 w-5 rounded-full bg-white shadow transition-transform ${
+            className={`inline-block h-5 w-5 rounded-full bg-bg-secondary shadow transition-transform ${
               feed.enabled ? 'translate-x-5' : 'translate-x-0.5'
             }`}
           />
@@ -160,10 +160,10 @@ function BoardCard({ board, feed, openPostings, busy, onToggle, onSaveSettings }
       </p>
 
       {configProblems.length > 0 && (
-        <ul className="mt-3 space-y-1 rounded-xl border border-warning-500/30 bg-warning-500/5 p-3 text-xs text-text-secondary">
+        <ul className="mt-3 space-y-1 rounded-xl border border-warning/30 bg-warning-subtle p-3 text-xs text-text-secondary">
           {configProblems.map((m) => (
             <li key={m} className="flex gap-2">
-              <TriangleAlert size={13} className="mt-0.5 shrink-0 text-warning-500" aria-hidden="true" /> {m}
+              <TriangleAlert size={13} className="mt-0.5 shrink-0 text-warning" aria-hidden="true" /> {m}
             </li>
           ))}
         </ul>

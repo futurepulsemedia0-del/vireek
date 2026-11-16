@@ -11,7 +11,7 @@ export function Stat({ label, value, hint }: { label: string; value: string; hin
 }
 
 export function FlagBadge({ flag }: { flag: Flag }) {
-  const tone = flag.level === 'violation' ? 'border-red-500/40 bg-red-500/10 text-red-500' : 'border-amber-500/40 bg-amber-500/10 text-amber-500';
+  const tone = flag.level === 'violation' ? 'border-danger/40 bg-danger-subtle text-danger' : 'border-warning/40 bg-warning-subtle text-warning';
   return (
     <li className={`rounded-xl border px-3 py-2 text-sm ${tone}`}>
       <span className="font-semibold">{flag.level === 'violation' ? 'Rule broken: ' : 'Heads up: '}{flag.title}</span>

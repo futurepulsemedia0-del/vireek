@@ -124,9 +124,9 @@ export function NumberTester({ ownerId, userId, onChanged }: NumberTesterProps) 
       </Button>
 
       {d && (
-        <div role="status" aria-live="polite" className={`space-y-3 rounded-xl p-4 ${d.blocked ? 'bg-danger/10' : 'bg-success-500/10'}`}>
+        <div role="status" aria-live="polite" className={`space-y-3 rounded-xl p-4 ${d.blocked ? 'bg-danger/10' : 'bg-success-subtle'}`}>
           <div className="flex items-start gap-3">
-            {d.blocked ? <ShieldAlert size={20} className="mt-0.5 shrink-0 text-danger" /> : <CheckCircle2 size={20} className="mt-0.5 shrink-0 text-success-500" />}
+            {d.blocked ? <ShieldAlert size={20} className="mt-0.5 shrink-0 text-danger" /> : <CheckCircle2 size={20} className="mt-0.5 shrink-0 text-success" />}
             <div className="min-w-0">
               <p className="text-sm font-semibold text-text-primary">{d.blocked ? 'This call would be blocked' : d.reason === 'override' ? 'This call would be let through by an override' : 'This call would be answered'}</p>
               <p className="text-xs text-text-secondary">{d.detail}</p>

@@ -50,9 +50,9 @@ function SkeletonBlock({ className }: { className: string }) {
 }
 
 const STATUS_CONFIG: Record<PhoneNumberStatus, { label: string; className: string }> = {
-  active: { label: 'Active', className: 'bg-success-500/10 text-success-500' },
-  porting_in: { label: 'Porting In', className: 'bg-warning-500/10 text-warning-500' },
-  porting_out: { label: 'Porting Out', className: 'bg-warning-500/10 text-warning-500' },
+  active: { label: 'Active', className: 'bg-success-subtle text-success' },
+  porting_in: { label: 'Porting In', className: 'bg-warning-subtle text-warning' },
+  porting_out: { label: 'Porting Out', className: 'bg-warning-subtle text-warning' },
   pending: { label: 'Pending', className: 'bg-accent/10 text-accent' },
   released: { label: 'Released', className: 'bg-bg-tertiary text-text-secondary' },
 };
@@ -198,17 +198,17 @@ function NumberCard({
         <div className="mt-4 space-y-1.5 border-t border-border pt-4 text-sm text-text-secondary">
           {number.assigned_trade && (
             <p className="flex items-center gap-2">
-              <Wrench size={13} className="shrink-0 text-text-secondary/70" /> {number.assigned_trade}
+              <Wrench size={13} className="shrink-0 text-graphic-muted" /> {number.assigned_trade}
             </p>
           )}
           {number.assigned_location && (
             <p className="flex items-center gap-2">
-              <MapPin size={13} className="shrink-0 text-text-secondary/70" /> {number.assigned_location}
+              <MapPin size={13} className="shrink-0 text-graphic-muted" /> {number.assigned_location}
             </p>
           )}
           {number.forwarding_number && (
             <p className="flex items-center gap-2">
-              <PhoneCall size={13} className="shrink-0 text-text-secondary/70" />
+              <PhoneCall size={13} className="shrink-0 text-graphic-muted" />
               Forwards to {formatPhoneNumber(number.forwarding_number)}
             </p>
           )}
@@ -216,7 +216,7 @@ function NumberCard({
       )}
 
       {number.status === 'porting_in' && (
-        <div className="mt-4 rounded-xl border border-warning-500/20 bg-warning-500/5 p-3 text-xs leading-relaxed text-text-secondary">
+        <div className="mt-4 rounded-xl border border-warning/20 bg-warning-subtle p-3 text-xs leading-relaxed text-text-secondary">
           Porting typically takes 5–10 business days. We'll notify you the moment this number goes live.
         </div>
       )}
@@ -296,7 +296,7 @@ function AddNumberModal({
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="fixed inset-0 bg-overlay/50 backdrop-blur-sm" onClick={onClose} />
       <motion.div
         initial={{ opacity: 0, y: 16, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -503,7 +503,7 @@ function AddNumberModal({
               type="button"
               disabled={!canSubmitBuy || submitting}
               onClick={() => onPurchase(selectedNumber, buyLabel.trim(), numberType)}
-              className="focus-ring flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+              className="focus-ring flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent transition-opacity hover:opacity-90 disabled:opacity-50"
             >
               {submitting && <Loader2 size={14} className="animate-spin" />}
               Add Number
@@ -522,7 +522,7 @@ function AddNumberModal({
                   notes: notes.trim() || undefined,
                 })
               }
-              className="focus-ring flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+              className="focus-ring flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent transition-opacity hover:opacity-90 disabled:opacity-50"
             >
               {submitting && <Loader2 size={14} className="animate-spin" />}
               Start Port Request
@@ -558,7 +558,7 @@ function EditNumberDrawer({
 
   return (
     <div className="fixed inset-0 z-[60] flex justify-end">
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="fixed inset-0 bg-overlay/50 backdrop-blur-sm" onClick={onClose} />
       <motion.div
         initial={{ x: 24, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
@@ -664,7 +664,7 @@ function EditNumberDrawer({
                 sms_enabled: smsEnabled,
               })
             }
-            className="focus-ring flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="focus-ring flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             {submitting && <Loader2 size={14} className="animate-spin" />}
             Save Changes
@@ -692,7 +692,7 @@ function ReleaseConfirmModal({
 }) {
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="fixed inset-0 bg-overlay/50 backdrop-blur-sm" onClick={onClose} />
       <motion.div
         initial={{ opacity: 0, scale: 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -719,7 +719,7 @@ function ReleaseConfirmModal({
             type="button"
             disabled={submitting}
             onClick={onConfirm}
-            className="focus-ring flex items-center gap-2 rounded-xl bg-danger px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="focus-ring flex items-center gap-2 rounded-xl bg-danger px-4 py-2.5 text-sm font-semibold text-on-danger transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             {submitting && <Loader2 size={14} className="animate-spin" />}
             Release Number
@@ -897,7 +897,7 @@ export function PhoneNumbersPage() {
         <button
           type="button"
           onClick={() => setShowAddModal(true)}
-          className="focus-ring flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+          className="focus-ring flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent transition-opacity hover:opacity-90"
         >
           <Plus size={16} /> Add Number
         </button>
@@ -920,11 +920,11 @@ export function PhoneNumbersPage() {
             </div>
             <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
               <p className="text-xs font-medium text-text-secondary">Active</p>
-              <p className="mt-2 text-3xl font-bold text-success-500">{kpis.active}</p>
+              <p className="mt-2 text-3xl font-bold text-success">{kpis.active}</p>
             </div>
             <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
               <p className="text-xs font-medium text-text-secondary">Porting</p>
-              <p className="mt-2 text-3xl font-bold text-warning-500">{kpis.porting}</p>
+              <p className="mt-2 text-3xl font-bold text-warning">{kpis.porting}</p>
             </div>
             <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
               <p className="text-xs font-medium text-text-secondary">Monthly Cost</p>
@@ -954,7 +954,7 @@ export function PhoneNumbersPage() {
               onClick={() => setStatusFilter(s)}
               className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
                 statusFilter === s
-                  ? 'border-accent bg-accent text-white'
+                  ? 'border-accent bg-accent text-on-accent'
                   : 'border-border bg-bg-secondary text-text-secondary hover:border-accent/40 hover:text-text-primary'
               }`}
             >
@@ -991,7 +991,7 @@ export function PhoneNumbersPage() {
               <button
                 type="button"
                 onClick={() => setShowAddModal(true)}
-                className="focus-ring mt-5 flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                className="focus-ring mt-5 flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent transition-opacity hover:opacity-90"
               >
                 <Plus size={16} /> Add Number
               </button>

@@ -61,7 +61,7 @@ export function MyBonusesPanel({ onOptOutChanged }: { onOptOutChanged: () => voi
           onClick={toggle}
           className={`focus-ring relative h-7 w-12 shrink-0 rounded-full transition-colors disabled:opacity-50 ${optedOut ? 'bg-bg-tertiary' : 'bg-accent'}`}
         >
-          <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all ${optedOut ? 'left-0.5' : 'left-[1.375rem]'}`} />
+          <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-bg-secondary shadow transition-all ${optedOut ? 'left-0.5' : 'left-[1.375rem]'}`} />
         </button>
       </Card>
 

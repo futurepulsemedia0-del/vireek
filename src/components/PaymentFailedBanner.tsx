@@ -48,13 +48,13 @@ export function PaymentFailedBanner() {
         role="alert"
         aria-live="polite"
         className={`relative mb-6 flex flex-col gap-4 overflow-hidden rounded-2xl border p-5 shadow-card dark:shadow-card-dark sm:flex-row sm:items-center sm:justify-between sm:p-6 ${
-          isSuspended ? 'border-danger/30 bg-danger/10' : 'border-warning-500/30 bg-warning-500/10'
+          isSuspended ? 'border-danger/30 bg-danger/10' : 'border-warning/30 bg-warning-subtle'
         }`}
       >
         <div className="flex items-start gap-4">
           <span
-            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-white ${
-              isSuspended ? 'bg-danger' : 'bg-warning-500'
+            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${
+              isSuspended ? 'bg-danger text-on-danger' : 'bg-warning text-on-warning'
             }`}
           >
             {isSuspended ? <Ban size={22} strokeWidth={2.25} /> : <AlertTriangle size={22} strokeWidth={2.25} />}
@@ -63,7 +63,7 @@ export function PaymentFailedBanner() {
           <div className="min-w-0">
             <p
               className={`text-xs font-semibold uppercase tracking-wider ${
-                isSuspended ? 'text-danger' : 'text-warning-500'
+                isSuspended ? 'text-danger' : 'text-warning'
               }`}
             >
               {isSuspended ? 'Account suspended' : 'Payment failed'}
@@ -85,8 +85,8 @@ export function PaymentFailedBanner() {
         <button
           type="button"
           onClick={() => navigate(ROUTE)}
-          className={`focus-ring flex shrink-0 items-center justify-center gap-2 self-end whitespace-nowrap rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-glow-cta transition-all duration-150 ease-out hover:brightness-110 active:brightness-95 sm:self-center ${
-            isSuspended ? 'bg-danger' : 'bg-cta'
+          className={`focus-ring flex shrink-0 items-center justify-center gap-2 self-end whitespace-nowrap rounded-xl px-5 py-2.5 text-sm font-semibold shadow-glow-cta transition-all duration-150 ease-out hover:brightness-110 active:brightness-95 sm:self-center ${
+            isSuspended ? 'bg-danger text-on-danger' : 'bg-cta text-on-cta'
           }`}
         >
           Update payment method

@@ -100,7 +100,7 @@ export function JobSummaryView({ data, todayISO }: { data: SummaryViewData; toda
                 <li key={idx}>
                   <span className="font-medium text-text-primary">{w.label}</span>
                   {w.expires_on && (
-                    <span className={st === 'expired' ? ' text-warning-500' : ' text-success-500'}>
+                    <span className={st === 'expired' ? ' text-warning' : ' text-success'}>
                       {' '}
                       — {st === 'expired' ? 'expired' : 'covered through'} {formatDateLong(w.expires_on)}
                     </span>

@@ -59,8 +59,8 @@ const EMPTY: never[] = [];
 const TONE: Record<Tone, string> = {
   neutral: 'bg-bg-tertiary text-text-secondary',
   accent: 'bg-accent/15 text-accent',
-  success: 'bg-success-500/15 text-success-500',
-  warning: 'bg-warning-500/15 text-warning-500',
+  success: 'bg-success-subtle text-success',
+  warning: 'bg-warning-subtle text-warning',
   danger: 'bg-danger/15 text-danger',
 };
 
@@ -147,7 +147,7 @@ function OfferDrawer({ offer, job, data, onClose }: { offer: FinancingOffer; job
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/40" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex justify-end bg-overlay/40" onClick={onClose}>
       <aside role="dialog" aria-modal="true" aria-labelledby="fin-drawer-title" onClick={(e) => e.stopPropagation()}
         className="h-full w-full max-w-md overflow-y-auto border-l border-border bg-bg-primary p-5 shadow-xl">
         <div className="flex items-start justify-between gap-3">
@@ -255,12 +255,12 @@ function LaunchModal({ row, onClose, onSent }: { row: EligibilityRow; onClose: (
 
   const input = 'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2.5 text-sm text-text-primary';
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => !sending && onClose()}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/40 p-4" onClick={() => !sending && onClose()}>
       <div role="dialog" aria-modal="true" aria-labelledby="fin-launch-title" onClick={(e) => e.stopPropagation()} className="w-full max-w-md rounded-2xl border border-border bg-bg-primary p-5 shadow-xl">
         <h2 id="fin-launch-title" className="text-base font-semibold text-text-primary">Offer financing</h2>
         <p className="mt-1 text-sm text-text-secondary">{row.job.customer_name} · {formatUsd(row.amountCents, true)}{row.job.service_type ? ` · ${row.job.service_type}` : ''}</p>
         {row.warnings.includes('open_payment_link') && (
-          <p className="mt-3 flex items-start gap-2 rounded-xl bg-warning-500/10 p-3 text-xs text-warning-500"><AlertTriangle size={14} className="mt-0.5 shrink-0" /> A payment link is already open for this job. Make sure the customer isn't asked to pay twice.</p>
+          <p className="mt-3 flex items-start gap-2 rounded-xl bg-warning-subtle p-3 text-xs text-warning"><AlertTriangle size={14} className="mt-0.5 shrink-0" /> A payment link is already open for this job. Make sure the customer isn't asked to pay twice.</p>
         )}
         <div className="mt-4 space-y-3">
           <label className="block text-xs font-medium text-text-secondary">Customer phone
@@ -371,8 +371,8 @@ export function FinancingCenterPage() {
         ) : (
           <>
             {!connected && (
-              <div role="status" className="flex items-start gap-3 rounded-2xl border border-warning-500/40 bg-warning-500/10 p-4 text-sm">
-                <AlertTriangle size={16} className="mt-0.5 shrink-0 text-warning-500" />
+              <div role="status" className="flex items-start gap-3 rounded-2xl border border-warning/40 bg-warning-subtle p-4 text-sm">
+                <AlertTriangle size={16} className="mt-0.5 shrink-0 text-warning" />
                 <div>
                   <p className="font-semibold text-text-primary">Financing isn't enabled for your account yet</p>
                   <p className="mt-0.5 text-text-secondary">
@@ -385,9 +385,9 @@ export function FinancingCenterPage() {
             <nav aria-label="Financing sections" className="flex gap-1 overflow-x-auto rounded-2xl border border-border bg-bg-secondary p-1">
               {TABS.map(({ key, label, icon: Icon }) => (
                 <button key={key} type="button" onClick={() => setTab(key)} aria-current={tab === key ? 'page' : undefined}
-                  className={`focus-ring inline-flex items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors ${tab === key ? 'bg-accent text-white' : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'}`}>
+                  className={`focus-ring inline-flex items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors ${tab === key ? 'bg-accent text-on-accent' : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'}`}>
                   <Icon size={14} /> {label}
-                  {key === 'eligibility' && eligibleRows.length > 0 && <span className={`rounded-full px-1.5 text-[10px] ${tab === key ? 'bg-white/25' : 'bg-accent/15 text-accent'}`}>{eligibleRows.length}</span>}
+                  {key === 'eligibility' && eligibleRows.length > 0 && <span className={`rounded-full px-1.5 text-[10px] ${tab === key ? 'bg-bg-secondary/25' : 'bg-accent/15 text-accent'}`}>{eligibleRows.length}</span>}
                 </button>
               ))}
             </nav>
@@ -459,7 +459,7 @@ export function FinancingCenterPage() {
                   <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter applications">
                     {FILTERS.map((f) => (
                       <button key={f.key} type="button" onClick={() => setFilter(f.key)} aria-pressed={filter === f.key}
-                        className={`focus-ring rounded-full px-3 py-1.5 text-xs font-semibold ${filter === f.key ? 'bg-accent text-white' : 'border border-border text-text-secondary hover:bg-bg-tertiary'}`}>{f.label}</button>
+                        className={`focus-ring rounded-full px-3 py-1.5 text-xs font-semibold ${filter === f.key ? 'bg-accent text-on-accent' : 'border border-border text-text-secondary hover:bg-bg-tertiary'}`}>{f.label}</button>
                     ))}
                   </div>
                   <div className="flex items-center gap-2">

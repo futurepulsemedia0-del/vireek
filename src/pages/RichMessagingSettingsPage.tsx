@@ -26,7 +26,7 @@ function StatusBadge({ status }: { status: ProviderStatus }) {
     status === 'approved'
       ? 'bg-success/10 text-success'
       : status === 'rejected' || status === 'suspended'
-        ? 'bg-red-500/10 text-red-500'
+        ? 'bg-danger-subtle text-danger'
         : 'bg-bg-tertiary text-text-secondary';
   return (
     <span
@@ -54,7 +54,7 @@ function Toggle({
     <label className={`flex items-start gap-3 py-2 ${disabled ? 'opacity-50' : ''}`}>
       <input
         type="checkbox"
-        className="mt-1 h-4 w-4 accent-[var(--color-accent,#2563eb)]"
+        className="mt-1 h-4 w-4 accent-accent"
         checked={checked}
         disabled={disabled}
         onChange={(e) => onChange(e.target.checked)}
@@ -166,7 +166,7 @@ export function RichMessagingSettingsPage() {
         {message && (
           <p
             role="status"
-            className={`mt-4 rounded-xl px-3.5 py-2.5 text-sm ${message.tone === 'ok' ? 'bg-success/10 text-success' : 'bg-red-500/10 text-red-500'}`}
+            className={`mt-4 rounded-xl px-3.5 py-2.5 text-sm ${message.tone === 'ok' ? 'bg-success/10 text-success' : 'bg-danger-subtle text-danger'}`}
           >
             {message.text}
           </p>
@@ -187,7 +187,7 @@ export function RichMessagingSettingsPage() {
               type="button"
               onClick={request}
               disabled={busy}
-              className="focus-ring mt-4 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
+              className="focus-ring mt-4 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-on-accent disabled:opacity-50"
             >
               {busy ? 'Requesting…' : 'Request access'}
             </button>
@@ -255,7 +255,7 @@ export function RichMessagingSettingsPage() {
                   <input
                     className={`${inputCls} mt-1`}
                     value={form.brandColor}
-                    placeholder="#1A2B3C"
+                    placeholder="#2F2E28"
                     onChange={(e) => set('brandColor', e.target.value)}
                   />
                 </label>
@@ -307,7 +307,7 @@ export function RichMessagingSettingsPage() {
               type="button"
               onClick={save}
               disabled={busy}
-              className="focus-ring mt-5 rounded-xl bg-accent px-5 py-2.5 text-sm font-medium text-white disabled:opacity-50"
+              className="focus-ring mt-5 rounded-xl bg-accent px-5 py-2.5 text-sm font-medium text-on-accent disabled:opacity-50"
             >
               {busy ? 'Saving…' : 'Save settings'}
             </button>

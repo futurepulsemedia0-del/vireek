@@ -258,13 +258,13 @@ export const PO_STATUS_LABELS: Record<PurchaseOrderStatus, string> = {
 };
 
 export const PO_STATUS_COLORS: Record<PurchaseOrderStatus, string> = {
-  pending_approval: 'bg-amber-100 text-amber-800 dark:bg-amber-500/10 dark:text-amber-400',
-  approved: 'bg-sky-100 text-sky-800 dark:bg-sky-500/10 dark:text-sky-400',
-  sent: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-500/10 dark:text-indigo-400',
-  partially_received: 'bg-orange-100 text-orange-800 dark:bg-orange-500/10 dark:text-orange-400',
-  received: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400',
-  closed: 'bg-slate-100 text-slate-700 dark:bg-slate-500/10 dark:text-slate-400',
-  cancelled: 'bg-rose-100 text-rose-800 dark:bg-rose-500/10 dark:text-rose-400',
+  pending_approval: 'bg-warning-subtle text-warning-strong',
+  approved: 'bg-info-subtle text-info-strong',
+  sent: 'bg-accent-subtle text-accent-strong',
+  partially_received: 'bg-warning-subtle text-warning-strong',
+  received: 'bg-success-subtle text-success-strong',
+  closed: 'bg-bg-tertiary text-text-primary',
+  cancelled: 'bg-danger-subtle text-danger-strong',
 };
 
 // ============================================================

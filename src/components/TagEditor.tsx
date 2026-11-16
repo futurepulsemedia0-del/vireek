@@ -65,7 +65,7 @@ export function TagEditor({ tags, suggestions = [], onChange }: TagEditorProps) 
             }
           }}
           placeholder={tags.length ? 'Add tag…' : 'Add tag… (e.g. urgent)'}
-          className="focus-ring min-w-[110px] flex-1 rounded-full border border-dashed border-border bg-transparent px-2.5 py-1 text-xs text-text-primary placeholder:text-text-secondary/60"
+          className="focus-ring min-w-[110px] flex-1 rounded-full border border-dashed border-border bg-transparent px-2.5 py-1 text-xs text-text-primary placeholder:text-text-placeholder"
         />
       </div>
 

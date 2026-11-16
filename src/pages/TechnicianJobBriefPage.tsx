@@ -122,7 +122,7 @@ export function TechnicianJobBriefPage() {
         <JobRefrigerantPanel job={job} />
         <JobUnknownsPanel job={job} />
         <JobPaymentPanel jobId={job.id} />
-        <Link to={`/dashboard/live-copilot?job=${jobId}`} className="focus-ring rounded-lg bg-accent px-3 py-2 text-sm font-medium text-white">Open Live Copilot</Link>
+        <Link to={`/dashboard/live-copilot?job=${jobId}`} className="focus-ring rounded-lg bg-accent px-3 py-2 text-sm font-medium text-on-accent">Open Live Copilot</Link>
         {customer_preferences.length > 0 && (
           <section className="rounded-lg border border-border bg-bg-secondary p-3">
             <h2 className="mb-2 text-sm font-semibold text-text-primary">Customer notes</h2>
@@ -161,8 +161,8 @@ export function TechnicianJobBriefPage() {
         )}
 
         {shortages.length > 0 && (
-          <section className="rounded-lg border border-warning-500/30 bg-warning-500/10 p-3">
-            <h2 className="mb-2 flex items-center gap-1 text-sm font-semibold text-warning-500">
+          <section className="rounded-lg border border-warning/30 bg-warning-subtle p-3">
+            <h2 className="mb-2 flex items-center gap-1 text-sm font-semibold text-warning">
               <PackageX className="h-4 w-4" /> Parts shortage on your van
             </h2>
             {shortages.map((p, i) => (
@@ -200,7 +200,7 @@ export function TechnicianJobBriefPage() {
             placeholder="What did you find / do?"
           />
           <div className="mt-2 flex gap-2">
-            <button onClick={handleAddNote} className="rounded-md bg-accent px-3 py-2 text-sm font-medium text-white">Save note</button>
+            <button onClick={handleAddNote} className="rounded-md bg-accent px-3 py-2 text-sm font-medium text-on-accent">Save note</button>
             <button onClick={handleSafetyToggle} className="flex items-center gap-1 rounded-md border border-danger/40 px-3 py-2 text-sm font-medium text-danger">
               <ShieldAlert className="h-4 w-4" /> {job.safety_flag ? 'Clear safety flag' : 'Flag unsafe'}
             </button>
@@ -213,7 +213,7 @@ export function TechnicianJobBriefPage() {
           <button
             disabled={busy}
             onClick={() => handleAdvance(upcoming)}
-            className="w-full rounded-lg bg-accent py-3 text-center font-semibold text-white disabled:opacity-50"
+            className="w-full rounded-lg bg-accent py-3 text-center font-semibold text-on-accent disabled:opacity-50"
           >
             Mark as {STATUS_LABELS[upcoming]}
           </button>

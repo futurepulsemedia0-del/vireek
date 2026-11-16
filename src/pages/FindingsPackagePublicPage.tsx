@@ -82,7 +82,7 @@ export function FindingsPackagePublicPage() {
       <Shell>
         <Notice icon={<AlertCircle size={28} />} title={copy[0]} body={copy[1]} />
         {result.reason === 'error' && (
-          <button type="button" onClick={() => void load()} className="focus-ring mx-auto block rounded-xl bg-accent px-5 py-2.5 text-sm font-medium text-white">Try again</button>
+          <button type="button" onClick={() => void load()} className="focus-ring mx-auto block rounded-xl bg-accent px-5 py-2.5 text-sm font-medium text-on-accent">Try again</button>
         )}
       </Shell>
     );
@@ -127,7 +127,7 @@ function Report({ data, token }: { data: PublicFindings; token: string }) {
   if (done) {
     return (
       <Notice
-        icon={<CheckCircle2 size={32} className="text-success-500" />}
+        icon={<CheckCircle2 size={32} className="text-success" />}
         title={done.approved_count > 0 ? 'Thank you — you’re all set' : 'Thanks for letting us know'}
         body={
           done.approved_count > 0
@@ -151,7 +151,7 @@ function Report({ data, token }: { data: PublicFindings; token: string }) {
 
       {answered && (
         <div role="status" className="flex items-start gap-3 rounded-2xl border border-border bg-bg-secondary p-4 text-sm">
-          <ShieldCheck size={18} className="mt-0.5 shrink-0 text-success-500" />
+          <ShieldCheck size={18} className="mt-0.5 shrink-0 text-success" />
           <p className="text-text-primary">
             {pkg.status === 'declined' ? 'You declined all recommended repairs' : `You approved ${formatMoney(pkg.approved_total_cents)} of repairs`} on {formatDate(pkg.responded_at)}.
           </p>
@@ -183,7 +183,7 @@ function Report({ data, token }: { data: PublicFindings; token: string }) {
           </div>
           <div className="mt-3 flex flex-col gap-2 sm:flex-row">
             <input value={name} onChange={(e) => setName(e.target.value)} maxLength={120} autoComplete="name" aria-label="Your full name" placeholder="Type your full name to authorize" className="focus-ring flex-1 rounded-xl border border-border bg-bg-primary px-3 py-2.5 text-sm text-text-primary" />
-            <button type="button" onClick={submit} disabled={!nameOk || busy} className="focus-ring inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-50">
+            <button type="button" onClick={submit} disabled={!nameOk || busy} className="focus-ring inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-on-accent transition hover:brightness-110 disabled:opacity-50">
               {busy && <Loader2 size={14} className="animate-spin" />}
               {totals.count > 0 ? `Approve ${totals.count} repair${totals.count === 1 ? '' : 's'}` : 'Decline all repairs'}
             </button>
@@ -224,7 +224,7 @@ function FindingCard({
           <span className="text-xs text-text-secondary">Finding {index + 1}</span>
           <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${SEVERITY_STYLE[item.severity]}`}>{SEVERITY_LABEL[item.severity]}</span>
           {answered && item.decision !== 'pending' && priced && (
-            <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${item.decision === 'approved' ? 'bg-success-500/10 text-success-500' : 'bg-bg-tertiary text-text-secondary'}`}>
+            <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${item.decision === 'approved' ? 'bg-success-subtle text-success' : 'bg-bg-tertiary text-text-secondary'}`}>
               {item.decision === 'approved' ? `Approved · ${formatMoney(item.approved_cents ?? 0)}` : 'Declined'}
             </span>
           )}
@@ -240,15 +240,15 @@ function FindingCard({
               const recommended = option.id === item.recommended_option_id || option.recommended;
               return (
                 <label key={option.id} className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition ${on ? 'border-accent bg-accent/5' : `${TIER_META[option.tier].ringClass} hover:border-accent/50`}`}>
-                  <input type="radio" name={`opt-${item.id}`} checked={on} onChange={() => onSelect(option.id)} className="mt-1 h-4 w-4 accent-[var(--color-accent,#2563eb)]" />
+                  <input type="radio" name={`opt-${item.id}`} checked={on} onChange={() => onSelect(option.id)} className="mt-1 h-4 w-4 accent-accent" />
                   <span className="min-w-0 flex-1">
                     <span className="flex flex-wrap items-center gap-2">
                       <span className="font-medium text-text-primary">{option.name}</span>
-                      {recommended && <span className="rounded bg-accent px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">Recommended</span>}
+                      {recommended && <span className="rounded bg-accent px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-on-accent">Recommended</span>}
                     </span>
                     {option.summary && <span className="mt-0.5 block text-xs text-text-secondary">{option.summary}</span>}
                     <span className="mt-1 block text-xs text-text-secondary">{option.line_items.map((li) => li.description).filter(Boolean).join(' · ')}</span>
-                    {option.warranty_label && <span className="mt-0.5 block text-xs text-success-500">{option.warranty_label}</span>}
+                    {option.warranty_label && <span className="mt-0.5 block text-xs text-success">{option.warranty_label}</span>}
                   </span>
                   <span className="shrink-0 text-sm font-semibold text-text-primary">{formatMoney(optionTotalCents(option, taxPercent))}</span>
                 </label>

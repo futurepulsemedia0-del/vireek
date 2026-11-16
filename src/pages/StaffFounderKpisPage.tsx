@@ -47,21 +47,21 @@ export function StaffFounderKpisPage() {
   return (
     <main className="mx-auto max-w-6xl space-y-6 p-4 sm:p-6" aria-busy={state === 'loading'}>
       <header className="flex flex-wrap items-end justify-between gap-3">
-        <div><h1 className="text-2xl font-semibold">Founder KPIs</h1><p className="text-sm text-gray-600">Platform staff only. Computed from the Stripe subscription ledger; see docs/ANALYTICS_METRICS.md.</p></div>
+        <div><h1 className="text-2xl font-semibold">Founder KPIs</h1><p className="text-sm text-text-secondary">Platform staff only. Computed from the Stripe subscription ledger; see docs/ANALYTICS_METRICS.md.</p></div>
         <div className="flex gap-3">
           <label className="text-sm">Month <input type="month" value={month} max={new Date().toISOString().slice(0, 7)} onChange={(e) => setMonth(e.target.value)} className="ml-2 rounded border px-2 py-1" /></label>
           <label className="text-sm">Activation window (days) <input type="number" min={1} max={90} value={days} onChange={(e) => setDays(Math.min(90, Math.max(1, Number(e.target.value) || 14)))} className="ml-2 w-16 rounded border px-2 py-1" /></label>
         </div>
       </header>
 
-      {state === 'loading' && !data && <div role="status" className="flex items-center gap-2 text-gray-600"><Loader2 className="h-4 w-4 animate-spin" aria-hidden /> Loading…</div>}
+      {state === 'loading' && !data && <div role="status" className="flex items-center gap-2 text-text-secondary"><Loader2 className="h-4 w-4 animate-spin" aria-hidden /> Loading…</div>}
       {state === 'error' && <Card padding="md" interactive={false} error role="alert"><p className="mb-3 text-sm">{msg}</p><Button variant="secondary" onClick={() => void load()}>Try again</Button></Card>}
 
       {state === 'ready' && data && r && h && (
         <>
-          {h.ledger_rows === 0 && <p role="alert" className="rounded bg-amber-50 p-3 text-sm">The MRR ledger is empty: no subscription events were found in billing_events, so retention cannot be computed yet.</p>}
-          {h.ledger_rows > 0 && h.created_events === 0 && <p role="status" className="rounded bg-amber-50 p-3 text-sm">No <code>customer.subscription.created</code> events were received (the Stripe webhook may not be subscribed to it). New-logo timing uses the first update event and may lag.</p>}
-          {data.ledgerStats.rejected > 0 && <p role="status" className="rounded bg-amber-50 p-3 text-sm">{data.ledgerStats.rejected} ledger rows were rejected as invalid.</p>}
+          {h.ledger_rows === 0 && <p role="alert" className="rounded bg-warning-subtle p-3 text-sm">The MRR ledger is empty: no subscription events were found in billing_events, so retention cannot be computed yet.</p>}
+          {h.ledger_rows > 0 && h.created_events === 0 && <p role="status" className="rounded bg-warning-subtle p-3 text-sm">No <code>customer.subscription.created</code> events were received (the Stripe webhook may not be subscribed to it). New-logo timing uses the first update event and may lag.</p>}
+          {data.ledgerStats.rejected > 0 && <p role="status" className="rounded bg-warning-subtle p-3 text-sm">{data.ledgerStats.rejected} ledger rows were rejected as invalid.</p>}
 
           <section aria-label="Headline" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {[
@@ -69,9 +69,9 @@ export function StaffFounderKpisPage() {
               ['New MRR', fmtUsd(r.newMrrCents)], ['Churned MRR', fmtUsd(r.churnedCents)], ['Contraction / expansion', `${fmtUsd(r.contractionCents)} / ${fmtUsd(r.expansionCents)}`],
               [`Activation (${data.activation.windowDays}d)`, `${fmtPct(data.activation.rateBp)} · ${data.activation.activated}/${data.activation.matured}`],
               ['Payment take rate', fmtPct(data.takeRate.takeRateBp)],
-            ].map(([label, value]) => <Card key={label} padding="md" interactive={false}><h2 className="text-sm text-gray-600">{label}</h2><p className="mt-1 text-2xl font-semibold">{value}</p></Card>)}
+            ].map(([label, value]) => <Card key={label} padding="md" interactive={false}><h2 className="text-sm text-text-secondary">{label}</h2><p className="mt-1 text-2xl font-semibold">{value}</p></Card>)}
           </section>
-          <p className="text-xs text-gray-500">Starting cohort: {r.cohortAccounts} accounts, {fmtUsd(r.startMrrCents)} MRR · {r.newAccounts} new ({r.reactivationAccounts} reactivated) · {r.intraPeriodChurnAccounts} started and churned inside the month (excluded) · {data.activation.immature} signups too recent to judge.</p>
+          <p className="text-xs text-text-muted">Starting cohort: {r.cohortAccounts} accounts, {fmtUsd(r.startMrrCents)} MRR · {r.newAccounts} new ({r.reactivationAccounts} reactivated) · {r.intraPeriodChurnAccounts} started and churned inside the month (excluded) · {data.activation.immature} signups too recent to judge.</p>
 
           <Card padding="md" interactive={false}>
             <h2 className="mb-3 text-lg font-medium">Cohorts (net MRR retention by months since start)</h2>
@@ -79,7 +79,7 @@ export function StaffFounderKpisPage() {
               <thead><tr><th scope="col" className="pr-3">Cohort</th><th scope="col" className="pr-3">Accts</th><th scope="col" className="pr-3">Start MRR</th>{data.cohorts[0]?.cells.map((c) => <th key={c.offset} scope="col" className="px-2">M{c.offset}</th>)}</tr></thead>
               <tbody>{data.cohorts.map((row) => (
                 <tr key={row.cohort}><th scope="row" className="pr-3 font-normal">{row.cohort}</th><td className="pr-3">{row.accounts}</td><td className="pr-3">{fmtUsd(row.initialMrrCents)}</td>
-                  {row.cells.map((c) => <td key={c.offset} className="px-2 py-1 text-center" style={{ background: c.nrrBp === null ? undefined : `rgba(34,197,94,${Math.min(0.6, (c.nrrBp / 10000) * 0.5)})` }} title={c.logoRetentionBp === null ? '' : `Logo retention ${fmtPct(c.logoRetentionBp)}`}>{fmtPct(c.nrrBp)}</td>)}</tr>
+                  {row.cells.map((c) => <td key={c.offset} className="px-2 py-1 text-center" style={{ background: c.nrrBp === null ? undefined : `rgba(52,199,89,${Math.min(0.6, (c.nrrBp / 10000) * 0.5)})` }} title={c.logoRetentionBp === null ? '' : `Logo retention ${fmtPct(c.logoRetentionBp)}`}>{fmtPct(c.nrrBp)}</td>)}</tr>
               ))}</tbody></table></div>
           </Card>
 

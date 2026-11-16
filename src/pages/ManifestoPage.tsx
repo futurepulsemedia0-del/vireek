@@ -141,7 +141,7 @@ export function ManifestoPage() {
                   transition={{ duration: 0.45, ease: EASE }}
                   className="flex gap-6 border-t border-border pt-8 first:border-t-0 first:pt-0 sm:gap-8"
                 >
-                  <span className="shrink-0 font-display text-3xl font-bold text-accent/30 sm:text-4xl">{n}</span>
+                  <span className="shrink-0 font-display text-3xl font-bold text-accent sm:text-4xl">{n}</span>
                   <div>
                     <h2 className="text-balance text-xl font-bold leading-snug tracking-tight text-text-primary sm:text-2xl">
                       {title}
@@ -194,7 +194,7 @@ export function ManifestoPage() {
                     <p className="text-sm leading-relaxed text-text-secondary sm:text-base">{refuse}</p>
                   </div>
                   <div className="flex items-start gap-3">
-                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-success-500/10 text-success-500">
+                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-success-subtle text-success">
                       <Check size={14} strokeWidth={2.5} />
                     </span>
                     <p className="text-sm font-medium leading-relaxed text-text-primary sm:text-base">{instead}</p>
@@ -249,7 +249,7 @@ export function ManifestoPage() {
               className="pointer-events-none absolute inset-0"
               style={{
                 backgroundImage:
-                  'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
+                  'radial-gradient(circle at 20% 20%, rgb(var(--static-white) / 0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
               }}
             />
             <div className="relative">

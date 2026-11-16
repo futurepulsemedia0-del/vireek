@@ -38,13 +38,13 @@ const TABS: { id: Tab; label: string }[] = [
 
 const SEVERITY_STYLE = {
   critical: 'border-l-danger bg-danger/5',
-  warning: 'border-l-warning-500 bg-warning-500/5',
+  warning: 'border-l-warning-500 bg-warning-subtle',
   info: 'border-l-accent bg-accent/5',
 } as const;
 
 const DIAG_STYLE = {
   critical: 'bg-danger/10 text-danger',
-  warning: 'bg-warning-500/10 text-warning-500',
+  warning: 'bg-warning-subtle text-warning',
   info: 'bg-bg-tertiary text-text-secondary',
 } as const;
 
@@ -52,14 +52,14 @@ function Tile({ label, value, hint, tone }: { label: string; value: string; hint
   return (
     <div className="rounded-2xl border border-border bg-bg-secondary p-4">
       <p className="text-xs text-text-secondary">{label}</p>
-      <p className={`mt-1 text-lg font-bold ${tone === 'bad' ? 'text-danger' : tone === 'good' ? 'text-success-500' : 'text-text-primary'}`}>{value}</p>
+      <p className={`mt-1 text-lg font-bold ${tone === 'bad' ? 'text-danger' : tone === 'good' ? 'text-success' : 'text-text-primary'}`}>{value}</p>
       {hint && <p className="mt-0.5 text-[11px] text-text-secondary">{hint}</p>}
     </div>
   );
 }
 
 function ConfidenceDot({ level }: { level: FleetProfile['confidence'] }) {
-  const cls = level === 'high' ? 'bg-success-500' : level === 'medium' ? 'bg-warning-500' : 'bg-text-secondary/40';
+  const cls = level === 'high' ? 'bg-success' : level === 'medium' ? 'bg-warning' : 'bg-text-secondary/40';
   return <span title={`${level} confidence`} className={`inline-block h-2 w-2 rounded-full ${cls}`} />;
 }
 
@@ -245,8 +245,8 @@ export function FleetIntelligencePage() {
                         <td className="px-4 py-3 font-medium text-text-primary">{v.label}</td>
                         <td className="px-4 py-3 text-text-secondary">{names.technician(v.assigned_technician_id)}</td>
                         <td className="px-4 py-3">
-                          <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${live ? 'bg-success-500/10 text-success-500' : 'bg-bg-tertiary text-text-secondary'}`}>
-                            <span className={`h-1.5 w-1.5 rounded-full ${live ? 'bg-success-500' : 'bg-text-secondary/50'}`} />
+                          <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${live ? 'bg-success-subtle text-success' : 'bg-bg-tertiary text-text-secondary'}`}>
+                            <span className={`h-1.5 w-1.5 rounded-full ${live ? 'bg-success' : 'bg-text-secondary/50'}`} />
                             {live ? (v.last_ignition_on === false ? 'Parked' : 'Live') : v.last_seen_at ? 'Offline' : 'No GPS'}
                           </span>
                         </td>
@@ -391,7 +391,7 @@ export function FleetIntelligencePage() {
                       </p>
                     </div>
                     <ConfidenceDot level={t.confidence} />
-                    <span className={`text-sm font-semibold ${t.revenue_cents > 0 ? (t.contribution_cents < 0 ? 'text-danger' : 'text-success-500') : 'text-text-secondary'}`}>
+                    <span className={`text-sm font-semibold ${t.revenue_cents > 0 ? (t.contribution_cents < 0 ? 'text-danger' : 'text-success') : 'text-text-secondary'}`}>
                       {t.revenue_cents > 0 ? formatCents(t.contribution_cents) : '—'}
                     </span>
                   </button>

@@ -69,7 +69,7 @@ export function StartExperimentForm({ versions, activeVersionId, settings, basel
               </option>
             ))}
           </select>
-          {chosen && !dimension && <p id="exp-needtag" role="alert" className="mt-1 text-xs text-warning-500">{t('start.needTag')}</p>}
+          {chosen && !dimension && <p id="exp-needtag" role="alert" className="mt-1 text-xs text-warning">{t('start.needTag')}</p>}
           {dimension === 'voice_pace' && <p className="mt-1 text-xs text-text-secondary">{t('pace.note')}</p>}
         </div>
 
@@ -125,7 +125,7 @@ export function StartExperimentForm({ versions, activeVersionId, settings, basel
       </p>
 
       {feas && (
-        <div role="status" className={`mt-3 rounded-xl border px-4 py-3 text-sm text-text-primary ${feas.feasible ? 'border-border bg-bg-tertiary' : 'border-warning-500/30 bg-warning-500/10'}`}>
+        <div role="status" className={`mt-3 rounded-xl border px-4 py-3 text-sm text-text-primary ${feas.feasible ? 'border-border bg-bg-tertiary' : 'border-warning/30 bg-warning-subtle'}`}>
           <p className="font-medium">{feas.feasible ? t('feasibility.ok', { days: feas.daysNeeded }) : t('feasibility.cannot')}</p>
           {!feas.feasible && <p className="mt-1 text-xs text-text-secondary">{t('feasibility.cannotBody', { pts: minPts, n: Number.isFinite(feas.nPerArm) ? feas.nPerArm : '—', max: 90 })}</p>}
         </div>

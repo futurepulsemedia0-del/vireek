@@ -58,8 +58,8 @@ const INTEGRATION_DEFS: IntegrationDef[] = [
     name: 'Google Calendar',
     description: 'Sync scheduled jobs automatically to your Google Calendar.',
     icon: Calendar,
-    color: 'text-blue-500',
-    bgColor: 'bg-blue-500/10',
+    color: 'text-info',
+    bgColor: 'bg-info-subtle',
     hasWebhook: false,
     oauth: true,
   },
@@ -68,8 +68,8 @@ const INTEGRATION_DEFS: IntegrationDef[] = [
     name: 'Microsoft 365 / Outlook',
     description: 'Two-way sync of busy time and scheduled jobs with Outlook calendars, for your office and each technician.',
     icon: Calendar,
-    color: 'text-sky-600',
-    bgColor: 'bg-sky-600/10',
+    color: 'text-info',
+    bgColor: 'bg-info-subtle',
     hasWebhook: false,
     oauth: true,
   },
@@ -78,8 +78,8 @@ const INTEGRATION_DEFS: IntegrationDef[] = [
     name: 'HubSpot',
     description: 'Push leads and customer data into your HubSpot CRM.',
     icon: Mail,
-    color: 'text-violet-500',
-    bgColor: 'bg-violet-500/10',
+    color: 'text-accent',
+    bgColor: 'bg-accent-subtle',
     hasWebhook: false,
     oauth: true,
   },
@@ -90,8 +90,8 @@ const INTEGRATION_DEFS: IntegrationDef[] = [
     description:
       'Receive real-time event notifications at your own endpoint. Also works with Zapier, Make.com, or any tool that accepts an incoming webhook.',
     icon: Webhook,
-    color: 'text-indigo-500',
-    bgColor: 'bg-indigo-500/10',
+    color: 'text-accent',
+    bgColor: 'bg-accent-subtle',
     hasWebhook: true,
   },
 ];
@@ -372,7 +372,7 @@ export function IntegrationsPage() {
   };
 
   const inputClass =
-    'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60';
+    'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder';
 
   return (
     <DashboardLayout activeLabel="Integrations">
@@ -441,7 +441,7 @@ export function IntegrationsPage() {
                 }}
                 className={`rounded-2xl border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark ${
                   showRecovery
-                    ? 'border-danger-500/40'
+                    ? 'border-danger/40'
                     : 'border-border'
                 }`}
               >
@@ -464,11 +464,11 @@ export function IntegrationsPage() {
 
                   {/* Status pill */}
                   {def.comingSoon ? null : isConnected ? (
-                    <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-success-500/10 px-2.5 py-1 text-xs font-medium text-success-500">
+                    <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-success-subtle px-2.5 py-1 text-xs font-medium text-success">
                       <Check size={12} /> Connected
                     </span>
                   ) : showRecovery ? (
-                    <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-danger-500/10 px-2.5 py-1 text-xs font-medium text-danger-500">
+                    <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-danger-subtle px-2.5 py-1 text-xs font-medium text-danger">
                       <AlertTriangle size={12} /> {health.title}
                     </span>
                   ) : null}
@@ -492,7 +492,7 @@ export function IntegrationsPage() {
                         type="button"
                         onClick={handleSaveWebhook}
                         disabled={savingWebhook}
-                        className="focus-ring flex shrink-0 items-center gap-1.5 rounded-xl bg-cta px-4 py-2.5 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50"
+                        className="focus-ring flex shrink-0 items-center gap-1.5 rounded-xl bg-cta px-4 py-2.5 text-sm font-medium text-on-cta transition-all hover:brightness-110 disabled:opacity-50"
                       >
                         {savingWebhook ? (
                           <Loader2 size={14} className="animate-spin" />
@@ -502,7 +502,7 @@ export function IntegrationsPage() {
                         Save
                       </button>
                     </div>
-                    <p className="mt-2 text-xs text-text-secondary/60">
+                    <p className="mt-2 text-xs text-text-muted">
                       We&apos;ll POST event data (new calls, leads, jobs) to this URL
                       as JSON.
                     </p>

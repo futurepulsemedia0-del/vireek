@@ -86,8 +86,8 @@ export function BulkImportDialog({ open, kind, ownerId, userId, onClose, onImpor
     <Modal open={open} title="Import numbers" description={`Paste or upload up to ${MAX_IMPORT_ROWS.toLocaleString()} numbers. Existing entries are never overwritten.`} onClose={close}>
       {result ? (
         <div className="space-y-4" role="status">
-          <div className="flex items-start gap-3 rounded-xl bg-success-500/10 p-4">
-            <CheckCircle2 size={20} className="mt-0.5 shrink-0 text-success-500" />
+          <div className="flex items-start gap-3 rounded-xl bg-success-subtle p-4">
+            <CheckCircle2 size={20} className="mt-0.5 shrink-0 text-success" />
             <div className="text-sm text-text-primary">
               <p className="font-semibold">{result.added.toLocaleString()} added</p>
               <p className="text-text-secondary">

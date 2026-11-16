@@ -287,11 +287,11 @@ export function CommentsPanel({ entityType, entityId, entityLabel, canComment = 
     return (
       <li
         key={root.id}
-        className={`rounded-xl border bg-bg-primary p-3 sm:p-4 ${thread.resolved ? 'border-success-500/25' : 'border-border'}`}
+        className={`rounded-xl border bg-bg-primary p-3 sm:p-4 ${thread.resolved ? 'border-success/25' : 'border-border'}`}
       >
         {thread.resolved && (
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-            <p className="flex items-center gap-1.5 text-xs font-medium text-success-500">
+            <p className="flex items-center gap-1.5 text-xs font-medium text-success">
               <CheckCircle2 size={13} aria-hidden="true" />
               Resolved{root.resolved_by_name ? ` by ${root.resolved_by_name}` : ''}
               {root.resolved_at ? ` · ${relativeTime(root.resolved_at)}` : ''}
@@ -363,7 +363,7 @@ export function CommentsPanel({ entityType, entityId, entityLabel, canComment = 
                       <button
                         type="button"
                         onClick={() => void toggleResolved(thread)}
-                        className="focus-ring flex items-center gap-1 rounded-md px-1.5 py-1 text-xs font-medium text-text-secondary hover:bg-bg-tertiary hover:text-success-500"
+                        className="focus-ring flex items-center gap-1 rounded-md px-1.5 py-1 text-xs font-medium text-text-secondary hover:bg-bg-tertiary hover:text-success"
                       >
                         <CheckCircle2 size={12} aria-hidden="true" /> Resolve
                       </button>

@@ -108,7 +108,7 @@ export function OutcomeVerifyPage() {
                       <li key={`${x.label}-${x.phase}-${i}`} className="flex flex-wrap items-center justify-between gap-2">
                         <span className="text-text-primary">{x.label} <span className="text-text-secondary">({x.phase})</span></span>
                         <span className="text-text-secondary">{x.value}{x.unit ? ` ${x.unit}` : ''} · expected {formatSpec(x)} · {SOURCE_LABEL[x.source]}</span>
-                        {x.within_spec !== null && <span className={x.within_spec ? 'text-success-500' : 'text-danger'}>{x.within_spec ? 'In spec' : 'Out of spec'}</span>}
+                        {x.within_spec !== null && <span className={x.within_spec ? 'text-success' : 'text-danger'}>{x.within_spec ? 'In spec' : 'Out of spec'}</span>}
                       </li>
                     ))}
                   </ul>
@@ -117,7 +117,7 @@ export function OutcomeVerifyPage() {
 
               <div className="rounded-2xl border border-border bg-bg-secondary p-5">
                 <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-text-primary">
-                  {ledgerOk ? <ShieldCheck size={16} className="text-success-500" /> : <ShieldAlert size={16} className="text-danger" />}
+                  {ledgerOk ? <ShieldCheck size={16} className="text-success" /> : <ShieldAlert size={16} className="text-danger" />}
                   Tamper-evident record
                 </div>
                 <p className="text-xs text-text-secondary">
@@ -130,17 +130,17 @@ export function OutcomeVerifyPage() {
                 <div className="rounded-2xl border border-border bg-bg-secondary p-5">
                   <p className="mb-1 text-sm font-semibold text-text-primary">Is the problem solved?</p>
                   <p className="mb-3 text-xs text-text-secondary">Your answer is recorded in the audit trail and affects the business's payment clearance.</p>
-                  {msg && <p role="status" className={`mb-3 rounded-xl px-4 py-3 text-sm ${msg.tone === 'ok' ? 'bg-success-500/10 text-success-500' : 'bg-danger/10 text-danger'}`}>{msg.text}</p>}
-                  {data.customer_confirmed && <p className="mb-3 text-xs text-success-500">You confirmed this outcome.</p>}
+                  {msg && <p role="status" className={`mb-3 rounded-xl px-4 py-3 text-sm ${msg.tone === 'ok' ? 'bg-success-subtle text-success' : 'bg-danger/10 text-danger'}`}>{msg.text}</p>}
+                  {data.customer_confirmed && <p className="mb-3 text-xs text-success">You confirmed this outcome.</p>}
                   <div className="flex flex-wrap gap-2">
-                    {data.can_respond && <button className="focus-ring rounded-xl bg-cta px-4 py-2 text-sm font-medium text-white disabled:opacity-50" disabled={busy} onClick={() => void respond('confirm')}>Yes, it's solved</button>}
+                    {data.can_respond && <button className="focus-ring rounded-xl bg-cta px-4 py-2 text-sm font-medium text-on-cta disabled:opacity-50" disabled={busy} onClick={() => void respond('confirm')}>Yes, it's solved</button>}
                     {data.can_dispute && <button className="focus-ring rounded-xl bg-bg-tertiary px-4 py-2 text-sm font-medium text-text-secondary disabled:opacity-50" disabled={busy} onClick={() => setShowDispute((v) => !v)}>No, report a problem</button>}
                   </div>
                   {showDispute && (
                     <div className="mt-4 space-y-2">
                       <select className={inputCls} value={reason} onChange={(e) => setReason(e.target.value as DisputeReason)}>{DISPUTE_REASONS.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}</select>
                       <textarea className={inputCls} rows={3} maxLength={2000} placeholder="Tell us what is wrong (at least 5 characters)" value={text} onChange={(e) => setText(e.target.value)} />
-                      <button className="focus-ring rounded-xl bg-danger px-4 py-2 text-sm font-medium text-white disabled:opacity-50" disabled={busy || text.trim().length < 5} onClick={() => void respond('dispute')}>Send report</button>
+                      <button className="focus-ring rounded-xl bg-danger px-4 py-2 text-sm font-medium text-on-danger disabled:opacity-50" disabled={busy || text.trim().length < 5} onClick={() => void respond('dispute')}>Send report</button>
                     </div>
                   )}
                 </div>

@@ -17,10 +17,10 @@ const TABS: { id: Tab; label: string }[] = [
 ];
 
 const STATUS_STYLE: Record<LiveStatus, string> = {
-  moving: 'bg-success-500/10 text-success-500', idling: 'bg-warning-500/10 text-warning-500',
-  stopped: 'bg-bg-tertiary text-text-secondary', offline: 'bg-danger-500/10 text-danger-500',
+  moving: 'bg-success-subtle text-success', idling: 'bg-warning-subtle text-warning',
+  stopped: 'bg-bg-tertiary text-text-secondary', offline: 'bg-danger-subtle text-danger',
 };
-const TIER_STYLE = { excellent: 'text-success-500', good: 'text-success-500', watch: 'text-warning-500', at_risk: 'text-danger-500' } as const;
+const TIER_STYLE = { excellent: 'text-success', good: 'text-success', watch: 'text-warning', at_risk: 'text-danger' } as const;
 const CARD = 'rounded-2xl border border-border bg-bg-secondary';
 const INPUT = 'rounded-lg border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary';
 
@@ -126,19 +126,19 @@ export function TelematicsOSPage() {
             <p className="text-sm text-text-secondary">Vehicle → technician → job → customer outcome, from real GPS and diagnostics.</p>
           </div>
         </div>
-        <button type="button" onClick={() => void recompute()} disabled={recomputing || !connected} className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-xs font-medium text-white disabled:opacity-60">
+        <button type="button" onClick={() => void recompute()} disabled={recomputing || !connected} className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-xs font-medium text-on-accent disabled:opacity-60">
           <RefreshCw size={14} className={recomputing ? 'animate-spin' : ''} /> {recomputing ? 'Recomputing…' : 'Recompute chain'}
         </button>
       </div>
 
-      {loadError && <div role="alert" className="mb-4 rounded-xl border border-danger-500/30 bg-danger-500/10 p-3 text-sm text-danger-500">Could not load telematics data. Check that the Real Telematics OS migration has been applied, then retry.</div>}
+      {loadError && <div role="alert" className="mb-4 rounded-xl border border-danger/30 bg-danger-subtle p-3 text-sm text-danger">Could not load telematics data. Check that the Real Telematics OS migration has been applied, then retry.</div>}
 
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-5">
-        {kpi('Moving now', String(summary.moving), 'text-success-500')}
-        {kpi('Idling', String(summary.idling), summary.idling ? 'text-warning-500' : 'text-text-primary')}
-        {kpi('Offline', String(summary.offline), summary.offline ? 'text-danger-500' : 'text-text-primary')}
+        {kpi('Moving now', String(summary.moving), 'text-success')}
+        {kpi('Idling', String(summary.idling), summary.idling ? 'text-warning' : 'text-text-primary')}
+        {kpi('Offline', String(summary.offline), summary.offline ? 'text-danger' : 'text-text-primary')}
         {kpi('Fleet safety (14d)', summary.avg == null ? '—' : summary.avg.toFixed(0), summary.avg == null ? 'text-text-primary' : TIER_STYLE[safetyTier(summary.avg)])}
-        {kpi('Overdue service', String(summary.overdue), summary.overdue ? 'text-danger-500' : 'text-text-primary')}
+        {kpi('Overdue service', String(summary.overdue), summary.overdue ? 'text-danger' : 'text-text-primary')}
       </div>
 
       <div role="tablist" aria-label="Telematics sections" className="mb-5 flex flex-wrap gap-1 border-b border-border">
@@ -175,7 +175,7 @@ export function TelematicsOSPage() {
                       </dl>
                       {l?.reverse_geo && <p className="mt-2 truncate text-xs text-text-secondary" title={l.reverse_geo}>{l.reverse_geo}</p>}
                       <div className="mt-3 flex flex-wrap items-center gap-2">
-                        {(l?.check_engine || activeFaults.length > 0) && <span className="inline-flex items-center gap-1 rounded-full bg-danger-500/10 px-2 py-0.5 text-[11px] font-medium text-danger-500"><AlertTriangle size={11} />{activeFaults.length || 1} fault{activeFaults.length === 1 ? '' : 's'}</span>}
+                        {(l?.check_engine || activeFaults.length > 0) && <span className="inline-flex items-center gap-1 rounded-full bg-danger-subtle px-2 py-0.5 text-[11px] font-medium text-danger"><AlertTriangle size={11} />{activeFaults.length || 1} fault{activeFaults.length === 1 ? '' : 's'}</span>}
                         {l?.current_job_id && <span className="rounded-full bg-accent/10 px-2 py-0.5 text-[11px] font-medium text-accent">On a job site</span>}
                         {l?.latitude != null && l?.longitude != null && <a href={mapsUrl(l.latitude, l.longitude)} target="_blank" rel="noopener noreferrer" className="ml-auto inline-flex items-center gap-1 text-xs text-accent hover:underline">Map <ExternalLink size={11} /></a>}
                       </div>
@@ -217,7 +217,7 @@ export function TelematicsOSPage() {
                       <span className="flex items-center gap-2">
                         {e.speed_mph != null && <span className="text-xs text-text-secondary">{Math.round(e.speed_mph)}{e.speed_limit_mph ? `/${Math.round(e.speed_limit_mph)}` : ''} mph</span>}
                         {e.media_url && <a href={e.media_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-accent hover:underline"><Camera size={12} />Clip</a>}
-                        <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium capitalize ${e.severity === 'critical' || e.severity === 'high' ? 'bg-danger-500/10 text-danger-500' : 'bg-bg-tertiary text-text-secondary'}`}>{e.severity}</span>
+                        <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium capitalize ${e.severity === 'critical' || e.severity === 'high' ? 'bg-danger-subtle text-danger' : 'bg-bg-tertiary text-text-secondary'}`}>{e.severity}</span>
                       </span>
                     </li>
                   ))}
@@ -230,8 +230,8 @@ export function TelematicsOSPage() {
           {tab === 'maintenance' && (
             <div className="space-y-6">
               {data.faults.length > 0 && (
-                <div className="rounded-2xl border border-danger-500/30 bg-danger-500/5 p-4">
-                  <h2 className="mb-2 flex items-center gap-2 text-sm font-semibold text-danger-500"><AlertTriangle size={14} /> Active diagnostic faults</h2>
+                <div className="rounded-2xl border border-danger/30 bg-danger-subtle p-4">
+                  <h2 className="mb-2 flex items-center gap-2 text-sm font-semibold text-danger"><AlertTriangle size={14} /> Active diagnostic faults</h2>
                   <ul className="space-y-1 text-sm">
                     {data.faults.map((f) => <li key={f.id} className="text-text-primary"><strong>{vehicleLabel[f.vehicle_id] ?? 'Vehicle'}</strong> · {f.code}{f.description ? ` — ${f.description}` : ''} <span className="text-xs text-text-secondary">({f.severity}, seen {ageLabel(f.last_seen_at, now)})</span></li>)}
                   </ul>
@@ -242,7 +242,7 @@ export function TelematicsOSPage() {
                 <input value={sched.name} onChange={(e) => setSched({ ...sched, name: e.target.value })} placeholder="Service (e.g. Oil change)" required aria-label="Service name" className={INPUT} />
                 <input value={sched.interval_miles} onChange={(e) => setSched({ ...sched, interval_miles: e.target.value })} type="number" min="1" placeholder="Every … miles" aria-label="Interval miles" className={INPUT} />
                 <input value={sched.interval_days} onChange={(e) => setSched({ ...sched, interval_days: e.target.value })} type="number" min="1" placeholder="Every … days" aria-label="Interval days" className={INPUT} />
-                <button type="submit" disabled={savingSched} className="focus-ring col-span-2 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-white disabled:opacity-60 sm:col-span-1">{savingSched ? 'Saving…' : 'Add schedule'}</button>
+                <button type="submit" disabled={savingSched} className="focus-ring col-span-2 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-on-accent disabled:opacity-60 sm:col-span-1">{savingSched ? 'Saving…' : 'Add schedule'}</button>
               </form>
               <div className={`${CARD} overflow-x-auto`}>
                 <table className="w-full text-left text-sm">
@@ -256,7 +256,7 @@ export function TelematicsOSPage() {
                           <td className="px-4 py-3 font-medium text-text-primary">{vehicleLabel[s.vehicle_id] ?? '—'}</td>
                           <td className="px-4 py-3 text-text-secondary"><Wrench size={12} className="mr-1 inline" />{s.name}</td>
                           <td className="px-4 py-3 text-text-secondary">{[m.milesRemaining != null ? `${m.milesRemaining.toLocaleString()} mi` : null, m.daysRemaining != null ? `${m.daysRemaining} d` : null].filter(Boolean).join(' · ') || '—'}</td>
-                          <td className="px-4 py-3"><span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${m.status === 'overdue' ? 'bg-danger-500/10 text-danger-500' : m.status === 'due_soon' ? 'bg-warning-500/10 text-warning-500' : 'bg-success-500/10 text-success-500'}`}>{m.status.replace('_', ' ')}</span></td>
+                          <td className="px-4 py-3"><span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${m.status === 'overdue' ? 'bg-danger-subtle text-danger' : m.status === 'due_soon' ? 'bg-warning-subtle text-warning' : 'bg-success-subtle text-success'}`}>{m.status.replace('_', ' ')}</span></td>
                           <td className="px-4 py-3 text-right"><button type="button" onClick={() => void serviced(s.id, s.vehicle_id)} className="focus-ring rounded-lg border border-border px-2.5 py-1 text-xs text-text-secondary hover:text-text-primary">Mark serviced</button></td>
                         </tr>
                       );
@@ -284,7 +284,7 @@ export function TelematicsOSPage() {
                         <td className="px-4 py-3 text-text-secondary">{r.drive_miles.toFixed(1)} mi · {Math.round(r.drive_minutes)} min</td>
                         <td className="px-4 py-3 text-text-secondary">{r.onsite_minutes != null ? `${Math.round(r.onsite_minutes)} min` : 'In progress'}</td>
                         <td className="px-4 py-3 text-text-secondary">{r.value_per_onsite_hour != null ? `$${r.value_per_onsite_hour.toFixed(0)}` : '—'}</td>
-                        <td className={`px-4 py-3 font-semibold ${r.integrity_score >= 80 ? 'text-success-500' : r.integrity_score >= 60 ? 'text-warning-500' : 'text-danger-500'}`}>{Math.round(r.integrity_score)}</td>
+                        <td className={`px-4 py-3 font-semibold ${r.integrity_score >= 80 ? 'text-success' : r.integrity_score >= 60 ? 'text-warning' : 'text-danger'}`}>{Math.round(r.integrity_score)}</td>
                         <td className="px-4 py-3"><div className="flex flex-wrap gap-1">{r.flags.map((f) => <span key={f} className="rounded-full bg-bg-tertiary px-2 py-0.5 text-[11px] text-text-secondary">{FLAG_LABELS[f] ?? f}</span>)}</div></td>
                       </tr>
                     ))}

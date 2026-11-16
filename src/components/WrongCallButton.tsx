@@ -56,7 +56,7 @@ export function WrongCallButton({ callId }: { callId: string }) {
       </label>
       {error && <p role="alert" className="text-xs text-danger">{error}</p>}
       <div className="flex gap-2">
-        <button type="button" onClick={submit} disabled={state === 'saving'} className="focus-ring rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-60">{state === 'saving' ? 'Sending…' : 'Send report'}</button>
+        <button type="button" onClick={submit} disabled={state === 'saving'} className="focus-ring rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-on-accent disabled:opacity-60">{state === 'saving' ? 'Sending…' : 'Send report'}</button>
         <button type="button" onClick={() => setOpen(false)} className="focus-ring rounded-lg border border-border px-3 py-1.5 text-xs text-text-secondary">Cancel</button>
       </div>
     </div>

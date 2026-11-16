@@ -142,9 +142,9 @@ export const TIER_LABELS: Record<TrustTier, string> = {
 };
 
 export const TIER_COLORS: Record<TrustTier, string> = {
-  excellent: 'bg-success-500/10 text-success-500',
+  excellent: 'bg-success-subtle text-success',
   good: 'bg-accent/10 text-accent',
-  fair: 'bg-warning-500/10 text-warning-500',
+  fair: 'bg-warning-subtle text-warning',
   at_risk: 'bg-danger/10 text-danger',
   pending: 'bg-bg-tertiary text-text-secondary',
 };
@@ -171,9 +171,9 @@ export function tierFromScore(score: number | null, coverage: number): TrustTier
 }
 
 export function scoreBarClass(score: number): string {
-  if (score >= 90) return 'bg-success-500';
+  if (score >= 90) return 'bg-success';
   if (score >= 75) return 'bg-accent';
-  if (score >= 60) return 'bg-warning-500';
+  if (score >= 60) return 'bg-warning';
   return 'bg-danger';
 }
 

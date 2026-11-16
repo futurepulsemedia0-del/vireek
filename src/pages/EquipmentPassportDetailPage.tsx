@@ -109,7 +109,7 @@ function AttachPanel({ code, onDone }: { code: string; onDone: (data: PassportDa
             </select>
           </div>
         )}
-        <button type="button" onClick={submit} disabled={busy || !customerId} className="focus-ring w-full rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50">
+        <button type="button" onClick={submit} disabled={busy || !customerId} className="focus-ring w-full rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-on-accent hover:opacity-90 disabled:opacity-50">
           {busy ? 'Working…' : 'Attach to customer'}
         </button>
       </div>
@@ -157,7 +157,7 @@ function AddEventPanel({ code, onAdded }: { code: string; onAdded: () => void })
           <input type="checkbox" checked={isPublic} onChange={(e) => setIsPublic(e.target.checked)} className="mt-0.5" />
           Show the title on the public passport (never put names or addresses in it)
         </label>
-        <button type="button" onClick={submit} disabled={busy} className="focus-ring w-full rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50">
+        <button type="button" onClick={submit} disabled={busy} className="focus-ring w-full rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-on-accent hover:opacity-90 disabled:opacity-50">
           {busy ? 'Saving…' : 'Add entry'}
         </button>
         <p className="text-[11px] text-text-secondary">Entries are permanent. A mistake is corrected with a new entry, never by editing.</p>
@@ -224,7 +224,7 @@ export function EquipmentPassportDetailPage() {
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
           <div className="min-w-0">
             {!member && (
-              <div className="mb-4 rounded-xl bg-warning-500/10 px-4 py-3 text-xs text-warning-500" role="status">
+              <div className="mb-4 rounded-xl bg-warning-subtle px-4 py-3 text-xs text-warning" role="status">
                 You are viewing the public passport of {equipmentTitle(data.passport)}. Attach it to a customer to unlock the full history.
               </div>
             )}

@@ -113,7 +113,7 @@ export function JobAutopsyPage() {
             </Card>
             <Card className="p-4">
               <p className="flex items-center gap-1.5 text-xs text-text-secondary"><DollarSign size={13} /> Estimated recoverable</p>
-              <p className="mt-1 text-xl font-bold text-success-500">{formatCents(stats.totalRecoverableCents)}</p>
+              <p className="mt-1 text-xl font-bold text-success">{formatCents(stats.totalRecoverableCents)}</p>
             </Card>
           </div>
 
@@ -159,7 +159,7 @@ export function JobAutopsyPage() {
                       type="button"
                       onClick={() => handleRun(c.job_id)}
                       disabled={runningId === c.job_id}
-                      className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white hover:opacity-90 disabled:opacity-50"
+                      className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent hover:opacity-90 disabled:opacity-50"
                     >
                       {runningId === c.job_id ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />}
                       Run autopsy
@@ -183,7 +183,7 @@ export function JobAutopsyPage() {
                           <p className="text-sm font-medium text-text-primary">{c.customer_name}</p>
                           <p className="text-xs text-text-secondary">{c.service_type ?? 'Unknown type'} · {c.technician_name ?? 'Unassigned'}</p>
                         </div>
-                        <span className={`shrink-0 text-sm font-semibold ${r.variance_cents > 0 ? 'text-danger' : 'text-success-500'}`}>
+                        <span className={`shrink-0 text-sm font-semibold ${r.variance_cents > 0 ? 'text-danger' : 'text-success'}`}>
                           {r.variance_cents > 0 ? '+' : ''}{formatCents(r.variance_cents)}
                         </span>
                       </div>
@@ -223,7 +223,7 @@ export function JobAutopsyPage() {
                             Mark reviewed
                           </button>
                         ) : (
-                          <span className="flex items-center gap-1 text-xs text-success-500"><CheckCircle2 size={13} /> Reviewed</span>
+                          <span className="flex items-center gap-1 text-xs text-success"><CheckCircle2 size={13} /> Reviewed</span>
                         )}
                       </div>
                     </Card>

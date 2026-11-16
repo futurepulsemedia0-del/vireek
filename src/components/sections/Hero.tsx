@@ -192,7 +192,7 @@ export function Hero() {
               {['J', 'M', 'S', 'R'].map((initial, i) => (
                 <span
                   key={i}
-                  className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-bg-secondary bg-accent-100 text-[0.55rem] font-bold text-accent-700 dark:bg-accent-900 dark:text-accent-200"
+                  className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-bg-secondary bg-accent-subtle text-[0.55rem] font-bold text-accent"
                 >
                   {initial}
                 </span>
@@ -294,7 +294,7 @@ export function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.25, ease: EASE }}
-            className="mt-4 text-sm text-text-secondary/80"
+            className="mt-4 text-sm text-text-muted"
           >
             14-day free trial · No credit card required · Cancel anytime
           </motion.p>

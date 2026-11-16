@@ -300,7 +300,7 @@ export function SystemRequirementsPage() {
                   <ul className="mt-4 space-y-3">
                     {PHONE_NOT_NEEDED.map((item) => (
                       <li key={item} className="flex items-start gap-2 text-sm leading-relaxed text-text-secondary">
-                        <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-text-secondary/60" />
+                        <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-graphic-muted" />
                         {item}
                       </li>
                     ))}

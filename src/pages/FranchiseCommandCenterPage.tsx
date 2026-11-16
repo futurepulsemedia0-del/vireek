@@ -30,10 +30,10 @@ import {
 } from '@/lib/franchise';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder transition-colors';
 
 const STATUS_STYLES: Record<string, string> = {
-  active: 'border-success-500/30 bg-success-500/10 text-success-500',
+  active: 'border-success/30 bg-success-subtle text-success',
   invited: 'border-border bg-bg-tertiary text-text-secondary',
   declined: 'border-danger/30 bg-danger/10 text-danger',
 };

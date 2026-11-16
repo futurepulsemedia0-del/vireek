@@ -19,7 +19,7 @@ export function NudgeList({ nudges, onSnooze, onDismiss }: NudgeListProps) {
         <li key={n.id}>
           <Card className="p-5 hover:translate-y-0">
             <div className="flex items-start gap-3">
-              <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${n.kind === 'lapsed' ? 'bg-warning-500/10 text-warning-500' : 'bg-accent/10 text-accent'}`} aria-hidden="true">
+              <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${n.kind === 'lapsed' ? 'bg-warning-subtle text-warning' : 'bg-accent/10 text-accent'}`} aria-hidden="true">
                 {n.kind === 'lapsed' ? <RotateCcw size={16} /> : <Lightbulb size={16} />}
               </span>
               <div className="min-w-0 flex-1">

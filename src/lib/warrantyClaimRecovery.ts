@@ -32,15 +32,15 @@ export const CLAIM_STATUS_LABELS: Record<ClaimStatus, string> = {
 export const CLAIM_STATUS_COLORS: Record<ClaimStatus, string> = {
   eligible: 'bg-bg-tertiary text-text-secondary',
   packet_pending: 'bg-accent/10 text-accent',
-  submitted: 'bg-warning-500/10 text-warning-500',
-  approved: 'bg-success-500/10 text-success-500',
+  submitted: 'bg-warning-subtle text-warning',
+  approved: 'bg-success-subtle text-success',
   denied: 'bg-danger/10 text-danger',
-  credit_received: 'bg-success-500/10 text-success-500',
+  credit_received: 'bg-success-subtle text-success',
   closed: 'bg-bg-tertiary text-text-secondary',
   needs_review: 'bg-bg-tertiary text-text-secondary',
   ready: 'bg-accent/10 text-accent',
   expired: 'bg-danger/10 text-danger',
-  paid: 'bg-success-500/10 text-success-500',
+  paid: 'bg-success-subtle text-success',
 };
 
 // Ordered pipeline — used for the status <select>, in the sequence a

@@ -89,9 +89,9 @@ type LoadStatus = 'loading' | 'ready' | 'not_found' | 'error';
 
 const STAGES: { key: LeadStage; label: string; dot: string }[] = [
   { key: 'new', label: 'New', dot: 'bg-accent' },
-  { key: 'contacted', label: 'Contacted', dot: 'bg-blue-500' },
-  { key: 'quoted', label: 'Quoted', dot: 'bg-warning-500' },
-  { key: 'won', label: 'Won', dot: 'bg-success-500' },
+  { key: 'contacted', label: 'Contacted', dot: 'bg-info' },
+  { key: 'quoted', label: 'Quoted', dot: 'bg-warning' },
+  { key: 'won', label: 'Won', dot: 'bg-success' },
   { key: 'lost', label: 'Lost', dot: 'bg-danger' },
 ];
 
@@ -112,9 +112,9 @@ const TIMELINE_ICONS: Record<TimelineKind, LucideIcon> = {
 
 const TONE_DOT: Record<TimelineTone, string> = {
   neutral: 'bg-accent',
-  positive: 'bg-success-500',
+  positive: 'bg-success',
   negative: 'bg-danger',
-  attention: 'bg-warning-500',
+  attention: 'bg-warning',
 };
 
 // ============================================================
@@ -482,8 +482,8 @@ export function LeadDetailPage() {
       {header}
 
       {failedSections.length > 0 && (
-        <div role="alert" className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-warning-500/40 bg-warning-500/10 px-4 py-3 text-sm text-text-primary">
-          <AlertTriangle size={16} className="shrink-0 text-warning-500" aria-hidden="true" />
+        <div role="alert" className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-warning/40 bg-warning-subtle px-4 py-3 text-sm text-text-primary">
+          <AlertTriangle size={16} className="shrink-0 text-warning" aria-hidden="true" />
           <span className="flex-1">Some sections could not load: {failedSections.join(', ')}.</span>
           <button type="button" onClick={load} className="focus-ring rounded-lg border border-border bg-bg-primary px-3 py-1.5 text-xs font-medium hover:border-accent/40">
             Retry
@@ -595,7 +595,7 @@ export function LeadDetailPage() {
             ) : lead.notes ? (
               <p className="whitespace-pre-wrap text-sm leading-relaxed text-text-primary">{lead.notes}</p>
             ) : (
-              <p className="text-sm text-text-secondary/70">No notes yet.</p>
+              <p className="text-sm text-text-muted">No notes yet.</p>
             )}
           </Panel>
         </div>
@@ -704,7 +704,7 @@ export function LeadDetailPage() {
             <ul className="space-y-3" aria-live="polite">
               {steps.map((s) => (
                 <li key={s.label} className="flex items-start gap-3">
-                  {s.done ? <CheckCircle2 size={18} className="mt-0.5 shrink-0 text-success-500" aria-label="Done" /> : <Circle size={18} className="mt-0.5 shrink-0 text-text-secondary/50" aria-label="Not done" />}
+                  {s.done ? <CheckCircle2 size={18} className="mt-0.5 shrink-0 text-success" aria-label="Done" /> : <Circle size={18} className="mt-0.5 shrink-0 text-graphic-muted" aria-label="Not done" />}
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-text-primary">{s.label}</p>
                     <p className="truncate text-xs text-text-secondary">{s.detail}</p>

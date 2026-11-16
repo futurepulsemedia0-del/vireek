@@ -46,7 +46,7 @@ export function PartsSourcingPage() {
                   aria-selected={tab === t.key}
                   aria-controls={`ps-panel-${t.key}`}
                   onClick={() => setTab(t.key)}
-                  className={`focus-ring min-h-[40px] shrink-0 rounded-lg px-4 text-sm font-semibold ${tab === t.key ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}
+                  className={`focus-ring min-h-[40px] shrink-0 rounded-lg px-4 text-sm font-semibold ${tab === t.key ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}
                 >
                   {t.label}
                 </button>

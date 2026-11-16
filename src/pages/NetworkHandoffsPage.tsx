@@ -845,7 +845,7 @@ export function NetworkHandoffsPage() {
                   onClick={() => setTab(t.id)}
                   className={`focus-ring rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
                     tab === t.id
-                      ? 'bg-accent text-white'
+                      ? 'bg-accent text-on-accent'
                       : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
                   }`}
                 >

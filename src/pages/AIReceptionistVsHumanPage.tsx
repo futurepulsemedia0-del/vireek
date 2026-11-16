@@ -52,14 +52,14 @@ const COMPARISON_ROWS: ComparisonRow[] = [
 function Cell({ value }: { value: CellValue }) {
   if (value === 'yes') {
     return (
-      <span className="mx-auto flex h-8 w-8 items-center justify-center rounded-full bg-success-500/15 text-success-500">
+      <span className="mx-auto flex h-8 w-8 items-center justify-center rounded-full bg-success-subtle text-success">
         <Check size={16} strokeWidth={2.75} />
       </span>
     );
   }
   if (value === 'partial') {
     return (
-      <span className="mx-auto flex h-8 w-8 items-center justify-center rounded-full bg-warning-500/15 text-warning-500">
+      <span className="mx-auto flex h-8 w-8 items-center justify-center rounded-full bg-warning-subtle text-warning">
         <Minus size={16} strokeWidth={2.75} />
       </span>
     );
@@ -200,11 +200,11 @@ function ProsConsCard({ group, accent }: { group: ProsConsGroup; accent: 'ai' | 
         <h3 className="text-lg font-bold tracking-tight text-text-primary">{group.title}</h3>
       </div>
 
-      <p className="mt-5 text-xs font-semibold uppercase tracking-wider text-success-500">Strengths</p>
+      <p className="mt-5 text-xs font-semibold uppercase tracking-wider text-success">Strengths</p>
       <ul className="mt-3 space-y-2.5">
         {group.pros.map((item) => (
           <li key={item} className="flex items-start gap-2.5 text-sm leading-relaxed text-text-secondary">
-            <Check size={15} className="mt-0.5 shrink-0 text-success-500" strokeWidth={2.5} />
+            <Check size={15} className="mt-0.5 shrink-0 text-success" strokeWidth={2.5} />
             <span>{item}</span>
           </li>
         ))}
@@ -378,8 +378,8 @@ export function AIReceptionistVsHumanPage() {
                 </table>
               </div>
             </motion.div>
-            <p className="mt-4 text-center text-xs text-text-secondary/70">
-              <Minus size={11} className="mb-0.5 inline text-warning-500" /> = depends on the
+            <p className="mt-4 text-center text-xs text-text-muted">
+              <Minus size={11} className="mb-0.5 inline text-warning" /> = depends on the
               situation or plan, not a strict yes or no.
             </p>
           </div>
@@ -423,20 +423,20 @@ export function AIReceptionistVsHumanPage() {
                 </div>
                 <ul className="mt-6 space-y-3 text-sm leading-relaxed text-text-secondary">
                   <li className="flex items-start gap-2.5">
-                    <Wallet size={15} className="mt-0.5 shrink-0 text-text-secondary/60" />
+                    <Wallet size={15} className="mt-0.5 shrink-0 text-graphic-muted" />
                     Base salary, plus payroll tax, benefits, and paid time off on top
                   </li>
                   <li className="flex items-start gap-2.5">
-                    <Clock3 size={15} className="mt-0.5 shrink-0 text-text-secondary/60" />
+                    <Clock3 size={15} className="mt-0.5 shrink-0 text-graphic-muted" />
                     Covers roughly one 8–10 hour shift — nights, weekends, and holidays
                     still default to voicemail
                   </li>
                   <li className="flex items-start gap-2.5">
-                    <PhoneCall size={15} className="mt-0.5 shrink-0 text-text-secondary/60" />
+                    <PhoneCall size={15} className="mt-0.5 shrink-0 text-graphic-muted" />
                     Only one call handled at a time; everything else waits or hangs up
                   </li>
                   <li className="flex items-start gap-2.5">
-                    <Users size={15} className="mt-0.5 shrink-0 text-text-secondary/60" />
+                    <Users size={15} className="mt-0.5 shrink-0 text-graphic-muted" />
                     Recruiting, onboarding, and retraining every time someone leaves
                   </li>
                 </ul>
@@ -671,7 +671,7 @@ export function AIReceptionistVsHumanPage() {
               className="pointer-events-none absolute inset-0"
               style={{
                 backgroundImage:
-                  'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
+                  'radial-gradient(circle at 20% 20%, rgb(var(--static-white) / 0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
               }}
             />
             <div className="relative">

@@ -14,7 +14,7 @@ import { fetchContradictions, runDetection, updateContradictionStatus, TYPE_LABE
 
 const SEVERITY_STYLES: Record<Contradiction['severity'], string> = {
   high: 'border-error-500/40 bg-error-500/10 text-error-500',
-  medium: 'border-warning-500/40 bg-warning-500/10 text-warning-500',
+  medium: 'border-warning/40 bg-warning-subtle text-warning',
   low: 'border-border bg-bg-tertiary text-text-secondary',
 };
 
@@ -66,10 +66,10 @@ export function BusinessContradictionsPage() {
       <div className="space-y-6 p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <AlertOctagon className="text-warning-500" size={20} />
+            <AlertOctagon className="text-warning" size={20} />
             <p className="text-sm font-semibold text-text-primary">Business Contradiction Detector</p>
           </div>
-          <button onClick={handleRun} disabled={running} className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-4 py-2 text-sm font-medium text-white disabled:opacity-50">
+          <button onClick={handleRun} disabled={running} className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-4 py-2 text-sm font-medium text-on-cta disabled:opacity-50">
             {running ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />} Run detection
           </button>
         </div>
@@ -91,7 +91,7 @@ export function BusinessContradictionsPage() {
                     <p className="mt-1 text-sm text-text-secondary">{item.detail}</p>
                   </div>
                   <div className="flex shrink-0 gap-2">
-                    <button onClick={() => handleAction(item.id, 'acknowledged')} className="focus-ring rounded-lg bg-success-500/15 p-2 text-success-500" title="Acknowledge">
+                    <button onClick={() => handleAction(item.id, 'acknowledged')} className="focus-ring rounded-lg bg-success-subtle p-2 text-success" title="Acknowledge">
                       <Check size={14} />
                     </button>
                     <button onClick={() => handleAction(item.id, 'dismissed')} className="focus-ring rounded-lg bg-bg-tertiary p-2 text-text-secondary" title="Dismiss">

@@ -3,8 +3,8 @@ import { Radar } from 'lucide-react';
 import { fetchFleetJobCost, formatCents, formatMinutes, type FleetJobCost } from '@/lib/fleetIntelligence';
 
 const CONFIDENCE_STYLE: Record<FleetJobCost['confidence'], string> = {
-  high: 'bg-success-500/10 text-success-500',
-  medium: 'bg-warning-500/10 text-warning-500',
+  high: 'bg-success-subtle text-success',
+  medium: 'bg-warning-subtle text-warning',
   low: 'bg-bg-tertiary text-text-secondary',
 };
 
@@ -66,7 +66,7 @@ export function FleetJobCostCard({ jobId }: { jobId: string }) {
           {cost.revenue_cents > 0 && (
             <div className="flex justify-between text-sm">
               <dt className="text-text-secondary">After fleet &amp; labor</dt>
-              <dd className={`font-semibold ${cost.contribution_cents < 0 ? 'text-danger' : 'text-success-500'}`}>
+              <dd className={`font-semibold ${cost.contribution_cents < 0 ? 'text-danger' : 'text-success'}`}>
                 {formatCents(cost.contribution_cents)}
                 {cost.margin_pct != null && <span className="ml-1 font-normal text-text-secondary">({cost.margin_pct.toFixed(1)}%)</span>}
               </dd>

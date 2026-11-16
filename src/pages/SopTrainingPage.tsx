@@ -129,7 +129,7 @@ function SopReaderView({ sopId, onBack, onChanged }: { sopId: string; onBack: ()
         </div>
         {reader.summary && <p className="text-sm text-text-secondary">{reader.summary}</p>}
         {reader.change_note && (
-          <p className="rounded-lg bg-warning-500/10 px-3 py-2 text-xs text-text-primary">
+          <p className="rounded-lg bg-warning-subtle px-3 py-2 text-xs text-text-primary">
             <span className="font-semibold">What changed: </span>{reader.change_note}
           </p>
         )}

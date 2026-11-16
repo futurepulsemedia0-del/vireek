@@ -276,7 +276,7 @@ export function SavedViewsBar({
           className="focus-ring flex min-w-0 flex-1 items-center gap-1.5 text-left text-sm text-text-primary"
           aria-current={v.id === activeId ? 'true' : undefined}
         >
-          {v.is_default && <Star size={12} className="shrink-0 fill-current text-warning-500" aria-label="Default view" />}
+          {v.is_default && <Star size={12} className="shrink-0 fill-current text-warning" aria-label="Default view" />}
           <span className="truncate">{v.name}</span>
           {v.id === activeId && <span className="shrink-0 text-[10px] font-medium text-accent">active</span>}
         </button>
@@ -304,7 +304,7 @@ export function SavedViewsBar({
                   aria-pressed={v.is_default}
                   title={v.is_default ? 'Opens by default — click to clear' : 'Open this view by default'}
                 >
-                  <Star size={13} className={v.is_default ? 'fill-current text-warning-500' : ''} />
+                  <Star size={13} className={v.is_default ? 'fill-current text-warning' : ''} />
                 </button>
                 <button
                   type="button"
@@ -369,7 +369,7 @@ export function SavedViewsBar({
       >
         <Bookmark size={15} className="shrink-0" />
         <span className="truncate">{activeView ? activeView.name : 'Views'}</span>
-        {modified && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-warning-500" title="Changed since saved" aria-label="Changed since saved" />}
+        {modified && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-warning" title="Changed since saved" aria-label="Changed since saved" />}
         <ChevronDown size={14} className={`shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
 
@@ -424,7 +424,7 @@ export function SavedViewsBar({
                     type="button"
                     onClick={() => void handleSave()}
                     disabled={busy}
-                    className="focus-ring rounded-lg bg-accent px-2 py-1.5 text-xs font-medium text-white disabled:opacity-60"
+                    className="focus-ring rounded-lg bg-accent px-2 py-1.5 text-xs font-medium text-on-accent disabled:opacity-60"
                   >
                     Save
                   </button>

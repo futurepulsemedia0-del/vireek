@@ -56,11 +56,11 @@ function levelLabel(level: SkillLevel): string {
 function levelBadgeClasses(level: SkillLevel): string {
   switch (level) {
     case 'expert':
-      return 'bg-success-500/10 text-success-500';
+      return 'bg-success-subtle text-success';
     case 'proficient':
       return 'bg-accent/10 text-accent';
     case 'developing':
-      return 'bg-warning-500/10 text-warning-500';
+      return 'bg-warning-subtle text-warning';
     case 'novice':
       return 'bg-danger/10 text-danger';
     default:
@@ -69,9 +69,9 @@ function levelBadgeClasses(level: SkillLevel): string {
 }
 
 function TrendIcon({ trend }: { trend: SkillNode['trend'] }) {
-  if (trend === 'improving') return <TrendingUp size={13} className="text-success-500" />;
+  if (trend === 'improving') return <TrendingUp size={13} className="text-success" />;
   if (trend === 'declining') return <TrendingDown size={13} className="text-danger" />;
-  if (trend === 'steady') return <Minus size={13} className="text-text-secondary/60" />;
+  if (trend === 'steady') return <Minus size={13} className="text-graphic-muted" />;
   return null;
 }
 
@@ -205,7 +205,7 @@ export function TechnicianSkillGraphPage() {
             {coverageRisks.length > 0 && (
               <Card className="p-6">
                 <h2 className="flex items-center gap-2 text-base font-semibold text-text-primary">
-                  <ShieldAlert size={17} className="text-warning-500" />
+                  <ShieldAlert size={17} className="text-warning" />
                   Coverage risk
                 </h2>
                 <p className="mt-1 text-sm text-text-secondary">
@@ -216,7 +216,7 @@ export function TechnicianSkillGraphPage() {
                     <div key={risk.serviceType} className="rounded-xl border border-border/70 bg-bg-tertiary/40 p-4">
                       <div className="flex items-center justify-between gap-2">
                         <p className="text-sm font-semibold text-text-primary">{risk.serviceType}</p>
-                        <AlertTriangle size={14} className={risk.risk === 'no_coverage' ? 'text-danger' : 'text-warning-500'} />
+                        <AlertTriangle size={14} className={risk.risk === 'no_coverage' ? 'text-danger' : 'text-warning'} />
                       </div>
                       <p className="mt-1 text-xs text-text-secondary">
                         {risk.risk === 'no_coverage'
@@ -320,7 +320,7 @@ export function TechnicianSkillGraphPage() {
                             {expertCount} expert · {proficientCount} proficient skill{proficientCount === 1 ? '' : 's'}
                           </p>
                         </div>
-                        <ChevronRight size={16} className="text-text-secondary/60" />
+                        <ChevronRight size={16} className="text-graphic-muted" />
                       </button>
                     );
                   })}

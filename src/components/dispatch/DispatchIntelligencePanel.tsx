@@ -50,9 +50,9 @@ function fmtTime(ms: number | string | null, todayKey: string): string {
 }
 
 function scoreTone(score: number): string {
-  if (score >= 75) return 'text-success-500';
+  if (score >= 75) return 'text-success';
   if (score >= 50) return 'text-accent';
-  return 'text-warning-500';
+  return 'text-warning';
 }
 
 function Breakdown({ c }: { c: CandidateEval }) {
@@ -239,7 +239,7 @@ export function DispatchIntelligencePanel({ jobs, technicians, riskMap, onChange
             type="button"
             onClick={() => setConfirmBulk(true)}
             disabled={bulkBusy || safeJobs.length === 0}
-            className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3 py-1.5 text-xs font-medium text-white hover:opacity-90 disabled:opacity-50"
+            className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3 py-1.5 text-xs font-medium text-on-accent hover:opacity-90 disabled:opacity-50"
           >
             {bulkBusy && <Loader2 size={12} className="animate-spin" />}
             Apply {safeJobs.length} safe assignment{safeJobs.length === 1 ? '' : 's'}
@@ -266,9 +266,9 @@ export function DispatchIntelligencePanel({ jobs, technicians, riskMap, onChange
       )}
 
       {missingGeo > 0 && (
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-warning-500/30 bg-warning-500/5 px-3 py-2 text-xs text-text-primary">
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-warning/30 bg-warning-subtle px-3 py-2 text-xs text-text-primary">
           <span className="flex items-center gap-1.5">
-            <MapPin size={13} className="text-warning-500" />
+            <MapPin size={13} className="text-warning" />
             {missingGeo} address{missingGeo === 1 ? '' : 'es'} have no coordinates yet, so travel time is not scored for them.
           </span>
           <button
@@ -351,7 +351,7 @@ export function DispatchIntelligencePanel({ jobs, technicians, riskMap, onChange
                         disabled={busy !== null || bulkBusy}
                         onClick={() => void applyOne(jp, rec)}
                         className={`focus-ring flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium disabled:opacity-50 ${
-                          planRisk[jp.jobId]?.coverage.requiresAck ? 'border border-warning-500/50 text-warning-500' : 'bg-accent text-white hover:opacity-90'
+                          planRisk[jp.jobId]?.coverage.requiresAck ? 'border border-warning/50 text-warning' : 'bg-accent text-on-accent hover:opacity-90'
                         }`}
                       >
                         {busy === `${jp.jobId}:${rec.technicianId}` && <Loader2 size={12} className="animate-spin" />}

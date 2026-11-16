@@ -18,7 +18,7 @@ export function PlanFeatureGate({ feature, children }: { feature: FeatureKey; ch
       <Lock size={28} className="text-accent" aria-hidden="true" />
       <h1 className="text-lg font-bold text-text-primary">{featureLabel(feature)} is not in your plan</h1>
       <p className="text-sm text-text-secondary">Available on {PLAN_LABELS[FEATURE_MIN_PLAN[feature]]} and above.</p>
-      <button type="button" onClick={() => navigate('/dashboard/billing')} className="focus-ring rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white hover:opacity-90">View plans</button>
+      <button type="button" onClick={() => navigate('/dashboard/billing')} className="focus-ring rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-on-accent hover:opacity-90">View plans</button>
     </div>
   );
 }

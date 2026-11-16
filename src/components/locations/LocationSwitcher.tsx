@@ -97,7 +97,7 @@ export function LocationSwitcher({ onNavigate }: { onNavigate?: () => void }) {
             {groups.map(([brand, items]) => (
               <li key={brand || 'no-brand'} role="presentation">
                 {groups.length > 1 && (
-                  <p className="px-2.5 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wider text-text-secondary/70">
+                  <p className="px-2.5 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wider text-text-muted">
                     {brand || 'No brand'}
                   </p>
                 )}

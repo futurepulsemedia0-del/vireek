@@ -56,7 +56,7 @@ function SignaturePad({ jobId, onSaved }: { jobId: string; onSaved: () => void }
     const { x, y } = getPos(e);
     ctx.lineWidth = 2;
     ctx.lineCap = 'round';
-    ctx.strokeStyle = '#1a1a1a';
+    ctx.strokeStyle = '#1c1b15';
     ctx.lineTo(x, y);
     ctx.stroke();
     setHasStroke(true);
@@ -93,7 +93,7 @@ function SignaturePad({ jobId, onSaved }: { jobId: string; onSaved: () => void }
         ref={canvasRef}
         width={360}
         height={120}
-        className="w-full cursor-crosshair rounded-lg border border-border bg-white touch-none"
+        className="w-full cursor-crosshair rounded-lg border border-border bg-bg-secondary touch-none"
         onMouseDown={start}
         onMouseMove={move}
         onMouseUp={end}
@@ -114,7 +114,7 @@ function SignaturePad({ jobId, onSaved }: { jobId: string; onSaved: () => void }
           type="button"
           onClick={save}
           disabled={!hasStroke || saving}
-          className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white hover:opacity-90 disabled:opacity-50"
+          className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent hover:opacity-90 disabled:opacity-50"
         >
           {saving ? <Loader2 size={13} className="animate-spin" /> : <PenTool size={13} />} Save signature
         </button>
@@ -193,10 +193,10 @@ export function JobQualityGatePanel({ job }: { job: Job }) {
   const ready = report.ready_to_close;
 
   return (
-    <div className={`rounded-xl border p-4 ${ready ? 'border-success-500/30 bg-success-500/5' : 'border-warning-500/30 bg-warning-500/5'}`}>
+    <div className={`rounded-xl border p-4 ${ready ? 'border-success/30 bg-success-subtle' : 'border-warning/30 bg-warning-subtle'}`}>
       <button type="button" onClick={() => setExpanded((v) => !v)} className="focus-ring flex w-full items-center justify-between gap-2 text-left">
         <span className="flex items-center gap-2 text-sm font-semibold text-text-primary">
-          {ready ? <ShieldCheck size={16} className="text-success-500" /> : <ShieldAlert size={16} className="text-warning-500" />}
+          {ready ? <ShieldCheck size={16} className="text-success" /> : <ShieldAlert size={16} className="text-warning" />}
           Quality Gate — {ready ? 'Ready to close' : `${report.gaps.length} item${report.gaps.length === 1 ? '' : 's'} missing`}
         </span>
         <span className="text-xs text-text-secondary">{expanded ? 'Hide' : 'Details'}</span>
@@ -213,7 +213,7 @@ export function JobQualityGatePanel({ job }: { job: Job }) {
           <ul className="space-y-1.5 text-xs">
             {CATEGORY_ORDER.filter((k) => report.categories[k]?.required).map((k) => (
               <li key={k} className="flex items-center gap-2">
-                <span className={`h-1.5 w-1.5 rounded-full ${report.categories[k].satisfied ? 'bg-success-500' : 'bg-warning-500'}`} />
+                <span className={`h-1.5 w-1.5 rounded-full ${report.categories[k].satisfied ? 'bg-success' : 'bg-warning'}`} />
                 <span className={report.categories[k].satisfied ? 'text-text-secondary' : 'text-text-primary font-medium'}>
                   {QUALITY_GATE_LABELS[k]}
                   {k === 'checklist' && report.categories[k].total ? ` (${report.categories[k].done}/${report.categories[k].total})` : ''}
@@ -255,7 +255,7 @@ export function JobQualityGatePanel({ job }: { job: Job }) {
               type="button"
               onClick={handleSaveNotes}
               disabled={savingNotes || notes === (job.completion_notes ?? '')}
-              className="focus-ring mt-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white hover:opacity-90 disabled:opacity-50"
+              className="focus-ring mt-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent hover:opacity-90 disabled:opacity-50"
             >
               {savingNotes ? 'Saving...' : 'Save notes'}
             </button>
@@ -265,7 +265,7 @@ export function JobQualityGatePanel({ job }: { job: Job }) {
             <p className="mb-1.5 text-xs font-medium text-text-secondary">Customer signature</p>
             {job.customer_signature_data_url ? (
               <div className="flex items-center gap-3">
-                <img src={job.customer_signature_data_url} alt="Customer signature" className="h-16 rounded border border-border bg-white" />
+                <img src={job.customer_signature_data_url} alt="Customer signature" className="h-16 rounded border border-border bg-bg-secondary" />
                 <button
                   type="button"
                   onClick={async () => {

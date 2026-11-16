@@ -27,8 +27,8 @@ export const QUOTE_STATUS_LABELS: Record<QuoteStatus, string> = {
 
 export const QUOTE_STATUS_COLORS: Record<QuoteStatus, string> = {
   draft: 'bg-bg-tertiary text-text-secondary',
-  quoted: 'bg-warning-500/10 text-warning-500',
-  active: 'bg-success-500/10 text-success-500',
+  quoted: 'bg-warning-subtle text-warning',
+  active: 'bg-success-subtle text-success',
   completed: 'bg-accent/10 text-accent',
   declined: 'bg-danger/10 text-danger',
   cancelled: 'bg-danger/10 text-danger',

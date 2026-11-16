@@ -55,7 +55,7 @@ function Content({ room }: { room: PublicDataRoom }) {
     <div className="space-y-5">
       {s.valuation !== undefined && (
         <Section title="Owner’s estimate summary">
-          <p className="mb-2 text-xs font-semibold text-warning-500">{str(val.label)}</p>
+          <p className="mb-2 text-xs font-semibold text-warning">{str(val.label)}</p>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 text-sm">
             <div><p className="text-xs text-text-secondary">Method</p><p className="text-text-primary">{str(val.method)}</p></div>
             <div><p className="text-xs text-text-secondary">Range</p><p className="text-text-primary">{money(range.low)} – {money(range.high)}</p></div>
@@ -170,7 +170,7 @@ export function ExitDataRoomPublicPage() {
       )}
       {state === 'ready' && room && (
         <>
-          <div role="note" className="mb-5 rounded-xl border border-warning-500/30 bg-warning-500/10 px-3 py-2.5 text-xs text-text-secondary">
+          <div role="note" className="mb-5 rounded-xl border border-warning/30 bg-warning-subtle px-3 py-2.5 text-xs text-text-secondary">
             <span className="font-semibold text-text-primary">Confidential. </span>{room.content.disclaimer}
           </div>
           <Content room={room} />

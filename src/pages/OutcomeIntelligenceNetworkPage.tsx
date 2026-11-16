@@ -51,8 +51,8 @@ import {
 type Tab = 'intelligence' | 'capture' | 'network';
 
 const CONFIDENCE_STYLE: Record<Confidence, string> = {
-  high: 'bg-success-500/10 text-success-500',
-  medium: 'bg-warning-500/10 text-warning-500',
+  high: 'bg-success-subtle text-success',
+  medium: 'bg-warning-subtle text-warning',
   low: 'bg-bg-tertiary text-text-secondary',
 };
 

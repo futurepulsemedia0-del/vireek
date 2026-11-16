@@ -24,8 +24,8 @@ function timeAgo(iso: string): string {
 
 const statusStyle: Record<CaseStatus, string> = {
   open: 'bg-danger/10 text-danger',
-  contacted: 'bg-warning-500/10 text-warning-500',
-  resolved: 'bg-success-500/10 text-success-500',
+  contacted: 'bg-warning-subtle text-warning',
+  resolved: 'bg-success-subtle text-success',
   dismissed: 'bg-bg-tertiary text-text-secondary',
 };
 
@@ -73,7 +73,7 @@ export function RecoveryCasesPanel({
             aria-selected={filter === f.key}
             onClick={() => setFilter(f.key)}
             className={`focus-ring min-h-[40px] rounded-full border px-4 text-sm font-medium transition-colors ${
-              filter === f.key ? 'border-accent bg-accent text-white' : 'border-border bg-bg-secondary text-text-secondary hover:text-text-primary'
+              filter === f.key ? 'border-accent bg-accent text-on-accent' : 'border-border bg-bg-secondary text-text-secondary hover:text-text-primary'
             }`}
           >
             {f.label}
@@ -103,7 +103,7 @@ export function RecoveryCasesPanel({
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <h3 className="truncate text-base font-semibold text-text-primary">{c.customer_name}</h3>
-                      <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${c.severity === 'critical' ? 'bg-danger text-white' : 'bg-danger/10 text-danger'}`}>
+                      <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${c.severity === 'critical' ? 'bg-danger text-on-danger' : 'bg-danger/10 text-danger'}`}>
                         {c.severity === 'critical' ? 'Critical' : 'High'}
                       </span>
                       <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusStyle[c.status]}`}>{CASE_STATUS_LABELS[c.status]}</span>

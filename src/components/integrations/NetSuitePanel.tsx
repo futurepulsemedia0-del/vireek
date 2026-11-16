@@ -29,7 +29,7 @@ export function NetSuitePanel() {
   const connected = !!conn && conn.status !== 'disconnected';
   return (
     <div className="mt-4 rounded-xl border border-border bg-bg-primary p-3">
-      <p className="text-xs font-semibold uppercase tracking-wide text-warning-500">{NS_VERIFICATION.label}</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-warning">{NS_VERIFICATION.label}</p>
       <p className="mt-1 text-sm text-text-secondary">
         {loading ? <Loader2 size={14} className="inline animate-spin" /> : !connected ? 'Not connected. Sync of customers, items, invoices and payments with NetSuite.' : conn.status === 'error' ? 'Needs to be reconnected.' : `${conn.company_name ?? `Account ${conn.account_id}`} · last synced ${timeAgo(conn.last_synced_at)}`}
       </p>

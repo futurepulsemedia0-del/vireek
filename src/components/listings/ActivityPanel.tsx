@@ -5,7 +5,7 @@ import { LISTING_PLATFORM_LABEL, describeEvent, timeAgo, type ListingEvent, type
 
 const OUTCOME_CLASS: Record<ListingEvent['outcome'], string> = {
   ok: 'bg-success/10 text-success',
-  drift: 'bg-warning-500/10 text-warning-500',
+  drift: 'bg-warning-subtle text-warning',
   blocked: 'bg-bg-tertiary text-text-secondary',
   error: 'bg-danger/10 text-danger',
 };

@@ -125,7 +125,7 @@ function Switch({
       }`}
     >
       <span
-        className={`inline-block h-5 w-5 rounded-full bg-white shadow transition-transform ${checked ? 'translate-x-[22px]' : 'translate-x-0.5'}`}
+        className={`inline-block h-5 w-5 rounded-full bg-bg-secondary shadow transition-transform ${checked ? 'translate-x-[22px]' : 'translate-x-0.5'}`}
       />
     </button>
   );
@@ -347,7 +347,7 @@ function AreaEditor({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center sm:p-4"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-overlay/50 sm:items-center sm:p-4"
       onMouseDown={(e) => e.target === e.currentTarget && !saving && onClose()}
     >
       <motion.div
@@ -417,7 +417,7 @@ function AreaEditor({
                   role="tab"
                   aria-selected={form.zoneType === t}
                   onClick={() => set('zoneType', t)}
-                  className={`focus-ring rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${form.zoneType === t ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}
+                  className={`focus-ring rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${form.zoneType === t ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}
                 >
                   {t === 'zip' ? 'ZIP / postal codes' : 'Polygon'}
                 </button>

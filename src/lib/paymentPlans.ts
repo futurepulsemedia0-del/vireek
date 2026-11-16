@@ -75,7 +75,7 @@ export const TONE_CLASS: Record<PlanTone, string> = {
   accent: 'bg-accent/10 text-accent border-accent/25',
   success: 'bg-success/10 text-success border-success/25',
   danger: 'bg-danger/10 text-danger border-danger/25',
-  warning: 'bg-warning-500/10 text-warning-500 border-warning-500/25',
+  warning: 'bg-warning-subtle text-warning border-warning/25',
 };
 
 export const PLAN_STATUS_META: Record<PlanRow['status'], { label: string; tone: PlanTone }> = {

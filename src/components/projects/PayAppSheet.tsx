@@ -63,7 +63,7 @@ function EntryRow({ line, storedLastPeriod, error, onChange }: EntryRowProps) {
 
   const total = work + line.stored_cents;
   const bad = error !== null;
-  const invalid = `${cellInput} ${bad ? 'border-danger-500' : ''}`;
+  const invalid = `${cellInput} ${bad ? 'border-danger' : ''}`;
 
   return (
     <tr className="border-t border-border align-top">
@@ -72,7 +72,7 @@ function EntryRow({ line, storedLastPeriod, error, onChange }: EntryRowProps) {
         {line.description}
         {line.change_order_ref && <span className="ml-2 rounded-full bg-accent/10 px-2 py-0.5 text-xs font-semibold text-accent">{line.change_order_ref}</span>}
         {storedLastPeriod > 0 && <p className="mt-0.5 text-xs text-text-secondary">{formatMoney(storedLastPeriod)} was stored last period — include it in “This period” once installed.</p>}
-        {bad && <p role="alert" className="mt-0.5 text-xs text-danger-500">{error}</p>}
+        {bad && <p role="alert" className="mt-0.5 text-xs text-danger">{error}</p>}
       </td>
       <td className="px-2 py-2 text-right text-sm tabular-nums">{formatMoney(line.scheduled_value_cents)}</td>
       <td className="px-2 py-2 text-right text-sm tabular-nums text-text-secondary">{formatMoney(line.previous_cents)}</td>
@@ -258,7 +258,7 @@ export function PayAppSheet(props: PayAppSheetProps) {
       </div>
 
       {problems.length > 0 && (
-        <div role="alert" className="flex items-start gap-2 rounded-xl border border-danger-500/40 bg-danger-500/10 p-3 text-sm text-danger-500">
+        <div role="alert" className="flex items-start gap-2 rounded-xl border border-danger/40 bg-danger-subtle p-3 text-sm text-danger">
           <AlertTriangle size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
           <span>These figures do not reconcile and cannot be saved: {problems.join('; ')}. Please report this.</span>
         </div>
@@ -281,7 +281,7 @@ export function PayAppSheet(props: PayAppSheetProps) {
                 <Input aria-label="Retainage released" inputMode="decimal" placeholder="0.00" value={releaseText} onChange={(e) => setReleaseText(e.target.value)} className="py-2 text-sm" />
                 <Button type="button" size="sm" variant="ghost" onClick={() => setReleaseText(centsToDollarsInput(heldBeforeRelease))} disabled={heldBeforeRelease <= 0}>All</Button>
               </div>
-              {releaseCents === null && <span role="alert" className="mt-1 block text-danger-500">Enter a dollar amount.</span>}
+              {releaseCents === null && <span role="alert" className="mt-1 block text-danger">Enter a dollar amount.</span>}
             </label>
           )}
         </div>
@@ -362,14 +362,14 @@ export function PayAppSheet(props: PayAppSheetProps) {
                 <textarea value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={2000} rows={3} className="focus-ring mt-1 w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary" />
               </label>
               {issues.length > 0 && (
-                <ul role="alert" className="space-y-1 rounded-xl border border-warning-500/40 bg-warning-500/10 p-3 text-sm text-warning-500">
+                <ul role="alert" className="space-y-1 rounded-xl border border-warning/40 bg-warning-subtle p-3 text-sm text-warning">
                   {issues.map((i, n) => (
                     <li key={`${i.code}-${n}`} className="flex items-start gap-2"><AlertTriangle size={14} className="mt-0.5 shrink-0" aria-hidden="true" />{i.message}</li>
                   ))}
                 </ul>
               )}
               {issues.length === 0 && problems.length === 0 && (
-                <p className="flex items-center gap-2 text-sm text-success-500"><CheckCircle2 size={16} aria-hidden="true" /> Everything reconciles — ready to issue.</p>
+                <p className="flex items-center gap-2 text-sm text-success"><CheckCircle2 size={16} aria-hidden="true" /> Everything reconciles — ready to issue.</p>
               )}
               <p className="flex items-start gap-2 text-xs text-text-secondary"><Info size={14} className="mt-0.5 shrink-0" aria-hidden="true" />Issuing freezes this application. Descriptions, scheduled values and previous amounts are snapshotted, so later edits never change an issued G702/G703.</p>
             </>

@@ -25,7 +25,7 @@ export function TierTracker({ data, timeZone }: { data: AuditData; timeZone: str
             <div className="mb-2 flex flex-wrap gap-2">
               <Pill cls="bg-accent/10 text-accent">{s.tierIndex >= 0 ? `Tier ${s.tierIndex + 1}: ${p.tiers[s.tierIndex].rateBps / 100}%` : 'Below first tier'}</Pill>
               <Pill cls="bg-bg-tertiary text-text-secondary">{s.source === 'statements' ? 'From statements' : s.source === 'vendor_bills' ? 'From AP bills (rough)' : 'No spend data'}</Pill>
-              {fresh.stale && <Pill cls="bg-warning-500/10 text-warning-500">Rules need re-verifying</Pill>}
+              {fresh.stale && <Pill cls="bg-warning-subtle text-warning">Rules need re-verifying</Pill>}
             </div>
             <p className="text-2xl font-bold text-text-primary">{formatMoney(s.acceptedCents, p.currency)}</p>
             <p className="text-xs text-text-secondary">qualifying spend{p.periodStart ? `, ${p.periodStart} → ${p.periodEnd}` : ''}</p>

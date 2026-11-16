@@ -62,7 +62,7 @@ export function HomePassportChip({ siteId }: { siteId: string }) {
   if (state.verified && state.code) {
     const n = state.event_count ?? 0;
     return (
-      <Link to={`/dashboard/home-passports/${encodeURIComponent(state.code)}`} className={`${base} focus-ring border-success-500/40 bg-success-500/10 text-success-500`}>
+      <Link to={`/dashboard/home-passports/${encodeURIComponent(state.code)}`} className={`${base} focus-ring border-success/40 bg-success-subtle text-success`}>
         <BadgeCheck size={13} aria-hidden="true" /> Home Passport · {n} record{n === 1 ? '' : 's'}
       </Link>
     );

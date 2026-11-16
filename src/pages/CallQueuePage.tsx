@@ -31,8 +31,8 @@ const OUTCOME_GROUPS: Array<{ title: string; outcomes: QueueOutcome[] }> = [
 ];
 
 const TIER_STYLE = {
-  now: 'bg-danger-500/10 text-danger-500',
-  today: 'bg-warning-500/10 text-warning-500',
+  now: 'bg-danger-subtle text-danger',
+  today: 'bg-warning-subtle text-warning',
   soon: 'bg-bg-tertiary text-text-secondary',
 } as const;
 const TIER_LABEL = { now: 'Call now', today: 'Today', soon: 'Soon' } as const;
@@ -306,7 +306,7 @@ function QueueCard({ item, rank, featured, now, businessName, logging, texting, 
               {item.factors.map((f) => (
                 <li key={f.label} className="flex justify-between gap-6">
                   <span>{f.label}</span>
-                  <span className={f.points < 0 ? 'text-danger-500' : 'text-text-primary'}>{f.points > 0 ? '+' : ''}{f.points}</span>
+                  <span className={f.points < 0 ? 'text-danger' : 'text-text-primary'}>{f.points > 0 ? '+' : ''}{f.points}</span>
                 </li>
               ))}
             </ul>
@@ -322,7 +322,7 @@ function QueueCard({ item, rank, featured, now, businessName, logging, texting, 
       <div className="mt-4 flex flex-wrap items-center gap-2">
         {item.callable && item.phone ? (
           <>
-            <a href={telHref(item.phone)} onClick={() => onLogging(true)} className={`${btn} bg-accent text-white`}>
+            <a href={telHref(item.phone)} onClick={() => onLogging(true)} className={`${btn} bg-accent text-on-accent`}>
               <Phone size={14} /> Call
             </a>
             <button type="button" onClick={() => onTexting(!texting)} className={`${btn} border border-border text-text-primary`} aria-expanded={texting}>
@@ -351,7 +351,7 @@ function QueueCard({ item, rank, featured, now, businessName, logging, texting, 
             className="focus-ring w-full resize-none rounded-lg border border-border bg-bg-secondary p-2 text-sm text-text-primary"
           />
           <div className="mt-2 flex flex-wrap items-center gap-2">
-            <button type="button" onClick={send} disabled={sending || !message.trim()} className={`${btn} bg-accent text-white disabled:opacity-50`}>
+            <button type="button" onClick={send} disabled={sending || !message.trim()} className={`${btn} bg-accent text-on-accent disabled:opacity-50`}>
               <Send size={14} /> {sending ? 'Sending…' : 'Send text'}
             </button>
             <a

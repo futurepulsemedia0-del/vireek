@@ -20,7 +20,7 @@ import {
 
 const SEVERITY_COLORS: Record<string, string> = {
   low: 'text-text-secondary bg-bg-secondary',
-  medium: 'text-warning-500 bg-warning-500/10',
+  medium: 'text-warning bg-warning-subtle',
   high: 'text-danger bg-danger/10',
 };
 
@@ -131,7 +131,7 @@ export function CallbackRootCausePage() {
                       type="button"
                       disabled={existingWorkflowKeys.has(p.patternKey)}
                       onClick={() => handleCreateWorkflow(p)}
-                      className="focus-ring mt-3 w-full rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white hover:opacity-90 disabled:opacity-50"
+                      className="focus-ring mt-3 w-full rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent hover:opacity-90 disabled:opacity-50"
                     >
                       {existingWorkflowKeys.has(p.patternKey) ? 'Workflow created' : 'Create prevention workflow'}
                     </button>
@@ -183,7 +183,7 @@ export function CallbackRootCausePage() {
                       type="button"
                       onClick={() => handleAnalyze(c.callback_job_id)}
                       disabled={analyzingId === c.callback_job_id}
-                      className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white hover:opacity-90 disabled:opacity-50"
+                      className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent hover:opacity-90 disabled:opacity-50"
                     >
                       {analyzingId === c.callback_job_id ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />}
                       Analyze
@@ -208,7 +208,7 @@ export function CallbackRootCausePage() {
                         </p>
                       </div>
                       <span className="flex items-center gap-1 rounded-full bg-bg-secondary px-2 py-0.5 text-[11px] font-medium text-text-primary">
-                        {c.analysis!.status === 'resolved' ? <CheckCircle2 size={12} className="text-success-500" /> : <XCircle size={12} className="text-warning-500" />}
+                        {c.analysis!.status === 'resolved' ? <CheckCircle2 size={12} className="text-success" /> : <XCircle size={12} className="text-warning" />}
                         {ROOT_CAUSE_LABELS[c.analysis!.root_cause_category]}
                       </span>
                     </div>

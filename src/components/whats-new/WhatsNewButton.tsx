@@ -18,7 +18,7 @@ export function WhatsNewButton() {
       {label && (
         <span
           data-testid="whats-new-badge"
-          className="absolute -right-0.5 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold leading-none text-white"
+          className="absolute -right-0.5 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold leading-none text-on-accent"
         >
           {label}
         </span>

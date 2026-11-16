@@ -68,7 +68,7 @@ export function EncryptionPanel({ ownerId, isOwner }: { ownerId: string; isOwner
         </p>
 
         {isOwner && data.setup && !data.setup.configured && (
-          <p role="alert" className="mt-4 rounded-xl bg-amber-500/5 p-3 text-sm text-text-secondary">Customer-managed keys are not enabled on this deployment yet. Contact support to turn them on.</p>
+          <p role="alert" className="mt-4 rounded-xl bg-warning-subtle p-3 text-sm text-text-secondary">Customer-managed keys are not enabled on this deployment yet. Contact support to turn them on.</p>
         )}
 
         {isOwner && data.setup?.configured && (

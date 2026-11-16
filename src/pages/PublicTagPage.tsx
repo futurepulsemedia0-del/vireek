@@ -20,7 +20,7 @@ import {
 type Active = Extract<TagResolve, { state: 'active' }>;
 const card = 'rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark';
 const field = 'w-full rounded-md border border-border bg-bg-primary px-3 py-2.5 text-sm text-text-primary';
-const primary = 'focus-ring inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50';
+const primary = 'focus-ring inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent hover:opacity-90 disabled:opacity-50';
 
 const day = (iso: string | null | undefined) => {
   if (!iso) return '';
@@ -31,7 +31,7 @@ const day = (iso: string | null | undefined) => {
 function Notice({ icon, title, body, children }: { icon?: 'alert' | 'info'; title: string; body: string; children?: React.ReactNode }) {
   return (
     <div role="alert" className={`${card} text-center`}>
-      <AlertCircle className={`mx-auto ${icon === 'info' ? 'text-accent' : 'text-danger-500'}`} size={32} aria-hidden="true" />
+      <AlertCircle className={`mx-auto ${icon === 'info' ? 'text-accent' : 'text-danger'}`} size={32} aria-hidden="true" />
       <h1 className="mt-3 text-lg font-semibold text-text-primary">{title}</h1>
       <p className="mt-1 text-sm text-text-secondary">{body}</p>
       {children}
@@ -71,14 +71,14 @@ function ServiceRequestForm({ token, business, onDone }: { token: string; busine
 
   if (ref) {
     return (
-      <div role="status" className="rounded-xl bg-success-500/10 p-4 text-sm text-text-primary">
-        <p className="flex items-center gap-2 font-semibold"><CheckCircle2 size={16} className="text-success-500" aria-hidden="true" /> Request sent to {business.name}</p>
+      <div role="status" className="rounded-xl bg-success-subtle p-4 text-sm text-text-primary">
+        <p className="flex items-center gap-2 font-semibold"><CheckCircle2 size={16} className="text-success" aria-hidden="true" /> Request sent to {business.name}</p>
         <p className="mt-1 text-text-secondary">They will contact you shortly.{ref !== 'sent' && <> Reference <span className="font-mono">{ref}</span>.</>}</p>
       </div>
     );
   }
 
-  const err = (k: keyof typeof errors) => (errors[k] ? <p role="alert" className="mt-1 text-xs text-danger-500">{errors[k]}</p> : null);
+  const err = (k: keyof typeof errors) => (errors[k] ? <p role="alert" className="mt-1 text-xs text-danger">{errors[k]}</p> : null);
   return (
     <form onSubmit={submit} noValidate className="space-y-3">
       <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
@@ -106,7 +106,7 @@ function ServiceRequestForm({ token, business, onDone }: { token: string; busine
       <label className="block text-xs font-medium text-text-secondary">What’s going on? (optional)
         <textarea className={`${field} mt-1 min-h-[88px]`} value={f.issue} onChange={(e) => setF({ ...f, issue: e.target.value })} maxLength={1000} />{err('issue')}
       </label>
-      {error && <p role="alert" className="text-sm text-danger-500">{error}</p>}
+      {error && <p role="alert" className="text-sm text-danger">{error}</p>}
       <button type="submit" disabled={busy} className={`${primary} w-full`}>{busy ? 'Sending…' : 'Send request'}</button>
       <p className="text-[11px] text-text-secondary">Your details go only to {business.name}. For emergencies such as gas smells, call your local emergency number.</p>
     </form>
@@ -152,7 +152,7 @@ function ActiveView({ data, token }: { data: Active; token: string }) {
   return (
     <>
       <section className={`${card} flex items-start gap-3`}>
-        <ShieldCheck className="mt-0.5 shrink-0 text-success-500" size={20} aria-hidden="true" />
+        <ShieldCheck className="mt-0.5 shrink-0 text-success" size={20} aria-hidden="true" />
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-text-primary">Verified Vireek Tag · {data.business.name}</p>
           <p className="text-xs text-text-secondary">Check that the make, model and serial below match the label on your unit. If they don’t, this sticker may be on the wrong machine.</p>
@@ -193,7 +193,7 @@ function ActiveView({ data, token }: { data: Active; token: string }) {
           <h2 id="tag-warranty" className="mb-1 text-sm font-semibold text-text-primary">Warranty & registration</h2>
           <p className="text-sm text-text-secondary">{warrantyText}</p>
           {data.warranty_registered ? (
-            <p className="mt-2 flex items-center gap-2 text-sm text-text-primary"><CheckCircle2 size={15} className="text-success-500" aria-hidden="true" /> This unit has a warranty registration on file.</p>
+            <p className="mt-2 flex items-center gap-2 text-sm text-text-primary"><CheckCircle2 size={15} className="text-success" aria-hidden="true" /> This unit has a warranty registration on file.</p>
           ) : (
             <Link
               to={`/warranty/register?code=${encodeURIComponent(p ? formatPassportCode(p.code) : '')}`}

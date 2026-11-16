@@ -55,7 +55,7 @@ export function FilingWindowSetting({ userId, onSaved }: { userId: string; onSav
         aria-label="Default filing window in days"
         className="focus-ring w-24 rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary"
       />
-      <button type="button" onClick={() => void save()} disabled={saving} className="focus-ring rounded-lg bg-accent px-3 py-2 text-xs font-medium text-white hover:brightness-110 disabled:opacity-50">
+      <button type="button" onClick={() => void save()} disabled={saving} className="focus-ring rounded-lg bg-accent px-3 py-2 text-xs font-medium text-on-accent hover:brightness-110 disabled:opacity-50">
         {saving ? 'Saving…' : 'Save'}
       </button>
     </div>

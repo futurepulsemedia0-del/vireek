@@ -17,7 +17,7 @@ export function LiveVideoFrame({ url, title }: LiveVideoFrameProps) {
       title={title}
       allow="camera; microphone; fullscreen; display-capture; autoplay; speaker-selection"
       referrerPolicy="no-referrer"
-      className="h-[70vh] min-h-[360px] w-full rounded-xl border border-border bg-black"
+      className="h-[70vh] min-h-[360px] w-full rounded-xl border border-border bg-overlay"
     />
   );
 }

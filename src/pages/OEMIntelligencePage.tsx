@@ -27,9 +27,9 @@ interface LinkStats { total: number; matched: number; unmatched: number; pending
 
 const SEVERITY: Record<Severity, string> = {
   low: 'bg-bg-tertiary text-text-secondary',
-  medium: 'bg-warning-500/10 text-warning-500',
+  medium: 'bg-warning-subtle text-warning',
   high: 'bg-danger/10 text-danger',
-  critical: 'bg-danger text-white',
+  critical: 'bg-danger text-on-danger',
 };
 const SEV_RANK: Record<Severity, number> = { critical: 0, high: 1, medium: 2, low: 3 };
 const TYPE_LABEL = { recall: 'Recall', bulletin: 'Service bulletin', failure_pattern: 'Failure pattern' } as const;

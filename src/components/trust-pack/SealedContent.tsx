@@ -52,7 +52,7 @@ function LockedBox({ label, state, actionLabel }: { label: string; state: Pick<S
       <Lock size={16} className="shrink-0 text-accent" aria-hidden />
       <span className="min-w-0 flex-1">
         {state.unavailable ? `${label} was not stored because your encryption key was unavailable.` : `${label} is encrypted with your key.`}
-        {state.status === 'error' && <span role="alert" className="ml-1 text-red-500">{state.error}</span>}
+        {state.status === 'error' && <span role="alert" className="ml-1 text-danger">{state.error}</span>}
       </span>
       {!state.unavailable && (
         <button type="button" onClick={state.reveal} disabled={state.status === 'loading'}

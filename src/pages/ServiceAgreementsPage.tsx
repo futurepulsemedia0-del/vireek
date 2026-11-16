@@ -97,10 +97,10 @@ export function ServiceAgreementsPage() {
         <>
           <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4 xl:grid-cols-6">
             <StatTile label="Live agreements" value={kpis.live} icon={FileCheck2} />
-            {canSeeMoney && <StatTile label="Annual recurring value" value={formatMoney(kpis.annualRecurringCents)} icon={Coins} tone="text-success-500" />}
-            <StatTile label="Renewals at risk" value={kpis.atRiskRenewals} icon={RefreshCcw} tone={kpis.atRiskRenewals ? 'text-warning-500' : 'text-success-500'} />
-            <StatTile label="Unresolved SLA breaches" value={kpis.unresolvedBreaches} icon={Gauge} tone={kpis.unresolvedBreaches ? 'text-danger' : 'text-success-500'} />
-            <StatTile label="Overdue maintenance" value={kpis.overduePm} icon={CalendarClock} tone={kpis.overduePm ? 'text-warning-500' : 'text-success-500'} />
+            {canSeeMoney && <StatTile label="Annual recurring value" value={formatMoney(kpis.annualRecurringCents)} icon={Coins} tone="text-success" />}
+            <StatTile label="Renewals at risk" value={kpis.atRiskRenewals} icon={RefreshCcw} tone={kpis.atRiskRenewals ? 'text-warning' : 'text-success'} />
+            <StatTile label="Unresolved SLA breaches" value={kpis.unresolvedBreaches} icon={Gauge} tone={kpis.unresolvedBreaches ? 'text-danger' : 'text-success'} />
+            <StatTile label="Overdue maintenance" value={kpis.overduePm} icon={CalendarClock} tone={kpis.overduePm ? 'text-warning' : 'text-success'} />
             <StatTile label="Average health" value={kpis.avgHealth ?? '—'} icon={HeartPulse} />
           </div>
 
@@ -143,10 +143,10 @@ export function ServiceAgreementsPage() {
                     </p>
                     <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-text-secondary">
                       <span>{r.assetCount} covered asset{r.assetCount === 1 ? '' : 's'}</span>
-                      <span className={r.overduePm ? 'font-medium text-warning-500' : ''}>{r.activePm} PM plan{r.activePm === 1 ? '' : 's'}{r.overduePm ? `, ${r.overduePm} overdue` : ''}</span>
+                      <span className={r.overduePm ? 'font-medium text-warning' : ''}>{r.activePm} PM plan{r.activePm === 1 ? '' : 's'}{r.overduePm ? `, ${r.overduePm} overdue` : ''}</span>
                       <span className={r.unresolvedBreaches ? 'font-medium text-danger' : ''}>{r.unresolvedBreaches} open breach{r.unresolvedBreaches === 1 ? '' : 'es'}</span>
-                      <span className={r.openClaims ? 'font-medium text-warning-500' : ''}>{r.openClaims} open claim{r.openClaims === 1 ? '' : 's'}</span>
-                      <span className={r.renewalState.risk === 'urgent' || r.renewalState.risk === 'lapsed' ? 'font-medium text-warning-500' : ''}>{r.renewalState.headline}</span>
+                      <span className={r.openClaims ? 'font-medium text-warning' : ''}>{r.openClaims} open claim{r.openClaims === 1 ? '' : 's'}</span>
+                      <span className={r.renewalState.risk === 'urgent' || r.renewalState.risk === 'lapsed' ? 'font-medium text-warning' : ''}>{r.renewalState.headline}</span>
                     </div>
                   </Link>
                 </li>

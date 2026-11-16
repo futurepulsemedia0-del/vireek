@@ -190,7 +190,7 @@ export function LocationFormDialog({ location, brands, team, allLocations, onClo
 
   return (
     <>
-      <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/40 backdrop-blur-sm sm:items-center sm:p-4" onMouseDown={(e) => e.target === e.currentTarget && requestClose()}>
+      <div className="fixed inset-0 z-[100] flex items-end justify-center bg-overlay/40 backdrop-blur-sm sm:items-center sm:p-4" onMouseDown={(e) => e.target === e.currentTarget && requestClose()}>
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}

@@ -81,7 +81,7 @@ export function PreJobBriefCard({ brief }: { brief: JobBrief }) {
       {canSpeak
         ? (
           <button type="button" onClick={toggle} aria-pressed={playing}
-            className="flex min-h-[56px] w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-3 text-base font-semibold text-white">
+            className="flex min-h-[56px] w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-3 text-base font-semibold text-on-accent">
             {playing ? <VolumeX className="h-5 w-5" aria-hidden="true" /> : <Volume2 className="h-5 w-5" aria-hidden="true" />}
             {playing ? tt('briefStop') : tt('briefPlay')}
           </button>

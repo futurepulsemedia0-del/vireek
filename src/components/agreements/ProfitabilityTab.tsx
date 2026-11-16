@@ -45,7 +45,7 @@ export function ProfitabilityTab({ data, derived, canSeeMoney }: TabProps) {
 
   const unpriced = data.jobs.length - data.jobFinancials.length;
   const maxCost = Math.max(1, ...byService.map((b) => b.cost), ...bySite.map((b) => b.cost));
-  const marginTone = profit.marginPct === null ? 'text-text-secondary' : profit.marginPct < 0 ? 'text-danger' : profit.marginPct < 20 ? 'text-warning-500' : 'text-success-500';
+  const marginTone = profit.marginPct === null ? 'text-text-secondary' : profit.marginPct < 0 ? 'text-danger' : profit.marginPct < 20 ? 'text-warning' : 'text-success';
 
   const lines: { label: string; cents: number; sign: 1 | -1; hint?: string }[] = [
     { label: 'Recurring fees earned', cents: profit.recurringRevenueCents, sign: 1, hint: `${profit.elapsedMonths.toFixed(1)} months elapsed` },
@@ -61,7 +61,7 @@ export function ProfitabilityTab({ data, derived, canSeeMoney }: TabProps) {
   return (
     <>
       {!data.financialsAvailable && (
-        <p className="mb-4 rounded-lg border border-warning-500/30 bg-warning-500/10 p-3 text-sm text-warning-500">
+        <p className="mb-4 rounded-lg border border-warning/30 bg-warning-subtle p-3 text-sm text-warning">
           Job cost data could not be read, so only recurring revenue is shown. Check that the job costing tables are available for this account.
         </p>
       )}
@@ -71,8 +71,8 @@ export function ProfitabilityTab({ data, derived, canSeeMoney }: TabProps) {
 
       <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatTile label="Revenue to date" value={formatMoney(profit.totalRevenueCents)} icon={Coins} />
-        <StatTile label="Cost to serve" value={formatMoney(profit.costToServeCents + profit.penaltiesCents + profit.claimPayoutsCents - profit.recoveriesCents)} icon={Wrench} tone="text-warning-500" />
-        <StatTile label="Gross profit" value={formatMoney(profit.grossProfitCents)} icon={LineChart} tone={profit.grossProfitCents < 0 ? 'text-danger' : 'text-success-500'} />
+        <StatTile label="Cost to serve" value={formatMoney(profit.costToServeCents + profit.penaltiesCents + profit.claimPayoutsCents - profit.recoveriesCents)} icon={Wrench} tone="text-warning" />
+        <StatTile label="Gross profit" value={formatMoney(profit.grossProfitCents)} icon={LineChart} tone={profit.grossProfitCents < 0 ? 'text-danger' : 'text-success'} />
         <StatTile label="Margin" value={formatPct(profit.marginPct, 1)} icon={Percent} tone={marginTone} sub={profit.costPerJobCents !== null ? `${formatMoney(profit.costPerJobCents)} per job · ${profit.jobCount} jobs` : undefined} />
       </div>
 
@@ -86,7 +86,7 @@ export function ProfitabilityTab({ data, derived, canSeeMoney }: TabProps) {
                   {l.label}
                   {l.hint && <span className="ml-2 text-xs text-text-secondary">{l.hint}</span>}
                 </th>
-                <td className={`py-2 text-right tabular-nums ${l.cents === 0 ? 'text-text-secondary' : l.sign === 1 ? 'text-success-500' : 'text-text-primary'}`}>
+                <td className={`py-2 text-right tabular-nums ${l.cents === 0 ? 'text-text-secondary' : l.sign === 1 ? 'text-success' : 'text-text-primary'}`}>
                   {l.cents === 0 ? '—' : `${l.sign === -1 ? '−' : '+'}${formatMoney(l.cents)}`}
                 </td>
               </tr>

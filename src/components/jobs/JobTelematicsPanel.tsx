@@ -31,13 +31,13 @@ export function JobTelematicsPanel({ job }: { job: Job }) {
       <dl className="mt-3 grid grid-cols-2 gap-3 text-xs sm:grid-cols-4">
         <div><dt className="text-text-secondary">Arrived</dt><dd className="font-medium text-text-primary">{fmt(visit.arrived_at)}</dd></div>
         <div><dt className="text-text-secondary">Departed</dt><dd className="font-medium text-text-primary">{visit.departed_at ? fmt(visit.departed_at) : 'On site'}</dd></div>
-        <div><dt className="text-text-secondary">On-time</dt><dd className={`font-medium ${late != null && late > 10 ? 'text-warning-500' : 'text-text-primary'}`}>{late == null ? '—' : late <= 0 ? 'Early' : `${late} min late`}</dd></div>
+        <div><dt className="text-text-secondary">On-time</dt><dd className={`font-medium ${late != null && late > 10 ? 'text-warning' : 'text-text-primary'}`}>{late == null ? '—' : late <= 0 ? 'Early' : `${late} min late`}</dd></div>
         <div><dt className="text-text-secondary">On site</dt><dd className="font-medium text-text-primary">{visit.onsite_seconds != null ? `${Math.round(visit.onsite_seconds / 60)} min` : '—'}</dd></div>
       </dl>
       {truth && (
         <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">
           <span className="text-xs text-text-secondary">Integrity</span>
-          <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${truth.integrity_score >= 80 ? 'bg-success-500/10 text-success-500' : truth.integrity_score >= 60 ? 'bg-warning-500/10 text-warning-500' : 'bg-danger-500/10 text-danger-500'}`}>{Math.round(truth.integrity_score)}/100</span>
+          <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${truth.integrity_score >= 80 ? 'bg-success-subtle text-success' : truth.integrity_score >= 60 ? 'bg-warning-subtle text-warning' : 'bg-danger-subtle text-danger'}`}>{Math.round(truth.integrity_score)}/100</span>
           {truth.flags.map((f) => <span key={f} className="rounded-full bg-bg-tertiary px-2 py-0.5 text-[11px] text-text-secondary">{FLAG_LABELS[f] ?? f}</span>)}
         </div>
       )}

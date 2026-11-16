@@ -41,7 +41,7 @@ import {
 } from '@/lib/laborMarketplace';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder transition-colors';
 
 const labelClass = 'mb-1.5 block text-xs font-medium text-text-secondary';
 
@@ -301,7 +301,7 @@ function ListingForm({
             await onSave(form);
             setSaving(false);
           }}
-          className="focus-ring flex items-center gap-1 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50"
+          className="focus-ring flex items-center gap-1 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent transition-all hover:brightness-110 disabled:opacity-50"
         >
           <Check size={14} /> {editing ? 'Save changes' : 'Post listing'}
         </button>
@@ -401,7 +401,7 @@ function MatchForm({
             await onSave(form);
             setSaving(false);
           }}
-          className="focus-ring flex items-center gap-1 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50"
+          className="focus-ring flex items-center gap-1 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent transition-all hover:brightness-110 disabled:opacity-50"
         >
           <Send size={14} /> Send response
         </button>
@@ -600,7 +600,7 @@ export function LaborMarketplacePage() {
             <button
               type="button"
               onClick={() => setPosting(true)}
-              className="focus-ring flex shrink-0 items-center gap-1.5 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-white transition-all hover:brightness-110"
+              className="focus-ring flex shrink-0 items-center gap-1.5 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-on-accent transition-all hover:brightness-110"
             >
               <Plus size={16} /> Post a listing
             </button>
@@ -640,7 +640,7 @@ export function LaborMarketplacePage() {
                 onClick={() => setShowMyResponses((v) => !v)}
                 className="focus-ring rounded-2xl border border-border bg-bg-secondary p-4 text-center transition-colors hover:bg-bg-tertiary"
               >
-                <p className="text-2xl font-bold text-warning-500">{stats.pendingResponses}</p>
+                <p className="text-2xl font-bold text-warning">{stats.pendingResponses}</p>
                 <p className="mt-1 text-xs text-text-secondary">Your responses awaiting a decision</p>
               </button>
             </div>
@@ -687,7 +687,7 @@ export function LaborMarketplacePage() {
                   type="button"
                   onClick={() => setFilter(f.key)}
                   className={`focus-ring rounded-xl px-3 py-1.5 text-sm font-medium transition-colors ${
-                    filter === f.key ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
+                    filter === f.key ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
                   }`}
                 >
                   {f.label}
@@ -839,14 +839,14 @@ export function LaborMarketplacePage() {
                                           <button
                                             type="button"
                                             onClick={() => handleMatchStatus(listing.id, m.id, 'accepted')}
-                                            className="focus-ring flex items-center gap-1 rounded-lg bg-success-500/10 px-2 py-1 font-medium text-success-500 hover:bg-success-500/20"
+                                            className="focus-ring flex items-center gap-1 rounded-lg bg-success-subtle px-2 py-1 font-medium text-success hover:bg-success-subtle"
                                           >
                                             <ThumbsUp size={12} /> Accept
                                           </button>
                                           <button
                                             type="button"
                                             onClick={() => handleMatchStatus(listing.id, m.id, 'declined')}
-                                            className="focus-ring flex items-center gap-1 rounded-lg bg-danger/10 px-2 py-1 font-medium text-danger hover:bg-danger/20"
+                                            className="focus-ring flex items-center gap-1 rounded-lg bg-danger/10 px-2 py-1 font-medium text-danger-strong hover:bg-danger/20"
                                           >
                                             <ThumbsDown size={12} /> Decline
                                           </button>

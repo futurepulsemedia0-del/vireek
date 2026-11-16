@@ -56,8 +56,8 @@ type LoadState = 'loading' | 'ready' | 'error';
 
 const KIND_STYLE: Record<InsightKind, string> = {
   commitment: 'bg-accent/10 text-accent',
-  objection: 'bg-warning-500/10 text-warning-500',
-  upsell: 'bg-success-500/10 text-success',
+  objection: 'bg-warning-subtle text-warning',
+  upsell: 'bg-success-subtle text-success',
   safety: 'bg-danger/10 text-danger',
 };
 
@@ -72,7 +72,7 @@ function techName(t: { member_name: string | null; member_email: string } | null
 
 function StatusBadge({ status }: { status: RecordingRow['status'] }) {
   const tone =
-    status === 'analyzed' ? 'bg-success-500/10 text-success'
+    status === 'analyzed' ? 'bg-success-subtle text-success'
     : status === 'failed' ? 'bg-danger/10 text-danger'
     : status === 'declined' || status === 'discarded' ? 'bg-bg-tertiary text-text-secondary'
     : 'bg-accent/10 text-accent';
@@ -233,7 +233,7 @@ function RecordingCard({
                       <ul className="mt-1 list-disc space-y-1 pl-4 text-sm text-text-primary">{detail.coaching.strengths.map((s) => <li key={s}>{s}</li>)}</ul>
                     </div>
                     <div>
-                      <p className="text-xs font-semibold text-warning-500">Try next time</p>
+                      <p className="text-xs font-semibold text-warning">Try next time</p>
                       <ul className="mt-1 list-disc space-y-1 pl-4 text-sm text-text-primary">{detail.coaching.improvements.map((s) => <li key={s}>{s}</li>)}</ul>
                     </div>
                   </div>
@@ -489,7 +489,7 @@ export function ConversationIntelligencePage() {
             {[
               { label: 'Analysed (30d)', value: totals.conversations, tone: 'text-accent' },
               { label: 'Promises made', value: totals.promises, tone: 'text-accent' },
-              { label: 'Open objections', value: totals.objections, tone: 'text-warning-500' },
+              { label: 'Open objections', value: totals.objections, tone: 'text-warning' },
               { label: 'Safety flags', value: totals.safety, tone: 'text-danger' },
             ].map((c) => (
               <div key={c.label} className="rounded-2xl border border-border bg-bg-secondary p-4 shadow-card dark:shadow-card-dark">
@@ -502,7 +502,7 @@ export function ConversationIntelligencePage() {
           <div className="mt-6 flex gap-1 overflow-x-auto rounded-xl border border-border bg-bg-secondary p-1" role="tablist">
             {tabs.map((t) => (
               <button key={t.key} type="button" role="tab" aria-selected={tab === t.key} onClick={() => setTab(t.key)}
-                className={`focus-ring shrink-0 rounded-lg px-3.5 py-2 text-xs font-medium transition-colors ${tab === t.key ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}>
+                className={`focus-ring shrink-0 rounded-lg px-3.5 py-2 text-xs font-medium transition-colors ${tab === t.key ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}>
                 {t.label}
               </button>
             ))}

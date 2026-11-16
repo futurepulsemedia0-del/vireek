@@ -71,7 +71,7 @@ export function PointsRedeemPanel({ invoiceId, onApplied }: { invoiceId: string;
           onChange={(e) => setValue(e.target.value)}
         />
         <button type="button" className="focus-ring rounded-xl border border-border px-3 py-2 text-sm text-text-primary hover:bg-bg-tertiary" onClick={() => setValue(String(maxPts))}>Use max</button>
-        <button type="button" disabled={busy || !entered} onClick={() => void apply()} className="focus-ring rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white hover:brightness-110 disabled:opacity-50">
+        <button type="button" disabled={busy || !entered} onClick={() => void apply()} className="focus-ring rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent hover:brightness-110 disabled:opacity-50">
           {busy ? 'Applying…' : worth > 0 ? `Apply ${formatCents(worth)}` : 'Apply'}
         </button>
       </div>

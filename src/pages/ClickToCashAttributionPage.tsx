@@ -60,8 +60,8 @@ function channelLabel(channel: string): string {
 
 function roiBadgeClasses(roiPct: number | null): string {
   if (roiPct === null) return 'bg-bg-tertiary text-text-secondary';
-  if (roiPct >= 100) return 'bg-success-500/10 text-success-500';
-  if (roiPct >= 0) return 'bg-warning-500/10 text-warning-500';
+  if (roiPct >= 100) return 'bg-success-subtle text-success';
+  if (roiPct >= 0) return 'bg-warning-subtle text-warning';
   return 'bg-danger/10 text-danger';
 }
 
@@ -145,7 +145,7 @@ function SpendForm({
           type="button"
           onClick={handleSave}
           disabled={saving}
-          className="focus-ring flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+          className="focus-ring flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-sm font-semibold text-on-accent transition-opacity hover:opacity-90 disabled:opacity-50"
         >
           <Plus size={14} /> Log
         </button>
@@ -303,7 +303,7 @@ export function ClickToCashAttributionPage() {
                 type="button"
                 onClick={() => setPreset(p)}
                 className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
-                  preset === p ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'
+                  preset === p ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'
                 }`}
               >
                 {p === '30d' ? '30 days' : p === '90d' ? '90 days' : '12 months'}

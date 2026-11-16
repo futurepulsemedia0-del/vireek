@@ -162,7 +162,7 @@ export function StaffCustomersPage() {
             ) : (
               <div className="space-y-5">
                 {overview?.truncated && (
-                  <p role="status" className="rounded-xl bg-warning-500/10 p-3 text-xs text-text-primary">Showing the newest 2,000 accounts. Older accounts are not included — use search in the database for those.</p>
+                  <p role="status" className="rounded-xl bg-warning-subtle p-3 text-xs text-text-primary">Showing the newest 2,000 accounts. Older accounts are not included — use search in the database for those.</p>
                 )}
 
                 <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by health">

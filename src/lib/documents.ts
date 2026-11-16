@@ -148,8 +148,8 @@ export function describeExpiry(
 
 export const EXPIRY_STATE_STYLES: Record<ExpiryState, string> = {
   expired: 'bg-danger/10 text-danger',
-  expiring: 'bg-warning-500/10 text-warning-500',
-  valid: 'bg-success-500/10 text-success-500',
+  expiring: 'bg-warning-subtle text-warning',
+  valid: 'bg-success-subtle text-success',
   none: 'bg-bg-tertiary text-text-secondary',
 };
 

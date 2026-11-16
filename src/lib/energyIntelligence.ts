@@ -56,14 +56,14 @@ export const ANOMALY_LABELS: Record<EnergyAnomaly['kind'], string> = {
 };
 
 export const SEVERITY_TONE: Record<EnergyAnomaly['severity'], string> = {
-  high: 'bg-danger-500/10 text-danger-500',
-  medium: 'bg-warning-500/10 text-warning-500',
+  high: 'bg-danger-subtle text-danger',
+  medium: 'bg-warning-subtle text-warning',
   low: 'bg-bg-tertiary text-text-secondary',
 };
 
 export const CONFIDENCE_TONE: Record<EnergyReport['confidence'], string> = {
-  high: 'bg-success-500/10 text-success-500',
-  medium: 'bg-warning-500/10 text-warning-500',
+  high: 'bg-success-subtle text-success',
+  medium: 'bg-warning-subtle text-warning',
   low: 'bg-bg-tertiary text-text-secondary',
 };
 
@@ -78,18 +78,18 @@ export const CATEGORY_LABELS: Record<EquipmentEnergyRow['category'], string> = {
 
 export const STAGE_TONE: Record<EquipmentEnergyRow['stage'], { label: string; tone: string }> = {
   unknown: { label: 'Age unknown', tone: 'bg-bg-tertiary text-text-secondary' },
-  early: { label: 'Early life', tone: 'bg-success-500/10 text-success-500' },
-  mid: { label: 'Mid life', tone: 'bg-success-500/10 text-success-500' },
-  late: { label: 'Plan replacement', tone: 'bg-warning-500/10 text-warning-500' },
-  past_life: { label: 'Past expected life', tone: 'bg-danger-500/10 text-danger-500' },
+  early: { label: 'Early life', tone: 'bg-success-subtle text-success' },
+  mid: { label: 'Mid life', tone: 'bg-success-subtle text-success' },
+  late: { label: 'Plan replacement', tone: 'bg-warning-subtle text-warning' },
+  past_life: { label: 'Past expected life', tone: 'bg-danger-subtle text-danger' },
 };
 
 export const GRADE_TONE: Record<string, string> = {
-  A: 'text-success-500',
-  B: 'text-success-500',
-  C: 'text-warning-500',
-  D: 'text-warning-500',
-  E: 'text-danger-500',
+  A: 'text-success',
+  B: 'text-success',
+  C: 'text-warning',
+  D: 'text-warning',
+  E: 'text-danger',
 };
 
 export const fmtNum = (n: number | null | undefined, digits = 0): string =>

@@ -70,7 +70,7 @@ export function IdentityGraphCanvas({
               opacity={dim ? 0.55 : 1}
             >
               <circle cx={n.x} cy={n.y} r={n.depth === 0 ? 17 : 13} fill={meta.color} stroke={active ? '#fff' : meta.color} strokeWidth={active ? 3 : 1} />
-              <text x={n.x} y={n.y + 3.5} textAnchor="middle" fontSize="8.5" fontWeight="700" fill="#fff">{meta.code}</text>
+              <text x={n.x} y={n.y + 3.5} textAnchor="middle" fontSize="8.5" fontWeight="700" fill="rgb(var(--static-white))">{meta.code}</text>
               <text x={n.x} y={n.y + (n.depth === 0 ? 31 : 27)} textAnchor="middle" fontSize="10" className="fill-text-primary">
                 {n.display_name.length > 22 ? `${n.display_name.slice(0, 21)}…` : n.display_name}
               </text>

@@ -27,10 +27,10 @@ type Load = { status: 'loading' } | { status: 'error' } | { status: 'ready'; row
 type Filter = 'all' | 'attention';
 
 const STATE_STYLE: Record<EvidenceState, string> = {
-  fresh: 'bg-success-500/10 text-success-500',
-  overdue: 'bg-warning-500/10 text-warning-500',
+  fresh: 'bg-success-subtle text-success',
+  overdue: 'bg-warning-subtle text-warning',
   failing: 'bg-danger/10 text-danger',
-  incomplete: 'bg-warning-500/10 text-warning-500',
+  incomplete: 'bg-warning-subtle text-warning',
   never: 'bg-bg-tertiary text-text-secondary',
   not_applicable: 'bg-bg-tertiary text-text-secondary',
 };

@@ -19,9 +19,9 @@ interface Props {
 }
 
 const VERDICT_COPY = {
-  replace: { label: 'Replacing costs less over time', tone: 'bg-success-500/10 text-success-500' },
+  replace: { label: 'Replacing costs less over time', tone: 'bg-success-subtle text-success' },
   repair: { label: 'Repairing costs less over time', tone: 'bg-accent/10 text-accent' },
-  close: { label: 'Close call — both make sense', tone: 'bg-warning-500/10 text-warning-500' },
+  close: { label: 'Close call — both make sense', tone: 'bg-warning-subtle text-warning' },
 } as const;
 
 /** Repair-vs-replace using only the two quoted prices, the unit's age/lifespan, and one visible assumption. */

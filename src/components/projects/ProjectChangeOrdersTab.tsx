@@ -208,7 +208,7 @@ export function ProjectChangeOrdersTab({ ownerId, bundle, today, onChanged }: Ta
                         </Button>
                       )}
                       {actions.includes('delete') && (
-                        <button type="button" aria-label={`Delete ${co.co_number}`} onClick={() => ask({ title: 'Delete this draft?', description: `${co.co_number} “${co.title}” will be deleted permanently.`, label: 'Delete draft', onConfirm: () => run(`del-${co.id}`, () => deleteChangeOrder(ownerId, co.id), 'Draft deleted.') })} className="focus-ring ml-auto rounded-lg p-1.5 text-text-secondary hover:bg-bg-tertiary hover:text-danger-500">
+                        <button type="button" aria-label={`Delete ${co.co_number}`} onClick={() => ask({ title: 'Delete this draft?', description: `${co.co_number} “${co.title}” will be deleted permanently.`, label: 'Delete draft', onConfirm: () => run(`del-${co.id}`, () => deleteChangeOrder(ownerId, co.id), 'Draft deleted.') })} className="focus-ring ml-auto rounded-lg p-1.5 text-text-secondary hover:bg-bg-tertiary hover:text-danger">
                           <Trash2 size={16} aria-hidden="true" />
                         </button>
                       )}

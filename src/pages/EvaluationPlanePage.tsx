@@ -34,8 +34,8 @@ import {
 } from '@/lib/evaluationPlane';
 
 const STATUS_STYLES: Record<EvalStatus, string> = {
-  good: 'bg-success-500/10 text-success-500',
-  degrading: 'bg-warning-500/10 text-warning-500',
+  good: 'bg-success-subtle text-success',
+  degrading: 'bg-warning-subtle text-warning',
   poor: 'bg-danger/10 text-danger',
   insufficient: 'bg-bg-tertiary text-text-secondary',
 };
@@ -196,7 +196,7 @@ export function EvaluationPlanePage() {
             <button
               key={k}
               onClick={() => setModel(k)}
-              className={`focus-ring rounded-xl px-3 py-1.5 text-xs font-medium ${model === k ? 'bg-cta text-white' : 'bg-bg-tertiary text-text-secondary'}`}
+              className={`focus-ring rounded-xl px-3 py-1.5 text-xs font-medium ${model === k ? 'bg-cta text-on-cta' : 'bg-bg-tertiary text-text-secondary'}`}
             >
               {EVAL_MODELS[k].label}
             </button>
@@ -263,7 +263,7 @@ export function EvaluationPlanePage() {
               <div className="mb-3 flex flex-wrap items-center gap-2">
                 <p className="mr-auto text-sm font-semibold text-text-primary">Segment performance</p>
                 {(['all', ...dims] as Array<EvalDim | 'all'>).map((d) => (
-                  <button key={d} onClick={() => setDimFilter(d)} className={`focus-ring rounded-full px-2.5 py-1 text-xs ${dimFilter === d ? 'bg-cta text-white' : 'bg-bg-tertiary text-text-secondary'}`}>
+                  <button key={d} onClick={() => setDimFilter(d)} className={`focus-ring rounded-full px-2.5 py-1 text-xs ${dimFilter === d ? 'bg-cta text-on-cta' : 'bg-bg-tertiary text-text-secondary'}`}>
                     {d === 'all' ? 'All' : DIM_LABELS[d]}
                   </button>
                 ))}
@@ -313,7 +313,7 @@ export function EvaluationPlanePage() {
                   {DECISIONS.map((d) => <option key={d.value} value={d.value}>{d.label}</option>)}
                 </select>
                 <input className={inputCls} placeholder="Reason (required, 10+ characters)" value={reason} onChange={(e) => setReason(e.target.value)} maxLength={1000} />
-                <button disabled={busy} onClick={handleDecision} className="focus-ring flex items-center justify-center gap-1.5 rounded-xl bg-cta px-4 py-2 text-sm font-medium text-white disabled:opacity-50">
+                <button disabled={busy} onClick={handleDecision} className="focus-ring flex items-center justify-center gap-1.5 rounded-xl bg-cta px-4 py-2 text-sm font-medium text-on-cta disabled:opacity-50">
                   {busy && <Loader2 size={14} className="animate-spin" />} Record
                 </button>
               </div>
@@ -354,7 +354,7 @@ export function EvaluationPlanePage() {
                             <tr key={t.task} className="border-t border-border">
                               <td className="py-2 pr-3">{t.task}</td>
                               <td className="pr-3">{t.calls}</td>
-                              <td className={`pr-3 ${t.ok_rate < 0.95 ? 'text-warning-500' : ''}`}>{pct(t.ok_rate)}</td>
+                              <td className={`pr-3 ${t.ok_rate < 0.95 ? 'text-warning' : ''}`}>{pct(t.ok_rate)}</td>
                               <td className="pr-3">{pct(t.fallback_rate)}</td>
                               <td className="pr-3">{t.p50_ms} ms</td>
                               <td className="pr-3">{t.p95_ms} ms</td>
@@ -386,7 +386,7 @@ export function EvaluationPlanePage() {
                     {policyField('drift_warn', 'Drift warn (Brier)', 0.01)}
                     {policyField('drift_fail', 'Drift fail (Brier)', 0.01)}
                   </div>
-                  <button disabled={busy} onClick={handleSavePolicy} className="focus-ring flex items-center gap-1.5 rounded-xl bg-cta px-4 py-2 text-sm font-medium text-white disabled:opacity-50">
+                  <button disabled={busy} onClick={handleSavePolicy} className="focus-ring flex items-center gap-1.5 rounded-xl bg-cta px-4 py-2 text-sm font-medium text-on-cta disabled:opacity-50">
                     {busy && <Loader2 size={14} className="animate-spin" />} Save thresholds
                   </button>
                 </div>

@@ -166,7 +166,7 @@ export function WorkstreamTracker(p: Props) {
                               if (!up) return null;
                               return (
                                 <li key={d.depends_on_id} className="inline-flex items-center gap-1 rounded-full bg-bg-tertiary px-2.5 py-1 text-xs text-text-primary">
-                                  {isClosed(up.status) ? <CheckCircle2 size={12} className="text-success" aria-label="done" /> : <Lock size={12} className="text-warning-500" aria-label="open" />}
+                                  {isClosed(up.status) ? <CheckCircle2 size={12} className="text-success" aria-label="done" /> : <Lock size={12} className="text-warning" aria-label="open" />}
                                   {up.title}
                                   {p.canManage && (
                                     <button type="button" aria-label={`Remove dependency on ${up.title}`} disabled={isBusy} onClick={() => dropDep(w, up.id)} className="focus-ring rounded-full p-0.5 hover:bg-bg-secondary"><X size={12} /></button>

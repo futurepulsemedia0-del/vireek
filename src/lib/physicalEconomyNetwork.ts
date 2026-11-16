@@ -199,14 +199,14 @@ export const RAIL_ORDER: PenRail[] = ['identity', 'protocol', 'trust', 'outcome'
 
 export const URGENCY_META: Record<PenUrgency, { label: string; className: string }> = {
   emergency: { label: 'Emergency', className: 'bg-danger/10 text-danger' },
-  urgent: { label: 'Urgent', className: 'bg-warning-500/10 text-warning-500' },
+  urgent: { label: 'Urgent', className: 'bg-warning-subtle text-warning' },
   standard: { label: 'Standard', className: 'bg-accent/10 text-accent' },
   scheduled: { label: 'Scheduled', className: 'bg-bg-tertiary text-text-secondary' },
 };
 
 export const TIER_META: Record<PenTier, { label: string; className: string }> = {
-  trusted: { label: 'Trusted', className: 'bg-success-500/15 text-success-500' },
-  established: { label: 'Established', className: 'bg-success-500/10 text-success-500' },
+  trusted: { label: 'Trusted', className: 'bg-success-subtle text-success' },
+  established: { label: 'Established', className: 'bg-success-subtle text-success' },
   emerging: { label: 'Emerging', className: 'bg-accent/10 text-accent' },
   unproven: { label: 'Unproven', className: 'bg-bg-tertiary text-text-secondary' },
   attention: { label: 'Needs attention', className: 'bg-danger/10 text-danger' },
@@ -214,8 +214,8 @@ export const TIER_META: Record<PenTier, { label: string; className: string }> = 
 
 export const ENGAGEMENT_STATUS_META: Record<PenEngagement['status'], { label: string; className: string }> = {
   active: { label: 'In progress', className: 'bg-accent/10 text-accent' },
-  completed: { label: 'Completed', className: 'bg-success-500/10 text-success-500' },
-  disputed: { label: 'Under review', className: 'bg-warning-500/10 text-warning-500' },
+  completed: { label: 'Completed', className: 'bg-success-subtle text-success' },
+  disputed: { label: 'Under review', className: 'bg-warning-subtle text-warning' },
   cancelled: { label: 'Cancelled', className: 'bg-bg-tertiary text-text-secondary' },
 };
 

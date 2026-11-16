@@ -188,7 +188,7 @@ export function ReadinessStep({ run, fields, initialResults, locale, businessNam
         <div className="space-y-4" data-testid="scorecard">
           <Card interactive={false} className="!p-4">
             <p className="text-lg font-semibold text-text-primary">{t('readiness.score', { passed, total: results.length })}</p>
-            <p className={`text-sm ${run.readiness_passed ? 'text-success-500' : 'text-danger'}`}>{run.readiness_passed ? t('readiness.gateOk') : t('readiness.gateFail')}</p>
+            <p className={`text-sm ${run.readiness_passed ? 'text-success' : 'text-danger'}`}>{run.readiness_passed ? t('readiness.gateOk') : t('readiness.gateFail')}</p>
             <p className="mt-1 text-xs text-text-secondary">{t('readiness.needed')}</p>
             {criticalFailed.length > 0 && <p className="mt-1 text-xs text-danger">{t('readiness.criticalFailed', { list: criticalFailed.join(', ') })}</p>}
           </Card>
@@ -219,7 +219,7 @@ export function ReadinessStep({ run, fields, initialResults, locale, businessNam
             {shown.map((r) => (
               <li key={r.id} className="rounded-xl border border-border p-3 text-sm">
                 <p className="flex flex-wrap items-center gap-2 font-medium text-text-primary">
-                  {r.passed ? <Check size={14} className="text-success-500" aria-hidden="true" /> : <X size={14} className="text-danger" aria-hidden="true" />}
+                  {r.passed ? <Check size={14} className="text-success" aria-hidden="true" /> : <X size={14} className="text-danger" aria-hidden="true" />}
                   <span>{r.passed ? t('readiness.pass') : t('readiness.fail')}</span>
                   <span className="text-text-secondary">· {t(`readiness.cat.${r.category}`, { defaultValue: r.category })}</span>
                   {r.critical && <span className="text-xs text-danger">{t('readiness.critical')}</span>}
@@ -258,7 +258,7 @@ export function ReadinessStep({ run, fields, initialResults, locale, businessNam
           </span>
         </div>
         {run.test_call_confirmed_at ? (
-          <p className="flex items-center gap-1.5 text-sm text-success-500">
+          <p className="flex items-center gap-1.5 text-sm text-success">
             <Check size={14} aria-hidden="true" /> {t('readiness.testConfirmed')}
           </p>
         ) : (

@@ -174,7 +174,7 @@ export function LeadQualificationPage() {
                 <p className="mt-1.5 text-sm leading-relaxed text-text-secondary">{glossaryTerm.definition}</p>
                 <Link
                   to="/glossary#lead-qualification"
-                  className="focus-ring mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-accent transition-colors hover:text-accent/80"
+                  className="focus-ring mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-accent transition-colors hover:text-accent"
                 >
                   See it in the glossary <ArrowRight className="h-3.5 w-3.5" />
                 </Link>

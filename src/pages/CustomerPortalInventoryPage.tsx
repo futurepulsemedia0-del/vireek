@@ -22,14 +22,14 @@ type LoadState = { kind: 'loading' } | { kind: 'ready'; data: PortalInventory } 
 type Tone = 'success' | 'warn' | 'danger' | 'accent' | 'neutral';
 
 const TONES: Record<Tone, string> = {
-  success: 'bg-success-500/10 text-success',
-  warn: 'bg-warning-500/10 text-warning-500',
+  success: 'bg-success-subtle text-success',
+  warn: 'bg-warning-subtle text-warning',
   danger: 'bg-danger/10 text-danger',
   accent: 'bg-accent/10 text-accent',
   neutral: 'bg-bg-tertiary text-text-secondary',
 };
 const CARD = 'rounded-2xl border border-border bg-bg-secondary p-4 shadow-card dark:shadow-card-dark sm:p-6';
-const INPUT = 'focus-ring min-h-[44px] w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60';
+const INPUT = 'focus-ring min-h-[44px] w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder';
 const LABEL = 'mb-1 block text-xs font-medium text-text-secondary';
 const WARNINGS: Record<string, string> = {
   ocr_unavailable: 'Reading documents is not available right now. Your file is saved — please type the details.',
@@ -45,7 +45,7 @@ function StatTile({ label, value, tone = 'neutral' }: { label: string; value: nu
   return (
     <div className="rounded-2xl border border-border bg-bg-secondary p-4">
       <p className="text-[11px] font-medium uppercase tracking-wide text-text-secondary">{label}</p>
-      <p className={`mt-1 text-xl font-bold ${tone === 'warn' ? 'text-warning-500' : 'text-text-primary'}`}>{value}</p>
+      <p className={`mt-1 text-xl font-bold ${tone === 'warn' ? 'text-warning' : 'text-text-primary'}`}>{value}</p>
     </div>
   );
 }
@@ -88,7 +88,7 @@ function RemindersSection({ reminders, businessName, busyId, onAction }: {
                 <Pill tone={tone}>{when}</Pill>
               </div>
               <div className="mt-2.5 flex flex-wrap gap-2">
-                <button type="button" disabled={busy} onClick={() => onAction(r, 'done')} className="focus-ring inline-flex min-h-[40px] items-center gap-1 rounded-lg bg-accent px-3 text-xs font-semibold text-white disabled:opacity-50">
+                <button type="button" disabled={busy} onClick={() => onAction(r, 'done')} className="focus-ring inline-flex min-h-[40px] items-center gap-1 rounded-lg bg-accent px-3 text-xs font-semibold text-on-accent disabled:opacity-50">
                   <CheckCircle2 size={13} aria-hidden="true" /> Mark done
                 </button>
                 <button type="button" disabled={busy} onClick={() => onAction(r, 'snooze')} className="focus-ring min-h-[40px] rounded-lg border border-border px-3 text-xs font-medium text-text-secondary disabled:opacity-50">
@@ -197,7 +197,7 @@ function ItemCard({ item, reminders, busy, onEdit, onDelete, onUpload, onOpenFil
         </button>
         {confirming ? (
           <span className="ml-auto flex items-center gap-1" role="group" aria-label="Confirm delete">
-            <button type="button" onClick={onDelete} className="focus-ring min-h-[40px] rounded-lg bg-danger px-3 text-xs font-semibold text-white">Delete item and its files</button>
+            <button type="button" onClick={onDelete} className="focus-ring min-h-[40px] rounded-lg bg-danger px-3 text-xs font-semibold text-on-danger">Delete item and its files</button>
             <button type="button" onClick={() => setConfirming(false)} className="focus-ring min-h-[40px] rounded-lg px-3 text-xs text-text-secondary">Cancel</button>
           </span>
         ) : (
@@ -328,7 +328,7 @@ function ItemForm({ token, data, editing, onCancel, onSaved, onFileAdded }: {
           </ul>
         )}
         {notice && <p role="status" className="mt-2 text-xs text-text-primary">{notice}</p>}
-        {lowConfidence && <p role="status" className="mt-1 text-xs text-warning-500">The photo was hard to read, so some details may be wrong.</p>}
+        {lowConfidence && <p role="status" className="mt-1 text-xs text-warning">The photo was hard to read, so some details may be wrong.</p>}
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
@@ -496,7 +496,7 @@ export function CustomerPortalInventoryPage() {
               </div>
 
               <div aria-live="polite">
-                {message && <p role="status" className="mb-4 flex items-center gap-2 rounded-xl bg-success-500/10 p-3 text-sm text-success"><CheckCircle2 size={15} aria-hidden="true" /> {message}</p>}
+                {message && <p role="status" className="mb-4 flex items-center gap-2 rounded-xl bg-success-subtle p-3 text-sm text-success"><CheckCircle2 size={15} aria-hidden="true" /> {message}</p>}
                 {problem && <p role="alert" className="mb-4 flex items-start gap-2 rounded-xl bg-danger/10 p-3 text-sm text-danger"><AlertCircle size={15} className="mt-0.5 shrink-0" aria-hidden="true" /> {problem}</p>}
               </div>
 

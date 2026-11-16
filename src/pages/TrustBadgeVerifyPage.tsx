@@ -56,12 +56,12 @@ export function TrustBadgeVerifyPage() {
   const t = data.token;
   const tokenBanner = !t ? null : t.valid ? (
     t.hostVerified ? (
-      <p className="flex items-start gap-2 rounded-xl border border-success/30 bg-success-500/10 p-3 text-sm"><CheckCircle2 size={18} className="mt-0.5 shrink-0 text-success" aria-hidden="true" /><span>This badge was issued for <strong>{t.host}</strong> on {fmtDay(t.issuedAt)}, a website this business has verified. Check that the address of the site you came from matches.</span></p>
+      <p className="flex items-start gap-2 rounded-xl border border-success/30 bg-success-subtle p-3 text-sm"><CheckCircle2 size={18} className="mt-0.5 shrink-0 text-success" aria-hidden="true" /><span>This badge was issued for <strong>{t.host}</strong> on {fmtDay(t.issuedAt)}, a website this business has verified. Check that the address of the site you came from matches.</span></p>
     ) : (
       <p role="alert" className="flex items-start gap-2 rounded-xl border border-danger/30 bg-danger/10 p-3 text-sm"><AlertTriangle size={18} className="mt-0.5 shrink-0 text-danger" aria-hidden="true" /><span>This badge was issued for <strong>{t.host}</strong>, which this business has <strong>not</strong> verified as its own. Be careful.</span></p>
     )
   ) : (
-    <p role="alert" className="flex items-start gap-2 rounded-xl border border-warning-500/30 bg-warning-500/10 p-3 text-sm"><AlertTriangle size={18} className="mt-0.5 shrink-0 text-warning-500" aria-hidden="true" /><span>{t.reason === 'expired' ? 'The badge link has expired. Reload the website you came from to get a fresh one.' : 'The badge link could not be authenticated, so we cannot say where it came from.'}</span></p>
+    <p role="alert" className="flex items-start gap-2 rounded-xl border border-warning/30 bg-warning-subtle p-3 text-sm"><AlertTriangle size={18} className="mt-0.5 shrink-0 text-warning" aria-hidden="true" /><span>{t.reason === 'expired' ? 'The badge link has expired. Reload the website you came from to get a fresh one.' : 'The badge link could not be authenticated, so we cannot say where it came from.'}</span></p>
   );
 
   if (!data.active) {

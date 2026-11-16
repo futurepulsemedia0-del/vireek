@@ -85,7 +85,7 @@ export function PublicEquipmentPassportPage() {
                     </p>
                     <Link
                       to={`/dashboard/equipment-passports/${normalized}`}
-                      className="focus-ring mt-3 inline-flex rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
+                      className="focus-ring mt-3 inline-flex rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-on-accent hover:opacity-90"
                     >
                       {user ? 'Open in my dashboard' : 'Sign in to Vireek'}
                     </Link>

@@ -12,7 +12,7 @@ function ChangeBadge({ pct }: { pct: number | null }) {
   if (pct === null) return <span className="text-xs text-text-secondary">no prior data</span>;
   const up = pct >= 0;
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${up ? 'bg-emerald-500/10 text-emerald-500' : 'bg-danger/10 text-danger'}`}>
+    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${up ? 'bg-success-subtle text-success' : 'bg-danger/10 text-danger'}`}>
       {up ? <TrendingUp size={12} /> : <TrendingDown size={12} />} {Math.abs(pct)}%
     </span>
   );
@@ -78,7 +78,7 @@ export function RegionalDemandPage() {
             <p className="text-sm text-text-secondary">Your own local demand, plus an anonymized signal from similar businesses in your area.</p>
           </div>
         </div>
-        <button onClick={handleAnalyze} disabled={analyzing || !myLocal} className="focus-ring flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60">
+        <button onClick={handleAnalyze} disabled={analyzing || !myLocal} className="focus-ring flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-on-accent hover:opacity-90 disabled:opacity-60">
           <Sparkles size={16} className={analyzing ? 'animate-pulse' : ''} /> Get AI Take
         </button>
       </div>

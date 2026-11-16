@@ -44,8 +44,8 @@ export const STATUS_LABELS: Record<PhonePaymentStatus, string> = {
 
 export const STATUS_STYLES: Record<PhonePaymentStatus, string> = {
   requested: 'bg-accent/10 text-accent', recording_paused: 'bg-accent/10 text-accent', capturing: 'bg-accent/10 text-accent',
-  tokenized: 'bg-accent/10 text-accent', charging: 'bg-accent/10 text-accent', succeeded: 'bg-success-500/15 text-success-500',
-  failed: 'bg-danger/10 text-danger', cancelled: 'bg-bg-tertiary text-text-secondary', expired: 'bg-warning-500/15 text-warning-500',
+  tokenized: 'bg-accent/10 text-accent', charging: 'bg-accent/10 text-accent', succeeded: 'bg-success-subtle text-success',
+  failed: 'bg-danger/10 text-danger', cancelled: 'bg-bg-tertiary text-text-secondary', expired: 'bg-warning-subtle text-warning',
 };
 
 export const EVENT_LABELS: Record<string, string> = {

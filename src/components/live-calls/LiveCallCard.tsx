@@ -6,7 +6,7 @@ import {
 } from '@/lib/liveCalls';
 
 const sentimentStyle: Record<string, { label: string; cls: string }> = {
-  positive: { label: 'Positive', cls: 'bg-success-500/10 text-success-500' },
+  positive: { label: 'Positive', cls: 'bg-success-subtle text-success' },
   neutral: { label: 'Neutral', cls: 'bg-bg-tertiary text-text-secondary' },
   negative: { label: 'Negative', cls: 'bg-danger/10 text-danger' },
 };
@@ -22,7 +22,7 @@ export function LiveCallBadges({ call }: { call: LiveCallRow }) {
         </span>
       )}
       {(call.wants_human || call.human_transfer_requested) && (
-        <span className="inline-flex items-center gap-1 rounded-full bg-warning-500/10 px-2 py-0.5 text-[11px] font-semibold text-warning-500">
+        <span className="inline-flex items-center gap-1 rounded-full bg-warning-subtle px-2 py-0.5 text-[11px] font-semibold text-warning">
           <UserRound size={11} />
           Wants a person
         </span>
@@ -68,8 +68,8 @@ export function LiveCallCard({ call, nowMs, selected, onSelect }: LiveCallCardPr
             <Phone size={16} />
             {live && (
               <span className="absolute -right-0.5 -top-0.5 flex h-2.5 w-2.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success-500 opacity-75" />
-                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-success-500" />
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" />
+                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-success" />
               </span>
             )}
           </span>

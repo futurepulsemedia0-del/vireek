@@ -38,7 +38,7 @@ export function LadderView({ ladder, selectedId, onSelect, mode, term, depositCe
             }`}
           >
             {entry.recommended && (
-              <span className="absolute -top-3 left-5 inline-flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-xs font-semibold text-white">
+              <span className="absolute -top-3 left-5 inline-flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-xs font-semibold text-on-accent">
                 <Star size={12} aria-hidden="true" /> Recommended
               </span>
             )}
@@ -76,7 +76,7 @@ export function LadderView({ ladder, selectedId, onSelect, mode, term, depositCe
               <ul className="mt-4 space-y-1.5 text-sm text-text-primary">
                 {option.highlights.map((h) => (
                   <li key={h} className="flex items-start gap-2">
-                    <Check size={16} className="mt-0.5 shrink-0 text-success-500" aria-hidden="true" />
+                    <Check size={16} className="mt-0.5 shrink-0 text-success" aria-hidden="true" />
                     <span>{h}</span>
                   </li>
                 ))}
@@ -84,7 +84,7 @@ export function LadderView({ ladder, selectedId, onSelect, mode, term, depositCe
             )}
             {option.warranty_label && (
               <p className="mt-auto flex items-center gap-1.5 pt-4 text-sm font-medium text-text-primary">
-                <ShieldCheck size={16} className="text-success-500" aria-hidden="true" /> {option.warranty_label}
+                <ShieldCheck size={16} className="text-success" aria-hidden="true" /> {option.warranty_label}
               </p>
             )}
             {selected && <span className="sr-only">Selected</span>}

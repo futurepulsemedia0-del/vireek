@@ -8,15 +8,15 @@ const SELECT_CLASS =
   'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2.5 text-sm text-text-primary transition-colors focus-visible:border-accent';
 
 const TRACE_ICON: Record<TraceStatus, JSX.Element> = {
-  matched: <CheckCircle2 size={14} className="text-success-500" />,
+  matched: <CheckCircle2 size={14} className="text-success" />,
   not_matched: <XCircle size={14} className="text-text-secondary" />,
-  skipped: <MinusCircle size={14} className="text-text-secondary/60" />,
-  disabled: <CircleDashed size={14} className="text-text-secondary/60" />,
+  skipped: <MinusCircle size={14} className="text-graphic-muted" />,
+  disabled: <CircleDashed size={14} className="text-graphic-muted" />,
 };
 
 const OUTCOME_STYLE: Record<DialAttempt['outcome'], string> = {
-  answered: 'bg-success-500/10 text-success-500',
-  no_answer: 'bg-warning-500/10 text-warning-500',
+  answered: 'bg-success-subtle text-success',
+  no_answer: 'bg-warning-subtle text-warning',
   unreachable: 'bg-danger/10 text-danger',
 };
 const OUTCOME_LABEL: Record<DialAttempt['outcome'], string> = { answered: 'Answered', no_answer: 'No answer', unreachable: 'Skipped' };
@@ -89,7 +89,7 @@ export function RoutingSimulator({ config, input, result, languageOptions, onCha
           {result.facts.holiday ? `Holiday: ${result.facts.holiday}` : result.facts.hoursConfigured ? (result.facts.open ? 'You are open' : 'You are closed') : 'Hours not set (treated as open)'}
         </p>
         <p className="mt-1 flex items-center gap-2 text-sm font-semibold text-text-primary">
-          {result.finalKind === 'voicemail' && <PhoneOff size={14} className="text-warning-500" />}
+          {result.finalKind === 'voicemail' && <PhoneOff size={14} className="text-warning" />}
           Call is answered by: {result.finalLabel}
         </p>
       </div>

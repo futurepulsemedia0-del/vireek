@@ -31,7 +31,7 @@ const WINDOWS = [30, 90, 180, 365] as const;
 
 const STATUS_STYLE: Record<GapStatus, string> = {
   gap_adverse: 'bg-danger/10 text-danger',
-  gap_favorable: 'bg-success-500/10 text-success-500',
+  gap_favorable: 'bg-success-subtle text-success',
   no_material_gap: 'bg-bg-tertiary text-text-secondary',
 };
 const STATUS_LABEL: Record<GapStatus, string> = {

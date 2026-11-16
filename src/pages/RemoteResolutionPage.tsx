@@ -37,8 +37,8 @@ import {
 } from '@/lib/remoteResolutionApi';
 
 const TONE_TEXT: Record<RrTone, string> = {
-  success: 'text-success-500',
-  warning: 'text-warning-500',
+  success: 'text-success',
+  warning: 'text-warning',
   danger: 'text-danger',
   neutral: 'text-text-secondary',
 };
@@ -259,7 +259,7 @@ export function RemoteResolutionPage() {
                 checked={settings.enabled}
                 disabled={!isOwner}
                 onChange={(e) => setSettings({ ...settings, enabled: e.target.checked })}
-                className="h-4 w-4 accent-[var(--color-accent,#4f46e5)]"
+                className="h-4 w-4 accent-accent"
               />
               Remote Resolution is on
             </label>
@@ -345,7 +345,7 @@ export function RemoteResolutionPage() {
           )}
 
           {newKey && (
-            <div role="status" className="space-y-2 rounded-xl border border-warning-500/30 bg-warning-500/5 p-4 text-sm">
+            <div role="status" className="space-y-2 rounded-xl border border-warning/30 bg-warning-subtle p-4 text-sm">
               <p className="font-semibold text-text-primary">Copy this key now. It is shown only once.</p>
               <code className="block break-all rounded-lg bg-bg-primary p-2 text-xs text-text-primary">{newKey}</code>
               <div className="flex flex-wrap gap-2">

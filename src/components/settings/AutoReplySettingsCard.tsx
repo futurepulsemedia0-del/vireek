@@ -11,7 +11,7 @@ import {
 } from '@/lib/autoReply';
 
 const inputCls =
-  'focus-ring mt-2 w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/50';
+  'focus-ring mt-2 w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder';
 
 function Switch({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
   return (
@@ -23,7 +23,7 @@ function Switch({ checked, onChange, label }: { checked: boolean; onChange: (v: 
       onClick={() => onChange(!checked)}
       className={`focus-ring relative h-6 w-11 shrink-0 rounded-full transition-colors ${checked ? 'bg-accent' : 'bg-bg-tertiary'}`}
     >
-      <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${checked ? 'translate-x-[22px]' : 'translate-x-0.5'}`} />
+      <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-bg-secondary shadow-sm transition-transform ${checked ? 'translate-x-[22px]' : 'translate-x-0.5'}`} />
     </button>
   );
 }
@@ -133,7 +133,7 @@ export function AutoReplySettingsCard() {
                   type="button"
                   onClick={() => patch({ mode: value })}
                   className={`flex-1 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
-                    s.mode === value ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'
+                    s.mode === value ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'
                   }`}
                 >
                   {label}
@@ -158,7 +158,7 @@ export function AutoReplySettingsCard() {
               max={99}
               value={Math.round(s.confidenceThreshold * 100)}
               onChange={(e) => patch({ confidenceThreshold: Number(e.target.value) / 100 })}
-              className="mt-2 w-full accent-[var(--color-accent,#6366f1)]"
+              className="mt-2 w-full accent-accent"
             />
             <p className="mt-1 text-xs text-text-secondary">Replies scoring below this are never auto-sent. Higher = safer, more drafts for you.</p>
           </div>
@@ -235,7 +235,7 @@ export function AutoReplySettingsCard() {
           type="button"
           onClick={handleSave}
           disabled={!dirty || saving || !loaded}
-          className="focus-ring rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-40"
+          className="focus-ring rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-on-accent disabled:opacity-40"
         >
           {saving ? 'Saving…' : 'Save'}
         </button>

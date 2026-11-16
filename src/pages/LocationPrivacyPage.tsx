@@ -43,8 +43,8 @@ const selectClass =
   'focus-ring w-full rounded-xl border border-border bg-bg-secondary px-3 py-2.5 text-sm text-text-primary disabled:opacity-60';
 
 const STATUS_BADGE: Record<ConsentStatus, string> = {
-  granted: 'bg-success-500/10 text-success-500',
-  outdated: 'bg-warning-500/10 text-warning-500',
+  granted: 'bg-success-subtle text-success',
+  outdated: 'bg-warning-subtle text-warning',
   revoked: 'bg-danger/10 text-danger',
   none: 'bg-bg-tertiary text-text-secondary',
 };
@@ -103,7 +103,7 @@ function Switch({ checked, onChange, label, disabled }: { checked: boolean; onCh
       onClick={() => onChange(!checked)}
       className={`focus-ring relative h-8 w-14 shrink-0 rounded-full transition-colors disabled:opacity-50 ${checked ? 'bg-accent' : 'bg-bg-tertiary'}`}
     >
-      <span className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow transition-all ${checked ? 'left-7' : 'left-1'}`} />
+      <span className={`absolute top-1 h-6 w-6 rounded-full bg-bg-secondary shadow transition-all ${checked ? 'left-7' : 'left-1'}`} />
     </button>
   );
 }
@@ -124,7 +124,7 @@ function Kpi({ label, value, tone }: { label: string; value: number; tone?: 'bad
   return (
     <Card className="p-4 sm:p-5">
       <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary">{label}</p>
-      <p className={`mt-1 text-xl font-bold tabular-nums sm:text-2xl ${tone === 'bad' ? 'text-danger' : tone === 'good' ? 'text-success-500' : 'text-text-primary'}`}>{value}</p>
+      <p className={`mt-1 text-xl font-bold tabular-nums sm:text-2xl ${tone === 'bad' ? 'text-danger' : tone === 'good' ? 'text-success' : 'text-text-primary'}`}>{value}</p>
     </Card>
   );
 }
@@ -259,9 +259,9 @@ export function LocationPrivacyPage() {
         <FadeIn>
           <div className="space-y-6">
             {!settings.configured && (
-              <div role="status" className="rounded-2xl border border-warning-500/40 bg-warning-500/10 p-4">
+              <div role="status" className="rounded-2xl border border-warning/40 bg-warning-subtle p-4">
                 <p className="flex items-center gap-2 text-sm font-semibold text-text-primary">
-                  <AlertTriangle size={16} className="text-warning-500" /> Not configured yet
+                  <AlertTriangle size={16} className="text-warning" /> Not configured yet
                 </p>
                 <p className="mt-1 text-sm text-text-primary">
                   Right now tracking is not limited to work hours, consent is not required, and everyone on the account can see locations.

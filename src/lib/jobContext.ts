@@ -50,15 +50,15 @@ export interface PropertyProfile {
 }
 
 export const RISK_META: Record<ContextRisk, { label: string; text: string }> = {
-  low: { label: 'Ready to dispatch', text: 'text-success-500' },
-  medium: { label: 'Review before dispatch', text: 'text-warning-500' },
+  low: { label: 'Ready to dispatch', text: 'text-success' },
+  medium: { label: 'Review before dispatch', text: 'text-warning' },
   high: { label: 'High risk', text: 'text-danger' },
   critical: { label: 'Not ready', text: 'text-danger' },
 };
 
 export const NODE_TEXT: Record<NodeStatus, string> = {
-  ok: 'text-success-500',
-  watch: 'text-warning-500',
+  ok: 'text-success',
+  watch: 'text-warning',
   risk: 'text-danger',
   unknown: 'text-text-secondary',
 };
@@ -66,7 +66,7 @@ export const NODE_TEXT: Record<NodeStatus, string> = {
 export const SEVERITY_META: Record<FlagSeverity, { label: string; text: string }> = {
   critical: { label: 'Critical', text: 'text-danger' },
   risk: { label: 'Risk', text: 'text-danger' },
-  watch: { label: 'Watch', text: 'text-warning-500' },
+  watch: { label: 'Watch', text: 'text-warning' },
   info: { label: 'Info', text: 'text-text-secondary' },
 };
 

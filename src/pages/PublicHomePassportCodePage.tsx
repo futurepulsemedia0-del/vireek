@@ -69,7 +69,7 @@ export function PublicHomePassportCodePage() {
 
           {p && (
             <Card className="p-6">
-              <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-success-500">
+              <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-success">
                 <ShieldCheck size={14} aria-hidden="true" /> Home Passport registered
               </p>
               <h1 className="mt-2 text-xl font-bold text-text-primary">{[p.city, p.region].filter(Boolean).join(', ') || 'Property'}</h1>

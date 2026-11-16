@@ -15,7 +15,7 @@ export type Tone = 'neutral' | 'success' | 'warning' | 'danger' | 'accent';
 const TONES: Record<Tone, string> = {
   neutral: 'bg-bg-tertiary text-text-secondary',
   success: 'bg-success/10 text-success',
-  warning: 'bg-warning-500/10 text-warning-500',
+  warning: 'bg-warning-subtle text-warning',
   danger: 'bg-danger/10 text-danger',
   accent: 'bg-accent/10 text-accent',
 };

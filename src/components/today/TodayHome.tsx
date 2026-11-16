@@ -15,7 +15,7 @@ const CARD = 'rounded-2xl border border-border bg-bg-secondary shadow-card dark:
 const SEVERITY_LABEL: Record<AttentionItem['severity'], string> = { critical: 'Urgent', high: 'Soon', normal: 'When you can' };
 const SEVERITY_CLASS: Record<AttentionItem['severity'], string> = {
   critical: 'bg-danger/10 text-danger',
-  high: 'bg-warning-500/10 text-warning-500',
+  high: 'bg-warning-subtle text-warning',
   normal: 'bg-bg-tertiary text-text-secondary',
 };
 
@@ -74,7 +74,7 @@ function AttentionList({ data, tv, nowMs }: { data: TodayData['attention']; tv: 
       </div>
       {data.items.length === 0 ? (
         <p className={`mt-4 flex items-center gap-2 rounded-xl bg-bg-tertiary/60 px-4 py-3 text-text-secondary ${tv ? 'text-2xl' : 'text-sm'}`}>
-          <CheckCircle2 size={tv ? 28 : 16} className="text-success-500" aria-hidden="true" />
+          <CheckCircle2 size={tv ? 28 : 16} className="text-success" aria-hidden="true" />
           Nothing needs you right now.
         </p>
       ) : (
@@ -87,7 +87,7 @@ function AttentionList({ data, tv, nowMs }: { data: TodayData['attention']; tv: 
                   <span className={`block font-medium text-text-primary ${tv ? 'text-2xl' : 'text-sm'}`}>{it.title}</span>
                   <span className={`block text-text-secondary ${tv ? 'text-xl' : 'text-xs sm:text-sm'}`}>{it.detail}</span>
                 </span>
-                <span className={`shrink-0 text-text-secondary/80 ${tv ? 'text-lg' : 'text-xs'}`}>{ago(Date.parse(it.at), nowMs)}</span>
+                <span className={`shrink-0 text-text-muted ${tv ? 'text-lg' : 'text-xs'}`}>{ago(Date.parse(it.at), nowMs)}</span>
               </>
             );
             return (
@@ -121,7 +121,7 @@ function EmptyCard({ kind }: { kind: 'no_number_yet' | 'no_calls_yet' }) {
           ? 'Hear exactly what your customers will hear. It takes about a minute, and nothing is counted as business until a real customer calls.'
           : 'Calls, emergencies and bookings will appear here the moment your first real customer calls. Your test calls are never counted.'}
       </p>
-      <Link to="/onboarding/first-call" className="focus-ring mt-6 inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-accent px-5 text-sm font-semibold text-white hover:brightness-110">
+      <Link to="/onboarding/first-call" className="focus-ring mt-6 inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-accent px-5 text-sm font-semibold text-on-accent hover:brightness-110">
         <Phone size={16} aria-hidden="true" /> {noNumber ? 'Call Sarah now' : 'Try a test call'}
       </Link>
     </section>
@@ -168,9 +168,9 @@ export function TodayHome({ variant = 'app' }: { variant?: 'app' | 'tv' }) {
 
       {!tv && <SarahKnowledgeCard />}
       {stale && (
-        <div role="status" data-testid="today-stale" className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-warning-500/30 bg-warning-500/10 px-4 py-3 text-sm text-text-primary">
+        <div role="status" data-testid="today-stale" className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-warning/30 bg-warning-subtle px-4 py-3 text-sm text-text-primary">
           <span className="flex items-center gap-2">
-            <AlertTriangle size={16} aria-hidden="true" className="text-warning-500" />
+            <AlertTriangle size={16} aria-hidden="true" className="text-warning" />
             Couldn't refresh. These numbers are from {ago(lastOkAt, nowMs)}.
           </span>
           <button type="button" onClick={refresh} className="focus-ring inline-flex min-h-[44px] items-center gap-1.5 rounded-lg px-3 font-medium text-accent hover:bg-accent/10">

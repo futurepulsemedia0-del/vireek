@@ -71,8 +71,8 @@ export const DIAGNOSIS_LIMITS = { photos: 4, symptomsChars: 2000, readingsChars:
 export const DIAGNOSIS_SEVERITY_META: Record<DiagnosisSeverity, { label: string; className: string }> = {
   low: { label: 'Low priority', className: 'bg-bg-tertiary text-text-secondary' },
   medium: { label: 'Medium priority', className: 'bg-accent/10 text-accent' },
-  high: { label: 'High priority', className: 'bg-warning-500/10 text-warning-500' },
-  emergency: { label: 'Emergency', className: 'bg-danger-500/10 text-danger-500' },
+  high: { label: 'High priority', className: 'bg-warning-subtle text-warning' },
+  emergency: { label: 'Emergency', className: 'bg-danger-subtle text-danger' },
 };
 
 async function functionErrorMessage(error: unknown, fallback: string): Promise<string> {

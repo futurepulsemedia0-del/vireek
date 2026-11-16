@@ -22,14 +22,14 @@ export function TippingToggle({ initial }: { initial: boolean }) {
   }
 
   return (
-    <div className="flex items-center justify-between rounded-xl border border-border-primary bg-bg-secondary p-4">
+    <div className="flex items-center justify-between rounded-xl border border-border bg-bg-secondary p-4">
       <div>
         <p className="text-sm font-semibold text-text-primary">Customer tipping</p>
         <p className="text-xs text-text-secondary">Let customers tip the assigned technician when they pay. Tips are paid out through payroll.</p>
       </div>
       <button type="button" role="switch" aria-checked={enabled} disabled={busy} onClick={toggle}
         className={`focus-ring relative h-6 w-11 rounded-full transition disabled:opacity-50 ${enabled ? 'bg-accent' : 'bg-bg-tertiary'}`}>
-        <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all ${enabled ? 'left-[22px]' : 'left-0.5'}`} />
+        <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-bg-secondary transition-all ${enabled ? 'left-[22px]' : 'left-0.5'}`} />
       </button>
     </div>
   );

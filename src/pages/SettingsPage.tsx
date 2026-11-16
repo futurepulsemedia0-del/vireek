@@ -41,7 +41,7 @@ function ToggleRow({ icon: Icon, label, description, checked, onChange, disabled
         }`}
       >
         <span
-          className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
+          className={`absolute top-0.5 h-5 w-5 rounded-full bg-bg-secondary shadow-sm transition-transform ${
             checked ? 'translate-x-[22px]' : 'translate-x-0.5'
           }`}
         />
@@ -124,7 +124,7 @@ function PushNotificationsCard() {
           }`}
         >
           <span
-            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
+            className={`absolute top-0.5 h-5 w-5 rounded-full bg-bg-secondary shadow-sm transition-transform ${
               state === 'subscribed' ? 'translate-x-[22px]' : 'translate-x-0.5'
             }`}
           />

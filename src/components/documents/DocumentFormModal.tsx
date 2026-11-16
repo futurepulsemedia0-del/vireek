@@ -18,7 +18,7 @@ import {
 import { createDocument, updateDocument, uploadDocumentVersion } from '@/lib/documentsApi';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder transition-colors';
 const labelClass = 'mb-1 block text-xs font-medium text-text-secondary';
 
 export interface CustomerOption {
@@ -150,7 +150,7 @@ export function DocumentFormModal({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => !saving && onClose()}
-            className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 z-[100] bg-overlay/40 backdrop-blur-sm"
           />
           <motion.div
             ref={dialogRef}
@@ -382,7 +382,7 @@ export function DocumentFormModal({
                 <button
                   type="submit"
                   disabled={saving}
-                  className="focus-ring flex-1 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="focus-ring flex-1 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {saving ? 'Saving…' : isEdit ? 'Save changes' : 'Save document'}
                 </button>

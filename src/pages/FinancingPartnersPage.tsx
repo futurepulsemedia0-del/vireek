@@ -27,7 +27,7 @@ const PARTNER_KEY = 'mock';
 
 const TONE: Record<Tone, string> = {
   neutral: 'bg-bg-secondary text-text-secondary', accent: 'bg-accent/10 text-accent',
-  success: 'bg-success-500/10 text-success-500', warning: 'bg-warning-500/10 text-warning-500', danger: 'bg-danger/10 text-danger',
+  success: 'bg-success-subtle text-success', warning: 'bg-warning-subtle text-warning', danger: 'bg-danger/10 text-danger',
 };
 const Pill = ({ tone, children }: { tone: Tone; children: React.ReactNode }) => (
   <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${TONE[tone]}`}>{children}</span>
@@ -36,7 +36,7 @@ const dt = (iso: string) => new Date(iso).toLocaleDateString(undefined, { month:
 
 function CounselNote({ d }: { d: Disclosure }) {
   if (d.counsel_reviewed) return null;
-  return <p className="mt-2 rounded-lg border border-warning-500/30 bg-warning-500/5 px-3 py-2 text-xs text-warning-500" role="note">Placeholder wording — REQUIRES COUNSEL before launch.</p>;
+  return <p className="mt-2 rounded-lg border border-warning/30 bg-warning-subtle px-3 py-2 text-xs text-warning" role="note">Placeholder wording — REQUIRES COUNSEL before launch.</p>;
 }
 
 export function FinancingPartnersPage() {
@@ -191,7 +191,7 @@ function QuotesTab({ gate, toast }: { gate: Gate; toast: ToastFn }) {
                     <Pill tone={v.tone}>{v.label}</Pill>
                   </div>
                   <p className="mt-2 text-xs text-text-secondary">{v.hint}</p>
-                  {o.needs_review && <p role="alert" className="mt-2 rounded-lg bg-warning-500/10 px-3 py-2 text-xs text-warning-500">The partner reported activity after this offer was closed. Contact the partner to confirm the status.</p>}
+                  {o.needs_review && <p role="alert" className="mt-2 rounded-lg bg-warning-subtle px-3 py-2 text-xs text-warning">The partner reported activity after this offer was closed. Contact the partner to confirm the status.</p>}
                   {!isFinancingTerminal(status) && (
                     <div className="mt-3"><Button variant="secondary" size="sm" onClick={() => cancel(o.id)} loading={busy === o.id}>Cancel offer</Button></div>
                   )}

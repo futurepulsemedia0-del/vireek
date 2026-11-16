@@ -42,7 +42,7 @@ function LostDialog({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: 
   const [reason, setReason] = useState('');
   const [busy, setBusy] = useState(false);
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-label="Not today">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-overlay/60 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-label="Not today">
       <div ref={ref} className="w-full max-w-md rounded-t-3xl border border-border bg-bg-primary p-6 sm:rounded-3xl">
         <h2 className="text-lg font-bold text-text-primary">Not buying today?</h2>
         <p className="mb-4 text-sm text-text-secondary">A quick note helps the team follow up and learn.</p>
@@ -154,7 +154,7 @@ export function SalesPresentationPage() {
         <nav className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-4 pb-2" aria-label="Presentation sections">
           {tabs.map((t) => (
             <button key={t.id} type="button" onClick={() => setTab(t.id)} aria-current={tab === t.id ? 'page' : undefined}
-              className={`focus-ring inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-xl px-4 text-sm font-semibold ${tab === t.id ? 'bg-accent text-white' : 'text-text-secondary hover:bg-bg-tertiary'}`}>
+              className={`focus-ring inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-xl px-4 text-sm font-semibold ${tab === t.id ? 'bg-accent text-on-accent' : 'text-text-secondary hover:bg-bg-tertiary'}`}>
               <t.icon size={16} aria-hidden="true" /> {t.label}
             </button>
           ))}
@@ -163,7 +163,7 @@ export function SalesPresentationPage() {
 
       <main className="mx-auto w-full max-w-6xl flex-1 space-y-6 px-4 py-6">
         {sp.status === 'sold' && (
-          <div role="status" className="flex items-center gap-3 rounded-2xl border border-success-500/30 bg-success-500/10 p-4 text-success-500">
+          <div role="status" className="flex items-center gap-3 rounded-2xl border border-success/30 bg-success-subtle p-4 text-success">
             <CheckCircle2 size={20} aria-hidden="true" />
             <span className="text-sm font-semibold">Sold — {moneyExact(sp.sold_total_cents ?? 0)}. Thank you!</span>
           </div>

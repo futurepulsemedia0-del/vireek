@@ -27,7 +27,7 @@ function ModalShell({ title, description, onClose, children }: { title: string; 
         animate={{ opacity: 1 }}
         transition={{ duration: 0.2 }}
         onClick={onClose}
-        className="fixed inset-0 z-[110] bg-black/40 backdrop-blur-sm"
+        className="fixed inset-0 z-[110] bg-overlay/40 backdrop-blur-sm"
       />
       <motion.div
         initial={{ opacity: 0, y: 12 }}

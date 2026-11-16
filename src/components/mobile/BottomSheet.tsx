@@ -100,7 +100,7 @@ export function BottomSheet({ open, onClose, title, children, snapPoints = [0.5,
 
   return (
     <div className="fixed inset-0 z-[120]">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} aria-hidden="true" />
+      <div className="absolute inset-0 bg-overlay/50" onClick={onClose} aria-hidden="true" />
       <div
         ref={panelRef}
         role="dialog"

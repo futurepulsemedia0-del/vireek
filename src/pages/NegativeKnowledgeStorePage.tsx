@@ -25,8 +25,8 @@ import {
 } from '@/lib/negativeKnowledge';
 
 const SEVERITY_STYLES: Record<NegativeKnowledgeSeverity, string> = {
-  critical: 'bg-red-500/10 text-red-600 border-red-500/25',
-  high: 'bg-amber-500/10 text-amber-600 border-amber-500/25',
+  critical: 'bg-danger-subtle text-danger border-danger/25',
+  high: 'bg-warning-subtle text-warning border-warning/25',
   medium: 'bg-accent/10 text-accent border-accent/25',
   low: 'bg-bg-tertiary text-text-secondary border-border',
 };
@@ -51,7 +51,7 @@ function EntryCard({ entry, onResolve }: { entry: NegativeKnowledgeEntry; onReso
         </div>
         <div className="flex shrink-0 items-center gap-2">
           {entry.status === 'resolved' ? (
-            <span className="flex items-center gap-1 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-600">
+            <span className="flex items-center gap-1 rounded-full border border-success/25 bg-success-subtle px-2.5 py-1 text-xs font-semibold text-success">
               <CheckCircle2 size={12} /> Resolved
             </span>
           ) : (
@@ -100,7 +100,7 @@ function EntryCard({ entry, onResolve }: { entry: NegativeKnowledgeEntry; onReso
             type="button"
             disabled={!reason.trim()}
             onClick={() => { onResolve(entry.id, reason.trim()); setResolving(false); }}
-            className="focus-ring rounded-xl bg-accent px-3 py-2 text-xs font-semibold text-white disabled:opacity-40"
+            className="focus-ring rounded-xl bg-accent px-3 py-2 text-xs font-semibold text-on-accent disabled:opacity-40"
           >
             Save
           </button>
@@ -187,7 +187,7 @@ export function NegativeKnowledgeStorePage() {
           </div>
         ) : sorted.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border py-12 text-center">
-            <ShieldAlert className="mx-auto mb-2 h-6 w-6 text-text-secondary/50" />
+            <ShieldAlert className="mx-auto mb-2 h-6 w-6 text-graphic-muted" />
             <p className="mx-auto max-w-sm text-sm text-text-secondary">
               Nothing logged here yet. Once a strategy fails, record it with logNegativeKnowledgeEntry() so it's
               checked before anything tries it again.

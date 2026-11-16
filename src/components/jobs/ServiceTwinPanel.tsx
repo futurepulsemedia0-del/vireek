@@ -18,13 +18,13 @@ import {
 } from '@/lib/serviceTwin';
 
 const TONE_BOX: Record<'success' | 'warning' | 'danger', string> = {
-  success: 'border-success-500/30 bg-success-500/5',
-  warning: 'border-warning-500/30 bg-warning-500/5',
+  success: 'border-success/30 bg-success-subtle',
+  warning: 'border-warning/30 bg-warning-subtle',
   danger: 'border-danger/30 bg-danger/5',
 };
 const TONE_TEXT: Record<'success' | 'warning' | 'danger', string> = {
-  success: 'text-success-500',
-  warning: 'text-warning-500',
+  success: 'text-success',
+  warning: 'text-warning',
   danger: 'text-danger',
 };
 
@@ -45,7 +45,7 @@ export function TwinMetricRow({
   const bad = worseWhenLower ? ratio < 0.88 : ratio > 1.1;
   const critical = worseWhenLower ? ratio < 0.65 : ratio > 1.25;
   const fill = Math.min(Math.max(ratio, 0), 1.6) / 1.6;
-  const barColor = critical ? 'bg-danger' : bad ? 'bg-warning-500' : 'bg-success-500';
+  const barColor = critical ? 'bg-danger' : bad ? 'bg-warning' : 'bg-success';
   return (
     <div>
       <div className="flex items-baseline justify-between gap-2 text-xs">
@@ -163,7 +163,7 @@ export function ServiceTwinPanel({ job }: { job: Job }) {
           {interventions.map((iv) => (
             <li key={iv.id} className="rounded-lg border border-border bg-bg-secondary p-3">
               <p className="flex items-start gap-1.5 text-xs font-semibold text-text-primary">
-                <AlertTriangle size={12} className={`mt-0.5 shrink-0 ${iv.severity === 'critical' ? 'text-danger' : 'text-warning-500'}`} />
+                <AlertTriangle size={12} className={`mt-0.5 shrink-0 ${iv.severity === 'critical' ? 'text-danger' : 'text-warning'}`} />
                 {INTERVENTION_LABELS[iv.kind]} — {iv.headline}
               </p>
               <p className="mt-1 text-xs text-text-secondary">{iv.recommended_action}</p>

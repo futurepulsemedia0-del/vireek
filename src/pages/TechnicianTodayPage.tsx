@@ -18,9 +18,9 @@ import { ContextualTip } from '@/components/tour/ContextualTip';
 
 const STATUS_DOT: Record<string, string> = {
   scheduled: 'bg-accent',
-  en_route: 'bg-blue-500',
-  in_progress: 'bg-warning-500',
-  completed: 'bg-success-500',
+  en_route: 'bg-info',
+  in_progress: 'bg-warning',
+  completed: 'bg-success',
 };
 
 function NavPill({ to, icon, label, badge = 0 }: { to: string; icon: ReactNode; label: string; badge?: number }) {
@@ -33,7 +33,7 @@ function NavPill({ to, icon, label, badge = 0 }: { to: string; icon: ReactNode; 
       {icon}
       {label}
       {badge > 0 && (
-        <span aria-hidden="true" className="min-w-[1.25rem] rounded-full bg-accent px-1.5 text-center text-xs font-semibold text-white">
+        <span aria-hidden="true" className="min-w-[1.25rem] rounded-full bg-accent px-1.5 text-center text-xs font-semibold text-on-accent">
           {badge > 99 ? '99+' : badge}
         </span>
       )}
@@ -50,7 +50,7 @@ function JobRow({ job, onOpen, onMore }: { job: TechnicianJob; onOpen: (id: stri
             label: 'Navigate',
             a11yLabel: `Navigate to ${job.customer_name}`,
             icon: <Navigation className="h-4 w-4" aria-hidden="true" />,
-            className: 'bg-accent text-white',
+            className: 'bg-accent text-on-accent',
             onCommit: () => {
               navigateToAddress(job.address);
             },
@@ -166,7 +166,7 @@ export function TechnicianTodayPage() {
       <PullToRefresh onRefresh={refreshAll}>
         <main className="mx-auto max-w-lg px-4 py-4 md:max-w-3xl">
           {failed && (
-            <div role="alert" className="mb-3 flex items-center gap-3 rounded-xl border border-warning-500/40 bg-warning-500/10 p-3 text-sm text-text-primary">
+            <div role="alert" className="mb-3 flex items-center gap-3 rounded-xl border border-warning/40 bg-warning-subtle p-3 text-sm text-text-primary">
               <CloudOff className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
               <span className="flex-1">{jobs.length > 0 ? "Couldn't refresh. Showing the jobs loaded earlier." : "Couldn't load today's jobs."}</span>
               <button type="button" onClick={() => void loadJobs()} className="focus-ring min-h-[44px] rounded-lg px-3 font-medium text-accent">

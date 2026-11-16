@@ -51,8 +51,8 @@ interface CustomerIntel {
 const RISK_META: Record<RiskTier, { label: string; dot: string; text: string; bg: string; rank: number }> = {
   at_risk: { label: 'At Risk', dot: 'bg-danger', text: 'text-danger', bg: 'bg-danger/10', rank: 0 },
   churned: { label: 'Churned', dot: 'bg-text-secondary/50', text: 'text-text-secondary', bg: 'bg-bg-tertiary', rank: 1 },
-  watch: { label: 'Watch', dot: 'bg-warning-500', text: 'text-warning-500', bg: 'bg-warning-500/10', rank: 2 },
-  healthy: { label: 'Healthy', dot: 'bg-success-500', text: 'text-success', bg: 'bg-success/10', rank: 3 },
+  watch: { label: 'Watch', dot: 'bg-warning', text: 'text-warning', bg: 'bg-warning-subtle', rank: 2 },
+  healthy: { label: 'Healthy', dot: 'bg-success', text: 'text-success', bg: 'bg-success/10', rank: 3 },
   new: { label: 'New', dot: 'bg-accent', text: 'text-accent', bg: 'bg-accent/10', rank: 4 },
 };
 
@@ -372,7 +372,7 @@ export function CustomerIntelligencePage() {
               <p className="mt-2 text-xl font-bold text-text-primary">{formatCurrency(summary.avgLtv)}</p>
             </div>
             <div className="rounded-2xl border border-border bg-bg-secondary p-4 shadow-card dark:shadow-card-dark">
-              <div className="flex items-center gap-2 text-warning-500">
+              <div className="flex items-center gap-2 text-warning">
                 <AlertTriangle size={14} />
                 <span className="text-xs font-medium">At Risk</span>
               </div>

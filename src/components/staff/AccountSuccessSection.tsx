@@ -13,10 +13,10 @@ import {
 } from '@/lib/successTools';
 
 const CHIP: Record<FeatureStatus, string> = {
-  active: 'bg-success-500/10 text-success-500',
-  lapsed: 'bg-warning-500/10 text-warning-500',
+  active: 'bg-success-subtle text-success',
+  lapsed: 'bg-warning-subtle text-warning',
   unused: 'bg-bg-tertiary text-text-secondary',
-  unmeasured: 'bg-bg-tertiary text-text-secondary/60',
+  unmeasured: 'bg-bg-tertiary text-text-muted',
 };
 
 /** Success risk, feature adoption and latest NPS for one account, inside the staff detail panel. */

@@ -410,7 +410,7 @@ export function PlanCatalog({
                   {t.renewal_price_cents !== null && ` · renews at ${formatMoney(t.renewal_price_cents)}`}
                 </p>
               </div>
-              <Pill className={t.active ? 'bg-success-500/10 text-success-500' : 'bg-bg-tertiary text-text-secondary'}>{t.active ? 'On sale' : 'Off'}</Pill>
+              <Pill className={t.active ? 'bg-success-subtle text-success' : 'bg-bg-tertiary text-text-secondary'}>{t.active ? 'On sale' : 'Off'}</Pill>
             </div>
             {t.description && <p className="mt-2 text-sm text-text-secondary">{t.description}</p>}
             <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-text-secondary">

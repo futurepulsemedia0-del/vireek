@@ -25,7 +25,7 @@ import {
 
 const TIER_STYLES: Record<TriageItem['priority_tier'], string> = {
   critical: 'bg-error-500/15 text-error-500',
-  high: 'bg-warning-500/15 text-warning-500',
+  high: 'bg-warning-subtle text-warning',
   standard: 'bg-bg-tertiary text-text-secondary',
 };
 
@@ -154,7 +154,7 @@ export function EmergencyOperationsPage() {
               onClick={status.emergency_mode_active ? handleDeactivate : handleActivate}
               disabled={busy}
               className={`focus-ring flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium ${
-                status.emergency_mode_active ? 'bg-error-500 text-white' : 'bg-cta text-white'
+                status.emergency_mode_active ? 'bg-error-500 text-white' : 'bg-cta text-on-cta'
               }`}
             >
               <Power size={16} /> {status.emergency_mode_active ? 'Deactivate' : 'Activate now'}
@@ -198,7 +198,7 @@ export function EmergencyOperationsPage() {
                     <button onClick={() => handleTriageAction(item.id, 'dispatched')} className="focus-ring rounded-lg bg-cta/15 px-3 py-1.5 text-xs font-medium text-cta">
                       Dispatch
                     </button>
-                    <button onClick={() => handleTriageAction(item.id, 'resolved')} className="focus-ring rounded-lg bg-success-500/15 px-3 py-1.5 text-xs font-medium text-success-500">
+                    <button onClick={() => handleTriageAction(item.id, 'resolved')} className="focus-ring rounded-lg bg-success-subtle px-3 py-1.5 text-xs font-medium text-success">
                       Resolve
                     </button>
                   </div>
@@ -219,7 +219,7 @@ export function EmergencyOperationsPage() {
                 key={a}
                 onClick={() => setAudience(a)}
                 className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium capitalize ${
-                  audience === a ? 'bg-cta text-white' : 'bg-bg-tertiary text-text-secondary'
+                  audience === a ? 'bg-cta text-on-cta' : 'bg-bg-tertiary text-text-secondary'
                 }`}
               >
                 {a.replace('_', ' ')}
@@ -236,7 +236,7 @@ export function EmergencyOperationsPage() {
           <button
             onClick={handleBroadcast}
             disabled={busy || !broadcastMsg.trim()}
-            className="focus-ring mt-3 flex items-center gap-2 rounded-xl bg-cta px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+            className="focus-ring mt-3 flex items-center gap-2 rounded-xl bg-cta px-4 py-2 text-sm font-medium text-on-cta disabled:opacity-50"
           >
             <Send size={16} /> Send broadcast
           </button>

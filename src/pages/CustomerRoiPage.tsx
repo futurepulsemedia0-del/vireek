@@ -105,7 +105,7 @@ export function CustomerRoiPage() {
                 <p className="mt-2 text-sm text-text-secondary">Response time, {businessCount} businesses</p>
               </Card>
             </motion.div>
-            <p className="mx-auto mt-5 flex max-w-lg items-start justify-center gap-1.5 text-center text-xs text-text-secondary/70">
+            <p className="mx-auto mt-5 flex max-w-lg items-start justify-center gap-1.5 text-center text-xs text-text-muted">
               <Info size={13} className="mt-0.5 shrink-0" />
               Early-access partner stories from businesses using Vireek. Updated as more verified
               customers are added.
@@ -194,7 +194,7 @@ export function CustomerRoiPage() {
                     </p>
                     <Link
                       to={`/case-studies#${study.slug}`}
-                      className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-accent hover:text-accent/80"
+                      className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-accent hover:text-accent"
                     >
                       Read the full story <ArrowRight size={15} />
                     </Link>
@@ -219,7 +219,7 @@ export function CustomerRoiPage() {
               className="pointer-events-none absolute inset-0"
               style={{
                 backgroundImage:
-                  'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
+                  'radial-gradient(circle at 20% 20%, rgb(var(--static-white) / 0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
               }}
             />
             <div className="relative">

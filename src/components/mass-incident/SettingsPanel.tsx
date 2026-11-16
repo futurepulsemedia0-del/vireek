@@ -61,7 +61,7 @@ export function SettingsPanel({ value, canManage, onSaved }: { value: SettingsRo
         <span><span className="font-medium text-text-primary">{t('settingsAutoReply')}</span><br /><span className="text-text-secondary">{t('settingsAutoReplyHelp')}</span></span>
       </label>
       <p className="text-xs text-text-secondary">{t('honestyNote')}</p>
-      <p className="rounded-xl border border-warning-500/30 bg-warning-500/5 px-3 py-2 text-xs text-text-primary">{t('legalFlag')}</p>
+      <p className="rounded-xl border border-warning/30 bg-warning-subtle px-3 py-2 text-xs text-text-primary">{t('legalFlag')}</p>
       {canManage && <Button type="button" loading={saving} loadingLabel={t('settingsSave')} onClick={() => void save()}>{t('settingsSave')}</Button>}
     </section>
   );

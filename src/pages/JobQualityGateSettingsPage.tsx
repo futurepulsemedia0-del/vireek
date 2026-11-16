@@ -185,7 +185,7 @@ export function JobQualityGateSettingsPage() {
                       <button
                         type="button"
                         onClick={() => handleAddItem(st)}
-                        className="focus-ring flex items-center gap-1 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white hover:opacity-90"
+                        className="focus-ring flex items-center gap-1 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent hover:opacity-90"
                       >
                         <Plus size={13} /> Add
                       </button>

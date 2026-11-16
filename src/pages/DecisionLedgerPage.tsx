@@ -33,7 +33,7 @@ import {
 } from '@/lib/decisionLedger';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder';
 
 // ============================================================
 // NEW ENTRY FORM
@@ -113,7 +113,7 @@ function NewEntryForm({ userId, onSaved }: { userId: string; onSaved: () => void
         type="button"
         disabled={saving}
         onClick={() => void handleSave()}
-        className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-medium text-white disabled:opacity-60"
+        className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-medium text-on-accent disabled:opacity-60"
       >
         {saving ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} />} Log to ledger
       </button>
@@ -181,7 +181,7 @@ function EntryCard({ entry, currentMemberId, onChanged }: { entry: DecisionLedge
             <div className="space-y-2 rounded-xl bg-bg-tertiary p-2.5">
               <textarea className={inputClass} rows={2} placeholder="Approval / rejection notes (optional)" value={notes} onChange={(e) => setNotes(e.target.value)} />
               <div className="flex flex-wrap gap-1.5">
-                <button type="button" disabled={busy} onClick={() => void run(() => approveLedgerEntry(entry.id, currentMemberId, notes), 'Approved')} className="focus-ring flex items-center gap-1 rounded-full bg-success-500/10 px-2.5 py-1 text-[11px] font-medium text-success-500 disabled:opacity-60">
+                <button type="button" disabled={busy} onClick={() => void run(() => approveLedgerEntry(entry.id, currentMemberId, notes), 'Approved')} className="focus-ring flex items-center gap-1 rounded-full bg-success-subtle px-2.5 py-1 text-[11px] font-medium text-success disabled:opacity-60">
                   <Check size={11} /> Approve
                 </button>
                 <button type="button" disabled={busy} onClick={() => void run(() => rejectLedgerEntry(entry.id, notes), 'Rejected')} className="focus-ring rounded-full bg-bg-secondary px-2.5 py-1 text-[11px] font-medium text-text-secondary">
@@ -194,7 +194,7 @@ function EntryCard({ entry, currentMemberId, onChanged }: { entry: DecisionLedge
           {entry.status === 'approved' && (
             <div className="space-y-2 rounded-xl bg-bg-tertiary p-2.5">
               <textarea className={inputClass} rows={2} placeholder="What action was actually taken?" value={actionText} onChange={(e) => setActionText(e.target.value)} />
-              <button type="button" disabled={busy || !actionText.trim()} onClick={() => void run(() => recordLedgerAction(entry.id, actionText, currentMemberId), 'Action recorded')} className="focus-ring rounded-full bg-accent px-2.5 py-1 text-[11px] font-medium text-white disabled:opacity-60">
+              <button type="button" disabled={busy || !actionText.trim()} onClick={() => void run(() => recordLedgerAction(entry.id, actionText, currentMemberId), 'Action recorded')} className="focus-ring rounded-full bg-accent px-2.5 py-1 text-[11px] font-medium text-on-accent disabled:opacity-60">
                 Record action taken
               </button>
             </div>
@@ -204,7 +204,7 @@ function EntryCard({ entry, currentMemberId, onChanged }: { entry: DecisionLedge
             <div className="space-y-2 rounded-xl bg-bg-tertiary p-2.5">
               <input className={inputClass} type="number" step="1" placeholder="Actual measured outcome ($)" value={outcomeValue} onChange={(e) => setOutcomeValue(e.target.value)} />
               <textarea className={inputClass} rows={2} placeholder="Outcome notes (optional)" value={notes} onChange={(e) => setNotes(e.target.value)} />
-              <button type="button" disabled={busy || !outcomeValue} onClick={() => void run(() => recordLedgerOutcome(entry.id, Number(outcomeValue), notes), 'Outcome recorded')} className="focus-ring rounded-full bg-success-500/10 px-2.5 py-1 text-[11px] font-medium text-success-500 disabled:opacity-60">
+              <button type="button" disabled={busy || !outcomeValue} onClick={() => void run(() => recordLedgerOutcome(entry.id, Number(outcomeValue), notes), 'Outcome recorded')} className="focus-ring rounded-full bg-success-subtle px-2.5 py-1 text-[11px] font-medium text-success disabled:opacity-60">
                 Record real outcome
               </button>
             </div>
@@ -215,7 +215,7 @@ function EntryCard({ entry, currentMemberId, onChanged }: { entry: DecisionLedge
               <p className="text-text-primary">
                 Actual: <span className="font-semibold">{formatDollars(entry.actual_outcome_value ?? 0)}</span>
                 {entry.expected_impact !== null && accuracy.variance !== null && (
-                  <span className={accuracy.wasAccurate ? 'text-success-500' : 'text-danger'}>
+                  <span className={accuracy.wasAccurate ? 'text-success' : 'text-danger'}>
                     {' '}({accuracy.variance >= 0 ? '+' : ''}{formatDollars(accuracy.variance)} vs expected)
                   </span>
                 )}
@@ -300,7 +300,7 @@ export function DecisionLedgerPage() {
               The full record of every decision: recommendation and evidence, who approved it, what action was taken, and what actually happened.
             </p>
           </div>
-          <button type="button" onClick={() => setShowForm((v) => !v)} className="focus-ring flex shrink-0 items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-medium text-white">
+          <button type="button" onClick={() => setShowForm((v) => !v)} className="focus-ring flex shrink-0 items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-medium text-on-accent">
             {showForm ? <X size={13} /> : <Plus size={13} />} {showForm ? 'Close' : 'Log decision'}
           </button>
         </div>
@@ -308,7 +308,7 @@ export function DecisionLedgerPage() {
         <div className="mb-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
           <div className="rounded-2xl border border-border bg-bg-secondary p-3">
             <p className="text-[11px] text-text-secondary">Awaiting approval</p>
-            <p className="text-lg font-semibold text-warning-500">{summary.awaitingApproval}</p>
+            <p className="text-lg font-semibold text-warning">{summary.awaitingApproval}</p>
           </div>
           <div className="rounded-2xl border border-border bg-bg-secondary p-3">
             <p className="text-[11px] text-text-secondary">Awaiting outcome</p>
@@ -331,10 +331,10 @@ export function DecisionLedgerPage() {
         )}
 
         <div className="mb-3 flex gap-1.5">
-          <button type="button" onClick={() => setFilter('open')} className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium ${filter === 'open' ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>
+          <button type="button" onClick={() => setFilter('open')} className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium ${filter === 'open' ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>
             Open
           </button>
-          <button type="button" onClick={() => setFilter('all')} className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium ${filter === 'all' ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>
+          <button type="button" onClick={() => setFilter('all')} className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium ${filter === 'all' ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>
             All
           </button>
         </div>
@@ -345,7 +345,7 @@ export function DecisionLedgerPage() {
           </div>
         ) : visible.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border py-10 text-center">
-            <ScrollText className="mx-auto mb-2 h-6 w-6 text-text-secondary/50" />
+            <ScrollText className="mx-auto mb-2 h-6 w-6 text-graphic-muted" />
             <p className="mx-auto max-w-sm text-sm text-text-secondary">
               No decisions logged yet. Every recommendation, approval, action and real outcome you log here builds a permanent, auditable record.
             </p>

@@ -107,7 +107,7 @@ export function canManageReputation(isOwner: boolean, permissions: UserPermissio
 
 export const SENTIMENT_CLASS: Record<Sentiment, string> = {
   positive: 'text-success',
-  neutral: 'text-warning-500',
+  neutral: 'text-warning',
   negative: 'text-danger',
 };
 

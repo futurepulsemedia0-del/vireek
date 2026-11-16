@@ -23,7 +23,7 @@ export function RichStatusTick({ status }: { status: RichStatus }) {
           : Clock;
   return (
     <span
-      className={`ml-1.5 inline-flex items-center gap-0.5 align-middle ${status === 'read' ? 'font-semibold text-white' : ''} ${status === 'failed' ? 'text-red-200' : ''}`}
+      className={`ml-1.5 inline-flex items-center gap-0.5 align-middle ${status === 'read' ? 'font-semibold text-white' : ''} ${status === 'failed' ? 'text-danger' : ''}`}
       title={label}
     >
       <Icon size={11} aria-hidden="true" />
@@ -36,7 +36,7 @@ export function RichStatusTick({ status }: { status: RichStatus }) {
 export function RichCardView({ card, outbound }: { card: UnifiedCard; outbound: boolean }) {
   return (
     <div
-      className={`-mx-1 min-w-[14rem] rounded-xl p-3 ${outbound ? 'bg-white/10' : 'bg-bg-secondary'}`}
+      className={`-mx-1 min-w-[14rem] rounded-xl p-3 ${outbound ? 'bg-bg-secondary/10' : 'bg-bg-secondary'}`}
     >
       {card.imageUrl && (
         <img
@@ -58,7 +58,7 @@ export function RichCardView({ card, outbound }: { card: UnifiedCard; outbound: 
             return (
               <li
                 key={`${a.label}-${i}`}
-                className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium ${outbound ? 'border-white/30' : 'border-border'}`}
+                className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium ${outbound ? 'border-on-inverse/30' : 'border-border'}`}
               >
                 <Icon size={12} aria-hidden="true" />
                 {a.label}

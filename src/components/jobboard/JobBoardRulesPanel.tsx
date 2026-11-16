@@ -129,7 +129,7 @@ export function JobBoardRulesPanel({ settings, vendors, areas, fairness, onSaved
         ) : (
           <>
             {spread.unbalanced && (
-              <p className="flex items-center gap-1.5 text-xs text-warning-500">
+              <p className="flex items-center gap-1.5 text-xs text-warning">
                 <AlertTriangle size={12} /> Shifts are unevenly spread ({spread.min}–{spread.max}). The rotation will favour technicians with fewer awards.
               </p>
             )}

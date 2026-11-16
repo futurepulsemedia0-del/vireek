@@ -152,7 +152,7 @@ export function TicketThread({
             <div key={m.id} className={`flex flex-col ${staff ? 'items-start' : 'items-end'}`}>
               <p className="mb-1 px-1 text-[11px] text-text-secondary">{who} · {formatMessageTime(m.created_at)}</p>
               <div className={`max-w-[85%] whitespace-pre-wrap break-words rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
-                staff ? 'rounded-bl-sm border border-border/70 bg-bg-tertiary text-text-primary' : 'rounded-br-sm bg-accent text-white'
+                staff ? 'rounded-bl-sm border border-border/70 bg-bg-tertiary text-text-primary' : 'rounded-br-sm bg-accent text-on-accent'
               }`}>
                 {m.body}
                 <MessageAttachments items={byMessage.get(m.id) ?? []} onDark={!staff} />

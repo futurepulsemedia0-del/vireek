@@ -9,7 +9,7 @@ function Stat({ label, value, hint, tone = 'neutral' }: { label: string; value: 
   return (
     <div className={card}>
       <p className="text-xs text-text-secondary">{label}</p>
-      <p className={`mt-1 text-2xl font-bold ${tone === 'warn' && Number(value) > 0 ? 'text-warning-500' : 'text-text-primary'}`}>{value}</p>
+      <p className={`mt-1 text-2xl font-bold ${tone === 'warn' && Number(value) > 0 ? 'text-warning' : 'text-text-primary'}`}>{value}</p>
       {hint && <p className="mt-0.5 text-[11px] text-text-secondary">{hint}</p>}
     </div>
   );
@@ -50,7 +50,7 @@ export function TagAnalyticsPanel() {
     return () => { cancelled = true; };
   }, [days]);
 
-  if (error) return <p role="alert" className="rounded-xl border border-border bg-bg-secondary p-4 text-sm text-danger-500">{error}</p>;
+  if (error) return <p role="alert" className="rounded-xl border border-border bg-bg-secondary p-4 text-sm text-danger">{error}</p>;
   if (loading || !data) return <div className="h-64 animate-pulse rounded-2xl bg-bg-secondary" aria-busy="true" />;
 
   const t = data.totals;
@@ -104,8 +104,8 @@ export function TagAnalyticsPanel() {
       </div>
 
       {(t.stale_scans > 0 || t.tamper_reports > 0) && (
-        <p className="flex items-start gap-2 rounded-xl bg-warning-500/10 p-3 text-xs text-text-primary">
-          <AlertTriangle size={14} className="mt-0.5 shrink-0 text-warning-500" aria-hidden="true" />
+        <p className="flex items-start gap-2 rounded-xl bg-warning-subtle p-3 text-xs text-text-primary">
+          <AlertTriangle size={14} className="mt-0.5 shrink-0 text-warning" aria-hidden="true" />
           Retired stickers are still being scanned or customers reported a problem. Check the Inventory tab for tags with reports and replace those stickers.
         </p>
       )}

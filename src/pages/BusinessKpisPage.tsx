@@ -16,7 +16,7 @@ import { downloadCsv, fmtDelta, fmtPct, fmtUsd, rangeFromDays } from '@/lib/anal
 import type { MetricId } from '../../supabase/functions/_shared/analytics/customerKpis';
 
 const RANGES = [{ days: 30, label: 'Last 30 days' }, { days: 90, label: 'Last 90 days' }, { days: 365, label: 'Last 12 months' }];
-const TONE = { good: 'text-green-700', bad: 'text-red-700', flat: 'text-gray-500', none: 'text-gray-400' } as const;
+const TONE = { good: 'text-success-strong', bad: 'text-danger-strong', flat: 'text-text-muted', none: 'text-text-muted' } as const;
 const AR_LABELS: Record<string, string> = { current: 'Current', d1_30: '1–30 days', d31_60: '31–60 days', d61_90: '61–90 days', d90_plus: '90+ days' };
 
 export function BusinessKpisPage() {
@@ -94,7 +94,7 @@ export function BusinessKpisPage() {
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold">Analytics</h1>
-          <p className="text-sm text-gray-600">Governed business metrics. Every number follows one written definition.</p>
+          <p className="text-sm text-text-secondary">Governed business metrics. Every number follows one written definition.</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <label className="text-sm">Period
@@ -123,11 +123,11 @@ export function BusinessKpisPage() {
             ))}
             {teamIds.length > 0 && <button type="button" className="text-sm underline" onClick={() => setTeamIds([])}>Clear</button>}
           </div>
-          {teamIds.length > 0 && <p className="mt-2 text-xs text-gray-500">Quote conversion is not available for a team filter (quotes are not tied to a technician).</p>}
+          {teamIds.length > 0 && <p className="mt-2 text-xs text-text-muted">Quote conversion is not available for a team filter (quotes are not tied to a technician).</p>}
         </fieldset>
       )}
 
-      {state === 'loading' && !data && <div role="status" className="flex items-center gap-2 text-gray-600"><Loader2 className="h-4 w-4 animate-spin" aria-hidden /> Loading analytics…</div>}
+      {state === 'loading' && !data && <div role="status" className="flex items-center gap-2 text-text-secondary"><Loader2 className="h-4 w-4 animate-spin" aria-hidden /> Loading analytics…</div>}
       {state === 'error' && (
         <Card padding="md" interactive={false} error role="alert">
           <p className="mb-3 text-sm">{message}</p>
@@ -138,11 +138,11 @@ export function BusinessKpisPage() {
 
       {state === 'ready' && data && k && !empty && (
         <>
-          {data.truncated && <p role="status" className="rounded bg-amber-50 p-3 text-sm">This range is very large and was truncated. Narrow the period or the team filter.</p>}
+          {data.truncated && <p role="status" className="rounded bg-warning-subtle p-3 text-sm">This range is very large and was truncated. Narrow the period or the team filter.</p>}
           {data.alerts.filter((a) => !a.acknowledged_at).length > 0 && (
             <section aria-label="Alerts" className="space-y-2">
               {data.alerts.filter((a) => !a.acknowledged_at).map((a) => (
-                <div key={a.id} className={`flex items-center justify-between rounded border p-3 text-sm ${a.bad ? 'border-red-300 bg-red-50' : 'border-blue-200 bg-blue-50'}`}>
+                <div key={a.id} className={`flex items-center justify-between rounded border p-3 text-sm ${a.bad ? 'border-danger-subtle-border bg-danger-subtle' : 'border-info-subtle-border bg-info-subtle'}`}>
                   <span><strong>{data.definitions[a.metric].label}</strong> moved {a.direction} to {a.metric === 'revenue_per_technician' ? fmtUsd(a.value) : fmtPct(a.value)} for {a.period_start} – {a.period_end} (usual {a.metric === 'revenue_per_technician' ? fmtUsd(a.baseline_mean) : fmtPct(a.baseline_mean)}).</span>
                   <Button size="sm" variant="ghost" onClick={() => { trackEvent('anomaly_alert_opened', { metric: a.metric, severity: a.severity }); void ack(a.id); }}>Dismiss</Button>
                 </div>
@@ -153,10 +153,10 @@ export function BusinessKpisPage() {
           <section aria-label="Key metrics" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {cards.map((c) => (
               <Card key={c.id} padding="md" interactive={false}>
-                <h2 className="text-sm font-medium text-gray-600" title={data.definitions[c.id].definition}>{data.definitions[c.id].label}</h2>
+                <h2 className="text-sm font-medium text-text-secondary" title={data.definitions[c.id].definition}>{data.definitions[c.id].label}</h2>
                 <p className="mt-1 text-3xl font-semibold">{c.value}</p>
-                <p className={`text-sm ${TONE[c.delta.tone]}`}>{c.delta.text} <span className="text-gray-400">vs previous period</span></p>
-                <p className="mt-2 text-xs text-gray-500">{data.definitions[c.id].definition}</p>
+                <p className={`text-sm ${TONE[c.delta.tone]}`}>{c.delta.text} <span className="text-text-muted">vs previous period</span></p>
+                <p className="mt-2 text-xs text-text-muted">{data.definitions[c.id].definition}</p>
               </Card>
             ))}
           </section>
@@ -182,10 +182,10 @@ export function BusinessKpisPage() {
 
           <Card padding="md" interactive={false}>
             <h2 className="mb-1 text-lg font-medium">{data.definitions.ar_aging.label}</h2>
-            <p className="mb-3 text-sm text-gray-600">Open balance {fmtUsd(data.ar.totalCents)} · overdue {fmtUsd(data.ar.overdueCents)} ({fmtPct(data.ar.overdueShareBp)}) as of {data.ar.asOfDay}</p>
+            <p className="mb-3 text-sm text-text-secondary">Open balance {fmtUsd(data.ar.totalCents)} · overdue {fmtUsd(data.ar.overdueCents)} ({fmtPct(data.ar.overdueShareBp)}) as of {data.ar.asOfDay}</p>
             <div className="grid gap-2 sm:grid-cols-5">
               {(Object.keys(AR_LABELS) as (keyof typeof data.ar.buckets)[]).map((b) => (
-                <div key={b} className="rounded border p-3"><div className="text-xs text-gray-500">{AR_LABELS[b]}</div><div className="font-semibold">{fmtUsd(data.ar.buckets[b].cents)}</div><div className="text-xs text-gray-500">{data.ar.buckets[b].count} invoices</div></div>
+                <div key={b} className="rounded border p-3"><div className="text-xs text-text-muted">{AR_LABELS[b]}</div><div className="font-semibold">{fmtUsd(data.ar.buckets[b].cents)}</div><div className="text-xs text-text-muted">{data.ar.buckets[b].count} invoices</div></div>
               ))}
             </div>
           </Card>

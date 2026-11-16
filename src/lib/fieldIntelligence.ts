@@ -11,8 +11,8 @@ export type FinalLabel = 'success' | 'partial' | 'failure';
 export const MIN_GRADE_SAMPLE = 20;
 
 export const LABEL_META: Record<OutcomeLabel, { label: string; description: string; tone: string }> = {
-  success: { label: 'Success', description: 'Held up with no negative signal through the matured horizon.', tone: 'bg-success-500/10 text-success-500' },
-  partial: { label: 'Partial', description: 'Fixed, but soft negative signals exist (repeat visit, dispute, low rating, follow-up).', tone: 'bg-warning-500/10 text-warning-500' },
+  success: { label: 'Success', description: 'Held up with no negative signal through the matured horizon.', tone: 'bg-success-subtle text-success' },
+  partial: { label: 'Partial', description: 'Fixed, but soft negative signals exist (repeat visit, dispute, low rating, follow-up).', tone: 'bg-warning-subtle text-warning' },
   failure: { label: 'Failure', description: 'Callback attributable to the original work, or left unresolved.', tone: 'bg-danger/10 text-danger' },
   ambiguous: { label: 'Ambiguous', description: 'Signals conflict or the callback is not attributable. Needs a human decision.', tone: 'bg-accent/10 text-accent' },
   pending: { label: 'Pending', description: 'Too recent to judge. Labels mature at 7, 30, 90 and 365 days.', tone: 'bg-bg-tertiary text-text-secondary' },
@@ -106,9 +106,9 @@ export function gradeCalibration(block: CalibrationBlock | null | undefined): Ca
 
 export const GRADE_META: Record<CalibrationGrade, { label: string; tone: string }> = {
   insufficient: { label: `Needs ${MIN_GRADE_SAMPLE}+ settled jobs`, tone: 'text-text-secondary' },
-  excellent: { label: 'Well calibrated', tone: 'text-success-500' },
-  good: { label: 'Good', tone: 'text-success-500' },
-  fair: { label: 'Drifting', tone: 'text-warning-500' },
+  excellent: { label: 'Well calibrated', tone: 'text-success' },
+  good: { label: 'Good', tone: 'text-success' },
+  fair: { label: 'Drifting', tone: 'text-warning' },
   poor: { label: 'Needs retraining', tone: 'text-danger' },
 };
 
@@ -156,7 +156,7 @@ export function brierTrend(delta: number | null | undefined): { text: string; to
   if (delta === null || delta === undefined || !Number.isFinite(delta)) return null;
   if (Math.abs(delta) < 0.005) return { text: 'Stable vs last run', tone: 'text-text-secondary' };
   return delta < 0
-    ? { text: `Improving (${delta.toFixed(3)} Brier)`, tone: 'text-success-500' }
+    ? { text: `Improving (${delta.toFixed(3)} Brier)`, tone: 'text-success' }
     : { text: `Degrading (+${delta.toFixed(3)} Brier)`, tone: 'text-danger' };
 }
 

@@ -94,10 +94,10 @@ export function ClaimsTab({ data, canManage, canSeeMoney, ownerId, reload }: Tab
   return (
     <>
       <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatTile label="Open claims" value={totals.open} icon={Hourglass} tone={totals.open ? 'text-warning-500' : 'text-success-500'} />
-        {canSeeMoney && <StatTile label="Open exposure" value={formatMoney(totals.exposure)} icon={FileWarning} tone="text-warning-500" />}
+        <StatTile label="Open claims" value={totals.open} icon={Hourglass} tone={totals.open ? 'text-warning' : 'text-success'} />
+        {canSeeMoney && <StatTile label="Open exposure" value={formatMoney(totals.exposure)} icon={FileWarning} tone="text-warning" />}
         {canSeeMoney && <StatTile label="Paid out" value={formatMoney(totals.paid)} icon={Banknote} tone="text-danger" />}
-        {canSeeMoney && <StatTile label="Recovered from manufacturers" value={formatMoney(totals.recovered)} icon={Undo2} tone="text-success-500" />}
+        {canSeeMoney && <StatTile label="Recovered from manufacturers" value={formatMoney(totals.recovered)} icon={Undo2} tone="text-success" />}
       </div>
 
       <Panel

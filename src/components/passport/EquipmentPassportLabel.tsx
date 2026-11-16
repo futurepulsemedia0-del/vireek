@@ -41,7 +41,7 @@ export function EquipmentPassportLabel({ passport }: { passport: Pick<PassportCo
 
   useEffect(() => {
     let cancelled = false;
-    QRCode.toDataURL(url, { margin: 1, width: 640, errorCorrectionLevel: 'Q', color: { dark: '#0b1220', light: '#ffffff' } })
+    QRCode.toDataURL(url, { margin: 1, width: 640, errorCorrectionLevel: 'Q', color: { dark: '#141413', light: '#ffffff' } })
       .then((d) => { if (!cancelled) setPng(d); })
       .catch(() => { if (!cancelled) setPng(''); });
     return () => { cancelled = true; };
@@ -80,15 +80,15 @@ export function EquipmentPassportLabel({ passport }: { passport: Pick<PassportCo
 <style>
 @page{size:auto;margin:8mm}
 *{box-sizing:border-box}
-body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#0b1220}
-.label{width:70mm;border:0.4mm solid #0b1220;border-radius:3mm;overflow:hidden}
-.bar{background:#0b1220;color:#fff;padding:1.6mm 3mm;font-size:6.5pt;font-weight:700;letter-spacing:.18em;text-transform:uppercase}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#141413}
+.label{width:70mm;border:0.4mm solid #141413;border-radius:3mm;overflow:hidden}
+.bar{background:#141413;color:#fff;padding:1.6mm 3mm;font-size:6.5pt;font-weight:700;letter-spacing:.18em;text-transform:uppercase}
 .row{display:flex;gap:3mm;padding:3mm;align-items:center}
 .row img{width:27mm;height:27mm}
 .t{font-size:9.5pt;font-weight:700;line-height:1.2}
-.s{font-size:7pt;color:#475569;margin-top:1mm}
+.s{font-size:7pt;color:#595852;margin-top:1mm}
 .c{font-family:ui-monospace,Menlo,monospace;font-size:8pt;font-weight:700;margin-top:2mm}
-.f{padding:1.4mm 3mm;border-top:0.3mm solid #cbd5e1;font-size:6pt;color:#475569}
+.f{padding:1.4mm 3mm;border-top:0.3mm solid #dddcd8;font-size:6pt;color:#595852}
 </style></head><body>
 <div class="label"><div class="bar">Vireek Equipment Passport</div>
 <div class="row"><img src="${png}" alt="QR code"/><div>
@@ -121,7 +121,7 @@ body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;col
       <h2 id="passport-label" className="mb-3 flex items-center gap-2 text-sm font-semibold text-text-primary">
         <QrCode size={16} className="text-accent" aria-hidden="true" /> Machine label (QR / NFC)
       </h2>
-      <div className="mx-auto flex h-44 w-44 items-center justify-center rounded-xl bg-white p-2">
+      <div className="mx-auto flex h-44 w-44 items-center justify-center rounded-xl bg-bg-secondary p-2">
         {png ? <img src={png} alt={`QR code for passport ${display}`} className="h-full w-full" /> : <div className="h-full w-full animate-pulse rounded bg-bg-tertiary" aria-busy="true" />}
       </div>
       <p className="mt-2 text-center font-mono text-xs font-semibold text-text-primary">{display}</p>

@@ -198,8 +198,8 @@ export function LienWaiversTab({ ownerId, bundle, today, onChanged }: TabProps) 
 
   return (
     <div className="space-y-6">
-      <div role="note" className="flex items-start gap-3 rounded-2xl border border-warning-500/40 bg-warning-500/10 p-4 text-sm text-text-primary">
-        <ShieldAlert size={18} className="mt-0.5 shrink-0 text-warning-500" aria-hidden="true" />
+      <div role="note" className="flex items-start gap-3 rounded-2xl border border-warning/40 bg-warning-subtle p-4 text-sm text-text-primary">
+        <ShieldAlert size={18} className="mt-0.5 shrink-0 text-warning" aria-hidden="true" />
         <p>{NOT_LEGAL_ADVICE}</p>
       </div>
 
@@ -334,7 +334,7 @@ export function LienWaiversTab({ ownerId, bundle, today, onChanged }: TabProps) 
                         {w.signed_at && ` · signed ${formatDate(w.signed_at)} by ${w.signer_name}`}
                         {st === 'sent' && w.expires_at && ` · link valid until ${formatDate(w.expires_at)}`}
                       </p>
-                      {w.requires_notary && st !== 'draft' && <p className="mt-1 text-xs text-warning-500">Needs notarization — an e-signature alone may not be enough.</p>}
+                      {w.requires_notary && st !== 'draft' && <p className="mt-1 text-xs text-warning">Needs notarization — an e-signature alone may not be enough.</p>}
                     </div>
                     <Pill tone={STATUS_TONE[st]}>{STATUS_LABEL[st]}</Pill>
                   </div>
@@ -345,7 +345,7 @@ export function LienWaiversTab({ ownerId, bundle, today, onChanged }: TabProps) 
                         <Button size="sm" variant="secondary" onClick={() => openEdit(w)}>Edit</Button>
                         <Button size="sm" onClick={() => setPanel({ kind: 'send', w })}><Send size={14} aria-hidden="true" /> Request signature</Button>
                         <Button size="sm" variant="secondary" onClick={() => setPanel({ kind: 'sign', w })}><FileSignature size={14} aria-hidden="true" /> {w.direction === 'given' ? 'Sign now' : 'Record signature'}</Button>
-                        <button type="button" aria-label={`Delete ${w.waiver_number}`} disabled={busy} onClick={() => ask({ title: 'Delete this draft?', description: `${w.waiver_number} will be removed. Drafts have not been sent or signed.`, label: 'Delete draft', onConfirm: () => run(`del-${w.id}`, () => deleteDraftWaiver(ownerId, w.id), 'Draft deleted.') })} className="focus-ring rounded-lg p-1.5 text-text-secondary hover:bg-bg-tertiary hover:text-danger-500"><Trash2 size={16} aria-hidden="true" /></button>
+                        <button type="button" aria-label={`Delete ${w.waiver_number}`} disabled={busy} onClick={() => ask({ title: 'Delete this draft?', description: `${w.waiver_number} will be removed. Drafts have not been sent or signed.`, label: 'Delete draft', onConfirm: () => run(`del-${w.id}`, () => deleteDraftWaiver(ownerId, w.id), 'Draft deleted.') })} className="focus-ring rounded-lg p-1.5 text-text-secondary hover:bg-bg-tertiary hover:text-danger"><Trash2 size={16} aria-hidden="true" /></button>
                       </>
                     )}
                     {(st === 'sent' || st === 'expired') && (
@@ -437,11 +437,11 @@ function WaiverForm({ initial, templates, ownerId, busy, onSubmit, onCancel }: {
       </div>
       <p className="text-xs text-text-secondary">{WAIVER_TYPE_HINT[f.type]}</p>
       {tpl?.is_statutory_form && tpl.user_id === null && (
-        <p role="note" className="rounded-xl bg-warning-500/10 p-3 text-xs text-text-primary">
+        <p role="note" className="rounded-xl bg-warning-subtle p-3 text-xs text-text-primary">
           {f.state} has a statutory form ({tpl.statute_ref}). The built-in wording is a standard starting point — confirm the exact required wording and notary rules with your attorney, then save your own copy under “Waiver forms”.
         </p>
       )}
-      {!tpl && <p role="alert" className="text-xs text-danger-500">No wording exists for this state and type. Save your own under “Waiver forms” first.</p>}
+      {!tpl && <p role="alert" className="text-xs text-danger">No wording exists for this state and type. Save your own under “Waiver forms” first.</p>}
 
       <div className="grid gap-3 sm:grid-cols-2">
         <Input label={f.direction === 'given' ? 'Claimant (your company)' : 'Claimant (sub / supplier)'} required value={f.claimant} maxLength={200} onChange={(e) => set('claimant', e.target.value)} />
@@ -454,7 +454,7 @@ function WaiverForm({ initial, templates, ownerId, busy, onSubmit, onCancel }: {
         <Input label="Payment amount ($)" inputMode="decimal" required value={f.amount} onChange={(e) => set('amount', e.target.value)} error={cents === null ? 'Enter a valid amount' : undefined} />
       </div>
       <Textarea label="Exceptions (disputed claims, items not covered)" rows={2} value={f.exceptions} maxLength={2000} onChange={(e) => set('exceptions', e.target.value)} helperText="Leave empty for “None”." />
-      {bad && <p role="alert" className="text-xs text-danger-500">Curly braces ({'{{ }}'}) are not allowed in these fields.</p>}
+      {bad && <p role="alert" className="text-xs text-danger">Curly braces ({'{{ }}'}) are not allowed in these fields.</p>}
 
       {preview && (
         <details className="rounded-xl border border-border p-3">
@@ -473,9 +473,9 @@ function WaiverForm({ initial, templates, ownerId, busy, onSubmit, onCancel }: {
 
 function PaymentProof({ w, paid, confirmed, onChange }: { w: LienWaiver; paid: boolean; confirmed: boolean; onChange: (v: boolean) => void }) {
   if (!needsPaymentProof(w)) return null;
-  if (paid) return <p className="flex items-center gap-2 text-sm text-success-500"><CheckCircle2 size={16} aria-hidden="true" /> The linked invoice is paid, so this unconditional waiver can be released.</p>;
+  if (paid) return <p className="flex items-center gap-2 text-sm text-success"><CheckCircle2 size={16} aria-hidden="true" /> The linked invoice is paid, so this unconditional waiver can be released.</p>;
   return (
-    <label className="flex items-start gap-3 rounded-xl bg-warning-500/10 p-3 text-sm text-text-primary">
+    <label className="flex items-start gap-3 rounded-xl bg-warning-subtle p-3 text-sm text-text-primary">
       <input type="checkbox" checked={confirmed} onChange={(e) => onChange(e.target.checked)} className="focus-ring mt-0.5 h-5 w-5 shrink-0 rounded border-border" />
       <span><strong>Unconditional waivers release your lien rights.</strong> The linked invoice is not marked paid. I confirm the payment of {formatUsd(w.amount_cents)} has been received and cleared.</span>
     </label>

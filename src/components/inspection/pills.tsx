@@ -2,7 +2,7 @@ import { RESULT_LABEL, STATUS_LABEL, type OverallResult, type ReportStatus } fro
 
 const RESULT_CLS: Record<OverallResult, string> = {
   pass: 'bg-success/10 text-success',
-  attention: 'bg-warning-500/10 text-warning-500',
+  attention: 'bg-warning-subtle text-warning',
   fail: 'bg-danger/10 text-danger',
 };
 

@@ -34,7 +34,7 @@ function PipelineStepper({ stage }: { stage: HomeHealthAction['stage'] }) {
           <li
             key={step.key}
             className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
-              complete ? 'bg-success-500/10 text-success-500' : current ? 'bg-accent/10 text-accent' : 'bg-bg-primary text-text-secondary'
+              complete ? 'bg-success-subtle text-success' : current ? 'bg-accent/10 text-accent' : 'bg-bg-primary text-text-secondary'
             }`}
           >
             {step.label}
@@ -123,7 +123,7 @@ export function HomeHealthPage() {
           type="button"
           onClick={handleRun}
           disabled={running}
-          className="focus-ring flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+          className="focus-ring flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-on-accent disabled:opacity-60"
         >
           <Play size={14} /> {running ? 'Running…' : 'Run agent now'}
         </button>
@@ -148,7 +148,7 @@ export function HomeHealthPage() {
           </div>
 
           <h2 className="mb-3 text-sm font-semibold text-text-primary">
-            Pipeline {summary.needsYou > 0 && <span className="ml-2 text-xs font-medium text-warning-500">{summary.needsYou} need your attention</span>}
+            Pipeline {summary.needsYou > 0 && <span className="ml-2 text-xs font-medium text-warning">{summary.needsYou} need your attention</span>}
           </h2>
           {openActions.length === 0 ? (
             <div className="mb-8 rounded-2xl border border-border bg-bg-secondary p-8 text-center">
@@ -163,7 +163,7 @@ export function HomeHealthPage() {
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${a.urgency === 'high' ? 'bg-danger-500/10 text-danger-500' : 'bg-warning-500/10 text-warning-500'}`}>
+                        <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${a.urgency === 'high' ? 'bg-danger-subtle text-danger' : 'bg-warning-subtle text-warning'}`}>
                           {a.urgency.toUpperCase()}
                         </span>
                         <Link to={`/dashboard/customers/${a.customer_id}`} className="text-sm font-semibold text-text-primary hover:text-accent">
@@ -176,7 +176,7 @@ export function HomeHealthPage() {
                       {a.explanation && <p className="mt-1.5 text-sm text-text-secondary">{a.explanation}</p>}
                       <div className="mt-3"><PipelineStepper stage={a.stage} /></div>
                       {a.blocked_reason && (
-                        <p className="mt-2 flex items-center gap-1.5 text-xs font-medium text-warning-500">
+                        <p className="mt-2 flex items-center gap-1.5 text-xs font-medium text-warning">
                           <AlertTriangle size={12} /> {a.blocked_reason}
                         </p>
                       )}

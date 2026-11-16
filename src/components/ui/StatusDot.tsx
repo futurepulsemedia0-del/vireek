@@ -2,8 +2,8 @@ export type StatusTone = 'neutral' | 'success' | 'warning' | 'danger' | 'live';
 
 const DOT: Record<StatusTone, string> = {
   neutral: 'bg-text-muted',
-  success: 'bg-success-500',
-  warning: 'bg-warning-500',
+  success: 'bg-success',
+  warning: 'bg-warning',
   danger: 'bg-danger',
   // "live" = copper, reserved for live/urgent states. Falls back to the CTA fill token.
   live: 'bg-cta',

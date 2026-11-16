@@ -138,7 +138,7 @@ function ResultView({
       </div>
 
       {result.missing_info.length > 0 && (
-        <div className="rounded-xl border border-warning-500/30 bg-warning-500/10 p-3">
+        <div className="rounded-xl border border-warning/30 bg-warning-subtle p-3">
           <p className="text-xs font-semibold text-text-primary">Confirm on site</p>
           <ul className="mt-1 list-disc space-y-0.5 pl-4 text-xs text-text-secondary">
             {result.missing_info.map((m) => (
@@ -209,12 +209,12 @@ function ResultView({
                     {l.quantity > 1 ? `${l.quantity} x ` : ''}
                     {l.description}
                     {l.needs_review && (
-                      <span className="ml-1 rounded bg-warning-500/10 px-1 text-[0.6rem] font-medium text-warning-500">
+                      <span className="ml-1 rounded bg-warning-subtle px-1 text-[0.6rem] font-medium text-warning">
                         verify
                       </span>
                     )}
                     {l.source === 'price_book' && !l.needs_review && (
-                      <span className="ml-1 rounded bg-success-500/10 px-1 text-[0.6rem] font-medium text-success-500">
+                      <span className="ml-1 rounded bg-success-subtle px-1 text-[0.6rem] font-medium text-success">
                         price book
                       </span>
                     )}

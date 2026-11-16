@@ -390,7 +390,7 @@ export const DECISION_LABELS: Record<AllocationDecision, string> = {
 };
 
 export const DECISION_COLORS: Record<AllocationDecision, string> = {
-  prioritize: 'bg-success-500/10 text-success-500',
-  hold: 'bg-warning-500/10 text-warning-500',
+  prioritize: 'bg-success-subtle text-success',
+  hold: 'bg-warning-subtle text-warning',
   defer: 'bg-bg-tertiary text-text-secondary',
 };

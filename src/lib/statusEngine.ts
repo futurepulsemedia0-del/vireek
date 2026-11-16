@@ -24,12 +24,12 @@ export type StatusColor = (typeof STATUS_COLORS)[number];
 /** Design-token classes only (same tokens the job workflow badges already use). */
 export const STATUS_COLOR_CLASSES: Record<StatusColor, { dot: string; badge: string }> = {
   neutral: { dot: 'bg-text-secondary', badge: 'bg-bg-tertiary text-text-secondary' },
-  info: { dot: 'bg-blue-500', badge: 'bg-blue-500/10 text-blue-500' },
-  success: { dot: 'bg-success-500', badge: 'bg-success-500/10 text-success-500' },
-  warning: { dot: 'bg-warning-500', badge: 'bg-warning-500/10 text-warning-500' },
+  info: { dot: 'bg-info', badge: 'bg-info-subtle text-info' },
+  success: { dot: 'bg-success', badge: 'bg-success-subtle text-success' },
+  warning: { dot: 'bg-warning', badge: 'bg-warning-subtle text-warning' },
   danger: { dot: 'bg-danger', badge: 'bg-danger/10 text-danger' },
   accent: { dot: 'bg-accent', badge: 'bg-accent/10 text-accent' },
-  orange: { dot: 'bg-orange-500', badge: 'bg-orange-500/10 text-orange-500' },
+  orange: { dot: 'bg-warning', badge: 'bg-warning-subtle text-warning' },
 };
 
 export function isStatusColor(value: unknown): value is StatusColor {

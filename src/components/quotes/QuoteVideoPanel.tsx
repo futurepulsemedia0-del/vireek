@@ -39,8 +39,8 @@ import { QuoteVideoCapture, type CapturedVideo } from '@/components/quotes/Quote
 const SECTION = 'rounded-2xl border border-border bg-bg-secondary p-4 sm:p-5';
 const TONE: Record<WatchTone, string> = {
   neutral: 'bg-bg-tertiary text-text-secondary',
-  warning: 'bg-warning-500/10 text-warning-500',
-  success: 'bg-success-500/10 text-success-500',
+  warning: 'bg-warning-subtle text-warning',
+  success: 'bg-success-subtle text-success',
 };
 
 interface Props {
@@ -250,7 +250,7 @@ export function QuoteVideoPanel({ quoteId, quoteStatus, customerName }: Props) {
         </p>
       ) : draft ? (
         <div className="mb-4 space-y-3 rounded-xl border border-border bg-bg-primary p-3">
-          <video src={draft.previewUrl} controls playsInline className="aspect-video w-full rounded-lg bg-black" aria-label="Recorded video preview" />
+          <video src={draft.previewUrl} controls playsInline className="aspect-video w-full rounded-lg bg-overlay" aria-label="Recorded video preview" />
           <p className="text-xs text-text-secondary">
             {formatDuration(draft.durationSeconds)} · {formatBytes(draft.blob.size)}
           </p>
@@ -304,7 +304,7 @@ export function QuoteVideoPanel({ quoteId, quoteStatus, customerName }: Props) {
                   <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${TONE[eng.tone]}`}>{eng.label}</span>
                 </div>
                 {previews[v.id] ? (
-                  <video src={previews[v.id]} controls playsInline preload="metadata" className="mt-3 aspect-video w-full rounded-lg bg-black" aria-label={`Preview: ${v.title}`} />
+                  <video src={previews[v.id]} controls playsInline preload="metadata" className="mt-3 aspect-video w-full rounded-lg bg-overlay" aria-label={`Preview: ${v.title}`} />
                 ) : null}
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Button size="sm" variant="secondary" onClick={() => void togglePreview(v)} disabled={busy}>

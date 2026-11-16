@@ -66,7 +66,7 @@ export function ChatChannelList({ channels, people, peopleById, me, counts, acti
               onChange={(e) => setQuery(e.target.value)}
               placeholder={picking ? 'Find a teammate' : 'Search chats'}
               aria-label={picking ? 'Find a teammate' : 'Search chats'}
-              className="focus-ring w-full rounded-xl border border-border bg-bg-primary py-2.5 pl-9 pr-3 text-sm text-text-primary placeholder:text-text-secondary/60 focus-visible:border-accent"
+              className="focus-ring w-full rounded-xl border border-border bg-bg-primary py-2.5 pl-9 pr-3 text-sm text-text-primary placeholder:text-text-placeholder focus-visible:border-accent"
             />
           </div>
           <button
@@ -99,7 +99,7 @@ export function ChatChannelList({ channels, people, peopleById, me, counts, acti
                 aria-selected={filter === key}
                 onClick={() => setFilter(key)}
                 className={`focus-ring rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                  filter === key ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
+                  filter === key ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
                 }`}
               >
                 {label}
@@ -172,7 +172,7 @@ export function ChatChannelList({ channels, people, peopleById, me, counts, acti
                   >
                     <span
                       className={`mt-0.5 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full ${
-                        c.kind === 'job' ? 'bg-warning-500/10 text-warning-500' : 'bg-accent/10 text-accent'
+                        c.kind === 'job' ? 'bg-warning-subtle text-warning' : 'bg-accent/10 text-accent'
                       }`}
                       aria-hidden="true"
                     >
@@ -194,7 +194,7 @@ export function ChatChannelList({ channels, people, peopleById, me, counts, acti
                           </span>
                         </span>
                         {unread > 0 && (
-                          <span className="inline-flex min-w-[1.25rem] flex-shrink-0 items-center justify-center rounded-full bg-accent px-1.5 text-[11px] font-semibold leading-5 text-white">
+                          <span className="inline-flex min-w-[1.25rem] flex-shrink-0 items-center justify-center rounded-full bg-accent px-1.5 text-[11px] font-semibold leading-5 text-on-accent">
                             <span aria-hidden="true">{unreadLabel(unread)}</span>
                             <span className="sr-only">{unread} unread</span>
                           </span>

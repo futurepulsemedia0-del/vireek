@@ -158,8 +158,8 @@ export function AgentCallersPage() {
         </header>
 
         {expiring.length > 0 && (
-          <div role="alert" className="flex items-start gap-3 rounded-xl border border-warning-500/40 bg-warning-500/10 p-4 text-sm text-text-primary">
-            <AlertTriangle size={18} className="mt-0.5 shrink-0 text-warning-500" aria-hidden="true" />
+          <div role="alert" className="flex items-start gap-3 rounded-xl border border-warning/40 bg-warning-subtle p-4 text-sm text-text-primary">
+            <AlertTriangle size={18} className="mt-0.5 shrink-0 text-warning" aria-hidden="true" />
             <div>
               <p className="font-semibold">{t('holds.expiringTitle')}</p>
               <p className="text-text-secondary">{t('holds.expiringBody', { count: expiring.length })}</p>
@@ -261,7 +261,7 @@ export function AgentCallersPage() {
                     <option value="hold_for_approval">{t('settings.mode_hold_for_approval')}</option>
                     <option value="auto_book">{t('settings.mode_auto_book')}</option>
                   </Select>
-                  {settings.approvalMode === 'auto_book' && <p role="note" className="text-sm text-warning-500">{t('settings.autoBookWarn')}</p>}
+                  {settings.approvalMode === 'auto_book' && <p role="note" className="text-sm text-warning">{t('settings.autoBookWarn')}</p>}
                   <div className="grid gap-4 md:grid-cols-2">
                     <NumberField label={t('settings.maxHolds')} value={settings.maxHoldsPerDay} {...AGENT_CALLER_LIMITS.maxHoldsPerDay} onChange={(n) => patch({ maxHoldsPerDay: n })} />
                     <NumberField label={t('settings.holdMinutes')} value={settings.holdMinutes} {...AGENT_CALLER_LIMITS.holdMinutes} onChange={(n) => patch({ holdMinutes: n })} />

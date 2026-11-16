@@ -172,7 +172,7 @@ export function RemoteResolutionCustomerPanel({ token, onRoomLoaded }: Props) {
     return (
       <Card className="space-y-4 p-6">
         <div className="flex items-start gap-3">
-          <CheckCircle2 className="text-success-500" size={22} aria-hidden="true" />
+          <CheckCircle2 className="text-success" size={22} aria-hidden="true" />
           <div>
             <h2 className="text-lg font-bold text-text-primary">Glad it's working{name}</h2>
             <p className="mt-1 text-sm text-text-secondary">
@@ -216,8 +216,8 @@ export function RemoteResolutionCustomerPanel({ token, onRoomLoaded }: Props) {
           <p className="text-sm text-text-primary">{step.instructions}</p>
           {step.expected && <p className="text-sm text-text-secondary">What should happen: {step.expected}</p>}
           {step.safety_note && (
-            <p className="flex items-start gap-2 rounded-xl border border-warning-500/30 bg-warning-500/5 p-3 text-sm text-text-primary">
-              <AlertTriangle size={15} className="mt-0.5 shrink-0 text-warning-500" aria-hidden="true" /> {step.safety_note}
+            <p className="flex items-start gap-2 rounded-xl border border-warning/30 bg-warning-subtle p-3 text-sm text-text-primary">
+              <AlertTriangle size={15} className="mt-0.5 shrink-0 text-warning" aria-hidden="true" /> {step.safety_note}
             </p>
           )}
           <div className="flex flex-wrap gap-2">

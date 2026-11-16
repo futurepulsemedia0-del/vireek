@@ -20,7 +20,7 @@ import {
   type RenewalKpis,
 } from '@/lib/membershipRenewal';
 
-const RISK_STYLES = { ok: 'text-success-500', watch: 'text-warning-500', risk: 'text-danger' } as const;
+const RISK_STYLES = { ok: 'text-success', watch: 'text-warning', risk: 'text-danger' } as const;
 
 function Kpi({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
@@ -45,7 +45,7 @@ function CycleCard({ cycle, onCopy, onStop }: { cycle: RenewalCycle; onCopy: (c:
         </div>
         <p className="shrink-0 text-sm font-semibold text-text-primary">{formatUsd(cycle.amount_cents)}</p>
       </div>
-      {priceUp && <p className="mt-1 text-xs text-warning-500">Price up from {formatUsd(cycle.previous_amount_cents)}</p>}
+      {priceUp && <p className="mt-1 text-xs text-warning">Price up from {formatUsd(cycle.previous_amount_cents)}</p>}
       <p className="mt-1 text-xs text-text-secondary">
         Renews {daysLeftLabel(cycle.period_end)} · {new Date(cycle.period_end).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
       </p>
@@ -140,7 +140,7 @@ export function MembershipRenewalsPage() {
         {error ? (
           <div role="alert" className="rounded-2xl border border-danger/30 bg-danger/5 p-6 text-center">
             <p className="text-sm text-text-primary">{error}</p>
-            <button type="button" onClick={() => void load()} className="focus-ring mt-3 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white">
+            <button type="button" onClick={() => void load()} className="focus-ring mt-3 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent">
               Try again
             </button>
           </div>

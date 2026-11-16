@@ -81,7 +81,7 @@ export function MarketplacePage() {
                   onClick={() => setActiveCategory(category)}
                   className={`focus-ring rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
                     activeCategory === category
-                      ? 'border-accent bg-accent text-white'
+                      ? 'border-accent bg-accent text-on-accent'
                       : 'border-border bg-bg-secondary text-text-secondary hover:border-accent/40 hover:text-text-primary'
                   }`}
                 >
@@ -116,7 +116,7 @@ export function MarketplacePage() {
                         </span>
                       )}
                     </div>
-                    <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-text-secondary/70">
+                    <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-text-muted">
                       {listing.category}
                     </p>
                     <h3 className="mt-1.5 text-lg font-semibold text-text-primary">{listing.name}</h3>

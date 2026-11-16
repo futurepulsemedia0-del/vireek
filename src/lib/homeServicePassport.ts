@@ -207,8 +207,8 @@ export const PERMIT_STATUS_LABELS: Record<PermitStatus, string> = {
 };
 
 export const CONDITION_META: Record<EquipmentCondition, { label: string; className: string }> = {
-  good: { label: 'Good', className: 'bg-success-500/10 text-success-500' },
-  watch: { label: 'Watch', className: 'bg-warning-500/10 text-warning-500' },
+  good: { label: 'Good', className: 'bg-success-subtle text-success' },
+  watch: { label: 'Watch', className: 'bg-warning-subtle text-warning' },
   attention: { label: 'Needs attention', className: 'bg-danger/10 text-danger' },
   unknown: { label: 'Insufficient data', className: 'bg-bg-primary text-text-secondary' },
   retired: { label: 'Retired', className: 'bg-bg-primary text-text-secondary' },
@@ -216,7 +216,7 @@ export const CONDITION_META: Record<EquipmentCondition, { label: string; classNa
 
 export const SEVERITY_META: Record<ProblemSeverity, { label: string; className: string }> = {
   high: { label: 'High', className: 'bg-danger/10 text-danger' },
-  medium: { label: 'Medium', className: 'bg-warning-500/10 text-warning-500' },
+  medium: { label: 'Medium', className: 'bg-warning-subtle text-warning' },
   low: { label: 'Low', className: 'bg-bg-primary text-text-secondary' },
 };
 

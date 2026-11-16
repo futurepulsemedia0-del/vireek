@@ -715,10 +715,10 @@ export const VERDICT_LABELS: Record<Verdict, string> = {
 };
 
 export const VERDICT_STYLES: Record<Verdict, string> = {
-  covered: 'bg-success-500/10 text-success-500',
+  covered: 'bg-success-subtle text-success',
   partially_covered: 'bg-accent/10 text-accent',
   not_covered: 'bg-bg-tertiary text-text-secondary',
-  needs_review: 'bg-warning-500/10 text-warning-500',
+  needs_review: 'bg-warning-subtle text-warning',
 };
 
 export const FLAG_LABELS: Record<string, string> = {

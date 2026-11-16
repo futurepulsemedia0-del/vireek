@@ -121,7 +121,7 @@ export function PasskeysCard() {
             type="button"
             onClick={handleAdd}
             disabled={adding}
-            className="focus-ring inline-flex shrink-0 items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+            className="focus-ring inline-flex shrink-0 items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-on-accent transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <Plus size={16} aria-hidden="true" />
             {adding ? 'Waiting…' : 'Add a passkey'}
@@ -172,7 +172,7 @@ export function PasskeysCard() {
                   <button
                     type="submit"
                     disabled={savingId === p.id || !editName.trim()}
-                    className="focus-ring rounded-lg bg-accent px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-60"
+                    className="focus-ring rounded-lg bg-accent px-3 py-1.5 text-sm font-semibold text-on-accent disabled:opacity-60"
                   >
                     Save
                   </button>

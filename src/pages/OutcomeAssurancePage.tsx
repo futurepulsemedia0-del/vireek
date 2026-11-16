@@ -55,8 +55,8 @@ function errMessage(e: unknown): string {
 }
 
 function barClass(score: number): string {
-  if (score >= 85) return 'bg-success-500';
-  if (score >= 70) return 'bg-warning-500';
+  if (score >= 85) return 'bg-success';
+  if (score >= 70) return 'bg-warning';
   return 'bg-danger';
 }
 
@@ -68,7 +68,7 @@ const EVIDENCE_LABELS: Record<Evidence, string> = {
 
 const SEVERITY_COLORS: Record<Intervention['severity'], string> = {
   critical: 'bg-danger/10 text-danger',
-  high: 'bg-warning-500/10 text-warning-500',
+  high: 'bg-warning-subtle text-warning',
   medium: 'bg-bg-tertiary text-text-secondary',
 };
 
@@ -284,7 +284,7 @@ function JobCard({
                   </div>
                   <p className="mt-1 text-[11px] text-text-secondary">{f.detail}</p>
                   {f.issues.length > 0 && (
-                    <ul className="mt-0.5 list-disc pl-4 text-[11px] text-warning-500">
+                    <ul className="mt-0.5 list-disc pl-4 text-[11px] text-warning">
                       {f.issues.map((iss) => (
                         <li key={iss}>{iss}</li>
                       ))}
@@ -520,8 +520,8 @@ export function OutcomeAssurancePage() {
           <>
             <div className="mb-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
               <StatCard label="Avg success probability" value={summary.avgProbability !== null ? `${Math.round(summary.avgProbability)}%` : '—'} />
-              <StatCard label="Assured" value={countBy('assured')} valueClass="text-success-500" />
-              <StatCard label="Watch" value={countBy('watch')} valueClass="text-warning-500" />
+              <StatCard label="Assured" value={countBy('assured')} valueClass="text-success" />
+              <StatCard label="Watch" value={countBy('watch')} valueClass="text-warning" />
               <StatCard label="Intervene" value={countBy('intervene')} valueClass="text-danger" />
             </div>
             {summary.insufficient > 0 && (
@@ -538,7 +538,7 @@ export function OutcomeAssurancePage() {
                   role="tab"
                   aria-selected={filter === f.key}
                   onClick={() => setFilter(f.key)}
-                  className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filter === f.key ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
+                  className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filter === f.key ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
                 >
                   {f.label} ({f.count})
                 </button>

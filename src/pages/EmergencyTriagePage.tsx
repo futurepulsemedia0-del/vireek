@@ -31,8 +31,8 @@ function SafetyBanner({ hazards }: { hazards: HazardId[] }) {
   if (lines.length === 0) return null;
   const lifeSafety = hasLifeSafetyHazard(hazards);
   return (
-    <div className={`rounded-2xl border p-4 ${lifeSafety ? 'border-danger/40 bg-danger/5' : 'border-warning-500/40 bg-warning-500/5'}`}>
-      <p className={`flex items-center gap-2 text-sm font-semibold ${lifeSafety ? 'text-danger' : 'text-warning-500'}`}>
+    <div className={`rounded-2xl border p-4 ${lifeSafety ? 'border-danger/40 bg-danger/5' : 'border-warning/40 bg-warning-subtle'}`}>
+      <p className={`flex items-center gap-2 text-sm font-semibold ${lifeSafety ? 'text-danger' : 'text-warning'}`}>
         <AlertTriangle size={16} />
         Do this right now
       </p>
@@ -148,7 +148,7 @@ export function EmergencyTriagePage() {
               <button
                 type="button"
                 onClick={() => setStep('hazards')}
-                className="focus-ring mt-6 w-full rounded-xl bg-danger px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-danger/90"
+                className="focus-ring mt-6 w-full rounded-xl bg-danger px-4 py-3 text-sm font-semibold text-on-danger transition-colors hover:bg-danger-hover"
               >
                 Start emergency report
               </button>
@@ -189,7 +189,7 @@ export function EmergencyTriagePage() {
                 type="button"
                 disabled={hazards.length === 0}
                 onClick={() => setStep('details')}
-                className="focus-ring mt-6 w-full rounded-xl bg-accent px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-accent/90 disabled:opacity-40"
+                className="focus-ring mt-6 w-full rounded-xl bg-accent px-4 py-3 text-sm font-semibold text-on-accent transition-colors hover:bg-accent/90 disabled:opacity-40"
               >
                 Continue
               </button>
@@ -241,7 +241,7 @@ export function EmergencyTriagePage() {
               <button
                 type="button"
                 onClick={() => setStep('started')}
-                className="focus-ring mt-6 w-full rounded-xl bg-accent px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-accent/90"
+                className="focus-ring mt-6 w-full rounded-xl bg-accent px-4 py-3 text-sm font-semibold text-on-accent transition-colors hover:bg-accent/90"
               >
                 Continue
               </button>
@@ -270,7 +270,7 @@ export function EmergencyTriagePage() {
                 type="button"
                 disabled={!startedAt}
                 onClick={handleSubmit}
-                className="focus-ring mt-6 w-full rounded-xl bg-danger px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-danger/90 disabled:opacity-40"
+                className="focus-ring mt-6 w-full rounded-xl bg-danger px-4 py-3 text-sm font-semibold text-on-danger transition-colors hover:bg-danger-hover disabled:opacity-40"
               >
                 Send emergency report
               </button>
@@ -286,7 +286,7 @@ export function EmergencyTriagePage() {
 
           {step === 'result' && result && (
             <div className="text-center">
-              <span className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-success-500/10 text-success-500">
+              <span className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-success-subtle text-success">
                 <CheckCircle2 size={26} />
               </span>
               {result.assigned ? (

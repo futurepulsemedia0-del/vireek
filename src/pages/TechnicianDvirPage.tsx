@@ -37,7 +37,7 @@ import {
 } from '@/lib/dvir';
 
 const RESULT_BUTTONS: Array<{ id: AnswerResult; label: string; active: string }> = [
-  { id: 'pass', label: 'Pass', active: 'border-success-500 bg-success-500/10 text-success-500' },
+  { id: 'pass', label: 'Pass', active: 'border-success bg-success-subtle text-success' },
   { id: 'defect', label: 'Defect', active: 'border-danger bg-danger/10 text-danger' },
   { id: 'na', label: 'N/A', active: 'border-accent bg-accent/10 text-accent' },
 ];
@@ -56,7 +56,7 @@ function Thumb({ file, onRemove }: { file: File; onRemove: () => void }) {
         type="button"
         onClick={onRemove}
         aria-label="Remove photo"
-        className="focus-ring absolute right-0.5 top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/70 text-white"
+        className="focus-ring absolute right-0.5 top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-overlay/70 text-white"
       >
         <X size={12} />
       </button>
@@ -287,7 +287,7 @@ export function TechnicianDvirPage() {
   if (outcome) {
     const unsafe = outcome.result_status === 'unsafe';
     const Icon = unsafe ? AlertOctagon : outcome.result_status === 'defects_noted' ? AlertTriangle : CheckCircle2;
-    const tone = unsafe ? 'text-danger' : outcome.result_status === 'defects_noted' ? 'text-warning-500' : 'text-success-500';
+    const tone = unsafe ? 'text-danger' : outcome.result_status === 'defects_noted' ? 'text-warning' : 'text-success';
     return (
       <div className="min-h-screen bg-bg-primary pb-10">
         {header}
@@ -304,7 +304,7 @@ export function TechnicianDvirPage() {
             <p className="text-sm text-text-secondary">Inspection saved. Drive safe.</p>
           )}
           {outcome.odometer_anomaly && (
-            <p className="rounded-xl bg-warning-500/10 p-3 text-xs text-warning-500">
+            <p className="rounded-xl bg-warning-subtle p-3 text-xs text-warning">
               The odometer is lower than the last recorded reading. This was flagged for review.
             </p>
           )}

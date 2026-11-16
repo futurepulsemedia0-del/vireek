@@ -2,7 +2,7 @@ import { BAND_LABEL, readinessBand, type Confidence, type ReadinessBand } from '
 
 const BAND_TONE: Record<ReadinessBand, string> = {
   not_ready: 'text-danger',
-  early: 'text-warning-500',
+  early: 'text-warning',
   nearly: 'text-accent',
   ready: 'text-success',
 };

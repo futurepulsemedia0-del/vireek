@@ -29,7 +29,7 @@ import {
 import { TaxBreakdownLines } from '@/components/tax/TaxBreakdownLines';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder transition-colors';
 const money = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 const STATE_OPTIONS = Object.entries(US_STATES).sort(([a], [b]) => a.localeCompare(b));
 
@@ -273,7 +273,7 @@ export function SalesTaxPanel({ lines, value, onChange }: Props) {
               type="button"
               aria-pressed={value.mode === m}
               onClick={() => setMode(m)}
-              className={`focus-ring rounded-md px-2.5 py-1 font-medium ${value.mode === m ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}
+              className={`focus-ring rounded-md px-2.5 py-1 font-medium ${value.mode === m ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}
             >
               {m === 'auto' ? 'Automatic' : 'Manual rate'}
             </button>
@@ -368,7 +368,7 @@ export function SalesTaxPanel({ lines, value, onChange }: Props) {
           )}
 
           {changedFromSaved && calculation && (
-            <p className="text-[11px] text-warning-500">
+            <p className="text-[11px] text-warning">
               Tax was {money(value.savedTaxCents ?? 0)} when this was saved; with current rates and certificates it is {money(calculation.taxCents)}.
             </p>
           )}
@@ -378,7 +378,7 @@ export function SalesTaxPanel({ lines, value, onChange }: Props) {
           )}
 
           {!pending && calculation && calculation.status === 'calculated' && [...calculation.warnings, ...(loadWarning ? [loadWarning] : [])].map((w) => (
-            <p key={w} className="flex items-start gap-1.5 text-[11px] text-warning-500">
+            <p key={w} className="flex items-start gap-1.5 text-[11px] text-warning">
               <AlertTriangle size={12} className="mt-0.5 shrink-0" /> {w}
             </p>
           ))}

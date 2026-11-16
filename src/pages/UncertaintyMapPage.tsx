@@ -26,14 +26,14 @@ import {
 function confidenceTextColor(pct: number): string {
   if (pct >= 80) return 'text-success';
   if (pct >= 55) return 'text-text-primary';
-  if (pct >= 30) return 'text-warning-500';
+  if (pct >= 30) return 'text-warning';
   return 'text-danger';
 }
 
 function confidenceBarColor(pct: number): string {
   if (pct >= 80) return 'bg-success';
   if (pct >= 55) return 'bg-text-secondary';
-  if (pct >= 30) return 'bg-warning-500';
+  if (pct >= 30) return 'bg-warning';
   return 'bg-danger';
 }
 

@@ -131,7 +131,7 @@ export function SarahLearnPage({ embedded = false }: { embedded?: boolean } = {}
     <div className={embedded ? 'relative' : 'relative min-h-screen bg-bg-primary px-4 pb-16 pt-20 sm:px-6'}>
       <header className="absolute inset-x-0 top-0 z-10 flex items-center justify-between px-4 py-4 sm:px-6">
         <span className="flex items-center gap-2.5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-white">
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-on-accent">
             <Phone size={16} strokeWidth={2.5} aria-hidden="true" />
           </span>
           <span className="text-lg font-bold tracking-tight text-accent">Vireek</span>

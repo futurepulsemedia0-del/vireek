@@ -303,11 +303,11 @@ export function CapacityDemandPage() {
               >
                 <span className="font-medium text-text-primary">{entry.customer_name}</span>
                 <span className="text-text-secondary">Wants: {entry.requested_date}</span>
-                <span className="text-text-secondary/70">{entry.status}</span>
+                <span className="text-text-muted">{entry.status}</span>
                 <div className="flex gap-2">
                   <button
                     onClick={() => markBooked(entry.id)}
-                    className="flex items-center gap-1 text-success-500 hover:underline"
+                    className="flex items-center gap-1 text-success hover:underline"
                   >
                     <CheckCircle2 size={12} /> Booked
                   </button>

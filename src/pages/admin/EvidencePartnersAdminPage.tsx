@@ -164,7 +164,7 @@ export function EvidencePartnersAdminPage() {
           <p className="mt-2 text-sm text-text-secondary">Releases run weekly. A partner receives only the latest immutable release, only for products its contract allows.</p>
 
           {newKey && (
-            <div className="mt-5 rounded-2xl border border-warning-500/40 bg-warning-500/10 p-4">
+            <div className="mt-5 rounded-2xl border border-warning/40 bg-warning-subtle p-4">
               <p className="text-sm font-semibold text-text-primary">New key for {newKey.partner}: shown once</p>
               <p className="mt-1 text-xs text-text-secondary">Only the hash is stored. Send it over a secure channel; it cannot be shown again.</p>
               <div className="mt-2 flex items-center gap-2">

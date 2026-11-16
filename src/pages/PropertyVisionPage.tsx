@@ -129,7 +129,7 @@ export function PropertyVisionPage() {
         )}
 
         {lastResult && !lastResult.already_analyzed && (
-          <div role="status" className={`mb-6 rounded-2xl border p-4 text-sm ${urgent.length ? 'border-danger-500/30 bg-danger-500/5' : 'border-border bg-bg-secondary'}`}>
+          <div role="status" className={`mb-6 rounded-2xl border p-4 text-sm ${urgent.length ? 'border-danger/30 bg-danger-subtle' : 'border-border bg-bg-secondary'}`}>
             <p className="font-semibold text-text-primary">
               Scan complete — {lastResult.assets.length} unit{lastResult.assets.length === 1 ? '' : 's'} recognized
               {lastResult.assets.some((a) => !a.is_new) ? ` (${lastResult.assets.filter((a) => !a.is_new).length} matched to memory)` : ''}.
@@ -159,8 +159,8 @@ export function PropertyVisionPage() {
             <div className="mb-6 grid grid-cols-3 gap-3">
               {[
                 { label: 'Units remembered', value: stats.units, icon: Layers, tone: 'text-accent' },
-                { label: 'Open hazards', value: stats.hazards, icon: ShieldAlert, tone: stats.hazards ? 'text-danger-500' : 'text-text-secondary' },
-                { label: 'Awaiting review', value: stats.review, icon: AlertTriangle, tone: stats.review ? 'text-warning-500' : 'text-text-secondary' },
+                { label: 'Open hazards', value: stats.hazards, icon: ShieldAlert, tone: stats.hazards ? 'text-danger' : 'text-text-secondary' },
+                { label: 'Awaiting review', value: stats.review, icon: AlertTriangle, tone: stats.review ? 'text-warning' : 'text-text-secondary' },
               ].map((s) => (
                 <div key={s.label} className="rounded-2xl border border-border bg-bg-secondary p-4">
                   <s.icon size={16} className={s.tone} aria-hidden />
@@ -184,7 +184,7 @@ export function PropertyVisionPage() {
                     {([['all', 'All'], ['attention', 'Needs attention'], ['unconfirmed', 'Unconfirmed']] as [Filter, string][]).map(([k, label]) => (
                       <button
                         key={k} type="button" role="tab" aria-selected={filter === k} onClick={() => setFilter(k)}
-                        className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium ${filter === k ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
+                        className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium ${filter === k ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
                       >{label}</button>
                     ))}
                   </div>
@@ -210,7 +210,7 @@ export function PropertyVisionPage() {
                             <span className={`rounded-full px-2 py-0.5 font-semibold ${CONDITION_STYLES[a.condition]}`}>{a.condition}</span>
                             <span className="text-text-secondary">{ageLabel(a)}</span>
                             <span className="text-text-secondary">· seen {formatWhen(a.last_seen_at)}</span>
-                            {a.possible_duplicate_of && <span className="rounded-full bg-warning-500/10 px-2 py-0.5 font-semibold text-warning-500">possible duplicate</span>}
+                            {a.possible_duplicate_of && <span className="rounded-full bg-warning-subtle px-2 py-0.5 font-semibold text-warning">possible duplicate</span>}
                           </div>
                         </button>
                       </li>

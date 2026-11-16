@@ -71,9 +71,9 @@ function RiskStat({
   active: boolean;
   onClick: () => void;
 }) {
-  const toneClass = tone === 'danger' ? 'text-danger' : 'text-warning-500';
-  const toneBg = tone === 'danger' ? 'bg-danger/10' : 'bg-warning-500/10';
-  const toneBorder = tone === 'danger' ? 'border-danger/30' : 'border-warning-500/30';
+  const toneClass = tone === 'danger' ? 'text-danger' : 'text-warning';
+  const toneBg = tone === 'danger' ? 'bg-danger/10' : 'bg-warning-subtle';
+  const toneBorder = tone === 'danger' ? 'border-danger/30' : 'border-warning/30';
 
   return (
     <button
@@ -139,7 +139,7 @@ export function RevenueAtRiskPreview() {
           {/* Browser-style chrome, matching DashboardPreview.tsx's convention */}
           <div className="flex items-center gap-2 border-b border-border bg-bg-tertiary/60 px-4 py-3">
             <span className="h-2.5 w-2.5 rounded-full bg-danger/40" />
-            <span className="h-2.5 w-2.5 rounded-full bg-warning-500/40" />
+            <span className="h-2.5 w-2.5 rounded-full bg-warning/40" />
             <span className="h-2.5 w-2.5 rounded-full bg-success/40" />
             <span className="ml-2 text-xs font-medium text-text-secondary">Revenue at Risk — Dashboard</span>
             <span className="ml-auto flex items-center gap-1.5">
@@ -204,7 +204,7 @@ export function RevenueAtRiskPreview() {
                 >
                   <span
                     className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
-                      item.category === 'estimate' ? 'bg-danger/10 text-danger' : 'bg-warning-500/10 text-warning-500'
+                      item.category === 'estimate' ? 'bg-danger/10 text-danger' : 'bg-warning-subtle text-warning'
                     }`}
                   >
                     {item.category === 'estimate' ? <FileWarning size={14} /> : <Receipt size={14} />}
@@ -247,7 +247,7 @@ export function RevenueAtRiskPreview() {
           whileInView={{ opacity: 1 }}
           viewport={viewport}
           transition={{ duration: 0.5, delay: 0.2, ease: EASE }}
-          className="mt-6 flex items-center justify-center gap-1.5 text-center text-xs text-text-secondary/70"
+          className="mt-6 flex items-center justify-center gap-1.5 text-center text-xs text-text-muted"
         >
           <ArrowUpRight size={12} />
           Illustrative preview. Your real dashboard is powered by your own estimates and invoices.

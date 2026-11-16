@@ -129,7 +129,7 @@ export function LocationForm({ accountOwnerId, defaultQuery, providerReady, onSa
       description="Find your business exactly as it appears on Google Maps. We rank this listing, so pick the right one."
     >
       {!providerReady && (
-        <p role="status" className="mb-4 rounded-xl border border-warning-500/40 bg-warning-500/10 p-3 text-sm text-warning-500">
+        <p role="status" className="mb-4 rounded-xl border border-warning/40 bg-warning-subtle p-3 text-sm text-warning">
           Business search is unavailable until a Google Places API key is configured.
         </p>
       )}

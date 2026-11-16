@@ -158,7 +158,7 @@ export function JobBoardPostCard({ post, recipients, bids, technicians, vendors,
   const reopenLabel = post.status === 'open' ? 'Extend 1 hour' : post.status === 'awarded' ? 'Release & re-open' : 'Re-open';
 
   return (
-    <article className={`rounded-xl border bg-bg-secondary p-4 ${urgent ? 'border-cta/60' : attention ? 'border-warning-500/60' : 'border-border'}`}>
+    <article className={`rounded-xl border bg-bg-secondary p-4 ${urgent ? 'border-cta/60' : attention ? 'border-warning/60' : 'border-border'}`}>
       <div className="flex flex-wrap items-center gap-2">
         {post.priority === 'urgent' && (
           <span className="inline-flex items-center gap-1 rounded-full bg-cta/10 px-2 py-0.5 text-xs font-semibold text-cta">
@@ -194,7 +194,7 @@ export function JobBoardPostCard({ post, recipients, bids, technicians, vendors,
 
       {post.status === 'awarded' && (
         <p className="mt-3 flex items-center gap-1.5 text-sm text-text-primary">
-          <Check size={14} className="text-success-500" />
+          <Check size={14} className="text-success" />
           <span>
             <span className="font-medium">{post.awarded_label ?? 'Awarded'}</span>
             {post.awarded_via && <span className="text-text-secondary"> · {AWARDED_VIA_LABELS[post.awarded_via]}</span>}
@@ -212,7 +212,7 @@ export function JobBoardPostCard({ post, recipients, bids, technicians, vendors,
         </p>
       )}
       {expired && post.status === 'expired' && (
-        <p className="mt-3 flex items-center gap-1.5 text-sm text-warning-500">
+        <p className="mt-3 flex items-center gap-1.5 text-sm text-warning">
           <ShieldAlert size={14} /> Expired unclaimed — re-open it, assign it directly or send it to the network.
         </p>
       )}

@@ -89,7 +89,7 @@ export function useComplianceStartGuard(): {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={() => settle(false)}
-            className="fixed inset-0 z-[110] bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 z-[110] bg-overlay/40 backdrop-blur-sm"
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.96, y: 10 }}
@@ -161,7 +161,7 @@ export function useComplianceStartGuard(): {
                 rows={3}
                 maxLength={500}
                 placeholder="e.g. Permit already filed by the GC — number pending."
-                className="focus-ring w-full resize-none rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60"
+                className="focus-ring w-full resize-none rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder"
               />
             </div>
             <div className="mt-5 flex gap-3">
@@ -176,7 +176,7 @@ export function useComplianceStartGuard(): {
                 type="button"
                 disabled={submitting || reason.trim().length < MIN_REASON}
                 onClick={confirm}
-                className="focus-ring flex-1 rounded-xl bg-danger px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                className="focus-ring flex-1 rounded-xl bg-danger px-4 py-2.5 text-sm font-semibold text-on-danger transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {submitting ? 'Recording…' : 'Acknowledge & start'}
               </button>

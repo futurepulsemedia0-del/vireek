@@ -25,7 +25,7 @@ const DECLINE_VALUE = '__decline';
 
 const TONE_CHIP = {
   danger: 'border-danger/30 bg-danger/5 text-danger',
-  warning: 'border-warning-500/30 bg-warning-500/5 text-warning-500',
+  warning: 'border-warning/30 bg-warning-subtle text-warning',
   neutral: 'border-border bg-bg-primary text-text-secondary',
 } as const;
 
@@ -86,7 +86,7 @@ function DecisionCard({ request, token, onDecided }: { request: PublicRequest; t
   return (
     <Card className="!p-5 hover:!translate-y-0 sm:!p-6">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-warning-500/30 bg-warning-500/5 px-2.5 py-1 text-[11px] font-semibold text-warning-500">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-warning/30 bg-warning-subtle px-2.5 py-1 text-[11px] font-semibold text-warning">
           <AlertTriangle size={12} aria-hidden="true" /> Additional work may be required
         </span>
         <span className={`rounded-full border px-2.5 py-1 text-[11px] font-medium ${TONE_CHIP[necessity.tone]}`}>{necessity.label}</span>
@@ -110,8 +110,8 @@ function DecisionCard({ request, token, onDecided }: { request: PublicRequest; t
           <p className="mt-1 text-sm leading-relaxed text-text-primary">{request.consequence}</p>
         </div>
 
-        <div className="rounded-xl border border-success-500/30 bg-success-500/5 p-3">
-          <p className="flex items-center gap-1.5 text-xs font-semibold text-success-500">
+        <div className="rounded-xl border border-success/30 bg-success-subtle p-3">
+          <p className="flex items-center gap-1.5 text-xs font-semibold text-success">
             <ShieldCheck size={13} aria-hidden="true" /> Your price protection
           </p>
           <p className="mt-1 text-sm leading-relaxed text-text-primary">
@@ -146,7 +146,7 @@ function DecisionCard({ request, token, onDecided }: { request: PublicRequest; t
                     setChoice(value);
                     setError(null);
                   }}
-                  className="mt-1 h-4 w-4 shrink-0 accent-[var(--color-accent,#2563eb)]"
+                  className="mt-1 h-4 w-4 shrink-0 accent-accent"
                 />
                 <span className="min-w-0 flex-1">
                   <span className="flex flex-wrap items-center gap-2">
@@ -180,7 +180,7 @@ function DecisionCard({ request, token, onDecided }: { request: PublicRequest; t
           />
         ) : (
           needsAck && (
-            <label className="flex cursor-pointer items-start gap-2.5 rounded-xl border border-warning-500/30 bg-warning-500/5 p-3">
+            <label className="flex cursor-pointer items-start gap-2.5 rounded-xl border border-warning/30 bg-warning-subtle p-3">
               <input
                 type="checkbox"
                 checked={acknowledged}
@@ -239,7 +239,7 @@ function ResolvedRow({ request }: { request: PublicRequest }) {
   const chosen = request.options.find((o) => o.id === request.decided_option_id);
   const approved = request.status === 'approved';
   const Icon = approved ? CheckCircle2 : XCircle;
-  const tone = approved ? 'text-success-500' : 'text-text-secondary';
+  const tone = approved ? 'text-success' : 'text-text-secondary';
 
   let line = '';
   if (approved) {

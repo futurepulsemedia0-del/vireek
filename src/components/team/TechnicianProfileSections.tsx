@@ -38,7 +38,7 @@ export function SectionCard({
       </div>
       <div className="mt-3">
         {error ? (
-          <div role="alert" className="flex items-start gap-2 rounded-xl bg-danger-500/10 p-3 text-sm text-danger-500">
+          <div role="alert" className="flex items-start gap-2 rounded-xl bg-danger-subtle p-3 text-sm text-danger">
             <AlertTriangle size={16} className="mt-0.5 shrink-0" />
             <span>
               Couldn’t load this section.
@@ -75,7 +75,7 @@ export function SkillsSection({ skills, languages, error, onRetry }: { skills: S
               <div className="flex items-center gap-2 text-xs">
                 {s.firstTimeFixRate !== null && <span className="tabular-nums text-text-secondary">{s.firstTimeFixRate}% fixed 1st visit</span>}
                 {s.csatAvg !== null && <span className="tabular-nums text-text-secondary">★ {s.csatAvg.toFixed(1)}</span>}
-                <span className={`rounded-full px-2 py-0.5 font-semibold ${s.declared ? (s.jobs > 0 ? 'bg-success-500/15 text-success-500' : 'bg-warning-500/15 text-warning-500') : 'bg-bg-tertiary text-text-secondary'}`}>
+                <span className={`rounded-full px-2 py-0.5 font-semibold ${s.declared ? (s.jobs > 0 ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning') : 'bg-bg-tertiary text-text-secondary'}`}>
                   {s.declared ? (s.jobs > 0 ? 'Proven' : 'Unproven') : 'Undeclared'}
                 </span>
               </div>
@@ -94,11 +94,11 @@ export function SkillsSection({ skills, languages, error, onRetry }: { skills: S
 
 // ─── Credentials ───────────────────────────────────────────────────────────
 const HEALTH: Record<CredentialHealth, { label: string; cls: string }> = {
-  valid: { label: 'Valid', cls: 'bg-success-500/15 text-success-500' },
-  expiring_soon: { label: 'Expiring soon', cls: 'bg-warning-500/15 text-warning-500' },
-  expired: { label: 'Expired', cls: 'bg-danger-500/15 text-danger-500' },
+  valid: { label: 'Valid', cls: 'bg-success-subtle text-success' },
+  expiring_soon: { label: 'Expiring soon', cls: 'bg-warning-subtle text-warning' },
+  expired: { label: 'Expired', cls: 'bg-danger-subtle text-danger' },
   revoked: { label: 'Revoked', cls: 'bg-bg-tertiary text-text-secondary' },
-  pending_renewal: { label: 'Pending renewal', cls: 'bg-warning-500/15 text-warning-500' },
+  pending_renewal: { label: 'Pending renewal', cls: 'bg-warning-subtle text-warning' },
 };
 
 export function CredentialsSection({ views, error, onRetry }: { views: CredentialView[]; error?: string; onRetry?: () => void }) {
@@ -109,7 +109,7 @@ export function CredentialsSection({ views, error, onRetry }: { views: Credentia
       icon={BadgeCheck}
       error={error}
       onRetry={onRetry}
-      aside={attention > 0 ? <span className="flex items-center gap-1 text-xs font-medium text-warning-500"><ShieldAlert size={14} /> {attention} need{attention === 1 ? 's' : ''} attention</span> : undefined}
+      aside={attention > 0 ? <span className="flex items-center gap-1 text-xs font-medium text-warning"><ShieldAlert size={14} /> {attention} need{attention === 1 ? 's' : ''} attention</span> : undefined}
     >
       {views.length === 0 ? (
         <p className="text-sm text-text-secondary">No licenses or certifications on file for this technician.</p>
@@ -139,9 +139,9 @@ export function CredentialsSection({ views, error, onRetry }: { views: Credentia
 
 // ─── Availability ──────────────────────────────────────────────────────────
 const DAY_STYLE: Record<AvailabilityDay['state'], string> = {
-  open: 'bg-success-500/15 text-success-500',
-  busy: 'bg-warning-500/15 text-warning-500',
-  full: 'bg-danger-500/15 text-danger-500',
+  open: 'bg-success-subtle text-success',
+  busy: 'bg-warning-subtle text-warning',
+  full: 'bg-danger-subtle text-danger',
   off: 'bg-bg-tertiary text-text-secondary',
 };
 const DAY_LABEL: Record<AvailabilityDay['state'], string> = { open: 'Open', busy: 'Busy', full: 'Full', off: 'Off' };
@@ -164,12 +164,12 @@ export function AvailabilitySection({ member, days }: { member: TeamMember; days
         })}
       </div>
       <dl className="mt-4 space-y-2 text-sm">
-        <div className="flex justify-between gap-3"><dt className="text-text-secondary">Dispatch</dt><dd className={member.dispatch_enabled ? 'text-success-500' : 'text-text-secondary'}>{member.dispatch_enabled ? 'Accepting jobs' : 'Paused'}</dd></div>
+        <div className="flex justify-between gap-3"><dt className="text-text-secondary">Dispatch</dt><dd className={member.dispatch_enabled ? 'text-success' : 'text-text-secondary'}>{member.dispatch_enabled ? 'Accepting jobs' : 'Paused'}</dd></div>
         <div className="flex justify-between gap-3"><dt className="text-text-secondary">Max jobs / day</dt><dd className="tabular-nums text-text-primary">{member.max_jobs_per_day}</dd></div>
         <div className="flex justify-between gap-3"><dt className="flex items-center gap-1 text-text-secondary"><MapPin size={13} /> Service area</dt><dd className="break-words text-right text-text-primary">{member.service_area || '—'}</dd></div>
         <div className="flex justify-between gap-3">
           <dt className="flex items-center gap-1 text-text-secondary"><Radio size={13} /> Location</dt>
-          <dd className={loc?.live ? 'text-success-500' : 'text-text-primary'}>
+          <dd className={loc?.live ? 'text-success' : 'text-text-primary'}>
             {!loc ? 'Never reported' : loc.live ? 'Live now' : loc.minutesAgo < 60 ? `${loc.minutesAgo} min ago` : loc.minutesAgo < 1440 ? `${Math.round(loc.minutesAgo / 60)} h ago` : `${Math.round(loc.minutesAgo / 1440)} d ago`}
           </dd>
         </div>

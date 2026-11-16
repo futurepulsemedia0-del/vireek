@@ -500,7 +500,7 @@ export function ScheduledReportsPage() {
                       disabled={busyId === s.id}
                       className={`focus-ring relative h-6 w-11 shrink-0 rounded-full transition-colors disabled:opacity-50 ${s.is_active ? 'bg-accent' : 'bg-bg-tertiary border border-border'}`}
                     >
-                      <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${s.is_active ? 'left-[22px]' : 'left-0.5'}`} />
+                      <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-bg-secondary shadow transition-all ${s.is_active ? 'left-[22px]' : 'left-0.5'}`} />
                     </button>
                   </div>
 
@@ -523,8 +523,8 @@ export function ScheduledReportsPage() {
                   </div>
 
                   {s.paused_reason && !s.is_active && (
-                    <p className="mt-3 flex items-start gap-2 rounded-xl bg-warning-500/10 p-2.5 text-xs text-text-primary" role="status">
-                      <AlertTriangle size={14} className="mt-0.5 shrink-0 text-warning-500" /> {s.paused_reason}
+                    <p className="mt-3 flex items-start gap-2 rounded-xl bg-warning-subtle p-2.5 text-xs text-text-primary" role="status">
+                      <AlertTriangle size={14} className="mt-0.5 shrink-0 text-warning" /> {s.paused_reason}
                     </p>
                   )}
 

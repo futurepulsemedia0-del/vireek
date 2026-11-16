@@ -61,7 +61,7 @@ function Segmented<T extends string>({ value, options, onChange, disabled, label
           aria-checked={value === o.value}
           disabled={disabled}
           onClick={() => onChange(o.value)}
-          className={`focus-ring rounded-lg px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-60 ${value === o.value ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}
+          className={`focus-ring rounded-lg px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-60 ${value === o.value ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}
         >
           {o.label}
         </button>
@@ -228,10 +228,10 @@ export function ChatWidgetSettingsPage() {
         </div>
       ) : loadError ? (
         <div role="alert" className="rounded-2xl border border-dashed border-border bg-bg-secondary/50 px-6 py-16 text-center">
-          <AlertTriangle className="mx-auto mb-3 text-warning-500" size={28} />
+          <AlertTriangle className="mx-auto mb-3 text-warning" size={28} />
           <h3 className="text-lg font-semibold text-text-primary">Couldn’t load your chat widget</h3>
           <p className="mt-1.5 text-sm text-text-secondary">Check your connection and try again.</p>
-          <button type="button" onClick={load} className="focus-ring mt-4 inline-flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white hover:opacity-90">
+          <button type="button" onClick={load} className="focus-ring mt-4 inline-flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent hover:opacity-90">
             <RefreshCw size={14} /> Retry
           </button>
         </div>
@@ -258,7 +258,7 @@ export function ChatWidgetSettingsPage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Brand color" error={showErr('brand_color')}>
                   <div className="flex items-center gap-2">
-                    <input type="color" aria-label="Pick brand color" value={/^#[0-9a-fA-F]{6}$/.test(draft.brand_color) ? draft.brand_color : '#3448E8'} onChange={(e) => patch('brand_color', e.target.value.toUpperCase())} className="h-10 w-12 shrink-0 cursor-pointer rounded-lg border border-border bg-bg-primary p-1" />
+                    <input type="color" aria-label="Pick brand color" value={/^#[0-9a-fA-F]{6}$/.test(draft.brand_color) ? draft.brand_color : '#A93B0F'} onChange={(e) => patch('brand_color', e.target.value.toUpperCase())} className="h-10 w-12 shrink-0 cursor-pointer rounded-lg border border-border bg-bg-primary p-1" />
                     <input value={draft.brand_color} onChange={(e) => patch('brand_color', e.target.value.trim())} maxLength={7} className={inputCls} />
                   </div>
                 </Field>
@@ -356,7 +356,7 @@ export function ChatWidgetSettingsPage() {
 
             <div className="sticky bottom-3 z-10 flex items-center justify-between gap-3 rounded-2xl border border-border bg-bg-secondary/95 px-4 py-3 shadow-card backdrop-blur">
               <p className="text-xs text-text-secondary" aria-live="polite">{dirty ? 'You have unsaved changes.' : 'All changes saved.'}</p>
-              <button type="button" onClick={handleSave} disabled={saving || !dirty} className="focus-ring rounded-xl bg-accent px-5 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-40">
+              <button type="button" onClick={handleSave} disabled={saving || !dirty} className="focus-ring rounded-xl bg-accent px-5 py-2 text-sm font-medium text-on-accent transition-opacity hover:opacity-90 disabled:opacity-40">
                 {saving ? 'Saving…' : row === null ? 'Create widget' : 'Save changes'}
               </button>
             </div>
@@ -383,9 +383,9 @@ export function ChatWidgetSettingsPage() {
                 <>
                   <p className="text-xs text-text-secondary">Paste this just before the closing <code className="rounded bg-bg-tertiary px-1">&lt;/body&gt;</code> tag on every page.</p>
                   <pre className="max-h-48 overflow-auto rounded-xl border border-border bg-bg-primary p-3 text-[11px] leading-relaxed text-text-primary"><code>{snippet}</code></pre>
-                  {dirty && <p className="text-xs text-warning-500">Save your changes — the snippet always uses your last saved settings.</p>}
+                  {dirty && <p className="text-xs text-warning">Save your changes — the snippet always uses your last saved settings.</p>}
                   <div className="flex flex-wrap gap-2">
-                    <button type="button" onClick={handleCopy} className="focus-ring inline-flex items-center gap-1.5 rounded-xl bg-accent px-3.5 py-2 text-xs font-medium text-white hover:opacity-90">
+                    <button type="button" onClick={handleCopy} className="focus-ring inline-flex items-center gap-1.5 rounded-xl bg-accent px-3.5 py-2 text-xs font-medium text-on-accent hover:opacity-90">
                       {copied ? <Check size={14} /> : <Copy size={14} />} {copied ? 'Copied' : 'Copy snippet'}
                     </button>
                     <button type="button" onClick={handleRotate} disabled={rotating} className="focus-ring inline-flex items-center gap-1.5 rounded-xl border border-border px-3.5 py-2 text-xs font-medium text-text-secondary hover:text-text-primary disabled:opacity-50">

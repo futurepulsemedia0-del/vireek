@@ -33,7 +33,7 @@ export function TechSalesLeadButton({ jobId }: { jobId: string }) {
 
   if (done) {
     return (
-      <p role="status" className="flex items-center gap-2 rounded-lg border border-success-500/30 bg-success-500/10 p-3 text-sm text-success-500">
+      <p role="status" className="flex items-center gap-2 rounded-lg border border-success/30 bg-success-subtle p-3 text-sm text-success">
         <CheckCircle2 size={16} aria-hidden="true" />
         {done.duplicate ? 'A sales lead already exists for this job.' : 'Sales lead sent — an advisor will follow up.'}
       </p>

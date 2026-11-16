@@ -354,7 +354,7 @@ export function WageTablesTab({ canEdit, determinations, loading, reload }: Prop
         <Card className="p-4 sm:p-5">
           <SectionTitle>{detForm.id ? 'Edit wage table' : 'New wage table'}</SectionTitle>
           {detForm.id && locked && (
-            <p className="mb-3 rounded-xl bg-warning-500/10 p-3 text-xs text-text-primary">
+            <p className="mb-3 rounded-xl bg-warning-subtle p-3 text-xs text-text-primary">
               This wage table is locked by a certified payroll. Only its status and notes can change — add a new effective-dated rate for increases.
             </p>
           )}

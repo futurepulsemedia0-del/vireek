@@ -116,7 +116,7 @@ export function FeedbackAnalyticsPanel({ accountOwnerId }: { accountOwnerId: str
           </div>
 
           {feed?.truncated && (
-            <p className="flex items-start gap-2 rounded-xl border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-text-primary"><AlertTriangle size={14} className="mt-0.5 shrink-0 text-amber-600" /> This account has more responses than can be loaded at once, so the oldest ones in this window are left out. Pick a shorter range for exact numbers.</p>
+            <p className="flex items-start gap-2 rounded-xl border border-warning/30 bg-warning-subtle p-3 text-xs text-text-primary"><AlertTriangle size={14} className="mt-0.5 shrink-0 text-warning" /> This account has more responses than can be loaded at once, so the oldest ones in this window are left out. Pick a shorter range for exact numbers.</p>
           )}
 
           <section aria-label="NPS trend" className="rounded-2xl border border-border bg-bg-secondary p-5">
@@ -150,7 +150,7 @@ export function FeedbackAnalyticsPanel({ accountOwnerId }: { accountOwnerId: str
                       <p className="truncate text-sm font-semibold text-text-primary">{g.label}</p>
                       <p className="text-xs tabular-nums text-text-secondary">
                         {g.summary.n} response{g.summary.n === 1 ? '' : 's'} · CSAT {g.summary.csat}%
-                        {g.lowSample && <span className="ml-1.5 rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-amber-600" title={`Fewer than ${MIN_SAMPLE} responses — treat as anecdotal`}>Low sample</span>}
+                        {g.lowSample && <span className="ml-1.5 rounded bg-warning-subtle px-1.5 py-0.5 text-[10px] font-semibold text-warning" title={`Fewer than ${MIN_SAMPLE} responses — treat as anecdotal`}>Low sample</span>}
                       </p>
                     </div>
                     <p className={`text-right text-xl font-bold tabular-nums md:order-3 ${npsTone(g.summary.nps)}`}>{g.summary.nps}</p>

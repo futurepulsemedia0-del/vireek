@@ -90,7 +90,7 @@ export function LanguagePreferences({ className = '' }: { className?: string }) 
       {isRtl && <p className="mt-3 text-xs text-text-secondary">{t('account.language.rtlNote')}</p>}
 
       <div className="mt-5 rounded-xl border border-border/60 bg-bg-primary p-4">
-        <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-text-secondary/70">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-text-muted">
           {t('account.language.preview')}
         </p>
         <dl className="grid gap-3 sm:grid-cols-2">

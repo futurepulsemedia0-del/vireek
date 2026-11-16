@@ -264,7 +264,7 @@ export function JobThread({ jobId, viewer }: Props) {
         <button
           type="button"
           onClick={() => { stickRef.current = true; scrollToBottom(); }}
-          className="focus-ring mx-auto -mt-10 mb-2 inline-flex items-center gap-1.5 rounded-full bg-accent px-3.5 py-1.5 text-xs font-semibold text-white shadow-lg"
+          className="focus-ring mx-auto -mt-10 mb-2 inline-flex items-center gap-1.5 rounded-full bg-accent px-3.5 py-1.5 text-xs font-semibold text-on-accent shadow-lg"
         >
           <ArrowDown className="h-3.5 w-3.5" aria-hidden="true" /> New messages
         </button>
@@ -275,8 +275,8 @@ export function JobThread({ jobId, viewer }: Props) {
       <MessageComposer disabled={loadState !== 'ready'} onSendText={handleText} onSendPhoto={handlePhoto} onSendAudio={handleAudio} />
 
       {lightbox && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4" role="dialog" aria-modal="true" aria-label="Photo" onClick={() => setLightbox(null)}>
-          <button type="button" className="focus-ring absolute right-4 top-[max(1rem,env(safe-area-inset-top))] rounded-full bg-white/10 p-2 text-white" onClick={() => setLightbox(null)} aria-label="Close photo">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/90 p-4" role="dialog" aria-modal="true" aria-label="Photo" onClick={() => setLightbox(null)}>
+          <button type="button" className="focus-ring absolute right-4 top-[max(1rem,env(safe-area-inset-top))] rounded-full bg-static-white/10 p-2 text-white" onClick={() => setLightbox(null)} aria-label="Close photo">
             <X className="h-6 w-6" />
           </button>
           <img src={lightbox} alt="Job photo, full size" className="max-h-full max-w-full object-contain" />

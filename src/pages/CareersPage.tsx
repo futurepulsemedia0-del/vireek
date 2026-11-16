@@ -147,7 +147,7 @@ function RoleCard({ role }: { role: JobPosting }) {
       </div>
       <h3 className="mt-4 text-xl font-bold text-text-primary">{role.title}</h3>
       <p className="mt-3 flex-1 text-sm leading-relaxed text-text-secondary">{role.summary}</p>
-      <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-text-secondary/80">
+      <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-text-muted">
         <span className="flex items-center gap-1.5">
           <MapPin size={13} />
           {role.location} · {LOCATION_TYPE_LABELS[role.location_type]}
@@ -431,7 +431,7 @@ export function CareersPage() {
               className="pointer-events-none absolute inset-0"
               style={{
                 backgroundImage:
-                  'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
+                  'radial-gradient(circle at 20% 20%, rgb(var(--static-white) / 0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
               }}
             />
             <div className="relative">

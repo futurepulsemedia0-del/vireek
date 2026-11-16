@@ -37,13 +37,13 @@ const TABS: { key: TabKey; label: string }[] = [
 ];
 
 const KIND_STROKE: Record<NodeKind, string> = {
-  lookup: 'stroke-accent-500', reason: 'stroke-accent-500', decision: 'stroke-warning-500', action: 'stroke-success-500',
-approval: 'stroke-warning-500', verify: 'stroke-accent-500', wait: 'stroke-border',
-  parallel: 'stroke-accent-500', join: 'stroke-accent-500', foreach: 'stroke-accent-500',
+  lookup: 'stroke-accent', reason: 'stroke-accent', decision: 'stroke-warning', action: 'stroke-success',
+approval: 'stroke-warning', verify: 'stroke-accent', wait: 'stroke-border',
+  parallel: 'stroke-accent', join: 'stroke-accent', foreach: 'stroke-accent',
 };
 
 const btn = 'focus-ring inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-primary hover:bg-bg-tertiary disabled:opacity-50';
-const btnPrimary = 'focus-ring inline-flex items-center gap-1.5 rounded-lg bg-accent-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-accent-600 disabled:opacity-50';
+const btnPrimary = 'focus-ring inline-flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent hover:bg-accent disabled:opacity-50';
 
 // ============================================================
 // Pipeline strip + graph
@@ -59,7 +59,7 @@ function PipelineStrip({ wf }: { wf: CompiledWorkflow }) {
     <ol className="flex flex-wrap items-center gap-1.5" aria-label="Compiled pipeline">
       {stages.map(([label, n], i) => (
         <li key={label} className="flex items-center gap-1.5">
-          <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${n > 0 ? 'bg-accent-500/10 text-accent-500' : 'bg-bg-tertiary text-text-secondary'}`}>
+          <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${n > 0 ? 'bg-accent-subtle text-accent' : 'bg-bg-tertiary text-text-secondary'}`}>
             {label}{n > 1 || (n === 1 && label !== 'Trigger' && label !== 'Audit') ? ` · ${n}` : ''}
           </span>
           {i < stages.length - 1 && <span aria-hidden className="text-text-secondary">→</span>}
@@ -107,14 +107,14 @@ function ReportPanel({ wf }: { wf: CompiledWorkflow }) {
   return (
     <div className="space-y-3 rounded-xl border border-border bg-bg-secondary p-4">
       <div className="flex flex-wrap gap-2 text-xs">
-        <span className="inline-flex items-center gap-1 rounded-full bg-success-500/10 px-2.5 py-1 font-medium text-success-500"><ShieldCheck size={13} /> Validated by the compiler</span>
+        <span className="inline-flex items-center gap-1 rounded-full bg-success-subtle px-2.5 py-1 font-medium text-success"><ShieldCheck size={13} /> Validated by the compiler</span>
         <span className="rounded-full bg-bg-tertiary px-2.5 py-1 text-text-secondary">{r.node_count} steps</span>
         <span className="rounded-full bg-bg-tertiary px-2.5 py-1 text-text-secondary">{r.approvals} human approval{r.approvals === 1 ? '' : 's'}</span>
         <span className="rounded-full bg-bg-tertiary px-2.5 py-1 text-text-secondary">{r.commitment_actions} commitment action{r.commitment_actions === 1 ? '' : 's'} (all approval-gated)</span>
         <span className="rounded-full bg-bg-tertiary px-2.5 py-1 text-text-secondary">{r.has_sla ? `${wf.sla_minutes} min time limit` : 'No time limit'}</span>
         <span className="rounded-full bg-bg-tertiary px-2.5 py-1 text-text-secondary">{r.paths.length}{r.paths_truncated ? '+' : ''} possible path{r.paths.length === 1 ? '' : 's'}</span>
       </div>
-      {r.warnings.map((w) => <p key={w} className="text-xs text-warning-500">⚠ {w}</p>)}
+      {r.warnings.map((w) => <p key={w} className="text-xs text-warning">⚠ {w}</p>)}
       {(wf.ir.assumptions?.length ?? 0) > 0 && (
         <div>
           <p className="text-xs font-medium text-text-primary">Assumptions Vireek made</p>
@@ -214,7 +214,7 @@ function WorkflowDetail({ wf, onChanged, onGoRuns, all }: { wf: CompiledWorkflow
           {wf.status !== 'archived' && <button type="button" disabled={busy} onClick={() => move('archived', wf.status === 'draft' ? 'Draft discarded.' : 'Archived.')} className={btn}><Archive size={14} /> {wf.status === 'draft' ? 'Discard' : 'Archive'}</button>}
         </div>
       </div>
-      {confirmLive && <p className="text-xs text-warning-500">Going live means approved dispatches, contractor posts and customer texts really happen. You will still be asked to approve the price before any commitment.</p>}
+      {confirmLive && <p className="text-xs text-warning">Going live means approved dispatches, contractor posts and customer texts really happen. You will still be asked to approve the price before any commitment.</p>}
       {showSample && <SampleEventForm wf={wf} onStarted={() => { setShowSample(false); onChanged(); onGoRuns(); }} />}
       <PipelineStrip wf={wf} />
       <GraphView wf={wf} />
@@ -357,7 +357,7 @@ function RunRow({ run, wf, onChanged }: { run: CompiledRun; wf?: CompiledWorkflo
           <span className="flex flex-wrap items-center gap-2">
             <span className="font-medium text-text-primary" dir="auto">{wf?.name ?? 'Workflow'}</span>
             <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${RUN_STATUS_STYLE[run.status]}`}>{RUN_STATUS_LABEL[run.status]}</span>
-            {run.mode === 'test' && <span className="rounded-full bg-warning-500/10 px-2 py-0.5 text-xs text-warning-500">Test</span>}
+            {run.mode === 'test' && <span className="rounded-full bg-warning-subtle px-2 py-0.5 text-xs text-warning">Test</span>}
             {run.sla_breached_at && <span className="rounded-full bg-danger/10 px-2 py-0.5 text-xs text-danger">Over time limit</span>}
           </span>
           <span className="block truncate text-xs text-text-secondary">{run.customer_name ?? 'Unknown customer'} · started {new Date(run.started_at).toLocaleString()}{run.stop_reason ? ` · ${run.stop_reason}` : ''}</span>
@@ -371,7 +371,7 @@ function RunRow({ run, wf, onChanged }: { run: CompiledRun; wf?: CompiledWorkflo
               <Fingerprint size={14} /> Verify audit integrity
             </button>
             {active && <button type="button" className={btn} onClick={async () => { if (await cancelCompiledRun(run.id)) { toast('Run cancelled.', 'success'); onChanged(); } else toast('Could not cancel this run.', 'error'); }}><XCircle size={14} /> Cancel run</button>}
-            {chain && <span className={`inline-flex items-center gap-1 text-xs font-medium ${chain.ok ? 'text-success-500' : 'text-danger'}`}>{chain.ok ? <CheckCircle2 size={14} /> : <XCircle size={14} />}{chain.ok ? `Intact — ${chain.checked} entries verified` : `Tampering detected at entry ${chain.first_bad_seq}`}</span>}
+            {chain && <span className={`inline-flex items-center gap-1 text-xs font-medium ${chain.ok ? 'text-success' : 'text-danger'}`}>{chain.ok ? <CheckCircle2 size={14} /> : <XCircle size={14} />}{chain.ok ? `Intact — ${chain.checked} entries verified` : `Tampering detected at entry ${chain.first_bad_seq}`}</span>}
           </div>
                     {events && wf && <RunDebugger run={run} wf={wf} events={events} renderGraph={(overlay) => <GraphView wf={wf} overlay={overlay} />} onStarted={onChanged} />}
           {events === null ? <Loader2 size={18} className="animate-spin text-text-secondary" /> : (
@@ -418,7 +418,7 @@ function ApprovalCard({ a, wf, onChanged }: { a: CompiledApproval; wf?: Compiled
 
   const field = 'focus-ring rounded-lg border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary';
   return (
-    <div className="space-y-3 rounded-2xl border border-warning-500/30 bg-bg-secondary p-4">
+    <div className="space-y-3 rounded-2xl border border-warning/30 bg-bg-secondary p-4">
       <div>
         <p className="text-xs text-text-secondary">{wf?.name ?? 'Workflow'} · {wf?.graph.nodes[a.node_id]?.label ?? a.node_id}</p>
         <p className="mt-1 text-sm font-medium text-text-primary" dir="auto">{a.prompt}</p>
@@ -490,8 +490,8 @@ export function WorkflowCompilerPage() {
             <button key={t.key} type="button" role="tab" aria-selected={tab === t.key} onClick={() => setTab(t.key)}
               className={`focus-ring flex-1 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors ${tab === t.key ? 'bg-bg-primary text-text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}>
               {t.label}
-              {t.key === 'approvals' && approvals.length > 0 && <span className="ml-1.5 rounded-full bg-warning-500/20 px-1.5 py-0.5 text-xs text-warning-500">{approvals.length}</span>}
-              {t.key === 'runs' && inFlight > 0 && <span className="ml-1.5 rounded-full bg-accent-500/20 px-1.5 py-0.5 text-xs text-accent-500">{inFlight}</span>}
+              {t.key === 'approvals' && approvals.length > 0 && <span className="ml-1.5 rounded-full bg-warning-subtle px-1.5 py-0.5 text-xs text-warning">{approvals.length}</span>}
+              {t.key === 'runs' && inFlight > 0 && <span className="ml-1.5 rounded-full bg-accent-subtle px-1.5 py-0.5 text-xs text-accent">{inFlight}</span>}
             </button>
           ))}
         </div>

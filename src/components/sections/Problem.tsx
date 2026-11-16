@@ -80,7 +80,7 @@ export function Problem() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="mt-8 text-sm text-text-secondary/70"
+          className="mt-8 text-sm text-text-muted"
         >
           Industry-level figures, not claims about Vireek&apos;s own customers.
         </motion.p>

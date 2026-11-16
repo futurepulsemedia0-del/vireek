@@ -107,22 +107,22 @@ const LIST_HEADERS: { col: string; sort: SortKey | null; label: string; always?:
 
 const BOARD_STAGES: { key: JobStatus; label: string; dotColor: string; borderColor: string }[] = [
   { key: 'scheduled', label: 'Scheduled', dotColor: 'bg-accent', borderColor: 'border-t-accent' },
-  { key: 'en_route', label: 'En Route', dotColor: 'bg-blue-500', borderColor: 'border-t-blue-500' },
-  { key: 'in_progress', label: 'In Progress', dotColor: 'bg-warning-500', borderColor: 'border-t-warning-500' },
-  { key: 'completed', label: 'Completed', dotColor: 'bg-success-500', borderColor: 'border-t-success-500' },
+  { key: 'en_route', label: 'En Route', dotColor: 'bg-info', borderColor: 'border-t-blue-500' },
+  { key: 'in_progress', label: 'In Progress', dotColor: 'bg-warning', borderColor: 'border-t-warning-500' },
+  { key: 'completed', label: 'Completed', dotColor: 'bg-success', borderColor: 'border-t-success-500' },
 ];
 
 const ALL_STATUSES: { key: JobStatus; label: string; color: string }[] = [
   ...BOARD_STAGES.map((s) => ({ key: s.key, label: s.label, color: s.dotColor })),
   { key: 'cancelled', label: 'Cancelled', color: 'bg-danger' },
-  { key: 'no_show', label: 'No-show', color: 'bg-warning-500' },
+  { key: 'no_show', label: 'No-show', color: 'bg-warning' },
     ...WORKFLOW_STATUS_OPTIONS,
 ];
 
 const INVOICE_CONFIG: Record<InvoiceStatus, { label: string; badge: string }> = {
   not_sent: { label: 'Not Sent', badge: 'bg-bg-tertiary text-text-secondary' },
-  sent: { label: 'Sent', badge: 'bg-blue-500/10 text-blue-500' },
-  paid: { label: 'Paid', badge: 'bg-success-500/10 text-success-500' },
+  sent: { label: 'Sent', badge: 'bg-info-subtle text-info' },
+  paid: { label: 'Paid', badge: 'bg-success-subtle text-success' },
 };
 
 const STATUS_STEPPER: JobStatus[] = ['scheduled', 'en_route', 'in_progress', 'completed'];
@@ -217,7 +217,7 @@ function JobCard({
             <p className="mt-0.5 text-xs text-text-secondary truncate">{job.service_type}</p>
           )}
         </div>
-        <GripVertical size={14} className="mt-0.5 shrink-0 text-text-secondary/40 opacity-0 group-hover:opacity-100" />
+        <GripVertical size={14} className="mt-0.5 shrink-0 text-graphic-muted opacity-0 group-hover:opacity-100" />
       </div>
       <div className="mt-2 space-y-1.5">
         {job.scheduled_datetime && (
@@ -238,7 +238,7 @@ function JobCard({
             <span className="text-xs text-text-secondary">{technician.member_name ?? technician.member_email}</span>
           </div>
         ) : (
-          <span className="text-xs text-text-secondary/60">Unassigned</span>
+          <span className="text-xs text-text-muted">Unassigned</span>
         )}
         <InvoiceBadge status={job.invoice_status} />
       </div>
@@ -273,17 +273,17 @@ function StatusStepper({
               disabled={isCancelled}
               className={`focus-ring flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold transition-all disabled:cursor-not-allowed ${
                 isCancelled
-                  ? 'bg-bg-tertiary text-text-secondary/40'
+                  ? 'bg-bg-tertiary text-text-muted'
                   : isDone
-                  ? 'bg-success-500 text-white'
+                  ? 'bg-success text-on-success'
                   : isCurrent
-                  ? 'bg-accent text-white ring-4 ring-accent/20'
+                  ? 'bg-accent text-on-accent ring-4 ring-accent/20'
                   : 'bg-bg-tertiary text-text-secondary hover:bg-bg-tertiary/80'
               }`}
             >
               {isDone ? <Check size={14} /> : i + 1}
             </button>
-            <span className={`text-[10px] font-medium capitalize ${isCurrent ? 'text-accent' : isDone ? 'text-success-500' : 'text-text-secondary/60'}`}>
+            <span className={`text-[10px] font-medium capitalize ${isCurrent ? 'text-accent' : isDone ? 'text-success' : 'text-text-muted'}`}>
               {step.replace('_', ' ')}
             </span>
           </div>
@@ -371,7 +371,7 @@ function JobDetailPanel({
             </div>
           </div>
           {job.is_rework && (
-            <div className="mt-3 flex items-center gap-2 rounded-xl bg-warning-500/10 px-3 py-2 text-xs font-medium text-warning-500">
+            <div className="mt-3 flex items-center gap-2 rounded-xl bg-warning-subtle px-3 py-2 text-xs font-medium text-warning">
               <RotateCcw size={13} />
               Repeat visit — same customer &amp; service type as an earlier completed job
             </div>
@@ -558,7 +558,7 @@ function JobDetailPanel({
                 <button
                   type="button"
                   onClick={saveInvoice}
-                  className="focus-ring rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white hover:opacity-90"
+                  className="focus-ring rounded-lg bg-accent px-4 py-2 text-sm font-medium text-on-accent hover:opacity-90"
                 >
                   Save
                 </button>
@@ -584,7 +584,7 @@ function JobDetailPanel({
               {job.invoice_amount != null && job.invoice_status !== 'paid' && (
                 <a
                   href={`/dashboard/payments?job=${job.id}`}
-                  className="focus-ring rounded-lg bg-accent px-3 py-2 text-sm font-medium text-white hover:opacity-90"
+                  className="focus-ring rounded-lg bg-accent px-3 py-2 text-sm font-medium text-on-accent hover:opacity-90"
                 >
                   Send Payment Request
                 </a>
@@ -639,7 +639,7 @@ function JobDetailPanel({
               type="button"
               onClick={() => onRequestReview(job)}
               disabled={!job.customer_phone}
-              className="focus-ring mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-cta px-4 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+              className="focus-ring mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-cta px-4 py-2.5 text-sm font-semibold text-on-cta transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Star size={16} /> Request a Review
             </button>
@@ -754,7 +754,7 @@ function CreateJobModal({
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-overlay/30 backdrop-blur-sm" onClick={onClose} />
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -800,7 +800,7 @@ function CreateJobModal({
               placeholder="e.g. +1 555 123 4567"
               className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary"
             />
-            <p className="mt-1 text-xs text-text-secondary/70">Used to text the customer a review request once the job is done.</p>
+            <p className="mt-1 text-xs text-text-muted">Used to text the customer a review request once the job is done.</p>
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-medium text-text-primary">Service Type</label>
@@ -831,7 +831,7 @@ function CreateJobModal({
                 </option>
               ))}
             </select>
-            <p className="mt-1 text-xs text-text-secondary/70">Links this job to its catalog price for accurate underpricing detection.</p>
+            <p className="mt-1 text-xs text-text-muted">Links this job to its catalog price for accurate underpricing detection.</p>
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-medium text-text-primary">Service Address</label>
@@ -910,7 +910,7 @@ function CreateJobModal({
             <button
               type="submit"
               disabled={submitting || !customerName.trim()}
-              className="focus-ring flex flex-1 items-center justify-center gap-2 rounded-xl bg-cta px-4 py-3 text-sm font-semibold text-white transition-all hover:brightness-110 disabled:opacity-50"
+              className="focus-ring flex flex-1 items-center justify-center gap-2 rounded-xl bg-cta px-4 py-3 text-sm font-semibold text-on-cta transition-all hover:brightness-110 disabled:opacity-50"
             >
               <Wrench size={16} />
               {submitting ? 'Creating…' : 'Create Job'}
@@ -1433,7 +1433,7 @@ export function JobsPage() {
   };
 
   const SortIcon = ({ col }: { col: SortKey }) => {
-    if (sortKey !== col) return <ChevronDown size={14} className="text-text-secondary/40" />;
+    if (sortKey !== col) return <ChevronDown size={14} className="text-graphic-muted" />;
     return sortDir === 'asc' ? <ChevronUp size={14} className="text-accent" /> : <ChevronDown size={14} className="text-accent" />;
   };
 
@@ -1485,7 +1485,7 @@ export function JobsPage() {
                 type="button"
                 onClick={() => setViewMode('board')}
                 className={`focus-ring flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                  viewMode === 'board' ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'
+                  viewMode === 'board' ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'
                 }`}
               >
                 <LayoutGrid size={15} /> Board
@@ -1494,7 +1494,7 @@ export function JobsPage() {
                 type="button"
                 onClick={() => setViewMode('list')}
                 className={`focus-ring flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                  viewMode === 'list' ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'
+                  viewMode === 'list' ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'
                 }`}
               >
                 <List size={15} /> List
@@ -1506,7 +1506,7 @@ export function JobsPage() {
                 setPrefill(null);
                 setShowCreateModal(true);
               }}
-              className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:brightness-110 hover:shadow-glow-cta"
+              className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-on-cta shadow-sm transition-all hover:brightness-110 hover:shadow-glow-cta"
             >
               <Plus size={16} /> Create Job
             </button>
@@ -1523,7 +1523,7 @@ export function JobsPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search jobs…  (press /)"
-              className="focus-ring w-full rounded-xl border border-border bg-bg-secondary py-2.5 pl-10 pr-4 text-sm text-text-primary placeholder:text-text-secondary/60"
+              className="focus-ring w-full rounded-xl border border-border bg-bg-secondary py-2.5 pl-10 pr-4 text-sm text-text-primary placeholder:text-text-placeholder"
             />
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -1623,7 +1623,7 @@ export function JobsPage() {
               <button
                 type="button"
                 onClick={() => setShowCreateModal(true)}
-                className="focus-ring mt-4 flex items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110"
+                className="focus-ring mt-4 flex items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-on-cta transition-all hover:brightness-110"
               >
                 <Plus size={16} /> Create your first job
               </button>
@@ -1664,7 +1664,7 @@ export function JobsPage() {
                     />
                   ))}
                   {jobsByStatus[stage.key].length === 0 && (
-                    <p className="py-4 text-center text-xs text-text-secondary/50">Drop jobs here</p>
+                    <p className="py-4 text-center text-xs text-text-muted">Drop jobs here</p>
                   )}
                 </div>
               </div>
@@ -1697,7 +1697,7 @@ export function JobsPage() {
                     />
                   ))}
                   {jobsByStatus[stage.key].length === 0 && (
-                    <p className="py-2 text-center text-xs text-text-secondary/50">No jobs</p>
+                    <p className="py-2 text-center text-xs text-text-muted">No jobs</p>
                   )}
                 </div>
               </div>
@@ -1763,7 +1763,7 @@ export function JobsPage() {
                           {job.customer_name}
                           {job.is_rework && (
                             <span title="Repeat visit — same customer/service type as an earlier job">
-                              <RotateCcw size={12} className="text-warning-500" />
+                              <RotateCcw size={12} className="text-warning" />
                             </span>
                           )}
                         </span>
@@ -1784,12 +1784,12 @@ export function JobsPage() {
                               <span className="text-sm text-text-secondary">{tech.member_name ?? tech.member_email}</span>
                             </div>
                           ) : (
-                            <span className="text-sm text-text-secondary/60">Unassigned</span>
+                            <span className="text-sm text-text-muted">Unassigned</span>
                           )}
                         </td>
                       )}
                       <td className="px-4 py-3">
-                        <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${ALL_STATUSES.find((s) => s.key === job.job_status)?.color ?? 'bg-bg-tertiary'} text-white`}>
+                        <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${ALL_STATUSES.find((s) => s.key === job.job_status)?.color ?? 'bg-static-black'} text-white`}>
                           {ALL_STATUSES.find((s) => s.key === job.job_status)?.label ?? job.job_status}
                         </span>
                       </td>
@@ -1815,7 +1815,7 @@ export function JobsPage() {
         {selectedJob && (
           <>
             <div
-              className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm"
+              className="fixed inset-0 z-40 bg-overlay/20 backdrop-blur-sm"
               onClick={() => setSelectedJob(null)}
             />
             <JobDetailPanel

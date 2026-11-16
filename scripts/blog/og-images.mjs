@@ -14,12 +14,12 @@ const OPTIONAL = process.env.OG_OPTIONAL === '1';
 
 const card = ({ title, category, minutes }) => `<!doctype html><meta charset="utf-8"><style>
 *{box-sizing:border-box;margin:0}
-body{width:1200px;height:630px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#0f172a;
-background:radial-gradient(circle at 85% 0%,#c7d2fe 0,transparent 55%),#f8fafc;padding:72px;display:flex;flex-direction:column;justify-content:space-between}
-.tag{display:inline-block;font-size:26px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#203ad8}
+body{width:1200px;height:630px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#1c1b15;
+background:radial-gradient(circle at 85% 0%,#d1d8ff 0,transparent 55%),#faf9f5;padding:72px;display:flex;flex-direction:column;justify-content:space-between}
+.tag{display:inline-block;font-size:26px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#ae3600}
 h1{font-size:${title.length > 48 ? 62 : 74}px;line-height:1.1;font-weight:800;letter-spacing:-.02em;max-width:1030px}
-.foot{display:flex;justify-content:space-between;align-items:center;font-size:30px;color:#475569}
-.brand{font-weight:800;color:#0f172a;font-size:38px}
+.foot{display:flex;justify-content:space-between;align-items:center;font-size:30px;color:#595852}
+.brand{font-weight:800;color:#1c1b15;font-size:38px}
 </style><div class="tag">${esc(category)}</div><h1>${esc(title)}</h1>
 <div class="foot"><span class="brand">Vireek</span><span>${minutes} min read · vireek.com/blog</span></div>`;
 

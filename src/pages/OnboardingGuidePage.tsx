@@ -305,7 +305,7 @@ export function OnboardingGuidePage() {
                         <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-accent/20 bg-accent/10 text-accent">
                           <Icon className="h-5 w-5" />
                         </span>
-                        <span className="text-xs font-bold tracking-wider text-text-secondary/50">{step.n}</span>
+                        <span className="text-xs font-bold tracking-wider text-text-muted">{step.n}</span>
                       </div>
                       <div className="flex-1">
                         <div className="flex flex-wrap items-center gap-3">

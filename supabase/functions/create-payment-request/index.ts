@@ -163,11 +163,11 @@ Deno.serve(async (req: Request) => {
         ownerId,
         customerEmail,
         renderTemplate("payment.email.ready.subject", language, vars),
-        `<div ${htmlLangAttrs(language)} style="font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1a1a1a; text-align: ${textAlignStart(language)};">
-          <p style="font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #6b7280; margin: 0 0 16px;">${renderTemplate("payment.email.ready.eyebrow", language, vars, esc)}</p>
+        `<div ${htmlLangAttrs(language)} style="font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1c1b15; text-align: ${textAlignStart(language)};">
+          <p style="font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #73726c; margin: 0 0 16px;">${renderTemplate("payment.email.ready.eyebrow", language, vars, esc)}</p>
           <h1 style="font-size: 22px; margin: 0 0 16px;">${renderTemplate("payment.email.ready.heading", language, vars, esc)}</h1>
-          <a href="${escapeHtml(String(session.url))}" style="display: inline-block; margin-top: 8px; padding: 12px 24px; background: #111827; color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 14px;">${renderTemplate("payment.email.ready.cta", language, vars, esc)}</a>
-          <p style="margin-top: 24px; font-size: 13px; color: #9ca3af;">${renderTemplate("payment.email.ready.footer", language)}</p>
+          <a href="${escapeHtml(String(session.url))}" style="display: inline-block; margin-top: 8px; padding: 12px 24px; background: #1C1B15; color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 14px;">${renderTemplate("payment.email.ready.cta", language, vars, esc)}</a>
+          <p style="margin-top: 24px; font-size: 13px; color: #a9a8a2;">${renderTemplate("payment.email.ready.footer", language)}</p>
         </div>`,
         renderTemplate("payment.email.ready.text", language, vars),
       );

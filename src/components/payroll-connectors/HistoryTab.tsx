@@ -147,7 +147,7 @@ function ExportDialog({ id, connections, onClose, onChanged }: { id: string; con
             {x.last_error && <p role="alert" className="rounded-xl bg-danger/10 px-3 py-2 text-sm text-danger">{x.last_error}</p>}
             {d.lines.some((l) => l.drift) && (
               <p className="flex items-start gap-2 text-xs text-text-secondary">
-                <AlertTriangle size={14} className="mt-0.5 shrink-0 text-warning-500" aria-hidden="true" />
+                <AlertTriangle size={14} className="mt-0.5 shrink-0 text-warning" aria-hidden="true" />
                 A timesheet, commission or tip changed after this export (for example a refunded tip). The numbers below are what was exported. Void and re-export to pick up the change.
               </p>
             )}

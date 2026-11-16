@@ -139,14 +139,14 @@ export function OverviewTab({ ownerId, bundle, today, onChanged }: TabProps) {
             </div>
           </div>
           {project.contract_value_cents > 0 && balance.state !== 'balanced' && (
-            <p className={`mt-3 flex items-start gap-2 rounded-xl p-3 text-sm ${balance.state === 'ahead' ? 'bg-warning-500/10 text-warning-500' : 'bg-accent/10 text-accent'}`}>
+            <p className={`mt-3 flex items-start gap-2 rounded-xl p-3 text-sm ${balance.state === 'ahead' ? 'bg-warning-subtle text-warning' : 'bg-accent/10 text-accent'}`}>
               <TriangleAlert size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
               {balance.state === 'ahead'
                 ? `Billing is ${balance.gap} points ahead of completed work — a cash-flow and dispute risk if the job slips.`
                 : `Work is ${-balance.gap} points ahead of billing — you may be able to invoice the next step.`}
             </p>
           )}
-          {bill.overdueCents > 0 && <p className="mt-3 text-sm text-danger-500">{formatMoney(bill.overdueCents)} is past due.</p>}
+          {bill.overdueCents > 0 && <p className="mt-3 text-sm text-danger">{formatMoney(bill.overdueCents)} is past due.</p>}
         </section>
       </div>
 
@@ -164,7 +164,7 @@ export function OverviewTab({ ownerId, bundle, today, onChanged }: TabProps) {
                     <p className="truncate text-sm font-medium text-text-primary">{m.title}</p>
                     <p className="text-xs text-text-secondary">{phaseName(m.phase_id)}</p>
                   </div>
-                  <span className={`flex items-center gap-1.5 text-xs ${late ? 'font-semibold text-danger-500' : 'text-text-secondary'}`}>
+                  <span className={`flex items-center gap-1.5 text-xs ${late ? 'font-semibold text-danger' : 'text-text-secondary'}`}>
                     <CalendarClock size={14} aria-hidden="true" />
                     {m.due_date ? formatDate(m.due_date) : 'No due date'}
                   </span>

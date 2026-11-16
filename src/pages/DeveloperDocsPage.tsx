@@ -133,7 +133,7 @@ function CodeBlock({ label, code }: { label: string; code: string }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-border bg-bg-tertiary">
       <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
-        <span className="text-xs font-semibold uppercase tracking-wider text-text-secondary/70">{label}</span>
+        <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">{label}</span>
       </div>
       <pre className="overflow-x-auto px-4 py-4 text-[13px] leading-relaxed text-text-primary">
         <code>{code}</code>
@@ -244,7 +244,7 @@ export function DeveloperDocsPage() {
                 Generate a key from <Link to="/dashboard/settings/api-keys" className="font-medium text-accent hover:underline">Settings → API Keys</Link> — each key is scoped to specific resources and can be rotated or revoked anytime.
               </p>
               <div className="mt-4 rounded-xl border border-border bg-bg-tertiary px-4 py-3">
-                <span className="text-xs font-semibold uppercase tracking-wider text-text-secondary/70">Base URL</span>
+                <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">Base URL</span>
                 <code className="mt-1 block text-sm text-text-primary">{API_BASE_URL}</code>
               </div>
             </div>
@@ -262,7 +262,7 @@ export function DeveloperDocsPage() {
                 <tbody>
                   {ENDPOINTS.map((e) => (
                     <tr key={e.path} className="border-b border-border/60 last:border-0">
-                      <td className="px-5 py-3"><span className="rounded-md bg-success-500/10 px-2 py-0.5 text-xs font-bold text-success-500">{e.method}</span></td>
+                      <td className="px-5 py-3"><span className="rounded-md bg-success-subtle px-2 py-0.5 text-xs font-bold text-success">{e.method}</span></td>
                       <td className="px-5 py-3"><code className="text-xs text-text-primary">{e.path}</code></td>
                       <td className="px-5 py-3"><code className="text-xs text-text-secondary">{e.scope}</code></td>
                       <td className="px-5 py-3 text-text-secondary">{e.description}</td>
@@ -278,7 +278,7 @@ export function DeveloperDocsPage() {
                 {QUERY_PARAMS.map((p) => (
                   <div key={p.name} className="flex flex-wrap items-baseline gap-2 text-sm">
                     <code className="text-text-primary">{p.name}</code>
-                    <span className="text-xs text-text-secondary/70">{p.type}</span>
+                    <span className="text-xs text-text-muted">{p.type}</span>
                     <span className="text-text-secondary">— {p.description}</span>
                   </div>
                 ))}
@@ -307,8 +307,8 @@ export function DeveloperDocsPage() {
               <WebhookCatalog />
             </div>
 
-            <div className="mx-auto mt-8 flex max-w-2xl items-start gap-3 rounded-2xl border border-warning-500/30 bg-warning-500/10 p-5">
-              <Lock size={18} className="mt-0.5 shrink-0 text-warning-500" />
+            <div className="mx-auto mt-8 flex max-w-2xl items-start gap-3 rounded-2xl border border-warning/30 bg-warning-subtle p-5">
+              <Lock size={18} className="mt-0.5 shrink-0 text-warning" />
               <p className="text-sm leading-relaxed text-text-secondary">
                 The single webhook URL under Dashboard → Integrations (call.created, lead.created and job.created only) is
                 not signed. Treat its payloads as informational and re-fetch via the API for anything security-sensitive,
@@ -451,7 +451,7 @@ export function DeveloperDocsPage() {
               className="pointer-events-none absolute inset-0"
               style={{
                 backgroundImage:
-                  'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
+                  'radial-gradient(circle at 20% 20%, rgb(var(--static-white) / 0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
               }}
             />
             <div className="relative">

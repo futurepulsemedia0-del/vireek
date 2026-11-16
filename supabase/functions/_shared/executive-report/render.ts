@@ -7,8 +7,8 @@ import { money, pct, signedPct, signedPts } from "./format.ts";
 export const esc = (s: unknown): string =>
   String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 
-const INK = "#171717", MUTED = "#6e6e78", LINE = "#e1e1e8", ACCENT = "#203ad8";
-const STATUS_COLOR: Record<string, string> = { achieved: "#168257", near: "#b7791f", behind: "#c83737", no_data: MUTED };
+const INK = "#141413", MUTED = "#73726c", LINE = "#e8e6dc", ACCENT = "#ae3600";
+const STATUS_COLOR: Record<string, string> = { achieved: "#007C2C", near: "#987900", behind: "#d4222a", no_data: MUTED };
 const STATUS_LABEL: Record<string, string> = { achieved: "Achieved", near: "Near goal", behind: "Behind", no_data: "No data" };
 
 const goalValue = (g: GoalRow, v: number | null) =>
@@ -41,7 +41,7 @@ export function renderReportEmail(opts: {
   const techRows = m.topTechnicians.map((t, i) => `<tr><td style="padding:6px 0;font-size:14px;color:${INK}">${i + 1}. ${esc(t.name)}</td><td align="right" style="font-size:14px">${esc(money(t.revenue))}</td><td align="right" style="font-size:14px;color:${MUTED}">${t.jobs} jobs</td></tr>`).join("");
   const goalRows = m.goals.map((g) => `<tr><td style="padding:6px 0;font-size:14px;color:${INK}">${esc(g.label)}</td><td align="right" style="font-size:14px">${esc(goalValue(g, g.actual))} / ${esc(goalValue(g, g.goal))}</td><td align="right" style="font-size:13px;font-weight:600;color:${STATUS_COLOR[g.status]}">${STATUS_LABEL[g.status]}</td></tr>`).join("");
 
-  const html = `<!doctype html><html><body style="margin:0;background:#f5f5f8;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif">
+  const html = `<!doctype html><html><body style="margin:0;background:#faf9f5;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif">
 <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:24px 12px">
 <table width="640" cellpadding="0" cellspacing="0" style="max-width:640px;background:#fff;border-radius:14px;overflow:hidden">
 <tr><td style="background:${ACCENT};padding:22px 28px;color:#fff"><div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;opacity:.85">Executive monthly report</div><div style="font-size:22px;font-weight:700;margin-top:4px">${esc(opts.companyName)} · ${esc(m.period.label)}</div></td></tr>

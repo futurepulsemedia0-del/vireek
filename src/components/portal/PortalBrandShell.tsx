@@ -96,7 +96,7 @@ export function PortalBrandShell({
                 <img src={logoUrl} alt={name} className="h-9 max-w-[160px] rounded object-contain" />
               </>
             ) : (
-              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/20 text-sm font-bold" aria-hidden="true">
+              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-bg-secondary/20 text-sm font-bold" aria-hidden="true">
                 {(name || '?').slice(0, 1).toUpperCase()}
               </span>
             )}

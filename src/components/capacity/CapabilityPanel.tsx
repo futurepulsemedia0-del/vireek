@@ -27,7 +27,7 @@ const selectClass =
 function credentialBadge(c: CapacityCredential): { text: string; cls: string } {
   if (c.status === 'rejected') return { text: 'Rejected', cls: 'bg-danger/10 text-danger' };
   if (!isCredentialActive(c)) return { text: 'Expired', cls: 'bg-danger/10 text-danger' };
-  if (c.status === 'verified') return { text: 'Verified', cls: 'bg-success-500/10 text-success-500' };
+  if (c.status === 'verified') return { text: 'Verified', cls: 'bg-success-subtle text-success' };
   return { text: 'Self-declared', cls: 'bg-bg-tertiary text-text-secondary' };
 }
 

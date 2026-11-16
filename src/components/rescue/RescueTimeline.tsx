@@ -35,9 +35,9 @@ const ICONS: Record<RescueEventKind | 'sla_limit', LucideIcon> = {
 };
 
 const TONE_DOT: Record<EventTone, string> = {
-  good: 'bg-success-500/15 text-success-500',
-  warn: 'bg-warning-500/15 text-warning-500',
-  bad: 'bg-danger-500/15 text-danger-500',
+  good: 'bg-success-subtle text-success',
+  warn: 'bg-warning-subtle text-warning',
+  bad: 'bg-danger-subtle text-danger',
   neutral: 'bg-bg-tertiary text-text-secondary',
   pending: 'bg-accent/10 text-accent',
 };
@@ -75,10 +75,10 @@ export function RescueTimeline({ events, clockStart, limitSeconds, now, loading,
 
   if (error) {
     return (
-      <div role="alert" className="flex items-center justify-between gap-3 rounded-xl border border-danger-500/30 bg-danger-500/5 px-4 py-3 text-sm text-danger-500">
+      <div role="alert" className="flex items-center justify-between gap-3 rounded-xl border border-danger/30 bg-danger-subtle px-4 py-3 text-sm text-danger">
         <span>{error}</span>
         {onRetry && (
-          <button type="button" onClick={onRetry} className="focus-ring shrink-0 rounded-lg border border-danger-500/30 px-3 py-1 text-xs font-medium">
+          <button type="button" onClick={onRetry} className="focus-ring shrink-0 rounded-lg border border-danger/30 px-3 py-1 text-xs font-medium">
             Retry
           </button>
         )}
@@ -121,7 +121,7 @@ function TimelineRow({ item }: { item: TimelineItem }) {
           {item.outcomeLabel && item.tone !== 'good' && (
             <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${TONE_DOT[item.tone]}`}>{item.outcomeLabel}</span>
           )}
-          {item.overdue && <span className="rounded-full bg-warning-500/15 px-2 py-0.5 text-[11px] font-medium text-warning-500">Overdue</span>}
+          {item.overdue && <span className="rounded-full bg-warning-subtle px-2 py-0.5 text-[11px] font-medium text-warning">Overdue</span>}
           {item.automated && <span className="rounded-full bg-bg-tertiary px-2 py-0.5 text-[11px] text-text-secondary">Automatic</span>}
           <time className="ml-auto text-xs tabular-nums text-text-secondary" dateTime={new Date(item.at).toISOString()}>
             {item.offsetLabel}

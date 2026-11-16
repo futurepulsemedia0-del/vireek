@@ -12,14 +12,14 @@ export function ChatLightbox({ url, onClose }: { url: string | null; onClose: ()
       role="dialog"
       aria-modal="true"
       aria-label="Photo"
-      className="fixed inset-0 z-[80] flex items-center justify-center bg-black/85 p-4"
+      className="fixed inset-0 z-[80] flex items-center justify-center bg-overlay/85 p-4"
       onClick={onClose}
     >
       <button
         type="button"
         onClick={onClose}
         aria-label="Close photo"
-        className="focus-ring absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25"
+        className="focus-ring absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full bg-static-white/15 text-white hover:bg-static-white/25"
       >
         <X size={22} />
       </button>

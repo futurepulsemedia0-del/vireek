@@ -3,9 +3,9 @@ import { usePhotoProvenanceT } from '@/i18n/photoProvenanceNamespace';
 import type { PhotoStatus } from '@/lib/photoProvenance';
 
 const STYLE: Record<PhotoStatus, { icon: typeof CircleCheck; cls: string }> = {
-  unmodified: { icon: CircleCheck, cls: 'border-success-500/30 bg-success-500/5 text-success-500' },
-  imported: { icon: ImageDown, cls: 'border-warning-500/30 bg-warning-500/5 text-warning-500' },
-  offline: { icon: CloudOff, cls: 'border-warning-500/30 bg-warning-500/5 text-warning-500' },
+  unmodified: { icon: CircleCheck, cls: 'border-success/30 bg-success-subtle text-success' },
+  imported: { icon: ImageDown, cls: 'border-warning/30 bg-warning-subtle text-warning' },
+  offline: { icon: CloudOff, cls: 'border-warning/30 bg-warning-subtle text-warning' },
   integrity_failed: { icon: ShieldAlert, cls: 'border-danger/30 bg-danger/5 text-danger' },
 };
 

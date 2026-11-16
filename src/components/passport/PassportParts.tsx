@@ -68,7 +68,7 @@ export function MetricTile({
 }) {
   return (
     <div className="rounded-xl border border-border/60 bg-bg-primary/40 p-3.5">
-      <p className="text-[11px] uppercase tracking-wide text-text-secondary/70">{label}</p>
+      <p className="text-[11px] uppercase tracking-wide text-text-muted">{label}</p>
       <p className={`mt-1 text-xl font-bold ${valueClass}`}>{value}</p>
       {hint && <p className="mt-0.5 text-[11px] text-text-secondary">{hint}</p>}
     </div>
@@ -115,7 +115,7 @@ export function CertificationList({ items }: { items: PassportCertification[] })
     <ul className="space-y-2.5">
       {items.map((c, i) => (
         <li key={`${c.type}-${i}`} className="flex items-start gap-2.5">
-          <BadgeCheck size={16} className={`mt-0.5 shrink-0 ${c.valid === false ? 'text-danger' : 'text-success-500'}`} />
+          <BadgeCheck size={16} className={`mt-0.5 shrink-0 ${c.valid === false ? 'text-danger' : 'text-success'}`} />
           <div className="min-w-0">
             <p className="text-sm font-medium text-text-primary">{c.name || skillLabel(c.type)}</p>
             <p className="text-[11px] text-text-secondary">
@@ -135,7 +135,7 @@ export function InsuranceList({ items }: { items: PassportInsurance[] }) {
     <ul className="space-y-2.5">
       {items.map((p, i) => (
         <li key={p.id ?? `${p.type}-${i}`} className="flex items-start gap-2.5">
-          <ShieldCheck size={16} className="mt-0.5 shrink-0 text-success-500" />
+          <ShieldCheck size={16} className="mt-0.5 shrink-0 text-success" />
           <div className="min-w-0">
             <p className="text-sm font-medium text-text-primary">
               {INSURANCE_LABELS[p.type] ?? skillLabel(p.type)} · {p.carrier}

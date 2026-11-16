@@ -89,7 +89,7 @@ function PentestSection() {
             <div />{text('scope', 'Scope', true)}{text('methodology', 'Methodology', true)}
             <div className="sm:col-span-2">{text('summary', 'Public summary', true)}</div>
             {counts('Findings', found, setFound)}{counts('Remediated', rem, setRem)}
-            {errs.remediated && <p role="alert" className="text-xs text-red-500 sm:col-span-2">{errs.remediated}</p>}
+            {errs.remediated && <p role="alert" className="text-xs text-danger sm:col-span-2">{errs.remediated}</p>}
             <div className="flex gap-2 sm:col-span-2">
               <Button size="sm" variant="secondary" disabled={busy !== null} onClick={() => submit(false)}>Save draft</Button>
               <Button size="sm" disabled={busy !== null} onClick={() => submit(true)}>{busy === 'pt' ? <Spinner /> : null} Publish</Button>

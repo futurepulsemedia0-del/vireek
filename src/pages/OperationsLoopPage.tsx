@@ -57,7 +57,7 @@ function StatCard({ label, value, hint }: { label: string; value: string; hint?:
     <div className={CARD}>
       <p className="text-xs text-text-secondary">{label}</p>
       <p className="mt-1 text-2xl font-semibold text-text-primary">{value}</p>
-      {hint && <p className="mt-1 text-[11px] text-text-secondary/70">{hint}</p>}
+      {hint && <p className="mt-1 text-[11px] text-text-muted">{hint}</p>}
     </div>
   );
 }
@@ -80,7 +80,7 @@ function StageTile({ stage, index }: { stage: StageStatus; index: number }) {
       <p className="text-[11px] text-text-secondary">
         {stage.of > 0 ? `${stage.count} of ${stage.of} jobs` : 'No applicable jobs'}
       </p>
-      <p className="mt-2 flex items-center gap-1 text-[11px] text-text-secondary/80 group-hover:text-accent">
+      <p className="mt-2 flex items-center gap-1 text-[11px] text-text-muted group-hover:text-accent">
         {stage.engine} <ArrowRight size={10} />
       </p>
     </Link>
@@ -258,7 +258,7 @@ export function OperationsLoopPage() {
                   </p>
                   <Link
                     to="/dashboard/continuous-improvement"
-                    className="mt-2 flex items-center gap-1 text-[11px] text-text-secondary/80 hover:text-accent"
+                    className="mt-2 flex items-center gap-1 text-[11px] text-text-muted hover:text-accent"
                   >
                     Review proposals <ArrowRight size={10} />
                   </Link>
@@ -270,7 +270,7 @@ export function OperationsLoopPage() {
             </section>
 
             {view.weakest ? (
-              <div className="mb-4 rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4" role="status">
+              <div className="mb-4 rounded-2xl border border-warning/30 bg-warning-subtle p-4" role="status">
                 <p className="text-sm font-semibold text-text-primary">Weakest link: {view.weakest.label}</p>
                 <p className="mt-1 text-sm text-text-secondary">
                   Only {view.weakest.coverage}% coverage ({view.weakest.count} of {view.weakest.of} jobs). Proof required: {view.weakest.proof}{' '}
@@ -281,7 +281,7 @@ export function OperationsLoopPage() {
               </div>
             ) : (
               snapshot.totals.jobs >= 5 && (
-                <div className="mb-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-4" role="status">
+                <div className="mb-4 rounded-2xl border border-success/30 bg-success-subtle p-4" role="status">
                   <p className="text-sm text-text-primary">Every measurable stage is healthy. The loop is closing on your real jobs.</p>
                 </div>
               )
@@ -311,7 +311,7 @@ export function OperationsLoopPage() {
                   })}
                 </ul>
               )}
-              <p className="mt-3 text-[11px] text-text-secondary/70">
+              <p className="mt-3 text-[11px] text-text-muted">
                 Observational before/after comparison over 30 days each side, shown only with at least 8 measured jobs per side. It is
                 evidence, not proof of cause.
               </p>

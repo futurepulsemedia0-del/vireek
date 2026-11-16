@@ -59,7 +59,7 @@ const TONE_TEXT = { danger: 'text-danger', accent: 'text-accent', neutral: 'text
 const PRIORITY_STYLE: Record<TaskPriority, string> = {
   low: 'bg-bg-tertiary text-text-secondary',
   normal: 'bg-bg-tertiary text-text-secondary',
-  high: 'bg-warning-500/10 text-warning-500',
+  high: 'bg-warning-subtle text-warning',
   urgent: 'bg-danger/10 text-danger',
 };
 
@@ -475,7 +475,7 @@ export function TasksPage() {
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             {[
               { label: 'Open', value: summary.open, icon: ListChecks, tone: 'text-accent' },
-              { label: 'Due today', value: summary.dueToday, icon: Clock, tone: 'text-warning-500' },
+              { label: 'Due today', value: summary.dueToday, icon: Clock, tone: 'text-warning' },
               { label: 'Overdue', value: summary.overdue, icon: AlertTriangle, tone: 'text-danger' },
               { label: 'Done (30 days)', value: summary.completedRecently, icon: CheckCircle2, tone: 'text-success' },
             ].map((s) => (
@@ -497,7 +497,7 @@ export function TasksPage() {
                 role="tab"
                 aria-selected={tab === t.key}
                 onClick={() => setTab(t.key)}
-                className={`focus-ring shrink-0 rounded-lg px-3.5 py-2 text-xs font-medium transition-colors ${tab === t.key ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}
+                className={`focus-ring shrink-0 rounded-lg px-3.5 py-2 text-xs font-medium transition-colors ${tab === t.key ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}
               >
                 {t.label}
                 {t.count > 0 && <span className="ml-1.5 opacity-80">{t.count}</span>}

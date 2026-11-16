@@ -54,14 +54,14 @@ import {
 } from '@/lib/outcomePricingApi';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder';
 const cardClass = 'rounded-2xl border border-border bg-bg-secondary p-4';
-const btnPrimary = 'focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-medium text-white disabled:opacity-60';
+const btnPrimary = 'focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-medium text-on-accent disabled:opacity-60';
 const btnGhost = 'focus-ring flex items-center gap-1.5 rounded-xl border border-border px-3 py-2 text-xs font-medium text-text-secondary hover:text-text-primary disabled:opacity-60';
 
 const DECISION_COLORS: Record<Decision, string> = {
-  offerable: 'bg-success-500/10 text-success-500',
-  needs_review: 'bg-warning-500/10 text-warning-500',
+  offerable: 'bg-success-subtle text-success',
+  needs_review: 'bg-warning-subtle text-warning',
   not_offerable: 'bg-danger/10 text-danger',
 };
 
@@ -112,10 +112,10 @@ const HOUR_PRESETS: Array<{ label: string; value: number }> = [
 const COMPONENT_META: Array<{ key: keyof CostComponents; label: string; color: string }> = [
   { key: 'maintenance', label: 'Preventive maintenance', color: 'bg-accent' },
   { key: 'intervention', label: 'Expected repairs', color: 'bg-accent/60' },
-  { key: 'riskMargin', label: 'Risk premium', color: 'bg-warning-500' },
+  { key: 'riskMargin', label: 'Risk premium', color: 'bg-warning' },
   { key: 'creditReserve', label: 'SLA credit reserve', color: 'bg-danger/70' },
   { key: 'overhead', label: 'Overhead', color: 'bg-text-secondary/40' },
-  { key: 'margin', label: 'Margin', color: 'bg-success-500' },
+  { key: 'margin', label: 'Margin', color: 'bg-success' },
 ];
 
 function PricingWorkspace({ settings, onSaved }: { settings: PricingSettings; onSaved: () => void }) {
@@ -339,7 +339,7 @@ function PricingWorkspace({ settings, onSaved }: { settings: PricingSettings; on
       {result && (
         <div className="space-y-4">
           {stale && (
-            <p className="rounded-xl border border-warning-500/40 bg-warning-500/10 px-3 py-2 text-xs text-warning-500">
+            <p className="rounded-xl border border-warning/40 bg-warning-subtle px-3 py-2 text-xs text-warning">
               Inputs changed since this price was calculated — price it again before saving.
             </p>
           )}
@@ -392,7 +392,7 @@ function PricingWorkspace({ settings, onSaved }: { settings: PricingSettings; on
                   <Stat
                     label="Net benefit to customer"
                     value={formatDollars(result.value.netBenefitAnnual)}
-                    tone={result.value.netBenefitAnnual >= 0 ? 'text-success-500' : 'text-danger'}
+                    tone={result.value.netBenefitAnnual >= 0 ? 'text-success' : 'text-danger'}
                     sub={result.value.priceVsTmPct !== null ? `price ${result.value.priceVsTmPct > 0 ? '+' : ''}${result.value.priceVsTmPct}% vs T&M` : undefined}
                   />
                 </div>
@@ -418,7 +418,7 @@ function PricingWorkspace({ settings, onSaved }: { settings: PricingSettings; on
                   <tr key={a.id} className="border-t border-border align-top">
                     <td className="py-2 pr-2 text-text-primary">
                       {a.label}
-                      {a.notes.map((n) => <p key={n} className="mt-0.5 text-[11px] text-warning-500">{n}</p>)}
+                      {a.notes.map((n) => <p key={n} className="mt-0.5 text-[11px] text-warning">{n}</p>)}
                     </td>
                     <td className="py-2 pr-2">{a.pmVisitsPerYear}</td>
                     <td className="py-2 pr-2">{a.baseFailuresPerYear} → {a.plannedFailuresPerYear}</td>
@@ -812,7 +812,7 @@ function GuaranteesTab({ refreshKey }: { refreshKey: number }) {
   if (quotes.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-border py-10 text-center">
-        <Gauge className="mx-auto mb-2 h-6 w-6 text-text-secondary/50" />
+        <Gauge className="mx-auto mb-2 h-6 w-6 text-graphic-muted" />
         <p className="mx-auto max-w-sm text-sm text-text-secondary">No outcome guarantees yet. Price one in the first tab and save it as a draft.</p>
       </div>
     );
@@ -1000,7 +1000,7 @@ export function OutcomePricingPage() {
 
         <div className="mb-4 flex flex-wrap gap-1.5">
           {TABS.map((t) => (
-            <button key={t.id} type="button" onClick={() => setTab(t.id)} className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium ${tab === t.id ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>
+            <button key={t.id} type="button" onClick={() => setTab(t.id)} className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium ${tab === t.id ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>
               {t.label}
             </button>
           ))}

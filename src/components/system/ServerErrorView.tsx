@@ -111,7 +111,7 @@ export function ServerErrorView({ incidentId, eventId = null, error = null, comp
 
       <div className="mt-6 w-full text-start">
         {sendState === 'sent' ? (
-          <p role="status" className="rounded-xl border border-success-500/30 bg-success-500/10 px-4 py-3 text-sm text-success-500">
+          <p role="status" className="rounded-xl border border-success/30 bg-success-subtle px-4 py-3 text-sm text-success">
             Thanks, your report was sent. If you contact us, quote {incidentId}.
           </p>
         ) : (

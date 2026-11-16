@@ -60,8 +60,8 @@ const EVENT_ICON: Record<PassportEventType, typeof Wrench> = {
 };
 
 const WARRANTY_STYLE = {
-  active: 'bg-success-500/10 text-success-500',
-  expiring: 'bg-warning-500/10 text-warning-500',
+  active: 'bg-success-subtle text-success',
+  expiring: 'bg-warning-subtle text-warning',
   expired: 'bg-bg-tertiary text-text-secondary',
   unknown: 'bg-bg-tertiary text-text-secondary',
 } as const;
@@ -117,7 +117,7 @@ function EventCard({ ev, member }: { ev: PassportEvent; member: boolean }) {
               return (
                 <li
                   key={s.key}
-                  className={`flex items-start gap-2 rounded-lg px-2.5 py-2 text-xs ${s.done ? 'bg-bg-primary text-text-primary' : 'bg-bg-primary/50 text-text-secondary/60'}`}
+                  className={`flex items-start gap-2 rounded-lg px-2.5 py-2 text-xs ${s.done ? 'bg-bg-primary text-text-primary' : 'bg-bg-primary/50 text-text-muted'}`}
                 >
                   <StepIcon size={13} className={`mt-0.5 shrink-0 ${s.done ? 'text-accent' : ''}`} aria-hidden="true" />
                   <span className="min-w-0">
@@ -143,7 +143,7 @@ function EventCard({ ev, member }: { ev: PassportEvent; member: boolean }) {
           </p>
         )}
 
-        <p className="mt-2 truncate font-mono text-[10px] text-text-secondary/60" title={ev.entry_hash}>
+        <p className="mt-2 truncate font-mono text-[10px] text-text-muted" title={ev.entry_hash}>
           #{ev.seq} · {ev.entry_hash.slice(0, 16)}…
         </p>
       </div>
@@ -163,7 +163,7 @@ export function EquipmentPassportView({ data }: { data: PassportData }) {
   return (
     <div className="space-y-5">
       <section className="overflow-hidden rounded-2xl border border-border bg-bg-secondary shadow-card dark:shadow-card-dark">
-        <div className="flex items-center justify-between gap-3 bg-accent px-5 py-2.5 text-white">
+        <div className="flex items-center justify-between gap-3 bg-accent px-5 py-2.5 text-on-accent">
           <span className="text-[11px] font-bold uppercase tracking-[0.18em]">Vireek Equipment Passport</span>
           <span className="font-mono text-xs">{formatPassportCode(p.code)}</span>
         </div>
@@ -174,7 +174,7 @@ export function EquipmentPassportView({ data }: { data: PassportData }) {
               <p className="text-sm text-text-secondary">{p.equipment_type}</p>
             </div>
             {p.status !== 'active' && (
-              <span className="rounded-full bg-danger-500/10 px-3 py-1 text-xs font-semibold uppercase text-danger-500">{p.status}</span>
+              <span className="rounded-full bg-danger-subtle px-3 py-1 text-xs font-semibold uppercase text-danger">{p.status}</span>
             )}
           </div>
 
@@ -208,7 +208,7 @@ export function EquipmentPassportView({ data }: { data: PassportData }) {
           {integrity && (
             <div
               role="status"
-              className={`mt-4 flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium ${integrity.valid ? 'bg-success-500/10 text-success-500' : 'bg-danger-500/10 text-danger-500'}`}
+              className={`mt-4 flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium ${integrity.valid ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'}`}
             >
               {integrity.valid ? <ShieldCheck size={14} aria-hidden="true" /> : <ShieldAlert size={14} aria-hidden="true" />}
               {integrity.valid

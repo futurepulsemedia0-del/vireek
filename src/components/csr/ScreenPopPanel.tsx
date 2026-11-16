@@ -25,9 +25,9 @@ import {
 
 const SEVERITY_STYLE: Record<SignalSeverity, string> = {
   critical: 'bg-danger/10 text-danger',
-  warning: 'bg-warning-500/15 text-warning-500',
+  warning: 'bg-warning-subtle text-warning',
   info: 'bg-accent/10 text-accent',
-  positive: 'bg-success-500/15 text-success-500',
+  positive: 'bg-success-subtle text-success',
 };
 
 const fmtDate = (iso: string | null) =>
@@ -215,7 +215,7 @@ export function ScreenPopPanel({
               </p>
             )}
             {last.objections_resolved === false && last.objections_raised.length > 0 && (
-              <p className="mt-2 flex items-start gap-1.5 text-warning-500">
+              <p className="mt-2 flex items-start gap-1.5 text-warning">
                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
                 Unresolved: {last.objections_raised.join('; ')}
               </p>

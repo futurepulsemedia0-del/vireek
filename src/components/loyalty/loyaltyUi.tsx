@@ -76,7 +76,7 @@ export function Toggle({
           checked ? 'border-accent bg-accent' : 'border-border bg-bg-tertiary'
         }`}
       >
-        <span className={`inline-block h-5 w-5 rounded-full bg-white shadow transition-transform ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
+        <span className={`inline-block h-5 w-5 rounded-full bg-bg-secondary shadow transition-transform ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
       </button>
     </div>
   );
@@ -129,7 +129,7 @@ export function Dialog({
   if (!open) return null;
   return (
     <>
-      <div onClick={onClose} className="fixed inset-0 z-[110] bg-black/40 backdrop-blur-sm" aria-hidden="true" />
+      <div onClick={onClose} className="fixed inset-0 z-[110] bg-overlay/40 backdrop-blur-sm" aria-hidden="true" />
       <div
         ref={ref}
         tabIndex={-1}

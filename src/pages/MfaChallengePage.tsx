@@ -213,7 +213,7 @@ export function MfaChallengePage() {
           <button
             type="button"
             onClick={check}
-            className="focus-ring mt-6 h-12 w-full rounded-xl bg-accent text-sm font-semibold text-white transition-all hover:brightness-110"
+            className="focus-ring mt-6 h-12 w-full rounded-xl bg-accent text-sm font-semibold text-on-accent transition-all hover:brightness-110"
           >
             Try again
           </button>

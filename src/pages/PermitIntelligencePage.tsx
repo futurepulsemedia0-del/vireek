@@ -72,8 +72,8 @@ type Tone = 'neutral' | 'accent' | 'success' | 'warning' | 'danger';
 const TONE: Record<Tone, string> = {
   neutral: 'bg-bg-tertiary text-text-secondary',
   accent: 'bg-accent/15 text-accent',
-  success: 'bg-success-500/15 text-success-500',
-  warning: 'bg-warning-500/15 text-warning-500',
+  success: 'bg-success-subtle text-success',
+  warning: 'bg-warning-subtle text-warning',
   danger: 'bg-danger/15 text-danger',
 };
 const PRIORITY_TONE: Record<Priority, Tone> = { critical: 'danger', high: 'danger', medium: 'warning', low: 'neutral' };
@@ -137,7 +137,7 @@ function Drawer({ title, subtitle, onClose, children }: { title: string; subtitl
     return () => window.removeEventListener('keydown', onKey);
   }, []);
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/40" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex justify-end bg-overlay/40" onClick={onClose}>
       <aside role="dialog" aria-modal="true" aria-labelledby="pi-drawer-title" onClick={(e) => e.stopPropagation()}
         className="h-full w-full max-w-lg overflow-y-auto border-l border-border bg-bg-primary p-5 shadow-xl">
         <div className="flex items-start justify-between gap-3">
@@ -495,8 +495,8 @@ export function PermitIntelligencePage() {
         ) : (
           <>
             {!data.schemaReady && (
-              <div role="status" className="flex items-start gap-3 rounded-2xl border border-warning-500/40 bg-warning-500/10 p-4 text-sm">
-                <AlertTriangle size={16} className="mt-0.5 shrink-0 text-warning-500" />
+              <div role="status" className="flex items-start gap-3 rounded-2xl border border-warning/40 bg-warning-subtle p-4 text-sm">
+                <AlertTriangle size={16} className="mt-0.5 shrink-0 text-warning" />
                 <p className="text-text-secondary">Property permit records aren't available yet — apply the Home Lifetime Graph migration. Job compliance reviews still work.</p>
               </div>
             )}
@@ -505,7 +505,7 @@ export function PermitIntelligencePage() {
               <nav aria-label="Permit sections" className="flex flex-1 gap-1 overflow-x-auto rounded-2xl border border-border bg-bg-secondary p-1">
                 {TABS.map(({ key, label, icon: Icon }) => (
                   <button key={key} type="button" onClick={() => setTab(key)} aria-current={tab === key ? 'page' : undefined}
-                    className={`focus-ring inline-flex items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors ${tab === key ? 'bg-accent text-white' : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'}`}>
+                    className={`focus-ring inline-flex items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors ${tab === key ? 'bg-accent text-on-accent' : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'}`}>
                     <Icon size={14} /> {label}
                   </button>
                 ))}
@@ -576,7 +576,7 @@ export function PermitIntelligencePage() {
                   <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter permits">
                     {FILTERS.map((f) => (
                       <button key={f.key} type="button" onClick={() => setFilter(f.key)} aria-pressed={filter === f.key}
-                        className={`focus-ring rounded-full px-3 py-1.5 text-xs font-semibold ${filter === f.key ? 'bg-accent text-white' : 'border border-border text-text-secondary hover:bg-bg-tertiary'}`}>{f.label}</button>
+                        className={`focus-ring rounded-full px-3 py-1.5 text-xs font-semibold ${filter === f.key ? 'bg-accent text-on-accent' : 'border border-border text-text-secondary hover:bg-bg-tertiary'}`}>{f.label}</button>
                     ))}
                   </div>
                   <p className="text-xs text-text-secondary">Add or edit permits on each property's Home graph.</p>
@@ -686,7 +686,7 @@ export function PermitIntelligencePage() {
                   <ol className="space-y-3 border-l border-border pl-4">
                     {visibleEvents.slice(0, 150).map((ev) => (
                       <li key={ev.id} className="relative">
-                        <span className={`absolute -left-[21px] top-1.5 h-2 w-2 rounded-full ${ev.at > now ? 'bg-warning-500' : 'bg-accent'}`} />
+                        <span className={`absolute -left-[21px] top-1.5 h-2 w-2 rounded-full ${ev.at > now ? 'bg-warning' : 'bg-accent'}`} />
                         <button type="button" className="focus-ring rounded text-left" onClick={() => (ev.permitId ? setPermitId(ev.permitId) : ev.jobId && model.reviewRows.some((r) => r.review.job_id === ev.jobId) ? setReviewJobId(ev.jobId) : undefined)}>
                           <p className="text-sm font-medium text-text-primary">{ev.title}{ev.at > now && <span className="ml-2"><Pill tone="warning">Upcoming</Pill></span>}</p>
                         </button>

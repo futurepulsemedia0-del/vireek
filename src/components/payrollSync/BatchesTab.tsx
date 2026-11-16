@@ -109,7 +109,7 @@ function BatchCard({ ownerId, batch, connection, onChanged, onGoToEmployees }: {
         <div className="min-w-0">
           <p className="text-sm font-semibold text-text-primary">{formatDay(batch.period_start)} – {formatDay(batch.period_end)} · {label}</p>
           <p className="text-xs text-text-secondary">{batch.line_count} employee{batch.line_count === 1 ? '' : 's'} · {formatHours(batch.regular_hours)} regular · {formatHours(batch.overtime_hours)} overtime · {formatCents(batch.commission_cents)} commission</p>
-          {batch.status === 'draft' && batch.review_note && <p className="mt-1 text-xs text-warning-500">Returned: {batch.review_note}</p>}
+          {batch.status === 'draft' && batch.review_note && <p className="mt-1 text-xs text-warning">Returned: {batch.review_note}</p>}
           {batch.status === 'cancelled' && batch.cancel_reason && <p className="mt-1 text-xs text-text-secondary">Cancelled: {batch.cancel_reason}</p>}
           {(batch.status === 'partial' || batch.status === 'failed') && batch.last_error && <p className="mt-1 text-xs text-danger">{batch.last_error}</p>}
         </div>

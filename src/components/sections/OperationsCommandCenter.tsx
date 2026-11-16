@@ -180,11 +180,11 @@ const FEED: FeedEvent[] = [
 
 function PanelHeader({ icon: Icon, title, badge }: { icon: LucideIcon; title: string; badge?: string }) {
   return (
-    <div className="flex items-center gap-2 border-b border-slate-800/80 px-4 py-3">
+    <div className="flex items-center gap-2 border-b border-border-strong/80 px-4 py-3">
       <Icon size={14} className="text-accent" />
-      <h3 className="text-xs font-semibold text-slate-100 sm:text-sm">{title}</h3>
+      <h3 className="text-xs font-semibold text-on-inverse sm:text-sm">{title}</h3>
       {badge && (
-        <span className="ml-auto rounded-full bg-slate-800/80 px-2 py-0.5 text-[0.6rem] font-medium text-slate-400">
+        <span className="ml-auto rounded-full bg-surface-inverse px-2 py-0.5 text-[0.6rem] font-medium text-on-inverse-muted">
           {badge}
         </span>
       )}
@@ -263,7 +263,7 @@ export function OperationsCommandCenter() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={viewport}
           transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
-          className="relative mt-10 overflow-hidden rounded-2xl border border-slate-800 bg-[#0a0b10] shadow-[0_30px_80px_-30px_rgba(0,0,0,0.65)] sm:mt-14 sm:rounded-3xl"
+          className="relative mt-10 overflow-hidden rounded-2xl border border-border-strong bg-[#141413] shadow-[0_30px_80px_-30px_rgba(0,0,0,0.65)] sm:mt-14 sm:rounded-3xl"
         >
           {/* Ambient glow inside the panel */}
           <div
@@ -275,12 +275,12 @@ export function OperationsCommandCenter() {
           />
 
           {/* Top bar */}
-          <div className="relative flex items-center gap-2 border-b border-slate-800/80 bg-slate-950/60 px-4 py-3.5 sm:px-6">
+          <div className="relative flex items-center gap-2 border-b border-border-inverse/80 bg-overlay/60 px-4 py-3.5 sm:px-6">
             <span className="h-2.5 w-2.5 rounded-full bg-danger/50" />
-            <span className="h-2.5 w-2.5 rounded-full bg-warning-500/50" />
+            <span className="h-2.5 w-2.5 rounded-full bg-warning/50" />
             <span className="h-2.5 w-2.5 rounded-full bg-success/50" />
-            <div className="ml-3 hidden items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900/80 px-3 py-1 sm:flex">
-              <span className="text-[0.65rem] text-slate-500">command.vireek.ai</span>
+            <div className="ml-3 hidden items-center gap-1.5 rounded-lg border border-border-inverse bg-overlay/80 px-3 py-1 sm:flex">
+              <span className="text-[0.65rem] text-text-muted">command.vireek.ai</span>
             </div>
             <span className="ml-auto flex items-center gap-1.5 text-xs font-medium text-success">
               <span className="relative flex h-2 w-2">
@@ -303,13 +303,13 @@ export function OperationsCommandCenter() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={viewport}
                     transition={{ duration: 0.4, delay: 0.15 + i * 0.05, ease: EASE }}
-                    className="rounded-xl border border-slate-800 bg-slate-900/60 p-3"
+                    className="rounded-xl border border-border-inverse bg-overlay/60 p-3"
                   >
                     <span className={`flex h-7 w-7 items-center justify-center rounded-lg ${TONE_BG[stat.tone]}`}>
                       <Icon size={13} />
                     </span>
-                    <p className="mt-2 text-lg font-bold tracking-tight text-slate-100 sm:text-xl">{stat.value}</p>
-                    <p className="text-[0.6rem] font-medium leading-tight text-slate-500 sm:text-[0.65rem]">
+                    <p className="mt-2 text-lg font-bold tracking-tight text-on-inverse sm:text-xl">{stat.value}</p>
+                    <p className="text-[0.6rem] font-medium leading-tight text-text-muted sm:text-[0.65rem]">
                       {stat.label}
                     </p>
                   </motion.div>
@@ -327,10 +327,10 @@ export function OperationsCommandCenter() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={viewport}
                   transition={{ duration: 0.5, delay: 0.35, ease: EASE }}
-                  className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50"
+                  className="overflow-hidden rounded-2xl border border-border-inverse bg-overlay/50"
                 >
                   <PanelHeader icon={PhoneCall} title="Live Calls" badge={`${LIVE_CALLS.length} active`} />
-                  <div className="divide-y divide-slate-800/60">
+                  <div className="divide-y divide-border-strong/60">
                     {LIVE_CALLS.map((call) => (
                       <div key={call.name} className="flex items-center gap-3 px-4 py-3">
                         <span
@@ -339,11 +339,11 @@ export function OperationsCommandCenter() {
                           <PhoneCall size={13} />
                         </span>
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-xs font-semibold text-slate-100 sm:text-sm">{call.name}</p>
-                          <p className="truncate text-[0.7rem] text-slate-500">{call.reason}</p>
+                          <p className="truncate text-xs font-semibold text-on-inverse sm:text-sm">{call.name}</p>
+                          <p className="truncate text-[0.7rem] text-text-muted">{call.reason}</p>
                         </div>
                         <Waveform tone={call.tone} />
-                        <span className="w-11 shrink-0 text-right text-[0.7rem] font-medium tabular-nums text-slate-500">
+                        <span className="w-11 shrink-0 text-right text-[0.7rem] font-medium tabular-nums text-text-muted">
                           {call.duration}
                         </span>
                       </div>
@@ -357,13 +357,13 @@ export function OperationsCommandCenter() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={viewport}
                   transition={{ duration: 0.5, delay: 0.45, ease: EASE }}
-                  className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50"
+                  className="overflow-hidden rounded-2xl border border-border-inverse bg-overlay/50"
                 >
                   <PanelHeader icon={CalendarClock} title="Today's Queue" badge="Jobs & follow-ups" />
-                  <div className="divide-y divide-slate-800/60">
+                  <div className="divide-y divide-border-strong/60">
                     {QUEUE.map((item) => (
                       <div key={item.title} className="flex items-center gap-3 px-4 py-3">
-                        <span className="w-20 shrink-0 text-[0.7rem] font-medium text-slate-500">{item.time}</span>
+                        <span className="w-20 shrink-0 text-[0.7rem] font-medium text-text-muted">{item.time}</span>
                         <span
                           className={`shrink-0 rounded-full px-2 py-0.5 text-[0.6rem] font-semibold ${
                             item.type === 'Job' ? 'bg-accent/15 text-accent' : 'bg-cta/15 text-cta'
@@ -372,9 +372,9 @@ export function OperationsCommandCenter() {
                           {item.type}
                         </span>
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-xs font-medium text-slate-200 sm:text-sm">{item.title}</p>
+                          <p className="truncate text-xs font-medium text-on-inverse sm:text-sm">{item.title}</p>
                         </div>
-                        <span className="hidden shrink-0 text-[0.7rem] text-slate-500 sm:block">{item.meta}</span>
+                        <span className="hidden shrink-0 text-[0.7rem] text-text-muted sm:block">{item.meta}</span>
                       </div>
                     ))}
                   </div>
@@ -386,10 +386,10 @@ export function OperationsCommandCenter() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={viewport}
                   transition={{ duration: 0.5, delay: 0.55, ease: EASE }}
-                  className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50"
+                  className="overflow-hidden rounded-2xl border border-border-inverse bg-overlay/50"
                 >
                   <PanelHeader icon={Activity} title="Live Activity Feed" badge="Auto-refreshing" />
-                  <div className="max-h-64 divide-y divide-slate-800/60 overflow-hidden">
+                  <div className="max-h-64 divide-y divide-border-strong/60 overflow-hidden">
                     {FEED.map((event, i) => {
                       const Icon = event.icon;
                       const isActive = i === activeFeed;
@@ -402,19 +402,19 @@ export function OperationsCommandCenter() {
                         >
                           <span
                             className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md transition-colors duration-500 ${
-                              isActive ? 'bg-accent text-white' : 'bg-slate-800 text-slate-500'
+                              isActive ? 'bg-accent text-on-accent' : 'bg-surface-inverse text-on-inverse-muted'
                             }`}
                           >
                             <Icon size={11} />
                           </span>
                           <p
                             className={`min-w-0 flex-1 truncate text-[0.75rem] transition-colors duration-500 ${
-                              isActive ? 'font-medium text-slate-100' : 'text-slate-500'
+                              isActive ? 'font-medium text-on-inverse' : 'text-text-muted'
                             }`}
                           >
                             {event.text}
                           </p>
-                          <span className="hidden shrink-0 text-[0.65rem] text-slate-600 sm:block">
+                          <span className="hidden shrink-0 text-[0.65rem] text-text-secondary sm:block">
                             {event.meta}
                           </span>
                         </div>
@@ -436,22 +436,22 @@ export function OperationsCommandCenter() {
                 >
                   <div className="flex items-center gap-2 border-b border-accent/20 px-4 py-3">
                     <Sparkles size={14} className="text-accent" />
-                    <h3 className="text-xs font-semibold text-slate-100 sm:text-sm">AI Recommendations</h3>
+                    <h3 className="text-xs font-semibold text-on-inverse sm:text-sm">AI Recommendations</h3>
                   </div>
                   <div className="flex flex-col gap-2.5 p-3">
                     {RECOMMENDATIONS.map((rec) => {
                       const Icon = rec.icon;
                       return (
-                        <div key={rec.text} className="rounded-xl border border-slate-800 bg-slate-900/70 p-3">
+                        <div key={rec.text} className="rounded-xl border border-border-inverse bg-overlay/70 p-3">
                           <div className="flex items-center gap-2">
                             <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-accent/15 text-accent">
                               <Icon size={12} />
                             </span>
-                            <span className="rounded-full bg-slate-800 px-2 py-0.5 text-[0.6rem] font-medium text-slate-400">
+                            <span className="rounded-full bg-surface-inverse px-2 py-0.5 text-[0.6rem] font-medium text-on-inverse-muted">
                               {rec.tag}
                             </span>
                           </div>
-                          <p className="mt-2 text-[0.75rem] leading-relaxed text-slate-300">{rec.text}</p>
+                          <p className="mt-2 text-[0.75rem] leading-relaxed text-text-muted">{rec.text}</p>
                         </div>
                       );
                     })}
@@ -464,18 +464,18 @@ export function OperationsCommandCenter() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={viewport}
                   transition={{ duration: 0.5, delay: 0.5, ease: EASE }}
-                  className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50"
+                  className="overflow-hidden rounded-2xl border border-border-inverse bg-overlay/50"
                 >
                   <PanelHeader icon={Wrench} title="Technician Status" />
-                  <div className="divide-y divide-slate-800/60">
+                  <div className="divide-y divide-border-strong/60">
                     {TECHNICIANS.map((tech) => {
                       const tone = TECH_STATUS_TONE[tech.status];
                       return (
                         <div key={tech.name} className="flex items-center gap-2.5 px-4 py-2.5">
                           <Circle size={7} className={`shrink-0 fill-current ${TONE_TEXT[tone]}`} strokeWidth={0} />
                           <div className="min-w-0 flex-1">
-                            <p className="truncate text-[0.75rem] font-medium text-slate-200">{tech.name}</p>
-                            <p className="truncate text-[0.65rem] text-slate-500">{tech.job}</p>
+                            <p className="truncate text-[0.75rem] font-medium text-on-inverse">{tech.name}</p>
+                            <p className="truncate text-[0.65rem] text-text-muted">{tech.job}</p>
                           </div>
                           <span className={`shrink-0 text-[0.65rem] font-semibold ${TONE_TEXT[tone]}`}>
                             {tech.status}
@@ -496,16 +496,16 @@ export function OperationsCommandCenter() {
                 >
                   <div className="flex items-center gap-2 border-b border-danger/20 px-4 py-3">
                     <Siren size={14} className="text-danger" />
-                    <h3 className="text-xs font-semibold text-slate-100 sm:text-sm">Emergency Alerts</h3>
+                    <h3 className="text-xs font-semibold text-on-inverse sm:text-sm">Emergency Alerts</h3>
                   </div>
                   <div className="p-3">
                     {ALERTS.map((alert) => (
-                      <div key={alert.title} className="rounded-xl border border-danger/20 bg-slate-900/60 p-3">
+                      <div key={alert.title} className="rounded-xl border border-danger/20 bg-overlay/60 p-3">
                         <div className="flex items-center justify-between gap-2">
-                          <p className="text-[0.75rem] font-semibold text-slate-100">{alert.title}</p>
-                          <span className="shrink-0 text-[0.65rem] text-slate-500">{alert.time}</span>
+                          <p className="text-[0.75rem] font-semibold text-on-inverse">{alert.title}</p>
+                          <span className="shrink-0 text-[0.65rem] text-text-muted">{alert.time}</span>
                         </div>
-                        <p className="mt-1 text-[0.7rem] leading-relaxed text-slate-400">{alert.detail}</p>
+                        <p className="mt-1 text-[0.7rem] leading-relaxed text-text-muted">{alert.detail}</p>
                       </div>
                     ))}
                   </div>

@@ -182,7 +182,7 @@ function PostingFormDialog({ posting, onClose, onSaved }: PostingFormDialogProps
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center sm:p-4"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-overlay/50 sm:items-center sm:p-4"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) guardedClose();
       }}
@@ -604,7 +604,7 @@ function ApplicantCard({ app, onChange, onDelete }: ApplicantCardProps) {
                 aria-label={`${n} star${n === 1 ? '' : 's'}`}
                 aria-pressed={app.rating === n}
                 onClick={() => void onChange(app.id, { rating: app.rating === n ? null : n })}
-                className="focus-ring rounded p-1 text-warning-500"
+                className="focus-ring rounded p-1 text-warning"
               >
                 <Star size={18} className={app.rating !== null && n <= app.rating ? 'fill-current' : ''} />
               </button>
@@ -758,7 +758,7 @@ function ApplicantsView({ posting, onBack }: { posting: JobPosting; onBack: () =
                     aria-pressed={status === tab}
                     onClick={() => setStatus(tab)}
                     className={`focus-ring shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-                      status === tab ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'
+                      status === tab ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'
                     }`}
                   >
                     {tab === 'all' ? 'All' : APPLICATION_STATUS_LABELS[tab]}{' '}

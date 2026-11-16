@@ -340,7 +340,7 @@ function SubmittalRow({ s, revisions, open, onToggle, phaseName, ownerId, projec
                 {decisions.map((a) => <Button key={a} size="sm" variant={a === 'approve' ? 'primary' : 'secondary'} disabled={busyKey?.startsWith('act-') === true} onClick={() => act(a)}>{SUBMITTAL_ACTION_LABEL[a]}</Button>)}
                 {actions.includes('void') && <Button size="sm" variant="ghost" disabled={busyKey?.startsWith('act-') === true} onClick={() => act('void')}>Void</Button>}
                 {s.status === 'draft' && s.current_revision === 0 && (
-                  <button type="button" aria-label="Delete draft submittal" onClick={() => ask({ title: 'Delete this draft?', description: 'It was never submitted, so it can be deleted. Its files are removed too.', label: 'Delete draft', onConfirm: () => run('delete', () => deleteDraftSubmittal(ownerId, s.id), 'Draft deleted.') })} className="focus-ring ml-auto rounded-lg p-2 text-text-secondary hover:bg-bg-tertiary hover:text-danger-500"><Trash2 size={16} aria-hidden="true" /></button>
+                  <button type="button" aria-label="Delete draft submittal" onClick={() => ask({ title: 'Delete this draft?', description: 'It was never submitted, so it can be deleted. Its files are removed too.', label: 'Delete draft', onConfirm: () => run('delete', () => deleteDraftSubmittal(ownerId, s.id), 'Draft deleted.') })} className="focus-ring ml-auto rounded-lg p-2 text-text-secondary hover:bg-bg-tertiary hover:text-danger"><Trash2 size={16} aria-hidden="true" /></button>
                 )}
               </div>
             </div>

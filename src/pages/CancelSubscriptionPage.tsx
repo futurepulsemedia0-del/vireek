@@ -339,7 +339,7 @@ export function CancelSubscriptionPage() {
       const cancelling = ctx.cancel_at_period_end;
       body = (
         <div className={CARD}>
-          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-warning-500/10 text-warning-500">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-warning-subtle text-warning">
             {cancelling ? <CalendarClock size={22} aria-hidden="true" /> : <PauseCircle size={22} aria-hidden="true" />}
           </span>
           <h1 ref={headingRef} tabIndex={-1} className="mt-4 text-xl font-bold text-text-primary focus:outline-none">

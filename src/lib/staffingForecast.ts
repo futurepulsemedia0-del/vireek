@@ -71,8 +71,8 @@ export const STATUS_LABEL: Record<CapStatus, string> = {
 };
 
 export const STATUS_TONE: Record<CapStatus, string> = {
-  low: 'bg-warning-500/10 text-warning-500',
-  optimal: 'bg-success-500/10 text-success-500',
+  low: 'bg-warning-subtle text-warning',
+  optimal: 'bg-success-subtle text-success',
   full: 'bg-danger/10 text-danger',
   no_capacity: 'bg-bg-tertiary text-text-secondary',
   closed: 'bg-bg-tertiary text-text-secondary',
@@ -80,7 +80,7 @@ export const STATUS_TONE: Record<CapStatus, string> = {
 
 export const SEVERITY_TONE: Record<Recommendation['severity'], string> = {
   high: 'bg-danger/10 text-danger',
-  medium: 'bg-warning-500/10 text-warning-500',
+  medium: 'bg-warning-subtle text-warning',
   low: 'bg-bg-tertiary text-text-secondary',
   info: 'bg-bg-tertiary text-text-secondary',
 };
@@ -106,8 +106,8 @@ export const KIND_LINK: Partial<Record<RecommendationKind, { href: string; label
 };
 
 export const CONFIDENCE_TONE: Record<Confidence, string> = {
-  high: 'bg-success-500/10 text-success-500',
-  medium: 'bg-warning-500/10 text-warning-500',
+  high: 'bg-success-subtle text-success',
+  medium: 'bg-warning-subtle text-warning',
   low: 'bg-bg-tertiary text-text-secondary',
 };
 

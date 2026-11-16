@@ -276,7 +276,7 @@ export function DailyLogEditor({ ownerId, projectId, date, today, onClose, onCha
   };
 
   const removeBtn = (label: string, onClick: () => void) => (
-    <button type="button" aria-label={label} onClick={onClick} className="focus-ring justify-self-start rounded-lg p-2 text-text-secondary hover:bg-bg-tertiary hover:text-danger-500">
+    <button type="button" aria-label={label} onClick={onClick} className="focus-ring justify-self-start rounded-lg p-2 text-text-secondary hover:bg-bg-tertiary hover:text-danger">
       <Trash2 size={16} aria-hidden="true" />
     </button>
   );
@@ -430,7 +430,7 @@ export function DailyLogEditor({ ownerId, projectId, date, today, onClose, onCha
                   <li key={p.link_id} className="relative aspect-square overflow-hidden rounded-xl bg-bg-tertiary">
                     {src ? <img src={src} alt={p.caption || p.file_name} loading="lazy" className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-xs text-text-secondary">Loading…</div>}
                     {!locked && (
-                      <button type="button" aria-label={`Remove ${p.file_name}`} onClick={() => onRemovePhoto(p)} className="focus-ring absolute right-1 top-1 rounded-lg bg-bg-primary/90 p-1.5 text-text-secondary hover:text-danger-500">
+                      <button type="button" aria-label={`Remove ${p.file_name}`} onClick={() => onRemovePhoto(p)} className="focus-ring absolute right-1 top-1 rounded-lg bg-bg-primary/90 p-1.5 text-text-secondary hover:text-danger">
                         <Trash2 size={14} aria-hidden="true" />
                       </button>
                     )}

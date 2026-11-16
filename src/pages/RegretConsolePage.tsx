@@ -39,7 +39,7 @@ import {
 } from '@/lib/regretConsole';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder';
 
 // ============================================================
 // BUILDER
@@ -115,7 +115,7 @@ function DecisionBuilder({ userId, onSaved }: { userId: string; onSaved: () => v
             key={t}
             type="button"
             onClick={() => applyTemplate(t)}
-            className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium ${decisionType === t ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
+            className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium ${decisionType === t ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
           >
             {DECISION_TYPE_LABELS[t]}
           </button>
@@ -185,7 +185,7 @@ function DecisionBuilder({ userId, onSaved }: { userId: string; onSaved: () => v
             </div>
           ))}
         </div>
-        <p className="mt-1 text-[11px] text-text-secondary/70">Leave odds out — this tool doesn't need them. Fill them in only if you actually want to see an expected-value comparison too.</p>
+        <p className="mt-1 text-[11px] text-text-muted">Leave odds out — this tool doesn't need them. Fill them in only if you actually want to see an expected-value comparison too.</p>
       </div>
 
       {/* Matrix */}
@@ -229,9 +229,9 @@ function DecisionBuilder({ userId, onSaved }: { userId: string; onSaved: () => v
             {filledOptions.map((o) => {
               const isRec = preview.recommendedOptionId === o.id;
               return (
-                <div key={o.id} className={`flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs ${isRec ? 'bg-success-500/10' : ''}`}>
+                <div key={o.id} className={`flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs ${isRec ? 'bg-success-subtle' : ''}`}>
                   <span className="flex items-center gap-1.5 font-medium text-text-primary">
-                    {isRec && <Check size={12} className="text-success-500" />} {o.name}
+                    {isRec && <Check size={12} className="text-success" />} {o.name}
                   </span>
                   <span className="text-text-secondary">
                     worst regret {formatDollars(preview.maxRegretByOption[o.id] ?? 0)} · floor {formatDollars(preview.worstCaseByOption[o.id] ?? 0)}
@@ -245,7 +245,7 @@ function DecisionBuilder({ userId, onSaved }: { userId: string; onSaved: () => v
 
       <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Optional context for later-you" rows={2} className={inputClass} />
 
-      <button type="button" onClick={() => void handleSave()} disabled={saving} className="focus-ring flex w-full items-center justify-center gap-1.5 rounded-xl bg-accent px-3 py-2.5 text-sm font-medium text-white disabled:opacity-50">
+      <button type="button" onClick={() => void handleSave()} disabled={saving} className="focus-ring flex w-full items-center justify-center gap-1.5 rounded-xl bg-accent px-3 py-2.5 text-sm font-medium text-on-accent disabled:opacity-50">
         {saving ? <Loader2 size={14} className="animate-spin" /> : <Scale size={14} />} Save this decision
       </button>
     </div>
@@ -274,7 +274,7 @@ function DecisionCard({ decision, onChanged }: { decision: RegretDecision; onCha
           <p className="text-sm font-semibold text-text-primary">{decision.title}</p>
           <p className="mt-0.5 text-xs text-text-secondary">
             {DECISION_TYPE_LABELS[decision.decision_type]} · recommended: <span className="font-medium text-text-primary">{recommended?.name ?? '—'}</span>
-            {chosen && chosen.id !== recommended?.id && <span className="text-warning-500"> · went with {chosen.name} instead</span>}
+            {chosen && chosen.id !== recommended?.id && <span className="text-warning"> · went with {chosen.name} instead</span>}
             {actual && <span> · what happened: {actual.name}</span>}
           </p>
         </div>
@@ -288,9 +288,9 @@ function DecisionCard({ decision, onChanged }: { decision: RegretDecision; onCha
               const isRec = o.id === decision.recommended_option_id;
               const isChosen = o.id === decision.chosen_option_id;
               return (
-                <div key={o.id} className={`flex flex-wrap items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-xs ${isRec ? 'bg-success-500/10' : 'bg-bg-tertiary'}`}>
+                <div key={o.id} className={`flex flex-wrap items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-xs ${isRec ? 'bg-success-subtle' : 'bg-bg-tertiary'}`}>
                   <span className="flex items-center gap-1.5 font-medium text-text-primary">
-                    {isRec && <Check size={12} className="text-success-500" />} {o.name}
+                    {isRec && <Check size={12} className="text-success" />} {o.name}
                     {isChosen && <span className="rounded-full bg-accent/10 px-1.5 py-0.5 text-[10px] text-accent">chosen</span>}
                     <span className={`rounded-full px-1.5 py-0.5 text-[10px] ${REVERSIBILITY_COLORS[o.reversibility]}`}>{REVERSIBILITY_LABELS[o.reversibility]}</span>
                   </span>
@@ -317,7 +317,7 @@ function DecisionCard({ decision, onChanged }: { decision: RegretDecision; onCha
           {decision.chosen_option_id && !decision.actual_scenario_id && (
             <div className="rounded-xl border border-border bg-bg-primary p-3">
               <p className="mb-2 flex items-center gap-1.5 text-xs font-medium text-text-primary">
-                <AlertTriangle size={13} className="text-warning-500" /> What actually happened?
+                <AlertTriangle size={13} className="text-warning" /> What actually happened?
               </p>
               <select value={resolvingScenario} onChange={(e) => setResolvingScenario(e.target.value)} className={`${inputClass} mb-2`}>
                 <option value="">Choose the closest scenario</option>
@@ -330,7 +330,7 @@ function DecisionCard({ decision, onChanged }: { decision: RegretDecision; onCha
                 type="button"
                 disabled={!resolvingScenario}
                 onClick={() => void recordOutcome(decision.id, resolvingScenario, outcomeNotes).then(onChanged).then(() => toast('Outcome logged', 'success'))}
-                className="focus-ring rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white disabled:opacity-40"
+                className="focus-ring rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent disabled:opacity-40"
               >
                 Log outcome
               </button>
@@ -394,7 +394,7 @@ export function RegretConsolePage() {
           <button
             type="button"
             onClick={() => setShowBuilder((v) => !v)}
-            className="focus-ring flex shrink-0 items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-medium text-white"
+            className="focus-ring flex shrink-0 items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-medium text-on-accent"
           >
             {showBuilder ? <X size={13} /> : <Plus size={13} />} {showBuilder ? 'Close' : 'New decision'}
           </button>
@@ -412,7 +412,7 @@ export function RegretConsolePage() {
           </div>
         ) : decisions.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border py-10 text-center">
-            <Scale className="mx-auto mb-2 h-6 w-6 text-text-secondary/50" />
+            <Scale className="mx-auto mb-2 h-6 w-6 text-graphic-muted" />
             <p className="mx-auto max-w-sm text-sm text-text-secondary">
               No decisions logged yet. Next time you're stuck between raising prices, discounting a deal, approving overtime, or taking a risky job — run it through here first.
             </p>

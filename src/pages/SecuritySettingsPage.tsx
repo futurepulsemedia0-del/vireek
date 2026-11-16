@@ -325,8 +325,8 @@ export function SecuritySettingsPage() {
           {mfaLoading ? (
             <div className="h-9 w-40 animate-pulse rounded-xl bg-bg-tertiary" />
           ) : verifiedFactor ? (
-            <div className="flex items-center justify-between rounded-xl border border-success-500/25 bg-success-500/10 px-4 py-3">
-              <div className="flex items-center gap-2 text-sm font-medium text-success-500">
+            <div className="flex items-center justify-between rounded-xl border border-success/25 bg-success-subtle px-4 py-3">
+              <div className="flex items-center gap-2 text-sm font-medium text-success">
                 <CheckCircle2 size={16} />
                 2FA is enabled on your account
               </div>
@@ -346,7 +346,7 @@ export function SecuritySettingsPage() {
                 6-digit code it shows.
               </p>
               <div className="mt-3 flex flex-col items-center gap-3 sm:flex-row sm:items-start">
-                <img src={qrCode} alt="2FA QR code" className="h-40 w-40 rounded-lg border border-border bg-white p-2" />
+                <img src={qrCode} alt="2FA QR code" className="h-40 w-40 rounded-lg border border-border bg-bg-secondary p-2" />
                 <div className="flex-1 space-y-3">
                   {secret && (
                     <p className="break-all rounded-lg bg-bg-tertiary px-3 py-2 text-xs text-text-secondary">
@@ -365,7 +365,7 @@ export function SecuritySettingsPage() {
                       type="button"
                       onClick={confirmEnroll}
                       disabled={verifyCode.length < 6 || verifying}
-                      className="focus-ring rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                      className="focus-ring rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-on-accent disabled:opacity-50"
                     >
                       {verifying ? 'Verifying…' : 'Verify & enable'}
                     </button>
@@ -390,7 +390,7 @@ export function SecuritySettingsPage() {
               type="button"
               onClick={startEnroll}
               disabled={enrolling}
-              className="focus-ring rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+              className="focus-ring rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent transition-opacity hover:opacity-90 disabled:opacity-50"
             >
               {enrolling ? 'Starting…' : 'Enable two-factor authentication'}
             </button>
@@ -556,7 +556,7 @@ export function SecuritySettingsPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead>
-                  <tr className="border-b border-border text-xs uppercase tracking-wider text-text-secondary/70">
+                  <tr className="border-b border-border text-xs uppercase tracking-wider text-text-muted">
                     <th className="pb-2 pr-4 font-semibold">Action</th>
                     <th className="pb-2 pr-4 font-semibold">By</th>
                     <th className="pb-2 font-semibold">When</th>

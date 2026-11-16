@@ -67,7 +67,7 @@ function DesktopActions() {
   const { t } = useTranslation();
   const signedIn = useIsSignedIn();
   const primary =
-    'focus-ring group relative hidden h-9 items-center gap-1.5 overflow-hidden rounded-xl bg-accent px-4 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:shadow-glow-accent active:scale-95 xl:flex';
+    'focus-ring group relative hidden h-9 items-center gap-1.5 overflow-hidden rounded-xl bg-accent px-4 text-sm font-semibold text-on-accent shadow-sm transition-all duration-200 hover:shadow-glow-accent active:scale-95 xl:flex';
 
   if (signedIn) {
     return (
@@ -103,13 +103,13 @@ function DrawerActions({ onNavigate }: { onNavigate: () => void }) {
   return (
     <div className="space-y-3 border-t border-border px-5 py-5">
       {signedIn ? (
-        <Link to="/dashboard" onClick={onNavigate} className={`${base} bg-accent text-white shadow-sm hover:shadow-glow-accent`}>
+        <Link to="/dashboard" onClick={onNavigate} className={`${base} bg-accent text-on-accent shadow-sm hover:shadow-glow-accent`}>
           <LayoutDashboard size={16} aria-hidden="true" />
           Dashboard
         </Link>
       ) : (
         <>
-          <Link to="/signup" onClick={onNavigate} className={`group ${base} bg-accent text-white shadow-sm hover:shadow-glow-accent`}>
+          <Link to="/signup" onClick={onNavigate} className={`group ${base} bg-accent text-on-accent shadow-sm hover:shadow-glow-accent`}>
             {t('cta.startFreeTrial')}
             <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5 rtl:-scale-x-100 rtl:group-hover:-translate-x-0.5" aria-hidden="true" />
           </Link>
@@ -278,7 +278,7 @@ export function SiteHeader() {
           <div
             className={`relative flex items-center justify-between gap-4 rounded-2xl px-4 py-2.5 transition-all duration-300 ease-out sm:px-5 sm:py-3 ${
               scrolled
-                ? 'border border-border/70 bg-bg-secondary/80 shadow-lg shadow-slate-950/5 backdrop-blur-xl'
+                ? 'border border-border/70 bg-bg-secondary/80 shadow-lg shadow-text-secondary/5 backdrop-blur-xl'
                 : 'border border-transparent bg-transparent'
             }`}
           >
@@ -312,7 +312,7 @@ export function SiteHeader() {
               transition={{ duration: 0.2 }}
               onClick={() => closeDrawer()}
               aria-hidden="true"
-              className="fixed inset-0 z-overlay bg-slate-950/60 backdrop-blur-md xl:hidden"
+              className="fixed inset-0 z-overlay bg-overlay/60 backdrop-blur-md xl:hidden"
             />
             <motion.aside
               ref={drawerRef}

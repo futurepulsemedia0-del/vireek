@@ -73,7 +73,7 @@ export function ConfirmDialog({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={onCancel}
-            className="fixed inset-0 z-[110] bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 z-[110] bg-overlay/40 backdrop-blur-sm"
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.96, y: 10 }}
@@ -150,7 +150,7 @@ export function ConfirmDialog({
                 type="button"
                 disabled={!canConfirm || submitting}
                 onClick={handleConfirm}
-                className="focus-ring flex-1 rounded-xl bg-danger px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                className="focus-ring flex-1 rounded-xl bg-danger px-4 py-2.5 text-sm font-semibold text-on-danger transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {submitting ? t('confirm.working') : (confirmLabel ?? t('confirm.yesDelete'))}
               </button>

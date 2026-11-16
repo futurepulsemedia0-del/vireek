@@ -33,11 +33,11 @@ import {
 } from '@/lib/giftCards';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder transition-colors';
 const btnClass =
   'focus-ring inline-flex items-center justify-center gap-1.5 rounded-xl border border-border bg-bg-secondary px-4 py-2 text-sm font-medium text-text-primary transition-colors hover:bg-bg-tertiary disabled:opacity-50';
 const primaryBtn =
-  'focus-ring inline-flex items-center justify-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50';
+  'focus-ring inline-flex items-center justify-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent transition-all hover:brightness-110 disabled:opacity-50';
 
 const fmtDate = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString() : '—');
 
@@ -60,7 +60,7 @@ function Modal({ title, onClose, locked = false, children }: { title: string; on
   const ref = useFocusTrap(!locked);
   useEscapeToClose(!locked, onClose);
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4" onMouseDown={locked ? undefined : onClose}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-overlay/50 p-0 sm:items-center sm:p-4" onMouseDown={locked ? undefined : onClose}>
       <div
         ref={ref}
         role="dialog"
@@ -257,7 +257,7 @@ function RedeemModal({ cards, initialCode, onClose, onDone }: { cards: GiftCard[
             <StatusBadge status={status} />
           </div>
         )}
-        {card && status && !usable && <p className="text-sm text-warning-500">This card can't be redeemed ({STATUS_LABELS[status].toLowerCase()}).</p>}
+        {card && status && !usable && <p className="text-sm text-warning">This card can't be redeemed ({STATUS_LABELS[status].toLowerCase()}).</p>}
 
         <Field label="Apply to invoice (optional)" hint="Pick an unpaid invoice to settle it, or leave empty for an in-person redemption.">
           {invLoading ? (
@@ -424,7 +424,7 @@ function DetailModal({ card, onClose, onChanged, onRedeem }: { card: GiftCard; o
                 <p className="truncate text-xs text-text-secondary">{new Date(t.created_at).toLocaleString()}{t.note ? ` · ${t.note}` : ''}</p>
               </div>
               <div className="shrink-0 text-right">
-                <p className={t.amount_cents < 0 ? 'font-semibold text-danger' : 'font-semibold text-success-500'}>
+                <p className={t.amount_cents < 0 ? 'font-semibold text-danger' : 'font-semibold text-success'}>
                   {t.amount_cents < 0 ? '−' : '+'}{formatCents(Math.abs(t.amount_cents))}
                 </p>
                 <p className="text-xs text-text-secondary">Bal. {formatCents(t.balance_after_cents)}</p>
@@ -566,7 +566,7 @@ export function GiftCardsPage() {
                   role="tab"
                   aria-selected={filter === f.key}
                   onClick={() => setFilter(f.key)}
-                  className={`focus-ring shrink-0 rounded-full px-3.5 py-1.5 text-sm font-medium ${filter === f.key ? 'bg-accent text-white' : 'bg-bg-secondary text-text-secondary hover:text-text-primary'}`}
+                  className={`focus-ring shrink-0 rounded-full px-3.5 py-1.5 text-sm font-medium ${filter === f.key ? 'bg-accent text-on-accent' : 'bg-bg-secondary text-text-secondary hover:text-text-primary'}`}
                 >
                   {f.label}
                 </button>

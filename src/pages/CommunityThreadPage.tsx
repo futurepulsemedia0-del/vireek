@@ -53,14 +53,14 @@ function ReplyCard({
     <motion.div
       initial={{ opacity: 0, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`flex gap-3 rounded-2xl border p-4 ${reply.is_accepted ? 'border-emerald-500/40 bg-emerald-500/5' : 'border-border bg-bg-secondary'}`}
+      className={`flex gap-3 rounded-2xl border p-4 ${reply.is_accepted ? 'border-success/40 bg-success-subtle' : 'border-border bg-bg-secondary'}`}
     >
       <VoteButton active={voted} count={reply.upvote_count} onToggle={onVote} />
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-xs font-medium text-text-secondary">{reply.author_name}</p>
           {reply.is_accepted && (
-            <span className="flex items-center gap-1 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-600">
+            <span className="flex items-center gap-1 rounded-full border border-success/25 bg-success-subtle px-2 py-0.5 text-[11px] font-semibold text-success">
               <CheckCircle2 size={11} /> Accepted answer
             </span>
           )}
@@ -206,7 +206,7 @@ export function CommunityThreadPage() {
               type="button"
               disabled={posting || !replyBody.trim()}
               onClick={handleReply}
-              className="focus-ring rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
+              className="focus-ring rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-on-accent disabled:opacity-40"
             >
               {posting ? 'Posting…' : 'Post reply'}
             </button>

@@ -317,7 +317,7 @@ function PunchRow({ item, open, onToggle, data, ownerId, projectId, userId, toda
                   <Button key={a} size="sm" variant={a === 'reject' || a === 'reopen' ? 'secondary' : 'primary'} disabled={busyKey?.startsWith('act-') === true} onClick={() => act(a)}>{PUNCH_ACTION_LABEL[a]}</Button>
                 ))}
                 {canReview && item.status !== 'closed' && (
-                  <button type="button" aria-label="Delete punch item" onClick={() => ask({ title: 'Delete this item?', description: `${formatPunchNumber(item.seq)} and its photos will be deleted permanently.`, label: 'Delete item', onConfirm: () => run('delete', () => deletePunchItem(ownerId, item.id), 'Item deleted.') })} className="focus-ring ml-auto rounded-lg p-2 text-text-secondary hover:bg-bg-tertiary hover:text-danger-500"><Trash2 size={16} aria-hidden="true" /></button>
+                  <button type="button" aria-label="Delete punch item" onClick={() => ask({ title: 'Delete this item?', description: `${formatPunchNumber(item.seq)} and its photos will be deleted permanently.`, label: 'Delete item', onConfirm: () => run('delete', () => deletePunchItem(ownerId, item.id), 'Item deleted.') })} className="focus-ring ml-auto rounded-lg p-2 text-text-secondary hover:bg-bg-tertiary hover:text-danger"><Trash2 size={16} aria-hidden="true" /></button>
                 )}
               </div>
             </div>

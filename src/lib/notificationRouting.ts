@@ -101,7 +101,7 @@ export const SEVERITY_DESCRIPTIONS: Record<Severity, string> = {
 
 export const SEVERITY_COLORS: Record<Severity, string> = {
   info: 'bg-bg-tertiary text-text-secondary',
-  warning: 'bg-warning-500/10 text-warning-500',
+  warning: 'bg-warning-subtle text-warning',
   high: 'bg-error-500/10 text-error-500',
   critical: 'bg-danger/10 text-danger',
 };
@@ -128,9 +128,9 @@ export const ROLE_LABELS: Record<TargetRole, string> = {
 
 export const DELIVERY_STATUS_COLORS: Record<DeliveryRow['status'], string> = {
   pending: 'bg-bg-tertiary text-text-secondary',
-  sent: 'bg-success-500/10 text-success-500',
+  sent: 'bg-success-subtle text-success',
   failed: 'bg-error-500/10 text-error-500',
-  skipped: 'bg-warning-500/10 text-warning-500',
+  skipped: 'bg-warning-subtle text-warning',
 };
 
 export const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;

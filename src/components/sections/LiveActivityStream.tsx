@@ -95,7 +95,7 @@ function StagePill({ stage }: { stage: Stage }) {
         <Icon size={17} strokeWidth={2.25} aria-hidden="true" />
       </span>
       <span className="flex flex-col leading-tight">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-text-secondary/70">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-text-muted">
           {stage.label}
         </span>
         <span className="text-[13px] font-semibold text-text-primary">{stage.detail}</span>
@@ -113,7 +113,7 @@ function MarqueeTrack() {
             <div key={stage.label} className="flex items-center gap-3">
               <StagePill stage={stage} />
               {stageIndex < event.stages.length - 1 && (
-                <ChevronRight size={15} strokeWidth={2.5} className="shrink-0 text-text-secondary/25" aria-hidden="true" />
+                <ChevronRight size={15} strokeWidth={2.5} className="shrink-0 text-graphic-muted" aria-hidden="true" />
               )}
             </div>
           ))}
@@ -202,7 +202,7 @@ export function LiveActivityStream() {
         a confirmation, and the details sync to your CRM — automatically, for every call.
       </p>
 
-      <p className="mt-6 text-center text-xs font-medium uppercase tracking-[0.12em] text-text-secondary/60 sm:mt-8 sm:tracking-[0.14em]">
+      <p className="mt-6 text-center text-xs font-medium uppercase tracking-[0.12em] text-text-muted sm:mt-8 sm:tracking-[0.14em]">
         Six steps. Zero missed calls. Every time.
       </p>
     </section>

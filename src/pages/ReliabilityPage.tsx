@@ -20,9 +20,9 @@ import {
 
 const WINDOWS = [7, 30, 90] as const;
 const TIER: Record<ReliabilityTier, { label: string; cls: string }> = {
-  excellent: { label: 'Excellent', cls: 'bg-success-500/10 text-success-500' },
+  excellent: { label: 'Excellent', cls: 'bg-success-subtle text-success' },
   good: { label: 'Good', cls: 'bg-accent/10 text-accent' },
-  at_risk: { label: 'At risk', cls: 'bg-warning-500/10 text-warning-500' },
+  at_risk: { label: 'At risk', cls: 'bg-warning-subtle text-warning' },
   critical: { label: 'Critical', cls: 'bg-danger/10 text-danger' },
 };
 const TYPE_LABEL: Record<ExecutionEntityType, string> = { agent: 'Agents', workflow: 'Workflows', integration: 'Integrations' };

@@ -211,9 +211,9 @@ export function evaluateCase(c: RescueCase, settings: RescueSlaSettings, now: nu
 }
 
 export const SLA_META: Record<SlaStatus, { label: string; className: string }> = {
-  met: { label: 'On time', className: 'bg-success-500/10 text-success-500' },
-  late: { label: 'Late', className: 'bg-warning-500/10 text-warning-500' },
-  breached: { label: 'No response', className: 'bg-danger-500/10 text-danger-500' },
+  met: { label: 'On time', className: 'bg-success-subtle text-success' },
+  late: { label: 'Late', className: 'bg-warning-subtle text-warning' },
+  breached: { label: 'No response', className: 'bg-danger-subtle text-danger' },
   pending: { label: 'Clock running', className: 'bg-accent/10 text-accent' },
   excused: { label: 'Quiet hours', className: 'bg-bg-tertiary text-text-secondary' },
   closed: { label: 'Closed', className: 'bg-bg-tertiary text-text-secondary' },

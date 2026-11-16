@@ -4,14 +4,14 @@ const config: CapacitorConfig = {
   appId: 'com.vireek.field',
   appName: 'Vireek Field',
   webDir: 'dist',
-  backgroundColor: '#090A0D', // = dark bg-primary token (checked by scripts/color/contrast.test.mjs)
+  backgroundColor: '#141413', // = dark bg-primary token (checked by scripts/color/contrast.test.mjs)
   android: {
     // Keeps JavaScript (and therefore GPS callbacks) alive while the app is in the background.
     useLegacyBridge: true,
   },
   plugins: {
     // Hidden by src/lib/native/shell.ts after the first paint.
-    SplashScreen: { launchAutoHide: false, backgroundColor: '#090A0D', showSpinner: false },
+    SplashScreen: { launchAutoHide: false, backgroundColor: '#141413', showSpinner: false },
     FirebaseMessaging: { presentationOptions: ['badge', 'sound', 'alert'] },
   },
 };

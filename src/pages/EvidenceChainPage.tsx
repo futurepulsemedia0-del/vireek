@@ -19,15 +19,15 @@ import {
 } from '@/lib/jobEvidenceChain';
 
 const TONE_TEXT = {
-  success: 'text-success-500',
-  warning: 'text-warning-500',
+  success: 'text-success',
+  warning: 'text-warning',
   danger: 'text-danger',
   neutral: 'text-text-secondary',
 } as const;
 
 const TONE_BAR = {
-  success: 'bg-success-500',
-  warning: 'bg-warning-500',
+  success: 'bg-success',
+  warning: 'bg-warning',
   danger: 'bg-danger',
   neutral: 'bg-border',
 } as const;

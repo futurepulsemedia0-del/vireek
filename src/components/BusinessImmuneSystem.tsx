@@ -42,8 +42,8 @@ export function BusinessImmuneSystem() {
     return acc;
   }, {});
 
-  const healthColor = health >= 80 ? 'text-success-500' : health >= 50 ? 'text-warning-500' : 'text-danger';
-  const iconBg = health >= 80 ? 'bg-success-500/10 text-success-500' : health >= 50 ? 'bg-warning-500/10 text-warning-500' : 'bg-danger/10 text-danger';
+  const healthColor = health >= 80 ? 'text-success' : health >= 50 ? 'text-warning' : 'text-danger';
+  const iconBg = health >= 80 ? 'bg-success-subtle text-success' : health >= 50 ? 'bg-warning-subtle text-warning' : 'bg-danger/10 text-danger';
 
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl border border-border bg-bg-secondary p-5">

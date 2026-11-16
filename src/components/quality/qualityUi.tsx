@@ -9,7 +9,7 @@ import {
 } from '@/lib/callQuality';
 
 export const scoreTone = (score: number | null) =>
-  score === null ? 'text-text-secondary' : score >= 85 ? 'text-success' : score >= 70 ? 'text-warning-500' : 'text-danger';
+  score === null ? 'text-text-secondary' : score >= 85 ? 'text-success' : score >= 70 ? 'text-warning' : 'text-danger';
 
 export function ScoreBadge({ score, size = 'md' }: { score: number | null; size?: 'sm' | 'md' | 'lg' }) {
   const grade = gradeOf(score);
@@ -27,9 +27,9 @@ export function ScoreBadge({ score, size = 'md' }: { score: number | null; size?
 
 const SEV_STYLE: Record<Severity, string> = {
   low: 'border-border text-text-secondary',
-  medium: 'border-warning-500/40 bg-warning-500/10 text-warning-500',
+  medium: 'border-warning/40 bg-warning-subtle text-warning',
   high: 'border-danger/40 bg-danger/10 text-danger',
-  critical: 'border-danger bg-danger text-white',
+  critical: 'border-danger bg-danger text-on-danger',
 };
 
 export function SeverityBadge({ severity }: { severity: Severity }) {
@@ -42,7 +42,7 @@ export function KindBadge({ kind }: { kind: FindingKind }) {
 
 export function DeltaPill({ stat }: { stat: TrendStat }) {
   if (stat.delta === null) {
-    return <span className="text-xs text-text-secondary/70" title="Needs at least 5 reviews in both periods">not enough data</span>;
+    return <span className="text-xs text-text-muted" title="Needs at least 5 reviews in both periods">not enough data</span>;
   }
   const Icon = stat.direction === 'up' ? ArrowUpRight : stat.direction === 'down' ? ArrowDownRight : ArrowRight;
   const tone = stat.direction === 'up' ? 'text-success' : stat.direction === 'down' ? 'text-danger' : 'text-text-secondary';
@@ -85,14 +85,14 @@ export function DimensionBar({ label, score }: { label: string; score: number | 
         <span className={`font-semibold tabular-nums ${scoreTone(score)}`}>{score === null ? 'n/a' : score}</span>
       </div>
       <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-bg-tertiary">
-        <div className={`h-full rounded-full ${score === null ? '' : score >= 85 ? 'bg-success' : score >= 70 ? 'bg-warning-500' : 'bg-danger'}`} style={{ width: `${score ?? 0}%` }} />
+        <div className={`h-full rounded-full ${score === null ? '' : score >= 85 ? 'bg-success' : score >= 70 ? 'bg-warning' : 'bg-danger'}`} style={{ width: `${score ?? 0}%` }} />
       </div>
     </div>
   );
 }
 
-export const btnPrimary = 'focus-ring inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50';
+export const btnPrimary = 'focus-ring inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-on-accent transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50';
 export const btnGhost = 'focus-ring inline-flex items-center justify-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50';
-export const inputCls = 'focus-ring w-full rounded-lg border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60';
+export const inputCls = 'focus-ring w-full rounded-lg border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder';
 
 export const fmtDate = (iso: string) => new Date(iso).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });

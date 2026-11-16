@@ -201,7 +201,7 @@ export function RouteBoardPanel({ ownerId, canManage }: { ownerId: string; canMa
       />
 
       {weatherFor && (
-        <div role="dialog" aria-modal="true" aria-label="Weather skip" onKeyDown={(e) => e.key === 'Escape' && setWeatherFor(null)} className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-4 sm:items-center">
+        <div role="dialog" aria-modal="true" aria-label="Weather skip" onKeyDown={(e) => e.key === 'Escape' && setWeatherFor(null)} className="fixed inset-0 z-50 flex items-end justify-center bg-overlay/40 p-4 sm:items-center">
           <div className="w-full max-w-md space-y-3 rounded-2xl bg-bg-secondary p-4 shadow-xl">
             <h3 className="text-base font-semibold text-text-primary">Skip {weatherFor.customer_name} for weather</h3>
             <Input label="What happened?" autoFocus value={wxReason} onChange={(e) => setWxReason(e.target.value)} maxLength={200} helperText="e.g. Heavy rain, ground saturated" />

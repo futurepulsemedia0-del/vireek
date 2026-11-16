@@ -84,7 +84,7 @@ export function UpdatePaymentMethodPage() {
               className={`mx-auto mt-4 flex max-w-sm items-start gap-2.5 rounded-xl border p-3 text-left text-sm ${
                 isSuspended
                   ? 'border-danger/30 bg-danger/10 text-danger'
-                  : 'border-warning-500/30 bg-warning-500/10 text-warning-500'
+                  : 'border-warning/30 bg-warning-subtle text-warning'
               }`}
             >
               <AlertTriangle size={16} className="mt-0.5 shrink-0" />

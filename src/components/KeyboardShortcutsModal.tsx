@@ -148,7 +148,7 @@ export function KeyboardShortcutsModal({ open, onClose }: KeyboardShortcutsModal
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: reduceMotion ? 0 : 0.15 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/40 p-4"
           onClick={onClose}
         >
           <motion.div
@@ -219,7 +219,7 @@ export function KeyboardShortcutsModal({ open, onClose }: KeyboardShortcutsModal
               <div className="mt-5 space-y-5">
                 {grouped.map(({ category, defs }) => (
                   <section key={category} aria-label={t(`shortcuts.categories.${category}`, { defaultValue: CATEGORY_LABELS[category] })}>
-                    <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-secondary/70">
+                    <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
                       {t(`shortcuts.categories.${category}`, { defaultValue: CATEGORY_LABELS[category] })}
                     </h3>
                     <ul className="space-y-1.5">
@@ -317,7 +317,7 @@ export function KeyboardShortcutsModal({ open, onClose }: KeyboardShortcutsModal
 
               <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
                 {helpBinding ? (
-                  <p className="text-xs text-text-secondary/80">
+                  <p className="text-xs text-text-muted">
                     {t('shortcuts.reopen', {
                       keys: speakBinding(helpBinding.binding, platform, t('shortcuts.then', { defaultValue: 'then' })),
                       defaultValue: 'Press {{keys}} anytime to reopen this panel.',

@@ -172,8 +172,8 @@ export function renderReportHtml(p: ReportPayload, opts: { companyName?: string;
 <html lang="${locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${t("title")}</title>
 <style>
-:root{--bg:#fff;--fg:#171717;--muted:#6e6e78;--line:#e1e1e8;--accent:#203ad8;--warn:#9a5b00}
-@media (prefers-color-scheme:dark){:root{--bg:#121214;--fg:#f2f2f4;--muted:#a0a0ab;--line:#2c2c33;--accent:#8ea0ff;--warn:#f0b35a}}
+:root{--bg:#fff;--fg:#141413;--muted:#73726c;--line:#e8e6dc;--accent:#ae3600;--warn:#a93b0f}
+@media (prefers-color-scheme:dark){:root{--bg:#141413;--fg:#f0eee6;--muted:#a9a8a2;--line:#2f2e28;--accent:#8d97ff;--warn:#ffcc00}}
 body{font:16px/1.5 system-ui,sans-serif;background:var(--bg);color:var(--fg);margin:0;padding:24px;max-width:860px;margin-inline:auto}
 h1{font-size:1.6rem;margin:.2em 0}h2{font-size:1.1rem;margin-top:1.8em;border-bottom:1px solid var(--line);padding-bottom:.3em}
 .muted{color:var(--muted)}.banner{border:1px solid var(--warn);color:var(--warn);padding:.6em .9em;border-radius:8px;margin:1em 0}

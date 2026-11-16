@@ -148,7 +148,7 @@ function TrackCard({ track }: { track: Track }) {
       <h3 className="mt-1.5 text-xl font-bold text-text-primary">{track.title}</h3>
       <p className="mt-3 text-sm leading-relaxed text-text-secondary">{track.body}</p>
 
-      <p className="mt-5 text-xs font-semibold uppercase tracking-wider text-text-secondary/70">Best for</p>
+      <p className="mt-5 text-xs font-semibold uppercase tracking-wider text-text-muted">Best for</p>
       <p className="mt-1.5 text-sm text-text-secondary">{track.bestFor}</p>
 
       <ul className="mt-5 flex-1 space-y-2.5">
@@ -340,7 +340,7 @@ export function PartnersPage() {
               className="pointer-events-none absolute inset-0"
               style={{
                 backgroundImage:
-                  'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
+                  'radial-gradient(circle at 20% 20%, rgb(var(--static-white) / 0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
               }}
             />
             <div className="relative">

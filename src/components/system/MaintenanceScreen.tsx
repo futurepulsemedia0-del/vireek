@@ -48,7 +48,7 @@ export function MaintenanceScreen() {
         )}
 
         <div className="mt-6 flex items-start gap-3 rounded-2xl border border-border bg-bg-secondary/80 px-4 py-3.5 text-left">
-          <PhoneCall size={18} className="mt-0.5 shrink-0 text-success-500" />
+          <PhoneCall size={18} className="mt-0.5 shrink-0 text-success" />
           <p className="text-sm leading-relaxed text-text-secondary">
             <span className="font-medium text-text-primary">Inbound calls:</span>{' '}
             Sarah is built to keep answering during dashboard maintenance whenever
@@ -60,7 +60,7 @@ export function MaintenanceScreen() {
           <button
             type="button"
             onClick={() => void refresh()}
-            className="focus-ring inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+            className="focus-ring inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-on-accent transition hover:opacity-90"
           >
             <RefreshCw size={16} />
             Check again

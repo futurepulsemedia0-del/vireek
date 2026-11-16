@@ -42,13 +42,13 @@ export function TagPrintDialog({ tags, businessName, title = 'Print tag labels',
   const field = 'w-full rounded-md border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true" aria-labelledby="tag-print-title">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/50 p-4" role="dialog" aria-modal="true" aria-labelledby="tag-print-title">
       <div className="w-full max-w-md rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
         <div className="mb-3 flex items-start justify-between gap-3">
           <h2 id="tag-print-title" className="flex items-center gap-2 text-base font-semibold text-text-primary"><Printer size={16} aria-hidden="true" /> {title}</h2>
           <button type="button" onClick={onClose} aria-label="Close" className="focus-ring rounded-md p-1 text-text-secondary hover:text-text-primary"><X size={16} /></button>
         </div>
-        {notice && <p className="mb-3 rounded-lg bg-warning-500/10 p-3 text-xs text-text-primary">{notice}</p>}
+        {notice && <p className="mb-3 rounded-lg bg-warning-subtle p-3 text-xs text-text-primary">{notice}</p>}
         <p className="mb-3 text-sm text-text-secondary">{tags.length} label{tags.length === 1 ? '' : 's'} · {pages} page{pages === 1 ? '' : 's'}. Print at 100% scale (no “fit to page”). Tamper-evident vinyl is recommended.</p>
         <label className="mb-3 block text-xs font-medium text-text-secondary">Label stock
           <select className={`${field} mt-1`} value={preset} onChange={(e) => { setPreset(e.target.value as SheetPresetId); setStartSlot(1); }}>
@@ -61,7 +61,7 @@ export function TagPrintDialog({ tags, businessName, title = 'Print tag labels',
         <label className="mb-4 flex items-center gap-2 text-sm text-text-secondary">
           <input type="checkbox" checked={outline} onChange={(e) => setOutline(e.target.checked)} /> Draw label outlines (plain paper)
         </label>
-        <button type="button" onClick={download} disabled={busy || tags.length === 0} className="focus-ring inline-flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50">
+        <button type="button" onClick={download} disabled={busy || tags.length === 0} className="focus-ring inline-flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent hover:opacity-90 disabled:opacity-50">
           <Download size={15} aria-hidden="true" /> {busy ? 'Building PDF…' : 'Download PDF'}
         </button>
       </div>

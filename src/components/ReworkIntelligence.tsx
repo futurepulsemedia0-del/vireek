@@ -107,7 +107,7 @@ export function ReworkIntelligence({ jobs, technicians }: ReworkIntelligenceProp
   return (
     <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
       <div className="flex items-start gap-3">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-warning-500/10 text-warning-500">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-warning-subtle text-warning">
           <RotateCcw size={18} />
         </span>
         <div>
@@ -115,7 +115,7 @@ export function ReworkIntelligence({ jobs, technicians }: ReworkIntelligenceProp
           <p className="text-xs text-text-secondary">Jobs that came back — by service type and technician, all-time</p>
         </div>
         {data.totalCompleted > 0 && (
-          <span className="ml-auto shrink-0 rounded-full bg-warning-500/10 px-2.5 py-1 text-xs font-semibold text-warning-500">
+          <span className="ml-auto shrink-0 rounded-full bg-warning-subtle px-2.5 py-1 text-xs font-semibold text-warning">
             {data.overallRatePct}% return rate
           </span>
         )}
@@ -132,7 +132,7 @@ export function ReworkIntelligence({ jobs, technicians }: ReworkIntelligenceProp
           <div>
             <p className="mb-2 text-xs font-medium text-text-secondary">Top service types</p>
             {data.byServiceType.length === 0 ? (
-              <p className="text-xs text-text-secondary/70">Not enough completed jobs per service type yet.</p>
+              <p className="text-xs text-text-muted">Not enough completed jobs per service type yet.</p>
             ) : (
               <div className="space-y-2">
                 {data.byServiceType.map((row) => (
@@ -150,7 +150,7 @@ export function ReworkIntelligence({ jobs, technicians }: ReworkIntelligenceProp
           <div>
             <p className="mb-2 text-xs font-medium text-text-secondary">Top technicians</p>
             {data.byTechnician.length === 0 ? (
-              <p className="text-xs text-text-secondary/70">Not enough completed jobs per technician yet.</p>
+              <p className="text-xs text-text-muted">Not enough completed jobs per technician yet.</p>
             ) : (
               <div className="space-y-2">
                 {data.byTechnician.map((row) => (

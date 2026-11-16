@@ -72,7 +72,7 @@ export interface BrandColors {
   accent: string;
 }
 
-export const DEFAULT_BRAND: BrandColors = { primary: '#2563EB', accent: '#0EA5E9' };
+export const DEFAULT_BRAND: BrandColors = { primary: '#A93B0F', accent: '#3D8EF6' };
 
 export type CalendarChannel = 'facebook' | 'instagram' | 'google_business' | 'linkedin' | 'nextdoor' | 'tiktok' | 'blog' | 'other';
 

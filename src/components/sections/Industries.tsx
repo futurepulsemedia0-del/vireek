@@ -50,7 +50,7 @@ export function Industries() {
                   <Icon
                     size={96}
                     strokeWidth={1}
-                    className="pointer-events-none absolute -right-3 -top-3 text-accent/10"
+                    className="pointer-events-none absolute -right-3 -top-3 text-accent"
                     aria-hidden="true"
                   />
                   <span className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-bg-primary/80 text-accent shadow-sm backdrop-blur-sm sm:h-11 sm:w-11">

@@ -178,13 +178,13 @@ export function JobSummaryEditor({ summary, ownerId, onChange }: { summary: JobS
         {summary.edited_after_send_at && <span className="text-text-secondary">Edited after sending</span>}
       </div>
       {summary.delivery_error && (
-        <p className="rounded-xl border border-warning-500/30 bg-warning-500/10 p-3 text-xs text-text-primary">{summary.delivery_error}</p>
+        <p className="rounded-xl border border-warning/30 bg-warning-subtle p-3 text-xs text-text-primary">{summary.delivery_error}</p>
       )}
       {warnings.length > 0 && (
-        <ul className="space-y-1 rounded-xl border border-warning-500/30 bg-warning-500/10 p-3 text-xs text-text-primary" aria-label="Things to check">
+        <ul className="space-y-1 rounded-xl border border-warning/30 bg-warning-subtle p-3 text-xs text-text-primary" aria-label="Things to check">
           {describeWarnings(warnings).map((m) => (
             <li key={m} className="flex gap-2">
-              <AlertTriangle size={14} className="mt-px shrink-0 text-warning-500" aria-hidden="true" /> {m}
+              <AlertTriangle size={14} className="mt-px shrink-0 text-warning" aria-hidden="true" /> {m}
             </li>
           ))}
         </ul>
@@ -208,7 +208,7 @@ export function JobSummaryEditor({ summary, ownerId, onChange }: { summary: JobS
           <div>
             <label className={label} htmlFor="js-headline">Headline</label>
             <input id="js-headline" className={input} value={draft.headline} onChange={(e) => patch({ headline: e.target.value })} maxLength={140} />
-            {errors.headline && <p className="mt-1 text-xs text-danger-500">{errors.headline}</p>}
+            {errors.headline && <p className="mt-1 text-xs text-danger">{errors.headline}</p>}
           </div>
           <div>
             <label className={label} htmlFor="js-intro">Introduction</label>
@@ -221,7 +221,7 @@ export function JobSummaryEditor({ summary, ownerId, onChange }: { summary: JobS
           <div>
             <label className={label} htmlFor="js-items">What we did — one item per line</label>
             <textarea id="js-items" rows={5} className={input} value={draft.work_items.join('\n')} onChange={(e) => patch({ work_items: lines(e.target.value) })} />
-            {(errors.work_items || errors.content) && <p className="mt-1 text-xs text-danger-500">{errors.work_items || errors.content}</p>}
+            {(errors.work_items || errors.content) && <p className="mt-1 text-xs text-danger">{errors.work_items || errors.content}</p>}
           </div>
 
           {/* photos */}
@@ -231,10 +231,10 @@ export function JobSummaryEditor({ summary, ownerId, onChange }: { summary: JobS
               {draft.photos.map((p, i) => (
                 <div key={`${p.bucket}/${p.path}`} className="relative h-20 w-20 overflow-hidden rounded-lg border border-border">
                   {urls[`${p.bucket}/${p.path}`] ? <img src={urls[`${p.bucket}/${p.path}`]} alt={p.caption || `${p.kind} photo`} className="h-full w-full object-cover" /> : <div className="h-full w-full bg-bg-tertiary" />}
-                  <button type="button" aria-label="Remove photo" onClick={() => patch({ photos: draft.photos.filter((_, j) => j !== i) })} className="absolute right-0.5 top-0.5 rounded-full bg-black/60 p-0.5 text-white">
+                  <button type="button" aria-label="Remove photo" onClick={() => patch({ photos: draft.photos.filter((_, j) => j !== i) })} className="absolute right-0.5 top-0.5 rounded-full bg-overlay/60 p-0.5 text-white">
                     <X size={12} aria-hidden="true" />
                   </button>
-                  <span className="absolute bottom-0 left-0 bg-black/60 px-1 text-[10px] capitalize text-white">{p.kind}</span>
+                  <span className="absolute bottom-0 left-0 bg-overlay/60 px-1 text-[10px] capitalize text-white">{p.kind}</span>
                 </div>
               ))}
             </div>
@@ -294,7 +294,7 @@ export function JobSummaryEditor({ summary, ownerId, onChange }: { summary: JobS
             <div>
               <label className={label} htmlFor="js-next">Next service date</label>
               <input id="js-next" type="date" className={input} value={draft.next_service_date ?? ''} onChange={(e) => patch({ next_service_date: e.target.value || null })} />
-              {errors.next_service_date && <p className="mt-1 text-xs text-danger-500">{errors.next_service_date}</p>}
+              {errors.next_service_date && <p className="mt-1 text-xs text-danger">{errors.next_service_date}</p>}
             </div>
             <div>
               <label className={label} htmlFor="js-next-note">Note</label>

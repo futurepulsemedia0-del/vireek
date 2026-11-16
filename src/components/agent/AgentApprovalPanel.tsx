@@ -95,7 +95,7 @@ export function AgentApprovalPanel({ onChanged }: { onChanged?: () => void }) {
                       {e.amount_cents ? ` · ${formatCents(e.amount_cents)}` : ''}
                     </p>
                   </div>
-                  <span className={`flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${state.expired ? 'bg-danger/10 text-danger' : 'bg-warning-500/10 text-warning-500'}`}>
+                  <span className={`flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${state.expired ? 'bg-danger/10 text-danger' : 'bg-warning-subtle text-warning'}`}>
                     <Clock size={11} /> {state.label}
                   </span>
                 </div>
@@ -133,7 +133,7 @@ export function AgentApprovalPanel({ onChanged }: { onChanged?: () => void }) {
                     disabled={busy || state.expired}
                     onClick={() => decide(e, true)}
                     aria-label={`Approve ${e.action_slug.replace(/_/g, ' ')}`}
-                    className="focus-ring flex items-center gap-1.5 rounded-xl bg-cta px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
+                    className="focus-ring flex items-center gap-1.5 rounded-xl bg-cta px-3 py-1.5 text-xs font-medium text-on-cta disabled:opacity-50"
                   >
                     {busy ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />} Approve
                   </button>

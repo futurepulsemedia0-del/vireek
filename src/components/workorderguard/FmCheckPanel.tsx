@@ -21,9 +21,9 @@ import { useFmcheckT } from '@/i18n/fmcheckNamespace';
 type Billing = '' | 'portal' | 'customer';
 type Tone = { box: string; Icon: typeof Info };
 const TONES: Record<FixItem['severity'], Tone> = {
-  block: { box: 'border-danger-500/40 bg-danger-500/10', Icon: AlertOctagon },
-  require: { box: 'border-warning-500/40 bg-warning-500/10', Icon: AlertTriangle },
-  warn: { box: 'border-warning-500/40 bg-warning-500/10', Icon: AlertTriangle },
+  block: { box: 'border-danger/40 bg-danger-subtle', Icon: AlertOctagon },
+  require: { box: 'border-warning/40 bg-warning-subtle', Icon: AlertTriangle },
+  warn: { box: 'border-warning/40 bg-warning-subtle', Icon: AlertTriangle },
   info: { box: 'border-border bg-bg-secondary', Icon: Info },
 };
 const orderKey = (o: WorkOrder): string => o.id ?? o.woNumber;
@@ -129,7 +129,7 @@ function PreSendCheck({ orders, catalog, timezone }: { orders: WorkOrder[]; cata
             <p className="rounded-xl border border-border bg-bg-secondary px-3 py-3 text-sm text-text-secondary" role="status">{t('check.noActiveRules')}</p>
           ) : (
             <p className="flex items-center gap-2 text-sm font-semibold text-text-primary" role="status">
-              {result.outcome === 'allow' && <CheckCircle2 size={18} className="text-success-500" aria-hidden="true" />}
+              {result.outcome === 'allow' && <CheckCircle2 size={18} className="text-success" aria-hidden="true" />}
               {t(`check.outcome.${result.outcome}`, { count: result.passed })}
             </p>
           )}

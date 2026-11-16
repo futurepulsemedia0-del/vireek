@@ -120,8 +120,8 @@ export function canManageListings(isOwner: boolean, permissions: UserPermissions
 
 export const STATE_CLASS: Record<LinkState, string> = {
   synced: 'bg-success/10 text-success',
-  pending: 'bg-warning-500/10 text-warning-500',
-  drift: 'bg-warning-500/10 text-warning-500',
+  pending: 'bg-warning-subtle text-warning',
+  drift: 'bg-warning-subtle text-warning',
   blocked: 'bg-bg-tertiary text-text-secondary',
   error: 'bg-danger/10 text-danger',
   needs_reauth: 'bg-danger/10 text-danger',

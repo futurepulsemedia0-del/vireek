@@ -35,7 +35,7 @@ export function AutosaveStatus({ status, onRetry }: { status: AutosaveStatusValu
     }
     case 'offline':
       text = t('forms.autosave.offline', { ns: 'forms' });
-      tone = 'text-warning-500';
+      tone = 'text-warning';
       icon = <CloudOff size={14} aria-hidden="true" />;
       break;
     case 'error':

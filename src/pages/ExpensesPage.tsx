@@ -114,7 +114,7 @@ function Modal({ open, title, onClose, children, footer }: { open: boolean; titl
   if (!open) return null;
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-end justify-center bg-black/50 sm:items-center sm:p-4"
+      className="fixed inset-0 z-[60] flex items-end justify-center bg-overlay/50 sm:items-center sm:p-4"
       role="presentation"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose();
@@ -453,15 +453,15 @@ function ExpenseFormModal({
               </p>
             )}
             {ocr.status === 'done' && ocr.data && (
-              <p className={ocr.data.confidence < 0.6 ? 'text-amber-700 dark:text-amber-300' : 'text-text-secondary'}>
+              <p className={ocr.data.confidence < 0.6 ? 'text-warning-strong' : 'text-text-secondary'}>
                 <Check size={14} className="mr-1 inline" aria-hidden="true" />
                 {ocr.data.confidence < 0.6 ? 'We filled what we could — please double-check every field.' : 'Details filled from your receipt — review them before submitting.'}
               </p>
             )}
             {ocr.status === 'done' && ocr.data?.warnings.map((w) => (
-              <p key={w} className="text-amber-700 dark:text-amber-300">{w}</p>
+              <p key={w} className="text-warning-strong">{w}</p>
             ))}
-            {ocr.status === 'failed' && <p className="text-amber-700 dark:text-amber-300">{ocr.message} Fill in the details by hand.</p>}
+            {ocr.status === 'failed' && <p className="text-warning-strong">{ocr.message} Fill in the details by hand.</p>}
             {receiptError && <p role="alert" className="text-danger">{receiptError}</p>}
             {errors.receipt && <p role="alert" className="text-danger">{errors.receipt}</p>}
             {!errors.receipt && needsReceiptHint && <p className="text-text-secondary">A receipt is required to submit expenses of {formatMoney(RECEIPT_REQUIRED_CENTS)} or more.</p>}
@@ -524,7 +524,7 @@ function ExpenseFormModal({
         </div>
 
         {duplicate && (
-          <p className="flex items-start gap-2 rounded-xl bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-500/10 dark:text-amber-200" role="status">
+          <p className="flex items-start gap-2 rounded-xl bg-warning-subtle p-3 text-sm text-warning-strong" role="status">
             <TriangleAlert size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
             This looks like an expense already filed for {duplicate.vendor_name} on {formatDate(duplicate.expense_date)} ({formatMoney(duplicate.amount_cents)}). Submit only if it is a different purchase.
           </p>
@@ -835,7 +835,7 @@ function ExpenseDetails({ expense, showSubmitter }: { expense: Expense; showSubm
         )}
         {expense.notes && <div className="sm:col-span-2"><dt className="text-xs text-text-secondary">Notes</dt><dd className="whitespace-pre-wrap text-text-primary">{expense.notes}</dd></div>}
         {expense.status === 'rejected' && expense.review_note && (
-          <div className="sm:col-span-2 rounded-lg bg-red-50 p-3 text-red-900 dark:bg-red-500/10 dark:text-red-200"><dt className="text-xs font-semibold">Rejected</dt><dd>{expense.review_note}</dd></div>
+          <div className="sm:col-span-2 rounded-lg bg-danger-subtle p-3 text-danger-strong"><dt className="text-xs font-semibold">Rejected</dt><dd>{expense.review_note}</dd></div>
         )}
         {expense.status === 'reimbursed' && (
           <div className="sm:col-span-2"><dt className="text-xs text-text-secondary">Reimbursed</dt><dd className="text-text-primary">{formatDate(expense.reimbursed_at)}{expense.reimbursement_method ? ` · ${REIMBURSEMENT_METHOD_LABELS[expense.reimbursement_method as ReimbursementMethod] ?? expense.reimbursement_method}` : ''}{expense.reimbursement_reference ? ` · ${expense.reimbursement_reference}` : ''}</dd></div>
@@ -1125,11 +1125,11 @@ export function ExpensesPage() {
               role="tab"
               aria-selected={effectiveView === v}
               onClick={() => { setView(v); setStatus('all'); }}
-              className={`focus-ring min-h-[44px] shrink-0 rounded-xl px-4 text-sm font-medium transition-colors ${effectiveView === v ? 'bg-accent text-white' : 'text-text-secondary hover:bg-bg-tertiary'}`}
+              className={`focus-ring min-h-[44px] shrink-0 rounded-xl px-4 text-sm font-medium transition-colors ${effectiveView === v ? 'bg-accent text-on-accent' : 'text-text-secondary hover:bg-bg-tertiary'}`}
             >
               {VIEW_LABELS[v]}
               {v === 'review' && summary && summary.pending_count > 0 && (
-                <span className="ml-2 rounded-full bg-white/25 px-2 py-0.5 text-xs">{summary.pending_count}</span>
+                <span className="ml-2 rounded-full bg-bg-secondary/25 px-2 py-0.5 text-xs">{summary.pending_count}</span>
               )}
             </button>
           ))}

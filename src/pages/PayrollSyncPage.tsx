@@ -85,7 +85,7 @@ export function PayrollSyncPage() {
         {header}
         <div role="tablist" aria-label="Payroll sync sections" className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1">
           {TABS.map((t) => (
-            <button key={t.id} type="button" role="tab" aria-selected={tab === t.id} onClick={() => setTab(t.id)} className={`focus-ring shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${tab === t.id ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>{t.label}</button>
+            <button key={t.id} type="button" role="tab" aria-selected={tab === t.id} onClick={() => setTab(t.id)} className={`focus-ring shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${tab === t.id ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>{t.label}</button>
           ))}
         </div>
         {connections.error ? <LoadError message={connections.error} onRetry={connections.reload} /> : connections.loading ? <SkeletonCardList count={3} rows={2} /> : !ownerId ? null : (

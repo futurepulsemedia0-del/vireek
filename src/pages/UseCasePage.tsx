@@ -108,7 +108,7 @@ function UseCaseContent({ useCase }: { useCase: UseCase }) {
               <ul className="mt-5 space-y-3 sm:space-y-4">
                 {withoutVireek.map((point) => (
                   <li key={point} className="flex gap-3 text-sm leading-relaxed text-text-secondary">
-                    <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-danger/60" aria-hidden="true" />
+                    <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-danger" aria-hidden="true" />
                     {point}
                   </li>
                 ))}

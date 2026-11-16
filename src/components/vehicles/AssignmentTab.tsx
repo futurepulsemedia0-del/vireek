@@ -69,7 +69,7 @@ export function AssignmentTab({ vehicle, technicians, onChanged }: Props) {
                 ? <>Currently assigned to <span className="font-medium text-text-primary">{current ? techName(current) : 'a technician'}</span>.</>
                 : 'This vehicle is not assigned to anyone.'}
             </p>
-            {retired && <p role="status" className="text-sm text-warning-500">Retired vehicles cannot be assigned. Change the status to assign it again.</p>}
+            {retired && <p role="status" className="text-sm text-warning">Retired vehicles cannot be assigned. Change the status to assign it again.</p>}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <SelectField label="Technician" value={techId} onChange={(e) => setTechId(e.target.value)} disabled={retired || saving}>
                 <option value="">Unassigned</option>

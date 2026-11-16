@@ -178,7 +178,7 @@ export function ActivityLedgerPage() {
               type="button"
               onClick={() => setFilter(f.key)}
               className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                filter === f.key ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
+                filter === f.key ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
               }`}
             >
               {f.label}
@@ -194,7 +194,7 @@ export function ActivityLedgerPage() {
           </div>
         ) : events.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border py-10 text-center">
-            <Activity className="mx-auto mb-2 h-6 w-6 text-text-secondary/50" />
+            <Activity className="mx-auto mb-2 h-6 w-6 text-graphic-muted" />
             <p className="text-sm text-text-secondary">No activity recorded yet for this filter.</p>
           </div>
         ) : (

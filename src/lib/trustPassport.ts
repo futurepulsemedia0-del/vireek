@@ -50,7 +50,7 @@ export function formatRate(v: number | null): string {
 
 export function rateColor(v: number | null, goodAbove: number): string {
   if (v === null) return 'text-text-secondary';
-  if (v >= goodAbove) return 'text-success-500';
-  if (v >= goodAbove - 15) return 'text-warning-500';
+  if (v >= goodAbove) return 'text-success';
+  if (v >= goodAbove - 15) return 'text-warning';
   return 'text-danger';
 }

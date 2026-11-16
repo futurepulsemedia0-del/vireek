@@ -2,10 +2,10 @@ import { Card } from '@/components/ui/Card';
 import { ADOPTION_LEVEL_LABELS, STATUS_LABELS, type AdoptionResult, type FeatureStatus } from '@/lib/successTools';
 
 const CHIP: Record<FeatureStatus, string> = {
-  active: 'bg-success-500/10 text-success-500',
-  lapsed: 'bg-warning-500/10 text-warning-500',
+  active: 'bg-success-subtle text-success',
+  lapsed: 'bg-warning-subtle text-warning',
   unused: 'bg-bg-tertiary text-text-secondary',
-  unmeasured: 'bg-bg-tertiary text-text-secondary/60',
+  unmeasured: 'bg-bg-tertiary text-text-muted',
 };
 
 const R = 44;
@@ -15,7 +15,7 @@ const C = 2 * Math.PI * R;
 export function AdoptionScoreCard({ adoption }: { adoption: AdoptionResult }) {
   const { score, level, items, counts } = adoption;
   const measured = items.filter((i) => i.status !== 'unmeasured');
-  const tone = score === null ? 'text-text-secondary' : score >= 75 ? 'text-success-500' : score >= 50 ? 'text-accent' : 'text-warning-500';
+  const tone = score === null ? 'text-text-secondary' : score >= 75 ? 'text-success' : score >= 50 ? 'text-accent' : 'text-warning';
   return (
     <Card className="space-y-5 p-5 hover:translate-y-0">
       <div className="flex items-center gap-5">

@@ -14,11 +14,11 @@ export function OfflineBanner() {
     <div
       role="status"
       aria-live="polite"
-      className="sticky top-0 z-[100] border-b border-warning-500/30 bg-warning-500/10 px-4 py-2.5 backdrop-blur-md"
+      className="sticky top-0 z-[100] border-b border-warning/30 bg-warning-subtle px-4 py-2.5 backdrop-blur-md"
     >
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2.5 text-sm text-text-primary">
-          <WifiOff size={16} className="shrink-0 text-warning-500" />
+          <WifiOff size={16} className="shrink-0 text-warning" />
           <span>
             <span className="font-semibold">You&apos;re offline.</span>{' '}
             <span className="text-text-secondary">

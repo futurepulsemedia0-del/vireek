@@ -46,7 +46,7 @@ import {
 
 // Dense, in-card field style (the shared <Input> is sized for full forms, not a compact job panel).
 const denseField =
-  'focus-ring w-full rounded-lg border border-border bg-bg-secondary px-2 py-1.5 text-xs text-text-primary placeholder:text-text-secondary/60 disabled:opacity-50';
+  'focus-ring w-full rounded-lg border border-border bg-bg-secondary px-2 py-1.5 text-xs text-text-primary placeholder:text-text-placeholder disabled:opacity-50';
 
 /** Minimal job shape so both the dashboard `Job` and the technician brief can use the panel. */
 export interface PermitPanelJob {
@@ -71,7 +71,7 @@ function StageTracker({ app }: { app: PermitApplication }) {
         <li key={s.status} className="min-w-0 flex-1">
           <div
             className={`h-1.5 rounded-full ${
-              i < current ? 'bg-success-500' : i === current ? 'bg-accent' : 'bg-bg-tertiary'
+              i < current ? 'bg-success' : i === current ? 'bg-accent' : 'bg-bg-tertiary'
             }`}
           />
           <p
@@ -174,7 +174,7 @@ function InspectionsBlock({
                         'Could not save the result.',
                       )
                     }
-                    className="focus-ring rounded-md bg-success-500/10 px-2 py-1 text-success-500 disabled:opacity-50"
+                    className="focus-ring rounded-md bg-success-subtle px-2 py-1 text-success disabled:opacity-50"
                   >
                     Passed
                   </button>
@@ -255,7 +255,7 @@ function InspectionsBlock({
                 setWhen('');
               }, 'Could not add the inspection.')
             }
-            className="focus-ring inline-flex items-center gap-1 rounded-lg bg-accent px-2.5 py-1.5 text-xs font-medium text-white disabled:opacity-50"
+            className="focus-ring inline-flex items-center gap-1 rounded-lg bg-accent px-2.5 py-1.5 text-xs font-medium text-on-accent disabled:opacity-50"
           >
             {busy ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />} Add
           </button>
@@ -401,7 +401,7 @@ function ApplicationCard({
           {meta.label}
         </span>
         {followUp && (
-          <span className="inline-flex items-center gap-1 rounded-full bg-warning-500/10 px-2 py-0.5 text-[11px] text-warning-500">
+          <span className="inline-flex items-center gap-1 rounded-full bg-warning-subtle px-2 py-0.5 text-[11px] text-warning">
             <AlertTriangle size={10} /> Follow up with the AHJ
           </span>
         )}
@@ -742,7 +742,7 @@ function ApplicationCard({
               onClick={() => void transition(a.to)}
               className={`focus-ring rounded-lg px-3 py-1.5 text-xs font-medium disabled:opacity-50 ${
                 a.tone === 'primary'
-                  ? 'bg-accent text-white hover:opacity-90'
+                  ? 'bg-accent text-on-accent hover:opacity-90'
                   : a.tone === 'danger'
                     ? 'bg-danger/10 text-danger'
                     : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
@@ -935,7 +935,7 @@ export function PermitTransactionPanel({ job }: { job: PermitPanelJob }) {
                   type="button"
                   disabled={creating}
                   onClick={() => void start(t)}
-                  className="focus-ring inline-flex items-center gap-1 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white hover:opacity-90 disabled:opacity-50"
+                  className="focus-ring inline-flex items-center gap-1 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent hover:opacity-90 disabled:opacity-50"
                 >
                   <Plus size={12} /> Start {PERMIT_TYPE_LABELS[t].toLowerCase()} permit
                 </button>

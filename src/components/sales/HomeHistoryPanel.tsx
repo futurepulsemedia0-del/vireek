@@ -28,9 +28,9 @@ function Lightbox({ shot, onClose }: { shot: Shot; onClose: () => void }) {
   const ref = useFocusTrap(true);
   useEscapeToClose(true, onClose);
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" role="dialog" aria-modal="true" aria-label={shot.caption || 'Photo'}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/80 p-4" role="dialog" aria-modal="true" aria-label={shot.caption || 'Photo'}>
       <div ref={ref} className="relative max-h-full w-full max-w-4xl">
-        <button type="button" onClick={onClose} aria-label="Close photo" className="focus-ring absolute right-2 top-2 rounded-full bg-black/60 p-2 text-white">
+        <button type="button" onClick={onClose} aria-label="Close photo" className="focus-ring absolute right-2 top-2 rounded-full bg-overlay/60 p-2 text-white">
           <X size={20} />
         </button>
         <img src={shot.url} alt={shot.caption || shot.label} className="max-h-[85vh] w-full rounded-xl object-contain" />
@@ -74,7 +74,7 @@ export function HomeHistoryPanel({ equipment, history, estimatePhotos, jobPhotos
                   {pct !== null && age !== null && (
                     <div className="mt-2">
                       <div className="h-2 overflow-hidden rounded-full bg-bg-tertiary" role="img" aria-label={`${age} of ${e.expected_lifespan_years} expected years used`}>
-                        <div className={`h-full rounded-full ${pct >= 85 ? 'bg-danger' : pct >= 60 ? 'bg-warning-500' : 'bg-success-500'}`} style={{ width: `${pct}%` }} />
+                        <div className={`h-full rounded-full ${pct >= 85 ? 'bg-danger' : pct >= 60 ? 'bg-warning' : 'bg-success'}`} style={{ width: `${pct}%` }} />
                       </div>
                       <p className="mt-1 text-xs text-text-secondary">{age} yrs old of ~{e.expected_lifespan_years} expected{e.last_service_date ? ` · last serviced ${dateLabel(e.last_service_date)}` : ''}</p>
                     </div>

@@ -253,7 +253,7 @@ export function EnterpriseDataExportPanel() {
           type="button"
           onClick={handleRun}
           disabled={running || selected.length === 0}
-          className="focus-ring inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+          className="focus-ring inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent transition hover:opacity-90 disabled:opacity-50"
         >
           {running ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
           {running ? 'Preparing workspace export…' : 'Export workspace'}

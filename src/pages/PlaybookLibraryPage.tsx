@@ -20,12 +20,12 @@ import {
 
 const CARD = 'rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark';
 const BTN = 'focus-ring flex items-center justify-center gap-2 rounded-xl border border-border bg-bg-secondary px-4 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-bg-tertiary disabled:opacity-50';
-const BTN_PRIMARY = 'focus-ring flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent/90 disabled:opacity-50';
+const BTN_PRIMARY = 'focus-ring flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-on-accent transition-colors hover:bg-accent/90 disabled:opacity-50';
 const SELECT = 'focus-ring rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary';
 
 const DIFF_TONE: Record<DiffRow['status'], string> = {
-  will_change: 'bg-accent/10 text-accent', no_change: 'bg-bg-tertiary text-text-secondary', needs_approval: 'bg-warning-500/10 text-warning-500',
-  advisory: 'bg-bg-tertiary text-text-secondary', blocked: 'bg-danger/10 text-danger', inactive: 'bg-warning-500/10 text-warning-500',
+  will_change: 'bg-accent/10 text-accent', no_change: 'bg-bg-tertiary text-text-secondary', needs_approval: 'bg-warning-subtle text-warning',
+  advisory: 'bg-bg-tertiary text-text-secondary', blocked: 'bg-danger/10 text-danger', inactive: 'bg-warning-subtle text-warning',
 };
 const DIFF_LABEL: Record<DiffRow['status'], string> = {
   will_change: 'Will change', no_change: 'No change', needs_approval: 'Needs approval', advisory: 'Recommendation', blocked: 'Blocked', inactive: 'No effect yet',
@@ -128,7 +128,7 @@ function Drawer({ pb, state, custom, isOwner, onClose, onDone }: {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-label={pb.name}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-overlay/40 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-label={pb.name}>
       <div className="flex max-h-[95vh] w-full flex-col overflow-hidden rounded-t-2xl border border-border bg-bg-primary sm:max-w-3xl sm:rounded-2xl">
         <div className="flex items-start justify-between gap-3 border-b border-border p-4 sm:p-5">
           <div>
@@ -182,13 +182,13 @@ function Drawer({ pb, state, custom, isOwner, onClose, onDone }: {
                         <div className="flex flex-wrap items-center gap-2">
                           <p className="text-sm font-medium text-text-primary">{it.title}</p>
                           {on && row && <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${DIFF_TONE[row.status]}`}>{DIFF_LABEL[row.status]}</span>}
-                          {requiresApproval(it) && <span className="flex items-center gap-1 rounded-full bg-warning-500/10 px-2 py-0.5 text-[11px] text-warning-500"><Lock size={10} /> Owner approval</span>}
+                          {requiresApproval(it) && <span className="flex items-center gap-1 rounded-full bg-warning-subtle px-2 py-0.5 text-[11px] text-warning"><Lock size={10} /> Owner approval</span>}
                         </div>
                         <p className="mt-0.5 text-xs text-text-secondary">{it.why}</p>
                         {on && row && (
                           <p className="mt-1 text-xs text-text-secondary"><span className="font-medium">Now:</span> {row.before} <span className="mx-1">→</span> <span className="font-medium">After:</span> {row.after}</p>
                         )}
-                        {on && row?.reason && <p className="mt-1 text-xs text-warning-500">{row.reason}</p>}
+                        {on && row?.reason && <p className="mt-1 text-xs text-warning">{row.reason}</p>}
                       </div>
                       <button type="button" onClick={() => setOpen(isOpen ? null : it.id)} className="text-text-secondary" aria-label="Preview content">{isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}</button>
                     </div>
@@ -211,7 +211,7 @@ function Drawer({ pb, state, custom, isOwner, onClose, onDone }: {
               <p>Roll back the other playbook or switch off the blocked items. Nothing is changed while a conflict exists.</p>
             </div>
           )}
-          {ownerOnlyNeeded && <p className="rounded-xl bg-warning-500/10 p-3 text-xs text-warning-500">Some selected items change owner-only settings. You can submit this, and the account owner will approve it before it runs.</p>}
+          {ownerOnlyNeeded && <p className="rounded-xl bg-warning-subtle p-3 text-xs text-warning">Some selected items change owner-only settings. You can submit this, and the account owner will approve it before it runs.</p>}
 
           {server && (
             <div className="rounded-xl border border-border bg-bg-secondary p-3 text-xs text-text-secondary">
@@ -367,7 +367,7 @@ export function PlaybookLibraryPage() {
       <div className="mb-5 flex gap-1 overflow-x-auto" role="tablist">
         {tabs.map((t) => (
           <button key={t.id} role="tab" aria-selected={tab === t.id} type="button" onClick={() => setTab(t.id)}
-            className={`focus-ring whitespace-nowrap rounded-xl px-3 py-2 text-sm font-medium ${tab === t.id ? 'bg-accent text-white' : 'text-text-secondary hover:bg-bg-tertiary'}`}>{t.label}</button>
+            className={`focus-ring whitespace-nowrap rounded-xl px-3 py-2 text-sm font-medium ${tab === t.id ? 'bg-accent text-on-accent' : 'text-text-secondary hover:bg-bg-tertiary'}`}>{t.label}</button>
         ))}
       </div>
 

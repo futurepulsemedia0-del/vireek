@@ -34,8 +34,8 @@ const newKey = () =>
   typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
 function statusTone(s: IcStatus): string {
-  if (s === 'settled') return 'bg-success-500/10 text-success-500';
-  if (s === 'partially_settled') return 'bg-warning-500/10 text-warning-500';
+  if (s === 'settled') return 'bg-success-subtle text-success';
+  if (s === 'partially_settled') return 'bg-warning-subtle text-warning';
   if (s === 'void') return 'bg-danger/10 text-danger';
   return 'bg-accent/10 text-accent';
 }
@@ -78,7 +78,7 @@ function Sheet({ title, subtitle, onClose, wide = false, footer, children }: {
   useEscapeToClose(true, onClose);
   return (
     <>
-      <div className="fixed inset-0 z-[130] bg-black/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+      <div className="fixed inset-0 z-[130] bg-overlay/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
       <div
         ref={ref} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="me-sheet-title"
         className={`fixed inset-x-0 bottom-0 top-10 z-[131] flex flex-col overflow-hidden rounded-t-2xl border border-border bg-bg-primary shadow-xl sm:inset-y-6 sm:mx-auto sm:rounded-2xl ${wide ? 'sm:max-w-3xl' : 'sm:max-w-lg'}`}
@@ -324,7 +324,7 @@ function JournalDialog({ entity, onClose, onSaved }: { entity: AccountingEntity;
       wide title="Post journal entry" subtitle={`${entity.code} · ${entity.name}`} onClose={onClose}
       footer={
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className={`text-sm font-medium ${diff === 0 && totals.debit > 0 ? 'text-success-500' : 'text-text-secondary'}`}>
+          <p className={`text-sm font-medium ${diff === 0 && totals.debit > 0 ? 'text-success' : 'text-text-secondary'}`}>
             Debits {money(totals.debit)} · Credits {money(totals.credit)}{diff !== 0 ? ` · Off by ${money(Math.abs(diff))}` : ''}
           </p>
           <div className="flex gap-2"><Button type="button" variant="ghost" size="sm" onClick={onClose}>Cancel</Button><Button type="button" size="sm" onClick={() => void save()} disabled={saving || !accounts}>{saving ? 'Posting…' : 'Post entry'}</Button></div>
@@ -450,9 +450,9 @@ function ReportsTab({ entities, report, loading, error, onRetry, preset, range, 
         </div>
         {report.consolidated && (
           report.checks.intercompany_ok ? (
-            <p className="mb-4 flex items-center gap-2 rounded-xl border border-success-500/30 bg-success-500/10 px-3 py-2 text-sm text-success-500"><CheckCircle2 size={16} /> Intercompany balances agree across all included entities.</p>
+            <p className="mb-4 flex items-center gap-2 rounded-xl border border-success/30 bg-success-subtle px-3 py-2 text-sm text-success"><CheckCircle2 size={16} /> Intercompany balances agree across all included entities.</p>
           ) : (
-            <p role="alert" className="mb-4 flex items-start gap-2 rounded-xl border border-warning-500/30 bg-warning-500/10 px-3 py-2 text-sm text-warning-500">
+            <p role="alert" className="mb-4 flex items-start gap-2 rounded-xl border border-warning/30 bg-warning-subtle px-3 py-2 text-sm text-warning">
               <AlertTriangle size={16} className="mt-0.5 shrink-0" />
               <span>Intercompany accounts do not agree: revenue vs expense differ by {money(Math.abs(report.checks.trade_difference_cents))} and receivable vs payable by {money(Math.abs(report.checks.balance_difference_cents))}. Review manual postings to the intercompany accounts.</span>
             </p>
@@ -539,7 +539,7 @@ function EntitiesTab({ entities, isOwner, onEdit, onJournal }: {
             <div className="flex flex-wrap gap-1.5">
               {e.is_primary && <Pill className="bg-accent/10 text-accent">Primary</Pill>}
               {!e.is_active && <Pill className="bg-bg-tertiary text-text-secondary">Inactive</Pill>}
-              {e.consolidation_method === 'excluded' && <Pill className="bg-warning-500/10 text-warning-500">Excluded</Pill>}
+              {e.consolidation_method === 'excluded' && <Pill className="bg-warning-subtle text-warning">Excluded</Pill>}
             </div>
           </div>
           <p className="mt-2 text-xs text-text-secondary">

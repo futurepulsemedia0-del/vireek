@@ -167,19 +167,19 @@ export const USAGE_OPTIONS: { value: UsageProfile; label: string }[] = [
 ];
 
 export const OUTCOME_META: Record<FailureOutcome, { label: string; className: string }> = {
-  fixed: { label: 'Fixed', className: 'bg-success-500/10 text-success-500' },
-  recurred: { label: 'Recurred', className: 'bg-warning-500/10 text-warning-500' },
-  callback: { label: 'Callback', className: 'bg-warning-500/10 text-warning-500' },
-  replaced_unit: { label: 'Unit replaced', className: 'bg-danger-500/10 text-danger-500' },
+  fixed: { label: 'Fixed', className: 'bg-success-subtle text-success' },
+  recurred: { label: 'Recurred', className: 'bg-warning-subtle text-warning' },
+  callback: { label: 'Callback', className: 'bg-warning-subtle text-warning' },
+  replaced_unit: { label: 'Unit replaced', className: 'bg-danger-subtle text-danger' },
   deferred: { label: 'Deferred', className: 'bg-bg-tertiary text-text-secondary' },
   unknown: { label: 'Unknown', className: 'bg-bg-tertiary text-text-secondary' },
 };
 
 export const PATTERN_STATUS_META: Record<PatternStatus, { label: string; className: string }> = {
-  emerging: { label: 'Emerging', className: 'bg-danger-500/10 text-danger-500' },
-  elevated: { label: 'Elevated', className: 'bg-warning-500/10 text-warning-500' },
+  emerging: { label: 'Emerging', className: 'bg-danger-subtle text-danger' },
+  elevated: { label: 'Elevated', className: 'bg-warning-subtle text-warning' },
   stable: { label: 'Stable', className: 'bg-bg-tertiary text-text-secondary' },
-  declining: { label: 'Declining', className: 'bg-success-500/10 text-success-500' },
+  declining: { label: 'Declining', className: 'bg-success-subtle text-success' },
 };
 
 // Suggestions only: converging on the same vocabulary is what makes cross-business patterns detectable.

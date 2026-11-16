@@ -88,8 +88,8 @@ export function QualityOverviewTab({ allReviews, windowReviews, findings, overvi
                 {DIMENSIONS.map((d) => (
                   <tr key={d} className="border-t border-border">
                     <td className="py-2 text-text-primary">{DIMENSION_LABELS[d]}</td>
-                    <td className="py-2 tabular-nums">{trend[d].current ?? '—'} <span className="text-xs text-text-secondary/70">({trend[d].nCurrent})</span></td>
-                    <td className="py-2 tabular-nums">{trend[d].baseline ?? '—'} <span className="text-xs text-text-secondary/70">({trend[d].nBaseline})</span></td>
+                    <td className="py-2 tabular-nums">{trend[d].current ?? '—'} <span className="text-xs text-text-muted">({trend[d].nCurrent})</span></td>
+                    <td className="py-2 tabular-nums">{trend[d].baseline ?? '—'} <span className="text-xs text-text-muted">({trend[d].nBaseline})</span></td>
                     <td className="py-2"><DeltaPill stat={trend[d]} /></td>
                   </tr>
                 ))}

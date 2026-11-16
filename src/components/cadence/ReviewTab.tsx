@@ -35,7 +35,7 @@ function TrendCell({ r }: { r: MetricReview }) {
   const good = r.improving;
   const Icon = r.trend === 'up' ? ArrowUpRight : r.trend === 'down' ? ArrowDownRight : ArrowRight;
   return (
-    <span className={`inline-flex items-center gap-1 text-xs font-semibold ${good ? 'text-success-500' : 'text-danger-500'}`}>
+    <span className={`inline-flex items-center gap-1 text-xs font-semibold ${good ? 'text-success' : 'text-danger'}`}>
       <Icon size={13} /> {r.trend === 'flat' ? 'Steady' : good ? 'Improving' : 'Slipping'}
     </span>
   );

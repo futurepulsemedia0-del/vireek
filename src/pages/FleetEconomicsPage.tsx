@@ -29,8 +29,8 @@ interface ProfitabilityRow {
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  active: 'bg-success-500/10 text-success-500',
-  in_shop: 'bg-warning-500/10 text-warning-500',
+  active: 'bg-success-subtle text-success',
+  in_shop: 'bg-warning-subtle text-warning',
   retired: 'bg-bg-tertiary text-text-secondary',
 };
 
@@ -151,7 +151,7 @@ export function FleetEconomicsPage() {
           <button type="button" onClick={() => setShowAddVehicle((v) => !v)} className="focus-ring flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-medium text-text-secondary hover:text-text-primary">
             <Plus size={14} /> Add vehicle
           </button>
-          <button type="button" onClick={refresh} disabled={refreshing} className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-xs font-medium text-white disabled:opacity-60">
+          <button type="button" onClick={refresh} disabled={refreshing} className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-xs font-medium text-on-accent disabled:opacity-60">
             <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} /> {refreshing ? 'Refreshing…' : 'Refresh'}
           </button>
         </div>
@@ -164,7 +164,7 @@ export function FleetEconomicsPage() {
           <input value={vehicleModel} onChange={(e) => setVehicleModel(e.target.value)} placeholder="Model" className="rounded-lg border border-border bg-bg-primary px-3 py-2 text-sm" />
           <input value={monthlyPayment} onChange={(e) => setMonthlyPayment(e.target.value)} type="number" min="0" step="0.01" placeholder="Monthly payment $" className="rounded-lg border border-border bg-bg-primary px-3 py-2 text-sm" />
           <input value={monthlyInsurance} onChange={(e) => setMonthlyInsurance(e.target.value)} type="number" min="0" step="0.01" placeholder="Monthly insurance $" className="rounded-lg border border-border bg-bg-primary px-3 py-2 text-sm" />
-          <button type="submit" disabled={savingVehicle} className="focus-ring col-span-2 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-white disabled:opacity-60 sm:col-span-1">
+          <button type="submit" disabled={savingVehicle} className="focus-ring col-span-2 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-on-accent disabled:opacity-60 sm:col-span-1">
             {savingVehicle ? 'Saving…' : 'Save vehicle'}
           </button>
         </form>
@@ -180,7 +180,7 @@ export function FleetEconomicsPage() {
             {EXPENSE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
           </select>
           <input value={expenseAmount} onChange={(e) => setExpenseAmount(e.target.value)} type="number" min="0" step="0.01" placeholder="Amount $" required className="rounded-lg border border-border bg-bg-primary px-3 py-2 text-sm" />
-          <button type="submit" disabled={savingExpense} className="focus-ring rounded-lg bg-accent px-3 py-2 text-sm font-medium text-white disabled:opacity-60">
+          <button type="submit" disabled={savingExpense} className="focus-ring rounded-lg bg-accent px-3 py-2 text-sm font-medium text-on-accent disabled:opacity-60">
             {savingExpense ? 'Saving…' : 'Log expense'}
           </button>
         </form>
@@ -197,7 +197,7 @@ export function FleetEconomicsPage() {
         </div>
         <div className="rounded-2xl border border-border bg-bg-secondary p-4">
           <p className="text-xs text-text-secondary">Net fleet profit (90d)</p>
-          <p className={`mt-1 text-lg font-bold ${summary.totalProfit >= 0 ? 'text-success-500' : 'text-danger-500'}`}>${summary.totalProfit.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+          <p className={`mt-1 text-lg font-bold ${summary.totalProfit >= 0 ? 'text-success' : 'text-danger'}`}>${summary.totalProfit.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
         </div>
         <div className="rounded-2xl border border-border bg-bg-secondary p-4">
           <p className="text-xs text-text-secondary">Avg. job margin</p>
@@ -261,7 +261,7 @@ export function FleetEconomicsPage() {
                     {r.margin_pct === null ? (
                       <span className="text-xs text-text-secondary">—</span>
                     ) : (
-                      <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${r.margin_pct < 0 ? 'bg-danger-500/10 text-danger-500' : r.margin_pct < 20 ? 'bg-warning-500/10 text-warning-500' : 'bg-success-500/10 text-success-500'}`}>
+                      <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${r.margin_pct < 0 ? 'bg-danger-subtle text-danger' : r.margin_pct < 20 ? 'bg-warning-subtle text-warning' : 'bg-success-subtle text-success'}`}>
                         {r.margin_pct < 20 && <AlertTriangle size={11} />} {r.margin_pct.toFixed(1)}%
                       </span>
                     )}

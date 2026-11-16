@@ -43,7 +43,7 @@ const WEEKDAY_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 const FETCH_WINDOW_DAYS = 90;
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-3 text-base text-text-primary placeholder:text-text-secondary/60 transition-colors focus-visible:border-accent';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-3 text-base text-text-primary placeholder:text-text-placeholder transition-colors focus-visible:border-accent';
 
 function dateKey(d: Date) {
   const y = d.getFullYear();
@@ -323,7 +323,7 @@ export function EnterpriseDemoBookingCalendar({
                     {WEEKDAY_LABELS.map((w, i) => (
                       <div
                         key={`wd-${i}`}
-                        className="pb-2 text-xs font-semibold uppercase tracking-wide text-text-secondary/70"
+                        className="pb-2 text-xs font-semibold uppercase tracking-wide text-text-muted"
                       >
                         {w}
                       </div>
@@ -340,7 +340,7 @@ export function EnterpriseDemoBookingCalendar({
                               onClick={() => cell.key && setSelectedDateKey(cell.key)}
                               className={`focus-ring relative flex h-9 w-9 items-center justify-center rounded-full text-sm font-medium transition-colors ${
                                 isSelected
-                                  ? 'bg-accent text-white'
+                                  ? 'bg-accent text-on-accent'
                                   : hasSlots
                                     ? 'text-text-primary hover:bg-accent/10 hover:text-accent'
                                     : 'cursor-not-allowed text-text-secondary/30'
@@ -531,7 +531,7 @@ export function EnterpriseDemoBookingCalendar({
             transition={{ duration: 0.25, ease: EASE }}
             className="flex flex-col items-center py-6 text-center"
           >
-            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-success-500/10 text-success-500">
+            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-success-subtle text-success">
               <CheckCircle2 size={26} />
             </span>
             <h2 className="mt-5 text-xl font-bold text-text-primary">You’re booked!</h2>

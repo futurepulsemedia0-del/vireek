@@ -73,9 +73,9 @@ export function CanvassingPage() {
         <div role="tablist" aria-label="Canvassing sections" className="flex gap-1 overflow-x-auto rounded-xl border border-border bg-bg-secondary p-1">
           {tabs.map((t) => (
             <button key={t.id} type="button" role="tab" id={`cv-tab-${t.id}`} aria-selected={tab === t.id} aria-controls={`cv-panel-${t.id}`} onClick={() => setTab(t.id)}
-              className={`focus-ring inline-flex shrink-0 items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium ${tab === t.id ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}>
+              className={`focus-ring inline-flex shrink-0 items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium ${tab === t.id ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}>
               {t.label}
-              {!!t.badge && <span aria-label={`${t.badge} overdue`} className="rounded-full bg-danger px-1.5 text-[11px] font-semibold leading-5 text-white">{t.badge}</span>}
+              {!!t.badge && <span aria-label={`${t.badge} overdue`} className="rounded-full bg-danger px-1.5 text-[11px] font-semibold leading-5 text-on-danger">{t.badge}</span>}
             </button>
           ))}
         </div>

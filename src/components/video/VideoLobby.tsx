@@ -47,7 +47,7 @@ export function VideoLobby({ session, snap, joining, error, onJoin, onMic, onCam
         <p className="mt-1 text-xs text-text-secondary">{expiresInLabel(session.expires_at)}</p>
       </header>
 
-      <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-border bg-black">
+      <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-border bg-overlay">
         {snap.localStream && snap.hasCamera && snap.cameraOn ? (
           <video ref={videoRef} autoPlay muted playsInline className="h-full w-full -scale-x-100 object-cover" aria-label="Your camera preview" />
         ) : (
@@ -57,18 +57,18 @@ export function VideoLobby({ session, snap, joining, error, onJoin, onMic, onCam
           </div>
         )}
         <div className="absolute inset-x-0 bottom-3 flex justify-center gap-3">
-          <button type="button" onClick={() => onMic(!snap.micOn)} disabled={!snap.hasMic} aria-pressed={!snap.micOn} aria-label={snap.micOn ? 'Mute microphone' : 'Unmute microphone'} className="focus-ring flex h-11 w-11 items-center justify-center rounded-full bg-black/60 text-white disabled:opacity-40">
+          <button type="button" onClick={() => onMic(!snap.micOn)} disabled={!snap.hasMic} aria-pressed={!snap.micOn} aria-label={snap.micOn ? 'Mute microphone' : 'Unmute microphone'} className="focus-ring flex h-11 w-11 items-center justify-center rounded-full bg-overlay/60 text-white disabled:opacity-40">
             {snap.micOn && snap.hasMic ? <Mic size={18} /> : <MicOff size={18} />}
           </button>
-          <button type="button" onClick={() => onCamera(!snap.cameraOn)} disabled={!snap.hasCamera} aria-pressed={!snap.cameraOn} aria-label={snap.cameraOn ? 'Turn camera off' : 'Turn camera on'} className="focus-ring flex h-11 w-11 items-center justify-center rounded-full bg-black/60 text-white disabled:opacity-40">
+          <button type="button" onClick={() => onCamera(!snap.cameraOn)} disabled={!snap.hasCamera} aria-pressed={!snap.cameraOn} aria-label={snap.cameraOn ? 'Turn camera off' : 'Turn camera on'} className="focus-ring flex h-11 w-11 items-center justify-center rounded-full bg-overlay/60 text-white disabled:opacity-40">
             {snap.cameraOn && snap.hasCamera ? <Camera size={18} /> : <CameraOff size={18} />}
           </button>
         </div>
       </div>
 
       {snap.mediaIssue && (
-        <p role="status" className="flex items-start gap-2 rounded-xl border border-warning-500/30 bg-warning-500/10 px-3 py-2 text-xs text-text-primary">
-          <AlertTriangle size={14} className="mt-0.5 shrink-0 text-warning-500" aria-hidden="true" />
+        <p role="status" className="flex items-start gap-2 rounded-xl border border-warning/30 bg-warning-subtle px-3 py-2 text-xs text-text-primary">
+          <AlertTriangle size={14} className="mt-0.5 shrink-0 text-warning" aria-hidden="true" />
           {snap.mediaIssue.message} You can still join and watch or listen.
         </p>
       )}
@@ -78,7 +78,7 @@ export function VideoLobby({ session, snap, joining, error, onJoin, onMic, onCam
           <Input id="vs-name" label="Your name" value={name} onChange={(e) => setName(e.target.value)} onBlur={() => setTouched(true)} placeholder="e.g. Sam from Carrier support" maxLength={60} autoComplete="name" error={nameError ?? undefined} required />
           {session.recording_allowed && (
             <label className="flex cursor-pointer items-start gap-2.5 rounded-xl border border-border bg-bg-secondary p-3 text-sm text-text-primary">
-              <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="focus-ring mt-0.5 h-4 w-4 shrink-0 accent-[var(--color-accent,#2563eb)]" />
+              <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="focus-ring mt-0.5 h-4 w-4 shrink-0 accent-accent" />
               <span>
                 I agree the technician may record this session (video and audio) and save it to the job record.
                 <span className="mt-0.5 block text-xs text-text-secondary">Optional. You will see a clear indicator whenever recording is on.</span>

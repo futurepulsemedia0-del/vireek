@@ -20,7 +20,7 @@ import {
 import { friendlyFieldError, saveCustomData, useCustomFieldDefs } from '@/lib/customFieldsApi';
 
 const INPUT =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 disabled:opacity-60';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder disabled:opacity-60';
 
 // ============================================================
 // EDITOR — inputs for every active field (use inside create/edit forms)
@@ -208,7 +208,7 @@ export function CustomFieldsPanel({ entity, recordId, value, className = '' }: P
           type="button"
           disabled={!dirty || saving}
           onClick={handleSave}
-          className="focus-ring flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+          className="focus-ring flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-on-accent transition-opacity hover:opacity-90 disabled:opacity-50"
         >
           {saving ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
           {saving ? 'Saving…' : 'Save fields'}
@@ -325,7 +325,7 @@ export function CustomFilterBar({
         className="focus-ring flex items-center gap-2 rounded-xl border border-border bg-bg-secondary px-3 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-bg-tertiary"
       >
         <SlidersHorizontal size={15} /> Custom filters
-        {count > 0 && <span className="rounded-full bg-accent px-1.5 text-[11px] font-semibold text-white">{count}</span>}
+        {count > 0 && <span className="rounded-full bg-accent px-1.5 text-[11px] font-semibold text-on-accent">{count}</span>}
       </button>
 
       {open && (

@@ -65,7 +65,7 @@ const INITIAL: NominationData = {
 };
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-3 text-base text-text-primary placeholder:text-text-secondary/60 transition-colors focus-visible:border-accent';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-3 text-base text-text-primary placeholder:text-text-placeholder transition-colors focus-visible:border-accent';
 
 function NominateGuestForm() {
   const [data, setData] = useState<NominationData>(INITIAL);
@@ -265,12 +265,12 @@ export function PodcastPage() {
                     <PlayCircle size={20} />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary/70">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">
                       Episode {ep.number}
                     </p>
                     <p className="text-sm font-semibold text-text-primary sm:text-base">{ep.title}</p>
                   </div>
-                  <span className="shrink-0 rounded-full bg-warning-500/15 px-3 py-1 text-xs font-semibold text-warning-500">
+                  <span className="shrink-0 rounded-full bg-warning-subtle px-3 py-1 text-xs font-semibold text-warning">
                     {ep.status}
                   </span>
                 </motion.div>

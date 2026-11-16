@@ -66,7 +66,7 @@ function Modal({
   return (
     <div className="fixed inset-0 z-[100] flex items-end justify-center p-0 sm:items-center sm:p-4">
       <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        className="absolute inset-0 bg-overlay/40 backdrop-blur-sm"
         onClick={dismissible ? onClose : undefined}
         aria-hidden="true"
       />
@@ -543,7 +543,7 @@ export function OAuthAppsPage() {
                           <span key={s} className="rounded-full bg-accent/10 px-2 py-0.5 text-[0.65rem] font-medium text-accent">{s}</span>
                         ))}
                       </div>
-                      <p className="mt-2 text-xs text-text-secondary/70">
+                      <p className="mt-2 text-xs text-text-muted">
                         Created {new Date(app.created_at).toLocaleDateString()} · {live} active {live === 1 ? 'token' : 'tokens'}
                       </p>
                     </div>
@@ -586,7 +586,7 @@ export function OAuthAppsPage() {
                       <div className="mt-1.5 flex flex-wrap gap-1.5">
                         {g.scopes.map((s) => <span key={s} className="rounded-full bg-accent/10 px-2 py-0.5 text-[0.65rem] font-medium text-accent">{s}</span>)}
                       </div>
-                      <p className="mt-1.5 text-xs text-text-secondary/70">
+                      <p className="mt-1.5 text-xs text-text-muted">
                         Issued {new Date(g.created_at).toLocaleDateString()} · Last used {timeAgo(g.last_used_at)}
                         {g.expires_at && ` · Expires ${new Date(g.expires_at).toLocaleDateString()}`}
                       </p>

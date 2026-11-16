@@ -236,7 +236,7 @@ export function WorkOrderCard({
                 className="mt-2 h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-bg-tertiary"
               >
                 <div
-                  className={`h-full rounded-full ${summary.overNte ? 'bg-danger' : pct >= 90 ? 'bg-warning-500' : 'bg-accent'}`}
+                  className={`h-full rounded-full ${summary.overNte ? 'bg-danger' : pct >= 90 ? 'bg-warning' : 'bg-accent'}`}
                   style={{ width: `${pct}%` }}
                 />
               </div>

@@ -124,7 +124,7 @@ export function OpportunityCostLedgerPage() {
               type="button"
               onClick={() => setFilter(f)}
               className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                filter === f ? 'bg-accent text-white' : 'border border-border text-text-secondary hover:border-accent'
+                filter === f ? 'bg-accent text-on-accent' : 'border border-border text-text-secondary hover:border-accent'
               }`}
             >
               {f === 'all' ? 'All' : ENTRY_TYPE_LABELS[f]}
@@ -160,7 +160,7 @@ export function OpportunityCostLedgerPage() {
                   <div className="flex shrink-0 flex-col items-end gap-2">
                     <span className="text-lg font-bold text-danger">${(entry.estimated_cost_cents / 100).toLocaleString()}</span>
                     <div className="flex gap-1">
-                      <button type="button" onClick={() => setStatus(entry.id, 'acknowledged')} className="rounded p-1 text-text-secondary hover:text-success-500" title="Acknowledge">
+                      <button type="button" onClick={() => setStatus(entry.id, 'acknowledged')} className="rounded p-1 text-text-secondary hover:text-success" title="Acknowledge">
                         <Check size={16} />
                       </button>
                       <button type="button" onClick={() => setStatus(entry.id, 'dismissed')} className="rounded p-1 text-text-secondary hover:text-danger" title="Dismiss">

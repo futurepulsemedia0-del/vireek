@@ -136,7 +136,7 @@ export function RuleCard({ rule, ctx, busy, onAction }: RuleCardProps) {
         </div>
         <div className="flex shrink-0 items-center gap-2">
           {rule.needs_revalidation && (
-            <span className="flex items-center gap-1 rounded-full border border-warning-500/25 bg-warning-500/10 px-2.5 py-1 text-xs font-semibold text-warning-500">
+            <span className="flex items-center gap-1 rounded-full border border-warning/25 bg-warning-subtle px-2.5 py-1 text-xs font-semibold text-warning">
               <TriangleAlert size={12} aria-hidden="true" /> Needs revalidation
             </span>
           )}
@@ -180,10 +180,10 @@ export function RuleCard({ rule, ctx, busy, onAction }: RuleCardProps) {
       </dl>
 
       {rule.caveats && (
-        <p className="mt-3 flex items-start gap-2 rounded-xl bg-warning-500/10 px-3 py-2 text-xs text-text-primary">
+        <p className="mt-3 flex items-start gap-2 rounded-xl bg-warning-subtle px-3 py-2 text-xs text-text-primary">
           <TriangleAlert
             size={14}
-            className="mt-0.5 shrink-0 text-warning-500"
+            className="mt-0.5 shrink-0 text-warning"
             aria-hidden="true"
           />
           <span>{rule.caveats}</span>
@@ -226,7 +226,7 @@ export function RuleCard({ rule, ctx, busy, onAction }: RuleCardProps) {
               {parts.map((p) => (
                 <li key={p.key} className="flex items-center gap-3 text-xs text-text-secondary">
                   <span className="w-44 shrink-0">
-                    {p.label} <span className="text-text-secondary/60">({p.weight}%)</span>
+                    {p.label} <span className="text-text-muted">({p.weight}%)</span>
                   </span>
                   <span
                     className="h-1.5 flex-1 overflow-hidden rounded-full bg-bg-tertiary"

@@ -84,14 +84,14 @@ export const MAX_TRAVEL_FEE_CENTS = 1_000_000;
 export const MIN_SURGE = 1;
 export const MAX_SURGE = 5;
 export const AREA_COLORS = [
-  '#3b82f6',
-  '#22c55e',
-  '#f59e0b',
-  '#ef4444',
-  '#a855f7',
-  '#06b6d4',
-  '#ec4899',
-  '#84cc16',
+  '#3d8ef6',
+  '#34c759',
+  '#ffcc00',
+  '#ff2d55',
+  '#7e6bfd',
+  '#6eacff',
+  '#ff375f',
+  '#30d158',
 ];
 
 export const DEFAULT_OUT_OF_AREA_MESSAGES: Record<OutOfAreaMode, string> = {

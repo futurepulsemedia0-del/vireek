@@ -111,7 +111,7 @@ export function TrendsPanel({ data }: { data: Overview }) {
                 <li key={s} className="flex items-center gap-3 text-sm">
                   <span className="w-12 shrink-0 text-text-secondary">{s} star{s === 1 ? '' : 's'}</span>
                   <span className="h-2.5 flex-1 overflow-hidden rounded-full bg-bg-tertiary">
-                    <span className={`block h-full rounded-full ${s >= 4 ? 'bg-success' : s === 3 ? 'bg-warning-500' : 'bg-danger'}`} style={{ width: `${(count / maxBucket) * 100}%` }} />
+                    <span className={`block h-full rounded-full ${s >= 4 ? 'bg-success' : s === 3 ? 'bg-warning' : 'bg-danger'}`} style={{ width: `${(count / maxBucket) * 100}%` }} />
                   </span>
                   <span className="w-8 shrink-0 text-right tabular-nums text-text-primary">{count}</span>
                 </li>

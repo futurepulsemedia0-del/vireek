@@ -218,10 +218,10 @@ export function ValuationPage() {
                 aria-selected={tab === t.key}
                 aria-controls={`val-panel-${t.key}`}
                 onClick={() => setTab(t.key)}
-                className={`focus-ring min-h-[40px] whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${tab === t.key ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}
+                className={`focus-ring min-h-[40px] whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${tab === t.key ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}
               >
                 {t.label}
-                {dirtyFor(t.key) && <span className="ml-1.5 inline-block h-1.5 w-1.5 rounded-full bg-warning-500 align-middle"><span className="sr-only">Unsaved changes</span></span>}
+                {dirtyFor(t.key) && <span className="ml-1.5 inline-block h-1.5 w-1.5 rounded-full bg-warning align-middle"><span className="sr-only">Unsaved changes</span></span>}
               </button>
             ))}
           </div>

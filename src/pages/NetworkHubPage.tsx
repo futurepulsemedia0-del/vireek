@@ -141,7 +141,7 @@ export function NetworkHubPage() {
                       id="network-membership"
                       className="flex items-center gap-2 text-sm font-semibold text-text-primary"
                     >
-                      <ShieldCheck size={16} className="text-success-500" />
+                      <ShieldCheck size={16} className="text-success" />
                       You’re in the network
                     </h2>
                     <p className="mt-1 text-xs text-text-secondary">

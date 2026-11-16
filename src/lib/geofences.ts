@@ -19,8 +19,8 @@ export const MAX_VERTICES = 200;
 export const MIN_AREA_M2 = 400;
 export const MAX_NAME_LENGTH = 80;
 export const MAX_TEMPLATE_LENGTH = 320;
-export const DEFAULT_COLOR = '#2563eb';
-export const ZONE_COLORS = ['#2563eb', '#16a34a', '#d97706', '#dc2626', '#7c3aed', '#0891b2'] as const;
+export const DEFAULT_COLOR = '#a93b0f';
+export const ZONE_COLORS = ['#a93b0f', '#18a141', '#f9774c', '#d4222a', '#533afd', '#3d8ef6'] as const;
 export const ETA_PLACEHOLDERS = ['customer', 'tech', 'company', 'eta', 'link'] as const;
 export const DEFAULT_ETA_TEMPLATE = 'Hi {customer}, {tech} from {company} is about {eta} away. {link}';
 
@@ -81,12 +81,12 @@ export interface ZoneTypeMeta {
 }
 
 export const ZONE_TYPE_META: Record<ZoneType, ZoneTypeMeta> = {
-  job_site: { label: 'Job site', hint: 'The property a job happens at.', color: '#2563eb', preset: { arrived: true, clock_in: false, eta_text: false, exit_alert: false } },
-  customer_site: { label: 'Customer approach', hint: 'A ring around a customer address, to text them an ETA as the truck gets close.', color: '#7c3aed', preset: { arrived: false, clock_in: false, eta_text: true, exit_alert: false } },
-  shop: { label: 'Shop / yard', hint: 'Your shop or warehouse. Entering can start the technician’s shift.', color: '#16a34a', preset: { arrived: false, clock_in: true, eta_text: false, exit_alert: false } },
-  depot: { label: 'Depot', hint: 'A staging or parking location.', color: '#0891b2', preset: { arrived: false, clock_in: false, eta_text: false, exit_alert: false } },
-  service_area: { label: 'Service area', hint: 'Where you work. Leaving it can alert you.', color: '#d97706', preset: { arrived: false, clock_in: false, eta_text: false, exit_alert: true } },
-  restricted: { label: 'Restricted area', hint: 'Somewhere vehicles should not be.', color: '#dc2626', preset: { arrived: false, clock_in: false, eta_text: false, exit_alert: false } },
+  job_site: { label: 'Job site', hint: 'The property a job happens at.', color: '#a93b0f', preset: { arrived: true, clock_in: false, eta_text: false, exit_alert: false } },
+  customer_site: { label: 'Customer approach', hint: 'A ring around a customer address, to text them an ETA as the truck gets close.', color: '#533afd', preset: { arrived: false, clock_in: false, eta_text: true, exit_alert: false } },
+  shop: { label: 'Shop / yard', hint: 'Your shop or warehouse. Entering can start the technician’s shift.', color: '#18a141', preset: { arrived: false, clock_in: true, eta_text: false, exit_alert: false } },
+  depot: { label: 'Depot', hint: 'A staging or parking location.', color: '#3d8ef6', preset: { arrived: false, clock_in: false, eta_text: false, exit_alert: false } },
+  service_area: { label: 'Service area', hint: 'Where you work. Leaving it can alert you.', color: '#f9774c', preset: { arrived: false, clock_in: false, eta_text: false, exit_alert: true } },
+  restricted: { label: 'Restricted area', hint: 'Somewhere vehicles should not be.', color: '#d4222a', preset: { arrived: false, clock_in: false, eta_text: false, exit_alert: false } },
 };
 export const ZONE_TYPES = Object.keys(ZONE_TYPE_META) as ZoneType[];
 

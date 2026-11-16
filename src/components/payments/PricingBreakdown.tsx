@@ -18,7 +18,7 @@ export function PricingBreakdown({ lines, totalCents, totalLabel = 'Total', clas
           <dd className="shrink-0 tabular-nums">{line.cents < 0 ? `−${formatUsd(-line.cents)}` : formatUsd(line.cents)}</dd>
         </div>
       ))}
-      <div className="flex justify-between gap-3 border-t border-border-primary pt-2 text-base font-bold text-text-primary">
+      <div className="flex justify-between gap-3 border-t border-border pt-2 text-base font-bold text-text-primary">
         <dt>{totalLabel}</dt>
         <dd className="shrink-0 tabular-nums">{formatUsd(totalCents)}</dd>
       </div>

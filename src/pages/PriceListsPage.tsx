@@ -83,7 +83,7 @@ const STATE_STYLES: Record<PriceListState, string> = {
   active: 'bg-success/15 text-success',
   scheduled: 'bg-accent/10 text-accent',
   draft: 'bg-bg-tertiary text-text-secondary',
-  expired: 'bg-warning-500/15 text-warning-500',
+  expired: 'bg-warning-subtle text-warning',
   archived: 'bg-bg-tertiary text-text-secondary opacity-70',
 };
 const STATE_ORDER: PriceListState[] = ['active', 'scheduled', 'draft', 'expired', 'archived'];
@@ -859,8 +859,8 @@ export function PriceListsPage() {
               </div>
 
               {conflicts.size > 0 && (
-                <div role="alert" className="mb-4 flex items-start gap-2 rounded-xl border border-warning-500/40 bg-warning-500/10 p-3 text-sm text-text-primary">
-                  <AlertTriangle size={16} className="mt-0.5 shrink-0 text-warning-500" />
+                <div role="alert" className="mb-4 flex items-start gap-2 rounded-xl border border-warning/40 bg-warning-subtle p-3 text-sm text-text-primary">
+                  <AlertTriangle size={16} className="mt-0.5 shrink-0 text-warning" />
                   <p>
                     {conflicts.size} lists target the same buyer with the same priority and overlapping dates. The newest one wins for now — give them different
                     priorities or non-overlapping dates to make it explicit.
@@ -894,7 +894,7 @@ export function PriceListsPage() {
                         onClick={() => setStateFilter(s)}
                         aria-pressed={stateFilter === s}
                         className={`focus-ring min-h-[36px] shrink-0 rounded-full px-3 text-xs font-medium transition-colors ${
-                          stateFilter === s ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
+                          stateFilter === s ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
                         }`}
                       >
                         {s === 'all' ? `All (${lists.length})` : `${STATE_LABELS[s]} (${counts[s]})`}
@@ -965,12 +965,12 @@ export function PriceListsPage() {
                               <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${STATE_STYLES[state]}`}>{STATE_LABELS[state]}</span>
                               <span className="rounded-full bg-bg-tertiary px-2 py-0.5 text-[10px] font-medium text-text-secondary">{SCOPE_LABELS[l.scope]}</span>
                               {conflicts.has(l.id) && (
-                                <span className="flex items-center gap-1 rounded-full bg-warning-500/15 px-2 py-0.5 text-[10px] font-semibold text-warning-500">
+                                <span className="flex items-center gap-1 rounded-full bg-warning-subtle px-2 py-0.5 text-[10px] font-semibold text-warning">
                                   <AlertTriangle size={10} /> Overlaps
                                 </span>
                               )}
                               {isEndingSoon(l, today) && (
-                                <span className="rounded-full bg-warning-500/15 px-2 py-0.5 text-[10px] font-semibold text-warning-500">Ending soon</span>
+                                <span className="rounded-full bg-warning-subtle px-2 py-0.5 text-[10px] font-semibold text-warning">Ending soon</span>
                               )}
                             </div>
                             <p className="mt-1 truncate text-xs text-text-secondary">{targetLabel(l)}</p>
@@ -978,7 +978,7 @@ export function PriceListsPage() {
                               {formatDateRange(l.effective_from, l.effective_to)} · priority {l.priority} · {count} override{count === 1 ? '' : 's'}
                             </p>
                             {l.status === 'active' && count === 0 && (
-                              <p className="mt-1 text-xs text-warning-500">Active, but has no overrides — it isn’t changing any prices yet.</p>
+                              <p className="mt-1 text-xs text-warning">Active, but has no overrides — it isn’t changing any prices yet.</p>
                             )}
                           </div>
 

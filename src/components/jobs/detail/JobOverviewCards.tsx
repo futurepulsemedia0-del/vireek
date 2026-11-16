@@ -59,15 +59,15 @@ export function JobStatusTimeline({
               {i < steps.length - 1 && (
                 <span
                   aria-hidden="true"
-                  className={`absolute left-1/2 top-3.5 h-0.5 w-full ${done && steps[i + 1].state !== 'upcoming' ? 'bg-success-500' : 'bg-border'}`}
+                  className={`absolute left-1/2 top-3.5 h-0.5 w-full ${done && steps[i + 1].state !== 'upcoming' ? 'bg-success' : 'bg-border'}`}
                 />
               )}
               <span
                 className={`relative z-10 flex h-7 w-7 items-center justify-center rounded-full border-2 text-xs font-bold ${
                   done
-                    ? 'border-success-500 bg-success-500 text-white'
+                    ? 'border-success bg-success text-on-success'
                     : current
-                      ? 'border-accent bg-accent text-white'
+                      ? 'border-accent bg-accent text-on-accent'
                       : 'border-border bg-bg-primary text-text-secondary'
                 }`}
               >
@@ -89,7 +89,7 @@ export function JobStatusTimeline({
       )}
 
       {blockers.length > 0 && (
-        <div role="alert" className="mt-4 rounded-xl bg-warning-500/10 px-3 py-2 text-sm text-warning-500">
+        <div role="alert" className="mt-4 rounded-xl bg-warning-subtle px-3 py-2 text-sm text-warning">
           <p className="font-semibold">Can&apos;t complete this job yet. Still needed:</p>
           <ul className="mt-1 list-disc pl-5">
             {blockers.map((b) => (
@@ -143,7 +143,7 @@ export function JobCustomerCard({ job }: { job: Job }) {
       {job.service_type && <p className="text-sm text-text-secondary">{job.service_type}</p>}
 
       {job.is_rework && (
-        <p className="mt-3 flex items-center gap-2 rounded-xl bg-warning-500/10 px-3 py-2 text-xs font-medium text-warning-500">
+        <p className="mt-3 flex items-center gap-2 rounded-xl bg-warning-subtle px-3 py-2 text-xs font-medium text-warning">
           <RotateCcw size={13} aria-hidden="true" /> Repeat visit for the same customer and service type
         </p>
       )}
@@ -263,7 +263,7 @@ export function JobTechnicianCard({
           </div>
         )}
         {job.job_status === 'en_route' && job.eta_minutes !== null && (
-          <p className="rounded-xl bg-blue-500/10 px-3 py-2 text-xs font-medium text-blue-500">
+          <p className="rounded-xl bg-info-subtle px-3 py-2 text-xs font-medium text-info">
             ETA about {job.eta_minutes} min{job.eta_set_at ? ` (shared ${relativeTime(job.eta_set_at)})` : ''}
           </p>
         )}
@@ -394,7 +394,7 @@ export function JobNotesCard({
                 />
                 <p className="mt-1 text-xs text-text-secondary">{f.hint}</p>
                 {state.stale[f.key] && (
-                  <p role="status" className="mt-1 text-xs font-medium text-warning-500">
+                  <p role="status" className="mt-1 text-xs font-medium text-warning">
                     Someone else changed this note while you were editing. Saving will overwrite their version.
                   </p>
                 )}

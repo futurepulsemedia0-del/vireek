@@ -85,7 +85,7 @@ export function InvoicePage() {
           <div role="alert" className="rounded-2xl border border-danger/30 bg-danger/5 p-8 text-center">
             <h1 className="text-lg font-semibold text-text-primary">We could not load this invoice</h1>
             <p className="mt-1 text-sm text-text-secondary">Check your connection and try again.</p>
-            <button type="button" onClick={() => void load()} className="focus-ring mt-4 min-h-[44px] rounded-lg bg-accent px-5 text-sm font-semibold text-white">Try again</button>
+            <button type="button" onClick={() => void load()} className="focus-ring mt-4 min-h-[44px] rounded-lg bg-accent px-5 text-sm font-semibold text-on-accent">Try again</button>
           </div>
         )}
 
@@ -118,7 +118,7 @@ function InvoiceBody({ invoice }: { invoice: PublicInvoiceInfo }) {
         </div>
         <div className="text-right">
           {paid ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-success-500/10 px-3 py-1 text-sm font-semibold text-success-500"><CheckCircle2 size={14} aria-hidden="true" />Paid</span>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-success-subtle px-3 py-1 text-sm font-semibold text-success"><CheckCircle2 size={14} aria-hidden="true" />Paid</span>
           ) : pastDue ? (
             <span className="rounded-full bg-danger/10 px-3 py-1 text-sm font-semibold text-danger">Past due</span>
           ) : (

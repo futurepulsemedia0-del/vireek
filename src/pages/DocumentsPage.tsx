@@ -37,15 +37,15 @@ import {
 import { checkMyDocumentExpiries, deleteDocument, fetchDocuments } from '@/lib/documentsApi';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder transition-colors';
 
 type StateFilter = ExpiryState | 'all';
 
 const STAT_CARDS: { key: StateFilter; label: string; tone: string }[] = [
   { key: 'all', label: 'All documents', tone: 'text-text-primary' },
   { key: 'expired', label: 'Expired', tone: 'text-danger' },
-  { key: 'expiring', label: 'Expiring soon', tone: 'text-warning-500' },
-  { key: 'valid', label: 'Valid', tone: 'text-success-500' },
+  { key: 'expiring', label: 'Expiring soon', tone: 'text-warning' },
+  { key: 'valid', label: 'Valid', tone: 'text-success' },
 ];
 
 export function DocumentsPage() {
@@ -191,7 +191,7 @@ export function DocumentsPage() {
           <button
             type="button"
             onClick={openCreate}
-            className="focus-ring flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+            className="focus-ring flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent transition-opacity hover:opacity-90"
           >
             <Plus size={16} /> Add document
           </button>
@@ -312,7 +312,7 @@ export function DocumentsPage() {
                   aria-pressed={category === c}
                   className={`focus-ring shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                     category === c
-                      ? 'bg-accent text-white'
+                      ? 'bg-accent text-on-accent'
                       : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
                   }`}
                 >
@@ -378,7 +378,7 @@ export function DocumentsPage() {
                                 </span>
                               </span>
                             ) : (
-                              <span className="flex items-center gap-1 text-warning-500">
+                              <span className="flex items-center gap-1 text-warning">
                                 <Paperclip size={11} /> No file attached
                               </span>
                             )}

@@ -12,7 +12,7 @@ export function GovernanceTab() {
       <ul className="space-y-2">
         {ITEMS.map((k) => (
           <li key={k} className="flex gap-3 rounded-2xl border border-border bg-bg-secondary p-4">
-            <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-success-500" aria-hidden />
+            <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-success" aria-hidden />
             <p className="text-sm leading-relaxed text-text-primary">{t(`governance.items.${k}`)}</p>
           </li>
         ))}

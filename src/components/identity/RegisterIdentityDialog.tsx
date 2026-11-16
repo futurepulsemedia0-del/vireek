@@ -4,7 +4,7 @@ import { useToast } from '@/contexts/ToastContext';
 import { registerIdentity } from '@/lib/universalIdentityApi';
 import { ENTITY_TYPES, ENTITY_TYPE_META, identityErrorMessage, parseAttributesInput, type EntityType } from '@/lib/universalIdentity';
 
-const FIELD = 'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/70';
+const FIELD = 'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder';
 
 export function RegisterIdentityDialog({
   open,
@@ -53,7 +53,7 @@ export function RegisterIdentityDialog({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/50 p-4" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <form onSubmit={submit} role="dialog" aria-modal="true" aria-labelledby="reg-title" className="max-h-[90vh] w-full max-w-lg space-y-3 overflow-y-auto rounded-2xl border border-border bg-bg-secondary p-5 shadow-xl">
         <h2 id="reg-title" className="text-lg font-bold text-text-primary">Register an identity</h2>
         <p className="text-xs text-text-secondary">

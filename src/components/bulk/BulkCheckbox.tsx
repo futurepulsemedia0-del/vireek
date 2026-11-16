@@ -37,7 +37,7 @@ export function BulkCheckbox({ state, label, onToggle, className = '' }: BulkChe
           e.stopPropagation();
           onToggle(e.shiftKey);
         }}
-        className="focus-ring h-4 w-4 cursor-pointer rounded border-border accent-[var(--color-accent,#2563eb)]"
+        className="focus-ring h-4 w-4 cursor-pointer rounded border-border accent-accent"
       />
     </span>
   );

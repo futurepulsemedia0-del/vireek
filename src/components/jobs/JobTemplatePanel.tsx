@@ -173,7 +173,7 @@ export function JobTemplatePanel({ job }: { job: Job }) {
                     >
                       <span
                         className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${
-                          done ? 'border-success bg-success text-white' : 'border-border bg-bg-primary'
+                          done ? 'border-success bg-success text-on-success' : 'border-border bg-bg-primary'
                         }`}
                       >
                         {done && <Check size={13} />}

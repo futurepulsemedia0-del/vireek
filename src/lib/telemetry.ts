@@ -118,9 +118,9 @@ export const equipmentLabel = (e: FailurePrediction['equipment']) =>
   e ? [e.make, e.model].filter(Boolean).join(' ') || e.equipment_type : 'Equipment';
 
 export const SEVERITY_STYLES: Record<Severity, string> = {
-  high: 'bg-danger-500/10 text-danger-500',
-  medium: 'bg-warning-500/10 text-warning-500',
-  low: 'bg-success-500/10 text-success-500',
+  high: 'bg-danger-subtle text-danger',
+  medium: 'bg-warning-subtle text-warning',
+  low: 'bg-success-subtle text-success',
 };
 
 export function riskTone(p: number): Severity {

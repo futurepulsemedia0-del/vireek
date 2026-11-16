@@ -23,7 +23,7 @@ export function UsageCostChart({ points }: { points: DailyCostPoint[] }) {
     <figure className="m-0">
       <div className="mb-2 flex flex-wrap gap-4 text-xs text-text-secondary">
         <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-accent" aria-hidden="true" /> AI</span>
-        <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-accent-secondary" aria-hidden="true" /> Voice (estimated)</span>
+        <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-cta" aria-hidden="true" /> Voice (estimated)</span>
       </div>
       <div className="relative">
         <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-labelledby={`${uid}-t`} onMouseLeave={() => setActive(null)}>

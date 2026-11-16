@@ -12,7 +12,7 @@ import {
 import { createPlan, fetchJobsForPlan, sendPlan, type PlanJobOption } from '@/lib/paymentPlansApi';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors focus-visible:border-accent disabled:opacity-60';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder transition-colors focus-visible:border-accent disabled:opacity-60';
 
 function Field({ label, error, hint, children }: { label: string; error?: string; hint?: string; children: React.ReactNode }) {
   return (
@@ -118,7 +118,7 @@ export function CreatePlanDialog({ ownerId, onClose, onCreated }: { ownerId: str
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm sm:items-center sm:p-4" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-overlay/50 backdrop-blur-sm sm:items-center sm:p-4" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div ref={ref} role="dialog" aria-modal="true" aria-label="New payment plan" className="flex max-h-[95vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-3xl border border-border bg-bg-primary shadow-2xl sm:rounded-3xl">
         <header className="flex items-center justify-between border-b border-border px-5 py-4">
           <h2 className="text-lg font-semibold text-text-primary">New payment plan</h2>

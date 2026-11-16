@@ -14,8 +14,8 @@ export const FORMATS: Record<CardFormat, { w: number; h: number }> = {
 };
 
 const PALETTE: Record<Theme, { bg: string; bg2: string; text: string; muted: string; chip: string; chipText: string; line: string }> = {
-  light: { bg: "#F7F8FB", bg2: "#FFFFFF", text: "#0B1220", muted: "#4A5568", chip: "#E8EDF7", chipText: "#1B2A4A", line: "#D5DBE8" },
-  dark: { bg: "#0B1220", bg2: "#121A2C", text: "#F4F6FB", muted: "#A9B4CC", chip: "#1C2740", chipText: "#DCE4F5", line: "#26324F" },
+  light: { bg: "#FAF9F5", bg2: "#FFFFFF", text: "#141413", muted: "#595852", chip: "#EEEDE8", chipText: "#002C62", line: "#DDDCD8" },
+  dark: { bg: "#141413", bg2: "#1C1B15", text: "#FAF9F5", muted: "#B0AEA5", chip: "#2F2E28", chipText: "#E8E6DC", line: "#2F2E28" },
 };
 
 const EYEBROW: Record<TriggerType, string> = {
@@ -70,7 +70,7 @@ export function altText(p: PublicFields): string {
 export function renderCardSvg(p: PublicFields, o: RenderOptions): string {
   const { w, h } = FORMATS[o.format];
   const c = PALETTE[o.theme];
-  const accent = o.accent && HEX.test(o.accent) ? o.accent : o.theme === "dark" ? "#6FA2FF" : "#2457E6";
+  const accent = o.accent && HEX.test(o.accent) ? o.accent : o.theme === "dark" ? "#6EACFF" : "#0071E3";
   const story = o.format === "story";
   const og = o.format === "og";
   const pad = og ? 64 : 80;

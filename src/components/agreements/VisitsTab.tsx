@@ -47,7 +47,7 @@ const emptyVisit = (): VisitForm => ({ kind: 'pm_visit', visit_date: toDateKey(n
 
 const VISIT_STATUS_STYLES: Record<VisitStatus, string> = {
   scheduled: 'bg-accent/10 text-accent',
-  completed: 'bg-success-500/10 text-success-500',
+  completed: 'bg-success-subtle text-success',
   missed: 'bg-danger/10 text-danger',
   cancelled: 'bg-bg-tertiary text-text-secondary',
 };
@@ -137,7 +137,7 @@ export function VisitsTab({ data, derived, canManage, canSeeMoney, ownerId, relo
           <ul className="space-y-4">
             {data.entitlements.map((ent) => {
               const u = derived.usage.find((x) => x.kind === ent.kind) ?? entitlementUsage(ent, data.visits, data.contract);
-              const tone = u.utilizationPct > 100 ? 'bg-danger' : u.utilizationPct >= 80 ? 'bg-warning-500' : 'bg-accent';
+              const tone = u.utilizationPct > 100 ? 'bg-danger' : u.utilizationPct >= 80 ? 'bg-warning' : 'bg-accent';
               return (
                 <li key={ent.id}>
                   <div className="mb-1.5 flex flex-wrap items-center gap-2">
@@ -145,7 +145,7 @@ export function VisitsTab({ data, derived, canManage, canSeeMoney, ownerId, relo
                       {ENTITLEMENT_KIND_LABELS[ent.kind]} <span className="font-normal text-text-secondary">· {formatQty(u.included)} {PERIOD_LABELS[ent.period]}</span>
                     </p>
                     {u.overage > 0 && <Pill className="bg-danger/10 text-danger">{formatQty(u.overage)} over{canSeeMoney && u.overageCostCents !== null ? ` · ${formatMoney(u.overageCostCents)} billable` : ''}</Pill>}
-                    {u.overage === 0 && u.included > 0 && u.elapsedPct >= 50 && u.utilizationPct < 40 && <Pill className="bg-warning-500/10 text-warning-500">Under-used</Pill>}
+                    {u.overage === 0 && u.included > 0 && u.elapsedPct >= 50 && u.utilizationPct < 40 && <Pill className="bg-warning-subtle text-warning">Under-used</Pill>}
                     {canManage && (
                       <RowActions
                         label={ENTITLEMENT_KIND_LABELS[ent.kind]}

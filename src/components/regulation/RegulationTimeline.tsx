@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { buildTimeline, formatIsoDate, segmentContains, type RegulationVersion } from '@/lib/temporalRegulation';
 
 const DOT: Record<string, string> = {
-  in_force: 'bg-success-500',
+  in_force: 'bg-success',
   repealed: 'bg-danger',
   gap: 'bg-text-secondary/40',
 };

@@ -9,9 +9,9 @@ export function Badge({ cls, children }: { cls: string; children: React.ReactNod
 }
 
 export const STATUS_STYLE = {
-  success: 'bg-success-500/10 text-success-500',
+  success: 'bg-success-subtle text-success',
   running: 'bg-accent/10 text-accent',
-  partial: 'bg-warning-500/10 text-warning-500',
+  partial: 'bg-warning-subtle text-warning',
   failed: 'bg-danger/10 text-danger',
   neutral: 'bg-bg-tertiary text-text-secondary',
 } as const;

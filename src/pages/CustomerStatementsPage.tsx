@@ -61,7 +61,7 @@ function Sheet({ title, subtitle, onClose, wide = false, footer, children }: {
   useEscapeToClose(true, onClose);
   return (
     <>
-      <div className="fixed inset-0 z-[130] bg-black/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+      <div className="fixed inset-0 z-[130] bg-overlay/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
       <div
         ref={ref} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="stmt-sheet-title"
         className={`fixed inset-x-0 bottom-0 top-10 z-[131] flex flex-col overflow-hidden rounded-t-2xl border border-border bg-bg-primary shadow-xl sm:inset-y-6 sm:mx-auto sm:rounded-2xl ${wide ? 'sm:max-w-3xl' : 'sm:max-w-lg'}`}
@@ -267,7 +267,7 @@ function StatementDialog({ account, onClose, onSent, onLinksChanged }: {
         {account.child_count > 0 && (
           <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border bg-bg-secondary/50 px-3 py-2.5">
             <label className="flex items-center gap-2 text-sm text-text-primary">
-              <input type="checkbox" className="h-4 w-4 accent-[var(--color-accent,#203ad8)]" checked={consolidate} onChange={(e) => setConsolidate(e.target.checked)} />
+              <input type="checkbox" className="h-4 w-4 accent-accent" checked={consolidate} onChange={(e) => setConsolidate(e.target.checked)} />
               Consolidated across {account.child_count} linked account{account.child_count === 1 ? '' : 's'}
             </label>
             <Button type="button" size="sm" variant="ghost" onClick={() => setShowLinks(true)}><Link2 size={14} /> Manage links</Button>
@@ -328,7 +328,7 @@ function StatementDialog({ account, onClose, onSent, onLinksChanged }: {
                 {statement.lines.map((l, i) => (
                   <li key={`${l.reference}-${i}`} className="grid grid-cols-[1fr_auto] gap-x-4 gap-y-0.5 px-3 py-2.5">
                     <span className="min-w-0 truncate text-sm text-text-primary">{l.description}</span>
-                    <span className={`text-right text-sm font-medium ${l.credit_cents ? 'text-success-500' : 'text-text-primary'}`}>
+                    <span className={`text-right text-sm font-medium ${l.credit_cents ? 'text-success' : 'text-text-primary'}`}>
                       {l.credit_cents ? `−${usd(l.credit_cents)}` : usd(l.charge_cents)}
                     </span>
                     <span className="text-xs text-text-secondary">{fmtDate(l.date)}{statement.consolidated && l.customer_name ? ` · ${l.customer_name}` : ''}</span>
@@ -524,7 +524,7 @@ function AccountsTab({ accounts, onOpen, onQuickSend }: { accounts: StatementAcc
                       <span className="truncate text-sm font-semibold text-text-primary">{a.name}</span>
                       {a.child_count > 0 && <Pill className="bg-accent/10 text-accent"><Link2 size={11} /> {a.child_count} linked</Pill>}
                       {a.overdue_cents > 0 && <Pill className="bg-danger/10 text-danger">Overdue {usd(a.overdue_cents)}</Pill>}
-                      {!a.email && <Pill className="bg-warning-500/10 text-warning-500">No email</Pill>}
+                      {!a.email && <Pill className="bg-warning-subtle text-warning">No email</Pill>}
                     </span>
                     <span className="mt-0.5 block text-xs text-text-secondary">
                       {a.invoice_count} open invoice{a.invoice_count === 1 ? '' : 's'}{a.oldest_due ? ` · oldest due ${fmtDate(a.oldest_due)}` : ''} · {a.last_sent_at ? `last statement ${fmtDateTime(a.last_sent_at)}` : 'never sent'}
@@ -571,7 +571,7 @@ function SchedulesTab({ schedules, onNew, onEdit, onChanged }: {
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <h3 className="truncate text-sm font-semibold text-text-primary">{s.name}</h3>
-                    <Pill className={s.is_active ? 'bg-success-500/10 text-success-500' : 'bg-bg-tertiary text-text-secondary'}>{s.is_active ? 'Active' : 'Paused'}</Pill>
+                    <Pill className={s.is_active ? 'bg-success-subtle text-success' : 'bg-bg-tertiary text-text-secondary'}>{s.is_active ? 'Active' : 'Paused'}</Pill>
                     {s.last_status && <Pill className={statusTone(s.last_status)}>Last run: {s.last_status}</Pill>}
                   </div>
                   <p className="mt-1 text-xs text-text-secondary">{describeSchedule(s)} · {PERIOD_MODE_LABELS[s.period_mode]} · {SCOPE_LABELS[s.scope]}{s.consolidate ? ' · consolidated' : ''}</p>
@@ -580,7 +580,7 @@ function SchedulesTab({ schedules, onNew, onEdit, onChanged }: {
                     {s.last_run_at ? ` · last ran ${fmtDateTime(s.last_run_at)}` : ''}
                     {s.last_summary && typeof s.last_summary.sent === 'number' ? ` · ${s.last_summary.sent} sent${s.last_summary.failed ? `, ${s.last_summary.failed} failed` : ''}${s.last_summary.skipped ? `, ${s.last_summary.skipped} skipped` : ''}` : ''}
                   </p>
-                  {s.paused_reason && <p className="mt-1 text-xs text-warning-500">{s.paused_reason}</p>}
+                  {s.paused_reason && <p className="mt-1 text-xs text-warning">{s.paused_reason}</p>}
                   {s.last_summary?.problems?.[0] && s.last_status !== 'sent' && <p className="mt-1 text-xs text-danger">{s.last_summary.problems[0]}</p>}
                 </div>
                 <div className="flex flex-wrap gap-1.5">

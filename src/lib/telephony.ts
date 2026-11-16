@@ -29,8 +29,8 @@ export const TOLL_FREE_STATUS_LABELS: Record<TollFreeVerificationStatus, string>
 
 export const TOLL_FREE_STATUS_STYLES: Record<TollFreeVerificationStatus, string> = {
   not_applicable: 'bg-bg-tertiary text-text-secondary',
-  not_started: 'bg-warning-500/15 text-warning-500',
+  not_started: 'bg-warning-subtle text-warning',
   pending: 'bg-accent/10 text-accent',
-  verified: 'bg-success-500/15 text-success-500',
+  verified: 'bg-success-subtle text-success',
   rejected: 'bg-danger/10 text-danger',
 };

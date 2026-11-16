@@ -71,15 +71,15 @@ export function DiagnosePage() {
       <main className="flex-1 px-4 py-10 sm:py-14">
         <div className="mx-auto w-full max-w-xl space-y-4">
           {error && (
-            <div role="alert" className="flex items-start gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600 dark:text-red-400">
+            <div role="alert" className="flex items-start gap-2 rounded-xl border border-danger/30 bg-danger-subtle px-4 py-3 text-sm text-danger">
               <AlertTriangle size={16} className="mt-0.5 shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
           {step?.hazard ? (
-            <section className={`${CARD} border-red-500/40`} aria-live="assertive">
-              <ShieldAlert className="mb-3 text-red-500" size={32} />
+            <section className={`${CARD} border-danger/40`} aria-live="assertive">
+              <ShieldAlert className="mb-3 text-danger" size={32} />
               <h1 className="text-xl font-bold text-text-primary">Please put safety first</h1>
               <p className="mt-2 text-sm text-text-secondary">
                 If you smell gas, see smoke or sparks, or a carbon monoxide alarm is sounding: leave the building now, keep everyone outside, and call

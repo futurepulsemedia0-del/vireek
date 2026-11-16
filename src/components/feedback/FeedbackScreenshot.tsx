@@ -28,7 +28,7 @@ export function FeedbackScreenshot({ onChange }: { onChange: (blob: Blob | null)
     ctx.drawImage(img, 0, 0, c.width, c.height);
     for (const b of extra ? [...list, extra] : list) {
       if (b.tool === 'hide') { ctx.fillStyle = '#000'; ctx.fillRect(b.x, b.y, b.w, b.h); }
-      else { ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 4; ctx.strokeRect(b.x, b.y, b.w, b.h); }
+      else { ctx.strokeStyle = '#ff2d55'; ctx.lineWidth = 4; ctx.strokeRect(b.x, b.y, b.w, b.h); }
     }
   }, []);
 

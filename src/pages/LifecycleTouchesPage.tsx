@@ -70,7 +70,7 @@ const selectClass =
 const STATE_STYLE: Record<string, string> = {
   sent: 'bg-success/10 text-success',
   failed: 'bg-danger/10 text-danger',
-  pending: 'bg-warning-500/10 text-warning-500',
+  pending: 'bg-warning-subtle text-warning',
   skipped: 'bg-bg-tertiary text-text-secondary',
   scheduled: 'bg-accent/10 text-accent',
   not_opted_in: 'bg-bg-tertiary text-text-secondary',
@@ -248,7 +248,7 @@ function CalendarTab({ settings, campaigns, onGoAutomations }: { settings: Touch
                   onClick={() => setSelected(c.iso)}
                   className={`min-h-[64px] bg-bg-secondary p-1.5 text-left transition-colors hover:bg-bg-tertiary ${c.inMonth ? '' : 'opacity-40'} ${selected === c.iso ? 'ring-2 ring-inset ring-accent' : ''}`}
                 >
-                  <span className={`text-xs ${c.iso === today ? 'rounded-full bg-accent px-1.5 py-0.5 font-semibold text-white' : 'text-text-primary'}`}>{c.day}</span>
+                  <span className={`text-xs ${c.iso === today ? 'rounded-full bg-accent px-1.5 py-0.5 font-semibold text-on-accent' : 'text-text-primary'}`}>{c.day}</span>
                   {items.length > 0 && (
                     <span className="mt-1 flex flex-wrap items-center gap-0.5">
                       {types.map((t) => <span key={t} className={`h-2 w-2 rounded-full ${TOUCH_DOT[t]}`} />)}
@@ -446,7 +446,7 @@ function TouchCard({ settings, campaign, steps, onChanged }: { settings: TouchSe
                 <h4 className="text-sm font-medium text-text-primary">Preview (sample customer)</h4>
                 <div className="flex gap-1">
                   {(['email', 'sms'] as Channel[]).map((c) => (
-                    <button key={c} onClick={() => setPreviewChannel(c)} aria-pressed={previewChannel === c} className={`rounded-lg px-2.5 py-1 text-xs font-medium ${previewChannel === c ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary'}`}>{c === 'email' ? 'Email' : 'SMS'}</button>
+                    <button key={c} onClick={() => setPreviewChannel(c)} aria-pressed={previewChannel === c} className={`rounded-lg px-2.5 py-1 text-xs font-medium ${previewChannel === c ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary'}`}>{c === 'email' ? 'Email' : 'SMS'}</button>
                   ))}
                 </div>
               </div>
@@ -475,7 +475,7 @@ function TemplateEditor({ title, icon: Icon, on, onToggle, check, children }: { 
         <>
           {children}
           {check.errors.map((m) => <p key={m} role="alert" className="text-xs text-danger">{m}</p>)}
-          {check.warnings.map((m) => <p key={m} className="text-xs text-warning-500">{m}</p>)}
+          {check.warnings.map((m) => <p key={m} className="text-xs text-warning">{m}</p>)}
         </>
       )}
     </div>

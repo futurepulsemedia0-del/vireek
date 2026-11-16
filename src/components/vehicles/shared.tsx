@@ -5,8 +5,8 @@ import { EmptyState } from '@/components/EmptyState';
 export type Tone = 'success' | 'warning' | 'danger' | 'neutral' | 'info';
 
 const TONE_CLASS: Record<Tone, string> = {
-  success: 'bg-success-500/10 text-success-500',
-  warning: 'bg-warning-500/10 text-warning-500',
+  success: 'bg-success-subtle text-success',
+  warning: 'bg-warning-subtle text-warning',
   danger: 'bg-danger/10 text-danger',
   neutral: 'bg-bg-tertiary text-text-secondary',
   info: 'bg-accent/10 text-accent',
@@ -31,7 +31,7 @@ export function Section({ title, action, children }: { title?: string; action?: 
 }
 
 export function Stat({ label, value, tone = 'neutral', hint }: { label: string; value: ReactNode; tone?: Tone; hint?: string }) {
-  const color = tone === 'danger' ? 'text-danger' : tone === 'warning' ? 'text-warning-500' : tone === 'success' ? 'text-success-500' : 'text-text-primary';
+  const color = tone === 'danger' ? 'text-danger' : tone === 'warning' ? 'text-warning' : tone === 'success' ? 'text-success' : 'text-text-primary';
   return (
     <div className="rounded-2xl border border-border bg-bg-secondary p-4">
       <p className="text-xs text-text-secondary">{label}</p>

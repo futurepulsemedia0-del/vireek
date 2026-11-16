@@ -12,7 +12,7 @@ import {
 
 const SEVERITY_CLASS: Record<RequirementSeverity, string> = {
   blocker: 'bg-danger/10 text-danger',
-  warning: 'bg-warning-500/10 text-warning-500',
+  warning: 'bg-warning-subtle text-warning',
   info: 'bg-bg-tertiary text-text-secondary',
 };
 
@@ -30,11 +30,11 @@ export function RegulationEntryCard({ entry, compact = false }: { entry: Resolve
         </span>
         <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${status.className}`}>{status.label}</span>
         {entry.verification_status === 'verified' ? (
-          <span className="flex items-center gap-1 rounded-full bg-success-500/10 px-2 py-0.5 text-[11px] font-medium text-success-500">
+          <span className="flex items-center gap-1 rounded-full bg-success-subtle px-2 py-0.5 text-[11px] font-medium text-success">
             <BadgeCheck size={11} /> Verified
           </span>
         ) : (
-          <span className="rounded-full bg-warning-500/10 px-2 py-0.5 text-[11px] font-medium text-warning-500">
+          <span className="rounded-full bg-warning-subtle px-2 py-0.5 text-[11px] font-medium text-warning">
             Unverified
           </span>
         )}

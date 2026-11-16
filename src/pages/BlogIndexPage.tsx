@@ -121,14 +121,14 @@ function Listing({ category }: { category?: BlogCategory }) {
               <form role="search" onSubmit={(e) => e.preventDefault()} className="mx-auto mt-10 max-w-2xl">
                 <label htmlFor="blog-search" className="sr-only">Search articles</label>
                 <div className="group relative flex items-center rounded-2xl border border-border bg-bg-secondary shadow-card focus-within:border-accent/50 dark:shadow-card-dark">
-                  <Search className="ml-5 h-5 w-5 shrink-0 text-text-secondary/60 group-focus-within:text-accent" aria-hidden="true" />
+                  <Search className="ml-5 h-5 w-5 shrink-0 text-graphic-muted group-focus-within:text-accent" aria-hidden="true" />
                   <input
                     id="blog-search"
                     type="search"
                     value={draft}
                     onChange={(e) => setDraft(e.target.value)}
                     placeholder={category ? `Search ${category.name}…` : 'Search articles…'}
-                    className="w-full bg-transparent py-4 pl-3 pr-5 text-base text-text-primary placeholder:text-text-secondary/60 focus:outline-none"
+                    className="w-full bg-transparent py-4 pl-3 pr-5 text-base text-text-primary placeholder:text-text-placeholder focus:outline-none"
                   />
                 </div>
               </form>
@@ -225,9 +225,9 @@ function Listing({ category }: { category?: BlogCategory }) {
 
             {pages > 1 && (
               <nav aria-label="Pagination" className="mt-10 flex items-center justify-center gap-3 text-sm font-semibold">
-                {page > 1 ? <Link to={pageHref(page - 1)} rel="prev" className="focus-ring rounded-xl border border-border px-4 py-2 hover:border-accent/40">Previous</Link> : <span className="rounded-xl border border-border/50 px-4 py-2 text-text-secondary/50" aria-disabled="true">Previous</span>}
+                {page > 1 ? <Link to={pageHref(page - 1)} rel="prev" className="focus-ring rounded-xl border border-border px-4 py-2 hover:border-accent/40">Previous</Link> : <span className="rounded-xl border border-border/50 px-4 py-2 text-text-muted" aria-disabled="true">Previous</span>}
                 <span className="text-text-secondary" aria-current="page">Page {page} of {pages}</span>
-                {page < pages ? <Link to={pageHref(page + 1)} rel="next" className="focus-ring rounded-xl border border-border px-4 py-2 hover:border-accent/40">Next</Link> : <span className="rounded-xl border border-border/50 px-4 py-2 text-text-secondary/50" aria-disabled="true">Next</span>}
+                {page < pages ? <Link to={pageHref(page + 1)} rel="next" className="focus-ring rounded-xl border border-border px-4 py-2 hover:border-accent/40">Next</Link> : <span className="rounded-xl border border-border/50 px-4 py-2 text-text-muted" aria-disabled="true">Next</span>}
               </nav>
             )}
           </div>

@@ -57,18 +57,18 @@ import {
 } from '@/lib/xero';
 
 const ACTION_STYLE: Record<LogAction, string> = {
-  created: 'bg-success-500/10 text-success-500',
+  created: 'bg-success-subtle text-success',
   updated: 'bg-accent/10 text-accent',
   linked: 'bg-accent/10 text-accent',
-  voided: 'bg-warning-500/10 text-warning-500',
-  conflict: 'bg-warning-500/10 text-warning-500',
+  voided: 'bg-warning-subtle text-warning',
+  conflict: 'bg-warning-subtle text-warning',
   skipped: 'bg-bg-tertiary text-text-secondary',
   error: 'bg-error-500/10 text-error-500',
 };
 const RUN_STYLE: Record<XeroRun['status'], string> = {
   running: 'bg-accent/10 text-accent',
-  success: 'bg-success-500/10 text-success-500',
-  partial: 'bg-warning-500/10 text-warning-500',
+  success: 'bg-success-subtle text-success',
+  partial: 'bg-warning-subtle text-warning',
   failed: 'bg-error-500/10 text-error-500',
 };
 const selectCls = 'rounded-lg border border-border bg-bg-primary px-2.5 py-1.5 text-sm text-text-primary focus:border-accent focus:outline-none';
@@ -146,7 +146,7 @@ function MappingPanel({ conn, onSaved }: { conn: XeroConnection; onSaved: () => 
     <section className="space-y-4" aria-labelledby="xero-mapping">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 id="xero-mapping" className="text-lg font-semibold text-text-primary">Mapping &amp; conflict rules</h2>
-        <button type="button" onClick={save} disabled={!dirty || saving || !check.ok} className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">
+        <button type="button" onClick={save} disabled={!dirty || saving || !check.ok} className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-on-accent disabled:cursor-not-allowed disabled:opacity-50">
           {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} Save mapping
         </button>
       </div>
@@ -160,7 +160,7 @@ function MappingPanel({ conn, onSaved }: { conn: XeroConnection; onSaved: () => 
             <div key={entity} className="p-4">
               <div className="flex flex-wrap items-center gap-3">
                 <label className="flex min-w-[9rem] items-center gap-2.5">
-                  <input type="checkbox" checked={es.enabled} onChange={(e) => patch(entity, { enabled: e.target.checked })} className="h-4 w-4 accent-[var(--color-accent,#2563eb)]" aria-label={`Sync ${meta.label}`} />
+                  <input type="checkbox" checked={es.enabled} onChange={(e) => patch(entity, { enabled: e.target.checked })} className="h-4 w-4 accent-accent" aria-label={`Sync ${meta.label}`} />
                   <span className="font-medium text-text-primary">{meta.label}</span>
                 </label>
                 <span className="hidden text-xs text-text-secondary lg:inline">{meta.vireekLabel} ↔ {meta.xeroLabel}</span>
@@ -205,7 +205,7 @@ function MappingPanel({ conn, onSaved }: { conn: XeroConnection; onSaved: () => 
       <div className="rounded-2xl border border-border bg-bg-secondary p-4">
         <h3 className="font-medium text-text-primary">Defaults for records Vireek creates in Xero</h3>
         <p className="mb-3 mt-1 text-xs text-text-secondary">Xero needs these to accept new invoices and payments. Nothing is sent for a record whose default is missing; it is listed in the log instead.</p>
-        {optError && <p className="mb-3 text-sm text-warning-500">Could not load your Xero lists: {optError}</p>}
+        {optError && <p className="mb-3 text-sm text-warning">Could not load your Xero lists: {optError}</p>}
         <div className="grid gap-4 sm:grid-cols-2">
           {field('Sales account for invoice lines', 'Used when a line matches no synced item. Required to send invoices.',
             <select className={selectCls} value={draft.defaults.salesAccountCode ?? ''} disabled={!options} onChange={(e) => setDefault('salesAccountCode', e.target.value || null)}>
@@ -237,7 +237,7 @@ function MappingPanel({ conn, onSaved }: { conn: XeroConnection; onSaved: () => 
               {FOREIGN_CURRENCY_MODES.map((m) => <option key={m} value={m}>{CURRENCY_MODE_META[m].label}</option>)}
             </select>)}
         </div>
-        {mismatch && <p className="mt-3 text-sm text-warning-500">{mismatch}</p>}
+        {mismatch && <p className="mt-3 text-sm text-warning">{mismatch}</p>}
         {options && !options.organisation.currencyOk && <p className="mt-3 text-sm text-error-500">{options.organisation.reason}</p>}
         <label className="mt-4 flex items-center gap-2.5 text-sm text-text-primary">
           <input type="checkbox" checked={draft.defaults.sendInvoiceNumber} onChange={(e) => setDefault('sendInvoiceNumber', e.target.checked)} className="h-4 w-4" />
@@ -331,11 +331,11 @@ function ConflictsPanel({ conn, refreshKey, onChanged }: { conn: XeroConnection;
   return (
     <section className="space-y-3" aria-labelledby="xero-conflicts">
       <h2 id="xero-conflicts" className="flex items-center gap-2 text-lg font-semibold text-text-primary">
-        <AlertTriangle size={18} className="text-warning-500" /> Needs your decision ({rows.length})
+        <AlertTriangle size={18} className="text-warning" /> Needs your decision ({rows.length})
       </h2>
       <ul className="space-y-3">
         {rows.map((c) => (
-          <li key={c.link_id} className="rounded-2xl border border-warning-500/40 bg-warning-500/5 p-4">
+          <li key={c.link_id} className="rounded-2xl border border-warning/40 bg-warning-subtle p-4">
             <p className="text-sm font-medium text-text-primary">{ENTITY_META[c.entity].label.replace(/s$/, '')}</p>
             {c.reason && <p className="mt-1 text-sm text-text-secondary">{c.reason}</p>}
             {c.fields.length > 0 && (
@@ -563,7 +563,7 @@ export function XeroSyncPage() {
             <div className="flex flex-wrap items-center gap-3">
               <h1 className="text-xl font-bold text-text-primary sm:text-2xl">Xero</h1>
               <LiveIndicator status={live} />
-              <Badge cls="bg-warning-500/10 text-warning-500" title="Built from Xero's public documentation and tested with mocked data only. Verify with a Xero Demo Company before relying on it.">Not live-verified</Badge>
+              <Badge cls="bg-warning-subtle text-warning" title="Built from Xero's public documentation and tested with mocked data only. Verify with a Xero Demo Company before relying on it.">Not live-verified</Badge>
             </div>
             <p className="text-sm text-text-secondary">Sync of accounts, contacts, items, invoices, payments and tax rates, with multi-currency invoices.</p>
           </div>
@@ -587,18 +587,18 @@ export function XeroSyncPage() {
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="truncate text-base font-semibold text-text-primary">{conn.organisation_name ?? `Organisation ${conn.tenant_id.slice(0, 8)}`}</p>
-                    {needsReconnect ? <Badge cls="bg-error-500/10 text-error-500"><AlertTriangle size={12} /> Needs reconnect</Badge> : running ? <Badge cls="bg-accent/10 text-accent"><Loader2 size={12} className="animate-spin" /> Syncing</Badge> : <Badge cls="bg-success-500/10 text-success-500"><CheckCircle2 size={12} /> Connected</Badge>}
-                    {conn.is_demo && <Badge cls="bg-warning-500/10 text-warning-500">Demo company</Badge>}
+                    {needsReconnect ? <Badge cls="bg-error-500/10 text-error-500"><AlertTriangle size={12} /> Needs reconnect</Badge> : running ? <Badge cls="bg-accent/10 text-accent"><Loader2 size={12} className="animate-spin" /> Syncing</Badge> : <Badge cls="bg-success-subtle text-success"><CheckCircle2 size={12} /> Connected</Badge>}
+                    {conn.is_demo && <Badge cls="bg-warning-subtle text-warning">Demo company</Badge>}
                     {conn.base_currency && <Badge cls="bg-bg-tertiary text-text-secondary">Base {conn.base_currency}</Badge>}
                   </div>
                   <p className="mt-1 text-sm text-text-secondary">Last synced {timeAgo(conn.last_synced_at)}{conn.last_error ? ` · ${conn.last_error}` : ''}</p>
-                  {daysLeft !== null && daysLeft <= 14 && !needsReconnect && <p className="mt-1 text-sm text-warning-500">Xero access expires in {Math.max(daysLeft, 0)} days unless a sync runs. Run a sync to renew it.</p>}
+                  {daysLeft !== null && daysLeft <= 14 && !needsReconnect && <p className="mt-1 text-sm text-warning">Xero access expires in {Math.max(daysLeft, 0)} days unless a sync runs. Run a sync to renew it.</p>}
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {needsReconnect ? (
-                    <button type="button" onClick={() => void connect()} disabled={busy === 'connect'} className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"><Link2 size={16} /> Reconnect</button>
+                    <button type="button" onClick={() => void connect()} disabled={busy === 'connect'} className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-on-accent disabled:opacity-50"><Link2 size={16} /> Reconnect</button>
                   ) : (
-                    <button type="button" onClick={() => void sync(false)} disabled={!!busy || running} className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
+                    <button type="button" onClick={() => void sync(false)} disabled={!!busy || running} className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-on-accent disabled:opacity-50">
                       <RefreshCw size={16} className={running || busy === 'sync' ? 'animate-spin' : ''} /> Sync now
                     </button>
                   )}

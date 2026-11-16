@@ -130,7 +130,7 @@ function ProjectList({ ownerId }: { ownerId: string }) {
           <div className="flex flex-wrap items-center gap-3">
             <div role="group" aria-label="Filter by status" className="flex flex-wrap gap-1.5">
               {FILTERS.map((f) => (
-                <button key={f.key} type="button" aria-pressed={filter === f.key} onClick={() => setFilter(f.key)} className={`focus-ring rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${filter === f.key ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>{f.label}</button>
+                <button key={f.key} type="button" aria-pressed={filter === f.key} onClick={() => setFilter(f.key)} className={`focus-ring rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${filter === f.key ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>{f.label}</button>
               ))}
             </div>
             <div className="w-full sm:ml-auto sm:w-64"><Input aria-label="Search projects" icon={Search} placeholder="Search projects" value={query} onChange={(e) => setQuery(e.target.value)} className="py-2 text-sm" /></div>
@@ -164,7 +164,7 @@ function ProjectList({ ownerId }: { ownerId: string }) {
                           <div className="flex flex-wrap justify-between gap-x-6 gap-y-1 text-xs text-text-secondary">
                             <span>Contract <span className="font-semibold text-text-primary">{formatMoney(revisedContractCents(p), true)}</span></span>
                             <span>Next: <span className="text-text-primary">{r.nextMilestone ? `${r.nextMilestone.title}${r.nextMilestone.due_date ? ` · ${formatDate(r.nextMilestone.due_date)}` : ''}` : '—'}</span></span>
-                            {r.billing.overdueCents > 0 && <span className="font-semibold text-danger-500">{formatMoney(r.billing.overdueCents)} overdue</span>}
+                            {r.billing.overdueCents > 0 && <span className="font-semibold text-danger">{formatMoney(r.billing.overdueCents)} overdue</span>}
                           </div>
                         </div>
                       )}

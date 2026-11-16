@@ -147,13 +147,13 @@ export function renderNoticeEmail(
     '', `Review or object on reasonable data-protection grounds: ${portal}`,
     ...(opts.unsubscribeUrl ? ['', `Unsubscribe: ${opts.unsubscribeUrl}`] : []),
   ].join('\n');
-  const rows = lines.map(([k, v]) => `<tr><td style="padding:4px 12px 4px 0;color:#667085">${escapeHtml(k)}</td><td style="padding:4px 0">${escapeHtml(v)}</td></tr>`).join('');
-  const html = `<div style="font-family:system-ui,sans-serif;max-width:560px;color:#101828">
+  const rows = lines.map(([k, v]) => `<tr><td style="padding:4px 12px 4px 0;color:#73726C">${escapeHtml(k)}</td><td style="padding:4px 0">${escapeHtml(v)}</td></tr>`).join('');
+  const html = `<div style="font-family:system-ui,sans-serif;max-width:560px;color:#1C1B15">
 <h2 style="margin:0 0 12px">${escapeHtml(subject)}</h2>
 <p style="line-height:1.5">${escapeHtml(n.summary)}</p>
 <table style="font-size:14px;border-collapse:collapse">${rows}</table>
 <p style="margin-top:20px"><a href="${escapeHtml(portal)}">Review this change or submit an objection</a></p>
-${opts.unsubscribeUrl ? `<p style="font-size:12px;color:#667085"><a href="${escapeHtml(opts.unsubscribeUrl)}">Unsubscribe</a> from sub-processor notices.</p>` : ''}
+${opts.unsubscribeUrl ? `<p style="font-size:12px;color:#73726C"><a href="${escapeHtml(opts.unsubscribeUrl)}">Unsubscribe</a> from sub-processor notices.</p>` : ''}
 </div>`;
   return { subject, html, text };
 }

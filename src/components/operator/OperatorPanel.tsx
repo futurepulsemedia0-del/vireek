@@ -143,7 +143,7 @@ export function OperatorPanel({ instruction, onBack, onClose }: Props) {
 
         {view.kind === 'message' && (
           <div className="py-4">
-            <p className={`flex items-start gap-2 text-sm ${view.tone === 'error' ? 'text-error-500' : view.tone === 'warn' ? 'text-warning-500' : 'text-text-primary'}`}>
+            <p className={`flex items-start gap-2 text-sm ${view.tone === 'error' ? 'text-error-500' : view.tone === 'warn' ? 'text-warning' : 'text-text-primary'}`}>
               {view.tone === 'info' ? <Sparkles size={15} className="mt-0.5 shrink-0" /> : <AlertTriangle size={15} className="mt-0.5 shrink-0" />}
               <span>{view.text}</span>
             </p>
@@ -160,7 +160,7 @@ export function OperatorPanel({ instruction, onBack, onClose }: Props) {
         {view.kind === 'done' && (
           <div className="mt-3 rounded-lg border border-border bg-bg-tertiary px-3 py-2.5">
             <p className="flex items-center gap-2 text-sm font-medium text-text-primary">
-              {view.result.status === 'completed' ? <CheckCircle2 size={15} className="text-success-500" /> : <AlertTriangle size={15} className="text-warning-500" />}
+              {view.result.status === 'completed' ? <CheckCircle2 size={15} className="text-success" /> : <AlertTriangle size={15} className="text-warning" />}
               {describeResult(view.result)}
             </p>
             {(view.result.problems ?? []).map((p, i) => (
@@ -174,7 +174,7 @@ export function OperatorPanel({ instruction, onBack, onClose }: Props) {
 
         {(view.kind === 'message' || view.kind === 'done') && history.some((h) => canUndo(h)) && (
           <div className="mt-4">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-text-secondary/60">Recent runs</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-text-muted">Recent runs</p>
             {history.filter((h) => canUndo(h)).map((h) => (
               <div key={h.id} className="flex items-center gap-2 py-1.5">
                 <span className="flex-1 truncate text-xs text-text-primary">{h.instruction}</span>
@@ -195,7 +195,7 @@ export function OperatorPanel({ instruction, onBack, onClose }: Props) {
           <button type="button" onClick={() => cancel(view.plan)} className="focus-ring rounded-lg border border-border px-3 py-1.5 text-xs text-text-primary hover:bg-bg-tertiary">
             Cancel
           </button>
-          <button type="button" onClick={() => run(view.plan)} className="focus-ring rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90">
+          <button type="button" onClick={() => run(view.plan)} className="focus-ring rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-on-accent hover:opacity-90">
             Approve & run
           </button>
         </div>
@@ -220,10 +220,10 @@ function PlanBody({ plan }: { plan: PlanPreview }) {
   return (
     <div className="space-y-4">
       <p className="text-xs text-text-secondary">
-        {plan.summary} <span className="text-text-secondary/60">· times in {plan.timezone}</span>
+        {plan.summary} <span className="text-text-muted">· times in {plan.timezone}</span>
       </p>
       {plan.approval.reasons.length > 0 && (
-        <p className="flex items-start gap-2 text-xs text-warning-500">
+        <p className="flex items-start gap-2 text-xs text-warning">
           <AlertTriangle size={13} className="mt-0.5 shrink-0" /> {plan.approval.reasons.join(' ')}
         </p>
       )}
@@ -234,7 +234,7 @@ function PlanBody({ plan }: { plan: PlanPreview }) {
           </p>
           {s.note && <p className="text-xs text-text-secondary">{s.note}</p>}
           {s.warnings.map((w, j) => (
-            <p key={j} className="mt-1 flex items-start gap-1.5 text-xs text-warning-500">
+            <p key={j} className="mt-1 flex items-start gap-1.5 text-xs text-warning">
               <AlertTriangle size={12} className="mt-0.5 shrink-0" /> {w}
             </p>
           ))}
@@ -248,7 +248,7 @@ function PlanBody({ plan }: { plan: PlanPreview }) {
                   </p>
                 ) : s.tool === 'message_customers' ? (
                   <p className="text-[11px] text-text-secondary">
-                    <span className="text-text-secondary/60">{e.before}</span> “{e.after}”
+                    <span className="text-text-muted">{e.before}</span> “{e.after}”
                   </p>
                 ) : (
                   <p className="flex flex-wrap items-center gap-1.5 text-[11px] text-text-secondary">

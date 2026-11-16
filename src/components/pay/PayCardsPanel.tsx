@@ -104,7 +104,7 @@ export function PayCardsPanel({ sandbox }: { sandbox: boolean }) {
                   <p className="text-xs text-text-secondary">{new Date(t.created_at).toLocaleString()}{t.status === 'declined' ? ` · ${DECLINE_COPY[t.decline_code ?? ''] ?? 'Declined'}` : ''}</p>
                 </div>
                 {needsReceipt(t, thresholds.get(t.card_id) ?? 0) ? (
-                  <label className="cursor-pointer rounded-lg border border-warning-500/40 px-2 py-1 text-xs font-medium text-warning-500">
+                  <label className="cursor-pointer rounded-lg border border-warning/40 px-2 py-1 text-xs font-medium text-warning">
                     Add receipt
                     <input type="file" accept="image/*,application/pdf" className="sr-only" onChange={(e) => {
                       const f = e.target.files?.[0]; if (!f) return;

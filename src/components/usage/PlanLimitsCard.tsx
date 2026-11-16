@@ -103,7 +103,7 @@ export function PlanLimitsCard(p: PlanLimitsCardProps) {
                   aria-valuenow={Math.round(seatsPct)}
                   aria-label="Team seats in use"
                 >
-                  <span className={`block h-full rounded-full ${seatsPct >= 100 ? 'bg-danger' : seatsPct >= 80 ? 'bg-warning-500' : 'bg-accent'}`} style={{ width: `${seatsPct}%` }} />
+                  <span className={`block h-full rounded-full ${seatsPct >= 100 ? 'bg-danger' : seatsPct >= 80 ? 'bg-warning' : 'bg-accent'}`} style={{ width: `${seatsPct}%` }} />
                 </span>
               )}
             </>

@@ -21,8 +21,8 @@ import {
 
 const PAGE = 50;
 const BADGE: Record<TagStatus, string> = {
-  unassigned: 'bg-bg-tertiary text-text-secondary', active: 'bg-success-500/10 text-success-500',
-  rotated: 'bg-warning-500/10 text-warning-500', revoked: 'bg-danger-500/10 text-danger-500',
+  unassigned: 'bg-bg-tertiary text-text-secondary', active: 'bg-success-subtle text-success',
+  rotated: 'bg-warning-subtle text-warning', revoked: 'bg-danger-subtle text-danger',
 };
 const REASONS: { value: RotationReason; label: string }[] = [
   { value: 'damaged', label: 'Damaged or unreadable' }, { value: 'lost', label: 'Lost / removed' },
@@ -145,7 +145,7 @@ export function TagsPage() {
                 <label className="min-w-[180px] flex-1 text-xs font-medium text-text-secondary">Batch name (optional)
                   <input value={label} maxLength={80} onChange={(e) => setLabel(e.target.value)} placeholder="e.g. Spring installs" className={`${field} mt-1 block w-full`} />
                 </label>
-                <button type="button" onClick={generate} disabled={busy} className="focus-ring inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"><Plus size={15} aria-hidden="true" /> Create &amp; print</button>
+                <button type="button" onClick={generate} disabled={busy} className="focus-ring inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent hover:opacity-90 disabled:opacity-50"><Plus size={15} aria-hidden="true" /> Create &amp; print</button>
                 <button type="button" onClick={printStock} disabled={busy} className={btn}><Printer size={13} aria-hidden="true" /> Reprint unused stock</button>
               </div>
             </section>
@@ -167,7 +167,7 @@ export function TagsPage() {
                       <p className="flex flex-wrap items-center gap-2 text-sm font-semibold text-text-primary">
                         {tagTitle(r)}
                         <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium capitalize ${BADGE[r.status]}`}>{r.status === 'unassigned' ? 'unused' : r.status}</span>
-                        {r.report_count > 0 && <span className="inline-flex items-center gap-1 rounded-full bg-warning-500/10 px-2 py-0.5 text-[11px] text-warning-500"><AlertTriangle size={11} aria-hidden="true" /> {r.report_count} report{r.report_count === 1 ? '' : 's'}</span>}
+                        {r.report_count > 0 && <span className="inline-flex items-center gap-1 rounded-full bg-warning-subtle px-2 py-0.5 text-[11px] text-warning"><AlertTriangle size={11} aria-hidden="true" /> {r.report_count} report{r.report_count === 1 ? '' : 's'}</span>}
                       </p>
                       <p className="mt-0.5 font-mono text-xs text-text-secondary">{formatTagToken(r.token)}{r.batch_label ? ` · ${r.batch_label}` : ''}</p>
                       <p className="mt-1 text-xs text-text-secondary">
@@ -204,7 +204,7 @@ export function TagsPage() {
       )}
 
       {rotating && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true" aria-labelledby="rot-title">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/50 p-4" role="dialog" aria-modal="true" aria-labelledby="rot-title">
           <div className="w-full max-w-sm rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
             <h2 id="rot-title" className="text-base font-semibold text-text-primary">Rotate this tag</h2>
             <p className="mt-1 text-sm text-text-secondary">The current sticker stops working immediately. A new token is issued for the same machine — its history is untouched.</p>
@@ -215,7 +215,7 @@ export function TagsPage() {
             </label>
             <div className="mt-4 flex justify-end gap-2">
               <button type="button" className={btn} onClick={() => setRotating(null)}>Cancel</button>
-              <button type="button" disabled={busy} onClick={doRotate} className="focus-ring rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50">{busy ? 'Rotating…' : 'Rotate & print'}</button>
+              <button type="button" disabled={busy} onClick={doRotate} className="focus-ring rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-on-accent hover:opacity-90 disabled:opacity-50">{busy ? 'Rotating…' : 'Rotate & print'}</button>
             </div>
           </div>
         </div>

@@ -230,7 +230,7 @@ export const MARKET_STATE_LABELS: Record<MarketState, string> = {
 
 export const MARKET_STATE_COLORS: Record<MarketState, string> = {
   tight: 'bg-danger/10 text-danger',
-  balanced: 'bg-success-500/10 text-success-500',
+  balanced: 'bg-success-subtle text-success',
   surplus: 'bg-accent/10 text-accent',
   quiet: 'bg-bg-tertiary text-text-secondary',
 };

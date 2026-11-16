@@ -62,8 +62,8 @@ import {
 const FIELD = 'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary';
 
 const PRIORITY_STYLE: Record<PmPriority, string> = {
-  critical: 'bg-red-500/10 text-red-600 border-red-500/25',
-  high: 'bg-amber-500/10 text-amber-600 border-amber-500/25',
+  critical: 'bg-danger-subtle text-danger border-danger/25',
+  high: 'bg-warning-subtle text-warning border-warning/25',
   medium: 'bg-accent/10 text-accent border-accent/25',
   low: 'bg-bg-tertiary text-text-secondary border-border',
 };
@@ -98,7 +98,7 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
   }, [onClose]);
   return (
     <div className="fixed inset-0 z-[60] flex items-end justify-center p-0 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-label={title}>
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-overlay/40 backdrop-blur-sm" onClick={onClose} />
       <div className="relative max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-t-2xl border border-border bg-bg-secondary p-5 sm:rounded-2xl sm:p-6">
         <div className="mb-4 flex items-center justify-between gap-3">
           <h2 className="text-lg font-bold text-text-primary">{title}</h2>
@@ -185,7 +185,7 @@ function NotifyDialog({ workItemId, customerName, onClose, onSent }: { workItemI
           </div>
         )}
         {error ? (
-          <p role="alert" className="flex items-start gap-2 rounded-xl border border-red-500/25 bg-red-500/10 p-3 text-sm text-red-600">
+          <p role="alert" className="flex items-start gap-2 rounded-xl border border-danger/25 bg-danger-subtle p-3 text-sm text-danger">
             <AlertTriangle size={16} className="mt-0.5 shrink-0" aria-hidden="true" /> {error}
           </p>
         ) : null}
@@ -345,7 +345,7 @@ function ScheduleDialog({ candidate, snapshot, onClose, onDone }: { candidate: P
                   />
                   <span className="flex-1">
                     <span className="font-medium text-text-primary">{l.quantity} × {l.part_name}</span>
-                    <span className={`mt-0.5 block text-xs ${l.source === 'short' ? 'text-amber-600' : 'text-text-secondary'}`}>
+                    <span className={`mt-0.5 block text-xs ${l.source === 'short' ? 'text-warning' : 'text-text-secondary'}`}>
                       {l.location_id ? `${SOURCE_LABEL[l.source]}${l.location_name ? ` · ${l.location_name}` : ''}` : 'No inventory location set up'}
                     </span>
                   </span>
@@ -356,7 +356,7 @@ function ScheduleDialog({ candidate, snapshot, onClose, onDone }: { candidate: P
         </section>
 
         {error ? (
-          <p role="alert" className="flex items-start gap-2 rounded-xl border border-red-500/25 bg-red-500/10 p-3 text-sm text-red-600">
+          <p role="alert" className="flex items-start gap-2 rounded-xl border border-danger/25 bg-danger-subtle p-3 text-sm text-danger">
             <AlertTriangle size={16} className="mt-0.5 shrink-0" aria-hidden="true" /> {error}
           </p>
         ) : null}
@@ -424,7 +424,7 @@ function QueueCard({ c, busy, onSchedule, onSnooze, onDismiss, onHandoff }: { c:
         <Button size="sm" variant="ghost" disabled={busy} onClick={onSnooze}>Snooze 30 days</Button>
         <Button size="sm" variant="ghost" disabled={busy} onClick={onDismiss}>Dismiss</Button>
       </div>
-      {!c.customer ? <p className="mt-2 text-xs text-amber-600">Attach a customer to this unit to schedule a job.</p> : null}
+      {!c.customer ? <p className="mt-2 text-xs text-warning">Attach a customer to this unit to schedule a job.</p> : null}
     </article>
   );
 }
@@ -554,7 +554,7 @@ export function PreventiveMaintenanceCommandCenterPage() {
       ) : (
         <div className="space-y-6">
           {snapshot.degraded.length ? (
-            <p className="rounded-xl border border-amber-500/25 bg-amber-500/10 p-3 text-xs text-amber-600">
+            <p className="rounded-xl border border-warning/25 bg-warning-subtle p-3 text-xs text-warning">
               Some sources could not be loaded ({snapshot.degraded.join(', ')}). Recommendations may be less complete.
             </p>
           ) : null}
@@ -625,7 +625,7 @@ export function PreventiveMaintenanceCommandCenterPage() {
                       </div>
                       <dl className="mt-3 grid gap-2 text-xs text-text-secondary sm:grid-cols-3">
                         <div><dt className="font-medium text-text-primary">Technician</dt><dd>{w.technician_id ? (techName.get(w.technician_id) ?? 'Assigned') : a.text}</dd></div>
-                        <div><dt className="font-medium text-text-primary">Parts</dt><dd className={w.parts_status === 'backordered' || w.parts_status === 'partial' ? 'text-amber-600' : ''}>{{ none: 'None needed', reserved: 'Reserved', partial: 'Partly reserved, rest backordered', backordered: 'Backordered' }[w.parts_status]}</dd></div>
+                        <div><dt className="font-medium text-text-primary">Parts</dt><dd className={w.parts_status === 'backordered' || w.parts_status === 'partial' ? 'text-warning' : ''}>{{ none: 'None needed', reserved: 'Reserved', partial: 'Partly reserved, rest backordered', backordered: 'Backordered' }[w.parts_status]}</dd></div>
                         <div><dt className="font-medium text-text-primary">Customer</dt><dd>{w.notified_at ? `Notified by ${w.notified_channel === 'email' ? 'email' : 'text'} · ${new Date(w.notified_at).toLocaleDateString()}` : w.notify_error ?? 'Not notified yet'}</dd></div>
                       </dl>
                       <div className="mt-4 flex flex-wrap gap-2">

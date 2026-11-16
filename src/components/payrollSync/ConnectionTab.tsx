@@ -88,8 +88,8 @@ export function ConnectionTab({ connections, onChanged }: { connections: Payroll
 
   return (
     <div className="space-y-4">
-      <Card className="flex items-start gap-3 border-warning-500/30 p-4 hover:translate-y-0" role="note">
-        <TriangleAlert size={18} className="mt-0.5 shrink-0 text-warning-500" />
+      <Card className="flex items-start gap-3 border-warning/30 p-4 hover:translate-y-0" role="note">
+        <TriangleAlert size={18} className="mt-0.5 shrink-0 text-warning" />
         <p className="text-sm text-text-secondary">
           <strong className="text-text-primary">Not live-verified.</strong> The Gusto connector is built from Gusto’s public API and covered by mock tests only. Test it against a Gusto demo company before using it with real payroll. Vireek only fills hours and commissions on an open payroll; you always review and run payroll in the provider.
         </p>

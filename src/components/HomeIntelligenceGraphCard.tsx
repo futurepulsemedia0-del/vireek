@@ -24,13 +24,13 @@ import {
 } from '@/lib/homeIntelligenceGraph';
 
 const PILL: Record<GraphRiskLevel, string> = {
-  low: 'bg-success-500/10 text-success-500',
-  medium: 'bg-warning-500/10 text-warning-500',
+  low: 'bg-success-subtle text-success',
+  medium: 'bg-warning-subtle text-warning',
   high: 'bg-danger/10 text-danger',
 };
 const FILL: Record<GraphRiskLevel, string> = {
-  low: 'bg-success-500',
-  medium: 'bg-warning-500',
+  low: 'bg-success',
+  medium: 'bg-warning',
   high: 'bg-danger',
 };
 const CONFIDENCE_COPY: Record<GraphConfidence, string> = {
@@ -39,8 +39,8 @@ const CONFIDENCE_COPY: Record<GraphConfidence, string> = {
   low: 'Low confidence — mostly estimated from limited records',
 };
 const SIGNAL_STYLE: Record<SignalState, { icon: typeof CheckCircle2; className: string; label: string }> = {
-  connected: { icon: CheckCircle2, className: 'text-success-500', label: 'Connected' },
-  partial: { icon: CircleDot, className: 'text-warning-500', label: 'Partial' },
+  connected: { icon: CheckCircle2, className: 'text-success', label: 'Connected' },
+  partial: { icon: CircleDot, className: 'text-warning', label: 'Partial' },
   missing: { icon: CircleDashed, className: 'text-text-secondary', label: 'Missing' },
 };
 
@@ -50,7 +50,7 @@ const currentMonth = () => new Date().toISOString().slice(0, 7);
 
 function RiskBar({ value, baseline, level, label }: { value: number; baseline?: number; level: GraphRiskLevel; label: string }) {
   return (
-    <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-border/50" role="img" aria-label={`${label}: ${percent(value)}`}>
+    <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-bg-tertiary" role="img" aria-label={`${label}: ${percent(value)}`}>
       <div className={`h-full rounded-full ${FILL[level]}`} style={{ width: `${Math.max(2, Math.min(100, value * 100))}%` }} />
       {baseline !== undefined && baseline < value && (
         <div className="absolute top-0 h-full w-0.5 bg-text-primary/50" style={{ left: `${Math.min(99, baseline * 100)}%` }} title={`Typical for its age: ${percent(baseline)}`} />
@@ -94,7 +94,7 @@ function WhatIfPanel({ node }: { node: GraphNode }) {
           <Zap size={13} className="text-cta" />
           If you act now: {w.title}
         </p>
-        <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium ${w.recommended ? 'bg-success-500/10 text-success-500' : 'bg-border/60 text-text-secondary'}`}>
+        <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium ${w.recommended ? 'bg-success-subtle text-success' : 'bg-bg-tertiary text-text-secondary'}`}>
           {w.recommended ? 'Pays for itself' : 'Peace of mind'}
         </span>
       </div>
@@ -112,7 +112,7 @@ function WhatIfPanel({ node }: { node: GraphNode }) {
           </div>
         ))}
       </dl>
-      {w.extraLifeYears >= 0.3 && <p className="mt-2 text-[11px] text-success-500">Resolving this adds about {w.extraLifeYears.toFixed(1)} years of expected life.</p>}
+      {w.extraLifeYears >= 0.3 && <p className="mt-2 text-[11px] text-success">Resolving this adds about {w.extraLifeYears.toFixed(1)} years of expected life.</p>}
       {!w.recommended && <p className="mt-2 text-[11px] text-text-secondary">The expected saving does not cover the service price, so this is shown for risk reduction only.</p>}
     </div>
   );
@@ -139,7 +139,7 @@ function NodeDetails({ graph, node }: { graph: HomeIntelligenceGraph; node: Grap
                   <span className="font-medium text-text-primary">{d.label}</span>
                   <span className="shrink-0 tabular-nums text-text-secondary">{d.impact >= 0.005 ? `+${points(d.impact)}` : 'baseline'}</span>
                 </div>
-                <div className="mt-1 h-1 overflow-hidden rounded-full bg-border/50">
+                <div className="mt-1 h-1 overflow-hidden rounded-full bg-bg-tertiary">
                   <div className="h-full rounded-full bg-accent/70" style={{ width: `${Math.max(3, (d.impact / maxImpact) * 100)}%` }} />
                 </div>
                 <p className="mt-0.5 text-[11px] text-text-secondary">{d.detail}</p>
@@ -153,7 +153,7 @@ function NodeDetails({ graph, node }: { graph: HomeIntelligenceGraph; node: Grap
 
       {node.warranty && (
         <p className="flex items-center gap-1.5 text-[11px] text-text-secondary">
-          <ShieldCheck size={12} className={node.warranty.active ? 'text-success-500' : 'text-text-secondary'} />
+          <ShieldCheck size={12} className={node.warranty.active ? 'text-success' : 'text-text-secondary'} />
           {node.warranty.active ? 'Manufacturer warranty active — expected repair cost is reduced.' : 'Manufacturer warranty has expired or ends within six months.'}
         </p>
       )}
@@ -368,7 +368,7 @@ export function HomeIntelligenceGraphCard({ twin }: { twin: PropertyTwin }) {
                   <span className="min-w-0 flex-1">
                     <span className="flex flex-wrap items-center gap-2">
                       <span className="text-sm font-semibold text-text-primary">{s.label}</span>
-                      <span className="rounded bg-border/50 px-1.5 py-0.5 text-[10px] text-text-secondary">{GRAPH_BASIS_LABELS[s.basis]}</span>
+                      <span className="rounded bg-bg-tertiary px-1.5 py-0.5 text-[10px] text-text-secondary">{GRAPH_BASIS_LABELS[s.basis]}</span>
                     </span>
                     <span className="mt-2 block space-y-1">
                       <span className="flex items-center gap-2 text-[11px] text-text-secondary">

@@ -289,7 +289,7 @@ export function RmaDetailPanel({ rma, locations, canManage, onChanged, onEdit, o
         <Stat label="Still owed" value={rma.resolution === 'replacement' ? `${openReplacementUnits(rma.lines)} unit(s)` : money(credit.outstanding)} tone={credit.outstanding > 0 && age != null && age > 30 ? 'danger' : credit.outstanding > 0 ? 'warning' : 'neutral'} hint={credit.outstanding > 0 && age != null ? `${age} day(s) since the vendor got it` : undefined} />
         <Stat label="Net recovery" value={money(netRecoveryCents(credit.received, rma.return_freight_cents))} hint={`${money(rma.return_freight_cents)} freight · ${money(returnCostValueCents(rma.lines))} at cost`} />
       </div>
-      {credit.state === 'over' && <p role="alert" className="text-sm text-warning-500">The vendor credited {money(credit.overpaid)} more than expected. Check the credit memo.</p>}
+      {credit.state === 'over' && <p role="alert" className="text-sm text-warning">The vendor credited {money(credit.overpaid)} more than expected. Check the credit memo.</p>}
       {rma.reason_notes && <p className="whitespace-pre-wrap text-sm text-text-secondary">{rma.reason_notes}</p>}
 
       <div className="overflow-x-auto">

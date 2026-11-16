@@ -15,7 +15,7 @@ const TONE: Record<ImportJobStatus, string> = {
   pending: 'bg-bg-tertiary text-text-secondary',
   running: 'bg-accent/10 text-accent',
   completed: 'bg-success/10 text-success',
-  completed_with_errors: 'bg-amber-500/10 text-amber-600',
+  completed_with_errors: 'bg-warning-subtle text-warning',
   failed: 'bg-danger/10 text-danger',
   rolling_back: 'bg-accent/10 text-accent',
   rolled_back: 'bg-bg-tertiary text-text-secondary',

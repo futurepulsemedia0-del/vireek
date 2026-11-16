@@ -1,8 +1,8 @@
 import type { FtfChip } from '@/hooks/useFirstTimeFixGate';
 
 const TONE = {
-  go: 'bg-success-500/10 text-success-500',
-  review: 'bg-warning-500/10 text-warning-500',
+  go: 'bg-success-subtle text-success',
+  review: 'bg-warning-subtle text-warning',
   hold: 'bg-danger/10 text-danger',
 } as const;
 

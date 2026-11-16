@@ -17,9 +17,9 @@ type LoadStatus = 'loading' | 'ready' | 'error';
 
 const STATUS_DOT: Record<string, string> = {
   scheduled: 'bg-accent',
-  en_route: 'bg-blue-500',
-  in_progress: 'bg-warning-500',
-  completed: 'bg-success-500',
+  en_route: 'bg-info',
+  in_progress: 'bg-warning',
+  completed: 'bg-success',
 };
 
 const WEEKDAY = new Intl.DateTimeFormat('en-US', { weekday: 'short' });
@@ -191,7 +191,7 @@ export function TechnicianSchedulePage() {
       <main className="mx-auto max-w-lg px-4 py-4">
         {(!online || (errorMsg && status === 'ready') || fromCache) && status === 'ready' && (
           <div role="status" className="mb-3 flex items-start gap-2 rounded-lg border border-border bg-bg-secondary p-3 text-sm text-text-secondary">
-            {!online ? <WifiOff className="mt-0.5 h-4 w-4 flex-shrink-0" /> : <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-warning-500" />}
+            {!online ? <WifiOff className="mt-0.5 h-4 w-4 flex-shrink-0" /> : <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-warning" />}
             <span>
               {!online ? "You're offline. " : ''}
               {errorMsg ?? (fromCache && online ? 'Updating…' : 'Showing the last saved schedule.')}
@@ -216,7 +216,7 @@ export function TechnicianSchedulePage() {
               <button
                 type="button"
                 onClick={() => setReloadTick((n) => n + 1)}
-                className="mt-4 h-11 rounded-lg bg-accent px-5 text-sm font-medium text-white"
+                className="mt-4 h-11 rounded-lg bg-accent px-5 text-sm font-medium text-on-accent"
               >
                 Try again
               </button>
@@ -250,7 +250,7 @@ export function TechnicianSchedulePage() {
                     aria-controls="schedule-panel"
                     onClick={() => setSelectedKey(key)}
                     className={`flex min-h-[4rem] min-w-[3.25rem] flex-1 flex-col items-center justify-center rounded-xl border px-2 py-2 ${
-                      active ? 'border-accent bg-accent text-white' : 'border-border bg-bg-secondary text-text-primary'
+                      active ? 'border-accent bg-accent text-on-accent' : 'border-border bg-bg-secondary text-text-primary'
                     }`}
                   >
                     <span className="text-xs">{WEEKDAY.format(d)}</span>
@@ -292,7 +292,7 @@ export function TechnicianSchedulePage() {
                         href={route.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent text-sm font-semibold text-white active:scale-[0.98]"
+                        className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent text-sm font-semibold text-on-accent active:scale-[0.98]"
                       >
                         <RouteIcon className="h-5 w-5" /> Navigate full route ({route.stops} stop{route.stops === 1 ? '' : 's'})
                       </a>
@@ -352,7 +352,7 @@ export function TechnicianSchedulePage() {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 aria-label={`Navigate to ${job.customer_name}`}
-                                className="flex h-11 flex-1 items-center justify-center gap-1.5 rounded-lg bg-accent px-3 text-sm font-medium text-white"
+                                className="flex h-11 flex-1 items-center justify-center gap-1.5 rounded-lg bg-accent px-3 text-sm font-medium text-on-accent"
                               >
                                 <Navigation className="h-4 w-4" /> Navigate
                               </a>

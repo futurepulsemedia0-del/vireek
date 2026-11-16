@@ -192,8 +192,8 @@ export function CallDispositionPanel({ call, accountOwnerId, canEdit }: Props) {
 
   if (state === 'error') {
     return shell(
-      <div role="alert" className="flex flex-wrap items-center gap-3 rounded-xl border border-warning-500/40 bg-warning-500/10 px-4 py-3 text-sm text-text-primary">
-        <AlertTriangle size={16} className="shrink-0 text-warning-500" aria-hidden="true" />
+      <div role="alert" className="flex flex-wrap items-center gap-3 rounded-xl border border-warning/40 bg-warning-subtle px-4 py-3 text-sm text-text-primary">
+        <AlertTriangle size={16} className="shrink-0 text-warning" aria-hidden="true" />
         <span className="flex-1">Could not load the call outcome.</span>
         <Button size="sm" variant="secondary" onClick={() => load()}>
           Try again
@@ -407,7 +407,7 @@ export function CallDispositionPanel({ call, accountOwnerId, canEdit }: Props) {
           <div className="flex items-center justify-end gap-3">
             {row && !dirty && (
               <span className="flex items-center gap-1.5 text-xs text-text-secondary">
-                <CheckCircle2 size={14} className="text-success-500" aria-hidden="true" /> Saved
+                <CheckCircle2 size={14} className="text-success" aria-hidden="true" /> Saved
               </span>
             )}
             <Button onClick={handleSave} disabled={saving || !dirty} size="sm">

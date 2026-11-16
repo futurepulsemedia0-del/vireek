@@ -60,25 +60,25 @@ const SELECT =
 
 const RUN_STYLE: Record<RunStatus, { label: string; cls: string }> = {
   running: { label: 'Syncing', cls: 'bg-accent/10 text-accent' },
-  success: { label: 'Up to date', cls: 'bg-success-500/10 text-success-500' },
-  partial: { label: 'Partially synced', cls: 'bg-warning-500/10 text-warning-500' },
+  success: { label: 'Up to date', cls: 'bg-success-subtle text-success' },
+  partial: { label: 'Partially synced', cls: 'bg-warning-subtle text-warning' },
   failed: { label: 'Failed', cls: 'bg-danger/10 text-danger' },
 };
 const ACTION_STYLE: Record<LogAction, string> = {
-  created: 'bg-success-500/10 text-success-500',
+  created: 'bg-success-subtle text-success',
   updated: 'bg-accent/10 text-accent',
   linked: 'bg-bg-tertiary text-text-secondary',
-  pushed: 'bg-success-500/10 text-success-500',
-  dry_run: 'bg-warning-500/10 text-warning-500',
+  pushed: 'bg-success-subtle text-success',
+  dry_run: 'bg-warning-subtle text-warning',
   skipped: 'bg-bg-tertiary text-text-secondary',
-  conflict: 'bg-warning-500/10 text-warning-500',
-  retry: 'bg-warning-500/10 text-warning-500',
+  conflict: 'bg-warning-subtle text-warning',
+  retry: 'bg-warning-subtle text-warning',
   error: 'bg-danger/10 text-danger',
 };
 const QUEUE_STYLE: Record<QueueStatus, string> = {
   pending: 'bg-accent/10 text-accent',
   processing: 'bg-accent/10 text-accent',
-  done: 'bg-success-500/10 text-success-500',
+  done: 'bg-success-subtle text-success',
   failed: 'bg-danger/10 text-danger',
   cancelled: 'bg-bg-tertiary text-text-secondary',
 };
@@ -292,7 +292,7 @@ function SettingsTab({ conn, customers, onSaved }: { conn: PmConnection; custome
                 <pre className="max-h-56 overflow-auto whitespace-pre-wrap break-all text-xs text-text-secondary">{x.raw}</pre>
                 <dl className="grid grid-cols-[auto,1fr] gap-x-3 gap-y-1 text-xs">
                   {WO_MAPPING_KEYS.map((k) => (
-                    <div key={k} className="contents"><dt className="text-text-secondary">{WO_MAPPING_LABELS[k]}</dt><dd className={x.canonical[k] ? 'text-text-primary' : 'text-warning-500'}>{x.canonical[k] ?? 'not found'}</dd></div>
+                    <div key={k} className="contents"><dt className="text-text-secondary">{WO_MAPPING_LABELS[k]}</dt><dd className={x.canonical[k] ? 'text-text-primary' : 'text-warning'}>{x.canonical[k] ?? 'not found'}</dd></div>
                   ))}
                 </dl>
               </div>
@@ -649,7 +649,7 @@ export function PropertyManagementPage() {
                       <h3 className="text-base font-semibold text-text-primary">{meta.label}</h3>
                       <p className="text-sm text-text-secondary">{meta.tagline}</p>
                     </div>
-                    <Badge cls={meta.access === 'self_serve' ? 'bg-success-500/10 text-success-500' : 'bg-warning-500/10 text-warning-500'}>{ACCESS_LABEL[meta.access]}</Badge>
+                    <Badge cls={meta.access === 'self_serve' ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning'}>{ACCESS_LABEL[meta.access]}</Badge>
                   </div>
                   <ul className="flex flex-wrap gap-1.5">
                     {capabilityList(p).map((c) => <li key={c.label}><Badge cls={c.on ? 'bg-accent/10 text-accent' : 'bg-bg-tertiary text-text-secondary line-through'}>{c.label}</Badge></li>)}
@@ -658,7 +658,7 @@ export function PropertyManagementPage() {
                   {mine.map((c) => (
                     <button key={c.id} type="button" onClick={() => { setSelectedId(c.id); setTab('overview'); }} className={`focus-ring flex items-center justify-between rounded-xl border px-3 py-2 text-left text-sm ${c.id === selectedId ? 'border-accent bg-accent/5' : 'border-border'}`}>
                       <span className="min-w-0 truncate text-text-primary">{c.account_label}</span>
-                      <Badge cls={c.status === 'error' ? 'bg-danger/10 text-danger' : 'bg-success-500/10 text-success-500'}>{c.status === 'error' ? 'Needs attention' : 'Connected'}</Badge>
+                      <Badge cls={c.status === 'error' ? 'bg-danger/10 text-danger' : 'bg-success-subtle text-success'}>{c.status === 'error' ? 'Needs attention' : 'Connected'}</Badge>
                     </button>
                   ))}
                   <Button variant="secondary" size="sm" className="mt-auto" onClick={() => setConnecting(p)}>
@@ -700,7 +700,7 @@ export function PropertyManagementPage() {
 
             {tab === 'overview' && (
               <div className="space-y-4">
-                {selected.last_error && <p role="alert" className="rounded-xl bg-warning-500/10 px-3 py-2 text-sm text-warning-500">{selected.last_error}</p>}
+                {selected.last_error && <p role="alert" className="rounded-xl bg-warning-subtle px-3 py-2 text-sm text-warning">{selected.last_error}</p>}
                 <p className="text-sm text-text-secondary">Last synced: {timeAgo(selected.last_synced_at)}</p>
                 {runs.length === 0 ? (
                   <EmptyState icon={Clock} title="No syncs yet" description="Press “Sync now”. The first import covers the window set in Settings." />

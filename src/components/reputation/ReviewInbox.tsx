@@ -30,7 +30,7 @@ const FILTERS: { key: InboxFilter; label: string }[] = [
 
 function StatusChip({ review }: { review: Review }) {
   const map = {
-    new: ['Needs reply', 'bg-warning-500/10 text-warning-500'],
+    new: ['Needs reply', 'bg-warning-subtle text-warning'],
     replied: ['Replied', 'bg-success/10 text-success'],
     dismissed: ['Dismissed', 'bg-bg-tertiary text-text-secondary'],
   } as const;

@@ -32,8 +32,8 @@ import {
 type Filter = 'active' | 'done' | 'all';
 
 const STATUS_STYLE: Record<PriorityStatus, string> = {
-  on_track: 'bg-success-500/10 text-success-500',
-  off_track: 'bg-danger-500/10 text-danger-500',
+  on_track: 'bg-success-subtle text-success',
+  off_track: 'bg-danger-subtle text-danger',
   done: 'bg-bg-tertiary text-text-secondary',
 };
 const STATUS_LABEL: Record<PriorityStatus, string> = { on_track: 'On track', off_track: 'Off track', done: 'Done' };
@@ -113,7 +113,7 @@ export function PrioritiesTab({ canManage, today, meId, assignees }: TabProps) {
               role="tab"
               aria-selected={filter === f}
               onClick={() => setFilter(f)}
-              className={`focus-ring min-h-[36px] rounded-lg px-3.5 text-sm font-medium capitalize transition-colors ${filter === f ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}
+              className={`focus-ring min-h-[36px] rounded-lg px-3.5 text-sm font-medium capitalize transition-colors ${filter === f ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}
             >
               {f}
             </button>
@@ -148,7 +148,7 @@ export function PrioritiesTab({ canManage, today, meId, assignees }: TabProps) {
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${STATUS_STYLE[p.status]}`}>{STATUS_LABEL[p.status]}</span>
-                      {overdue && <span className="rounded-full bg-danger-500/10 px-2.5 py-0.5 text-xs font-semibold text-danger-500">Overdue</span>}
+                      {overdue && <span className="rounded-full bg-danger-subtle px-2.5 py-0.5 text-xs font-semibold text-danger">Overdue</span>}
                     </div>
                     <h3 className="mt-1.5 text-base font-semibold text-text-primary">{p.title}</h3>
                     {p.description && <p className="mt-1 whitespace-pre-wrap text-sm text-text-secondary">{p.description}</p>}
@@ -163,7 +163,7 @@ export function PrioritiesTab({ canManage, today, meId, assignees }: TabProps) {
                   </div>
                   <div className="flex items-center gap-1.5">
                     {canReport && p.status !== 'done' && (
-                      <button type="button" onClick={() => void update(p, 'done', 100)} aria-label={`Mark ${p.title} done`} title="Mark done" className={`${iconBtn} hover:text-success-500`}>
+                      <button type="button" onClick={() => void update(p, 'done', 100)} aria-label={`Mark ${p.title} done`} title="Mark done" className={`${iconBtn} hover:text-success`}>
                         <CheckCircle2 size={16} />
                       </button>
                     )}
@@ -172,7 +172,7 @@ export function PrioritiesTab({ canManage, today, meId, assignees }: TabProps) {
                         <button type="button" onClick={() => setForm({ open: true, item: p })} aria-label={`Edit ${p.title}`} title="Edit" className={iconBtn}>
                           <Pencil size={15} />
                         </button>
-                        <button type="button" onClick={() => setRemoving(p)} aria-label={`Delete ${p.title}`} title="Delete" className={`${iconBtn} hover:text-danger-500`}>
+                        <button type="button" onClick={() => setRemoving(p)} aria-label={`Delete ${p.title}`} title="Delete" className={`${iconBtn} hover:text-danger`}>
                           <Trash2 size={15} />
                         </button>
                       </>

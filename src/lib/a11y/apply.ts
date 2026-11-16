@@ -8,8 +8,8 @@ export const FOCUS_COLORS: Record<ColorChoice, { ring: string; halo: string }> =
   default: { ring: 'rgb(var(--accent-primary))', halo: 'rgb(var(--accent-primary) / 0.2)' },
   black: { ring: '#000000', halo: '#ffffff' },
   white: { ring: '#ffffff', halo: '#000000' },
-  yellow: { ring: '#ffd400', halo: '#000000' },
-  blue: { ring: '#0050ff', halo: '#ffffff' },
+  yellow: { ring: '#ffd600', halo: '#000000' },
+  blue: { ring: '#0071e3', halo: '#ffffff' },
 };
 
 /** Single source of truth for html classes (mirrored by public/a11y-boot.js; parity-tested). */

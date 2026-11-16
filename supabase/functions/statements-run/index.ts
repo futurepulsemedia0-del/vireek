@@ -105,33 +105,33 @@ interface Statement {
 
 function buildEmail(st: Statement, business: string, siteUrl: string) {
   const subject = `Statement of account from ${business} — ${fmtDate(st.period_from)} to ${fmtDate(st.period_to)}`;
-  const td = "padding:8px 10px;border-bottom:1px solid #e1e1e8;font-size:13px;";
+  const td = "padding:8px 10px;border-bottom:1px solid #e8e6dc;font-size:13px;";
   const num = `${td}text-align:right;white-space:nowrap;`;
   const shown = st.lines.slice(0, MAX_EMAIL_LINES);
   const more = st.lines.length - shown.length;
 
   const lines = shown.map((l) =>
-    `<tr><td style="${td}white-space:nowrap">${esc(fmtDate(l.date))}</td><td style="${td}">${esc(l.description)}${st.consolidated && l.customer_name ? `<br><span style="color:#6e6e78;font-size:12px">${esc(l.customer_name)}</span>` : ""}</td><td style="${num}">${l.charge_cents ? esc(money(l.charge_cents)) : ""}</td><td style="${num}">${l.credit_cents ? esc(money(l.credit_cents)) : ""}</td><td style="${num}">${esc(money(l.balance_cents))}</td></tr>`).join("");
+    `<tr><td style="${td}white-space:nowrap">${esc(fmtDate(l.date))}</td><td style="${td}">${esc(l.description)}${st.consolidated && l.customer_name ? `<br><span style="color:#73726c;font-size:12px">${esc(l.customer_name)}</span>` : ""}</td><td style="${num}">${l.charge_cents ? esc(money(l.charge_cents)) : ""}</td><td style="${num}">${l.credit_cents ? esc(money(l.credit_cents)) : ""}</td><td style="${num}">${esc(money(l.balance_cents))}</td></tr>`).join("");
 
   const open = st.open_invoices.slice(0, 40).map((o) =>
-    `<tr><td style="${td}"><a href="${esc(`${siteUrl}/invoice/${o.invoice_token}`)}" style="color:#203ad8;text-decoration:none">${esc(o.invoice_number ?? "Invoice")}</a></td><td style="${td}">${o.due_date ? esc(fmtDate(o.due_date)) : "—"}</td><td style="${td}">${o.days_past_due > 0 ? `${o.days_past_due} days past due` : "Current"}</td><td style="${num}">${esc(money(o.balance_cents))}</td></tr>`).join("");
+    `<tr><td style="${td}"><a href="${esc(`${siteUrl}/invoice/${o.invoice_token}`)}" style="color:#ae3600;text-decoration:none">${esc(o.invoice_number ?? "Invoice")}</a></td><td style="${td}">${o.due_date ? esc(fmtDate(o.due_date)) : "—"}</td><td style="${td}">${o.days_past_due > 0 ? `${o.days_past_due} days past due` : "Current"}</td><td style="${num}">${esc(money(o.balance_cents))}</td></tr>`).join("");
 
   const ag = st.aging;
   const aging = [["Current", ag.current], ["1–30", ag.d1_30], ["31–60", ag.d31_60], ["61–90", ag.d61_90], ["90+", ag.d90_plus]]
-    .map(([k, v]) => `<td style="padding:8px 6px;text-align:center;border:1px solid #e1e1e8;font-size:12px"><div style="color:#6e6e78">${esc(k)}</div><div style="font-weight:600;margin-top:2px">${esc(money(Number(v)))}</div></td>`).join("");
+    .map(([k, v]) => `<td style="padding:8px 6px;text-align:center;border:1px solid #e8e6dc;font-size:12px"><div style="color:#73726c">${esc(k)}</div><div style="font-weight:600;margin-top:2px">${esc(money(Number(v)))}</div></td>`).join("");
 
-  const html = `<div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:640px;margin:0 auto;color:#171717">
+  const html = `<div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:640px;margin:0 auto;color:#141413">
 <p style="font-size:15px">Hello ${esc(st.customer.name)},</p>
 <p style="font-size:14px;line-height:1.5">Here is your statement of account from <strong>${esc(business)}</strong> for ${esc(fmtDate(st.period_from))} – ${esc(fmtDate(st.period_to))}${st.consolidated ? `, covering ${st.members.length} linked accounts` : ""}.</p>
-<table style="width:100%;border:1px solid #e1e1e8;border-radius:12px;border-collapse:separate;padding:12px;margin:16px 0">
-<tr><td style="padding:4px 0;color:#6e6e78;font-size:13px">Opening balance</td><td style="text-align:right;font-size:13px">${esc(money(st.opening_cents))}</td></tr>
-<tr><td style="padding:4px 0;color:#6e6e78;font-size:13px">New charges</td><td style="text-align:right;font-size:13px">${esc(money(st.charges_cents + st.refunds_cents))}</td></tr>
-<tr><td style="padding:4px 0;color:#6e6e78;font-size:13px">Payments received</td><td style="text-align:right;font-size:13px">−${esc(money(st.payments_cents))}</td></tr>
-<tr><td style="padding:8px 0 0;font-weight:700;font-size:15px;border-top:1px solid #e1e1e8">Balance due</td><td style="text-align:right;font-weight:700;font-size:15px;padding-top:8px;border-top:1px solid #e1e1e8">${esc(money(st.closing_cents))}</td></tr></table>
+<table style="width:100%;border:1px solid #e8e6dc;border-radius:12px;border-collapse:separate;padding:12px;margin:16px 0">
+<tr><td style="padding:4px 0;color:#73726c;font-size:13px">Opening balance</td><td style="text-align:right;font-size:13px">${esc(money(st.opening_cents))}</td></tr>
+<tr><td style="padding:4px 0;color:#73726c;font-size:13px">New charges</td><td style="text-align:right;font-size:13px">${esc(money(st.charges_cents + st.refunds_cents))}</td></tr>
+<tr><td style="padding:4px 0;color:#73726c;font-size:13px">Payments received</td><td style="text-align:right;font-size:13px">−${esc(money(st.payments_cents))}</td></tr>
+<tr><td style="padding:8px 0 0;font-weight:700;font-size:15px;border-top:1px solid #e8e6dc">Balance due</td><td style="text-align:right;font-weight:700;font-size:15px;padding-top:8px;border-top:1px solid #e8e6dc">${esc(money(st.closing_cents))}</td></tr></table>
 <table style="width:100%;border-collapse:collapse;margin:0 0 20px"><tr>${aging}</tr></table>
-${open ? `<h3 style="font-size:14px;margin:20px 0 6px">Open invoices</h3><table style="width:100%;border-collapse:collapse"><tr style="text-align:left;color:#6e6e78;font-size:12px"><th style="padding:6px 10px">Invoice</th><th style="padding:6px 10px">Due</th><th style="padding:6px 10px">Status</th><th style="padding:6px 10px;text-align:right">Balance</th></tr>${open}</table>` : ""}
-${lines ? `<h3 style="font-size:14px;margin:24px 0 6px">Activity</h3><table style="width:100%;border-collapse:collapse"><tr style="text-align:left;color:#6e6e78;font-size:12px"><th style="padding:6px 10px">Date</th><th style="padding:6px 10px">Description</th><th style="padding:6px 10px;text-align:right">Charges</th><th style="padding:6px 10px;text-align:right">Credits</th><th style="padding:6px 10px;text-align:right">Balance</th></tr>${lines}</table>${more > 0 ? `<p style="color:#6e6e78;font-size:12px">+ ${more} more entries — open an invoice link above for full detail.</p>` : ""}` : ""}
-<p style="color:#6e6e78;font-size:13px;margin-top:28px">Questions about this statement? Just reply to this email.<br/>${esc(business)}</p></div>`;
+${open ? `<h3 style="font-size:14px;margin:20px 0 6px">Open invoices</h3><table style="width:100%;border-collapse:collapse"><tr style="text-align:left;color:#73726c;font-size:12px"><th style="padding:6px 10px">Invoice</th><th style="padding:6px 10px">Due</th><th style="padding:6px 10px">Status</th><th style="padding:6px 10px;text-align:right">Balance</th></tr>${open}</table>` : ""}
+${lines ? `<h3 style="font-size:14px;margin:24px 0 6px">Activity</h3><table style="width:100%;border-collapse:collapse"><tr style="text-align:left;color:#73726c;font-size:12px"><th style="padding:6px 10px">Date</th><th style="padding:6px 10px">Description</th><th style="padding:6px 10px;text-align:right">Charges</th><th style="padding:6px 10px;text-align:right">Credits</th><th style="padding:6px 10px;text-align:right">Balance</th></tr>${lines}</table>${more > 0 ? `<p style="color:#73726c;font-size:12px">+ ${more} more entries — open an invoice link above for full detail.</p>` : ""}` : ""}
+<p style="color:#73726c;font-size:13px;margin-top:28px">Questions about this statement? Just reply to this email.<br/>${esc(business)}</p></div>`;
 
   const text = [
     `Hello ${st.customer.name},`, "",

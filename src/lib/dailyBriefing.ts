@@ -761,10 +761,10 @@ export function toPlainText(b: Briefing): string {
 }
 
 const TONE_COLOR: Record<Tone, string> = {
-  good: '#15803d',
-  bad: '#b91c1c',
-  warn: '#b45309',
-  neutral: '#111827',
+  good: '#007c2c',
+  bad: '#ac0016',
+  warn: '#a93b0f',
+  neutral: '#1C1B15',
 };
 
 export function toEmail(
@@ -779,26 +779,26 @@ export function toEmail(
         .map((it) => {
           const label =
             esc(it.text) +
-            (it.tag === 'AI' ? ' <span style="font-size:11px;color:#6b7280">AI</span>' : '');
+            (it.tag === 'AI' ? ' <span style="font-size:11px;color:#73726c">AI</span>' : '');
           const inner = it.href
             ? `<a href="${esc(opts.dashboardUrl + it.href)}" style="color:inherit;text-decoration:none">${label}</a>`
             : label;
           return `<li style="margin:6px 0;color:${TONE_COLOR[it.tone]}">${inner}</li>`;
         })
         .join('');
-      return `<h3 style="margin:22px 0 4px;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#6b7280">${esc(s.title)}</h3><ul style="margin:0;padding-left:18px;font-size:15px;line-height:1.5">${lis}</ul>`;
+      return `<h3 style="margin:22px 0 4px;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#73726c">${esc(s.title)}</h3><ul style="margin:0;padding-left:18px;font-size:15px;line-height:1.5">${lis}</ul>`;
     })
     .join('');
   const html =
-    `<div style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#111827">` +
-    `<p style="margin:0;font-size:13px;color:#6b7280">${esc(opts.companyName ?? 'Vireek')} · ${esc(b.date)}</p>` +
+    `<div style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#1C1B15">` +
+    `<p style="margin:0;font-size:13px;color:#73726c">${esc(opts.companyName ?? 'Vireek')} · ${esc(b.date)}</p>` +
     `<h1 style="margin:6px 0 0;font-size:22px">${esc(greeting(b))}</h1>` +
-    `<p style="margin:6px 0 0;font-size:16px;color:${b.severity === 'urgent' ? '#b91c1c' : '#111827'}">${esc(b.headline)}</p>` +
+    `<p style="margin:6px 0 0;font-size:16px;color:${b.severity === 'urgent' ? '#ac0016' : '#1C1B15'}">${esc(b.headline)}</p>` +
     blocks +
     (clear.length > 0
-      ? `<p style="margin:22px 0 0;font-size:13px;color:#6b7280">All clear: ${esc(clear.join(', '))}</p>`
+      ? `<p style="margin:22px 0 0;font-size:13px;color:#73726c">All clear: ${esc(clear.join(', '))}</p>`
       : '') +
-    `<p style="margin:28px 0 0"><a href="${esc(opts.dashboardUrl)}/dashboard" style="display:inline-block;background:#111827;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none;font-size:14px">Open dashboard</a></p>` +
-    `<p style="margin:20px 0 0;font-size:12px;color:#9ca3af">Change delivery time, channels and sections in Settings → Daily briefing.</p></div>`;
+    `<p style="margin:28px 0 0"><a href="${esc(opts.dashboardUrl)}/dashboard" style="display:inline-block;background:#1C1B15;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none;font-size:14px">Open dashboard</a></p>` +
+    `<p style="margin:20px 0 0;font-size:12px;color:#a9a8a2">Change delivery time, channels and sections in Settings → Daily briefing.</p></div>`;
   return { subject: `Daily briefing · ${b.headline}`.slice(0, 120), html, text: toPlainText(b) };
 }

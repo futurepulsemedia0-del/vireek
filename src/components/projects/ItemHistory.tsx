@@ -36,7 +36,7 @@ export function ItemHistory({ ownerId, itemType, itemId, refreshKey }: { ownerId
       {open && (
         <div className="mt-2">
           {failed ? (
-            <p role="alert" className="text-sm text-danger-500">Could not load the history.</p>
+            <p role="alert" className="text-sm text-danger">Could not load the history.</p>
           ) : events === null ? (
             <p className="text-sm text-text-secondary" aria-busy="true">Loading…</p>
           ) : events.length === 0 ? (

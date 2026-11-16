@@ -13,8 +13,8 @@ const ICONS: Record<StepKey, LucideIcon> = {
 };
 
 const STATUS_STYLE: Record<StepStatus, { ring: string; pill: string; label: string; Icon: LucideIcon }> = {
-  ok: { ring: 'border-success-500/40 bg-success-500/10 text-success-500', pill: 'bg-success-500/10 text-success-500', label: 'On record', Icon: CheckCircle2 },
-  attention: { ring: 'border-warning-500/40 bg-warning-500/10 text-warning-500', pill: 'bg-warning-500/10 text-warning-500', label: 'Review', Icon: TriangleAlert },
+  ok: { ring: 'border-success/40 bg-success-subtle text-success', pill: 'bg-success-subtle text-success', label: 'On record', Icon: CheckCircle2 },
+  attention: { ring: 'border-warning/40 bg-warning-subtle text-warning', pill: 'bg-warning-subtle text-warning', label: 'Review', Icon: TriangleAlert },
   critical: { ring: 'border-danger/40 bg-danger/10 text-danger', pill: 'bg-danger/10 text-danger', label: 'Act now', Icon: TriangleAlert },
   empty: { ring: 'border-border bg-bg-tertiary text-text-secondary', pill: 'bg-bg-tertiary text-text-secondary', label: 'Nothing yet', Icon: CircleDashed },
 };

@@ -387,7 +387,7 @@ function OpportunityCard({ opp, onChanged }: { opp: DemandOpportunity; onChanged
               <ul className="space-y-1 text-sm">
                 {opp.qualification.map((g) => (
                   <li key={g.key} className="flex items-start gap-2">
-                    {g.passed ? <Check size={14} className="mt-0.5 shrink-0 text-success-500" /> : <CircleAlert size={14} className="mt-0.5 shrink-0 text-warning-500" />}
+                    {g.passed ? <Check size={14} className="mt-0.5 shrink-0 text-success" /> : <CircleAlert size={14} className="mt-0.5 shrink-0 text-warning" />}
                     <span className="text-text-secondary">
                       <span className="font-medium text-text-primary">{g.label}.</span> {g.detail}
                     </span>

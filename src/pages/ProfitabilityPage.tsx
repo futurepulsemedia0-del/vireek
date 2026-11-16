@@ -62,7 +62,7 @@ import { DeltaBadge } from '@/components/DeltaBadge';
 import { computeDelta, inRange } from '@/lib/dateRange';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder transition-colors';
 
 // ============================================================
 // SHARED UI
@@ -216,7 +216,7 @@ function CostEntryForm({
           type="button"
           onClick={handleSave}
           disabled={saving}
-          className="focus-ring flex items-center gap-1 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50"
+          className="focus-ring flex items-center gap-1 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent transition-all hover:brightness-110 disabled:opacity-50"
         >
           {saving ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
           Save cost
@@ -294,7 +294,7 @@ function VendorBillForm({
           type="button"
           onClick={handleSave}
           disabled={saving}
-          className="focus-ring flex items-center gap-1 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50"
+          className="focus-ring flex items-center gap-1 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent transition-all hover:brightness-110 disabled:opacity-50"
         >
           {saving ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
           Save bill
@@ -434,7 +434,7 @@ function JobRow({
         </div>
         <div className="shrink-0 text-right">
           <p className="text-xs text-text-secondary">Profit</p>
-          <p className={`text-sm font-bold ${row.gross_profit_cents < 0 ? 'text-danger' : 'text-success-500'}`}>
+          <p className={`text-sm font-bold ${row.gross_profit_cents < 0 ? 'text-danger' : 'text-success'}`}>
             {formatCents(row.gross_profit_cents)}
           </p>
         </div>
@@ -567,7 +567,7 @@ function JobRow({
                             </span>
                             <span className="text-sm font-medium text-text-primary">{formatCents(bill.amount_cents)}</span>
                             {bill.status !== 'paid' && (
-                              <button type="button" onClick={() => handleMarkPaid(bill.id)} className="focus-ring text-text-secondary hover:text-success-500" aria-label="Mark paid">
+                              <button type="button" onClick={() => handleMarkPaid(bill.id)} className="focus-ring text-text-secondary hover:text-success" aria-label="Mark paid">
                                 <Check size={14} />
                               </button>
                             )}
@@ -849,7 +849,7 @@ export function ProfitabilityPage() {
                 <p className="text-xs font-medium text-text-secondary">Gross Profit</p>
                 {kpiBadge('profit', formatCents)}
               </div>
-              <p className={`mt-2 text-3xl font-bold ${summary.totalProfitCents < 0 ? 'text-danger' : 'text-success-500'}`}>
+              <p className={`mt-2 text-3xl font-bold ${summary.totalProfitCents < 0 ? 'text-danger' : 'text-success'}`}>
                 {formatCents(summary.totalProfitCents)}
               </p>
             </div>
@@ -860,7 +860,7 @@ export function ProfitabilityPage() {
               </div>
               <p className="mt-2 flex items-center gap-1 text-3xl font-bold text-cta">
                 {formatMargin(summary.avgMarginPct)}
-                <Percent size={18} className="text-cta/60" />
+                <Percent size={18} className="text-cta" />
               </p>
             </div>
           </>

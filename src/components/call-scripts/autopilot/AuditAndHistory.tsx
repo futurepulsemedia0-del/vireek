@@ -14,7 +14,7 @@ function VersionDiff({ before, after }: { before: CallScriptVersion; after: Call
       {!changed ? <p className="text-text-secondary">{t('history.diffNone')}</p> : (
         <ul className="space-y-0.5 font-mono">
           {lines.map((l, i) => (
-            <li key={i} className={l.type === 'add' ? 'text-success-500' : l.type === 'del' ? 'text-danger' : 'text-text-secondary'}>
+            <li key={i} className={l.type === 'add' ? 'text-success' : l.type === 'del' ? 'text-danger' : 'text-text-secondary'}>
               <span aria-hidden="true">{l.type === 'add' ? '+ ' : l.type === 'del' ? '− ' : '  '}</span>
               <span className="sr-only">{l.type === 'add' ? '+' : l.type === 'del' ? '−' : ''}</span>
               {l.text}

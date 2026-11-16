@@ -101,7 +101,7 @@ export function NumberReputationPage() {
               ))}
             </ul>
             {active.some((n) => n.sms_enabled) && progress.legalPending.length > 0 && (
-              <p role="status" className="mt-3 rounded-lg bg-warning-500/10 px-3 py-2 text-xs text-warning-500">Texting is on for at least one number, and {progress.legalPending.length} registration step{progress.legalPending.length === 1 ? '' : 's'} that may need legal review {progress.legalPending.length === 1 ? 'is' : 'are'} not ticked off yet.</p>
+              <p role="status" className="mt-3 rounded-lg bg-warning-subtle px-3 py-2 text-xs text-warning">Texting is on for at least one number, and {progress.legalPending.length} registration step{progress.legalPending.length === 1 ? '' : 's'} that may need legal review {progress.legalPending.length === 1 ? 'is' : 'are'} not ticked off yet.</p>
             )}
           </>
         )}
@@ -113,7 +113,7 @@ export function NumberReputationPage() {
         <label htmlFor="nr-cnam-in" className="mb-1 mt-3 block text-xs font-semibold text-text-secondary">Business name</label>
         <input id="nr-cnam-in" value={cnamInput} maxLength={80} onChange={(e) => setCnamInput(e.target.value)} className="focus-ring min-h-[44px] w-full rounded-lg border border-border bg-bg-primary px-3 text-sm text-text-primary" />
         <p className="mt-2 text-sm text-text-primary">Suggested: <span className="font-mono font-semibold">{suggestCnam(cnamInput) || '—'}</span></p>
-        {cnam.issues.length > 0 && <ul role="status" className="mt-1 list-disc ps-5 text-xs text-warning-500">{cnam.issues.map((i) => <li key={i}>{i}</li>)}</ul>}
+        {cnam.issues.length > 0 && <ul role="status" className="mt-1 list-disc ps-5 text-xs text-warning">{cnam.issues.map((i) => <li key={i}>{i}</li>)}</ul>}
       </section>
 
       <section className={`${card} mt-4`} aria-labelledby="nr-check">
@@ -127,7 +127,7 @@ export function NumberReputationPage() {
               <label className="flex items-start gap-3 rounded-xl border border-border p-3 text-sm">
                 <input type="checkbox" className="mt-1" checked={!!ticks[item.id]} onChange={() => toggle(item.id)} />
                 <span>
-                  <span className="block font-medium text-text-primary">{item.title}{item.needsLegal && <span className="ms-2 text-[11px] font-semibold text-warning-500">May need legal review</span>}</span>
+                  <span className="block font-medium text-text-primary">{item.title}{item.needsLegal && <span className="ms-2 text-[11px] font-semibold text-warning">May need legal review</span>}</span>
                   <span className="block text-xs text-text-secondary">{item.detail}</span>
                 </span>
               </label>

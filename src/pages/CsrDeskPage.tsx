@@ -32,13 +32,13 @@ function QueueItem({ call, active, now, onSelect, onDismiss }: { call: DeskCall;
         <button type="button" onClick={onSelect} aria-current={active ? 'true' : undefined} className="focus-ring min-w-0 flex-1 rounded-xl p-3 text-left">
           <div className="flex items-center justify-between gap-2">
             <span className="truncate text-sm font-semibold text-text-primary">{call.caller_name ?? formatPhone(call.caller_phone)}</span>
-            <span className={`shrink-0 text-xs font-medium tabular-nums ${call.ended ? 'text-text-secondary' : 'text-success-500'}`}>
+            <span className={`shrink-0 text-xs font-medium tabular-nums ${call.ended ? 'text-text-secondary' : 'text-success'}`}>
               {call.ended ? 'Ended' : elapsedLabel(call.call_datetime, now)}
             </span>
           </div>
           <div className="mt-1 flex flex-wrap items-center gap-1.5">
             {call.is_emergency && <span className="rounded-full bg-danger/10 px-2 py-0.5 text-xs font-semibold text-danger">Emergency</span>}
-            {call.human_transfer_requested && <span className="rounded-full bg-warning-500/15 px-2 py-0.5 text-xs font-semibold text-warning-500">Wants a person</span>}
+            {call.human_transfer_requested && <span className="rounded-full bg-warning-subtle px-2 py-0.5 text-xs font-semibold text-warning">Wants a person</span>}
             {call.caller_name && <span className="text-xs text-text-secondary">{formatPhone(call.caller_phone)}</span>}
           </div>
         </button>

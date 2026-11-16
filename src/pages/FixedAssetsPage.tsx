@@ -40,7 +40,7 @@ const STATUS_FILTERS: { id: AssetStatus | 'all'; label: string }[] = [
 
 const STATUS_BADGE: Record<AssetStatus, string> = {
   active: 'bg-success/10 text-success',
-  fully_depreciated: 'bg-blue-500/10 text-blue-600 dark:text-blue-300',
+  fully_depreciated: 'bg-info-subtle text-info',
   disposed: 'bg-bg-tertiary text-text-secondary',
 };
 
@@ -96,7 +96,7 @@ function ModalShell({
   const width = size === 'xl' ? 'sm:max-w-3xl' : size === 'lg' ? 'sm:max-w-2xl' : 'sm:max-w-md';
   return (
     <>
-      <div className="fixed inset-0 z-[110] bg-black/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+      <div className="fixed inset-0 z-[110] bg-overlay/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
       <div
         ref={ref}
         tabIndex={-1}
@@ -750,10 +750,10 @@ export function FixedAssetsPage() {
               <button
                 key={t.id} type="button" role="tab" aria-selected={tab === t.id} id={`fa-tab-${t.id}`} aria-controls={`fa-panel-${t.id}`}
                 onClick={() => setTab(t.id)}
-                className={`focus-ring shrink-0 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors ${tab === t.id ? 'bg-accent text-white' : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'}`}
+                className={`focus-ring shrink-0 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors ${tab === t.id ? 'bg-accent text-on-accent' : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'}`}
               >
                 {t.label}
-                {t.id === 'depreciation' && readyRows.length > 0 && <span className="ml-1.5 rounded-full bg-warning-500/20 px-1.5 text-[11px] font-semibold text-warning-500">{readyRows.length}</span>}
+                {t.id === 'depreciation' && readyRows.length > 0 && <span className="ml-1.5 rounded-full bg-warning-subtle px-1.5 text-[11px] font-semibold text-warning">{readyRows.length}</span>}
               </button>
             ))}
           </div>
@@ -892,7 +892,7 @@ export function FixedAssetsPage() {
                             <td className="px-4 py-2.5 text-text-primary">{formatMonth(r.period_start)}</td>
                             <td className="px-4 py-2.5 text-right tabular-nums text-text-secondary">{r.asset_count}</td>
                             <td className="px-4 py-2.5 text-right tabular-nums text-text-primary">{money(r.total_cents)}</td>
-                            <td className="px-4 py-2.5">{r.is_closed ? <Pill className="bg-warning-500/10 text-warning-500">Period closed</Pill> : <Pill className="bg-success/10 text-success">Ready</Pill>}</td>
+                            <td className="px-4 py-2.5">{r.is_closed ? <Pill className="bg-warning-subtle text-warning">Period closed</Pill> : <Pill className="bg-success/10 text-success">Ready</Pill>}</td>
                           </tr>
                         ))}
                       </tbody>

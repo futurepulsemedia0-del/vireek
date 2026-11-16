@@ -16,7 +16,7 @@ import {
 const INGEST_PATH = '/functions/v1/telemetry-ingest';
 const card = 'rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark';
 const btn = 'focus-ring rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-secondary hover:text-text-primary disabled:opacity-50';
-const btnPrimary = 'focus-ring rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white hover:opacity-90 disabled:opacity-50';
+const btnPrimary = 'focus-ring rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent hover:opacity-90 disabled:opacity-50';
 
 function Kpi({ label, value, tone }: { label: string; value: string | number; tone?: string }) {
   return (
@@ -78,7 +78,7 @@ function PredictionCard({ p, customer, onChanged }: { p: FailurePrediction; cust
       </div>
 
       <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-border" role="img" aria-label={`Failure probability ${pct}%`}>
-        <div className={`h-full ${tone === 'high' ? 'bg-danger-500' : tone === 'medium' ? 'bg-warning-500' : 'bg-success-500'}`} style={{ width: `${pct}%` }} />
+        <div className={`h-full ${tone === 'high' ? 'bg-danger' : tone === 'medium' ? 'bg-warning' : 'bg-success'}`} style={{ width: `${pct}%` }} />
       </div>
 
       {p.drivers.length > 0 && (
@@ -99,7 +99,7 @@ function PredictionCard({ p, customer, onChanged }: { p: FailurePrediction; cust
             const ok = part.in_stock !== null && part.in_stock >= part.qty;
             return (
               <li key={part.label} className="flex items-center gap-2 text-xs text-text-secondary">
-                {part.part_id ? (ok ? <PackageCheck size={13} className="text-success-500" /> : <PackageX size={13} className="text-warning-500" />) : <PackageX size={13} className="opacity-40" />}
+                {part.part_id ? (ok ? <PackageCheck size={13} className="text-success" /> : <PackageX size={13} className="text-warning" />) : <PackageX size={13} className="opacity-40" />}
                 <span>{part.qty}× {part.part_name ?? part.label}</span>
                 <span className="opacity-70">{part.part_id ? (ok ? `in stock (${part.in_stock})` : 'low / out of stock — reorder') : 'not in your parts catalogue'}</span>
               </li>
@@ -185,13 +185,13 @@ export function BuildingTelemetryPage() {
         </button>
       </div>
 
-      {error && <p className="mb-4 rounded-lg bg-danger-500/10 p-3 text-sm text-danger-500">{error}</p>}
+      {error && <p className="mb-4 rounded-lg bg-danger-subtle p-3 text-sm text-danger">{error}</p>}
 
       <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Kpi label="Gateways online" value={`${online}/${activeGateways.length}`} />
         <Kpi label="Points tracked" value={data.points.length} />
-        <Kpi label="Open anomalies" value={data.anomalies.length} tone={data.anomalies.length ? 'text-warning-500' : undefined} />
-        <Kpi label="Units at risk" value={atRisk} tone={atRisk ? 'text-danger-500' : undefined} />
+        <Kpi label="Open anomalies" value={data.anomalies.length} tone={data.anomalies.length ? 'text-warning' : undefined} />
+        <Kpi label="Units at risk" value={atRisk} tone={atRisk ? 'text-danger' : undefined} />
       </div>
 
       <h2 className="mb-3 text-sm font-semibold text-text-primary">Predicted failures</h2>
@@ -242,7 +242,7 @@ export function BuildingTelemetryPage() {
           </form>
 
           {newToken && (
-            <div className="mt-3 rounded-lg border border-warning-500/40 bg-warning-500/5 p-3">
+            <div className="mt-3 rounded-lg border border-warning/40 bg-warning-subtle p-3">
               <p className="text-xs font-semibold text-text-primary">Token for “{newToken.name}” — shown once. Copy it now.</p>
               <code className="mt-2 block break-all rounded bg-bg-primary p-2 text-xs text-text-primary">{newToken.token}</code>
               <pre className="mt-2 overflow-x-auto rounded bg-bg-primary p-2 text-[11px] text-text-secondary">{curl(newToken.token)}</pre>
@@ -255,7 +255,7 @@ export function BuildingTelemetryPage() {
           <ul className="mt-4 space-y-2">
             {data.gateways.map((g) => (
               <li key={g.id} className="flex items-center gap-3 rounded-lg border border-border p-3">
-                <Radio size={16} className={g.revoked_at ? 'text-text-secondary opacity-40' : isOnline(g.last_seen_at) ? 'text-success-500' : 'text-warning-500'} />
+                <Radio size={16} className={g.revoked_at ? 'text-text-secondary opacity-40' : isOnline(g.last_seen_at) ? 'text-success' : 'text-warning'} />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-text-primary">{g.name}</p>
                   <p className="text-xs text-text-secondary">{PROTOCOL_LABELS[g.protocol]} · {g.token_prefix}… · {g.revoked_at ? 'revoked' : `last data ${timeAgo(g.last_seen_at)}`}</p>

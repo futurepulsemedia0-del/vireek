@@ -97,8 +97,8 @@ function SeverityPill({ severity }: { severity: Severity }) {
 }
 
 function StatusIcon({ status }: { status: PostureCheck['status'] }) {
-  if (status === 'pass') return <CheckCircle2 size={16} className="shrink-0 text-success-500" />;
-  if (status === 'warn') return <AlertTriangle size={16} className="shrink-0 text-warning-500" />;
+  if (status === 'pass') return <CheckCircle2 size={16} className="shrink-0 text-success" />;
+  if (status === 'warn') return <AlertTriangle size={16} className="shrink-0 text-warning" />;
   return <XCircle size={16} className="shrink-0 text-danger" />;
 }
 
@@ -109,7 +109,7 @@ function StatusIcon({ status }: { status: PostureCheck['status'] }) {
 function ScoreRing({ score }: { score: number }) {
   const r = 52;
   const c = 2 * Math.PI * r;
-  const color = score >= 75 ? 'stroke-success-500' : score >= 55 ? 'stroke-warning-500' : 'stroke-danger';
+  const color = score >= 75 ? 'stroke-success' : score >= 55 ? 'stroke-warning' : 'stroke-danger';
   return (
     <svg viewBox="0 0 120 120" className="h-32 w-32 shrink-0" role="img" aria-label={`Security score ${score} out of 100`}>
       <circle cx="60" cy="60" r={r} fill="none" strokeWidth="10" className="stroke-bg-tertiary" />
@@ -416,12 +416,12 @@ function AgentRow({ agent, policy, sandboxMode, onSaved }: { agent: string; poli
               : 'No explicit policy - built-in least-privilege defaults'}
           </span>
         </span>
-        <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${policy ? 'bg-success-500/15 text-success-500' : 'bg-bg-tertiary text-text-secondary'}`}>{policy ? 'Configured' : 'Default'}</span>
+        <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${policy ? 'bg-success-subtle text-success' : 'bg-bg-tertiary text-text-secondary'}`}>{policy ? 'Configured' : 'Default'}</span>
       </button>
 
       {open && (
         <div className="space-y-4 border-t border-border p-4">
-          {sandboxMode === 'off' && <p className="text-xs text-warning-500">The sandbox is currently Off, so these rules are not evaluated until you turn it on in Policies.</p>}
+          {sandboxMode === 'off' && <p className="text-xs text-warning">The sandbox is currently Off, so these rules are not evaluated until you turn it on in Policies.</p>}
           <div>
             <p className="mb-2 text-sm font-medium text-text-primary">Data this agent may place in a prompt</p>
             <div className="flex flex-wrap gap-2">
@@ -606,7 +606,7 @@ function IsolationTab({
         {isolation && (
           <div className="mt-3">
             <p className="flex items-center gap-2 text-sm text-text-primary">
-              {flagged.length === 0 ? <CheckCircle2 size={16} className="text-success-500" /> : <AlertTriangle size={16} className="text-danger" />}
+              {flagged.length === 0 ? <CheckCircle2 size={16} className="text-success" /> : <AlertTriangle size={16} className="text-danger" />}
               {flagged.length === 0 ? `All ${isolation.length} tenant tables are isolated.` : `${flagged.length} of ${isolation.length} tenant tables need attention.`}
             </p>
             {flagged.length > 0 && (
@@ -637,7 +637,7 @@ function IsolationTab({
           <p className="mt-2 text-xs text-text-secondary">No active API keys.</p>
         ) : issues.length === 0 ? (
           <p className="mt-2 flex items-center gap-2 text-sm text-text-primary">
-            <CheckCircle2 size={16} className="text-success-500" /> All {keys.length} active key(s) are within policy.
+            <CheckCircle2 size={16} className="text-success" /> All {keys.length} active key(s) are within policy.
           </p>
         ) : (
           <ul className="mt-2 divide-y divide-border rounded-xl border border-border">
@@ -645,7 +645,7 @@ function IsolationTab({
               <li key={i.id} className="flex items-center gap-2 p-2 text-sm">
                 <span className="font-medium text-text-primary">{i.name}</span>
                 <code className="text-xs text-text-secondary">{i.key_prefix}</code>
-                <span className="ml-auto text-xs text-warning-500">{i.issue === 'rotation_due' ? `Rotate - ${i.ageDays}d old` : 'Unused - consider revoking'}</span>
+                <span className="ml-auto text-xs text-warning">{i.issue === 'rotation_due' ? `Rotate - ${i.ageDays}d old` : 'Unused - consider revoking'}</span>
               </li>
             ))}
           </ul>
@@ -766,10 +766,10 @@ export function AiSecurityCenterPage() {
                   type="button"
                   aria-selected={tab === t.id}
                   onClick={() => setTab(t.id)}
-                  className={`focus-ring flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium transition-colors ${tab === t.id ? 'bg-accent text-white' : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'}`}
+                  className={`focus-ring flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium transition-colors ${tab === t.id ? 'bg-accent text-on-accent' : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'}`}
                 >
                   <t.icon size={14} /> {t.label}
-                  {t.id === 'events' && openCount > 0 && <span className="rounded-full bg-danger px-1.5 text-[10px] font-semibold text-white">{openCount}</span>}
+                  {t.id === 'events' && openCount > 0 && <span className="rounded-full bg-danger px-1.5 text-[10px] font-semibold text-on-danger">{openCount}</span>}
                 </button>
               ))}
             </div>

@@ -98,11 +98,11 @@ async function sendNotice(admin: SupabaseClient, ownerId: string, refund: Row): 
   }
   if (email) {
     try {
-      const html = `<div style="font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1a1a1a;">
-        <p style="font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #6b7280; margin: 0 0 16px;">Refund issued</p>
+      const html = `<div style="font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1c1b15;">
+        <p style="font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #73726c; margin: 0 0 16px;">Refund issued</p>
         <h1 style="font-size: 22px; margin: 0 0 16px;">${escapeHtml(amount)} refunded</h1>
         <p style="font-size: 15px; line-height: 1.5; margin: 0 0 12px;">Hi ${escapeHtml(String(refund.customer_name))}, ${escapeHtml(business)} has refunded ${escapeHtml(amount)} to your original payment method.${memo ? ` ${escapeHtml(memo.trim())}` : ""}</p>
-        <p style="font-size: 14px; color: #6b7280; margin: 0;">${escapeHtml(timing)}</p>
+        <p style="font-size: 14px; color: #73726c; margin: 0;">${escapeHtml(timing)}</p>
       </div>`;
       const r = await sendEmail(email, `Your ${amount} refund from ${business}`, html, text);
       delivered = r.ok || delivered;

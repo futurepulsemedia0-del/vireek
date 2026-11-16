@@ -4,7 +4,7 @@ import { Skeleton } from '@/components/Skeleton';
 import { Button } from '@/components/ui/Button';
 
 export const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors disabled:opacity-60';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder transition-colors disabled:opacity-60';
 
 export function Card({ title, icon: Icon, children, aside }: { title: string; icon?: LucideIcon; children: ReactNode; aside?: ReactNode }) {
   return (
@@ -23,9 +23,9 @@ export function Card({ title, icon: Icon, children, aside }: { title: string; ic
 
 export type Tone = 'ok' | 'warn' | 'bad' | 'neutral';
 const TONE: Record<Tone, string> = {
-  ok: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-  warn: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
-  bad: 'bg-red-500/10 text-red-600 dark:text-red-400',
+  ok: 'bg-success-subtle text-success',
+  warn: 'bg-warning-subtle text-warning',
+  bad: 'bg-danger-subtle text-danger',
   neutral: 'bg-bg-tertiary text-text-secondary',
 };
 
@@ -39,7 +39,7 @@ export function Field({ label, error, hint, children }: { label: string; error?:
       <span className="mb-1 block text-sm font-medium text-text-primary">{label}</span>
       {children}
       {hint && !error && <span className="mt-1 block text-xs text-text-secondary">{hint}</span>}
-      {error && <span role="alert" className="mt-1 block text-xs text-red-500">{error}</span>}
+      {error && <span role="alert" className="mt-1 block text-xs text-danger">{error}</span>}
     </label>
   );
 }
@@ -55,8 +55,8 @@ export function PanelSkeleton() {
 
 export function PanelError({ message, onRetry }: { message: string; onRetry: () => void }) {
   return (
-    <div role="alert" className="flex flex-col items-start gap-3 rounded-2xl border border-red-500/30 bg-red-500/5 p-5">
-      <div className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400">
+    <div role="alert" className="flex flex-col items-start gap-3 rounded-2xl border border-danger/30 bg-danger-subtle p-5">
+      <div className="flex items-center gap-2 text-sm text-danger">
         <AlertCircle size={16} aria-hidden /> {message}
       </div>
       <Button size="sm" variant="secondary" onClick={onRetry}>Try again</Button>

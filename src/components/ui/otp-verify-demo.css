@@ -98,8 +98,8 @@
   background: linear-gradient(180deg, rgb(var(--text-primary) / 0.045), rgb(var(--text-primary) / 0.014));
   border: 1px solid rgb(var(--text-primary) / 0.1);
   box-shadow:
-    0 1px 2px rgb(15 23 42 / 0.04),
-    0 10px 30px -24px rgb(15 23 42 / 0.28);
+    0 1px 2px rgb(28 27 21 / 0.04),
+    0 10px 30px -24px rgb(28 27 21 / 0.28);
   transition:
     border-color 0.28s var(--votp-ease),
     transform 0.34s var(--votp-ease),
@@ -208,8 +208,8 @@
   background: linear-gradient(180deg, rgb(var(--success) / 0.14), rgb(var(--success) / 0.03));
   box-shadow:
     0 0 0 1px rgb(var(--success) / 0.3),
-    0 1px 2px rgb(15 23 42 / 0.04),
-    0 10px 30px -24px rgb(15 23 42 / 0.28);
+    0 1px 2px rgb(28 27 21 / 0.04),
+    0 10px 30px -24px rgb(28 27 21 / 0.28);
   transition-delay: calc(var(--votp-i, 0) * 70ms);
 }
 .dark .vrk-otp-success .vrk-otp-box {
@@ -281,7 +281,7 @@
 .vrk-otp-shake .vrk-otp-box {
   border-color: rgb(var(--danger) / 0.62);
   background: linear-gradient(180deg, rgb(var(--danger) / 0.14), rgb(var(--danger) / 0.03));
-  box-shadow: 0 0 0 1px rgb(var(--danger) / 0.3), 0 1px 2px rgb(15 23 42 / 0.04);
+  box-shadow: 0 0 0 1px rgb(var(--danger) / 0.3), 0 1px 2px rgb(28 27 21 / 0.04);
 }
 .vrk-otp-shake .vrk-otp-input {
   color: rgb(var(--danger));

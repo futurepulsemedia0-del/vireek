@@ -12,8 +12,8 @@ export const OFFER_STATUS_LABELS: Record<string, string> = {
 };
 
 export const OFFER_STATUS_COLORS: Record<string, string> = {
-  offered: 'bg-warning-500/10 text-warning-500',
-  accepted: 'bg-success-500/10 text-success-500',
+  offered: 'bg-warning-subtle text-warning',
+  accepted: 'bg-success-subtle text-success',
   declined: 'bg-bg-tertiary text-text-secondary',
   withdrawn: 'bg-bg-tertiary text-text-secondary',
 };

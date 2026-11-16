@@ -355,10 +355,10 @@ export const STAGE_LABELS: Record<StudyStage, string> = {
 
 export const STAGE_COLORS: Record<StudyStage, string> = {
   hypothesis: 'bg-accent/10 text-accent',
-  experimenting: 'bg-warning-500/10 text-warning-500',
-  measuring: 'bg-warning-500/10 text-warning-500',
-  decided: 'bg-success-500/10 text-success-500',
-  rolled_out: 'bg-success-500/10 text-success-500',
+  experimenting: 'bg-warning-subtle text-warning',
+  measuring: 'bg-warning-subtle text-warning',
+  decided: 'bg-success-subtle text-success',
+  rolled_out: 'bg-success-subtle text-success',
   abandoned: 'bg-danger/10 text-danger',
 };
 

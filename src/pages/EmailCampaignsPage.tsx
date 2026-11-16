@@ -79,7 +79,7 @@ const toneClass = {
   neutral: 'bg-bg-tertiary text-text-secondary',
   info: 'bg-accent/10 text-accent',
   success: 'bg-success/10 text-success',
-  warning: 'bg-warning-500/10 text-warning-500',
+  warning: 'bg-warning-subtle text-warning',
   danger: 'bg-danger/10 text-danger',
 } as const;
 
@@ -944,7 +944,7 @@ function CampaignBuilder({
               </div>
             </div>
             <p className="truncate text-sm text-text-secondary"><span className="font-medium text-text-primary">Subject:</span> {preview.subject}</p>
-            <div className="overflow-hidden rounded-xl border border-border bg-white">
+            <div className="overflow-hidden rounded-xl border border-border bg-bg-secondary">
               {/* sandbox="" = no scripts, no forms, no same-origin: the preview can never run user content. */}
               <iframe
                 title="Email preview"
@@ -961,7 +961,7 @@ function CampaignBuilder({
             {errors.length > 0 && (
               <ul className="space-y-1 text-sm text-text-secondary" aria-label="Things to fix before sending">
                 {errors.map((e) => (
-                  <li key={e} className="flex items-start gap-2"><TriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-warning-500" aria-hidden /> {e}</li>
+                  <li key={e} className="flex items-start gap-2"><TriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-warning" aria-hidden /> {e}</li>
                 ))}
               </ul>
             )}

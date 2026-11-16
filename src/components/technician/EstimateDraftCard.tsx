@@ -13,7 +13,7 @@ import type { VoiceExtraction } from '../../../supabase/functions/_shared/voice-
 type TFn = (key: string, opts?: Record<string, unknown>) => string;
 type Phase = { k: 'idle' } | { k: 'busy' } | { k: 'error'; msg: 'draftFailed' | 'draftNotEnough' } | { k: 'ready'; result: FieldEstimateResult };
 const TIER_KEY: Record<string, string> = { good: 'tierGood', better: 'tierBetter', best: 'tierBest' };
-const btn = 'min-h-[56px] w-full rounded-lg bg-accent px-4 py-3 text-base font-semibold text-white disabled:opacity-50';
+const btn = 'min-h-[56px] w-full rounded-lg bg-accent px-4 py-3 text-base font-semibold text-on-accent disabled:opacity-50';
 
 export function EstimateDraftCard({ extraction, onClose }: { extraction: VoiceExtraction; onClose: () => void }) {
   const { t } = useVoiceLogT();
@@ -87,7 +87,7 @@ export function EstimateDraftCard({ extraction, onClose }: { extraction: VoiceEx
                   {tt(TIER_KEY[x.tier] ?? 'tierBetter')}{x.recommended && <span className="ms-2 rounded-full bg-accent/10 px-2 py-0.5 text-xs text-accent">{tt('recommended')}</span>}
                 </span>
                 <span className="text-base font-semibold text-text-primary">{formatCents(x.totalCents)}</span>
-                <span className={`w-full text-sm ${x.reviewLines ? 'text-warning-500' : 'text-success-500'}`}>
+                <span className={`w-full text-sm ${x.reviewLines ? 'text-warning' : 'text-success'}`}>
                   {x.reviewLines ? tt('reviewLines', { count: x.reviewLines }) : tt('allLinesFromBook')}
                 </span>
               </li>
@@ -98,7 +98,7 @@ export function EstimateDraftCard({ extraction, onClose }: { extraction: VoiceEx
             <div className="space-y-1 rounded-md border border-border p-3 text-sm text-text-primary">
               <h3 className="font-semibold">{tt('financingTitle')}</h3>
               <p className="flex items-center gap-1">
-                {fin.status === 'eligible' && <CheckCircle2 className="h-4 w-4 text-success-500" aria-hidden="true" />}
+                {fin.status === 'eligible' && <CheckCircle2 className="h-4 w-4 text-success" aria-hidden="true" />}
                 {fin.status === 'eligible' ? tt('financingEligible') : fin.status === 'below_minimum' ? tt('financingBelowMin', { min: formatCents(fin.minCents) }) : tt('financingNotConnected')}
               </p>
               {fin.status === 'eligible' && recommendedTotal !== null && (

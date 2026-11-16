@@ -97,7 +97,7 @@ export function buildVoicemailEmail(i: VoicemailEmailInput): { subject: string; 
   const who = oneLine(i.callerName || i.callerNumber || "an unknown caller").slice(0, 80);
   const biz = oneLine(i.businessName).slice(0, 80) || "Your business";
   const subject = `New voicemail from ${who} — ${biz}`.slice(0, 150);
-  const color = /^#[0-9a-fA-F]{6}$/.test(i.primaryColor ?? "") ? (i.primaryColor as string) : "#1d4ed8";
+  const color = /^#[0-9a-fA-F]{6}$/.test(i.primaryColor ?? "") ? (i.primaryColor as string) : "#0057b3";
   const link = i.listenUrl && /^https:\/\//i.test(i.listenUrl) ? i.listenUrl : null;
   const transcript = (i.transcript ?? "").trim().slice(0, 2000) || "(No transcript available.)";
   const when = i.receivedAt.toISOString().replace("T", " ").slice(0, 16) + " UTC";
@@ -106,6 +106,6 @@ export function buildVoicemailEmail(i: VoicemailEmailInput): { subject: string; 
   const footer = oneLine(i.footer ?? "").slice(0, 200);
 
   const text = [`${biz} — new voicemail`, `From: ${who}`, `Received: ${when}`, dur ? `Length: ${dur}` : "", "", transcript, "", link ? `Listen: ${link}` : "", note, footer].filter((l, idx, a) => l !== "" || (a[idx - 1] ?? "") !== "").join("\n");
-  const html = `<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto"><div style="background:${color};color:#fff;padding:14px 18px;font-weight:bold">${esc(biz)}</div><div style="padding:18px"><p style="margin:0 0 8px"><strong>New voicemail</strong> from ${esc(who)}</p><p style="margin:0 0 12px;color:#555;font-size:13px">${esc(when)}${dur ? ` · ${esc(dur)}` : ""}</p><blockquote style="margin:0 0 14px;padding:10px 14px;background:#f4f4f5;border-left:4px solid ${color};white-space:pre-wrap">${esc(transcript)}</blockquote>${link ? `<p><a href="${esc(link)}" style="color:${color}">Listen to the recording</a></p>` : ""}<p style="color:#777;font-size:12px">${esc(note)}</p>${footer ? `<p style="color:#777;font-size:12px">${esc(footer)}</p>` : ""}</div></div>`;
+  const html = `<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto"><div style="background:${color};color:#fff;padding:14px 18px;font-weight:bold">${esc(biz)}</div><div style="padding:18px"><p style="margin:0 0 8px"><strong>New voicemail</strong> from ${esc(who)}</p><p style="margin:0 0 12px;color:#595852;font-size:13px">${esc(when)}${dur ? ` · ${esc(dur)}` : ""}</p><blockquote style="margin:0 0 14px;padding:10px 14px;background:#faf9f5;border-left:4px solid ${color};white-space:pre-wrap">${esc(transcript)}</blockquote>${link ? `<p><a href="${esc(link)}" style="color:${color}">Listen to the recording</a></p>` : ""}<p style="color:#73726C;font-size:12px">${esc(note)}</p>${footer ? `<p style="color:#73726C;font-size:12px">${esc(footer)}</p>` : ""}</div></div>`;
   return { subject, text, html };
 }

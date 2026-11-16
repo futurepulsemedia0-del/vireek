@@ -79,7 +79,7 @@ const INITIAL: EnterpriseFormData = {
 };
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-3 text-base text-text-primary placeholder:text-text-secondary/60 transition-colors focus-visible:border-accent';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-3 text-base text-text-primary placeholder:text-text-placeholder transition-colors focus-visible:border-accent';
 
 const LICENSING_TERMS = [
   {
@@ -272,7 +272,7 @@ export function EnterprisePage() {
                   </Button>
                 </a>
               </div>
-              <p className="mt-4 flex items-center justify-center gap-1.5 text-xs font-medium text-text-secondary/70">
+              <p className="mt-4 flex items-center justify-center gap-1.5 text-xs font-medium text-text-muted">
                 <ShieldCheck size={13} className="shrink-0" />
                 Starting from ${ENTERPRISE_PLAN.startingAt}/mo &middot; response within 1 business day
               </p>

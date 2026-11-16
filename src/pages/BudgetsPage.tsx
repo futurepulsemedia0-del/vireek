@@ -53,14 +53,14 @@ import {
 const MAX_MONTHS_AHEAD = 12;
 
 const BAR_COLOR: Record<BudgetStatus, string> = {
-  on_track: 'bg-success-500',
-  warning: 'bg-warning-500',
+  on_track: 'bg-success',
+  warning: 'bg-warning',
   over: 'bg-danger',
   unbudgeted: 'bg-text-secondary',
 };
 const BADGE_COLOR: Record<BudgetStatus, string> = {
-  on_track: 'bg-success-500/10 text-success-500',
-  warning: 'bg-warning-500/10 text-warning-500',
+  on_track: 'bg-success-subtle text-success',
+  warning: 'bg-warning-subtle text-warning',
   over: 'bg-danger/10 text-danger',
   unbudgeted: 'bg-bg-tertiary text-text-secondary',
 };
@@ -112,7 +112,7 @@ function Kpi({ label, value, hint, tone }: { label: string; value: string; hint?
   return (
     <Card className="p-4 sm:p-5">
       <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary">{label}</p>
-      <p className={`mt-1 text-xl font-bold tabular-nums sm:text-2xl ${tone === 'bad' ? 'text-danger' : tone === 'good' ? 'text-success-500' : 'text-text-primary'}`}>
+      <p className={`mt-1 text-xl font-bold tabular-nums sm:text-2xl ${tone === 'bad' ? 'text-danger' : tone === 'good' ? 'text-success' : 'text-text-primary'}`}>
         {value}
       </p>
       {hint && <p className="mt-0.5 text-xs text-text-secondary">{hint}</p>}
@@ -449,9 +449,9 @@ export function BudgetsPage() {
             </div>
 
             {alerts.length > 0 && (
-              <div role="alert" className="rounded-2xl border border-warning-500/40 bg-warning-500/10 p-4">
+              <div role="alert" className="rounded-2xl border border-warning/40 bg-warning-subtle p-4">
                 <p className="flex items-center gap-2 text-sm font-semibold text-text-primary">
-                  <AlertTriangle size={16} className="text-warning-500" /> Needs attention
+                  <AlertTriangle size={16} className="text-warning" /> Needs attention
                 </p>
                 <ul className="mt-2 space-y-1 text-sm text-text-primary">
                   {alerts.map((r) => (

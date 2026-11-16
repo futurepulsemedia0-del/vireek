@@ -32,7 +32,7 @@ const PAGE = 'Calendar Feeds';
 
 const TONE_CLASS: Record<FeedTone, string> = {
   ok: 'bg-success/10 text-success',
-  warn: 'bg-warning-500/10 text-warning-500',
+  warn: 'bg-warning-subtle text-warning',
   muted: 'bg-bg-tertiary text-text-secondary',
 };
 
@@ -208,8 +208,8 @@ export function CalendarFeedsPage() {
           </p>
         </header>
 
-        <div className="flex items-start gap-2 rounded-xl border border-warning-500/30 bg-warning-500/5 p-3 text-xs text-text-secondary">
-          <AlertTriangle size={14} className="mt-0.5 shrink-0 text-warning-500" />
+        <div className="flex items-start gap-2 rounded-xl border border-warning/30 bg-warning-subtle p-3 text-xs text-text-secondary">
+          <AlertTriangle size={14} className="mt-0.5 shrink-0 text-warning" />
           <span>Anyone with a link can see that calendar. Don't share it publicly — if a link leaks, press Regenerate and the old one stops working immediately.</span>
         </div>
 

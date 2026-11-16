@@ -39,8 +39,8 @@ export const CONTRACT_STATUS_LABELS: Record<ContractStatus, string> = {
 
 export const CONTRACT_STATUS_COLORS: Record<ContractStatus, string> = {
   draft: 'bg-bg-tertiary text-text-secondary',
-  active: 'bg-success-500/10 text-success-500',
-  expiring_soon: 'bg-warning-500/10 text-warning-500',
+  active: 'bg-success-subtle text-success',
+  expiring_soon: 'bg-warning-subtle text-warning',
   expired: 'bg-danger/10 text-danger',
   terminated: 'bg-bg-tertiary text-text-secondary',
   renewed: 'bg-accent/10 text-accent',
@@ -82,7 +82,7 @@ export const BREACH_SEVERITY_LABELS: Record<BreachSeverity, string> = {
 
 export const BREACH_SEVERITY_COLORS: Record<BreachSeverity, string> = {
   minor: 'bg-bg-tertiary text-text-secondary',
-  major: 'bg-warning-500/10 text-warning-500',
+  major: 'bg-warning-subtle text-warning',
   critical: 'bg-danger/10 text-danger',
 };
 

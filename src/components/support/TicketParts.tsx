@@ -18,8 +18,8 @@ export function useNow(intervalMs = 30_000): number {
 }
 
 const TONE_CLASS: Record<SlaTone, string> = {
-  ok: 'bg-success-500/10 text-success-500',
-  warning: 'bg-warning-500/10 text-warning-500',
+  ok: 'bg-success-subtle text-success',
+  warning: 'bg-warning-subtle text-warning',
   breached: 'bg-danger/10 text-danger',
   neutral: 'bg-bg-tertiary text-text-secondary',
 };
@@ -42,7 +42,7 @@ export function SlaBadge({ ticket }: { ticket: Parameters<typeof slaState>[0] })
 const STATE_CLASS: Record<TicketState, string> = {
   open: 'bg-accent/10 text-accent',
   in_progress: 'bg-accent/10 text-accent',
-  waiting_on_you: 'bg-warning-500/10 text-warning-500',
+  waiting_on_you: 'bg-warning-subtle text-warning',
   resolved: 'bg-bg-tertiary text-text-secondary',
 };
 
@@ -90,14 +90,14 @@ export function AttachmentPicker({
         className="focus-ring inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-medium text-text-secondary hover:text-text-primary disabled:opacity-50"
       >
         <Paperclip size={14} aria-hidden="true" /> Attach files
-        <span className="text-text-secondary/60">{files.length}/{MAX_ATTACHMENTS}</span>
+        <span className="text-text-muted">{files.length}/{MAX_ATTACHMENTS}</span>
       </button>
       {files.length > 0 && (
         <ul className="mt-2 flex flex-wrap gap-2">
           {files.map((f) => (
             <li key={`${f.name}-${f.size}`} className="flex max-w-full items-center gap-1.5 rounded-lg bg-bg-tertiary px-2.5 py-1.5 text-xs text-text-primary">
               <span className="truncate">{f.name}</span>
-              <span className="shrink-0 text-text-secondary/70">{formatBytes(f.size)}</span>
+              <span className="shrink-0 text-text-muted">{formatBytes(f.size)}</span>
               <button
                 type="button"
                 disabled={disabled}
@@ -143,7 +143,7 @@ export function MessageAttachments({ items, onDark }: { items: TicketAttachment[
               onClick={() => void open(a)}
               disabled={busy === a.id}
               className={`focus-ring flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-xs ${
-                onDark ? 'bg-white/15 text-white hover:bg-white/25' : 'bg-bg-secondary text-text-primary hover:bg-bg-primary'
+                onDark ? 'bg-static-white/15 text-white hover:bg-static-white/25' : 'bg-bg-secondary text-text-primary hover:bg-bg-primary'
               }`}
             >
               {busy === a.id ? <Loader2 size={14} className="animate-spin" /> : <Icon size={14} aria-hidden="true" />}

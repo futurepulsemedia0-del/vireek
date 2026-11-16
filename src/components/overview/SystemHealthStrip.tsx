@@ -32,20 +32,20 @@ const STATE_UI: Record<HealthState, { word: string; Icon: LucideIcon; chip: stri
   green: {
     word: 'Healthy',
     Icon: CircleCheck,
-    chip: 'border-emerald-500/30 bg-emerald-500/5',
-    text: 'text-emerald-600 dark:text-emerald-400',
+    chip: 'border-success/30 bg-success-subtle',
+    text: 'text-success',
   },
   amber: {
     word: 'Warning',
     Icon: TriangleAlert,
-    chip: 'border-amber-500/40 bg-amber-500/10',
-    text: 'text-amber-600 dark:text-amber-400',
+    chip: 'border-warning/40 bg-warning-subtle',
+    text: 'text-warning',
   },
   red: {
     word: 'Critical',
     Icon: CircleAlert,
-    chip: 'border-red-500/40 bg-red-500/10',
-    text: 'text-red-600 dark:text-red-400',
+    chip: 'border-danger/40 bg-danger-subtle',
+    text: 'text-danger',
   },
   off: {
     word: 'Not set up',
@@ -126,7 +126,7 @@ export function SystemHealthStrip() {
       )}
 
       {status === 'error' && (
-        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3">
+        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-warning/40 bg-warning-subtle px-4 py-3">
           <p className="text-sm text-text-primary">
             We could not verify your integrations right now. Status is unknown — not healthy.
           </p>

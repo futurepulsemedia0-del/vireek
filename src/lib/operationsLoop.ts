@@ -211,17 +211,17 @@ export function policyStageHealth(p: OpsLoopPolicySummary, summary: ActBetterSum
 }
 
 export const HEALTH_STYLES: Record<StageHealth, { label: string; dot: string; text: string; bg: string }> = {
-  healthy: { label: 'Healthy', dot: 'bg-emerald-500', text: 'text-emerald-600', bg: 'bg-emerald-500/10' },
-  partial: { label: 'Partial', dot: 'bg-amber-500', text: 'text-amber-600', bg: 'bg-amber-500/10' },
-  gap: { label: 'Gap', dot: 'bg-red-500', text: 'text-red-600', bg: 'bg-red-500/10' },
-  idle: { label: 'No data', dot: 'bg-slate-400', text: 'text-slate-500', bg: 'bg-slate-500/10' },
+  healthy: { label: 'Healthy', dot: 'bg-success', text: 'text-success', bg: 'bg-success-subtle' },
+  partial: { label: 'Partial', dot: 'bg-warning', text: 'text-warning', bg: 'bg-warning-subtle' },
+  gap: { label: 'Gap', dot: 'bg-danger', text: 'text-danger', bg: 'bg-danger-subtle' },
+  idle: { label: 'No data', dot: 'bg-text-muted', text: 'text-text-muted', bg: 'bg-text-muted/10' },
 };
 
 export const VERDICT_STYLES: Record<ImpactVerdict, { label: string; className: string }> = {
-  improved: { label: 'Improved', className: 'bg-emerald-500/10 text-emerald-600' },
-  flat: { label: 'No change', className: 'bg-slate-500/10 text-slate-500' },
-  worsened: { label: 'Worse', className: 'bg-red-500/10 text-red-600' },
-  insufficient: { label: 'Not enough data', className: 'bg-amber-500/10 text-amber-600' },
+  improved: { label: 'Improved', className: 'bg-success-subtle text-success' },
+  flat: { label: 'No change', className: 'bg-text-muted/10 text-text-secondary' },
+  worsened: { label: 'Worse', className: 'bg-danger-subtle text-danger' },
+  insufficient: { label: 'Not enough data', className: 'bg-warning-subtle text-warning' },
 };
 
 export const JOB_STAGE_KEYS: JobStageKey[] = STAGES.map((s) => s.key);

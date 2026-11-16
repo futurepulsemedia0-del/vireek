@@ -137,7 +137,7 @@ export function HrOnboardingPage() {
         ) : (
           <div className="space-y-6">
             {loadError && (
-              <div role="status" className="rounded-xl border border-warning-500/30 bg-warning-500/10 p-3 text-sm text-text-primary">
+              <div role="status" className="rounded-xl border border-warning/30 bg-warning-subtle p-3 text-sm text-text-primary">
                 The latest refresh failed, so some data may be out of date.{' '}
                 <button type="button" className="focus-ring rounded font-semibold text-accent underline" onClick={() => void load()}>
                   Retry
@@ -152,7 +152,7 @@ export function HrOnboardingPage() {
               <StatTile label="Reviews due" value={summary.reviewsDue} tone="alert" onClick={() => setTab('reviews')} />
             </div>
             {summary.expiringDocuments > 0 && (
-              <p role="status" className="rounded-xl border border-warning-500/30 bg-warning-500/10 p-3 text-sm text-text-primary">
+              <p role="status" className="rounded-xl border border-warning/30 bg-warning-subtle p-3 text-sm text-text-primary">
                 {summary.expiringDocuments} document{summary.expiringDocuments === 1 ? ' is' : 's are'} expired or expiring within 30 days.{' '}
                 <button type="button" className="focus-ring rounded font-semibold text-accent underline" onClick={() => setTab('documents')}>
                   Review documents

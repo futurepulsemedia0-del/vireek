@@ -62,13 +62,13 @@ import {
 import type { JobPhotoRow } from '@/lib/gallery';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder transition-colors';
 
 const KIND_BADGE: Record<PhotoKind, string> = {
-  before: 'bg-warning-500 text-white',
-  after: 'bg-success-500 text-white',
-  progress: 'bg-black/60 text-white',
-  other: 'bg-black/60 text-white',
+  before: 'bg-warning text-on-warning',
+  after: 'bg-success text-on-success',
+  progress: 'bg-overlay/60 text-white',
+  other: 'bg-overlay/60 text-white',
 };
 
 type Tab = 'photos' | 'pairs';
@@ -408,7 +408,7 @@ export function GalleryPage() {
           <button
             type="button"
             onClick={() => setUploadOpen(true)}
-            className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+            className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent transition-opacity hover:opacity-90"
           >
             <Upload size={15} /> Upload photos
           </button>
@@ -541,7 +541,7 @@ export function GalleryPage() {
                     aria-pressed={tag === t.tag}
                     className={`focus-ring shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                       tag === t.tag
-                        ? 'bg-accent text-white'
+                        ? 'bg-accent text-on-accent'
                         : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
                     }`}
                   >
@@ -609,7 +609,7 @@ export function GalleryPage() {
                               </span>
                               {selectMode && (
                                 <span
-                                  className={`absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full border-2 ${isSel ? 'border-accent bg-accent text-white' : 'border-white bg-black/30'}`}
+                                  className={`absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full border-2 ${isSel ? 'border-accent bg-accent text-on-accent' : 'border-on-inverse bg-overlay/30'}`}
                                 >
                                   {isSel && <Check size={12} />}
                                 </span>
@@ -617,14 +617,14 @@ export function GalleryPage() {
                               <span className="absolute bottom-1.5 left-1.5 flex gap-1">
                                 {it.pairId && pairs.some((p) => p.pairId === it.pairId) && (
                                   <span
-                                    className="rounded-full bg-black/60 p-1 text-white"
+                                    className="rounded-full bg-overlay/60 p-1 text-white"
                                     title="Paired"
                                   >
                                     <Link2 size={10} />
                                   </span>
                                 )}
                                 {it.annotations.length > 0 && (
-                                  <span className="rounded-full bg-black/60 px-1.5 py-0.5 text-[10px] text-white">
+                                  <span className="rounded-full bg-overlay/60 px-1.5 py-0.5 text-[10px] text-white">
                                     {it.annotations.length} pin
                                     {it.annotations.length === 1 ? '' : 's'}
                                   </span>
@@ -733,7 +733,7 @@ export function GalleryPage() {
               type="button"
               disabled={selected.size === 0 || busy !== null}
               onClick={() => void bulkDownload(selectedItems)}
-              className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3.5 py-2 text-xs font-semibold text-white disabled:opacity-50"
+              className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3.5 py-2 text-xs font-semibold text-on-accent disabled:opacity-50"
             >
               <Download size={13} /> Download ZIP
             </button>
@@ -785,7 +785,7 @@ export function GalleryPage() {
                 type="button"
                 onClick={() => void bulkTag()}
                 disabled={busy !== null || parseTagInput(bulkTagText).length === 0}
-                className="focus-ring shrink-0 rounded-xl bg-accent px-4 py-2 text-xs font-semibold text-white disabled:opacity-50"
+                className="focus-ring shrink-0 rounded-xl bg-accent px-4 py-2 text-xs font-semibold text-on-accent disabled:opacity-50"
               >
                 {busy === 'tag' ? 'Tagging…' : 'Apply'}
               </button>

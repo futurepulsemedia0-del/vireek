@@ -71,22 +71,22 @@ function memberUserId(member: TeamMember): string | null {
 
 const TONE_CLASSES = {
   neutral: 'bg-bg-tertiary text-text-secondary',
-  warning: 'bg-warning-500/10 text-warning-500',
+  warning: 'bg-warning-subtle text-warning',
   accent: 'bg-accent/10 text-accent',
-  success: 'bg-success-500/10 text-success-500',
+  success: 'bg-success-subtle text-success',
 } as const;
 
 function scoreColor(score: number | null, required: number): string {
   if (score === null) return 'text-text-secondary';
-  if (score >= required) return 'text-success-500';
-  if (score >= required - 15) return 'text-warning-500';
+  if (score >= required) return 'text-success';
+  if (score >= required - 15) return 'text-warning';
   return 'text-danger';
 }
 
 function barColor(score: number | null, required: number): string {
   if (score === null) return 'bg-bg-tertiary';
-  if (score >= required) return 'bg-success-500';
-  if (score >= required - 15) return 'bg-warning-500';
+  if (score >= required) return 'bg-success';
+  if (score >= required - 15) return 'bg-warning';
   return 'bg-danger';
 }
 
@@ -178,7 +178,7 @@ function ReadinessHero({
           </span>
           {delta !== null && (
             <span
-              className={`text-xs font-semibold ${delta >= 0 ? 'text-success-500' : 'text-danger'}`}
+              className={`text-xs font-semibold ${delta >= 0 ? 'text-success' : 'text-danger'}`}
             >
               {delta >= 0 ? '+' : ''}
               {delta} pts since the plan started
@@ -303,10 +303,10 @@ function PathwayCard({
           const Icon = STAGE_ICONS[stage.id];
           const tone =
             stage.state === 'done'
-              ? 'bg-success-500/10 text-success-500'
+              ? 'bg-success-subtle text-success'
               : stage.state === 'active'
                 ? 'bg-accent/10 text-accent ring-1 ring-accent/40'
-                : 'bg-bg-tertiary text-text-secondary/70';
+                : 'bg-bg-tertiary text-text-muted';
           return (
             <li
               key={stage.id}
@@ -637,8 +637,8 @@ export function TechnicianApprenticeshipPage() {
       </div>
 
       {setupMissing && (
-        <div className="mb-6 flex items-start gap-3 rounded-2xl border border-warning-500/30 bg-warning-500/5 p-4 text-sm text-text-secondary">
-          <Database size={18} className="mt-0.5 shrink-0 text-warning-500" />
+        <div className="mb-6 flex items-start gap-3 rounded-2xl border border-warning/30 bg-warning-subtle p-4 text-sm text-text-secondary">
+          <Database size={18} className="mt-0.5 shrink-0 text-warning" />
           <p>
             The apprenticeship database objects are not available yet. Apply the migration{' '}
             <span className="font-mono text-text-primary">

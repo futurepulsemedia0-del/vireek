@@ -24,7 +24,7 @@ function Sheet({ title, onClose, busy, children }: { title: string; onClose: () 
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose, busy]);
   return (
-    <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/50" onClick={() => !busy && onClose()}>
+    <div className="fixed inset-0 z-40 flex items-end justify-center bg-overlay/50" onClick={() => !busy && onClose()}>
       <div role="dialog" aria-modal="true" aria-label={title} onClick={(e) => e.stopPropagation()}
         className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-2xl border border-border bg-bg-primary p-4 pb-8">
         <h2 className="mb-3 text-base font-semibold text-text-primary">{title}</h2>
@@ -94,7 +94,7 @@ export function JobPaymentPanel({ jobId, onChanged }: { jobId: string; onChanged
       </dl>
 
       {notice && (
-        <p role="status" className={`mt-2 flex items-start gap-2 rounded-md p-2 text-xs ${notice.tone === 'success' ? 'bg-success-500/10 text-success-500' : 'bg-warning-500/10 text-warning-500'}`}>
+        <p role="status" className={`mt-2 flex items-start gap-2 rounded-md p-2 text-xs ${notice.tone === 'success' ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning'}`}>
           {notice.tone === 'success' ? <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0" /> : <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />}
           <span>{notice.text}</span>
         </p>
@@ -109,7 +109,7 @@ export function JobPaymentPanel({ jobId, onChanged }: { jobId: string; onChanged
           <Button size="sm" variant="secondary" onClick={() => setMode('check')}><FileText className="h-4 w-4" /> Check</Button>
         </div>
       ) : (
-        <p className="mt-3 flex items-center gap-1 text-sm font-medium text-success-500"><CheckCircle2 className="h-4 w-4" /> Paid in full</p>
+        <p className="mt-3 flex items-center gap-1 text-sm font-medium text-success"><CheckCircle2 className="h-4 w-4" /> Paid in full</p>
       )}
       {due > 0 && summary.invoice_cents > 0 && !canTapToPay && (
         <p className="mt-2 text-xs text-text-secondary">

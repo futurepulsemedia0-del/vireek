@@ -118,7 +118,7 @@ function NotifySignup() {
         }}
         placeholder="you@company.com"
         aria-label="Email address"
-        className={`focus-ring w-full rounded-xl border bg-bg-secondary px-4 py-3 text-sm text-text-primary placeholder:text-text-secondary/60 ${
+        className={`focus-ring w-full rounded-xl border bg-bg-secondary px-4 py-3 text-sm text-text-primary placeholder:text-text-placeholder ${
           state === 'error' ? 'border-danger/60' : 'border-border'
         }`}
       />
@@ -304,7 +304,7 @@ export function WebinarsPage() {
               className="pointer-events-none absolute inset-0"
               style={{
                 backgroundImage:
-                  'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
+                  'radial-gradient(circle at 20% 20%, rgb(var(--static-white) / 0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
               }}
             />
             <div className="relative">

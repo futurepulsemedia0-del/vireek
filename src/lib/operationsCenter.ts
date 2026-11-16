@@ -79,10 +79,10 @@ export const STATUS_LABELS: Record<OpsStatus, string> = {
 
 export const STATUS_COLORS: Record<OpsStatus, string> = {
   detected: 'bg-danger/10 text-danger',
-  root_cause_identified: 'bg-warning-500/10 text-warning-500',
+  root_cause_identified: 'bg-warning-subtle text-warning',
   action_assigned: 'bg-accent/10 text-accent',
   in_execution: 'bg-accent/10 text-accent',
-  resolved: 'bg-success-500/10 text-success-500',
+  resolved: 'bg-success-subtle text-success',
   reopened: 'bg-danger/10 text-danger',
 };
 

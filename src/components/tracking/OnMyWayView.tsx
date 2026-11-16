@@ -122,7 +122,7 @@ function ReviewPrompt({ tracking, token }: { tracking: JobTracking; token: strin
             key={n}
             to={`/review/${reviewToken}?rating=${n}`}
             aria-label={`Rate ${n} out of 5`}
-            className="rounded-lg p-1.5 text-warning-500 transition-transform hover:scale-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
+            className="rounded-lg p-1.5 text-warning transition-transform hover:scale-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
           >
             <Star size={28} />
           </Link>
@@ -174,7 +174,7 @@ export function OnMyWayView({ tracking, token }: { tracking: JobTracking; token:
       <div aria-live="polite">
         {eta ? (
           <div className="mt-5 flex items-center gap-4 rounded-2xl border border-accent/30 bg-accent/5 p-5">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent text-white">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent text-on-accent">
               <Clock size={22} />
             </span>
             <div className="min-w-0">
@@ -222,7 +222,7 @@ export function OnMyWayView({ tracking, token }: { tracking: JobTracking; token:
       {hasLocation && mapUrl && !arrived && (
         <div className="mt-5 overflow-hidden rounded-2xl border border-border">
           <iframe title="Technician location" className="h-64 w-full" loading="lazy" src={mapUrl} />
-          <p className={`flex items-center gap-1.5 px-3 py-2 text-[11px] ${fresh?.stale ? 'text-warning-500' : 'text-text-secondary'}`}>
+          <p className={`flex items-center gap-1.5 px-3 py-2 text-[11px] ${fresh?.stale ? 'text-warning' : 'text-text-secondary'}`}>
             <MapPin size={11} />
             {fresh ? fresh.label : 'Location updates automatically'}
             {tracking.position_source === 'telematics' ? ' · vehicle GPS' : ''}

@@ -346,7 +346,7 @@ export function PermitCenterPage() {
             {meta.label}
           </span>
           {due && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-warning-500/10 px-2 py-0.5 text-[11px] text-warning-500">
+            <span className="inline-flex items-center gap-1 rounded-full bg-warning-subtle px-2 py-0.5 text-[11px] text-warning">
               <AlertTriangle size={10} /> Follow up
             </span>
           )}
@@ -375,7 +375,7 @@ export function PermitCenterPage() {
             <p className="text-sm text-text-secondary">
               Every permit across your jobs — from application to final inspection.
               {needsAttention > 0 && (
-                <span className="ml-1 font-medium text-warning-500">
+                <span className="ml-1 font-medium text-warning">
                   {needsAttention} need attention.
                 </span>
               )}
@@ -505,7 +505,7 @@ export function PermitCenterPage() {
                       <p className="text-sm font-medium text-text-primary">
                         {a.name}
                         {a.verified && (
-                          <span className="ml-2 rounded-full bg-success-500/10 px-2 py-0.5 text-[11px] text-success-500">
+                          <span className="ml-2 rounded-full bg-success-subtle px-2 py-0.5 text-[11px] text-success">
                             Verified
                           </span>
                         )}

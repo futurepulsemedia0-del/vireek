@@ -161,7 +161,7 @@ export function ConsentLedger({ canEdit }: { canEdit: boolean }) {
                         {CONSENT_TYPE_LABELS[r.consent_type]} · {CONSENT_SOURCE_LABELS[r.source] ?? r.source} · {new Date(r.created_at).toLocaleDateString()}
                       </p>
                     </div>
-                    <span className={`rounded-md px-2 py-0.5 text-xs font-medium ${good ? 'bg-success-500/10 text-success-500' : 'bg-danger/10 text-danger'}`}>{state}</span>
+                    <span className={`rounded-md px-2 py-0.5 text-xs font-medium ${good ? 'bg-success-subtle text-success' : 'bg-danger/10 text-danger'}`}>{state}</span>
                     <Button type="button" variant="ghost" size="sm" aria-label={`History for ${contactLabel(r)}`} onClick={() => void openHistory(r)}>
                       <History className="h-4 w-4" aria-hidden /> History
                     </Button>
@@ -178,7 +178,7 @@ export function ConsentLedger({ canEdit }: { canEdit: boolean }) {
         )}
 
       {history && (
-        <div role="dialog" aria-modal="true" aria-label="Consent history" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setHistory(null)}>
+        <div role="dialog" aria-modal="true" aria-label="Consent history" className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/50 p-4" onClick={() => setHistory(null)}>
           <div className="max-h-[80vh] w-full max-w-md overflow-y-auto rounded-2xl border border-border bg-bg-secondary p-5" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-base font-semibold text-text-primary">{contactLabel(history.row)}</h3>
             <p className="text-xs text-text-secondary">{CONSENT_TYPE_LABELS[history.row.consent_type]} — newest first</p>
@@ -186,7 +186,7 @@ export function ConsentLedger({ canEdit }: { canEdit: boolean }) {
               <ol className="mt-3 space-y-2">
                 {history.items.map((h) => (
                   <li key={h.id} className="rounded-lg border border-border bg-bg-primary p-2.5 text-sm">
-                    <span className={h.granted ? 'text-success-500' : 'text-danger'}>{h.granted ? 'Granted' : 'Withdrawn'}</span>
+                    <span className={h.granted ? 'text-success' : 'text-danger'}>{h.granted ? 'Granted' : 'Withdrawn'}</span>
                     <span className="text-text-secondary"> · {CONSENT_SOURCE_LABELS[h.source] ?? h.source} · {new Date(h.created_at).toLocaleString()}</span>
                     {h.notes && <p className="mt-0.5 text-xs text-text-secondary">{h.notes}</p>}
                   </li>

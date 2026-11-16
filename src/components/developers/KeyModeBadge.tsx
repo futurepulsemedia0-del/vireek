@@ -6,7 +6,7 @@ export function KeyModeBadge({ mode }: { mode: KeyMode }) {
   return (
     <span
       className={`rounded-md px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide ${
-        live ? 'bg-danger/10 text-danger' : 'bg-warning-500/10 text-warning-500'
+        live ? 'bg-danger/10 text-danger' : 'bg-warning-subtle text-warning'
       }`}
       title={live ? 'Reads your real account data' : 'Returns synthetic sandbox data only'}
     >

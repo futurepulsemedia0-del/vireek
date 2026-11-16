@@ -94,7 +94,7 @@ export function SwitchGuidePage() {
               <ul className="mt-5 space-y-3">
                 {whatCarriesOver.map((item) => (
                   <li key={item} className="flex items-start gap-2.5 text-sm leading-relaxed text-text-secondary sm:text-base">
-                    <Check size={18} className="mt-0.5 shrink-0 text-success-500" strokeWidth={2.5} />
+                    <Check size={18} className="mt-0.5 shrink-0 text-success" strokeWidth={2.5} />
                     {item}
                   </li>
                 ))}
@@ -207,7 +207,7 @@ export function SwitchGuidePage() {
               className="pointer-events-none absolute inset-0"
               style={{
                 backgroundImage:
-                  'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
+                  'radial-gradient(circle at 20% 20%, rgb(var(--static-white) / 0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
               }}
             />
             <div className="relative">

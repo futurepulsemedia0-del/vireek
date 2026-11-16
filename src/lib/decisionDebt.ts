@@ -147,10 +147,10 @@ export const SEVERITY_LABELS: Record<OperationalSeverity, string> = {
 };
 
 export const SEVERITY_COLORS: Record<OperationalSeverity, string> = {
-  low: 'bg-success-500/10 text-success-500',
-  medium: 'bg-warning-500/10 text-warning-500',
+  low: 'bg-success-subtle text-success',
+  medium: 'bg-warning-subtle text-warning',
   high: 'bg-danger/10 text-danger',
-  critical: 'bg-danger/20 text-danger',
+  critical: 'bg-danger/20 text-danger-strong',
 };
 
 // ============================================================

@@ -118,7 +118,7 @@ export function TaskFormModal({ open, task, assignees, canAssign, meId, onClose,
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={() => !saving && onClose()}
-            className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 z-[100] bg-overlay/40 backdrop-blur-sm"
           />
           <motion.div
             ref={dialogRef}

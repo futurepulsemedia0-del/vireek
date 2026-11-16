@@ -9,10 +9,10 @@
 // public/chat-widget.js, public/website-widgets.js and supabase/functions/_shared/direct-mail/engine.ts cannot import this
 // file; they carry a marked copy of the same algorithm. readableText.parity.test.ts fails if a copy drifts.
 
-export type ReadableText = '#FFFFFF' | '#0F172A' | '#000000';
+export type ReadableText = '#FFFFFF' | '#1C1B15' | '#000000';
 
 const WHITE: ReadableText = '#FFFFFF';
-const INK: ReadableText = '#0F172A';
+const INK: ReadableText = '#1C1B15';
 const BLACK: ReadableText = '#000000';
 
 function channel(v: number): number {

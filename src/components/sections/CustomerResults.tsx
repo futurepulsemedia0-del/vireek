@@ -114,10 +114,10 @@ export function CustomerResults() {
                 <p className="text-sm font-medium">Estimate conversion rate</p>
               </div>
               <div className="mt-3 flex items-end gap-3">
-                <span className="text-lg font-medium text-text-secondary/60 line-through">
+                <span className="text-lg font-medium text-text-muted line-through">
                   {RESULT.conversionBefore}
                 </span>
-                <ArrowRight size={16} className="mb-1.5 text-text-secondary/40" />
+                <ArrowRight size={16} className="mb-1.5 text-graphic-muted" />
                 <span className="text-4xl font-bold tracking-tight text-success sm:text-5xl">
                   <CountUp value={RESULT.conversionAfter} />
                 </span>

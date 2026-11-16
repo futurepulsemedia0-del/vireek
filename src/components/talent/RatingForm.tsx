@@ -75,7 +75,7 @@ export function RatingForm({ engagementId, tags, theirTags, onDone }: Props) {
             ))}
           </div>
           <Textarea label="Comment (optional)" value={comment} onChange={(e) => setComment(e.target.value)} maxLength={600} rows={3} />
-          {error && <p role="alert" className="text-sm text-red-500">{error}</p>}
+          {error && <p role="alert" className="text-sm text-danger">{error}</p>}
           <Button onClick={() => void submit()} disabled={busy}>{busy ? 'Submitting…' : 'Submit rating'}</Button>
           <p className="text-xs text-text-secondary">Ratings stay hidden until both sides submit, or 14 days after the engagement ends.</p>
         </div>

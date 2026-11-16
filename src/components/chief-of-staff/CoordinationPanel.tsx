@@ -11,7 +11,7 @@ interface Props {
 
 const SEVERITY_TONE: Record<ConflictRow['severity'], string> = {
   info: 'text-text-secondary',
-  warning: 'text-warning-500',
+  warning: 'text-warning',
   critical: 'text-danger',
 };
 

@@ -118,7 +118,7 @@ export function SupportInboxPage() {
                 {asTicket(c).subject ? `${ticketRef(asTicket(c).ticket_number)} · ${asTicket(c).subject}` : c.visitor_name || c.visitor_email || 'Anonymous visitor'}
               </p>
               <p className="mt-0.5 truncate text-xs text-text-secondary">{c.page_path || '—'}</p>
-              <p className="mt-0.5 text-[11px] text-text-secondary/70">
+              <p className="mt-0.5 text-[11px] text-text-muted">
                 {c.status === 'open' ? 'Waiting' : 'In progress'} · {new Date(c.last_message_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
               </p>
               {asTicket(c).subject && <div className="mt-1.5"><SlaBadge ticket={asTicket(c)} /></div>}
@@ -162,7 +162,7 @@ export function SupportInboxPage() {
                       className={`max-w-[70%] rounded-2xl px-3.5 py-2 text-sm leading-relaxed ${
                         isVisitor
                           ? 'rounded-bl-sm border border-border/70 bg-bg-tertiary text-text-primary'
-                          : 'rounded-br-sm bg-gradient-to-br from-accent to-accent-600 text-white'
+                          : 'rounded-br-sm bg-accent text-on-accent'
                       }`}
                     >
                       {m.body}
@@ -192,7 +192,7 @@ export function SupportInboxPage() {
               <button
                 type="submit"
                 disabled={!input.trim() || sending}
-                className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent text-white disabled:opacity-40"
+                className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent text-on-accent disabled:opacity-40"
               >
                 <Send size={16} />
               </button>

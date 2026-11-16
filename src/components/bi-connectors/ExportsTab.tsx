@@ -260,7 +260,7 @@ export function ExportsTab({ data, isOwner }: { data: BiData; isOwner: boolean }
                   {t.status === 'error' && t.last_error && <p role="alert" className="rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger">{t.last_error}</p>}
                   {checks[t.id] && (
                     <ul className="space-y-1.5" aria-label="Connection test results">
-                      {checks[t.id].map((c) => <li key={c.name} className={`text-sm ${c.ok ? 'text-success-500' : 'text-danger'}`}>{c.ok ? '✓' : '✕'} {c.name}: {c.detail}</li>)}
+                      {checks[t.id].map((c) => <li key={c.name} className={`text-sm ${c.ok ? 'text-success' : 'text-danger'}`}>{c.ok ? '✓' : '✕'} {c.name}: {c.detail}</li>)}
                     </ul>
                   )}
                   {last && <p className="text-xs text-text-secondary">Last run: {last.status}{describeExportStats(last.stats) ? ` · ${describeExportStats(last.stats)}` : ''} · {timeAgo(last.started_at, data.now)}</p>}

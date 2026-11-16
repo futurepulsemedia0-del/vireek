@@ -47,7 +47,7 @@ import {
 } from '@/lib/contracts';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder transition-colors';
 
 const labelClass = 'mb-1.5 block text-xs font-medium text-text-secondary';
 
@@ -387,7 +387,7 @@ function ContractForm({
           type="button"
           onClick={handleSave}
           disabled={saving || !form.contract_name.trim()}
-          className="focus-ring flex items-center gap-1 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50"
+          className="focus-ring flex items-center gap-1 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent transition-all hover:brightness-110 disabled:opacity-50"
         >
           <Check size={14} /> Save contract
         </button>
@@ -499,7 +499,7 @@ function BreachForm({ onCancel, onSave }: { onCancel: () => void; onSave: (form:
             await onSave(form);
             setSaving(false);
           }}
-          className="focus-ring flex items-center gap-1 rounded-xl bg-danger px-4 py-2 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50"
+          className="focus-ring flex items-center gap-1 rounded-xl bg-danger px-4 py-2 text-sm font-medium text-on-danger transition-all hover:brightness-110 disabled:opacity-50"
         >
           <AlertTriangle size={14} /> Log breach
         </button>
@@ -689,7 +689,7 @@ export function CommercialContractsPage() {
             <button
               type="button"
               onClick={() => setAdding(true)}
-              className="focus-ring flex shrink-0 items-center gap-1.5 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-white transition-all hover:brightness-110"
+              className="focus-ring flex shrink-0 items-center gap-1.5 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-on-accent transition-all hover:brightness-110"
             >
               <Plus size={16} /> New contract
             </button>
@@ -725,7 +725,7 @@ export function CommercialContractsPage() {
                 <p className="mt-1 text-xs text-text-secondary">Active contract value</p>
               </div>
               <div className="rounded-2xl border border-border bg-bg-secondary p-4 text-center">
-                <p className="text-2xl font-bold text-warning-500">{stats.expiringCount}</p>
+                <p className="text-2xl font-bold text-warning">{stats.expiringCount}</p>
                 <p className="mt-1 text-xs text-text-secondary">Up for renewal soon</p>
               </div>
             </div>
@@ -737,7 +737,7 @@ export function CommercialContractsPage() {
                   type="button"
                   onClick={() => setFilter(f.key)}
                   className={`focus-ring rounded-xl px-3 py-1.5 text-sm font-medium transition-colors ${
-                    filter === f.key ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
+                    filter === f.key ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
                   }`}
                 >
                   {f.label}
@@ -784,7 +784,7 @@ export function CommercialContractsPage() {
                                 {CONTRACT_STATUS_LABELS[contract.status]}
                               </span>
                               {isWithinRenewalWindow(contract.end_date, contract.renewal_notice_days) && (
-                                <span className="rounded-full bg-warning-500/10 px-2 py-0.5 text-xs font-medium text-warning-500">
+                                <span className="rounded-full bg-warning-subtle px-2 py-0.5 text-xs font-medium text-warning">
                                   Renews in {daysUntil(contract.end_date)}d
                                 </span>
                               )}

@@ -16,7 +16,7 @@ import {
 } from '@/lib/memberships';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder transition-colors';
 
 type MembershipWithPlan = Membership & {
   plan: Pick<MembershipPlan, 'name' | 'price_cents' | 'billing_interval'> | null;
@@ -102,7 +102,7 @@ function PlanForm({
           type="button"
           onClick={handleSave}
           disabled={saving || !form.name.trim() || !form.price.trim()}
-          className="focus-ring flex items-center gap-1 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50"
+          className="focus-ring flex items-center gap-1 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent transition-all hover:brightness-110 disabled:opacity-50"
         >
           <Check size={14} /> Save plan
         </button>
@@ -379,7 +379,7 @@ export function MembershipsPage() {
                       onClick={() => setStatusFilter(f)}
                       className={`focus-ring rounded-full px-3 py-1 text-xs font-medium capitalize transition-colors ${
                         statusFilter === f
-                          ? 'bg-accent text-white'
+                          ? 'bg-accent text-on-accent'
                           : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
                       }`}
                     >
@@ -420,7 +420,7 @@ export function MembershipsPage() {
                           <button
                             type="button"
                             onClick={() => handleUpdateMembershipStatus(m, 'active')}
-                            className="focus-ring rounded-lg px-2 py-1 text-xs font-medium text-success-500 hover:bg-success-500/10"
+                            className="focus-ring rounded-lg px-2 py-1 text-xs font-medium text-success hover:bg-success-subtle"
                           >
                             Mark active
                           </button>

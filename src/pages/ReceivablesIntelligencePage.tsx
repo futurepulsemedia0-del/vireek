@@ -37,17 +37,17 @@ const NODE_LABELS: Record<GraphNodeKey, string> = {
 };
 
 const CONFIDENCE_STYLES: Record<ReceivablesConfidence, string> = {
-  high: 'bg-success-500/15 text-success-500',
-  medium: 'bg-warning-500/15 text-warning-500',
+  high: 'bg-success-subtle text-success',
+  medium: 'bg-warning-subtle text-warning',
   low: 'bg-bg-tertiary text-text-secondary',
 };
 
 const AGING_STYLES: Record<AgingBucket['bucket'], string> = {
-  current: 'bg-success-500',
+  current: 'bg-success',
   '1-30': 'bg-cta',
-  '31-60': 'bg-warning-500',
-  '61-90': 'bg-warning-500',
-  '90+': 'bg-danger-500',
+  '31-60': 'bg-warning',
+  '61-90': 'bg-warning',
+  '90+': 'bg-danger',
 };
 
 function days(value: number | null): string {
@@ -55,7 +55,7 @@ function days(value: number | null): string {
 }
 
 function Kpi({ label, value, hint, tone }: { label: string; value: string; hint?: string; tone?: 'danger' | 'success' }) {
-  const toneClass = tone === 'danger' ? 'text-danger-500' : tone === 'success' ? 'text-success-500' : 'text-text-primary';
+  const toneClass = tone === 'danger' ? 'text-danger' : tone === 'success' ? 'text-success' : 'text-text-primary';
   return (
     <div className="rounded-2xl border border-border bg-bg-secondary p-4">
       <p className="text-[10px] uppercase text-text-secondary">{label}</p>
@@ -77,14 +77,14 @@ function WeeklyBars({ weekly }: { weekly: ReceivablesWeek[] }) {
       <svg viewBox={`0 0 ${chartW} ${chartH}`} className="w-full" style={{ height: chartH }} role="img" aria-label="Billed versus collected per week">
         {weekly.map((w, i) => (
           <g key={w.week_start}>
-            <rect x={i * slot + 1} y={chartH - h(w.billed_cents)} width={barW} height={h(w.billed_cents)} rx={1.5} fill="rgb(37 99 235)" opacity={0.85} />
-            <rect x={i * slot + 1 + barW + 1} y={chartH - h(w.collected_cents)} width={barW} height={h(w.collected_cents)} rx={1.5} fill="rgb(34 197 94)" opacity={0.85} />
+            <rect x={i * slot + 1} y={chartH - h(w.billed_cents)} width={barW} height={h(w.billed_cents)} rx={1.5} fill="rgb(169 59 15)" opacity={0.85} />
+            <rect x={i * slot + 1 + barW + 1} y={chartH - h(w.collected_cents)} width={barW} height={h(w.collected_cents)} rx={1.5} fill="rgb(52 199 89)" opacity={0.85} />
           </g>
         ))}
       </svg>
       <div className="mt-1 flex items-center gap-3 text-[10px] text-text-secondary">
         <span className="flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-sm bg-cta" /> Billed</span>
-        <span className="flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-sm bg-success-500" /> Collected</span>
+        <span className="flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-sm bg-success" /> Collected</span>
         <span className="ml-auto">Last {weekly.length} weeks</span>
       </div>
     </div>
@@ -174,7 +174,7 @@ export function ReceivablesIntelligencePage() {
         {result && result.invoices_analyzed > 0 && (
           <>
             {result.confidence === 'low' && (
-              <div className="flex items-start gap-2 rounded-xl border border-warning-500/30 bg-warning-500/10 p-3 text-xs text-warning-500">
+              <div className="flex items-start gap-2 rounded-xl border border-warning/30 bg-warning-subtle p-3 text-xs text-warning">
                 <AlertTriangle size={14} className="mt-0.5 shrink-0" />
                 <span>Only {result.paid_invoices} paid invoices so far — timing figures and slow-segment findings are directional until more invoices settle.</span>
               </div>
@@ -233,7 +233,7 @@ export function ReceivablesIntelligencePage() {
               ) : insights.map((ins) => (
                 <div key={`${ins.service_type}-${ins.approval_gated}-${ins.has_contract}`} className="rounded-2xl border border-border bg-bg-secondary p-4">
                   <div className="flex flex-wrap items-center gap-2 text-xs">
-                    <span className="rounded-lg bg-warning-500/15 px-2 py-1 font-medium text-warning-500">
+                    <span className="rounded-lg bg-warning-subtle px-2 py-1 font-medium text-warning">
                       {ins.service_type}{ins.approval_gated ? ' · approval workflow' : ' · direct billing'}{ins.has_contract ? ' · under contract' : ''}
                     </span>
                     <ArrowRight size={11} className="text-text-secondary" />
@@ -241,7 +241,7 @@ export function ReceivablesIntelligencePage() {
                       Slowest step: {DELAY_STAGE_LABELS[ins.bottleneck]} ({ins.bottleneck_days.toFixed(1)}d)
                     </span>
                     <ArrowRight size={11} className="text-text-secondary" />
-                    <span className="rounded-lg bg-danger-500/15 px-2 py-1 font-medium text-danger-500">
+                    <span className="rounded-lg bg-danger-subtle px-2 py-1 font-medium text-danger">
                       {formatCents(ins.trapped_cents)} still open
                     </span>
                   </div>
@@ -314,7 +314,7 @@ export function ReceivablesIntelligencePage() {
 
             <section className="rounded-2xl border border-border bg-bg-secondary p-4">
               <p className="mb-3 flex items-center gap-1.5 text-xs font-semibold text-text-primary">
-                <ShieldAlert size={13} className="text-danger-500" /> Revenue most at risk of not being collected
+                <ShieldAlert size={13} className="text-danger" /> Revenue most at risk of not being collected
               </p>
               {result.at_risk_invoices.length === 0 ? (
                 <p className="text-xs text-text-secondary">No open invoices.</p>
@@ -331,7 +331,7 @@ export function ReceivablesIntelligencePage() {
                       </div>
                       <div className="text-right">
                         <p className="font-semibold text-text-primary">{formatCents(inv.total_cents)}</p>
-                        <p className="text-[11px] text-danger-500">{formatCents(inv.at_risk_cents)} at risk · {(inv.collect_prob * 100).toFixed(0)}% likely</p>
+                        <p className="text-[11px] text-danger">{formatCents(inv.at_risk_cents)} at risk · {(inv.collect_prob * 100).toFixed(0)}% likely</p>
                       </div>
                     </div>
                   ))}

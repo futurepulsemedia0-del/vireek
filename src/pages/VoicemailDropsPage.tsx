@@ -89,11 +89,11 @@ function StatTile({ label, value, hint }: { label: string; value: string; hint?:
 
 function ComplianceBadge({ ready }: { ready: boolean }) {
   return ready ? (
-    <span className="inline-flex items-center gap-1 rounded-full bg-success-500/10 px-2.5 py-0.5 text-xs font-medium text-success-500">
+    <span className="inline-flex items-center gap-1 rounded-full bg-success-subtle px-2.5 py-0.5 text-xs font-medium text-success">
       <ShieldCheck size={12} aria-hidden="true" /> Compliance ready
     </span>
   ) : (
-    <span className="inline-flex items-center gap-1 rounded-full bg-warning-500/10 px-2.5 py-0.5 text-xs font-medium text-warning-500">
+    <span className="inline-flex items-center gap-1 rounded-full bg-warning-subtle px-2.5 py-0.5 text-xs font-medium text-warning">
       <ShieldAlert size={12} aria-hidden="true" /> Needs review
     </span>
   );
@@ -274,7 +274,7 @@ function DropCard({ drop, stats, busy, onEdit, onToggleArchive, onDelete }: Drop
       </dl>
 
       {!archived && gaps.length > 0 && (
-        <p className="mt-3 flex items-start gap-1.5 text-xs text-warning-500">
+        <p className="mt-3 flex items-start gap-1.5 text-xs text-warning">
           <TriangleAlert size={14} className="mt-0.5 shrink-0" aria-hidden="true" />
           <span>Blocked from campaigns until: {gaps.join(', ').toLowerCase()}.</span>
         </p>
@@ -399,7 +399,7 @@ function DropFormDialog({ accountOwnerId, drop, onClose, onSaved }: DropFormDial
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center sm:p-4"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-overlay/50 sm:items-center sm:p-4"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) guardedClose();
       }}
@@ -792,7 +792,7 @@ export function VoicemailDropsPage() {
                       onClick={() => setStatusFilter(tab.key)}
                       className={`focus-ring flex-1 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors sm:flex-none ${
                         statusFilter === tab.key
-                          ? 'bg-accent text-white'
+                          ? 'bg-accent text-on-accent'
                           : 'text-text-secondary hover:text-text-primary'
                       }`}
                     >
@@ -844,7 +844,7 @@ export function VoicemailDropsPage() {
           )}
         </div>
 
-        <p className="mt-6 text-xs text-text-secondary/70">
+        <p className="mt-6 text-xs text-text-muted">
           Compliance flags are a self-attested checklist, not legal advice. Prerecorded and AI-voice messages
           generally require prior consent, so confirm your rules with your own counsel.
         </p>

@@ -77,9 +77,9 @@ export function SpiffPayoutsPanel() {
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Stat label="Needs approval" value={formatUsd(totals.pending)} tone={totals.pending > 0 ? 'text-warning-500' : undefined} />
+        <Stat label="Needs approval" value={formatUsd(totals.pending)} tone={totals.pending > 0 ? 'text-warning' : undefined} />
         <Stat label="Waiting for next pay run" value={formatUsd(totals.awaitingPayroll)} />
-        <Stat label="Paid" value={formatUsd(totals.paid)} tone="text-success-500" />
+        <Stat label="Paid" value={formatUsd(totals.paid)} tone="text-success" />
         <Stat label="Can’t be paid yet" value={formatUsd(totals.blocked)} tone={totals.blocked > 0 ? 'text-danger' : undefined} />
       </div>
 

@@ -21,8 +21,8 @@ import {
 } from '@/lib/businessReality';
 
 function scoreTone(score: number): string {
-  if (score >= 85) return 'text-success-500';
-  if (score >= 60) return 'text-warning-500';
+  if (score >= 85) return 'text-success';
+  if (score >= 60) return 'text-warning';
   return 'text-danger';
 }
 
@@ -92,7 +92,7 @@ export function BusinessRealityPage() {
 
             {report.findings.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-border py-10 text-center">
-                <CheckCircle2 className="mx-auto mb-2 h-6 w-6 text-success-500" />
+                <CheckCircle2 className="mx-auto mb-2 h-6 w-6 text-success" />
                 <p className="text-sm text-text-secondary">Nothing off right now — reported state matches what the checks can see.</p>
               </div>
             ) : (
@@ -111,7 +111,7 @@ export function BusinessRealityPage() {
                           </div>
                           <p className="text-xs text-text-secondary">{f.detail}</p>
                           {f.sample.length > 0 && (
-                            <p className="mt-1.5 text-[11px] text-text-secondary/70">e.g. {f.sample.slice(0, 5).join(', ')}{f.count > f.sample.length ? '…' : ''}</p>
+                            <p className="mt-1.5 text-[11px] text-text-muted">e.g. {f.sample.slice(0, 5).join(', ')}{f.count > f.sample.length ? '…' : ''}</p>
                           )}
                         </motion.div>
                       ))}

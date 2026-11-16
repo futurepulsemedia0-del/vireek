@@ -67,13 +67,13 @@ Deno.serve(async (req: Request) => {
       ? `This link is unique to you — please don't forward it. It expires ${new Date(w.expires_at).toLocaleDateString("en-US")}.`
       : "Keep this link for your records.";
 
-    const html = `<div style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;color:#1a1a1a;">
-      <p style="font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#6b7280;margin:0 0 16px;">Lien waiver ${esc(w.waiver_number ?? "")}</p>
+    const html = `<div style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;color:#1c1b15;">
+      <p style="font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#73726c;margin:0 0 16px;">Lien waiver ${esc(w.waiver_number ?? "")}</p>
       <h1 style="font-size:22px;margin:0 0 12px;">${headline}</h1>
-      <p style="font-size:14px;color:#4b5563;margin:0 0 4px;">${esc(title)}</p>
-      <p style="font-size:14px;color:#4b5563;margin:0 0 20px;">${esc(w.claimant_name)} · ${amount}</p>
-      <a href="${url}" style="display:inline-block;padding:12px 24px;background:#111827;color:#fff;text-decoration:none;border-radius:10px;font-weight:600;font-size:14px;">${cta}</a>
-      <p style="margin-top:24px;font-size:12px;color:#9ca3af;">${esc(footer)}</p>
+      <p style="font-size:14px;color:#595852;margin:0 0 4px;">${esc(title)}</p>
+      <p style="font-size:14px;color:#595852;margin:0 0 20px;">${esc(w.claimant_name)} · ${amount}</p>
+      <a href="${url}" style="display:inline-block;padding:12px 24px;background:#1C1B15;color:#fff;text-decoration:none;border-radius:10px;font-weight:600;font-size:14px;">${cta}</a>
+      <p style="margin-top:24px;font-size:12px;color:#a9a8a2;">${esc(footer)}</p>
     </div>`;
     const text = `${business} — ${title} (${w.waiver_number}), ${amount}: ${url}`;
 

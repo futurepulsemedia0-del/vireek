@@ -16,7 +16,7 @@ export const LISTING_TYPE_LABELS: Record<ListingType, string> = {
 };
 
 export const LISTING_TYPE_COLORS: Record<ListingType, string> = {
-  offering: 'bg-success-500/10 text-success-500',
+  offering: 'bg-success-subtle text-success',
   requesting: 'bg-accent/10 text-accent',
 };
 
@@ -50,7 +50,7 @@ export const LISTING_STATUS_LABELS: Record<ListingStatus, string> = {
 };
 
 export const LISTING_STATUS_COLORS: Record<ListingStatus, string> = {
-  open: 'bg-success-500/10 text-success-500',
+  open: 'bg-success-subtle text-success',
   matched: 'bg-accent/10 text-accent',
   closed: 'bg-bg-tertiary text-text-secondary',
   expired: 'bg-danger/10 text-danger',
@@ -65,8 +65,8 @@ export const MATCH_STATUS_LABELS: Record<MatchStatus, string> = {
 };
 
 export const MATCH_STATUS_COLORS: Record<MatchStatus, string> = {
-  proposed: 'bg-warning-500/10 text-warning-500',
-  accepted: 'bg-success-500/10 text-success-500',
+  proposed: 'bg-warning-subtle text-warning',
+  accepted: 'bg-success-subtle text-success',
   declined: 'bg-danger/10 text-danger',
   completed: 'bg-accent/10 text-accent',
   cancelled: 'bg-bg-tertiary text-text-secondary',

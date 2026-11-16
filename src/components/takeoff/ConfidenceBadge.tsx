@@ -2,8 +2,8 @@ import { BadgeCheck } from 'lucide-react';
 import { confidenceBand, type TakeoffItem } from '@/lib/takeoff';
 
 const BAND_CLASS = {
-  high: 'bg-success-500/10 text-success-500',
-  medium: 'bg-warning-500/10 text-warning-500',
+  high: 'bg-success-subtle text-success',
+  medium: 'bg-warning-subtle text-warning',
   low: 'bg-danger/10 text-danger',
 } as const;
 

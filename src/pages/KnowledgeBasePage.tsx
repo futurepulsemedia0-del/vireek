@@ -77,7 +77,7 @@ import type {
 } from '@/lib/knowledge';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder transition-colors';
 
 type Tab = 'articles' | 'gaps' | 'test';
 
@@ -150,7 +150,7 @@ function CompanyBrainCaptureModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/50 p-4">
       <div className="w-full max-w-md rounded-2xl border border-border bg-bg-primary p-5">
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-sm font-semibold text-text-primary">Add to the Company Brain</h3>
@@ -163,14 +163,14 @@ function CompanyBrainCaptureModal({
           <button
             type="button"
             onClick={() => setMode('voice')}
-            className={`focus-ring flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium ${mode === 'voice' ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary'}`}
+            className={`focus-ring flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium ${mode === 'voice' ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary'}`}
           >
             <Mic size={13} /> Voice note
           </button>
           <button
             type="button"
             onClick={() => setMode('manual')}
-            className={`focus-ring flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium ${mode === 'manual' ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary'}`}
+            className={`focus-ring flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium ${mode === 'manual' ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary'}`}
           >
             <Upload size={13} /> Manual (PDF)
           </button>
@@ -198,7 +198,7 @@ function CompanyBrainCaptureModal({
               type="button"
               onClick={() => void submitVoice()}
               disabled={busy}
-              className="focus-ring flex w-full items-center justify-center gap-1.5 rounded-xl bg-accent px-3 py-2.5 text-xs font-medium text-white disabled:opacity-50"
+              className="focus-ring flex w-full items-center justify-center gap-1.5 rounded-xl bg-accent px-3 py-2.5 text-xs font-medium text-on-accent disabled:opacity-50"
             >
               {busy ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />} Draft the article
             </button>
@@ -218,7 +218,7 @@ function CompanyBrainCaptureModal({
               type="button"
               onClick={() => void submitManual()}
               disabled={busy}
-              className="focus-ring flex w-full items-center justify-center gap-1.5 rounded-xl bg-accent px-3 py-2.5 text-xs font-medium text-white disabled:opacity-50"
+              className="focus-ring flex w-full items-center justify-center gap-1.5 rounded-xl bg-accent px-3 py-2.5 text-xs font-medium text-on-accent disabled:opacity-50"
             >
               {busy ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />} Process this manual
             </button>
@@ -275,7 +275,7 @@ function ArticleEditor({
           placeholder="Yes — $89 for the visit, waived if you go ahead with the repair that day."
           className={`${inputClass} resize-y`}
         />
-        <p className="mt-1 text-[11px] text-text-secondary/70">{form.summary.length}/400</p>
+        <p className="mt-1 text-[11px] text-text-muted">{form.summary.length}/400</p>
       </div>
 
       <div>
@@ -354,13 +354,13 @@ function ArticleEditor({
         </div>
       </div>
 
-      <p className="text-[11px] leading-relaxed text-text-secondary/80">{AUDIENCE_HELP[form.audience]}</p>
+      <p className="text-[11px] leading-relaxed text-text-muted">{AUDIENCE_HELP[form.audience]}</p>
 
       {errors.length > 0 && (
-        <ul className="space-y-1 rounded-xl border border-warning-500/30 bg-warning-500/[0.06] px-3 py-2">
+        <ul className="space-y-1 rounded-xl border border-warning/30 bg-warning-subtle px-3 py-2">
           {errors.map((e) => (
             <li key={e} className="flex items-start gap-1.5 text-xs text-text-secondary">
-              <AlertCircle size={12} className="mt-0.5 shrink-0 text-warning-500" />
+              <AlertCircle size={12} className="mt-0.5 shrink-0 text-warning" />
               {e}
             </li>
           ))}
@@ -383,7 +383,7 @@ function ArticleEditor({
             await onSave(form);
             setSaving(false);
           }}
-          className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50"
+          className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent transition-all hover:brightness-110 disabled:opacity-50"
         >
           {saving && <Loader2 size={14} className="animate-spin" />}
           Save
@@ -432,7 +432,7 @@ function VersionHistory({
             </button>
           </div>
           <p className="mt-1 text-xs text-text-secondary">{v.title}</p>
-          <p className="mt-0.5 line-clamp-2 text-xs text-text-secondary/80">{v.summary || v.body}</p>
+          <p className="mt-0.5 line-clamp-2 text-xs text-text-muted">{v.summary || v.body}</p>
         </div>
       ))}
     </div>
@@ -654,7 +654,7 @@ export function KnowledgeBasePage() {
           <button
             type="button"
             onClick={openNew}
-            className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-medium text-white transition-all hover:brightness-110"
+            className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-medium text-on-accent transition-all hover:brightness-110"
           >
             <Plus size={14} /> New article
           </button>
@@ -672,10 +672,10 @@ export function KnowledgeBasePage() {
           </div>
           <div
             className={`rounded-2xl border p-4 ${
-              stats.openGaps > 0 ? 'border-warning-500/30 bg-warning-500/[0.05]' : 'border-border bg-bg-secondary'
+              stats.openGaps > 0 ? 'border-warning/30 bg-warning-subtle' : 'border-border bg-bg-secondary'
             }`}
           >
-            <p className={`text-2xl font-bold ${stats.openGaps > 0 ? 'text-warning-500' : 'text-text-primary'}`}>
+            <p className={`text-2xl font-bold ${stats.openGaps > 0 ? 'text-warning' : 'text-text-primary'}`}>
               {stats.openGaps}
             </p>
             <p className="text-xs text-text-secondary">Unanswered</p>
@@ -722,12 +722,12 @@ export function KnowledgeBasePage() {
               type="button"
               onClick={() => setTab(t.key)}
               className={`focus-ring flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                tab === t.key ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
+                tab === t.key ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
               }`}
             >
               {t.label}
               {t.badge !== undefined && (
-                <span className={`rounded-full px-1.5 text-[10px] ${tab === t.key ? 'bg-white/20' : 'bg-bg-secondary'}`}>
+                <span className={`rounded-full px-1.5 text-[10px] ${tab === t.key ? 'bg-bg-secondary/20' : 'bg-bg-secondary'}`}>
                   {t.badge}
                 </span>
               )}
@@ -798,7 +798,7 @@ export function KnowledgeBasePage() {
               </div>
             ) : filtered.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-border py-10 text-center">
-                <BookOpen className="mx-auto mb-2 h-6 w-6 text-text-secondary/50" />
+                <BookOpen className="mx-auto mb-2 h-6 w-6 text-graphic-muted" />
                 <p className="mx-auto max-w-sm text-sm text-text-secondary">
                   {articles.length === 0
                     ? 'Nothing here yet. Import the FAQs from your business profile, or write the five questions callers ask you every week.'
@@ -826,7 +826,7 @@ export function KnowledgeBasePage() {
                       </span>
                     </div>
 
-                    <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-text-secondary/80">
+                    <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-text-muted">
                       <span>{AUDIENCE_LABELS[article.audience]}</span>
                       {article.category && <span>{article.category}</span>}
                       <span>v{article.version}</span>
@@ -838,18 +838,18 @@ export function KnowledgeBasePage() {
                         <span
                           className={
                             article.confidence_score >= 75
-                              ? 'text-success-500'
+                              ? 'text-success'
                               : article.confidence_score >= 45
-                              ? 'text-warning-500'
+                              ? 'text-warning'
                               : 'text-text-secondary'
                           }
                         >
                           {article.confidence_score}% confidence
                         </span>
                       )}
-                      {article.verified_by && <span className="text-success-500">Verified</span>}
+                      {article.verified_by && <span className="text-success">Verified</span>}
                       {article.embedding_stale && article.status === 'published' && (
-                        <span className="text-warning-500">keyword-only</span>
+                        <span className="text-warning">keyword-only</span>
                       )}
                     </div>
 
@@ -873,7 +873,7 @@ export function KnowledgeBasePage() {
                         <button
                           type="button"
                           onClick={() => void handleVerify(article)}
-                          className="focus-ring flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-success-500 hover:bg-success-500/10"
+                          className="focus-ring flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-success hover:bg-success-subtle"
                         >
                           <Check size={12} /> Verify
                         </button>
@@ -942,7 +942,7 @@ export function KnowledgeBasePage() {
 
             {gaps.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-border py-10 text-center">
-                <Lightbulb className="mx-auto mb-2 h-6 w-6 text-text-secondary/50" />
+                <Lightbulb className="mx-auto mb-2 h-6 w-6 text-graphic-muted" />
                 <p className="text-sm text-text-secondary">
                   Nothing unanswered right now. New ones appear here automatically after calls.
                 </p>
@@ -960,18 +960,18 @@ export function KnowledgeBasePage() {
                       <p className="min-w-0 flex-1 text-sm font-medium text-text-primary">
                         &ldquo;{gap.question}&rdquo;
                       </p>
-                      <span className="rounded-full bg-warning-500/10 px-2.5 py-0.5 text-xs font-semibold text-warning-500">
+                      <span className="rounded-full bg-warning-subtle px-2.5 py-0.5 text-xs font-semibold text-warning">
                         asked {gap.asked_count}×
                       </span>
                     </div>
-                    <p className="mt-1 text-[11px] text-text-secondary/80">
+                    <p className="mt-1 text-[11px] text-text-muted">
                       From {gap.source} · last {relativeTime(gap.last_asked_at)}
                     </p>
                     <div className="mt-3 flex flex-wrap gap-2">
                       <button
                         type="button"
                         onClick={() => openGapAnswer(gap)}
-                        className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white hover:brightness-110"
+                        className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent hover:brightness-110"
                       >
                         <Sparkles size={12} /> Answer this
                       </button>
@@ -1016,7 +1016,7 @@ export function KnowledgeBasePage() {
                 type="button"
                 onClick={() => void handleTest()}
                 disabled={testing || !testQuestion.trim()}
-                className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50"
+                className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-on-accent transition-all hover:brightness-110 disabled:opacity-50"
               >
                 {testing ? <Loader2 size={14} className="animate-spin" /> : <MessageSquare size={14} />}
                 Ask
@@ -1032,7 +1032,7 @@ export function KnowledgeBasePage() {
                   <p className="text-sm leading-relaxed text-text-primary">{testResult.spokenAnswer}</p>
                 </div>
 
-                <p className="text-[11px] text-text-secondary/80">
+                <p className="text-[11px] text-text-muted">
                   {testResult.semantic
                     ? 'Matched on meaning and keywords.'
                     : 'Matched on keywords only — no embedding provider is configured, so wording matters more than usual.'}
@@ -1044,7 +1044,7 @@ export function KnowledgeBasePage() {
                       <div key={hit.id} className="rounded-xl border border-border bg-bg-secondary p-3">
                         <div className="flex items-center justify-between gap-2">
                           <p className="text-sm font-medium text-text-primary">{hit.title}</p>
-                          <span className="shrink-0 text-[11px] text-text-secondary/70">
+                          <span className="shrink-0 text-[11px] text-text-muted">
                             {hit.lexical_rank ? `keyword #${hit.lexical_rank}` : ''}
                             {hit.lexical_rank && hit.semantic_rank ? ' · ' : ''}
                             {hit.semantic_rank ? `meaning #${hit.semantic_rank}` : ''}

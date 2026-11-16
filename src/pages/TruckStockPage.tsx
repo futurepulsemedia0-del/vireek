@@ -35,7 +35,7 @@ const FILTERS: { id: ItemFilter; label: string }[] = [
   { id: 'requested', label: 'Requested' },
 ];
 
-const BAR_COLOR = { ok: 'bg-success-500', low: 'bg-warning-500', empty: 'bg-danger' } as const;
+const BAR_COLOR = { ok: 'bg-success', low: 'bg-warning', empty: 'bg-danger' } as const;
 
 export function TruckStockPage() {
   const stock = useTruckStock();
@@ -188,7 +188,7 @@ export function TruckStockPage() {
     body = (
       <>
         {!stock.online && (
-          <p role="status" className="mb-3 flex gap-2 rounded-xl bg-warning-500/10 p-3 text-sm text-warning-500">
+          <p role="status" className="mb-3 flex gap-2 rounded-xl bg-warning-subtle p-3 text-sm text-warning">
             <CloudOff className="mt-0.5 h-4 w-4 flex-shrink-0" aria-hidden />
             <span>
               You're offline. Showing stock as of {formatAgo(stock.syncedAt)}. Anything you record is saved on this device and sent automatically when signal returns.
@@ -196,7 +196,7 @@ export function TruckStockPage() {
           </p>
         )}
         {stock.online && stock.error && (
-          <p role="status" className="mb-3 rounded-xl bg-warning-500/10 p-3 text-sm text-warning-500">
+          <p role="status" className="mb-3 rounded-xl bg-warning-subtle p-3 text-sm text-warning">
             Couldn't refresh just now — showing the last saved stock.{' '}
             <button type="button" onClick={() => void stock.refresh()} className="font-semibold underline">Retry</button>
           </p>
@@ -236,7 +236,7 @@ export function TruckStockPage() {
             <p className="font-medium text-text-primary">No part matches “{unknownCode}”</p>
             <p className="mt-1 text-text-secondary">It isn't in the parts catalog. Check the code, or ask the office to add the part.</p>
             <div className="mt-3 flex gap-2">
-              <button type="button" onClick={() => { setUnknownCode(null); setScanOpen(true); }} className="h-10 rounded-lg bg-accent px-4 text-xs font-semibold text-white">Scan again</button>
+              <button type="button" onClick={() => { setUnknownCode(null); setScanOpen(true); }} className="h-10 rounded-lg bg-accent px-4 text-xs font-semibold text-on-accent">Scan again</button>
               <button type="button" onClick={() => setUnknownCode(null)} className="h-10 rounded-lg px-4 text-xs font-semibold text-text-secondary">Dismiss</button>
             </div>
           </div>
@@ -256,7 +256,7 @@ export function TruckStockPage() {
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search name, part number or barcode"
               enterKeyHint="search"
-              className="h-12 w-full rounded-xl border border-border bg-bg-secondary pl-10 pr-3 text-base text-text-primary placeholder:text-text-secondary/60 focus:border-accent focus:outline-none"
+              className="h-12 w-full rounded-xl border border-border bg-bg-secondary pl-10 pr-3 text-base text-text-primary placeholder:text-text-placeholder focus:border-accent focus:outline-none"
             />
           </label>
         </form>
@@ -359,7 +359,7 @@ export function TruckStockPage() {
           <button
             type="button"
             onClick={() => { setUnknownCode(null); setScanOpen(true); }}
-            className="pointer-events-auto flex h-14 w-full max-w-lg items-center justify-center gap-2 rounded-2xl bg-accent text-base font-semibold text-white shadow-lg active:scale-[0.98]"
+            className="pointer-events-auto flex h-14 w-full max-w-lg items-center justify-center gap-2 rounded-2xl bg-accent text-base font-semibold text-on-accent shadow-lg active:scale-[0.98]"
           >
             <ScanLine className="h-5 w-5" aria-hidden /> Scan part
           </button>

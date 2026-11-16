@@ -38,7 +38,7 @@ export function AuditIntegrityBadge({ className = '' }: { className?: string }) 
       </button>
       <div role="status" aria-live="polite">
         {result?.ok && (
-          <span className="inline-flex items-center gap-1.5 text-success-500">
+          <span className="inline-flex items-center gap-1.5 text-success">
             <ShieldCheck size={15} aria-hidden="true" /> {t('history.verified', { count: result.checked })}
             <span className="text-xs text-text-secondary"> · {t('history.legacyNote')}</span>
           </span>

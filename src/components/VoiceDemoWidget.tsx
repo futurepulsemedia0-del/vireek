@@ -32,7 +32,7 @@ function LiveWaveform({ level }: { level: number }) {
       {bars.map((base, i) => (
         <motion.span
           key={i}
-          className="w-[3px] rounded-full bg-white/90"
+          className="w-[3px] rounded-full bg-bg-secondary/90"
           animate={{ height: `${Math.max(6, base * 24 * (0.4 + level * 1.6))}px` }}
           transition={{ duration: 0.15, ease: 'easeOut' }}
         />
@@ -164,7 +164,7 @@ export function VoiceDemoWidget() {
       className="relative flex h-[440px] flex-col overflow-hidden rounded-2xl border border-accent/30 bg-bg-secondary shadow-card dark:shadow-card-dark sm:h-[520px]"
     >
       {/* Featured ribbon — this is the flagship demo experience */}
-      <div className="absolute right-4 top-4 z-10 rounded-full bg-accent px-2.5 py-1 text-[0.6875rem] font-bold uppercase tracking-wide text-white">
+      <div className="absolute right-4 top-4 z-10 rounded-full bg-accent px-2.5 py-1 text-[0.6875rem] font-bold uppercase tracking-wide text-on-accent">
         Live voice
       </div>
 
@@ -202,12 +202,12 @@ export function VoiceDemoWidget() {
               <button
                 type="button"
                 onClick={startCall}
-                className="focus-ring inline-flex items-center gap-2 rounded-xl bg-accent px-6 py-3.5 text-base font-semibold text-white shadow-sm transition-all hover:brightness-110 hover:shadow-glow-accent active:scale-[0.97]"
+                className="focus-ring inline-flex items-center gap-2 rounded-xl bg-accent px-6 py-3.5 text-base font-semibold text-on-accent shadow-sm transition-all hover:brightness-110 hover:shadow-glow-accent active:scale-[0.97]"
               >
                 <Mic size={18} />
                 Talk to Sarah live
               </button>
-              <p className="text-[0.6875rem] text-text-secondary/70">
+              <p className="text-[0.6875rem] text-text-muted">
                 This call is live and answered by AI, not a recording.
               </p>
             </motion.div>
@@ -254,7 +254,7 @@ export function VoiceDemoWidget() {
                 className="w-full min-h-0 flex-1 space-y-2 overflow-y-auto rounded-xl border border-border bg-bg-primary px-3 py-3 text-left [scrollbar-width:thin]"
               >
                 {transcript.length === 0 ? (
-                  <p className="text-center text-xs text-text-secondary/70">
+                  <p className="text-center text-xs text-text-muted">
                     Listening… say hello, or try a real scenario.
                   </p>
                 ) : (
@@ -298,7 +298,7 @@ export function VoiceDemoWidget() {
                   type="button"
                   onClick={endCall}
                   aria-label="End call"
-                  className="focus-ring flex h-11 w-11 items-center justify-center rounded-xl bg-danger text-white transition-opacity hover:brightness-110"
+                  className="focus-ring flex h-11 w-11 items-center justify-center rounded-xl bg-danger text-on-danger transition-opacity hover:brightness-110"
                 >
                   <PhoneOff size={18} />
                 </button>
@@ -323,7 +323,7 @@ export function VoiceDemoWidget() {
               <div className="flex flex-col items-center gap-2 sm:flex-row">
                 <Link
                   to="/signup"
-                  className="focus-ring inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-white shadow-glow-accent hover:brightness-110"
+                  className="focus-ring inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-on-accent shadow-glow-accent hover:brightness-110"
                 >
                   Start free trial
                   <ArrowRight size={15} />

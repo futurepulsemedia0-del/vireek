@@ -126,7 +126,7 @@ export function MutualAidPage() {
             </div>
             <button
               onClick={() => toggleEnabled(!profile?.mutual_aid_enabled)}
-              className={`rounded-full px-4 py-1.5 text-xs font-medium transition-colors ${profile?.mutual_aid_enabled ? 'bg-success-500/10 text-success-500' : 'bg-bg-tertiary text-text-secondary'}`}
+              className={`rounded-full px-4 py-1.5 text-xs font-medium transition-colors ${profile?.mutual_aid_enabled ? 'bg-success-subtle text-success' : 'bg-bg-tertiary text-text-secondary'}`}
             >
               {profile?.mutual_aid_enabled ? 'Enabled' : 'Disabled'}
             </button>
@@ -160,7 +160,7 @@ export function MutualAidPage() {
                 rows={3}
                 className={`${inputClass} mt-3`}
               />
-              <button onClick={broadcastRequest} className="mt-3 flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-white hover:bg-accent/90">
+              <button onClick={broadcastRequest} className="mt-3 flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-on-accent hover:bg-accent/90">
                 <Send size={14} /> Broadcast to network
               </button>
             </div>
@@ -180,7 +180,7 @@ export function MutualAidPage() {
                         <div key={o.id} className="mt-2 flex items-center justify-between rounded-lg bg-bg-secondary px-3 py-2 text-xs">
                           <span>{o.offer_type} — {o.note ?? 'no note'}</span>
                           <div className="flex gap-1">
-                            <button onClick={() => respondToOffer(o, r.id, true)} className="rounded p-1 text-success-500 hover:bg-success-500/10"><Check size={14} /></button>
+                            <button onClick={() => respondToOffer(o, r.id, true)} className="rounded p-1 text-success hover:bg-success-subtle"><Check size={14} /></button>
                             <button onClick={() => respondToOffer(o, r.id, false)} className="rounded p-1 text-error-500 hover:bg-error-500/10"><X size={14} /></button>
                           </div>
                         </div>
@@ -219,7 +219,7 @@ export function MutualAidPage() {
                           >
                             {Object.entries(NEED_TYPE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                           </select>
-                          <button onClick={() => sendOffer(r.id)} className="flex shrink-0 items-center gap-1 rounded-xl bg-accent px-3 py-2.5 text-xs font-medium text-white hover:bg-accent/90">
+                          <button onClick={() => sendOffer(r.id)} className="flex shrink-0 items-center gap-1 rounded-xl bg-accent px-3 py-2.5 text-xs font-medium text-on-accent hover:bg-accent/90">
                             <HandHeart size={14} /> Offer help
                           </button>
                         </div>

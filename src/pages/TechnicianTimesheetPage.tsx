@@ -49,7 +49,7 @@ export function TechnicianTimesheetPage() {
 
       <main className="mx-auto max-w-lg space-y-4 px-4 py-4">
         {(!tc.online || tc.pending > 0 || tc.stale) && (
-          <div role="status" className="flex items-center gap-3 rounded-xl border border-warning-500/40 bg-warning-500/10 p-3 text-sm text-text-primary">
+          <div role="status" className="flex items-center gap-3 rounded-xl border border-warning/40 bg-warning-subtle p-3 text-sm text-text-primary">
             {tc.syncing ? <Loader2 className="h-4 w-4 animate-spin" /> : <CloudOff className="h-4 w-4 flex-shrink-0" />}
             <span className="flex-1">
               {!tc.online ? 'You are offline. ' : ''}
@@ -109,8 +109,8 @@ export function TechnicianTimesheetPage() {
             <BreakPromptBanner shift={tc.view} now={tc.now} busy={busy} onBreak={onBreak} onStartBreak={() => void tc.startBreak()} />
             <Card className="p-5">
               <div className="flex items-center justify-between text-sm">
-                <span className={`inline-flex items-center gap-2 font-medium ${working ? 'text-success-500' : onBreak ? 'text-warning-500' : 'text-text-secondary'}`}>
-                  <span className={`h-2.5 w-2.5 rounded-full ${working ? 'bg-success-500' : onBreak ? 'bg-warning-500' : 'bg-border'}`} />
+                <span className={`inline-flex items-center gap-2 font-medium ${working ? 'text-success' : onBreak ? 'text-warning' : 'text-text-secondary'}`}>
+                  <span className={`h-2.5 w-2.5 rounded-full ${working ? 'bg-success' : onBreak ? 'bg-warning' : 'bg-border'}`} />
                   {working ? 'Working' : onBreak ? 'On break' : 'Clocked out'}
                 </span>
                 {tc.view && <span className="text-text-secondary">since {timeOf(tc.view.clockInAt)}</span>}

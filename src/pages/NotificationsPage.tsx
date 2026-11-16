@@ -19,10 +19,10 @@ const TYPE_ICON: Record<NotificationRow['type'], typeof Bell> = {
 
 const TYPE_COLOR: Record<NotificationRow['type'], string> = {
   emergency_call: 'bg-danger/10 text-danger',
-  usage_alert: 'bg-warning-500/10 text-warning-500',
+  usage_alert: 'bg-warning-subtle text-warning',
   ai_insight: 'bg-ai/10 text-ai',
   job_update: 'bg-accent/10 text-accent',
-  quote_viewed: 'bg-success-500/10 text-success-500',
+  quote_viewed: 'bg-success-subtle text-success',
   system: 'bg-bg-tertiary text-text-secondary',
 };
 
@@ -268,7 +268,7 @@ export function NotificationsPage() {
                       {n.title}
                     </span>
                     {!n.is_read && <span className="h-1.5 w-1.5 rounded-full bg-accent" />}
-                    <span className="text-xs text-text-secondary/60">{new Date(n.created_at).toLocaleString()}</span>
+                    <span className="text-xs text-text-muted">{new Date(n.created_at).toLocaleString()}</span>
                   </span>
                   <span className="mt-0.5 block text-sm text-text-secondary">{n.message}</span>
                 </span>

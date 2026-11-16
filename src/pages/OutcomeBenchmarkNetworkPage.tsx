@@ -42,10 +42,10 @@ import {
 } from '@/lib/outcomeBenchmarkApi';
 
 const BUCKET_STYLES: Record<OutcomeBucket, string> = {
-  top10: 'bg-success-500/15 text-success-500',
-  top25: 'bg-success-500/10 text-success-500',
+  top10: 'bg-success-subtle text-success',
+  top25: 'bg-success-subtle text-success',
   top50: 'bg-accent/10 text-accent',
-  bottom50: 'bg-warning-500/10 text-warning-500',
+  bottom50: 'bg-warning-subtle text-warning',
   bottom25: 'bg-danger/10 text-danger',
 };
 
@@ -63,7 +63,7 @@ function PositionBar({ row }: { row: OutcomeBenchmarkRow }) {
       />
       <div className="absolute top-1/2 h-3 w-0.5 -translate-y-1/2 bg-text-secondary/40" style={{ left: `${pct(row.p50)}%` }} />
       <div
-        className="absolute top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-accent shadow"
+        className="absolute top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-on-inverse bg-accent shadow"
         style={{ left: `${pct(row.my_value)}%` }}
         title="You"
       />
@@ -101,7 +101,7 @@ function MetricCard({ row }: { row: OutcomeBenchmarkRow }) {
           <p className="text-[11px] text-text-secondary">Peer median</p>
         </div>
         <div>
-          <p className="text-2xl font-bold text-success-500">{topQ !== null ? formatOutcomeValue(topQ, row.unit) : '-'}</p>
+          <p className="text-2xl font-bold text-success">{topQ !== null ? formatOutcomeValue(topQ, row.unit) : '-'}</p>
           <p className="text-[11px] text-text-secondary">Top quartile</p>
         </div>
       </div>
@@ -121,7 +121,7 @@ function MetricCard({ row }: { row: OutcomeBenchmarkRow }) {
           <>You are in the top quartile.</>
         )}
       </p>
-      <p className="mt-2 flex items-center gap-1.5 text-[11px] text-text-secondary/70">
+      <p className="mt-2 flex items-center gap-1.5 text-[11px] text-text-muted">
         <Users size={11} /> {scopeLabel(row)} · based on {row.my_sample} of your jobs
       </p>
     </div>
@@ -272,7 +272,7 @@ export function OutcomeBenchmarkNetworkPage() {
 
         {!canView ? (
           <div className="rounded-2xl border border-dashed border-border py-12 text-center">
-            <Lock className="mx-auto mb-2 h-6 w-6 text-text-secondary/50" />
+            <Lock className="mx-auto mb-2 h-6 w-6 text-graphic-muted" />
             <p className="mx-auto max-w-sm text-sm text-text-secondary">Outcome benchmarks are available to owners and users with billing access.</p>
           </div>
         ) : loading ? (
@@ -283,7 +283,7 @@ export function OutcomeBenchmarkNetworkPage() {
           </div>
         ) : !participating ? (
           <div className="rounded-2xl border border-dashed border-border py-12 text-center">
-            <Users className="mx-auto mb-2 h-6 w-6 text-text-secondary/50" />
+            <Users className="mx-auto mb-2 h-6 w-6 text-graphic-muted" />
             <p className="mx-auto max-w-sm text-sm text-text-secondary">
               You have opted out of the network. Benchmarks are a two-way exchange: rejoin to contribute anonymously and see how you compare.
             </p>
@@ -291,14 +291,14 @@ export function OutcomeBenchmarkNetworkPage() {
               type="button"
               onClick={togglePrivacy}
               disabled={savingPref}
-              className="focus-ring mt-4 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+              className="focus-ring mt-4 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent disabled:opacity-50"
             >
               Rejoin the network
             </button>
           </div>
         ) : rows.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border py-12 text-center">
-            <Users className="mx-auto mb-2 h-6 w-6 text-text-secondary/50" />
+            <Users className="mx-auto mb-2 h-6 w-6 text-graphic-muted" />
             <p className="mx-auto max-w-sm text-sm text-text-secondary">
               Not enough completed jobs yet. You need at least 5 jobs in the period (first-time-fix also needs jobs completed more than 14 days
               ago).
@@ -351,7 +351,7 @@ export function OutcomeBenchmarkNetworkPage() {
                       type="button"
                       onClick={() => runAdvice('generate')}
                       disabled={adviceBusy}
-                      className="focus-ring rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
+                      className="focus-ring rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent disabled:opacity-50"
                     >
                       {adviceBusy ? 'Analyzing...' : 'Generate plan'}
                     </button>
@@ -380,7 +380,7 @@ export function OutcomeBenchmarkNetworkPage() {
                         );
                       })}
                     </ol>
-                    <p className="text-[11px] text-text-secondary/70">
+                    <p className="text-[11px] text-text-muted">
                       Estimates based on how peers perform, not guarantees. Gaps shown above are measured; the AI only suggests which actions to
                       try first.
                     </p>
@@ -410,7 +410,7 @@ export function OutcomeBenchmarkNetworkPage() {
         )}
 
         {canView && !loading && participating && (
-          <div className="mt-6 flex flex-wrap items-start justify-between gap-3 text-xs text-text-secondary/70">
+          <div className="mt-6 flex flex-wrap items-start justify-between gap-3 text-xs text-text-muted">
             <div className="flex max-w-xl items-start gap-2">
               <ShieldCheck size={13} className="mt-0.5 shrink-0" />
               <p>
@@ -432,7 +432,7 @@ export function OutcomeBenchmarkNetworkPage() {
 
       {showMethod && (
         <div
-          className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-overlay/40 p-4 backdrop-blur-sm"
           onClick={() => setShowMethod(false)}
         >
           <motion.div

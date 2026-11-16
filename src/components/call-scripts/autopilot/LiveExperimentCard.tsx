@@ -82,7 +82,7 @@ export function LiveExperimentCard({ experiment: e, looks, control, challenger, 
       </div>
 
       {e.status === 'awaiting_approval' && (
-        <div role="status" className="rounded-xl border border-success-500/30 bg-success-500/10 px-4 py-3 text-sm text-text-primary">
+        <div role="status" className="rounded-xl border border-success/30 bg-success-subtle px-4 py-3 text-sm text-text-primary">
           <p className="font-semibold">{t('live.approvalTitle')}</p>
           <p className="mt-1 text-text-secondary">{t('live.approvalBody')}</p>
           <div className="mt-3">
@@ -151,7 +151,7 @@ export function LiveExperimentCard({ experiment: e, looks, control, challenger, 
                 const waived = (e.prereg.waivedGuardrails ?? []).includes(id);
                 const g = guardrails.find((x) => x.metric === id);
                 const status = waived && !g ? 'waived' : g?.status ?? 'pending';
-                const tone = status === 'pass' ? 'text-success-500' : status === 'breach' || status === 'fail_promote' ? 'text-danger' : 'text-text-secondary';
+                const tone = status === 'pass' ? 'text-success' : status === 'breach' || status === 'fail_promote' ? 'text-danger' : 'text-text-secondary';
                 return (
                   <tr key={id} className="border-t border-border">
                     <td className="py-2 pr-4 text-text-primary">{t(`metric.${id}`)}</td>

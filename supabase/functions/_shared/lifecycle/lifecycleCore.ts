@@ -510,11 +510,11 @@ export function buildEmailHtml(body: string, o: { companyName: string; preferenc
     .map((p) => `<p style="margin:0 0 16px;line-height:1.55">${escapeHtml(p).replace(/\n/g, "<br>")}</p>`)
     .join("");
   return (
-    `<div style="font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;font-size:16px;color:#1f2937;max-width:560px">` +
+    `<div style="font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;font-size:16px;color:#2f2e28;max-width:560px">` +
     paragraphs +
-    `<hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0 12px">` +
-    `<p style="margin:0;font-size:12px;color:#6b7280;line-height:1.5">You are receiving this because you chose to hear from ${escapeHtml(o.companyName)}. ` +
-    `<a href="${escapeHtml(o.preferenceUrl)}" style="color:#6b7280">Manage preferences or unsubscribe</a>.</p></div>`
+    `<hr style="border:none;border-top:1px solid #e8e6dc;margin:24px 0 12px">` +
+    `<p style="margin:0;font-size:12px;color:#73726c;line-height:1.5">You are receiving this because you chose to hear from ${escapeHtml(o.companyName)}. ` +
+    `<a href="${escapeHtml(o.preferenceUrl)}" style="color:#73726c">Manage preferences or unsubscribe</a>.</p></div>`
   );
 }
 

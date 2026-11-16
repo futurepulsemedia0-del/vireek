@@ -44,13 +44,13 @@ type Filter = 'active' | 'concluded' | 'archived';
 const STATUS_DOT: Record<ExperimentRow['status'], string> = {
   draft: 'bg-text-secondary',
   running: 'bg-accent',
-  concluded: 'bg-success-500',
+  concluded: 'bg-success',
   archived: 'bg-border',
 };
 
 const DECISION_STYLE: Record<Decision, string> = {
-  adopt: 'bg-success-500/10 text-success-500',
-  iterate: 'bg-warning-500/10 text-warning-500',
+  adopt: 'bg-success-subtle text-success',
+  iterate: 'bg-warning-subtle text-warning',
   reject: 'bg-bg-tertiary text-text-secondary',
 };
 
@@ -268,7 +268,7 @@ export function OpsExperimentsPage() {
                         role="tab"
                         aria-selected={view === v}
                         onClick={() => setView(v)}
-                        className={`focus-ring rounded-xl px-4 py-2 text-sm font-medium ${view === v ? 'bg-accent text-white' : 'bg-bg-secondary text-text-secondary hover:text-text-primary'}`}
+                        className={`focus-ring rounded-xl px-4 py-2 text-sm font-medium ${view === v ? 'bg-accent text-on-accent' : 'bg-bg-secondary text-text-secondary hover:text-text-primary'}`}
                       >
                         {v === 'experiments' ? 'Experiments' : 'Learning library'}
                       </button>

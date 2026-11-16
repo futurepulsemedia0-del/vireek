@@ -100,7 +100,7 @@ export function TechnicianSafetyPage() {
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {!info.consent_current && (
-                    <button type="button" disabled={busy !== null} onClick={() => void run('grant', () => setConsent('granted').then(() => undefined), 'Thank you. Consent recorded.')} className="focus-ring min-h-[44px] rounded-lg bg-accent px-4 text-sm font-semibold text-white disabled:opacity-60">I agree</button>
+                    <button type="button" disabled={busy !== null} onClick={() => void run('grant', () => setConsent('granted').then(() => undefined), 'Thank you. Consent recorded.')} className="focus-ring min-h-[44px] rounded-lg bg-accent px-4 text-sm font-semibold text-on-accent disabled:opacity-60">I agree</button>
                   )}
                   {info.consent_action === 'granted' && (
                     <button type="button" disabled={busy !== null} onClick={() => void run('revoke', () => setConsent('revoked').then(() => undefined), 'Consent withdrawn. Stored location points were deleted.')} className="focus-ring min-h-[44px] rounded-lg border border-border px-4 text-sm font-semibold text-text-primary disabled:opacity-60">Withdraw consent</button>
@@ -134,7 +134,7 @@ export function TechnicianSafetyPage() {
                     </div>
                   </div>
                   <div className="mt-2 flex gap-2">
-                    <button type="button" disabled={busy !== null || !contactName.trim() || !contactPhone.trim() || !phoneOk} onClick={() => void run('contact', () => setMyPrefs({ contactName: contactName.trim(), contactPhone: contactPhone.trim() }).then(() => { setContactName(''); setContactPhone(''); }), 'Emergency contact saved.')} className="focus-ring min-h-[44px] rounded-lg bg-accent px-4 text-sm font-semibold text-white disabled:opacity-50">Save contact</button>
+                    <button type="button" disabled={busy !== null || !contactName.trim() || !contactPhone.trim() || !phoneOk} onClick={() => void run('contact', () => setMyPrefs({ contactName: contactName.trim(), contactPhone: contactPhone.trim() }).then(() => { setContactName(''); setContactPhone(''); }), 'Emergency contact saved.')} className="focus-ring min-h-[44px] rounded-lg bg-accent px-4 text-sm font-semibold text-on-accent disabled:opacity-50">Save contact</button>
                     {info.has_emergency_contact && <button type="button" disabled={busy !== null} onClick={() => void run('contact-clear', () => setMyPrefs({ clearContact: true }).then(() => undefined), 'Emergency contact removed.')} className="focus-ring min-h-[44px] rounded-lg border border-border px-4 text-sm font-semibold text-text-primary disabled:opacity-60">Remove</button>}
                   </div>
                 </div>
@@ -148,7 +148,7 @@ export function TechnicianSafetyPage() {
                         <label htmlFor="duress-word" className="mb-1 block text-xs font-semibold text-text-secondary">New word</label>
                         <input id="duress-word" value={duress} maxLength={40} autoComplete="off" onChange={(e) => setDuress(e.target.value)} className="focus-ring min-h-[44px] w-full rounded-lg border border-border bg-bg-primary px-3 text-sm text-text-primary" />
                       </div>
-                      <button type="button" disabled={busy !== null || duress.trim().length < 3} onClick={() => void run('duress', () => setMyPrefs({ duressWord: duress.trim() }).then(() => setDuress('')), 'Duress word saved.')} className="focus-ring min-h-[44px] rounded-lg bg-accent px-4 text-sm font-semibold text-white disabled:opacity-50">Save</button>
+                      <button type="button" disabled={busy !== null || duress.trim().length < 3} onClick={() => void run('duress', () => setMyPrefs({ duressWord: duress.trim() }).then(() => setDuress('')), 'Duress word saved.')} className="focus-ring min-h-[44px] rounded-lg bg-accent px-4 text-sm font-semibold text-on-accent disabled:opacity-50">Save</button>
                       {info.has_duress_word && <button type="button" disabled={busy !== null} onClick={() => void run('duress-clear', () => setMyPrefs({ clearDuress: true }).then(() => undefined), 'Duress word removed.')} className="focus-ring min-h-[44px] rounded-lg border border-border px-4 text-sm font-semibold text-text-primary disabled:opacity-60">Remove</button>}
                     </div>
                   </div>

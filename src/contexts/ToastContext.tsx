@@ -24,7 +24,7 @@ interface ToastContextValue {
 const ToastContext = createContext<ToastContextValue | undefined>(undefined);
 
 const iconMap: Record<ToastType, typeof CheckCircle2> = { success: CheckCircle2, error: AlertCircle, info: Info, warning: TriangleAlert };
-const colorMap: Record<ToastType, string> = { success: 'text-success-500', error: 'text-danger', info: 'text-accent', warning: 'text-warning-500' };
+const colorMap: Record<ToastType, string> = { success: 'text-success', error: 'text-danger', info: 'text-accent', warning: 'text-warning' };
 
 function useAutoDismiss(durationMs: number | null, paused: boolean, bump: number, onExpire: () => void) {
   const remaining = useRef(durationMs ?? 0);

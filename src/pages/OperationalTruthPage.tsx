@@ -84,7 +84,7 @@ function ItemCard({ item, nowIso, canManage, conflictId, busyId, onConfirm, onRe
       <p className="mt-2 text-sm text-text-secondary">{item.reason}</p>
       {item.required_action && <p className="mt-1 text-sm font-medium text-text-primary">Next step: {item.required_action}</p>}
       {item.warnings.map((w) => (
-        <p key={w} className="mt-1 flex items-center gap-1.5 text-xs text-warning-500">
+        <p key={w} className="mt-1 flex items-center gap-1.5 text-xs text-warning">
           <AlertTriangle size={12} aria-hidden="true" /> {w}
         </p>
       ))}
@@ -315,8 +315,8 @@ export function OperationalTruthPage() {
         ) : data && s ? (
           <>
             <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-5">
-              <StatCard label="Facts verified" value={s.verified} tone="text-success-500" />
-              <StatCard label="Need attention" value={s.needs_attention} tone={s.needs_attention > 0 ? 'text-warning-500' : undefined} />
+              <StatCard label="Facts verified" value={s.verified} tone="text-success" />
+              <StatCard label="Need attention" value={s.needs_attention} tone={s.needs_attention > 0 ? 'text-warning' : undefined} />
               <StatCard label="Expiring soon" value={s.expiring_soon} />
               <StatCard label="Open conflicts" value={s.open_conflicts} tone={s.open_conflicts > 0 ? 'text-danger' : undefined} />
               <StatCard label="Agent actions blocked (7d)" value={s.blocked_7d} />
@@ -504,7 +504,7 @@ export function OperationalTruthPage() {
                       <span className="text-text-secondary">{formatConfidence(src.reliability)}</span>
                     </div>
                     <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-bg-tertiary" aria-hidden="true">
-                      <div className={`h-full ${src.authoritative ? 'bg-accent' : 'bg-success-500'}`} style={{ width: `${Math.round(src.reliability * 100)}%` }} />
+                      <div className={`h-full ${src.authoritative ? 'bg-accent' : 'bg-success'}`} style={{ width: `${Math.round(src.reliability * 100)}%` }} />
                     </div>
                     <p className="mt-1 text-text-secondary">{src.authoritative ? 'Authority — cannot be out-voted' : src.user_assertable ? 'You can record claims from this source' : 'Written by Vireek systems only'}</p>
                   </li>

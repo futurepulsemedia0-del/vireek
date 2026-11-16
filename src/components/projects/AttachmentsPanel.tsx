@@ -159,7 +159,7 @@ export function AttachmentsPanel({ ownerId, projectId, parent, purposes, canUplo
       {hint && <p className="text-xs text-text-secondary">{hint}</p>}
 
       {failed ? (
-        <p role="alert" className="text-sm text-danger-500">
+        <p role="alert" className="text-sm text-danger">
           Could not load files. <button type="button" className="focus-ring rounded underline" onClick={() => void load()}>Try again</button>
         </p>
       ) : items === null ? (
@@ -187,7 +187,7 @@ export function AttachmentsPanel({ ownerId, projectId, parent, purposes, canUplo
                       <span className="truncate text-xs text-text-secondary">{formatBytes(a.size_bytes)}</span>
                     </span>
                     {canDelete(a) && (
-                      <button type="button" aria-label={`Remove ${a.file_name}`} disabled={removing === a.id} onClick={() => remove(a)} className="focus-ring rounded-lg p-1 text-text-secondary hover:bg-bg-tertiary hover:text-danger-500 disabled:opacity-50">
+                      <button type="button" aria-label={`Remove ${a.file_name}`} disabled={removing === a.id} onClick={() => remove(a)} className="focus-ring rounded-lg p-1 text-text-secondary hover:bg-bg-tertiary hover:text-danger disabled:opacity-50">
                         <Trash2 size={14} aria-hidden="true" />
                       </button>
                     )}

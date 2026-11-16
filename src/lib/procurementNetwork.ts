@@ -192,12 +192,12 @@ export const ORDER_STATUS_LABELS: Record<NetworkOrderStatus, string> = {
 };
 
 export const ORDER_STATUS_TONE: Record<NetworkOrderStatus, string> = {
-  awaiting_approval: 'bg-amber-100 text-amber-800 dark:bg-amber-500/10 dark:text-amber-400',
-  placed: 'bg-sky-100 text-sky-800 dark:bg-sky-500/10 dark:text-sky-400',
-  confirmed: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-500/10 dark:text-indigo-400',
-  shipped: 'bg-violet-100 text-violet-800 dark:bg-violet-500/10 dark:text-violet-400',
-  delivered: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400',
-  cancelled: 'bg-rose-100 text-rose-800 dark:bg-rose-500/10 dark:text-rose-400',
+  awaiting_approval: 'bg-warning-subtle text-warning-strong',
+  placed: 'bg-info-subtle text-info-strong',
+  confirmed: 'bg-accent-subtle text-accent-strong',
+  shipped: 'bg-accent-subtle text-accent-strong',
+  delivered: 'bg-success-subtle text-success-strong',
+  cancelled: 'bg-danger-subtle text-danger-strong',
 };
 
 export const REBATE_KIND_LABELS: Record<RebateKind, string> = {

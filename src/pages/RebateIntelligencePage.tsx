@@ -329,7 +329,7 @@ export function RebateIntelligencePage() {
                       <Input label="Est. yearly energy savings ($)" type="number" inputMode="decimal" min={0} value={o.savings} onChange={(e) => setOpt(i, { savings: e.target.value })} helperText="Enter for every option to rank by 10-year cost." />
                     </div>
                     {options.length > 1 && (
-                      <button type="button" onClick={() => setOptions((prev) => prev.filter((_, idx) => idx !== i))} className="focus-ring mt-2 inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-text-secondary hover:text-danger-500">
+                      <button type="button" onClick={() => setOptions((prev) => prev.filter((_, idx) => idx !== i))} className="focus-ring mt-2 inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-text-secondary hover:text-danger">
                         <Trash2 size={14} aria-hidden="true" /> Remove option
                       </button>
                     )}
@@ -368,7 +368,7 @@ export function RebateIntelligencePage() {
             <p className="mb-3 text-sm text-text-primary">{report.replacement_signal.headline}</p>
 
             {report.deadline_alerts.length > 0 && (
-              <div className="mb-3 rounded-xl border border-warning-500/40 bg-warning-500/10 p-3 text-sm text-text-primary">
+              <div className="mb-3 rounded-xl border border-warning/40 bg-warning-subtle p-3 text-sm text-text-primary">
                 {report.deadline_alerts.map((d) => (
                   <p key={d.program}><strong>{d.program}</strong> ends {d.end_date} ({d.days_left} days left).</p>
                 ))}
@@ -492,7 +492,7 @@ export function RebateIntelligencePage() {
                           <option key={s.value} value={s.value}>{s.label}</option>
                         ))}
                       </select>
-                      <button type="button" aria-label={`Delete ${a.program_name}`} onClick={async () => { try { await deleteApplication(a.id); void reloadApplications(); } catch { toast('Could not delete.', 'error'); } }} className="focus-ring rounded-lg p-2 text-text-secondary hover:text-danger-500">
+                      <button type="button" aria-label={`Delete ${a.program_name}`} onClick={async () => { try { await deleteApplication(a.id); void reloadApplications(); } catch { toast('Could not delete.', 'error'); } }} className="focus-ring rounded-lg p-2 text-text-secondary hover:text-danger">
                         <Trash2 size={16} aria-hidden="true" />
                       </button>
                     </div>
@@ -592,7 +592,7 @@ export function RebateIntelligencePage() {
                     </p>
                   </div>
                   {isOwner && (
-                    <button type="button" aria-label={`Delete ${p.name}`} onClick={async () => { try { await deletePrivateProgram(p.id); void reloadPrograms(); } catch { toast('Could not delete the program.', 'error'); } }} className="focus-ring rounded-lg p-2 text-text-secondary hover:text-danger-500">
+                    <button type="button" aria-label={`Delete ${p.name}`} onClick={async () => { try { await deletePrivateProgram(p.id); void reloadPrograms(); } catch { toast('Could not delete the program.', 'error'); } }} className="focus-ring rounded-lg p-2 text-text-secondary hover:text-danger">
                       <Trash2 size={16} aria-hidden="true" />
                     </button>
                   )}

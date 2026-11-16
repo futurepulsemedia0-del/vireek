@@ -83,7 +83,7 @@ const SEVERITY_FILTERS: { key: AlertSeverity | 'all'; label: string }[] = [
 
 const SEVERITY_CLASS: Record<AlertSeverity, string> = {
   critical: 'bg-danger/10 text-danger',
-  warning: 'bg-warning-500/10 text-warning-500',
+  warning: 'bg-warning-subtle text-warning',
   info: 'bg-bg-tertiary text-text-secondary',
 };
 
@@ -95,7 +95,7 @@ function isView(value: string | null): value is ViewKey {
 }
 
 function KpiCard({ label, value, sub, tone }: { label: string; value: string; sub?: string; tone?: 'danger' | 'warning' }) {
-  const color = tone === 'danger' ? 'text-danger' : tone === 'warning' ? 'text-warning-500' : 'text-text-primary';
+  const color = tone === 'danger' ? 'text-danger' : tone === 'warning' ? 'text-warning' : 'text-text-primary';
   return (
     <div className="rounded-2xl border border-border bg-bg-secondary p-4">
       <p className="text-xs text-text-secondary">{label}</p>
@@ -462,7 +462,7 @@ export function VendorManagementPage() {
                         <span className="flex items-center gap-2">
                           <RiskBadge level={i.risk.level} score={i.risk.score} />
                           {i.alertCount > 0 && (
-                            <span className="text-xs text-warning-500" title={`${i.alertCount} item${i.alertCount === 1 ? '' : 's'} need attention`}>
+                            <span className="text-xs text-warning" title={`${i.alertCount} item${i.alertCount === 1 ? '' : 's'} need attention`}>
                               ⚠ {i.alertCount}
                             </span>
                           )}
@@ -569,7 +569,7 @@ export function VendorManagementPage() {
                                 {p.bestVendorId ? vendorNames.get(p.bestVendorId) ?? 'another vendor' : 'another vendor'} ({formatCents(p.bestPriceCents)})
                               </span>
                             </span>
-                            <Pill className="bg-success-500/10 text-success-500">Save {formatCents(p.potentialSavingsCents)}</Pill>
+                            <Pill className="bg-success-subtle text-success">Save {formatCents(p.potentialSavingsCents)}</Pill>
                           </button>
                         </li>
                       ))}

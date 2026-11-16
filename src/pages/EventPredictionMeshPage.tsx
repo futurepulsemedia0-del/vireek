@@ -59,9 +59,9 @@ import {
 } from '@/lib/eventPredictionMeshApi';
 
 const BAR_COLORS: Record<MeshLevel, string> = {
-  low: 'bg-success-500',
+  low: 'bg-success',
   elevated: 'bg-accent',
-  high: 'bg-warning-500',
+  high: 'bg-warning',
   critical: 'bg-danger',
 };
 
@@ -260,7 +260,7 @@ function ActionRow({
               {EVENT_LABELS[action.event_kind]} · {pctText(Number(action.probability))} likely
             </span>
             {approved && (
-              <span className="rounded-full bg-success-500/10 px-2 py-0.5 text-[11px] font-semibold text-success-500">
+              <span className="rounded-full bg-success-subtle px-2 py-0.5 text-[11px] font-semibold text-success">
                 Approved
               </span>
             )}
@@ -443,7 +443,7 @@ export function EventPredictionMeshPage() {
                     onClick={() => setHorizon(h)}
                     className={`focus-ring rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
                       horizon === h
-                        ? 'bg-accent text-white'
+                        ? 'bg-accent text-on-accent'
                         : 'text-text-secondary hover:text-text-primary'
                     }`}
                   >
@@ -454,7 +454,7 @@ export function EventPredictionMeshPage() {
             </div>
             <div className="flex items-center gap-3">
               {run && (
-                <p className={`text-xs ${stale ? 'text-warning-500' : 'text-text-secondary'}`}>
+                <p className={`text-xs ${stale ? 'text-warning' : 'text-text-secondary'}`}>
                   Last run {relativeTime(run.created_at)} · {pctText(Number(run.data_coverage))} of
                   data sources available
                 </p>

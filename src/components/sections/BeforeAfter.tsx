@@ -35,9 +35,9 @@ function Row({
       }`}
     >
       {icon === 'x' ? (
-        <XCircle size={18} className="shrink-0 text-danger/70" />
+        <XCircle size={18} className="shrink-0 text-danger" />
       ) : (
-        <CheckCircle size={18} className="shrink-0 text-success-500" />
+        <CheckCircle size={18} className="shrink-0 text-success" />
       )}
       <span className="text-base">{children}</span>
     </li>
@@ -89,9 +89,9 @@ export function BeforeAfter() {
             viewport={viewport}
             transition={{ duration: 0.5, delay: 0.1, ease: EASE }}
           >
-            <Card className="h-full border-success-500/20 bg-success-500/5">
+            <Card className="h-full border-success/20 bg-success-subtle">
               <div className="mb-2 flex items-center gap-2">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-success-500/10 text-success-500">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-success-subtle text-success">
                   <CheckCircle size={18} />
                 </span>
                 <h3 className="text-xl font-semibold text-text-primary md:text-2xl">After</h3>

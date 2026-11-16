@@ -64,8 +64,8 @@ const amountText = (e: ValueEvent) => (e.unit === 'minutes' ? formatHours(e.amou
 
 function Badge({ confidence }: { confidence: ValueEvent['confidence'] | 'excluded' }) {
   const style =
-    confidence === 'measured' ? 'bg-success-500/10 text-success-500'
-      : confidence === 'estimated' ? 'bg-warning-500/10 text-warning-500'
+    confidence === 'measured' ? 'bg-success-subtle text-success'
+      : confidence === 'estimated' ? 'bg-warning-subtle text-warning'
         : 'bg-bg-tertiary text-text-secondary';
   const label = confidence === 'measured' ? 'Measured' : confidence === 'estimated' ? 'Estimated' : 'Not due to Vireek';
   return <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${style}`}>{label}</span>;
@@ -80,8 +80,8 @@ function SplitBar({ measured, estimated }: { measured: number; estimated: number
       role="img"
       aria-label={total > 0 ? `${Math.round(m)}% measured, ${Math.round(100 - m)}% estimated` : 'No value recorded yet'}
     >
-      <div className="bg-success-500" style={{ width: `${m}%` }} />
-      <div className="bg-warning-500" style={{ width: `${total > 0 ? 100 - m : 0}%` }} />
+      <div className="bg-success" style={{ width: `${m}%` }} />
+      <div className="bg-warning" style={{ width: `${total > 0 ? 100 - m : 0}%` }} />
     </div>
   );
 }
@@ -100,8 +100,8 @@ function TrendChart({ board }: { board: Scoreboard }) {
               style={{ height: `${Math.max(2, (t.totalCents / max) * 100)}%` }}
               title={`${t.label}: ${formatMoney(t.measuredCents, board.currency)} measured, ${formatMoney(t.estimatedCents, board.currency)} estimated`}
             >
-              <div className="bg-warning-500" style={{ flexGrow: t.estimatedCents }} />
-              <div className="bg-success-500" style={{ flexGrow: t.measuredCents }} />
+              <div className="bg-warning" style={{ flexGrow: t.estimatedCents }} />
+              <div className="bg-success" style={{ flexGrow: t.measuredCents }} />
             </div>
             <span className={`text-[11px] ${current ? 'font-semibold text-text-primary' : 'text-text-secondary'}`}>{t.label.slice(0, 3)}</span>
           </div>
@@ -134,7 +134,7 @@ function EventDrawer({
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/40" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex justify-end bg-overlay/40" onClick={onClose}>
       <aside
         role="dialog"
         aria-modal="true"
@@ -401,12 +401,12 @@ export function ValueScoreboardPage() {
             <section aria-labelledby="vs-hero" className="grid gap-4 md:grid-cols-3">
               <Card className="md:col-span-2">
                 <h2 id="vs-hero" className="text-sm font-medium text-text-secondary">Verified revenue · {b.window.label}</h2>
-                <p className="mt-2 text-4xl font-bold text-success-500">{formatMoney(b.money.measuredCents, b.currency)}</p>
+                <p className="mt-2 text-4xl font-bold text-success">{formatMoney(b.money.measuredCents, b.currency)}</p>
                 <p className="mt-1 text-sm text-text-secondary">Backed by paid invoices in your account ({b.counts.measured} {b.counts.measured === 1 ? 'item' : 'items'}).</p>
                 <div className="mt-5"><SplitBar measured={b.money.measuredCents} estimated={b.money.estimatedCents} /></div>
                 <p className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-xs text-text-secondary">
-                  <span><span className="mr-1 inline-block h-2 w-2 rounded-full bg-success-500" />Measured {formatMoney(b.money.measuredCents, b.currency)}</span>
-                  <span><span className="mr-1 inline-block h-2 w-2 rounded-full bg-warning-500" />Estimated {formatMoney(b.money.estimatedCents, b.currency)} (kept separate)</span>
+                  <span><span className="mr-1 inline-block h-2 w-2 rounded-full bg-success" />Measured {formatMoney(b.money.measuredCents, b.currency)}</span>
+                  <span><span className="mr-1 inline-block h-2 w-2 rounded-full bg-warning" />Estimated {formatMoney(b.money.estimatedCents, b.currency)} (kept separate)</span>
                 </p>
               </Card>
               <Card>
@@ -475,7 +475,7 @@ export function ValueScoreboardPage() {
                         role="tab"
                         aria-selected={filter === f}
                         onClick={() => { setFilter(f); setShown(PAGE_SIZE); }}
-                        className={`rounded-full px-3 py-1 text-xs font-medium ${filter === f ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
+                        className={`rounded-full px-3 py-1 text-xs font-medium ${filter === f ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
                       >
                         {f === 'all' ? 'All' : f === 'measured' ? 'Measured' : f === 'estimated' ? 'Estimated' : `Not due to Vireek (${b.excludedEvents.length})`}
                       </button>

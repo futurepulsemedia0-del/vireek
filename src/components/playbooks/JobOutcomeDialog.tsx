@@ -16,7 +16,7 @@ interface JobOutcomeDialogProps {
 }
 
 const FIELD =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/70';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder';
 
 /**
  * Captures the outcome of a completed job so the playbook can learn from it.
@@ -75,7 +75,7 @@ export function JobOutcomeDialog({ job, playbook, ownerId, onClose, onSaved }: J
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/50 p-4"
       role="presentation"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose();
@@ -190,7 +190,7 @@ export function JobOutcomeDialog({ job, playbook, ownerId, onClose, onSaved }: J
           <button type="button" onClick={onClose} className="focus-ring rounded-xl border border-border bg-bg-secondary px-4 py-2.5 text-sm font-medium text-text-primary hover:bg-bg-tertiary">
             Cancel
           </button>
-          <button type="button" onClick={handleSave} disabled={saving} className="focus-ring flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-white hover:bg-accent/90 disabled:opacity-50">
+          <button type="button" onClick={handleSave} disabled={saving} className="focus-ring flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-on-accent hover:bg-accent/90 disabled:opacity-50">
             <CheckCircle2 size={15} />
             {saving ? 'Saving…' : 'Save outcome'}
           </button>

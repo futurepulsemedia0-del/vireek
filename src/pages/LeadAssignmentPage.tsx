@@ -69,7 +69,7 @@ function Toggle({ checked, onChange, label, disabled }: { checked: boolean; onCh
       <input
         type="checkbox"
         role="switch"
-        className="h-4 w-4 accent-[var(--accent,#2563eb)]"
+        className="h-4 w-4 accent-accent"
         checked={checked}
         disabled={disabled}
         onChange={(e) => onChange(e.target.checked)}
@@ -317,7 +317,7 @@ export function LeadAssignmentPage() {
               aria-selected={tab === t.key}
               onClick={() => setTab(t.key)}
               className={`focus-ring rounded-xl px-4 py-2 text-sm font-medium transition-colors ${
-                tab === t.key ? 'bg-accent text-white' : 'border border-border text-text-secondary hover:text-text-primary'
+                tab === t.key ? 'bg-accent text-on-accent' : 'border border-border text-text-secondary hover:text-text-primary'
               }`}
             >
               {t.label}

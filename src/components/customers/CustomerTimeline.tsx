@@ -77,8 +77,8 @@ const KIND_ICONS: Record<TimelineKind, LucideIcon> = {
 
 const TONE_STYLES: Record<TimelineTone, string> = {
   neutral: 'bg-bg-tertiary text-text-secondary',
-  good: 'bg-success-500/10 text-success-500',
-  warn: 'bg-warning-500/10 text-warning-500',
+  good: 'bg-success-subtle text-success',
+  warn: 'bg-warning-subtle text-warning',
   bad: 'bg-danger/10 text-danger',
 };
 
@@ -261,7 +261,7 @@ export function CustomerTimeline({ customerId, phone, email }: CustomerTimelineP
               setVisible(PAGE_SIZE);
             }}
             placeholder="Search activity and notes"
-            className="focus-ring w-full rounded-lg border border-border bg-bg-secondary py-1.5 pl-8 pr-3 text-sm text-text-primary placeholder:text-text-secondary/60"
+            className="focus-ring w-full rounded-lg border border-border bg-bg-secondary py-1.5 pl-8 pr-3 text-sm text-text-primary placeholder:text-text-placeholder"
           />
         </label>
       </div>
@@ -307,7 +307,7 @@ export function CustomerTimeline({ customerId, phone, email }: CustomerTimelineP
       />
 
       {notesStatus === 'error' && (
-        <div role="alert" className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-warning-500/40 bg-warning-500/10 px-4 py-3 text-xs text-text-primary">
+        <div role="alert" className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-warning/40 bg-warning-subtle px-4 py-3 text-xs text-text-primary">
           <span>Notes couldn't be loaded. If this is a new setup, make sure the latest database migration has been applied.</span>
           <button type="button" onClick={() => void loadNotes()} className="focus-ring shrink-0 rounded-lg px-2 py-1 font-semibold text-accent hover:underline">
             Retry
@@ -316,7 +316,7 @@ export function CustomerTimeline({ customerId, phone, email }: CustomerTimelineP
       )}
 
       {feed && feed.failed.length > 0 && (
-        <div role="status" className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-warning-500/40 bg-warning-500/10 px-4 py-3 text-xs text-text-primary">
+        <div role="status" className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-warning/40 bg-warning-subtle px-4 py-3 text-xs text-text-primary">
           <span>Some activity couldn't be loaded: {feed.failed.map((k) => KIND_LABELS[k]).join(', ')}.</span>
           <button type="button" onClick={() => void loadFeed()} className="focus-ring shrink-0 rounded-lg px-2 py-1 font-semibold text-accent hover:underline">
             Retry

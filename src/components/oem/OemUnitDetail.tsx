@@ -22,14 +22,14 @@ import { OemGraphChain } from '@/components/oem/OemGraphChain';
 
 const SEVERITY_PILL: Record<Severity, string> = {
   low: 'bg-bg-tertiary text-text-secondary',
-  medium: 'bg-warning-500/10 text-warning-500',
+  medium: 'bg-warning-subtle text-warning',
   high: 'bg-danger/10 text-danger',
   critical: 'bg-danger/10 text-danger',
 };
 const SIGNAL_PILL: Record<BenchmarkSignal, string> = {
   above_benchmark: 'bg-danger/10 text-danger',
   in_line: 'bg-bg-tertiary text-text-secondary',
-  below_benchmark: 'bg-success-500/10 text-success-500',
+  below_benchmark: 'bg-success-subtle text-success',
 };
 const BOX = 'rounded-2xl border border-border bg-bg-secondary p-4';
 const H = 'mb-3 flex items-center gap-2 text-sm font-semibold text-text-primary';
@@ -131,7 +131,7 @@ export function OemUnitDetail({ graph, now }: { graph: OemGraph; now: Date }) {
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="text-sm font-semibold text-text-primary">{issue.title}</p>
                   <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${SEVERITY_PILL[issue.severity]}`}>{SEVERITY_LABELS[issue.severity]}</span>
-                  {issue.applicability === 'possible' && <span className="rounded-full bg-warning-500/10 px-2 py-0.5 text-[11px] font-medium text-warning-500">Depends on build date</span>}
+                  {issue.applicability === 'possible' && <span className="rounded-full bg-warning-subtle px-2 py-0.5 text-[11px] font-medium text-warning">Depends on build date</span>}
                   {issue.observed && <span className="rounded-full bg-accent/10 px-2 py-0.5 text-[11px] font-medium text-accent">Seen in network · {formatPct(issue.observed.failure_rate_pct)}</span>}
                 </div>
                 {issue.symptom && <p className="mt-1 text-xs text-text-secondary"><span className="font-medium text-text-primary">Symptom:</span> {issue.symptom}</p>}
@@ -243,7 +243,7 @@ export function OemUnitDetail({ graph, now }: { graph: OemGraph; now: Date }) {
         <ul className="grid gap-1.5 sm:grid-cols-2">
           {coverage.map((c) => (
             <li key={c.label} className="flex items-center gap-2 text-xs text-text-secondary">
-              <span className={`h-2 w-2 shrink-0 rounded-full ${c.present ? 'bg-success-500' : 'bg-border'}`} aria-hidden="true" />
+              <span className={`h-2 w-2 shrink-0 rounded-full ${c.present ? 'bg-success' : 'bg-border'}`} aria-hidden="true" />
               {c.label}
               <span className="sr-only">{c.present ? ' — available' : ' — missing'}</span>
             </li>

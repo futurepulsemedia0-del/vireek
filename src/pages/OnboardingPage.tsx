@@ -86,7 +86,7 @@ const EMERGENCY_HANDLING_OPTIONS = [
 ];
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-3 text-base text-text-primary placeholder:text-text-secondary/60 transition-colors focus-visible:border-accent';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-3 text-base text-text-primary placeholder:text-text-placeholder transition-colors focus-visible:border-accent';
 
 const chipClass = (active: boolean) =>
   `focus-ring cursor-pointer rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all ${
@@ -302,7 +302,7 @@ export function OnboardingPage() {
       {/* Top bar */}
       <div className="absolute inset-x-0 top-0 z-10 flex items-center justify-between px-4 py-4 sm:px-6">
         <span className="flex items-center gap-2.5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-white">
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-on-accent">
             <Phone size={16} strokeWidth={2.5} />
           </span>
           <span className="text-lg font-bold tracking-tight text-accent">Vireek</span>
@@ -329,9 +329,9 @@ export function OnboardingPage() {
                 <div
                   className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold transition-all ${
                     i === step
-                      ? 'bg-accent text-white ring-4 ring-accent/20'
+                      ? 'bg-accent text-on-accent ring-4 ring-accent/20'
                       : i < step
-                        ? 'bg-success-500 text-white'
+                        ? 'bg-success text-on-success'
                         : 'bg-bg-tertiary text-text-secondary'
                   }`}
                 >
@@ -340,7 +340,7 @@ export function OnboardingPage() {
                 {i < steps.length - 1 && (
                   <div
                     className={`h-0.5 w-8 rounded-full transition-colors sm:w-12 ${
-                      i < step ? 'bg-success-500' : 'bg-bg-tertiary'
+                      i < step ? 'bg-success' : 'bg-bg-tertiary'
                     }`}
                   />
                 )}
@@ -459,7 +459,7 @@ export function OnboardingPage() {
                           }
                         }}
                         placeholder="Add a custom service…"
-                        className="focus-ring flex-1 rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60"
+                        className="focus-ring flex-1 rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder"
                       />
                       <button
                         type="button"
@@ -498,7 +498,7 @@ export function OnboardingPage() {
                     type="button"
                     onClick={() => setStep(1)}
                     disabled={!canProceedStep1}
-                    className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-5 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110 disabled:opacity-50"
+                    className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-5 py-2.5 text-sm font-semibold text-on-cta transition-all hover:brightness-110 disabled:opacity-50"
                   >
                     Continue <ArrowRight size={16} />
                   </button>
@@ -662,7 +662,7 @@ export function OnboardingPage() {
                     <button
                       type="button"
                       onClick={() => setStep(2)}
-                      className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-5 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110"
+                      className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-5 py-2.5 text-sm font-semibold text-on-cta transition-all hover:brightness-110"
                     >
                       Continue <ArrowRight size={16} />
                     </button>
@@ -711,7 +711,7 @@ export function OnboardingPage() {
                             <span
                               className={`flex h-5 w-5 items-center justify-center rounded-md border transition-all ${
                                 isActive
-                                  ? 'border-accent bg-accent text-white'
+                                  ? 'border-accent bg-accent text-on-accent'
                                   : 'border-border bg-bg-secondary'
                               }`}
                             >
@@ -761,7 +761,7 @@ export function OnboardingPage() {
                     <button
                       type="button"
                       onClick={() => setStep(3)}
-                      className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-5 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110"
+                      className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-5 py-2.5 text-sm font-semibold text-on-cta transition-all hover:brightness-110"
                     >
                       Continue <ArrowRight size={16} />
                     </button>
@@ -861,7 +861,7 @@ export function OnboardingPage() {
                     type="button"
                     onClick={handleFinish}
                     disabled={submitting}
-                    className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-5 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110 disabled:opacity-50"
+                    className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-5 py-2.5 text-sm font-semibold text-on-cta transition-all hover:brightness-110 disabled:opacity-50"
                   >
                     {submitting ? (
                       <>

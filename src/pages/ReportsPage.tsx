@@ -473,7 +473,7 @@ export function ReportsPage() {
             <div className="mb-5 flex flex-wrap items-center justify-between gap-2">
               <h2 className="text-base font-semibold text-text-primary">{activeId ? 'Edit report' : 'New report'}</h2>
               {dirty && (
-                <span className="rounded-full bg-warning-500/10 px-2.5 py-1 text-xs font-medium text-warning-500" role="status">
+                <span className="rounded-full bg-warning-subtle px-2.5 py-1 text-xs font-medium text-warning" role="status">
                   Unsaved changes
                 </span>
               )}
@@ -769,8 +769,8 @@ export function ReportsPage() {
             )}
 
             {rowsReady?.truncated && (
-              <p className="mb-4 flex items-start gap-2 rounded-xl bg-warning-500/10 p-3 text-sm text-text-primary" role="status">
-                <AlertTriangle size={16} className="mt-0.5 shrink-0 text-warning-500" />
+              <p className="mb-4 flex items-start gap-2 rounded-xl bg-warning-subtle p-3 text-sm text-text-primary" role="status">
+                <AlertTriangle size={16} className="mt-0.5 shrink-0 text-warning" />
                 This date range has more than 5,000 {entity.label.toLowerCase()}, so only the most recent 5,000 are included. Narrow the date range for complete totals.
               </p>
             )}

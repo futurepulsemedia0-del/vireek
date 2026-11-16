@@ -114,9 +114,9 @@ export const STATUS_LABELS: Record<HandoffStatus, string> = {
 };
 
 export const STATUS_COLORS: Record<HandoffStatus, string> = {
-  open: 'bg-success-500/10 text-success-500',
+  open: 'bg-success-subtle text-success',
   claimed: 'bg-accent/10 text-accent',
-  completed: 'bg-success-500/10 text-success-500',
+  completed: 'bg-success-subtle text-success',
   cancelled: 'bg-bg-tertiary text-text-secondary',
   expired: 'bg-danger/10 text-danger',
 };
@@ -394,7 +394,7 @@ export const MATCH_STATUS_LABELS: Record<CapacityMatchStatus, string> = {
 export const MATCH_STATUS_COLORS: Record<CapacityMatchStatus, string> = {
   queued: 'bg-bg-tertiary text-text-secondary',
   offered: 'bg-accent/10 text-accent',
-  accepted: 'bg-success-500/10 text-success-500',
+  accepted: 'bg-success-subtle text-success',
   declined: 'bg-bg-tertiary text-text-secondary',
   expired: 'bg-danger/10 text-danger',
   superseded: 'bg-bg-tertiary text-text-secondary',

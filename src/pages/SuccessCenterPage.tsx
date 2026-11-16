@@ -72,8 +72,8 @@ export function SuccessCenterPage() {
               </Card>
             )}
             {npsResult?.ok && (
-              <p role="status" className="flex items-center gap-2 rounded-xl bg-success-500/10 p-3 text-sm text-text-primary">
-                <CheckCircle2 size={16} className="text-success-500" aria-hidden="true" /> Thank you — your feedback goes straight to our team.
+              <p role="status" className="flex items-center gap-2 rounded-xl bg-success-subtle p-3 text-sm text-text-primary">
+                <CheckCircle2 size={16} className="text-success" aria-hidden="true" /> Thank you — your feedback goes straight to our team.
               </p>
             )}
           </>

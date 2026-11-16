@@ -12,9 +12,9 @@ import { acknowledgeSignal, dismissSignal, fetchMarketSignals, promoteToDecision
 
 const TYPE_STYLE: Record<SignalType, { icon: typeof TrendingUp; className: string }> = {
   demand_shift: { icon: TrendingUp, className: 'text-cta' },
-  opportunity: { icon: Sparkles, className: 'text-success-500' },
+  opportunity: { icon: Sparkles, className: 'text-success' },
   risk: { icon: TrendingDown, className: 'text-error-500' },
-  trend: { icon: CloudLightning, className: 'text-warning-500' },
+  trend: { icon: CloudLightning, className: 'text-warning' },
 };
 
 export function MarketIntelligencePage() {
@@ -88,7 +88,7 @@ export function MarketIntelligencePage() {
                     </button>
                   </div>
                   <div className="mt-3 flex gap-2">
-                    <button onClick={() => handlePromote(s.id)} className="focus-ring flex items-center gap-1.5 rounded-lg bg-cta px-3 py-1.5 text-xs font-medium text-white">
+                    <button onClick={() => handlePromote(s.id)} className="focus-ring flex items-center gap-1.5 rounded-lg bg-cta px-3 py-1.5 text-xs font-medium text-on-cta">
                       <ArrowRightCircle size={13} /> Send to Decision Engine
                     </button>
                     <button onClick={() => handleAcknowledge(s.id)} className="focus-ring rounded-lg bg-bg-tertiary px-3 py-1.5 text-xs font-medium text-text-secondary">

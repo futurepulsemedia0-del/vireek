@@ -35,8 +35,8 @@ const card = 'rounded-2xl border border-border bg-bg-secondary p-4 shadow-card s
 const STATE_LABELS: Record<PayerState, string> = { unpaid: 'Unpaid', partial: 'Partly paid', paid: 'Paid' };
 const STATE_STYLES: Record<PayerState, string> = {
   unpaid: 'bg-bg-tertiary text-text-secondary',
-  partial: 'bg-warning-500/15 text-warning-500',
-  paid: 'bg-success-500/15 text-success-500',
+  partial: 'bg-warning-subtle text-warning',
+  paid: 'bg-success-subtle text-success',
 };
 
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
@@ -177,7 +177,7 @@ export function SplitPaymentsCard({ ownerId, invoice, ledger, payments, refunds,
       {state === 'ready' && payers.length > 0 && (
         <>
           {stale && (
-            <div role="alert" className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-warning-500/10 px-3 py-2 text-xs text-warning-500">
+            <div role="alert" className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-warning-subtle px-3 py-2 text-xs text-warning">
               <span className="flex items-start gap-2"><TriangleAlert size={14} className="mt-0.5 shrink-0" /> The invoice total changed after this split was saved. Payer links are paused until you update it.</span>
               {!isVoid && <Button size="sm" variant="secondary" onClick={() => setDialog({ type: 'plan' })}><RefreshCw size={14} /> Update split</Button>}
             </div>
@@ -213,17 +213,17 @@ export function SplitPaymentsCard({ ownerId, invoice, ledger, payments, refunds,
                     aria-valuenow={pct}
                     className="mt-2 h-1.5 overflow-hidden rounded-full bg-bg-tertiary"
                   >
-                    <div className={`h-full rounded-full ${s.state === 'paid' ? 'bg-success-500' : 'bg-accent'}`} style={{ width: `${pct}%` }} />
+                    <div className={`h-full rounded-full ${s.state === 'paid' ? 'bg-success' : 'bg-accent'}`} style={{ width: `${pct}%` }} />
                   </div>
                   <p className="mt-1 text-xs text-text-secondary">
                     Paid {formatCents(Math.max(0, s.netPaidCents))} · Remaining {formatCents(s.remainingCents)}
                   </p>
 
                   {s.overCents > 0 && (
-                    <p className="mt-1 text-xs text-warning-500">Paid {formatCents(s.overCents)} more than their share. Edit the split to rebalance.</p>
+                    <p className="mt-1 text-xs text-warning">Paid {formatCents(s.overCents)} more than their share. Edit the split to rebalance.</p>
                   )}
                   {p.needs_review && (
-                    <p role="alert" className="mt-1 flex items-start gap-1.5 text-xs text-danger-500">
+                    <p role="alert" className="mt-1 flex items-start gap-1.5 text-xs text-danger">
                       <TriangleAlert size={12} className="mt-0.5 shrink-0" /> An online payment from this payer couldn’t be booked (the invoice was voided or already covered). Check Stripe and refund it if needed.
                     </p>
                   )}

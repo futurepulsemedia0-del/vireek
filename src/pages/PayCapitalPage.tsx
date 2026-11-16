@@ -37,7 +37,7 @@ export function PayCapitalPage() {
         <div role="tablist" className="flex gap-2 overflow-x-auto">
           {TABS.map((t) => (
             <button key={t.id} role="tab" aria-selected={tab === t.id} onClick={() => setTab(t.id)}
-              className={`focus-ring whitespace-nowrap rounded-xl px-4 py-2 text-sm font-medium ${tab === t.id ? 'bg-accent text-white' : 'bg-bg-secondary text-text-secondary'}`}>{t.label}</button>
+              className={`focus-ring whitespace-nowrap rounded-xl px-4 py-2 text-sm font-medium ${tab === t.id ? 'bg-accent text-on-accent' : 'bg-bg-secondary text-text-secondary'}`}>{t.label}</button>
           ))}
         </div>
         {error && <p role="alert" className="text-sm text-danger">{error}</p>}

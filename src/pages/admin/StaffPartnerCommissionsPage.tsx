@@ -165,7 +165,7 @@ export function StaffPartnerCommissionsPage() {
                       <td className="px-4 py-3 tabular-nums">
                         {p.commission_rate}% · {p.commission_months} mo
                         {p.commission_override_active && (
-                          <span className="ml-2 rounded-full bg-warning-500/10 px-2 py-0.5 text-xs text-warning-500">
+                          <span className="ml-2 rounded-full bg-warning-subtle px-2 py-0.5 text-xs text-warning">
                             {p.commission_override_approved ? 'override' : 'legacy — review'}
                           </span>
                         )}

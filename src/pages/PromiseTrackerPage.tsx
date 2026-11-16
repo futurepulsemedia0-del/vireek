@@ -48,7 +48,7 @@ function formatDueDate(dateStr: string | null): string {
 
 function StatusBadge({ status, overdue }: { status: PromiseStatus; overdue: boolean }) {
   if (status === 'fulfilled') {
-    return <span className="flex items-center gap-1 rounded-full bg-success-500/10 px-2.5 py-1 text-xs font-medium text-success"><CheckCircle2 size={12} /> Fulfilled</span>;
+    return <span className="flex items-center gap-1 rounded-full bg-success-subtle px-2.5 py-1 text-xs font-medium text-success"><CheckCircle2 size={12} /> Fulfilled</span>;
   }
   if (status === 'broken') {
     return <span className="flex items-center gap-1 rounded-full bg-danger/10 px-2.5 py-1 text-xs font-medium text-danger"><XCircle size={12} /> Broken</span>;
@@ -220,7 +220,7 @@ export function PromiseTrackerPage() {
                 key={t.key}
                 type="button"
                 onClick={() => setTab(t.key)}
-                className={`focus-ring shrink-0 rounded-lg px-3.5 py-2 text-xs font-medium transition-colors ${tab === t.key ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}
+                className={`focus-ring shrink-0 rounded-lg px-3.5 py-2 text-xs font-medium transition-colors ${tab === t.key ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}
               >
                 {t.label}
               </button>
@@ -261,7 +261,7 @@ export function PromiseTrackerPage() {
                             type="button"
                             disabled={resolvingId === p.id}
                             onClick={() => handleResolve(p.id, 'fulfilled')}
-                            className="focus-ring flex items-center gap-1.5 rounded-lg bg-success-500/10 px-3 py-1.5 text-xs font-medium text-success transition-colors hover:bg-success-500/20 disabled:opacity-50"
+                            className="focus-ring flex items-center gap-1.5 rounded-lg bg-success-subtle px-3 py-1.5 text-xs font-medium text-success transition-colors hover:bg-success-subtle disabled:opacity-50"
                           >
                             <CheckCircle2 size={13} /> Mark Fulfilled
                           </button>
@@ -269,7 +269,7 @@ export function PromiseTrackerPage() {
                             type="button"
                             disabled={resolvingId === p.id}
                             onClick={() => handleResolve(p.id, 'broken')}
-                            className="focus-ring flex items-center gap-1.5 rounded-lg bg-danger/10 px-3 py-1.5 text-xs font-medium text-danger transition-colors hover:bg-danger/20 disabled:opacity-50"
+                            className="focus-ring flex items-center gap-1.5 rounded-lg bg-danger/10 px-3 py-1.5 text-xs font-medium text-danger-strong transition-colors hover:bg-danger/20 disabled:opacity-50"
                           >
                             <XCircle size={13} /> Mark Broken
                           </button>
@@ -277,7 +277,7 @@ export function PromiseTrackerPage() {
                             type="button"
                             disabled={resolvingId === p.id}
                             onClick={() => handleResolve(p.id, 'cancelled')}
-                            className="focus-ring flex items-center gap-1.5 rounded-lg bg-bg-tertiary px-3 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:bg-border disabled:opacity-50"
+                            className="focus-ring flex items-center gap-1.5 rounded-lg bg-bg-tertiary px-3 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:bg-bg-primary disabled:opacity-50"
                           >
                             <Ban size={13} /> Cancel
                           </button>
@@ -287,7 +287,7 @@ export function PromiseTrackerPage() {
                           type="button"
                           disabled={resolvingId === p.id}
                           onClick={() => handleReopen(p.id)}
-                          className="focus-ring flex items-center gap-1.5 rounded-lg bg-bg-tertiary px-3 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:bg-border disabled:opacity-50"
+                          className="focus-ring flex items-center gap-1.5 rounded-lg bg-bg-tertiary px-3 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:bg-bg-primary disabled:opacity-50"
                         >
                           <RotateCcw size={13} /> Reopen
                         </button>

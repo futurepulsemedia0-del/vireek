@@ -94,7 +94,7 @@ export function JobHoldDialog({ open, jobLabel, initialStatus = null, policies =
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={submitting ? undefined : onClose}
-            className="fixed inset-0 z-[110] bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 z-[110] bg-overlay/40 backdrop-blur-sm"
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.96, y: 10 }}
@@ -109,7 +109,7 @@ export function JobHoldDialog({ open, jobLabel, initialStatus = null, policies =
             className="fixed left-1/2 top-1/2 z-[120] max-h-[92vh] w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border border-border bg-bg-secondary p-5 shadow-card-hover dark:shadow-card-hover-dark sm:p-6"
           >
             <div className="flex items-start justify-between gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-warning-500/10 text-warning-500">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-warning-subtle text-warning">
                 <PauseCircle size={20} aria-hidden="true" />
               </span>
               <button type="button" onClick={onClose} disabled={submitting} aria-label="Close" className="focus-ring rounded-lg p-1 text-text-secondary hover:text-text-primary">
@@ -241,7 +241,7 @@ export function JobHoldDialog({ open, jobLabel, initialStatus = null, policies =
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="focus-ring inline-flex min-h-[40px] items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110 disabled:opacity-60"
+                  className="focus-ring inline-flex min-h-[40px] items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent transition-all hover:brightness-110 disabled:opacity-60"
                 >
                   {submitting && <Loader2 size={14} className="animate-spin" aria-hidden="true" />}
                   Update status

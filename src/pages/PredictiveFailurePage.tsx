@@ -45,15 +45,15 @@ const FIELD =
   'focus-ring rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary';
 
 const BAND_STYLES: Record<PfnBand, string> = {
-  critical: 'bg-red-500/10 text-red-600 border-red-500/25',
-  high: 'bg-amber-500/10 text-amber-600 border-amber-500/25',
+  critical: 'bg-danger-subtle text-danger border-danger/25',
+  high: 'bg-warning-subtle text-warning border-warning/25',
   elevated: 'bg-accent/10 text-accent border-accent/25',
   low: 'bg-bg-tertiary text-text-secondary border-border',
 };
 
 const BAR_STYLES: Record<PfnBand, string> = {
-  critical: 'bg-red-500',
-  high: 'bg-amber-500',
+  critical: 'bg-danger',
+  high: 'bg-warning',
   elevated: 'bg-accent',
   low: 'bg-text-secondary/50',
 };
@@ -186,7 +186,7 @@ function ForecastCard({
           </p>
         </div>
       ) : f.loop_blocked_reason ? (
-        <p className="mt-3 text-xs text-amber-600">{f.loop_blocked_reason}</p>
+        <p className="mt-3 text-xs text-warning">{f.loop_blocked_reason}</p>
       ) : null}
 
       <div className="mt-3 flex flex-wrap items-center gap-2">

@@ -91,9 +91,9 @@ export function UsageAlertBanner({ onUpgrade }: { onUpgrade?: () => void }) {
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-      className="mb-6 flex items-center gap-4 rounded-2xl border border-warning-500/30 bg-warning-500/10 p-4"
+      className="mb-6 flex items-center gap-4 rounded-2xl border border-warning/30 bg-warning-subtle p-4"
     >
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-warning-500/15 text-warning-500">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-warning-subtle text-warning">
         <AlertTriangle size={20} />
       </span>
       <div className="flex-1">
@@ -108,7 +108,7 @@ export function UsageAlertBanner({ onUpgrade }: { onUpgrade?: () => void }) {
         <button
           type="button"
           onClick={onUpgrade}
-          className="focus-ring flex shrink-0 items-center gap-1.5 rounded-xl bg-cta px-4 py-2 text-sm font-semibold text-white transition-all hover:brightness-110"
+          className="focus-ring flex shrink-0 items-center gap-1.5 rounded-xl bg-cta px-4 py-2 text-sm font-semibold text-on-cta transition-all hover:brightness-110"
         >
           Upgrade Now <ArrowUpRight size={14} />
         </button>
@@ -329,7 +329,7 @@ export function BillingPage() {
             <div className="flex-1">
               <div className="flex items-center gap-3">
                 <h3 className="text-xl font-bold text-text-primary">{currentPlan.name}</h3>
-                <span className="rounded-full bg-success-500/10 px-2.5 py-1 text-xs font-medium text-success-500">
+                <span className="rounded-full bg-success-subtle px-2.5 py-1 text-xs font-medium text-success">
                   Active
                 </span>
               </div>
@@ -354,17 +354,17 @@ export function BillingPage() {
                       usagePercent >= 90
                         ? 'bg-danger'
                         : usagePercent >= 80
-                          ? 'bg-warning-500'
+                          ? 'bg-warning'
                           : 'bg-accent'
                     }`}
                   />
                 </div>
                 <div className="mt-1.5 flex items-center justify-between">
-                  <span className="text-xs text-text-secondary/70">
+                  <span className="text-xs text-text-muted">
                     {minutesRemaining} minutes remaining
                   </span>
                   {usagePercent >= 80 && (
-                    <span className="flex items-center gap-1 text-xs font-medium text-warning-500">
+                    <span className="flex items-center gap-1 text-xs font-medium text-warning">
                       <AlertTriangle size={12} /> Approaching limit
                     </span>
                   )}
@@ -383,7 +383,7 @@ export function BillingPage() {
             <button
               type="button"
               onClick={() => navigate('/dashboard/billing/plans')}
-              className="focus-ring flex shrink-0 items-center gap-2 rounded-xl bg-cta px-5 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110"
+              className="focus-ring flex shrink-0 items-center gap-2 rounded-xl bg-cta px-5 py-2.5 text-sm font-semibold text-on-cta transition-all hover:brightness-110"
             >
               <TrendingUp size={16} />
               {profile?.plan && profile.plan !== PLANS[0].id ? 'Change Plan' : 'Upgrade'}
@@ -450,7 +450,7 @@ export function BillingPage() {
         <div className="mb-4 grid gap-4 sm:grid-cols-2">
           <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
             <div className="flex items-center gap-2">
-              <Clock size={16} className="text-warning-500" />
+              <Clock size={16} className="text-warning" />
               <span className="text-xs font-medium text-text-secondary">Outstanding</span>
             </div>
             <p className="mt-2 text-2xl font-bold tracking-tight text-text-primary">
@@ -460,7 +460,7 @@ export function BillingPage() {
           </div>
           <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
             <div className="flex items-center gap-2">
-              <Check size={16} className="text-success-500" />
+              <Check size={16} className="text-success" />
               <span className="text-xs font-medium text-text-secondary">Collected</span>
             </div>
             <p className="mt-2 text-2xl font-bold tracking-tight text-text-primary">
@@ -524,9 +524,9 @@ export function BillingPage() {
                         <span
                           className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
                             job.invoice_status === 'paid'
-                              ? 'bg-success-500/10 text-success-500'
+                              ? 'bg-success-subtle text-success'
                               : job.invoice_status === 'sent'
-                                ? 'bg-blue-500/10 text-blue-500'
+                                ? 'bg-info-subtle text-info'
                                 : 'bg-bg-tertiary text-text-secondary'
                           }`}
                         >
@@ -545,7 +545,7 @@ export function BillingPage() {
       {/* Plan selection modal */}
       {showPlans && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setShowPlans(false)} />
+          <div className="absolute inset-0 bg-overlay/30 backdrop-blur-sm" onClick={() => setShowPlans(false)} />
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -593,7 +593,7 @@ export function BillingPage() {
                     <ul className="mt-4 space-y-1.5">
                       {plan.features.map((f) => (
                         <li key={f} className="flex items-center gap-2 text-xs text-text-secondary">
-                          <Check size={12} className="shrink-0 text-success-500" /> {f}
+                          <Check size={12} className="shrink-0 text-success" /> {f}
                         </li>
                       ))}
                     </ul>
@@ -604,7 +604,7 @@ export function BillingPage() {
                       className={`focus-ring mt-4 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all disabled:opacity-50 ${
                         isCurrent
                           ? 'border border-border text-text-secondary'
-                          : 'bg-cta text-white hover:brightness-110'
+                          : 'bg-cta text-on-cta hover:brightness-110'
                       }`}
                     >
                       {processingPlan === plan.id ? (

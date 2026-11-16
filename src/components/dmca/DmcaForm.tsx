@@ -121,7 +121,7 @@ export function DmcaForm({ initialType = 'takedown' }: { initialType?: DmcaNotic
         ref={successRef}
         tabIndex={-1}
         role="status"
-        className="rounded-2xl border border-success-500/30 bg-success-500/5 p-6 text-center focus:outline-none md:p-8"
+        className="rounded-2xl border border-success/30 bg-success-subtle p-6 text-center focus:outline-none md:p-8"
       >
         <CheckCircle2 size={36} className="mx-auto text-success" aria-hidden="true" />
         <h3 className="mt-3 text-xl font-bold text-text-primary">Your notice has been received</h3>

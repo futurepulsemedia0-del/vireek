@@ -25,7 +25,7 @@ import {
 
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 const SEV_STYLE: Record<string, string> = {
-  critical: 'text-red-600 dark:text-red-400', high: 'text-orange-600 dark:text-orange-400', medium: 'text-amber-600 dark:text-amber-400',
+  critical: 'text-danger', high: 'text-warning', medium: 'text-warning',
   low: 'text-text-primary', info: 'text-text-secondary',
 };
 
@@ -73,7 +73,7 @@ function PentestCard({ p }: { p: PentestSummary }) {
       {p.report_available_on_request && (
         <div className="mt-4">
           {state === 'sent' ? (
-            <p role="status" className="text-sm text-emerald-600 dark:text-emerald-400">Request received — we’ll follow up by email.</p>
+            <p role="status" className="text-sm text-success">Request received — we’ll follow up by email.</p>
           ) : !formOpen ? (
             <Button size="sm" variant="secondary" onClick={() => setFormOpen(true)}>Request the full report (NDA)</Button>
           ) : (
@@ -83,7 +83,7 @@ function PentestCard({ p }: { p: PentestSummary }) {
               <div className="sm:col-span-2"><Field label="Message (optional)"><textarea className={inputClass} rows={2} maxLength={1000} value={message} onChange={(e) => setMessage(e.target.value)} /></Field></div>
               <div className="flex items-center gap-3 sm:col-span-2">
                 <Button size="sm" type="submit" disabled={!valid || state === 'sending'}>{state === 'sending' ? <Spinner /> : null} Send request</Button>
-                {state === 'error' && <span role="alert" className="text-xs text-red-500">Could not send. Check your details and try again.</span>}
+                {state === 'error' && <span role="alert" className="text-xs text-danger">Could not send. Check your details and try again.</span>}
               </div>
             </form>
           )}
@@ -126,7 +126,7 @@ function SubscribeBox() {
       <p className="text-sm font-medium text-text-primary">Get an email before a sub-processor changes</p>
       {message && <p role="status" className="mt-2 text-sm text-text-secondary">{message}</p>}
       {state === 'sent' ? (
-        <p role="status" className="mt-2 text-sm text-emerald-600 dark:text-emerald-400">Check your inbox to confirm your subscription.</p>
+        <p role="status" className="mt-2 text-sm text-success">Check your inbox to confirm your subscription.</p>
       ) : (
         <form onSubmit={submit} className="mt-3 flex flex-col gap-2 sm:flex-row" noValidate>
           <label className="sr-only" htmlFor="notice-email">Email address</label>
@@ -134,7 +134,7 @@ function SubscribeBox() {
           <Button size="sm" type="submit" disabled={state === 'sending' || !EMAIL_RE.test(email.trim())}>{state === 'sending' ? <Spinner /> : null} Subscribe</Button>
         </form>
       )}
-      {state === 'error' && <p role="alert" className="mt-2 text-xs text-red-500">{message}</p>}
+      {state === 'error' && <p role="alert" className="mt-2 text-xs text-danger">{message}</p>}
     </div>
   );
 }

@@ -38,7 +38,7 @@ function timeAgo(iso: string | null): string {
 }
 
 const SEVERITY_CLASSES: Record<DriftSeverity, string> = {
-  notable: 'bg-warning-500/10 text-warning-500 ring-1 ring-warning-500/20',
+  notable: 'bg-warning-subtle text-warning ring-1 ring-warning/20',
   significant: 'bg-cta/10 text-cta ring-1 ring-cta/20',
   major: 'bg-danger/10 text-danger ring-1 ring-danger/20',
 };
@@ -69,7 +69,7 @@ function DimensionBar({ dim, history }: { dim: IdentityDimension; history: Ident
         <div className="flex items-center justify-between gap-2">
           <span className="text-sm font-medium text-text-primary">{dim.label}</span>
           <span className="flex items-center gap-2">
-            <span className={`text-xs ${hasData ? 'text-text-secondary' : 'text-text-secondary/50'}`}>
+            <span className={`text-xs ${hasData ? 'text-text-secondary' : 'text-text-muted'}`}>
               {hasData ? `${dim.sample_count} decision${dim.sample_count === 1 ? '' : 's'} · ${timeAgo(dim.last_event_at)}` : 'No data yet'}
             </span>
             <ChevronDown size={14} className={`text-text-secondary transition-transform ${expanded ? 'rotate-180' : ''}`} />
@@ -101,7 +101,7 @@ function DimensionBar({ dim, history }: { dim: IdentityDimension; history: Ident
               <path d={path} fill="none" stroke="rgb(var(--accent-primary))" strokeWidth="2" />
             </svg>
           ) : (
-            <p className="mt-3 text-xs text-text-secondary/60">Not enough history yet for a trend line.</p>
+            <p className="mt-3 text-xs text-text-muted">Not enough history yet for a trend line.</p>
           )}
         </motion.div>
       )}
@@ -114,7 +114,7 @@ function DriftCard({ drift, onAcknowledge }: { drift: IdentityDriftEvent; onAckn
     <div className="rounded-2xl border border-border bg-bg-secondary p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-2">
-          <AlertTriangle size={16} className="mt-0.5 shrink-0 text-warning-500" />
+          <AlertTriangle size={16} className="mt-0.5 shrink-0 text-warning" />
           <div>
             <span className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-medium ${SEVERITY_CLASSES[drift.severity]}`}>
               {SEVERITY_LABELS[drift.severity]}
@@ -228,7 +228,7 @@ export function BusinessIdentityPage() {
             type="button"
             onClick={handleAnalyzeNow}
             disabled={analyzing}
-            className="focus-ring flex shrink-0 items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-medium text-white disabled:opacity-60"
+            className="focus-ring flex shrink-0 items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-medium text-on-accent disabled:opacity-60"
           >
             {analyzing ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />} Analyze now
           </button>
@@ -242,7 +242,7 @@ export function BusinessIdentityPage() {
           <div className="space-y-6">
             {drifts.length > 0 && (
               <div className="space-y-2">
-                <h2 className="text-xs font-semibold uppercase tracking-wider text-text-secondary/60">Identity shifts</h2>
+                <h2 className="text-xs font-semibold uppercase tracking-wider text-text-muted">Identity shifts</h2>
                 {drifts.map((d) => (
                   <DriftCard key={d.id} drift={d} onAcknowledge={handleAcknowledge} />
                 ))}
@@ -250,14 +250,14 @@ export function BusinessIdentityPage() {
             )}
 
             <div className="space-y-2">
-              <h2 className="text-xs font-semibold uppercase tracking-wider text-text-secondary/60">Current profile</h2>
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-text-muted">Current profile</h2>
               {dimensions.map((dim) => (
                 <DimensionBar key={dim.dimension_key} dim={dim} history={snapshots} />
               ))}
             </div>
 
             <div className="rounded-2xl border border-border bg-bg-secondary p-4">
-              <h2 className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-text-secondary/60">
+              <h2 className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-text-muted">
                 <Sparkles size={13} /> Log a real decision
               </h2>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -278,7 +278,7 @@ export function BusinessIdentityPage() {
 
             {events.length > 0 && (
               <div className="space-y-2">
-                <h2 className="text-xs font-semibold uppercase tracking-wider text-text-secondary/60">Recent decisions</h2>
+                <h2 className="text-xs font-semibold uppercase tracking-wider text-text-muted">Recent decisions</h2>
                 {events.map((e) => (
                   <div key={e.id} className="flex items-center justify-between gap-2 rounded-xl border border-border/60 px-3 py-2 text-xs text-text-secondary">
                     <span className="truncate">{e.note || e.source.replace(/_/g, ' ')}</span>

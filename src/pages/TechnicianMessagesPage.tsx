@@ -66,7 +66,7 @@ export function TechnicianMessagesPage() {
                     <p dir="auto" className={`mt-1 truncate text-sm ${t.unread_count ? 'text-text-primary' : 'text-text-secondary'}`}>{previewText(t, 'technician')}</p>
                   </div>
                   {t.unread_count > 0 && (
-                    <span className="min-w-[22px] rounded-full bg-accent px-1.5 py-0.5 text-center text-xs font-semibold text-white" aria-label={`${t.unread_count} unread`}>{t.unread_count}</span>
+                    <span className="min-w-[22px] rounded-full bg-accent px-1.5 py-0.5 text-center text-xs font-semibold text-on-accent" aria-label={`${t.unread_count} unread`}>{t.unread_count}</span>
                   )}
                   <ChevronRight className="h-5 w-5 flex-shrink-0 text-text-secondary" aria-hidden="true" />
                 </Link>

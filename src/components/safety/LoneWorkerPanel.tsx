@@ -240,12 +240,12 @@ export function LoneWorkerPanel({ jobId, expectedMinutes }: Props) {
             Start a check-in when you arrive. Your team is alerted if you do not check in on time. Checking in every {info.checkin_interval_minutes} minutes.
           </p>
           {needsConsent && (
-            <p className="rounded-lg bg-warning-500/10 px-3 py-2 text-xs text-warning-500">
+            <p className="rounded-lg bg-warning-subtle px-3 py-2 text-xs text-warning">
               Please read and agree to the monitoring notice before you start. <Link to="/tech/safety" className="font-semibold underline">Open safety settings</Link>
             </p>
           )}
           <div className="flex flex-wrap gap-2">
-            <button type="button" onClick={() => void start(false)} disabled={busy !== null || needsConsent} className="focus-ring min-h-[48px] rounded-lg bg-accent px-4 text-sm font-semibold text-white disabled:opacity-50">
+            <button type="button" onClick={() => void start(false)} disabled={busy !== null || needsConsent} className="focus-ring min-h-[48px] rounded-lg bg-accent px-4 text-sm font-semibold text-on-accent disabled:opacity-50">
               {busy === 'start' ? 'Starting…' : 'Start check-in'}
             </button>
             <button type="button" onClick={() => void start(true)} disabled={busy !== null || needsConsent} className="focus-ring min-h-[48px] rounded-lg border border-border px-4 text-sm font-semibold text-text-primary disabled:opacity-50">
@@ -267,7 +267,7 @@ export function LoneWorkerPanel({ jobId, expectedMinutes }: Props) {
             {endIn !== null && !escalating && <span className="text-xs text-text-secondary">· job time ends in {Math.max(0, endIn)} min</span>}
           </p>
 
-          <button type="button" onClick={() => void imOk()} disabled={busy !== null} className="focus-ring flex min-h-[56px] w-full items-center justify-center gap-2 rounded-xl bg-success-500 px-4 text-base font-bold text-white disabled:opacity-60">
+          <button type="button" onClick={() => void imOk()} disabled={busy !== null} className="focus-ring flex min-h-[56px] w-full items-center justify-center gap-2 rounded-xl bg-success px-4 text-base font-bold text-on-success disabled:opacity-60">
             <CheckCircle2 size={18} aria-hidden="true" />
             {busy === 'checkin' ? 'Sending…' : "I'm OK"}
           </button>

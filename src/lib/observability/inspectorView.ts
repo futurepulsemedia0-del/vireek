@@ -25,8 +25,8 @@ export function rateTone(v: number | null | undefined, warnBelow: number, badBel
 }
 
 export const TONE_CLASS: Record<Tone, string> = {
-  good: 'text-success-500',
-  warn: 'text-warning-500',
+  good: 'text-success',
+  warn: 'text-warning',
   bad: 'text-danger',
   none: 'text-text-secondary',
 };

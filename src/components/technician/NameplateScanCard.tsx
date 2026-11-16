@@ -21,9 +21,9 @@ type Phase =
   | { kind: 'done'; scan: NameplateScan; created: NameplateCreated };
 
 const TONE: Record<BadgeTone, string> = {
-  success: 'bg-success-500/10 text-success-500',
-  warning: 'bg-warning-500/10 text-warning-500',
-  danger: 'bg-danger-500/10 text-danger-500',
+  success: 'bg-success-subtle text-success',
+  warning: 'bg-warning-subtle text-warning',
+  danger: 'bg-danger-subtle text-danger',
   neutral: 'bg-bg-tertiary text-text-secondary',
 };
 
@@ -91,7 +91,7 @@ export function NameplateScanCard({ jobId, customerId = null, onCreated }: Props
             </p>
             <button
               type="button" onClick={() => inputRef.current?.click()}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent py-3 text-sm font-semibold text-white"
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent py-3 text-sm font-semibold text-on-accent"
             >
               <Camera className="h-4 w-4" aria-hidden="true" /> Scan data plate
             </button>
@@ -131,7 +131,7 @@ function ReviewForm({ scan, draft, onChange, onSubmit, onRetake, onCancel, idPre
   const canSubmit = draft.make.trim().length > 0;
   return (
     <form onSubmit={(e) => { e.preventDefault(); if (canSubmit) onSubmit(); }} className="space-y-3">
-      <div className="flex items-start gap-2 rounded-md border border-warning-500/30 bg-warning-500/10 p-2.5 text-xs text-warning-500">
+      <div className="flex items-start gap-2 rounded-md border border-warning/30 bg-warning-subtle p-2.5 text-xs text-warning">
         <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" aria-hidden="true" />
         <div>
           <p className="font-semibold">Check this read before the passport is created.</p>
@@ -167,7 +167,7 @@ function ReviewForm({ scan, draft, onChange, onSubmit, onRetake, onCancel, idPre
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <button type="submit" disabled={!canSubmit} className="flex-1 rounded-lg bg-accent px-3 py-3 text-sm font-semibold text-white disabled:opacity-50">
+        <button type="submit" disabled={!canSubmit} className="flex-1 rounded-lg bg-accent px-3 py-3 text-sm font-semibold text-on-accent disabled:opacity-50">
           Create passport
         </button>
         <button type="button" onClick={onRetake} className="rounded-lg border border-border px-3 py-3 text-sm font-medium text-text-primary">Retake photo</button>
@@ -195,7 +195,7 @@ function DoneCard({ scan, created, onAnother }: { scan: NameplateScan; created: 
   const p = created.passport;
   return (
     <div className="space-y-2">
-      <p className="flex items-center gap-1.5 text-sm font-semibold text-success-500">
+      <p className="flex items-center gap-1.5 text-sm font-semibold text-success">
         <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
         {created.reused ? 'Already on file for this customer' : 'Equipment added'}
       </p>

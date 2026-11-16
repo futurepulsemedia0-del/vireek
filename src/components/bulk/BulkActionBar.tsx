@@ -166,7 +166,7 @@ export function BulkActionBar(props: BulkActionBarProps) {
                         </div>
                       )}
                       <div className="mt-3 flex gap-2">
-                        <button type="button" disabled={tags.length === 0} onClick={() => { props.onTags?.('add', tags); setTagDraft(''); setOpen(null); }} className="focus-ring flex-1 rounded-lg bg-accent px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">
+                        <button type="button" disabled={tags.length === 0} onClick={() => { props.onTags?.('add', tags); setTagDraft(''); setOpen(null); }} className="focus-ring flex-1 rounded-lg bg-accent px-3 py-2 text-xs font-semibold text-on-accent disabled:opacity-50">
                           Add
                         </button>
                         <button type="button" disabled={tags.length === 0} onClick={() => { props.onTags?.('remove', tags); setTagDraft(''); setOpen(null); }} className="focus-ring flex-1 rounded-lg border border-border px-3 py-2 text-xs font-semibold text-text-primary disabled:opacity-50">

@@ -229,7 +229,7 @@ export function LiveCallsPage() {
       </div>
 
       {callsStatus === 'reconnecting' && (
-        <div role="status" className="mb-4 rounded-xl border border-warning-500/30 bg-warning-500/10 px-4 py-3 text-sm text-text-primary">
+        <div role="status" className="mb-4 rounded-xl border border-warning/30 bg-warning-subtle px-4 py-3 text-sm text-text-primary">
           Connection lost — reconnecting. The board may be out of date until it is back.
         </div>
       )}

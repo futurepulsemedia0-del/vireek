@@ -57,7 +57,7 @@ export function VideoSessionRoomPage() {
     const isTech = session.role === 'technician';
     return shell(
       <div className="space-y-4 text-center">
-        <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-success-500/10 text-success-500">
+        <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-success-subtle text-success">
           <CheckCircle2 size={26} aria-hidden="true" />
         </span>
         <h1 className="text-xl font-bold text-text-primary">{isTech ? 'Session ended' : 'Thanks for helping out'}</h1>
@@ -114,7 +114,7 @@ export function VideoSessionRoomPage() {
         onEnd={() => void call.endSession()}
         onLeave={call.leave}
       />
-      {call.joinError && <p role="alert" className="fixed inset-x-3 top-3 z-50 mx-auto max-w-sm rounded-xl bg-danger px-3 py-2 text-sm text-white">{call.joinError}</p>}
+      {call.joinError && <p role="alert" className="fixed inset-x-3 top-3 z-50 mx-auto max-w-sm rounded-xl bg-danger px-3 py-2 text-sm text-on-danger">{call.joinError}</p>}
       <span className="sr-only" aria-live="polite">
         {snap.phase === 'connected' ? 'Connected' : snap.phase === 'reconnecting' ? 'Reconnecting' : ''}
       </span>

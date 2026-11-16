@@ -33,7 +33,7 @@ export interface AutonomySession {
 
 export const RISK_LABELS: Record<RiskLevel, string> = { low: 'Low', medium: 'Medium', high: 'High', critical: 'Critical' };
 export const RISK_COLOR: Record<RiskLevel, string> = {
-  low: 'text-success-500', medium: 'text-text-secondary', high: 'text-warning-500', critical: 'text-error-500',
+  low: 'text-success', medium: 'text-text-secondary', high: 'text-warning', critical: 'text-error-500',
 };
 
 export async function fetchAutonomyBudgets(): Promise<AutonomyBudget[]> {

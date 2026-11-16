@@ -25,8 +25,8 @@ import {
 } from '@/lib/riskIntelligenceApi';
 
 const BAR_COLORS: Record<RiskLevel, string> = {
-  low: 'bg-success-500',
-  medium: 'bg-warning-500',
+  low: 'bg-success',
+  medium: 'bg-warning',
   high: 'bg-danger',
 };
 
@@ -123,8 +123,8 @@ export function JobRiskPanel({ job }: { job: Job }) {
     report.overallLevel === 'high'
       ? 'border-danger/30 bg-danger/5'
       : report.overallLevel === 'medium'
-        ? 'border-warning-500/30 bg-warning-500/5'
-        : 'border-success-500/30 bg-success-500/5';
+        ? 'border-warning/30 bg-warning-subtle'
+        : 'border-success/30 bg-success-subtle';
 
   const handleAcknowledge = async () => {
     if (!user || reason.trim().length < 10) return;
@@ -155,9 +155,9 @@ export function JobRiskPanel({ job }: { job: Job }) {
       >
         <span className="flex items-center gap-2 text-sm font-semibold text-text-primary">
           {report.overallLevel === 'low' ? (
-            <ShieldCheck size={16} className="text-success-500" />
+            <ShieldCheck size={16} className="text-success" />
           ) : (
-            <ShieldAlert size={16} className={report.overallLevel === 'high' ? 'text-danger' : 'text-warning-500'} />
+            <ShieldAlert size={16} className={report.overallLevel === 'high' ? 'text-danger' : 'text-warning'} />
           )}
           Risk Intelligence — {LEVEL_LABELS[report.overallLevel]} risk ({report.overallScore})
         </span>
@@ -255,7 +255,7 @@ export function JobRiskPanel({ job }: { job: Job }) {
                 type="button"
                 onClick={handleAcknowledge}
                 disabled={busy || reason.trim().length < 10}
-                className="focus-ring mt-2 flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white hover:opacity-90 disabled:opacity-50"
+                className="focus-ring mt-2 flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent hover:opacity-90 disabled:opacity-50"
               >
                 {busy && <Loader2 size={12} className="animate-spin" />}
                 Acknowledge risk &amp; proceed

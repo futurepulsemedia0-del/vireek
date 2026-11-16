@@ -48,7 +48,7 @@ export function TrustClaimsSection({ load = fetchPublicClaims }: { load?: () => 
               <li key={c.key}>
                 <Card interactive={false} className="h-full !p-5">
                   <div className="flex items-start gap-3">
-                    <Icon className={`mt-0.5 h-5 w-5 shrink-0 ${done ? 'text-success-500' : 'text-text-secondary'}`} aria-hidden="true" />
+                    <Icon className={`mt-0.5 h-5 w-5 shrink-0 ${done ? 'text-success' : 'text-text-secondary'}`} aria-hidden="true" />
                     <div>
                       <h3 className="text-sm font-semibold text-text-primary">{t(`claims.${c.key}.title`)}</h3>
                       <p className="mt-1 text-xs leading-relaxed text-text-secondary">{t(`claims.${c.key}.body`)}</p>

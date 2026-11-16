@@ -40,9 +40,9 @@ import {
 
 const TONE: Record<DeliveryTone, string> = {
   neutral: 'bg-bg-tertiary text-text-secondary',
-  info: 'bg-blue-500/10 text-blue-500',
-  success: 'bg-success-500/10 text-success-500',
-  warning: 'bg-warning-500/10 text-warning-500',
+  info: 'bg-info-subtle text-info',
+  success: 'bg-success-subtle text-success',
+  warning: 'bg-warning-subtle text-warning',
   danger: 'bg-danger/10 text-danger',
 };
 
@@ -432,7 +432,7 @@ export function JobPartsOrderingPanel({ job, canManage, canEdit, onChanged }: Jo
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder="Search by name, SKU or manufacturer #"
-                    className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60"
+                    className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder"
                   />
                 </div>
                 <label className="flex items-center gap-2 text-sm text-text-secondary">

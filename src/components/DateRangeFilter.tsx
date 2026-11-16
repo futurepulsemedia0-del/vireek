@@ -161,7 +161,7 @@ export function DateRangeFilter({
               <button
                 type="button"
                 onClick={applyCustom}
-                className="focus-ring w-full rounded-lg bg-accent px-3 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+                className="focus-ring w-full rounded-lg bg-accent px-3 py-2 text-sm font-medium text-on-accent transition-opacity hover:opacity-90"
               >
                 Apply
               </button>
@@ -181,7 +181,7 @@ export function DateRangeFilter({
           <span>
             Compare to previous period
             {selection.compare && (
-              <span className="hidden text-text-secondary/70 md:inline"> ({range.prevLabel})</span>
+              <span className="hidden text-text-muted md:inline"> ({range.prevLabel})</span>
             )}
           </span>
         </label>

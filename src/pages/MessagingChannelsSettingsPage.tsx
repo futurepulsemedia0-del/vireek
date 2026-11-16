@@ -21,7 +21,7 @@ type Notice = { tone: 'ok' | 'error'; text: string } | null;
 function StatusBadge({ connection }: { connection: DmConnection | undefined }) {
   const connected = connection?.status === 'connected';
   const broken = connection?.status === 'error';
-  const tone = connected ? 'bg-success/10 text-success' : broken ? 'bg-red-500/10 text-red-500' : 'bg-bg-tertiary text-text-secondary';
+  const tone = connected ? 'bg-success/10 text-success' : broken ? 'bg-danger-subtle text-danger' : 'bg-bg-tertiary text-text-secondary';
   const Icon = connected ? BadgeCheck : broken ? ShieldAlert : Unplug;
   return (
     <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${tone}`}>
@@ -82,7 +82,7 @@ function ChannelCard({ channel, title, icon: Icon, intro, steps, connection, onC
       <p className="mt-2 text-xs leading-relaxed text-text-secondary">{intro}</p>
 
       {notice && (
-        <p role="status" className={`mt-3 rounded-xl px-3.5 py-2.5 text-sm ${notice.tone === 'ok' ? 'bg-success/10 text-success' : 'bg-red-500/10 text-red-500'}`}>
+        <p role="status" className={`mt-3 rounded-xl px-3.5 py-2.5 text-sm ${notice.tone === 'ok' ? 'bg-success/10 text-success' : 'bg-danger-subtle text-danger'}`}>
           {notice.text}
         </p>
       )}
@@ -94,20 +94,20 @@ function ChannelCard({ channel, title, icon: Icon, intro, steps, connection, onC
             <span className="ml-2 text-xs text-text-secondary">ID {connection.externalAccountId}</span>
           </p>
           {connection.status === 'error' && (
-            <p className="rounded-xl bg-red-500/10 px-3.5 py-2.5 text-xs text-red-500">
+            <p className="rounded-xl bg-danger-subtle px-3.5 py-2.5 text-xs text-danger">
               {connection.lastError ?? 'The connection stopped working.'} Reconnect with a fresh token below.
             </p>
           )}
           {connection.status === 'error' && <div className="space-y-3">{children({ disabled: busy })}</div>}
           {connection.status === 'error' && (
-            <button type="button" onClick={connect} disabled={busy} className="focus-ring rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50">
+            <button type="button" onClick={connect} disabled={busy} className="focus-ring rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-on-accent disabled:opacity-50">
               {busy ? 'Reconnecting…' : 'Reconnect'}
             </button>
           )}
           {confirming ? (
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-xs text-text-secondary">Stop receiving messages from this {channel === 'telegram' ? 'bot' : 'Page'}?</span>
-              <button type="button" onClick={() => run(() => disconnectChannel(channel), `${title} disconnected.`)} disabled={busy} className="focus-ring rounded-xl bg-red-500 px-3.5 py-2 text-xs font-medium text-white disabled:opacity-50">
+              <button type="button" onClick={() => run(() => disconnectChannel(channel), `${title} disconnected.`)} disabled={busy} className="focus-ring rounded-xl bg-danger px-3.5 py-2 text-xs font-medium text-on-danger disabled:opacity-50">
                 {busy ? 'Disconnecting…' : 'Yes, disconnect'}
               </button>
               <button type="button" onClick={() => setConfirming(false)} disabled={busy} className="focus-ring rounded-xl border border-border px-3.5 py-2 text-xs font-medium text-text-secondary">
@@ -126,7 +126,7 @@ function ChannelCard({ channel, title, icon: Icon, intro, steps, connection, onC
             {steps.map((s) => <li key={s}>{s}</li>)}
           </ol>
           {children({ disabled: busy })}
-          <button type="button" onClick={connect} disabled={busy} className="focus-ring w-full rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50 sm:w-auto">
+          <button type="button" onClick={connect} disabled={busy} className="focus-ring w-full rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-on-accent disabled:opacity-50 sm:w-auto">
             {busy ? 'Connecting…' : `Connect ${title}`}
           </button>
         </div>
@@ -173,9 +173,9 @@ export function MessagingChannelsSettingsPage() {
         </p>
 
         {loadError && (
-          <div role="alert" className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-red-500/10 px-3.5 py-2.5 text-sm text-red-500">
+          <div role="alert" className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-danger-subtle px-3.5 py-2.5 text-sm text-danger">
             <span>{loadError}</span>
-            <button type="button" onClick={() => { setLoading(true); load(); }} className="focus-ring rounded-lg border border-red-500/30 px-3 py-1 text-xs font-medium">
+            <button type="button" onClick={() => { setLoading(true); load(); }} className="focus-ring rounded-lg border border-danger/30 px-3 py-1 text-xs font-medium">
               Retry
             </button>
           </div>

@@ -48,8 +48,8 @@ function Kpi({ label, value, sub }: { label: string; value: string; sub?: string
 }
 
 const BAR_TONE: Record<CapStatus, string> = {
-  low: 'fill-warning-500',
-  optimal: 'fill-success-500',
+  low: 'fill-warning',
+  optimal: 'fill-success',
   full: 'fill-danger',
   no_capacity: 'fill-text-secondary',
   closed: 'fill-text-secondary',
@@ -153,7 +153,7 @@ function CoverageHeatmap({ hourly }: { hourly: StaffingReport['hourly'] }) {
             <div className="grid flex-1 gap-px" style={{ gridTemplateColumns: 'repeat(24, minmax(0, 1fr))' }}>
               {hourly.filter((h) => h.date === d).map((h) => {
                 const gap = h.gap > 0.25;
-                const tone = gap ? 'bg-danger' : h.open ? 'bg-success-500' : 'bg-warning-500';
+                const tone = gap ? 'bg-danger' : h.open ? 'bg-success' : 'bg-warning';
                 const opacity = h.human_calls <= 0.01 && !h.open ? 0.06 : 0.12 + 0.88 * Math.min(1, h.human_calls / maxHuman);
                 return (
                   <span
@@ -169,9 +169,9 @@ function CoverageHeatmap({ hourly }: { hourly: StaffingReport['hourly'] }) {
         ))}
       </div>
       <div className="mt-3 flex flex-wrap gap-4 text-xs text-text-secondary">
-        <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-sm bg-success-500" /> Covered (open hours)</span>
+        <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-sm bg-success" /> Covered (open hours)</span>
         <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-sm bg-danger" /> CSR gap</span>
-        <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-sm bg-warning-500" /> After hours (AI only)</span>
+        <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-sm bg-warning" /> After hours (AI only)</span>
         <span>Darker = more callers asking for a person</span>
       </div>
     </div>

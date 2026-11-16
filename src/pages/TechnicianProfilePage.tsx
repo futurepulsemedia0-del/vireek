@@ -37,9 +37,9 @@ import {
 
 const STATE_STYLE: Record<ExpiryState, string> = {
   expired: 'bg-danger/10 text-danger',
-  expiring: 'bg-warning-500/10 text-warning-500',
+  expiring: 'bg-warning-subtle text-warning',
   pending_renewal: 'bg-accent/10 text-accent',
-  valid: 'bg-success-500/10 text-success-500',
+  valid: 'bg-success-subtle text-success',
   no_expiry: 'bg-bg-tertiary text-text-secondary',
   revoked: 'bg-bg-tertiary text-text-secondary',
 };
@@ -72,7 +72,7 @@ function Toggle({ label, hint, checked, onChange }: { label: string; hint?: stri
         className={`focus-ring relative h-7 w-12 shrink-0 rounded-full transition-colors ${checked ? 'bg-accent' : 'bg-bg-tertiary'}`}
       >
         <span
-          className={`absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform ${checked ? 'translate-x-5' : ''}`}
+          className={`absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-bg-secondary shadow transition-transform ${checked ? 'translate-x-5' : ''}`}
         />
       </button>
     </div>
@@ -233,8 +233,8 @@ export function TechnicianProfilePage() {
 
             <Section icon={ShieldCheck} title="Credentials">
               {summary.attention > 0 && (
-                <div role="status" className="mb-3 flex gap-2 rounded-xl bg-warning-500/10 px-3 py-2.5 text-sm text-text-primary">
-                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning-500" aria-hidden />
+                <div role="status" className="mb-3 flex gap-2 rounded-xl bg-warning-subtle px-3 py-2.5 text-sm text-text-primary">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning" aria-hidden />
                   <p>
                     {summary.expired > 0 && `${summary.expired} expired`}
                     {summary.expired > 0 && summary.expiring + summary.pendingRenewal > 0 && ' · '}

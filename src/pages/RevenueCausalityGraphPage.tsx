@@ -36,8 +36,8 @@ const NODE_ICONS: Record<NodeId, LucideIcon> = {
 };
 
 const CONFIDENCE_STYLES: Record<Confidence, string> = {
-  high: 'bg-success-500/15 text-success-500',
-  medium: 'bg-warning-500/15 text-warning-500',
+  high: 'bg-success-subtle text-success',
+  medium: 'bg-warning-subtle text-warning',
   low: 'bg-bg-tertiary text-text-secondary',
 };
 
@@ -71,7 +71,7 @@ function EdgeConnector({ edge }: { edge: GraphEdge }) {
         <span className="text-[10px] font-semibold uppercase text-text-secondary">{edge.label}</span>
         {edge.usd && edge.usd.expected > 0 ? (
           <>
-            <span className={`text-sm font-bold ${edge.kind === 'realized' ? 'text-danger-500' : 'text-text-primary'}`}>
+            <span className={`text-sm font-bold ${edge.kind === 'realized' ? 'text-danger' : 'text-text-primary'}`}>
               {formatUsd(edge.usd.expected)}
             </span>
             {range(edge.usd) && <span className="text-[11px] text-text-secondary">range {range(edge.usd)}</span>}

@@ -14,14 +14,14 @@ import {
 
 const SEVERITY_COLORS: Record<string, string> = {
   info: 'bg-accent/10 text-accent',
-  warning: 'bg-warning-500/10 text-warning-500',
+  warning: 'bg-warning-subtle text-warning',
   critical: 'bg-danger/10 text-danger',
 };
 
 function scoreColor(score: number) {
   if (score >= 60) return 'text-danger';
-  if (score >= 30) return 'text-warning-500';
-  return 'text-success-500';
+  if (score >= 30) return 'text-warning';
+  return 'text-success';
 }
 
 export function BusinessDriftPage() {

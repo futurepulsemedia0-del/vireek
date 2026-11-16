@@ -79,7 +79,7 @@ export function TrackingPage() {
 
               {tracking.job_status === 'en_route' && remaining !== null ? (
                 <div className="mt-5 flex items-center gap-4 rounded-2xl border border-accent/30 bg-accent/5 p-5">
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent text-white">
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent text-on-accent">
                     <Clock size={22} />
                   </span>
                   <div>

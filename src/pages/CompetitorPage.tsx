@@ -19,10 +19,10 @@ import { alternativePath, getAlternativeByCompetitorSlug } from '@/lib/alternati
 
 function FeatureIcon({ value, highlight }: { value: FeatureValue; highlight?: boolean }) {
   if (value === 'yes')
-    return <Check size={18} className={`shrink-0 ${highlight ? 'text-accent' : 'text-success-500'}`} strokeWidth={2.5} />;
+    return <Check size={18} className={`shrink-0 ${highlight ? 'text-accent' : 'text-success'}`} strokeWidth={2.5} />;
   if (value === 'partial')
-    return <Minus size={18} className="shrink-0 text-text-secondary/40" strokeWidth={2.5} />;
-  return <X size={18} className="shrink-0 text-danger/50" strokeWidth={2.5} />;
+    return <Minus size={18} className="shrink-0 text-graphic-muted" strokeWidth={2.5} />;
+  return <X size={18} className="shrink-0 text-danger" strokeWidth={2.5} />;
 }
 
 /* ------------------------------------------------------------------ */
@@ -218,7 +218,7 @@ export function CompetitorPage() {
                   ))}
                 </div>
               </motion.div>
-              <p className="mx-auto mt-4 max-w-2xl text-center text-xs text-text-secondary/70">
+              <p className="mx-auto mt-4 max-w-2xl text-center text-xs text-text-muted">
                 Comparison reflects each product\u2019s core, publicly described focus as of this writing. Feature sets
                 change — see {name}\u2019s own site for their current, complete feature list.
               </p>
@@ -333,7 +333,7 @@ export function CompetitorPage() {
               className="pointer-events-none absolute inset-0"
               style={{
                 backgroundImage:
-                  'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
+                  'radial-gradient(circle at 20% 20%, rgb(var(--static-white) / 0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
               }}
             />
             <div className="relative">

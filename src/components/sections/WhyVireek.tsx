@@ -39,14 +39,14 @@ const ROWS: ComparisonRow[] = [
 function Cell({ value }: { value: CellValue }) {
   if (value === 'yes') {
     return (
-      <span className="mx-auto flex h-7 w-7 items-center justify-center rounded-full bg-success-500/15 text-success-500">
+      <span className="mx-auto flex h-7 w-7 items-center justify-center rounded-full bg-success-subtle text-success">
         <Check size={15} strokeWidth={2.75} />
       </span>
     );
   }
   if (value === 'partial') {
     return (
-      <span className="mx-auto flex h-7 w-7 items-center justify-center rounded-full bg-warning-500/15 text-warning-500">
+      <span className="mx-auto flex h-7 w-7 items-center justify-center rounded-full bg-warning-subtle text-warning">
         <Minus size={15} strokeWidth={2.75} />
       </span>
     );
@@ -98,7 +98,7 @@ export function WhyVireek() {
                     Capability
                   </th>
                   <th className="px-4 py-5">
-                    <div className="mx-auto flex w-fit items-center gap-1.5 rounded-full bg-gradient-to-r from-accent to-cta px-3.5 py-1.5 text-xs font-bold text-white shadow-glow-accent">
+                    <div className="mx-auto flex w-fit items-center gap-1.5 rounded-full bg-accent px-3.5 py-1.5 text-xs font-bold text-on-accent shadow-glow-accent">
                       <Sparkles size={12} />
                       Vireek
                     </div>
@@ -152,7 +152,7 @@ export function WhyVireek() {
           whileInView={{ opacity: 1 }}
           viewport={viewport}
           transition={{ duration: 0.5, ease: EASE }}
-          className="mt-5 text-center text-xs text-text-secondary/60"
+          className="mt-5 text-center text-xs text-text-muted"
         >
           &ldquo;Partial&rdquo; reflects that outcome typically depending on staffing, hours, manual
           follow-up, or additional setup and integration work.

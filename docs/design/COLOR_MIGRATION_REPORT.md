@@ -4,13 +4,13 @@ Mode: **WRITE**
 
 | Metric | Count |
 |---|---|
-| files changed | 1113 |
-| raw palette classes migrated | 5333 |
-| redundant `dark:` palette classes removed | 190 |
-| `text-white` → `text-on-<family>` pairings | 827 |
-| bg-white / bg-black / border-white → tokens | 300 |
-| hex → `rgb(var(--token))` | 7 |
-| lines still containing hex / raw classes (manual) | 206 |
+| files changed | 1328 |
+| raw palette classes migrated | 5922 |
+| redundant `dark:` palette classes removed | 201 |
+| `text-white` → `text-on-<family>` pairings | 917 |
+| bg-white / bg-black / border-white → tokens | 316 |
+| hex → `rgb(var(--token))` | 33 |
+| lines still containing hex / raw classes (manual) | 225 |
 
 ## Review: light text with no dark surface in the same class string (24)
 These became `text-on-inverse`; confirm the parent really is a dark/inverse surface.
@@ -42,15 +42,8 @@ These became `text-on-inverse`; confirm the parent really is a dark/inverse surf
 
 ## Needs manual decision (canvas/map/chart/email/data colours — CSS variables cannot be used)
 
-### src/components/CookieConsent.tsx
-- 443: 'linear-gradient(155deg, #0B0F1E 0%, #10142A 45%, #0B0F1E 100%)',
-- 457: <div className="relative h-[3px] w-full bg-gradient-to-r from-accent via-[#7C8CFF] to-cta" />
-
 ### src/components/LiveChatWidget.tsx
-- 247: className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-on-inverse/
-
-### src/components/NoSurpriseCustomerPanel.tsx
-- 149: className="mt-1 h-4 w-4 shrink-0 accent-[var(--color-accent,#2563eb)]"
+- 253: className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-on-inverse/
 
 ### src/components/RouteLoader.tsx
 - 56: -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2.5px));
@@ -62,8 +55,26 @@ These became `text-on-inverse`; confirm the parent really is a dark/inverse surf
 - 194: <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-on-inverse/30 bg-gradient-t
 - 258: className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-on-inverse/
 
-### src/components/bulk/BulkCheckbox.tsx
-- 40: className="focus-ring h-4 w-4 cursor-pointer rounded border-border accent-[var(--color-accent,#2563eb)]"
+### src/components/brand/BrandLogoGuide.tsx
+- 21: { name: 'Slate', hex: '#141413', rgb: '20 20 19', use: 'Letters on light backgrounds (17.5:1 on Ivory #FAF9F5)
+- 22: { name: 'Ivory', hex: '#FAF9F5', rgb: '250 249 245', use: 'Letters on dark backgrounds (17.5:1 on Slate #14141
+- 23: { name: 'Vivid Clay', hex: '#F9774C', rgb: '249 119 76', use: 'App tile fill and the pulse dot on dark backgro
+- 24: { name: 'Clay — logo dot (light)', hex: '#D95A2E', rgb: '217 90 46', use: 'The pulse dot on light backgrounds,
+- 70: <Panel className="!bg-[#FAF9F5] text-text-muted" label="Full color — on light backgrounds">
+- 73: <Panel className="!bg-[#141413] text-text-muted" label="Dark-background version">
+- 76: <Panel className="!bg-[#FAF9F5] text-text-muted" label="Horizontal lockup">
+- 79: <Panel className="!bg-[#FAF9F5] text-text-muted" label="Symbol and app tile">
+- 158: The app tile is a fixed-color asset (Vivid Clay #F9774C, Slate V, Ivory dot) in both themes,
+- 187: <Example ok caption="Dark-background version on dark." bg="bg-[#141413]">
+- 205: <Example ok={false} caption="Low contrast on a busy background." bg="bg-[conic-gradient(at_30%_40%,#1F92FF,#34
+
+### src/components/brand/Logo.tsx
+- 40: const TILE_FILL: Record<string, string> = { tile: '#F9774C', tv: '#141413', td: '#FAF9F5' }; // Vivid Clay til
+- 44: if (tone === 'white') return '#FFFFFF';
+- 94: <path d={shape.mono} fill={tone === 'white' ? '#FFFFFF' : 'currentColor'} />
+
+### src/components/brand/LogoConstruction.tsx
+- 21: <rect x={0} y={0} width={s.w} height={s.h} fill="var(--bg-card, #fff)" opacity={0.0} />
 
 ### src/components/canvassing/CanvassMap.tsx
 - 69: paint: { 'circle-color': '#2563eb', 'circle-opacity': 0.85, 'circle-stroke-color': '#ffffff', 'circle-stroke-w
@@ -81,17 +92,24 @@ These became `text-on-inverse`; confirm the parent really is a dark/inverse surf
 ### src/components/data-platform/EmbedsTab.tsx
 - 58: accent: '#2563eb',
 
+### src/components/documentTemplates/DesignerPanel.tsx
+- 119: error={invalid ? 'Use a hex color like #203AD8.' : undefined}
+
+### src/components/documentTemplates/DocumentPreview.tsx
+- 61: const onBand = '#FFFFFF';
+- 93: color: band ? onBand : data.stamp.tone === 'success' ? '#168257' : data.stamp.tone === 'danger' ? '#C83737' : 
+- 260: color: r.tone === 'success' ? '#168257' : r.tone === 'danger' ? '#C83737' : theme.primary,
+- 315: background: '#FFFFFF',
+
+### src/components/feedback/FeedbackScreenshot.tsx
+- 30: if (b.tool === 'hide') { ctx.fillStyle = '#000'; ctx.fillRect(b.x, b.y, b.w, b.h); }
+- 31: else { ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 4; ctx.strokeRect(b.x, b.y, b.w, b.h); }
+
 ### src/components/identity/IdentityGraphCanvas.tsx
 - 72: <circle cx={n.x} cy={n.y} r={n.depth === 0 ? 17 : 13} fill={meta.color} stroke={active ? '#fff' : meta.color} 
 
 ### src/components/jobs/JobQualityGatePanel.tsx
 - 59: ctx.strokeStyle = '#1a1a1a';
-
-### src/components/jobs/JobSummarySettingsForm.tsx
-- 22: <input id={id} type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="mt-1 
-
-### src/components/jobs/JobVideoSessionPanel.tsx
-- 108: <input type="checkbox" checked={recordingAllowed} onChange={(e) => setRecordingAllowed(e.target.checked)} clas
 
 ### src/components/livemap/GeofenceMapLayer.tsx
 - 37: el.style.cssText = `width:${size}px;height:${size}px;background:${kind === 'radius' ? '#ffffff' : color};borde
@@ -119,23 +137,11 @@ These became `text-on-inverse`; confirm the parent really is a dark/inverse surf
 - 89: .s{font-size:7pt;color:#475569;margin-top:1mm}
 - 91: .f{padding:1.4mm 3mm;border-top:0.3mm solid #cbd5e1;font-size:6pt;color:#475569}
 
-### src/components/quotes/HvacFields.tsx
-- 148: className="focus-ring h-5 w-5 rounded border-border accent-[var(--color-accent,#2563eb)]"
-
 ### src/components/sections/OperationsCommandCenter.tsx
-- 264: className="relative mt-10 overflow-hidden rounded-2xl border border-border-strong bg-[#0a0b10] shadow-[0_30px_
-
-### src/components/settings/AutoReplySettingsCard.tsx
-- 161: className="mt-2 w-full accent-[var(--color-accent,#6366f1)]"
+- 266: className="relative mt-10 overflow-hidden rounded-2xl border border-border-strong bg-[#0a0b10] shadow-[0_30px_
 
 ### src/components/signatures/SignaturePad.tsx
-- 52: ctx.strokeStyle = '#171717';
-
-### src/components/video/VideoCallRoom.tsx
-- 219: <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} className="focus-r
-
-### src/components/video/VideoLobby.tsx
-- 81: <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="focus-ring 
+- 53: ctx.strokeStyle = '#171717';
 
 ### src/components/wallboard/WallboardPanels.tsx
 - 36: on_site: '#34d399',
@@ -144,8 +150,20 @@ These became `text-on-inverse`; confirm the parent really is a dark/inverse surf
 - 39: available: '#fbbf24',
 - 40: offline: '#64748b',
 
+### src/lib/a11y/apply.ts
+- 9: black: { ring: '#000000', halo: '#ffffff' },
+- 10: white: { ring: '#ffffff', halo: '#000000' },
+- 11: yellow: { ring: '#ffd400', halo: '#000000' },
+- 12: blue: { ring: '#0050ff', halo: '#ffffff' },
+
 ### src/lib/bookingPolicy.ts
 - 311: if (!HEX_RE.test(b.accent_color)) e.accent = 'Use a 6-digit hex colour like #1f3ad8.';
+
+### src/lib/brand/brandConfig.ts
+- 27: light: { bg: '#FDFCFA', text: '#17171A', muted: '#676770', accent: '#203AD8', live: '#D6582A' },
+- 28: dark: { bg: '#090A0D', text: '#F2F1EE', muted: '#9A9AA3', accent: '#6C82FF', live: '#FF8A5A' },
+- 29: accent500: '#3448E8',
+- 30: accent300: '#8FA0FB',
 
 ### src/lib/canvassing.ts
 - 129: no_answer: { label: 'No answer', hint: 'Nobody came to the door', color: '#f59e0b', needsContact: false, follo
@@ -184,9 +202,16 @@ These became `text-on-inverse`; confirm the parent really is a dark/inverse surf
 - 142: accent_color: '#0F62FE',
 - 268: if (!/^#[0-9a-fA-F]{6}$/.test(d.accent_color)) e.accent_color = 'Use a 6-digit hex color like #0F62FE.';
 
+### src/lib/documentTemplates.ts
+- 193: const h = normalizeColor(hex, '#000000').slice(1);
+- 237: theme: { primary: '#203AD8', accent: '#D6582A', text: '#171717', muted: '#6E6E78', font: 'helvetica', baseSize
+- 279: d.theme = { ...d.theme, primary: '#0F172A', accent: '#0EA5E9' };
+- 285: d.theme = { ...d.theme, primary: '#111827', accent: '#6B7280', baseSize: 9.5 };
+- 290: d.theme = { ...d.theme, primary: '#1F2937', accent: '#9A3412', font: 'times', baseSize: 10.5 };
+
 ### src/lib/dvir.ts
-- 361: ctx.fillStyle = '#fff';
-- 363: ctx.fillStyle = '#171717';
+- 362: ctx.fillStyle = '#fff';
+- 364: ctx.fillStyle = '#171717';
 
 ### src/lib/geofences.ts
 - 22: export const DEFAULT_COLOR = '#2563eb';
@@ -243,6 +268,15 @@ These became `text-on-inverse`; confirm the parent really is a dark/inverse surf
 - 21: /** "12 34 56" / "12, 34, 56" (Tailwind CSS-variable triplet) -> "#0c2238". Null if it isn't a triplet. */
 - 28: const FALLBACK_ACCENT = '#2563eb';
 
+### src/lib/photoProvenanceApi.ts
+- 336: ctx.fillStyle = '#000';
+
+### src/lib/readableText.ts
+- 12: export type ReadableText = '#FFFFFF' | '#0F172A' | '#000000';
+- 14: const WHITE: ReadableText = '#FFFFFF';
+- 15: const INK: ReadableText = '#0F172A';
+- 16: const BLACK: ReadableText = '#000000';
+
 ### src/lib/richMessaging.ts
 - 73: return 'Brand colour must look like #1A2B3C.';
 
@@ -275,6 +309,16 @@ These became `text-on-inverse`; confirm the parent really is a dark/inverse surf
 - 163: component: '#eab308',
 - 164: hazard: '#dc2626',
 - 165: capture: '#94a3b8',
+
+### src/lib/telephonyBrand.ts
+- 100: const color = /^#[0-9a-fA-F]{6}$/.test(i.primaryColor ?? "") ? (i.primaryColor as string) : "#1d4ed8";
+- 109: const html = `<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto"><div style="background:${c
+
+### src/lib/trustBadge/core.ts
+- 96: blue: { l: ['#FFFFFF', '#0F172A', '#CBD5E1', '#1D4ED8'], d: ['#0F172A', '#F8FAFC', '#334155', '#93C5FD'] },
+- 97: green: { l: ['#FFFFFF', '#0F172A', '#CBD5E1', '#047857'], d: ['#0F172A', '#F8FAFC', '#334155', '#6EE7B7'] },
+- 98: slate: { l: ['#F8FAFC', '#1E293B', '#CBD5E1', '#334155'], d: ['#1E293B', '#F1F5F9', '#475569', '#CBD5E1'] },
+- 99: mono: { l: ['#FFFFFF', '#111111', '#111111', '#111111'], d: ['#111111', '#FFFFFF', '#FFFFFF', '#FFFFFF'] },
 
 ### src/lib/trustPack/notices.ts
 - 150: const rows = lines.map(([k, v]) => `<tr><td style="padding:4px 12px 4px 0;color:#667085">${escapeHtml(k)}</td>
@@ -313,9 +357,6 @@ These became `text-on-inverse`; confirm the parent really is a dark/inverse surf
 ### src/pages/BookingSettingsPage.tsx
 - 333: <input id="brand-color-picker" type="color" aria-label="Pick accent colour" value={draft.branding.accent_color
 
-### src/pages/BrandGuidelinesPage.tsx
-- 194: <Card className="flex flex-col items-center justify-center gap-6 !bg-[#0A0A0C] py-16">
-
 ### src/pages/BrandingSettingsPage.tsx
 - 161: value={isHexColor(value) ? value : '#000000'}
 - 178: placeholder="#2563EB"
@@ -324,28 +365,8 @@ These became `text-on-inverse`; confirm the parent really is a dark/inverse surf
 - 252: const muted = dark ? '#94A3B8' : '#64748B';
 - 253: const line = dark ? '#1F2A3D' : '#E2E8F0';
 
-### src/pages/BreakCompliancePage.tsx
-- 575: <input type="radio" name="decision" className="mt-1 h-4 w-4 accent-[var(--color-accent,#2563eb)]" checked={sta
-- 677: className="h-5 w-5 accent-[var(--color-accent,#2563eb)]"
-
 ### src/pages/ChatWidgetSettingsPage.tsx
 - 261: <input type="color" aria-label="Pick brand color" value={/^#[0-9a-fA-F]{6}$/.test(draft.brand_color) ? draft.b
-
-### src/pages/CustomerStatementsPage.tsx
-- 270: <input type="checkbox" className="h-4 w-4 accent-[var(--color-accent,#203ad8)]" checked={consolidate} onChange
-
-### src/pages/DispatchRulesPage.tsx
-- 72: <input type="checkbox" role="switch" checked={draft.enabled} disabled={dis} onChange={(e) => set({ enabled: e.
-- 89: <input id={`w-${rule.rule_type}`} type="range" min={0} max={100} step={5} disabled={dis} value={draft.weight} 
-
-### src/pages/EmailSettingsPage.tsx
-- 484: className="focus-ring mt-1 h-4 w-4 rounded border-border accent-[var(--color-accent,#2563eb)]"
-
-### src/pages/FindingsPackagePublicPage.tsx
-- 243: <input type="radio" name={`opt-${item.id}`} checked={on} onChange={() => onSelect(option.id)} className="mt-1 
-
-### src/pages/FirstTimeFixAutopilotPage.tsx
-- 483: className="mt-2 w-full accent-[var(--color-accent,#2563eb)]"
 
 ### src/pages/InventoryPage.tsx
 - 321: <StatCard label="Low / out of stock" value={alerts.length} tone={alerts.length ? '#ef4444' : undefined} />
@@ -354,30 +375,8 @@ These became `text-on-inverse`; confirm the parent really is a dark/inverse surf
 ### src/pages/LandingPagesPage.tsx
 - 426: value={/^#[0-9a-fA-F]{6}$/.test(draft.accent_color) ? draft.accent_color : '#2563eb'}
 
-### src/pages/LeadAssignmentPage.tsx
-- 72: className="h-4 w-4 accent-[var(--accent,#2563eb)]"
-
-### src/pages/LeadMarketplacesPage.tsx
-- 127: <input id={id} type="checkbox" checked={checked} onChange={(e) => set(e.target.checked)} className="h-4 w-4 ac
-
-### src/pages/PartsIntelligencePage.tsx
-- 520: <input type="checkbox" checked={recallOnly} onChange={(e) => setRecallOnly(e.target.checked)} className="h-4 w
-
-### src/pages/QuickBooksSyncPage.tsx
-- 151: <input type="checkbox" checked={es.enabled} onChange={(e) => patch(entity, { enabled: e.target.checked })} cla
-
-### src/pages/RemoteResolutionPage.tsx
-- 262: className="h-4 w-4 accent-[var(--color-accent,#4f46e5)]"
-
 ### src/pages/RichMessagingSettingsPage.tsx
-- 57: className="mt-1 h-4 w-4 accent-[var(--color-accent,#2563eb)]"
 - 258: placeholder="#1A2B3C"
-
-### src/pages/ServiceDataExchangePage.tsx
-- 339: className="h-3.5 w-3.5 accent-[var(--color-accent,#2563eb)]"
-
-### src/pages/ToolCribPage.tsx
-- 1208: <input type="checkbox" checked={alertsOn} onChange={(e) => setAlertsOn(e.target.checked)} disabled={busy} clas
 
 ### src/pages/WalletLandingPage.tsx
 - 43: <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl text-white" style={{ background

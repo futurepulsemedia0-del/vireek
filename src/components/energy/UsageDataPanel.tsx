@@ -15,7 +15,7 @@ import {
 } from '@/lib/energyIntelligence';
 
 const FIELD =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/70';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder';
 
 interface Props {
   customerId: string;
@@ -145,7 +145,7 @@ export function UsageDataPanel({ customerId, sites, siteId, onChanged }: Props) 
                 type="button"
                 aria-pressed={fuel === f}
                 onClick={() => setFuel(f)}
-                className={`focus-ring rounded-lg px-3 py-1.5 text-xs font-semibold ${fuel === f ? 'bg-accent text-white' : 'text-text-secondary'}`}
+                className={`focus-ring rounded-lg px-3 py-1.5 text-xs font-semibold ${fuel === f ? 'bg-accent text-on-accent' : 'text-text-secondary'}`}
               >
                 {f === 'electric' ? 'Electric (kWh)' : 'Gas (therms)'}
               </button>
@@ -225,7 +225,7 @@ export function UsageDataPanel({ customerId, sites, siteId, onChanged }: Props) 
             className={`${FIELD} mt-2 font-mono text-xs`}
           />
           {csvErrors.length > 0 && (
-            <ul className="mt-2 space-y-0.5 text-xs text-danger-500" role="alert">
+            <ul className="mt-2 space-y-0.5 text-xs text-danger" role="alert">
               {csvErrors.slice(0, 5).map((er) => (
                 <li key={er}>{er}</li>
               ))}
@@ -292,7 +292,7 @@ export function UsageDataPanel({ customerId, sites, siteId, onChanged }: Props) 
                         type="button"
                         onClick={() => remove(r.id)}
                         aria-label={`Delete bill ${r.period_start}`}
-                        className="focus-ring rounded-md p-1 text-text-secondary hover:text-danger-500"
+                        className="focus-ring rounded-md p-1 text-text-secondary hover:text-danger"
                       >
                         <Trash2 size={13} aria-hidden="true" />
                       </button>

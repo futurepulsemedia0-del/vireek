@@ -69,7 +69,7 @@ export function ImportPanel({ profileId, timezone, onImported }: Props) {
         {mode === 'csv' ? (
           <>
             <p className="text-sm text-text-secondary">Export work orders from your portal and upload the CSV. Re-importing the same file updates existing orders — it never duplicates them. <a className="text-accent underline" href="/samples/work-orders-sample.csv" download>Download a sample file</a>.</p>
-            <label className="focus-ring mt-3 inline-flex min-h-[48px] cursor-pointer items-center rounded-xl bg-accent px-5 font-semibold text-white">
+            <label className="focus-ring mt-3 inline-flex min-h-[48px] cursor-pointer items-center rounded-xl bg-accent px-5 font-semibold text-on-accent">
               Choose CSV file
               <input type="file" accept=".csv,text/csv" className="sr-only" onChange={(e) => { void onFile(e.target.files?.[0]); e.target.value = ''; }} />
             </label>
@@ -86,8 +86,8 @@ export function ImportPanel({ profileId, timezone, onImported }: Props) {
 
       {result && (
         <section className="space-y-3 rounded-2xl border border-border bg-bg-secondary p-4" aria-live="polite">
-          <p className="text-sm text-text-primary"><strong>{result.orders.length}</strong> work order(s) ready{result.errors.length > 0 && <>, <strong className="text-amber-500">{result.errors.length}</strong> problem(s) — those rows are skipped</>}.</p>
-          {result.missingRequired.length > 0 && <p role="alert" className="text-sm text-red-500">Missing required: {result.missingRequired.map((f) => FIELD_LABELS[f]).join(', ')}.{mode === 'csv' ? ' Pick the right column below.' : ' Add it to the pasted text.'}</p>}
+          <p className="text-sm text-text-primary"><strong>{result.orders.length}</strong> work order(s) ready{result.errors.length > 0 && <>, <strong className="text-warning">{result.errors.length}</strong> problem(s) — those rows are skipped</>}.</p>
+          {result.missingRequired.length > 0 && <p role="alert" className="text-sm text-danger">Missing required: {result.missingRequired.map((f) => FIELD_LABELS[f]).join(', ')}.{mode === 'csv' ? ' Pick the right column below.' : ' Add it to the pasted text.'}</p>}
           {result.errors.length > 0 && (
             <ul className="max-h-48 list-disc space-y-1 overflow-auto pl-5 text-xs text-text-secondary">
               {result.errors.slice(0, 30).map((e, i) => <li key={i}>{mode === 'csv' ? `Row ${e.row}: ` : ''}{e.message}</li>)}

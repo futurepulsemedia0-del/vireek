@@ -60,7 +60,7 @@ import {
 } from '@/lib/outcomeClearinghouse';
 
 const inputCls = 'focus-ring rounded-xl border border-border bg-bg-secondary px-3 py-2 text-sm text-text-primary';
-const btnPrimary = 'focus-ring rounded-xl bg-cta px-3 py-2 text-xs font-medium text-white disabled:opacity-50';
+const btnPrimary = 'focus-ring rounded-xl bg-cta px-3 py-2 text-xs font-medium text-on-cta disabled:opacity-50';
 const btnGhost = 'focus-ring rounded-xl bg-bg-tertiary px-3 py-2 text-xs font-medium text-text-secondary disabled:opacity-50';
 const card = 'rounded-2xl border border-border bg-bg-secondary p-5';
 
@@ -73,7 +73,7 @@ function StatusBadge({ status }: { status: ClearingStatus }) {
 
 function ConfidenceBar({ value }: { value: number }) {
   const tone = confidenceTone(value);
-  const color = tone === 'good' ? 'bg-success-500' : tone === 'warn' ? 'bg-warning-500' : 'bg-danger';
+  const color = tone === 'good' ? 'bg-success' : tone === 'warn' ? 'bg-warning' : 'bg-danger';
   return (
     <div className="flex items-center gap-2" aria-label={`Confidence ${value} of 100`}>
       <div className="h-2 w-24 rounded-full bg-bg-tertiary"><div className={`h-2 rounded-full ${color}`} style={{ width: `${value}%` }} /></div>
@@ -209,7 +209,7 @@ function OverviewView() {
 
       <div className="flex flex-wrap gap-2">
         {tabs.map(([k, label]) => (
-          <button key={k} onClick={() => setTab(k)} className={`focus-ring rounded-xl px-3 py-1.5 text-xs font-medium ${tab === k ? 'bg-cta text-white' : 'bg-bg-tertiary text-text-secondary'}`}>{label}</button>
+          <button key={k} onClick={() => setTab(k)} className={`focus-ring rounded-xl px-3 py-1.5 text-xs font-medium ${tab === k ? 'bg-cta text-on-cta' : 'bg-bg-tertiary text-text-secondary'}`}>{label}</button>
         ))}
       </div>
 
@@ -396,7 +396,7 @@ function DetailView({ id }: { id: string }) {
         <div className="flex flex-wrap items-center gap-2">
           <StatusBadge status={rec.status} />
           <span className="text-xs text-text-secondary">{BAND_LABEL[rec.confidence_band]}</span>
-          {rec.customer_confirmed_at && <span className="rounded-full bg-success-500/10 px-2 py-0.5 text-xs text-success-500">Customer confirmed</span>}
+          {rec.customer_confirmed_at && <span className="rounded-full bg-success-subtle px-2 py-0.5 text-xs text-success">Customer confirmed</span>}
           {rec.public_enabled && <span className="rounded-full bg-accent/10 px-2 py-0.5 text-xs text-accent">Shared</span>}
         </div>
         <p className="text-base font-semibold text-text-primary">{rec.claim_statement}</p>
@@ -426,7 +426,7 @@ function DetailView({ id }: { id: string }) {
             {a.hard_checks && (
               <div className="grid grid-cols-2 gap-2 pt-2 text-xs sm:grid-cols-3">
                 {([['job_completed', 'Job completed'], ['chain_intact', 'Evidence chain intact'], ['result_proof', 'Result proven'], ['no_adverse_signal', 'No adverse signal'], ['no_open_dispute', 'No open dispute'], ['meets_threshold', 'Meets threshold']] as const).map(([k, label]) => (
-                  <span key={k} className={`rounded-lg px-2 py-1 ${a.hard_checks?.[k] ? 'bg-success-500/10 text-success-500' : 'bg-danger/10 text-danger'}`}>{a.hard_checks?.[k] ? '✓' : '✗'} {label}</span>
+                  <span key={k} className={`rounded-lg px-2 py-1 ${a.hard_checks?.[k] ? 'bg-success-subtle text-success' : 'bg-danger/10 text-danger'}`}>{a.hard_checks?.[k] ? '✓' : '✗'} {label}</span>
                 ))}
               </div>
             )}
@@ -447,7 +447,7 @@ function DetailView({ id }: { id: string }) {
                 <tr key={x.id} className="border-t border-border">
                   <td className="py-2 pr-3 text-text-primary">{x.label}</td><td className="pr-3 capitalize">{x.phase}</td><td className="pr-3">{x.value}{x.unit ? ` ${x.unit}` : ''}</td><td className="pr-3">{formatSpec(x)}</td>
                   <td className="pr-3">{SOURCE_LABEL[x.source]}{x.device_ref ? ` (${x.device_ref})` : ''}</td>
-                  <td>{x.within_spec === null ? '—' : x.within_spec ? <span className="text-success-500">In spec</span> : <span className="text-danger">Out of spec</span>}</td>
+                  <td>{x.within_spec === null ? '—' : x.within_spec ? <span className="text-success">In spec</span> : <span className="text-danger">Out of spec</span>}</td>
                 </tr>))}</tbody>
             </table>
           </div>
@@ -464,7 +464,7 @@ function DetailView({ id }: { id: string }) {
             {m.source === 'device' && <input className={`${inputCls} sm:col-span-2`} placeholder="Instrument model / serial" value={m.deviceRef} onChange={(e) => setM({ ...m, deviceRef: e.target.value })} />}
             <div className="flex items-center gap-3 sm:col-span-6">
               <button className={btnPrimary} disabled={busy} onClick={submitMeasurement}>Record reading</button>
-              {specPreview !== null && <span className={`text-xs ${specPreview ? 'text-success-500' : 'text-danger'}`}>{specPreview ? 'Within expected range' : 'Outside expected range - this will block verification'}</span>}
+              {specPreview !== null && <span className={`text-xs ${specPreview ? 'text-success' : 'text-danger'}`}>{specPreview ? 'Within expected range' : 'Outside expected range - this will block verification'}</span>}
             </div>
             <p className="text-[11px] text-text-secondary sm:col-span-6">Readings are permanent. To correct one, record a new reading - the latest "after" reading per metric decides.</p>
           </div>
@@ -563,7 +563,7 @@ function DetailView({ id }: { id: string }) {
               {([['Verifier link', links.verify_token], ['Customer link', links.customer_token]] as const).map(([label, tok]) => (
                 <div key={label} className="flex items-center gap-2"><span className="w-24 text-text-secondary">{label}</span><input readOnly className={`${inputCls} flex-1 py-1 text-xs`} value={verifyUrl(window.location.origin, tok)} onFocus={(e) => e.currentTarget.select()} /><button className={btnGhost} onClick={() => void copy(verifyUrl(window.location.origin, tok))}>Copy</button></div>
               ))}
-              {!links.public_enabled && <p className="text-warning-500">Sharing is off - these links show "not available" until you turn it on.</p>}
+              {!links.public_enabled && <p className="text-warning">Sharing is off - these links show "not available" until you turn it on.</p>}
             </div>
           )}
         </div>

@@ -50,8 +50,8 @@ const OBS_COLS =
 const STATS_COLS = 'n, n_success, success_rate, wilson_lower, wilson_upper';
 const LABEL_ORDER: OutcomeLabel[] = ['success', 'partial', 'failure', 'ambiguous', 'pending'];
 const LABEL_BAR: Record<OutcomeLabel, string> = {
-  success: 'bg-success-500',
-  partial: 'bg-warning-500',
+  success: 'bg-success',
+  partial: 'bg-warning',
   failure: 'bg-danger',
   ambiguous: 'bg-accent',
   pending: 'bg-bg-tertiary',
@@ -208,8 +208,8 @@ export function FieldIntelligencePage() {
           <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
             {[
               { label: 'Jobs learned from', value: total, icon: Database, tone: 'text-accent' },
-              { label: 'Settled outcomes', value: settled, icon: CheckCircle2, tone: 'text-success-500' },
-              { label: 'Needs your review', value: backlog, icon: ClipboardCheck, tone: backlog > 0 ? 'text-warning-500' : 'text-text-secondary' },
+              { label: 'Settled outcomes', value: settled, icon: CheckCircle2, tone: 'text-success' },
+              { label: 'Needs your review', value: backlog, icon: ClipboardCheck, tone: backlog > 0 ? 'text-warning' : 'text-text-secondary' },
               { label: 'Data completeness', value: formatPercent(completeness), icon: Gauge, tone: 'text-accent' },
             ].map((k) => (
               <div key={k.label} className="rounded-xl border border-border bg-bg-secondary p-4">

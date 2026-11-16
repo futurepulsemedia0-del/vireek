@@ -105,7 +105,7 @@ export function JobVideoSessionPanel({ jobId, ownerId, canEdit }: { jobId: strin
               </select>
             </div>
             <label className="flex cursor-pointer items-start gap-2.5 self-end rounded-xl border border-border p-3 text-sm text-text-primary">
-              <input type="checkbox" checked={recordingAllowed} onChange={(e) => setRecordingAllowed(e.target.checked)} className="focus-ring mt-0.5 h-4 w-4 accent-[var(--color-accent,#2563eb)]" />
+              <input type="checkbox" checked={recordingAllowed} onChange={(e) => setRecordingAllowed(e.target.checked)} className="focus-ring mt-0.5 h-4 w-4 accent-accent" />
               <span>Allow recording clips<span className="block text-xs text-text-secondary">The expert must agree before you can record.</span></span>
             </label>
           </div>

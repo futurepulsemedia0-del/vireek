@@ -46,11 +46,11 @@ import { deleteRun, fetchSavedRuns, gatherBaseline, saveRun, type SavedRun } fro
 const CARD = 'rounded-2xl border border-border bg-bg-secondary p-4';
 const STORAGE_KEY = 'vireek.operations-sandbox.assumptions.v1';
 
-const TONE_TEXT: Record<DeltaTone, string> = { good: 'text-success-500', bad: 'text-danger', neutral: 'text-text-secondary' };
+const TONE_TEXT: Record<DeltaTone, string> = { good: 'text-success', bad: 'text-danger', neutral: 'text-text-secondary' };
 
 const VERDICT_STYLE: Record<VerdictKey, { box: string; text: string }> = {
-  recommended: { box: 'border-success-500/30 bg-success-500/10', text: 'text-success-500' },
-  proceed_with_guardrails: { box: 'border-warning-500/30 bg-warning-500/10', text: 'text-warning-500' },
+  recommended: { box: 'border-success/30 bg-success-subtle', text: 'text-success' },
+  proceed_with_guardrails: { box: 'border-warning/30 bg-warning-subtle', text: 'text-warning' },
   not_recommended: { box: 'border-danger/30 bg-danger/10', text: 'text-danger' },
   inconclusive: { box: 'border-border bg-bg-secondary', text: 'text-text-secondary' },
 };
@@ -64,7 +64,7 @@ const VERDICT_LABEL: Record<VerdictKey, string> = {
 
 const SEVERITY_STYLE: Record<Risk['severity'], string> = {
   high: 'bg-danger/10 text-danger',
-  medium: 'bg-warning-500/10 text-warning-500',
+  medium: 'bg-warning-subtle text-warning',
   low: 'bg-bg-tertiary text-text-secondary',
 };
 
@@ -122,7 +122,7 @@ const shortDate = (iso: string) => new Date(iso).toLocaleDateString([], { month:
 function Dot({ measured }: { measured: boolean }) {
   return (
     <span
-      className={`inline-block h-1.5 w-1.5 rounded-full ${measured ? 'bg-success-500' : 'bg-warning-500'}`}
+      className={`inline-block h-1.5 w-1.5 rounded-full ${measured ? 'bg-success' : 'bg-warning'}`}
       title={measured ? 'Measured from your data' : 'Assumed: calibrate below or connect more data'}
       aria-label={measured ? 'measured' : 'assumed'}
     />
@@ -298,7 +298,7 @@ function Builder({
             onClick={() => onPreset(p.id)}
             aria-pressed={activePreset === p.id}
             title={p.description}
-            className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${activePreset === p.id ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
+            className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${activePreset === p.id ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
           >
             {p.label}
           </button>
@@ -431,7 +431,7 @@ function CashChart({ r }: { r: SimulationResult }) {
           const x = gap + i * (barW + gap);
           return (
             <g key={i}>
-              <rect x={x} y={v >= 0 ? mid - h : mid} width={barW} height={Math.max(h, 1)} rx="3" className={v >= 0 ? 'fill-success-500' : 'fill-danger'} />
+              <rect x={x} y={v >= 0 ? mid - h : mid} width={barW} height={Math.max(h, 1)} rx="3" className={v >= 0 ? 'fill-success' : 'fill-danger'} />
               <text x={x + barW / 2} y={H + 10} textAnchor="middle" className="fill-text-secondary" fontSize="9">{`M${i + 1}`}</text>
             </g>
           );
@@ -444,7 +444,7 @@ function CashChart({ r }: { r: SimulationResult }) {
 
 function DriversAndRisks({ r }: { r: SimulationResult }) {
   if (r.verdict.key === 'inconclusive') return null;
-  const dotColor = { positive: 'bg-success-500', negative: 'bg-danger', neutral: 'bg-text-secondary' } as const;
+  const dotColor = { positive: 'bg-success', negative: 'bg-danger', neutral: 'bg-text-secondary' } as const;
   return (
     <div className="mb-5 grid gap-4 md:grid-cols-2">
       <div className={CARD}>
@@ -465,7 +465,7 @@ function DriversAndRisks({ r }: { r: SimulationResult }) {
         <p className="mb-3 text-sm font-medium text-text-primary">Guardrails</p>
         {r.risks.length === 0 ? (
           <p className="flex items-center gap-2 text-sm text-text-secondary">
-            <CheckCircle2 size={16} className="text-success-500" aria-hidden="true" /> No service, margin, churn or cash risks detected.
+            <CheckCircle2 size={16} className="text-success" aria-hidden="true" /> No service, margin, churn or cash risks detected.
           </p>
         ) : (
           <ul className="space-y-3">

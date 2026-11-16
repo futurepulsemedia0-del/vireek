@@ -21,7 +21,7 @@ export function TrustBar() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true, margin: '-40px' }}
           transition={{ duration: 0.5, ease: EASE }}
-          className="text-center text-[0.65rem] font-semibold uppercase tracking-[0.15em] text-text-secondary/60 sm:text-xs sm:tracking-[0.18em]"
+          className="text-center text-[0.65rem] font-semibold uppercase tracking-[0.15em] text-text-muted sm:text-xs sm:tracking-[0.18em]"
         >
           Bank-grade infrastructure, priced for a contractor's truck
         </motion.p>

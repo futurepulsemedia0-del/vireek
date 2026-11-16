@@ -357,13 +357,13 @@ export function IncentiveEnginePage() {
                           </p>
                           <p className="text-xs text-text-secondary">
                             {p.effective_start || p.effective_end ? `${p.effective_start ?? 'any time'} → ${p.effective_end ?? 'open-ended'} · ` : ''}
-                            <span className={fresh.stale ? 'font-medium text-warning-500' : ''}>{fresh.label}</span>
+                            <span className={fresh.stale ? 'font-medium text-warning' : ''}>{fresh.label}</span>
                             {p.is_active ? '' : ' · Paused'}
                           </p>
                         </div>
                         {isOwner && (
                           <div className="flex items-center gap-1">
-                            <button type="button" onClick={() => runAction(() => markProgramVerified(p.id), 'Marked as verified today.', 'Could not update the program.')} aria-label={`Mark ${p.name} as verified today`} title="Mark verified today" className="focus-ring rounded-lg p-2 text-text-secondary hover:text-success-500">
+                            <button type="button" onClick={() => runAction(() => markProgramVerified(p.id), 'Marked as verified today.', 'Could not update the program.')} aria-label={`Mark ${p.name} as verified today`} title="Mark verified today" className="focus-ring rounded-lg p-2 text-text-secondary hover:text-success">
                               <CheckCircle2 size={16} aria-hidden="true" />
                             </button>
                             <button type="button" onClick={() => runAction(() => setProgramActive(p.id, !p.is_active), p.is_active ? 'Program paused.' : 'Program resumed.', 'Could not update the program.')} aria-label={p.is_active ? `Pause ${p.name}` : `Resume ${p.name}`} title={p.is_active ? 'Pause' : 'Resume'} className="focus-ring rounded-lg p-2 text-text-secondary hover:text-text-primary">

@@ -345,7 +345,7 @@ export function CardsPanel({ cards, vehicles, technicians, unknownLast4, onChang
       )}
 
       {editing && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-label={editing.id ? 'Edit card' : 'Add card'}>
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-overlay/50 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-label={editing.id ? 'Edit card' : 'Add card'}>
           <div className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-2xl border border-border bg-bg-primary p-5 sm:rounded-2xl">
             <h2 className="mb-4 text-lg font-semibold text-text-primary">{editing.id ? 'Edit card' : 'Add card'}</h2>
             <div className="grid gap-3 sm:grid-cols-2">

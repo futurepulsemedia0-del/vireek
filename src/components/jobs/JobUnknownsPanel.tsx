@@ -14,7 +14,7 @@ import {
 import { useJobUnknowns } from '@/lib/unknownsEngineApi';
 
 function ConfidenceBar({ pct, label }: { pct: number; label: string }) {
-  const tone = pct >= 90 ? 'bg-success-500' : pct >= 70 ? 'bg-accent' : pct >= 40 ? 'bg-warning-500' : 'bg-danger';
+  const tone = pct >= 90 ? 'bg-success' : pct >= 70 ? 'bg-accent' : pct >= 40 ? 'bg-warning' : 'bg-danger';
   return (
     <div
       role="meter"
@@ -91,7 +91,7 @@ function ResolveForm({
       <button
         type="submit"
         disabled={busy}
-        className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white hover:opacity-90 disabled:opacity-60"
+        className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent hover:opacity-90 disabled:opacity-60"
       >
         {busy ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
         {kind === 'verified' ? 'Save as verified' : 'Record accepted risk'}

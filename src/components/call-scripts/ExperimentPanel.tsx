@@ -272,9 +272,9 @@ export function ExperimentPanel({ script, versions, busy, onStart, onSetSplit, o
                 const v = verdictCopy(comparison, performance.experiment.byArm.control.calls, performance.experiment.byArm.challenger.calls);
                 const style =
                   v.tone === 'success'
-                    ? 'border-success-500/30 bg-success-500/10'
+                    ? 'border-success/30 bg-success-subtle'
                     : v.tone === 'warning'
-                      ? 'border-warning-500/30 bg-warning-500/10'
+                      ? 'border-warning/30 bg-warning-subtle'
                       : 'border-border bg-bg-tertiary';
                 return (
                   <div className={`rounded-xl border px-4 py-3 text-sm text-text-primary ${style}`} role="status">
@@ -299,7 +299,7 @@ export function ExperimentPanel({ script, versions, busy, onStart, onSetSplit, o
       )}
 
       {performance?.truncated && (
-        <p role="status" className="flex items-start gap-2 text-xs text-warning-500">
+        <p role="status" className="flex items-start gap-2 text-xs text-warning">
           <AlertTriangle size={14} className="mt-0.5 shrink-0" />
           Only the most recent calls are included in these numbers.
         </p>

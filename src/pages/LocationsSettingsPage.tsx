@@ -235,7 +235,7 @@ export function LocationsSettingsPage() {
                       onChange={(e) => setQuery(e.target.value)}
                       aria-label="Search locations"
                       placeholder="Search name, city, brand…"
-                      className="focus-ring min-h-[44px] w-full rounded-xl border border-border bg-bg-primary py-2 pl-9 pr-3 text-sm text-text-primary placeholder:text-text-secondary/70"
+                      className="focus-ring min-h-[44px] w-full rounded-xl border border-border bg-bg-primary py-2 pl-9 pr-3 text-sm text-text-primary placeholder:text-text-placeholder"
                     />
                   </div>
                 </div>

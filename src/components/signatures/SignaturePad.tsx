@@ -50,7 +50,7 @@ export function SignaturePad({ defaultName = '', onChange }: SignaturePadProps) 
     ctx.lineWidth = 2.4;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-    ctx.strokeStyle = '#171717';
+    ctx.strokeStyle = '#141413';
   }, []);
 
   useEffect(() => {
@@ -145,7 +145,7 @@ export function SignaturePad({ defaultName = '', onChange }: SignaturePadProps) 
 
       {mode === 'draw' ? (
         <div>
-          <div className="relative overflow-hidden rounded-xl border border-border bg-white">
+          <div className="relative overflow-hidden rounded-xl border border-border bg-bg-secondary">
             <canvas
               ref={canvasRef}
               className="h-40 w-full touch-none"
@@ -155,7 +155,7 @@ export function SignaturePad({ defaultName = '', onChange }: SignaturePadProps) 
               onPointerLeave={handlePointerUp}
             />
             {!hasDrawing && (
-              <p className="pointer-events-none absolute inset-x-0 bottom-3 text-center text-xs text-text-secondary/60">
+              <p className="pointer-events-none absolute inset-x-0 bottom-3 text-center text-xs text-text-muted">
                 Sign above with your mouse or finger
               </p>
             )}
@@ -187,8 +187,8 @@ export function SignaturePad({ defaultName = '', onChange }: SignaturePadProps) 
             ))}
           </div>
           {typedName.trim() && (
-            <div className="mt-3 flex h-24 items-center justify-center rounded-xl border border-border bg-white">
-              <span style={{ fontFamily: activeFont.family, fontSize: 34 }} className="text-neutral-900">
+            <div className="mt-3 flex h-24 items-center justify-center rounded-xl border border-border bg-bg-secondary">
+              <span style={{ fontFamily: activeFont.family, fontSize: 34 }} className="text-text-primary">
                 {typedName}
               </span>
             </div>

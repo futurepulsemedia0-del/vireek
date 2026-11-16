@@ -47,7 +47,7 @@ export function WhatsNewDrawer() {
   const close = () => setOpen(false);
 
   return (
-    <div className="fixed inset-0 z-[60] bg-black/40" onMouseDown={(e) => { if (e.target === e.currentTarget) close(); }}>
+    <div className="fixed inset-0 z-[60] bg-overlay/40" onMouseDown={(e) => { if (e.target === e.currentTarget) close(); }}>
       <div ref={ref} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1}
         className="absolute inset-y-0 right-0 flex w-full max-w-md flex-col border-l border-border bg-bg-secondary shadow-card-hover">
         <div className="flex items-center justify-between border-b border-border p-4">
@@ -75,7 +75,7 @@ export function WhatsNewDrawer() {
           {visible.length === 0 ? <p className="text-sm text-text-secondary">Nothing new for your role right now.</p> : visible.map((r) => (
             <section key={r.id} aria-label={r.date}>
               <h3 className="flex items-center gap-2 text-sm font-semibold text-text-primary">
-                {r.date}{fresh.has(r.id) && <span className="rounded-full bg-accent px-2 py-0.5 text-[11px] font-bold text-white">New</span>}
+                {r.date}{fresh.has(r.id) && <span className="rounded-full bg-accent px-2 py-0.5 text-[11px] font-bold text-on-accent">New</span>}
               </h3>
               <ul className="mt-2 space-y-3">
                 {r.entries.map((e) => {

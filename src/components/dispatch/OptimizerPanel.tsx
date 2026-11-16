@@ -253,7 +253,7 @@ export function OptimizerPanel({ jobs, technicians, onApply }: Props) {
                             type="button"
                             onClick={() => void apply(s)}
                             disabled={done || busy !== null}
-                            className="focus-ring flex min-h-[44px] items-center gap-1.5 rounded-xl bg-accent px-3 text-xs font-medium text-white disabled:opacity-50"
+                            className="focus-ring flex min-h-[44px] items-center gap-1.5 rounded-xl bg-accent px-3 text-xs font-medium text-on-accent disabled:opacity-50"
                           >
                             {done ? <><Check size={13} aria-hidden="true" />Applied</> : busy === s.id ? 'Applying…' : 'Apply'}
                           </button>
@@ -311,7 +311,7 @@ export function OptimizerPanel({ jobs, technicians, onApply }: Props) {
                     <label className="sr-only" htmlFor="late-min">Extra minutes needed</label>
                     <input id="late-min" type="number" min={5} max={480} step={5} value={lateMin} onChange={(e) => setLateMin(Math.max(5, Math.min(480, Number(e.target.value) || 30)))} className="focus-ring min-h-[44px] w-20 rounded-xl border border-border bg-bg-primary px-2 text-xs" />
                     <span className="text-xs text-text-muted">more min</span>
-                    <button type="button" disabled={!lateJobId || loading} onClick={() => void reoptimize()} className="focus-ring min-h-[44px] rounded-xl bg-accent px-3 text-xs font-medium text-white disabled:opacity-50">Re-plan</button>
+                    <button type="button" disabled={!lateJobId || loading} onClick={() => void reoptimize()} className="focus-ring min-h-[44px] rounded-xl bg-accent px-3 text-xs font-medium text-on-accent disabled:opacity-50">Re-plan</button>
                   </div>
                 </div>
               </div>

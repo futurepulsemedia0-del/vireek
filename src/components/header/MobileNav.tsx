@@ -15,7 +15,7 @@ function MobileLink({ link, onNavigate, strong }: { link: MegaLink; onNavigate: 
   }`;
   const inner = (
     <>
-      {Icon && <Icon size={15} className="shrink-0 text-accent/70" aria-hidden="true" />}
+      {Icon && <Icon size={15} className="shrink-0 text-accent" aria-hidden="true" />}
       {link.label}
     </>
   );

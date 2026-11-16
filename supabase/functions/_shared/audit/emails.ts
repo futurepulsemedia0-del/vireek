@@ -19,8 +19,8 @@ export interface EmailCtx {
 export interface BuiltEmail { subject: string; html: string; text: string }
 
 const shell = (inner: string, c: EmailCtx, marketing: boolean) =>
-  `<div style="font-family:system-ui,sans-serif;font-size:15px;line-height:1.5;color:#111;max-width:560px">${inner}` +
-  `<hr style="border:none;border-top:1px solid #ddd;margin:24px 0"/><p style="font-size:12px;color:#555">` +
+  `<div style="font-family:system-ui,sans-serif;font-size:15px;line-height:1.5;color:#141413;max-width:560px">${inner}` +
+  `<hr style="border:none;border-top:1px solid #dddcd8;margin:24px 0"/><p style="font-size:12px;color:#595852">` +
   `${marketing ? "You're receiving this because you asked for follow-up emails after your Vireek Missed-Call Audit. " : "You're receiving this because you requested a Vireek Missed-Call Audit. "}` +
   `<a href="${esc(c.unsubscribeUrl)}">Unsubscribe</a>. You can also delete your audit data from the report page.` +
   `${c.postalAddress ? `<br/>${esc(c.postalAddress)}` : ""}</p></div>`;

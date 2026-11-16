@@ -70,7 +70,7 @@ export function HomePassportsPage() {
             <label htmlFor="hp-code" className="mb-1 block text-xs font-semibold text-text-secondary">Passport code</label>
             <input id="hp-code" value={code} maxLength={30} autoComplete="off" autoCapitalize="characters" onChange={(e) => setCode(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') void verify(); }} aria-invalid={code.trim() !== '' && !codeOk || undefined} className="focus-ring min-h-[44px] w-full rounded-lg border border-border bg-bg-primary px-3 text-sm uppercase text-text-primary" />
           </div>
-          <button type="button" onClick={() => void verify()} disabled={!codeOk || busy} className="focus-ring min-h-[44px] rounded-lg bg-accent px-4 text-sm font-semibold text-white disabled:opacity-50">{busy ? 'Verifying…' : 'Verify'}</button>
+          <button type="button" onClick={() => void verify()} disabled={!codeOk || busy} className="focus-ring min-h-[44px] rounded-lg bg-accent px-4 text-sm font-semibold text-on-accent disabled:opacity-50">{busy ? 'Verifying…' : 'Verify'}</button>
         </div>
       </section>
 
@@ -87,7 +87,7 @@ export function HomePassportsPage() {
               <>
                 <p className="flex flex-wrap items-center gap-2 text-sm font-semibold text-text-primary">
                   <span className="break-words">{title}</span>
-                  {p.verified ? <span className="inline-flex items-center gap-1 rounded-full bg-success-500/10 px-2 py-0.5 text-[11px] font-semibold text-success-500"><BadgeCheck size={11} aria-hidden="true" /> Verified</span> : <span className="rounded-full bg-bg-tertiary px-2 py-0.5 text-[11px] font-semibold text-text-secondary">Not verified</span>}
+                  {p.verified ? <span className="inline-flex items-center gap-1 rounded-full bg-success-subtle px-2 py-0.5 text-[11px] font-semibold text-success"><BadgeCheck size={11} aria-hidden="true" /> Verified</span> : <span className="rounded-full bg-bg-tertiary px-2 py-0.5 text-[11px] font-semibold text-text-secondary">Not verified</span>}
                 </p>
                 <p className="mt-0.5 text-xs text-text-secondary">{[place, p.customer_name, p.property_type].filter(Boolean).join(' · ') || '—'}</p>
                 <p className="mt-2 text-xs text-text-secondary">

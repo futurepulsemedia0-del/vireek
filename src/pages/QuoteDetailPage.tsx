@@ -108,9 +108,9 @@ const CHANNEL_ICON: Record<FollowUpChannel, typeof Phone> = {
 };
 
 const KIND_BADGE: Record<DiffChange['kind'], string> = {
-  added: 'bg-success-500/10 text-success-500',
+  added: 'bg-success-subtle text-success',
   removed: 'bg-danger/10 text-danger',
-  changed: 'bg-warning-500/10 text-warning-500',
+  changed: 'bg-warning-subtle text-warning',
 };
 
 const DOT: Record<TimelineItem['kind'], string> = {
@@ -119,10 +119,10 @@ const DOT: Record<TimelineItem['kind'], string> = {
   sent: 'bg-accent',
   viewed: 'bg-accent',
   option_selected: 'bg-accent',
-  accepted: 'bg-success-500',
+  accepted: 'bg-success',
   declined: 'bg-danger',
-  followup: 'bg-warning-500',
-  job: 'bg-success-500',
+  followup: 'bg-warning',
+  job: 'bg-success',
 };
 
 // ============================================================
@@ -192,7 +192,7 @@ function OptionsSection({ quote }: { quote: WorkspaceQuote }) {
           return (
             <article
               key={o.id}
-              className={`rounded-xl border p-4 ${chosen ? 'border-success-500/50 bg-success-500/5' : 'border-border bg-bg-primary'}`}
+              className={`rounded-xl border p-4 ${chosen ? 'border-success/50 bg-success-subtle' : 'border-border bg-bg-primary'}`}
             >
               <div className="mb-1 flex flex-wrap items-center gap-1.5">
                 <span className="text-xs font-semibold uppercase tracking-wide text-text-secondary">{o.tier}</span>
@@ -200,7 +200,7 @@ function OptionsSection({ quote }: { quote: WorkspaceQuote }) {
                   <span className="rounded-full bg-accent/10 px-2 py-0.5 text-[11px] font-medium text-accent">Recommended</span>
                 ) : null}
                 {chosen ? (
-                  <span className="rounded-full bg-success-500/10 px-2 py-0.5 text-[11px] font-medium text-success-500">Chosen</span>
+                  <span className="rounded-full bg-success-subtle px-2 py-0.5 text-[11px] font-medium text-success">Chosen</span>
                 ) : null}
               </div>
               <p className="break-words text-sm font-semibold text-text-primary">{o.name || 'Unnamed option'}</p>
@@ -282,7 +282,7 @@ function VersionDiffSection({ ws }: { ws: QuoteWorkspace }) {
             <div className="mt-4" aria-live="polite">
               <p className="text-sm text-text-primary">
                 {formatUsd(diff.totalBeforeCents)} {'\u2192'} {formatUsd(diff.totalAfterCents)}{' '}
-                <span className={diff.totalDeltaCents > 0 ? 'text-success-500' : diff.totalDeltaCents < 0 ? 'text-danger' : 'text-text-secondary'}>
+                <span className={diff.totalDeltaCents > 0 ? 'text-success' : diff.totalDeltaCents < 0 ? 'text-danger' : 'text-text-secondary'}>
                   ({formatSignedUsd(diff.totalDeltaCents)})
                 </span>
               </p>
@@ -335,7 +335,7 @@ function TimelineSection({ items }: { items: TimelineItem[] }) {
               <div className="min-w-0">
                 <p className="break-words text-sm text-text-primary">{item.title}</p>
                 {item.detail ? <p className="break-words text-xs text-text-secondary">{item.detail}</p> : null}
-                <p className="text-xs text-text-secondary/80">{fmtDateTime(item.at)}</p>
+                <p className="text-xs text-text-muted">{fmtDateTime(item.at)}</p>
               </div>
             </li>
           ))}
@@ -360,9 +360,9 @@ function FollowUpRow({
 
   const stateLabel: Record<typeof state, { text: string; cls: string }> = {
     overdue: { text: 'Overdue', cls: 'bg-danger/10 text-danger' },
-    today: { text: 'Due today', cls: 'bg-warning-500/10 text-warning-500' },
+    today: { text: 'Due today', cls: 'bg-warning-subtle text-warning' },
     upcoming: { text: 'Upcoming', cls: 'bg-bg-tertiary text-text-secondary' },
-    done: { text: 'Done', cls: 'bg-success-500/10 text-success-500' },
+    done: { text: 'Done', cls: 'bg-success-subtle text-success' },
     skipped: { text: 'Skipped', cls: 'bg-bg-tertiary text-text-secondary' },
     cancelled: { text: 'Cancelled', cls: 'bg-bg-tertiary text-text-secondary' },
   };
@@ -517,7 +517,7 @@ function ConvertSection({
   }
 
   return (
-    <section className={`${SECTION} border-success-500/40`} aria-labelledby="qd-convert">
+    <section className={`${SECTION} border-success/40`} aria-labelledby="qd-convert">
       <h2 id="qd-convert" className="mb-1 flex items-center gap-2 text-sm font-semibold text-text-primary">
         <Briefcase size={14} aria-hidden="true" /> Convert to job
       </h2>
@@ -820,8 +820,8 @@ export function QuoteDetailPage() {
         </div>
 
         {quote.status === 'sent' && validity === 'expired' ? (
-          <div role="status" className="flex items-start gap-2 rounded-xl border border-warning-500/30 bg-warning-500/10 p-3 text-sm text-text-primary">
-            <TriangleAlert size={16} className="mt-0.5 shrink-0 text-warning-500" aria-hidden="true" />
+          <div role="status" className="flex items-start gap-2 rounded-xl border border-warning/30 bg-warning-subtle p-3 text-sm text-text-primary">
+            <TriangleAlert size={16} className="mt-0.5 shrink-0 text-warning" aria-hidden="true" />
             This estimate is past its valid-until date but still open for the customer to accept.
           </div>
         ) : null}

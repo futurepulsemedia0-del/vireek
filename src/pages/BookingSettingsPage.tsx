@@ -50,7 +50,7 @@ function Switch({ checked, onChange, label }: { checked: boolean; onChange: (v: 
   return (
     <button type="button" role="switch" aria-checked={checked} aria-label={label} onClick={() => onChange(!checked)}
       className={`focus-ring relative h-6 w-11 shrink-0 rounded-full transition-colors ${checked ? 'bg-accent' : 'bg-bg-tertiary'}`}>
-      <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${checked ? 'translate-x-[22px]' : 'translate-x-0.5'}`} />
+      <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-bg-secondary shadow-sm transition-transform ${checked ? 'translate-x-[22px]' : 'translate-x-0.5'}`} />
     </button>
   );
 }
@@ -298,7 +298,7 @@ export function BookingSettingsPage() {
               ) : (
                 <p className="mt-1 text-xs text-text-secondary">Nothing would be bookable yet — check your hours, notice and window.</p>
               )}
-              <p className="mt-2 text-[11px] text-text-secondary/70">Based on your real scheduled jobs.</p>
+              <p className="mt-2 text-[11px] text-text-muted">Based on your real scheduled jobs.</p>
             </div>
           </Section>
 
@@ -330,7 +330,7 @@ export function BookingSettingsPage() {
               <div>
                 <label htmlFor="brand-color" className="mb-1.5 block text-sm font-medium text-text-primary">Accent colour</label>
                 <div className="flex items-center gap-2">
-                  <input id="brand-color-picker" type="color" aria-label="Pick accent colour" value={draft.branding.accent_color ?? '#203ad8'} onChange={(e) => setBranding({ accent_color: e.target.value })} className="h-12 w-14 shrink-0 cursor-pointer rounded-xl border border-border bg-bg-primary p-1" />
+                  <input id="brand-color-picker" type="color" aria-label="Pick accent colour" value={draft.branding.accent_color ?? '#ae3600'} onChange={(e) => setBranding({ accent_color: e.target.value })} className="h-12 w-14 shrink-0 cursor-pointer rounded-xl border border-border bg-bg-primary p-1" />
                   <Input id="brand-color" value={draft.branding.accent_color ?? ''} placeholder="Default Vireek blue" error={shown.accent} onChange={(e) => setBranding({ accent_color: e.target.value.trim() === '' ? null : e.target.value.trim().toLowerCase() })} />
                 </div>
               </div>

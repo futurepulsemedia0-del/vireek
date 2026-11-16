@@ -16,7 +16,7 @@ export function TipSelector({ baseCents, presets, value, onChange, disabled, tec
 
   const optionClass = (selected: boolean) =>
     `focus-ring rounded-xl border px-2 py-3 text-center text-sm font-semibold transition disabled:opacity-50 ${
-      selected ? 'border-accent bg-accent/10 text-text-primary' : 'border-border-primary bg-bg-primary text-text-secondary hover:border-accent/50'
+      selected ? 'border-accent bg-accent/10 text-text-primary' : 'border-border bg-bg-primary text-text-secondary hover:border-accent/50'
     }`;
 
   function choose(next: TipSelection) {
@@ -53,7 +53,7 @@ export function TipSelector({ baseCents, presets, value, onChange, disabled, tec
       </div>
       <label className="mt-3 block text-xs text-text-secondary">
         Custom amount
-        <div className={`mt-1 flex items-center rounded-xl border px-3 ${customInvalid ? 'border-danger' : 'border-border-primary'} bg-bg-primary`}>
+        <div className={`mt-1 flex items-center rounded-xl border px-3 ${customInvalid ? 'border-danger' : 'border-border'} bg-bg-primary`}>
           <span className="text-text-secondary">$</span>
           <input
             aria-label="Custom tip amount in dollars"

@@ -89,15 +89,15 @@ export const PERMIT_LIKELIHOOD_META: Record<
   likely_required: { label: 'Permit likely required', className: 'bg-danger/10 text-danger' },
   possibly_required: {
     label: 'Permit may be required',
-    className: 'bg-warning-500/10 text-warning-500',
+    className: 'bg-warning-subtle text-warning',
   },
-  unlikely: { label: 'Permit unlikely', className: 'bg-success-500/10 text-success-500' },
+  unlikely: { label: 'Permit unlikely', className: 'bg-success-subtle text-success' },
   unknown: { label: 'Permit status unknown', className: 'bg-bg-tertiary text-text-secondary' },
 };
 
 export const SEVERITY_META: Record<ComplianceSeverity, { label: string; className: string }> = {
   blocker: { label: 'Resolve before starting', className: 'bg-danger/10 text-danger' },
-  warning: { label: 'Important', className: 'bg-warning-500/10 text-warning-500' },
+  warning: { label: 'Important', className: 'bg-warning-subtle text-warning' },
   info: { label: 'Good to know', className: 'bg-bg-tertiary text-text-secondary' },
 };
 

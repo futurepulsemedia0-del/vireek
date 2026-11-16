@@ -104,7 +104,7 @@ export function HelpFeedback({ slug }: { slug: string }) {
             <button
               type="submit"
               disabled={busy}
-              className="focus-ring min-h-11 rounded-xl bg-accent px-5 text-sm font-semibold text-white disabled:opacity-60"
+              className="focus-ring min-h-11 rounded-xl bg-accent px-5 text-sm font-semibold text-on-accent disabled:opacity-60"
             >
               {busy ? 'Sending…' : 'Send feedback'}
             </button>

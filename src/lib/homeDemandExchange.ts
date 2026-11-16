@@ -55,7 +55,7 @@ export const URGENCY_LABELS: Record<DemandUrgency, string> = {
 export const URGENCY_COLORS: Record<DemandUrgency, string> = {
   low: 'bg-bg-tertiary text-text-secondary',
   medium: 'bg-accent/10 text-accent',
-  high: 'bg-warning-500/10 text-warning-500',
+  high: 'bg-warning-subtle text-warning',
   critical: 'bg-danger/10 text-danger',
 };
 
@@ -72,7 +72,7 @@ export const STATUS_COLORS: Record<DemandStatus, string> = {
   detected: 'bg-bg-tertiary text-text-secondary',
   qualified: 'bg-accent/10 text-accent',
   matched: 'bg-accent/10 text-accent',
-  converted: 'bg-success-500/10 text-success-500',
+  converted: 'bg-success-subtle text-success',
   dismissed: 'bg-bg-tertiary text-text-secondary',
   expired: 'bg-danger/10 text-danger',
 };

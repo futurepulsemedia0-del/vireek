@@ -148,7 +148,7 @@ export function IndustryPage() {
               <ul className="mt-5 space-y-3 sm:mt-6 sm:space-y-4">
                 {painPoints.map((point) => (
                   <li key={point} className="flex gap-3 text-sm leading-relaxed text-text-secondary">
-                    <XCircle size={18} className="mt-0.5 h-4 w-4 shrink-0 text-danger/60 sm:size-[18px]" />
+                    <XCircle size={18} className="mt-0.5 h-4 w-4 shrink-0 text-danger sm:size-[18px]" />
                     {point}
                   </li>
                 ))}

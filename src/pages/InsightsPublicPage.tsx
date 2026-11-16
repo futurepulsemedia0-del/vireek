@@ -32,7 +32,7 @@ import {
 import { fetchInsightPeriods, fetchPublicIndexes } from '@/lib/insightsApi';
 import { downloadInsightsCsv, downloadInsightsReportPdf } from '@/lib/insightsReport';
 
-const TONE_CLASS = { good: 'text-success-500', bad: 'text-danger', neutral: 'text-text-secondary' } as const;
+const TONE_CLASS = { good: 'text-success', bad: 'text-danger', neutral: 'text-text-secondary' } as const;
 
 function RangeBar({ cell }: { cell: InsightCell }) {
   return (
@@ -167,7 +167,7 @@ export function InsightsPublicPage() {
             </div>
           ) : !period ? (
             <div className="rounded-2xl border border-dashed border-border py-14 text-center">
-              <Lock className="mx-auto mb-3 h-6 w-6 text-text-secondary/60" />
+              <Lock className="mx-auto mb-3 h-6 w-6 text-graphic-muted" />
               <p className="mx-auto max-w-md text-sm leading-relaxed text-text-secondary">
                 The first report is published after a quarter closes and passes our privacy review. Nothing is released until enough
                 businesses contribute.

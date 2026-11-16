@@ -168,7 +168,7 @@ export function TechnicianCapacityPage() {
                     >
                       <span className="flex items-center gap-1.5 font-medium text-text-primary">
                         {ok ? (
-                          <CheckCircle2 size={13} className="text-success-500" />
+                          <CheckCircle2 size={13} className="text-success" />
                         ) : (
                           <XCircle size={13} className="text-danger" />
                         )}
@@ -176,11 +176,11 @@ export function TechnicianCapacityPage() {
                       </span>
                       <span className="text-text-secondary">{OUTCOME_LABELS[event.outcome]}</span>
                       {event.capacity !== null && (
-                        <span className="text-text-secondary/70">
+                        <span className="text-text-muted">
                           {event.day_load}/{event.capacity}
                         </span>
                       )}
-                      <span className="text-text-secondary/70">{new Date(event.created_at).toLocaleString()}</span>
+                      <span className="text-text-muted">{new Date(event.created_at).toLocaleString()}</span>
                     </div>
                   );
                 })}

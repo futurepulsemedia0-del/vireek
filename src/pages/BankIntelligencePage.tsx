@@ -147,7 +147,7 @@ export function BankIntelligencePage() {
               <RefreshCw size={16} className={busy === 'sync' ? 'animate-spin' : ''} /> Sync & analyze
             </button>
           )}
-          <button onClick={() => connect()} disabled={busy !== null} className={`${btn} bg-accent text-white hover:opacity-90`}>
+          <button onClick={() => connect()} disabled={busy !== null} className={`${btn} bg-accent text-on-accent hover:opacity-90`}>
             <Plus size={16} /> {hasBank ? 'Add another bank' : 'Connect your bank'}
           </button>
         </div>
@@ -199,13 +199,13 @@ export function BankIntelligencePage() {
                   </div>
                   <div className="flex gap-1.5">
                     {c.status === 'login_required' && (
-                      <button onClick={() => connect(c.id)} disabled={busy !== null} className="focus-ring rounded-lg bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-600">Reconnect</button>
+                      <button onClick={() => connect(c.id)} disabled={busy !== null} className="focus-ring rounded-lg bg-warning-subtle px-3 py-1.5 text-xs font-semibold text-warning">Reconnect</button>
                     )}
                     <button onClick={() => setDisconnecting(c)} className="focus-ring rounded-lg border border-border p-2 text-text-secondary hover:bg-bg-secondary" title="Disconnect" aria-label={`Disconnect ${c.institution_name}`}><Unplug size={14} /></button>
                   </div>
                 </div>
                 {c.status !== 'active' && (
-                  <p className="mt-2 flex items-center gap-1.5 text-xs text-amber-600"><TriangleAlert size={14} /> {c.last_error ?? 'This connection needs attention.'}</p>
+                  <p className="mt-2 flex items-center gap-1.5 text-xs text-warning"><TriangleAlert size={14} /> {c.last_error ?? 'This connection needs attention.'}</p>
                 )}
                 <ul className="mt-3 space-y-1">
                   {accounts.filter((a) => a.connection_id === c.id).map((a) => (
@@ -223,13 +223,13 @@ export function BankIntelligencePage() {
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
               <div role="tablist" className="flex gap-1 rounded-xl border border-border p-1">
                 {(['review', 'reconciled', 'ignored'] as Tab[]).map((k) => (
-                  <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)} className={`focus-ring rounded-lg px-3 py-1.5 text-sm font-medium capitalize ${tab === k ? 'bg-accent text-white' : 'text-text-secondary hover:bg-bg-secondary'}`}>
+                  <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)} className={`focus-ring rounded-lg px-3 py-1.5 text-sm font-medium capitalize ${tab === k ? 'bg-accent text-on-accent' : 'text-text-secondary hover:bg-bg-secondary'}`}>
                     {k === 'review' ? 'Needs review' : k}
                   </button>
                 ))}
               </div>
               {tab === 'review' && bulkItems.length > 0 && (
-                <button onClick={() => setConfirmBulk(true)} disabled={busy !== null} className={`${btn} bg-emerald-600 text-white hover:opacity-90`}>
+                <button onClick={() => setConfirmBulk(true)} disabled={busy !== null} className={`${btn} bg-success text-on-success hover:opacity-90`}>
                   <Sparkles size={16} className={busy === 'bulk' ? 'animate-pulse' : ''} /> Approve {bulkItems.length} high-confidence
                 </button>
               )}
@@ -255,7 +255,7 @@ export function BankIntelligencePage() {
                           <p className="truncate text-sm font-semibold text-text-primary">{t.merchant_name || t.description}</p>
                           <p className="text-xs text-text-secondary">{new Date(`${t.posted_date}T00:00:00`).toLocaleDateString()} · {accountName.get(t.account_id) ?? 'Account'}</p>
                         </div>
-                        <span className={`text-sm font-bold ${inflow ? 'text-emerald-600' : 'text-text-primary'}`}>{inflow ? '+' : '−'}{money(Math.abs(t.amount_cents), 2)}</span>
+                        <span className={`text-sm font-bold ${inflow ? 'text-success' : 'text-text-primary'}`}>{inflow ? '+' : '−'}{money(Math.abs(t.amount_cents), 2)}</span>
                       </div>
 
                       {t.match_type && (
@@ -263,14 +263,14 @@ export function BankIntelligencePage() {
                           <div className="flex flex-wrap items-center gap-2">
                             <span className="rounded-md bg-accent/10 px-2 py-0.5 text-xs font-semibold text-accent">{MATCH_LABEL[t.match_type]}</span>
                             {t.category_label && (t.match_type === 'expense' || t.match_type === 'income') && <span className="text-xs text-text-secondary">{t.category_label}{t.category_source === 'ai' ? ' · AI' : t.category_source === 'user' ? ' · learned' : ''}</span>}
-                            {conf !== null && tab === 'review' && <span className={`text-xs font-semibold ${conf >= HIGH_CONFIDENCE * 100 ? 'text-emerald-600' : 'text-amber-600'}`}>{conf}% confident</span>}
+                            {conf !== null && tab === 'review' && <span className={`text-xs font-semibold ${conf >= HIGH_CONFIDENCE * 100 ? 'text-success' : 'text-warning'}`}>{conf}% confident</span>}
                           </div>
                           {t.match_refs.length > 0 && <p className="mt-1 text-text-primary">{t.match_refs.slice(0, 3).map((r) => r.label).join(', ')}{t.match_refs.length > 3 ? ` +${t.match_refs.length - 3} more` : ''}</p>}
                           {t.match_reason && tab === 'review' && <p className="mt-0.5 text-xs text-text-secondary">{t.match_reason}</p>}
                         </div>
                       )}
                       {!t.match_type && tab === 'review' && t.match_reason && <p className="mt-2 text-xs text-text-secondary">{t.match_reason}</p>}
-                      {t.needs_review && <p className="mt-2 flex items-center gap-1.5 text-xs text-amber-600"><TriangleAlert size={14} /> Your bank changed this transaction after it was reconciled — check the ledger entry.</p>}
+                      {t.needs_review && <p className="mt-2 flex items-center gap-1.5 text-xs text-warning"><TriangleAlert size={14} /> Your bank changed this transaction after it was reconciled — check the ledger entry.</p>}
 
                       {tab !== 'reconciled' && (
                         <div className="mt-3 flex flex-wrap items-center justify-end gap-2">
@@ -286,7 +286,7 @@ export function BankIntelligencePage() {
                               )}
                               <button onClick={() => toggleIgnore(t, true)} disabled={isWorking} className="focus-ring flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-text-secondary hover:bg-bg-secondary" title="Ignore (e.g. personal or already handled elsewhere)"><EyeOff size={14} /> Ignore</button>
                               {(t.match_type || chosen) && (
-                                <button onClick={() => approve(t)} disabled={isWorking || busy === 'bulk'} className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90 disabled:opacity-60"><Check size={14} /> {chosen ? 'Post' : 'Approve'}</button>
+                                <button onClick={() => approve(t)} disabled={isWorking || busy === 'bulk'} className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-on-accent hover:opacity-90 disabled:opacity-60"><Check size={14} /> {chosen ? 'Post' : 'Approve'}</button>
                               )}
                             </>
                           )}

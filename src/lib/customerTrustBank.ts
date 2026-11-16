@@ -69,10 +69,10 @@ export const EVENT_LABELS: Record<TrustEventType, string> = {
 } as Record<TrustEventType, string>;
 
 export function trustTier(score: number): { label: string; className: string } {
-  if (score >= 85) return { label: 'High trust', className: 'bg-success-500/10 text-success-500' };
+  if (score >= 85) return { label: 'High trust', className: 'bg-success-subtle text-success' };
   if (score >= 60) return { label: 'Stable', className: 'bg-accent/10 text-accent' };
-  if (score >= 40) return { label: 'Watch', className: 'bg-warning-500/10 text-warning-500' };
-  return { label: 'At risk', className: 'bg-danger-500/10 text-danger-500' };
+  if (score >= 40) return { label: 'Watch', className: 'bg-warning-subtle text-warning' };
+  return { label: 'At risk', className: 'bg-danger-subtle text-danger' };
 }
 
 async function functionErrorMessage(error: unknown, fallback: string): Promise<string> {

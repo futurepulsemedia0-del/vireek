@@ -25,8 +25,8 @@ export interface CarrierWizardPanelProps {
 
 const ICON = { ok: CheckCircle2, warn: AlertTriangle, critical: ShieldAlert, info: Info } as const;
 const TONE = {
-  ok: 'border-success-500/30 bg-success-500/10',
-  warn: 'border-warning-500/30 bg-warning-500/10',
+  ok: 'border-success/30 bg-success-subtle',
+  warn: 'border-warning/30 bg-warning-subtle',
   critical: 'border-danger/30 bg-danger/10',
   info: 'border-border bg-bg-secondary',
 } as const;

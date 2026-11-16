@@ -244,7 +244,7 @@ function EventCard({ event, open, registered, onToggle, onRegistered }: EventCar
               {status && (
                 <span
                   className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                    event.registration_status === 'open' ? 'bg-warning-500/10 text-warning-500' : 'bg-bg-tertiary text-text-secondary'
+                    event.registration_status === 'open' ? 'bg-warning-subtle text-warning' : 'bg-bg-tertiary text-text-secondary'
                   }`}
                 >
                   {status}
@@ -399,7 +399,7 @@ export function EventsPage() {
 
   const segment = (active: boolean) =>
     `focus-ring min-h-[44px] flex-1 rounded-full px-5 text-sm font-semibold transition-colors sm:flex-none ${
-      active ? 'bg-accent text-white shadow-sm' : 'text-text-secondary hover:text-text-primary'
+      active ? 'bg-accent text-on-accent shadow-sm' : 'text-text-secondary hover:text-text-primary'
     }`;
 
   const chip = (active: boolean) =>

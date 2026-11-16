@@ -59,7 +59,7 @@ export const QUOTE_STATUS_LABELS: Record<string, string> = {
 export const QUOTE_STATUS_COLORS: Record<string, string> = {
   draft: 'bg-bg-tertiary text-text-secondary',
   sent: 'bg-accent/10 text-accent',
-  accepted: 'bg-success-500/10 text-success-500',
+  accepted: 'bg-success-subtle text-success',
   declined: 'bg-danger/10 text-danger',
   expired: 'bg-bg-tertiary text-text-secondary',
 };

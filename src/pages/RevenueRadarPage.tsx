@@ -23,8 +23,8 @@ import {
 } from '@/lib/revenueRealization';
 
 const BAND_STYLE: Record<Band, string> = {
-  high: 'bg-success-500/15 text-success-500',
-  medium: 'bg-warning-500/15 text-warning-500',
+  high: 'bg-success-subtle text-success',
+  medium: 'bg-warning-subtle text-warning',
   low: 'bg-bg-tertiary text-text-secondary',
 };
 const pct = (v: number | null) => (v === null ? '—' : `${v}%`);
@@ -148,7 +148,7 @@ export function RevenueRadarPage() {
         </div>
 
         {error ? (
-          <div role="alert" className="flex items-center gap-2 rounded-2xl border border-border bg-bg-secondary p-4 text-sm text-danger-500"><AlertTriangle className="h-4 w-4" aria-hidden="true" />{t('page.loadFailed')}<Button size="xs" variant="secondary" onClick={() => void load()}>{t('page.retry')}</Button></div>
+          <div role="alert" className="flex items-center gap-2 rounded-2xl border border-border bg-bg-secondary p-4 text-sm text-danger"><AlertTriangle className="h-4 w-4" aria-hidden="true" />{t('page.loadFailed')}<Button size="xs" variant="secondary" onClick={() => void load()}>{t('page.retry')}</Button></div>
         ) : !data ? (
           <SkeletonCardList count={3} />
         ) : (
@@ -273,7 +273,7 @@ export function RevenueRadarPage() {
                 <h2 id="rr-cov" className="mb-2 text-sm font-semibold text-text-primary">{t('coverage.title')}</h2>
                 <p className="mb-2 text-xs text-text-secondary">{t('coverage.body')}</p>
                 <ul className="grid grid-cols-1 gap-1 text-sm sm:grid-cols-2 lg:grid-cols-3">
-                  {DETECTORS.map((d) => <li key={d} className="flex items-center justify-between gap-2"><span className="text-text-primary">{detectorName(d)}</span><span className={DETECTOR_WIRED[d] ? 'text-success-500' : 'text-text-secondary'}>{DETECTOR_WIRED[d] ? t('coverage.connected') : t('coverage.notConnected')}</span></li>)}
+                  {DETECTORS.map((d) => <li key={d} className="flex items-center justify-between gap-2"><span className="text-text-primary">{detectorName(d)}</span><span className={DETECTOR_WIRED[d] ? 'text-success' : 'text-text-secondary'}>{DETECTOR_WIRED[d] ? t('coverage.connected') : t('coverage.notConnected')}</span></li>)}
                 </ul>
               </section>
             </div>

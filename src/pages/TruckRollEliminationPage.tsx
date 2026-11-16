@@ -65,8 +65,8 @@ const ACTION_LABELS: Record<ActionKind, string> = {
 };
 
 const GATE_STYLE: Record<GateStatus, { icon: typeof CheckCircle2; className: string }> = {
-  pass: { icon: CheckCircle2, className: 'text-success-500' },
-  warn: { icon: AlertTriangle, className: 'text-warning-500' },
+  pass: { icon: CheckCircle2, className: 'text-success' },
+  warn: { icon: AlertTriangle, className: 'text-warning' },
   fail: { icon: XCircle, className: 'text-danger' },
   unknown: { icon: HelpCircle, className: 'text-text-secondary' },
   na: { icon: MinusCircle, className: 'text-text-secondary' },
@@ -115,7 +115,7 @@ function GateRow({ gate }: { gate: Gate }) {
         </div>
         <p className="mt-0.5 text-[11px] text-text-secondary">{gate.detail}</p>
         {gate.issues.length > 0 && (
-          <ul className="mt-0.5 list-disc pl-4 text-[11px] text-warning-500">
+          <ul className="mt-0.5 list-disc pl-4 text-[11px] text-warning">
             {gate.issues.map((i) => (
               <li key={i}>{i}</li>
             ))}
@@ -262,7 +262,7 @@ function ActionBar({ row, isOwner, onDone }: { row: TruckRollRow; isOwner: boole
           <a
             href={smsHref(row.customerPhone, message)}
             onClick={() => void recordTruckRollAction(row.job.id, 'request_media', 'sms').then(onDone).catch((e) => toast(errMessage(e), 'error'))}
-            className="focus-ring inline-flex min-h-[36px] items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-semibold text-white hover:opacity-90"
+            className="focus-ring inline-flex min-h-[36px] items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-semibold text-on-accent hover:opacity-90"
           >
             <Phone size={12} /> Request photo/video by text
           </a>
@@ -351,7 +351,7 @@ function JobCard({ row, open, onToggle, isOwner, onChanged }: { row: TruckRollRo
       {open && (
         <div className="space-y-4 border-t border-border px-4 py-4">
           {row.conditions.length > 0 && (
-            <div className="rounded-xl bg-warning-500/10 p-3 text-xs text-warning-500">
+            <div className="rounded-xl bg-warning-subtle p-3 text-xs text-warning">
               <p className="mb-1 font-semibold">Before the technician leaves</p>
               <ul className="list-disc pl-4">
                 {row.conditions.map((c) => (
@@ -584,11 +584,11 @@ export function TruckRollEliminationPage() {
             <div className="mb-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
               <StatCard label="Do not dispatch" value={summary.hold} valueClass="text-danger" />
               <StatCard label="Try remote first" value={summary.remoteFirst} valueClass="text-accent" />
-              <StatCard label="Cleared" value={summary.dispatch + summary.emergency} valueClass="text-success-500" />
+              <StatCard label="Cleared" value={summary.dispatch + summary.emergency} valueClass="text-success" />
               <StatCard label="Potential savings" value={formatMoney(summary.potentialSavings)} hint={`at ${formatMoney(settings.truck_roll_cost)} per roll (estimate)`} />
             </div>
             {summary.realizedRolls > 0 && (
-              <p className="mb-4 rounded-xl bg-success-500/10 px-3 py-2 text-xs text-success-500">
+              <p className="mb-4 rounded-xl bg-success-subtle px-3 py-2 text-xs text-success">
                 Measured, last 90 days: {summary.realizedRolls} truck roll{summary.realizedRolls === 1 ? '' : 's'} eliminated by remote resolution, about {formatMoney(summary.realizedSavings)} saved.
               </p>
             )}
@@ -601,7 +601,7 @@ export function TruckRollEliminationPage() {
                   role="tab"
                   aria-selected={filter === f.key}
                   onClick={() => setFilter(f.key)}
-                  className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filter === f.key ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
+                  className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filter === f.key ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
                 >
                   {f.label} ({f.count})
                 </button>

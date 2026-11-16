@@ -71,7 +71,7 @@ export function WidgetPreview({ settings, data, theme }: Props) {
       ref={ref}
       role="region"
       aria-label="Live preview of your widget"
-      className={`relative h-[560px] w-full overflow-hidden rounded-2xl border border-border/80 ${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-100'}`}
+      className={`relative h-[560px] w-full overflow-hidden rounded-2xl border border-border/80 ${theme === 'dark' ? 'bg-surface-inverse' : 'bg-bg-tertiary'}`}
     >
       {!data && <p className="p-4 text-sm text-text-secondary">Loading preview…</p>}
       {failed && <p role="alert" className="p-4 text-sm text-danger">Preview unavailable — the widget script could not be loaded.</p>}

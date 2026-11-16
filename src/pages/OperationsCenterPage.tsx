@@ -38,7 +38,7 @@ import {
 } from '@/lib/operationsCenter';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder';
 
 // ============================================================
 // NEW PROBLEM FORM
@@ -95,7 +95,7 @@ function NewProblemForm({ userId, onSaved }: { userId: string; onSaved: () => vo
         type="button"
         disabled={saving}
         onClick={() => void handleSave()}
-        className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-medium text-white disabled:opacity-60"
+        className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-medium text-on-accent disabled:opacity-60"
       >
         {saving ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} />} Log problem
       </button>
@@ -156,7 +156,7 @@ function ProblemCard({ problem, currentMemberId, onChanged }: { problem: OpsProb
           {problem.status === 'detected' && (
             <div className="space-y-2 rounded-xl bg-bg-tertiary p-2.5">
               <textarea className={inputClass} rows={2} placeholder="What is the root cause?" value={rootCause} onChange={(e) => setRootCause(e.target.value)} />
-              <button type="button" disabled={busy || !rootCause.trim()} onClick={() => void run(() => recordRootCause(problem.id, rootCause, 'custom'), 'Root cause recorded')} className="focus-ring rounded-full bg-accent px-2.5 py-1 text-[11px] font-medium text-white disabled:opacity-60">
+              <button type="button" disabled={busy || !rootCause.trim()} onClick={() => void run(() => recordRootCause(problem.id, rootCause, 'custom'), 'Root cause recorded')} className="focus-ring rounded-full bg-accent px-2.5 py-1 text-[11px] font-medium text-on-accent disabled:opacity-60">
                 Record root cause
               </button>
             </div>
@@ -165,14 +165,14 @@ function ProblemCard({ problem, currentMemberId, onChanged }: { problem: OpsProb
           {problem.status === 'root_cause_identified' && (
             <div className="space-y-2 rounded-xl bg-bg-tertiary p-2.5">
               <textarea className={inputClass} rows={2} placeholder="What action will fix this, and who owns it?" value={actionPlan} onChange={(e) => setActionPlan(e.target.value)} />
-              <button type="button" disabled={busy || !actionPlan.trim()} onClick={() => void run(() => assignActionOwner(problem.id, actionPlan, currentMemberId), 'Action assigned')} className="focus-ring rounded-full bg-accent px-2.5 py-1 text-[11px] font-medium text-white disabled:opacity-60">
+              <button type="button" disabled={busy || !actionPlan.trim()} onClick={() => void run(() => assignActionOwner(problem.id, actionPlan, currentMemberId), 'Action assigned')} className="focus-ring rounded-full bg-accent px-2.5 py-1 text-[11px] font-medium text-on-accent disabled:opacity-60">
                 Assign action &amp; owner
               </button>
             </div>
           )}
 
           {problem.status === 'action_assigned' && (
-            <button type="button" disabled={busy} onClick={() => void run(() => startExecution(problem.id), 'Execution started')} className="focus-ring rounded-full bg-accent px-2.5 py-1 text-[11px] font-medium text-white disabled:opacity-60">
+            <button type="button" disabled={busy} onClick={() => void run(() => startExecution(problem.id), 'Execution started')} className="focus-ring rounded-full bg-accent px-2.5 py-1 text-[11px] font-medium text-on-accent disabled:opacity-60">
               Start execution
             </button>
           )}
@@ -185,7 +185,7 @@ function ProblemCard({ problem, currentMemberId, onChanged }: { problem: OpsProb
                 ))}
               </select>
               <textarea className={inputClass} rows={2} placeholder="Outcome notes (optional)" value={notes} onChange={(e) => setNotes(e.target.value)} />
-              <button type="button" disabled={busy} onClick={() => void run(() => recordOutcome(problem.id, outcomeStatus, notes), 'Outcome recorded')} className="focus-ring rounded-full bg-success-500/10 px-2.5 py-1 text-[11px] font-medium text-success-500 disabled:opacity-60">
+              <button type="button" disabled={busy} onClick={() => void run(() => recordOutcome(problem.id, outcomeStatus, notes), 'Outcome recorded')} className="focus-ring rounded-full bg-success-subtle px-2.5 py-1 text-[11px] font-medium text-success disabled:opacity-60">
                 Record real outcome
               </button>
             </div>
@@ -273,7 +273,7 @@ export function OperationsCenterPage() {
               Every problem, owned end-to-end: root cause, action, owner, execution, and the real outcome — with automatic reopen if it recurs.
             </p>
           </div>
-          <button type="button" onClick={() => setShowForm((v) => !v)} className="focus-ring flex shrink-0 items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-medium text-white">
+          <button type="button" onClick={() => setShowForm((v) => !v)} className="focus-ring flex shrink-0 items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-medium text-on-accent">
             {showForm ? <X size={13} /> : <Plus size={13} />} {showForm ? 'Close' : 'Log problem'}
           </button>
         </div>
@@ -304,10 +304,10 @@ export function OperationsCenterPage() {
         )}
 
         <div className="mb-3 flex gap-1.5">
-          <button type="button" onClick={() => setFilter('open')} className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium ${filter === 'open' ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>
+          <button type="button" onClick={() => setFilter('open')} className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium ${filter === 'open' ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>
             Open
           </button>
-          <button type="button" onClick={() => setFilter('all')} className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium ${filter === 'all' ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>
+          <button type="button" onClick={() => setFilter('all')} className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium ${filter === 'all' ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>
             All
           </button>
         </div>
@@ -318,7 +318,7 @@ export function OperationsCenterPage() {
           </div>
         ) : visible.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border py-10 text-center">
-            <Radar className="mx-auto mb-2 h-6 w-6 text-text-secondary/50" />
+            <Radar className="mx-auto mb-2 h-6 w-6 text-graphic-muted" />
             <p className="mx-auto max-w-sm text-sm text-text-secondary">
               No problems logged. When something breaks, log it here and drive it from root cause to a real, verified outcome.
             </p>

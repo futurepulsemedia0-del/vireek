@@ -241,7 +241,7 @@ function ArticleView({ article }: { article: HelpArticleRecord }) {
                 <p className="mt-1 text-sm text-text-secondary">Our team replies to every message.</p>
                 <Link
                   to="/contact"
-                  className="focus-ring mt-3 inline-flex min-h-11 items-center gap-2 rounded-xl bg-accent px-4 text-sm font-semibold text-white"
+                  className="focus-ring mt-3 inline-flex min-h-11 items-center gap-2 rounded-xl bg-accent px-4 text-sm font-semibold text-on-accent"
                 >
                   <MessageCircle className="h-4 w-4" aria-hidden="true" /> Contact support
                 </Link>

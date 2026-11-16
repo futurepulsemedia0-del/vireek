@@ -44,7 +44,7 @@ function RangeBar({ report }: { report: TruthReport }) {
     >
       <div className="relative h-3 rounded-full bg-bg-tertiary">
         <div
-          className="absolute top-0 h-3 rounded-full bg-success-500/30"
+          className="absolute top-0 h-3 rounded-full bg-success-subtle"
           style={{ left: `${pos(low)}%`, width: `${Math.max(1, pos(high) - pos(low))}%` }}
         />
         {rec !== quote && (
@@ -107,7 +107,7 @@ function CurveChart({ report }: { report: TruthReport }) {
       <svg viewBox={`0 0 ${W} ${H}`} className="h-32 w-full" role="img" aria-label="Estimated acceptance probability and expected profit at different prices">
         <line x1={pad} y1={H - pad} x2={W - pad} y2={H - pad} className="stroke-border" strokeWidth="1" />
         <path d={accPath} fill="none" className="stroke-accent" strokeWidth="2" />
-        {profitPath && <path d={profitPath} fill="none" className="stroke-success-500" strokeWidth="2" strokeDasharray="4 3" />}
+        {profitPath && <path d={profitPath} fill="none" className="stroke-success" strokeWidth="2" strokeDasharray="4 3" />}
         <line x1={x(clamp(cur, minP, maxP))} y1={pad} x2={x(clamp(cur, minP, maxP))} y2={H - pad} className="stroke-text-secondary" strokeWidth="1" strokeDasharray="2 3" />
         {rec !== cur && (
           <line x1={x(clamp(rec, minP, maxP))} y1={pad} x2={x(clamp(rec, minP, maxP))} y2={H - pad} className="stroke-accent" strokeWidth="1.5" />
@@ -115,7 +115,7 @@ function CurveChart({ report }: { report: TruthReport }) {
       </svg>
       <figcaption className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-text-secondary">
         <span className="inline-flex items-center gap-1"><span className="h-0.5 w-4 bg-accent" /> Acceptance %</span>
-        {hasProfit && <span className="inline-flex items-center gap-1"><span className="h-0.5 w-4 border-t-2 border-dashed border-success-500" /> Expected profit</span>}
+        {hasProfit && <span className="inline-flex items-center gap-1"><span className="h-0.5 w-4 border-t-2 border-dashed border-success" /> Expected profit</span>}
         <span>Dotted line = your price · Solid line = suggested</span>
       </figcaption>
     </figure>
@@ -417,7 +417,7 @@ export function QuoteTruthPanel({ quoteId, onAnalyzed }: QuoteTruthPanelProps) {
       {report && (
         <div aria-live="polite">
           {!persisted && (
-            <p className="mb-3 text-xs text-warning-500">This result could not be saved to history, but the analysis above is current.</p>
+            <p className="mb-3 text-xs text-warning">This result could not be saved to history, but the analysis above is current.</p>
           )}
           <QuoteTruthReportView report={report} />
         </div>

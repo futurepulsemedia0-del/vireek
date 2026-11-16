@@ -65,7 +65,7 @@ export function passStatus(p: Pick<WalletPassRow, 'status' | 'apple_devices' | '
 
 export const TONE_CLASS: Record<PassTone, string> = {
   success: 'border-success/30 bg-success/10 text-success',
-  warning: 'border-warning-500/30 bg-warning-500/10 text-warning-500',
+  warning: 'border-warning/30 bg-warning-subtle text-warning',
   neutral: 'border-border bg-bg-tertiary text-text-secondary',
   danger: 'border-danger/30 bg-danger/10 text-danger',
 };

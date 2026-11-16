@@ -45,7 +45,7 @@ import {
   type Meeting,
 } from '@/lib/cadenceApi';
 
-const TONE_DOT = { danger: 'bg-danger-500', success: 'bg-success-500', neutral: 'bg-text-secondary' } as const;
+const TONE_DOT = { danger: 'bg-danger', success: 'bg-success', neutral: 'bg-text-secondary' } as const;
 
 function useTick(active: boolean, ms = 1000) {
   const [now, setNow] = useState(() => Date.now());
@@ -390,7 +390,7 @@ function LiveMeeting({
             <p
               role="timer"
               aria-label={remaining < 0 ? 'Over time' : 'Time remaining'}
-              className={`text-4xl font-bold tabular-nums ${remaining < 0 ? 'text-danger' : remaining < 60_000 ? 'text-warning-500' : 'text-text-primary'}`}
+              className={`text-4xl font-bold tabular-nums ${remaining < 0 ? 'text-danger' : remaining < 60_000 ? 'text-warning' : 'text-text-primary'}`}
             >
               {formatClock(remaining)}
             </p>
@@ -401,7 +401,7 @@ function LiveMeeting({
             <span
               key={s.key}
               aria-current={i === timer.current ? 'step' : undefined}
-              className={`rounded-full px-3 py-1 text-xs font-medium ${i === timer.current ? 'bg-accent text-white' : i < timer.current ? 'bg-success-500/10 text-success-500' : 'bg-bg-tertiary text-text-secondary'}`}
+              className={`rounded-full px-3 py-1 text-xs font-medium ${i === timer.current ? 'bg-accent text-on-accent' : i < timer.current ? 'bg-success-subtle text-success' : 'bg-bg-tertiary text-text-secondary'}`}
             >
               {s.title}
             </span>
@@ -535,7 +535,7 @@ function ActionItems({
                   {a.due_date ? ` · due ${a.due_date}` : ''}
                 </p>
               </div>
-              <button type="button" onClick={() => void remove(a.id)} disabled={removingId === a.id} aria-label={`Remove ${a.title}`} className={`${iconBtn} hover:text-danger-500`}>
+              <button type="button" onClick={() => void remove(a.id)} disabled={removingId === a.id} aria-label={`Remove ${a.title}`} className={`${iconBtn} hover:text-danger`}>
                 <Trash2 size={15} />
               </button>
             </li>

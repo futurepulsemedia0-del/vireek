@@ -26,7 +26,7 @@ Deno.test("pkpass: zip layout, manifest hashes and PKCS#7 signature", async () =
   const leaf = selfSigned("Pass Type ID: pass.test");
   const wwdr = selfSigned("Apple WWDR (test)");
   const pass = { formatVersion: 1, serialNumber: "abc", description: "t" };
-  const buf = await buildPkpass(pass, defaultAssets("#2563EB"), { ...leaf, wwdrPem: wwdr.certPem });
+  const buf = await buildPkpass(pass, defaultAssets("#A93B0F"), { ...leaf, wwdrPem: wwdr.certPem });
   const files = unzipSync(buf);
   assert.deepEqual(Object.keys(files).sort(), ["icon.png", "icon@2x.png", "icon@3x.png", "manifest.json", "pass.json", "signature"]);
 
@@ -39,7 +39,7 @@ Deno.test("pkpass: zip layout, manifest hashes and PKCS#7 signature", async () =
 });
 
 Deno.test("png: valid signature, IHDR and chunk CRCs", () => {
-  const png = solidPng(29, "#2563EB");
+  const png = solidPng(29, "#A93B0F");
   assert.deepEqual([...png.slice(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
   const dv = new DataView(png.buffer, png.byteOffset);
   assert.equal(dv.getUint32(16), 29);

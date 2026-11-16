@@ -12,8 +12,8 @@ import { DEVELOPER_CHANGELOG_RELEASES, type DeveloperEntryType } from '@/lib/dev
 
 const TYPE_META: Record<DeveloperEntryType, { label: string; icon: typeof Zap; text: string; ring: string }> = {
   api: { label: 'API', icon: Zap, text: 'text-accent', ring: 'border-accent/25 bg-accent/10' },
-  sdk: { label: 'SDK', icon: Package, text: 'text-success-500', ring: 'border-success-500/25 bg-success-500/10' },
-  webhook: { label: 'Webhook', icon: Webhook, text: 'text-warning-500', ring: 'border-warning-500/25 bg-warning-500/10' },
+  sdk: { label: 'SDK', icon: Package, text: 'text-success', ring: 'border-success/25 bg-success-subtle' },
+  webhook: { label: 'Webhook', icon: Webhook, text: 'text-warning', ring: 'border-warning/25 bg-warning-subtle' },
   breaking: { label: 'Breaking Change', icon: AlertTriangle, text: 'text-danger', ring: 'border-danger/25 bg-danger/10' },
 };
 
@@ -79,7 +79,7 @@ export function DeveloperChangelogPage() {
                     className="relative"
                   >
                     <span className="absolute -start-[2.55rem] top-1 flex h-4 w-4 items-center justify-center rounded-full border-2 border-bg-primary bg-accent sm:-start-[3.05rem]" />
-                    <p className="text-sm font-semibold uppercase tracking-wide text-text-secondary/80">{release.date}</p>
+                    <p className="text-sm font-semibold uppercase tracking-wide text-text-muted">{release.date}</p>
                     <div className="mt-4 space-y-4">
                       {release.entries.map((entry, ei) => {
                         const meta = TYPE_META[entry.type];

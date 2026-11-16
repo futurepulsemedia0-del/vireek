@@ -40,7 +40,7 @@ export function WalletLandingPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-bg-primary px-4 py-10">
       <div className="w-full max-w-sm rounded-3xl border border-border bg-bg-secondary p-6 text-center shadow-sm">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl text-white" style={{ background: landing?.color ?? '#2563EB' }}>
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl text-white" style={{ background: landing?.color ?? '#A93B0F' }}>
           <Smartphone className="h-7 w-7" aria-hidden />
         </div>
 
@@ -59,12 +59,12 @@ export function WalletLandingPage() {
 
             <div className="mt-6 space-y-3">
               {device !== 'android' && (
-                <a href={appleHref} className="focus-ring flex h-12 items-center justify-center rounded-xl bg-black text-sm font-semibold text-white transition-opacity hover:opacity-90">
+                <a href={appleHref} className="focus-ring flex h-12 items-center justify-center rounded-xl bg-overlay text-sm font-semibold text-white transition-opacity hover:opacity-90">
                   Add to Apple Wallet
                 </a>
               )}
               {device !== 'ios' && (
-                <a href={googleHref} className="focus-ring flex h-12 items-center justify-center rounded-xl border border-border bg-white text-sm font-semibold text-[#1f1f1f] transition-colors hover:bg-gray-50">
+                <a href={googleHref} className="focus-ring flex h-12 items-center justify-center rounded-xl border border-border bg-bg-secondary text-sm font-semibold text-[#1c1b15] transition-colors hover:bg-bg-primary">
                   Add to Google Wallet
                 </a>
               )}
@@ -72,7 +72,7 @@ export function WalletLandingPage() {
 
             {device === 'other' && qr && (
               <div className="mt-6 border-t border-border pt-5">
-                <img src={qr} alt="QR code to open this page on your phone" width={160} height={160} className="mx-auto rounded-lg bg-white p-1" />
+                <img src={qr} alt="QR code to open this page on your phone" width={160} height={160} className="mx-auto rounded-lg bg-bg-secondary p-1" />
                 <p className="mt-2 text-xs text-text-secondary">On a computer? Scan with your phone.</p>
               </div>
             )}

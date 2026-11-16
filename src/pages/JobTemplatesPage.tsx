@@ -204,7 +204,7 @@ function TemplateEditor({
 
   return (
     <div className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center sm:p-4">
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+      <div className="absolute inset-0 bg-overlay/30 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
       <motion.div
         ref={dialogRef}
         role="dialog"
@@ -228,7 +228,7 @@ function TemplateEditor({
           <div className="flex-1 space-y-6 overflow-y-auto px-5 py-5">
             {lookupsFailed && (
               <p className="flex items-start gap-2 rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-xs text-text-secondary">
-                <AlertCircle size={14} className="mt-0.5 shrink-0 text-warning-500" />
+                <AlertCircle size={14} className="mt-0.5 shrink-0 text-warning" />
                 Your Price Book or parts list could not be loaded. You can still type services by hand.
               </p>
             )}
@@ -793,7 +793,7 @@ export function JobTemplatesPage() {
                 aria-selected={status === tab.key}
                 onClick={() => setStatus(tab.key)}
                 className={`focus-ring whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-                  status === tab.key ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'
+                  status === tab.key ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'
                 }`}
               >
                 {tab.label}

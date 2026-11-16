@@ -157,7 +157,7 @@ export type CalendarProvider = (typeof CALENDAR_PROVIDER_OPTIONS)[number]['value
 // ============================================================
 
 export const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-3 text-base text-text-primary placeholder:text-text-secondary/60 transition-colors focus-visible:border-accent';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-3 text-base text-text-primary placeholder:text-text-placeholder transition-colors focus-visible:border-accent';
 
 export const chipClass = (active: boolean) =>
   `focus-ring cursor-pointer rounded-full border px-3.5 py-1.5 text-sm font-medium transition-all ${

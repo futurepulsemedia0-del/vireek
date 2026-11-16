@@ -100,23 +100,23 @@ export interface VerificationSource {
 export const STATUS_META: Record<CheckStatus, { label: string; className: string }> = {
   verified_primary: {
     label: 'Verified at source',
-    className: 'bg-success-500/15 text-success-500',
+    className: 'bg-success-subtle text-success',
   },
   verified_document: {
     label: 'Verified by document',
-    className: 'bg-success-500/10 text-success-500',
+    className: 'bg-success-subtle text-success',
   },
-  needs_review: { label: 'Needs review', className: 'bg-warning-500/10 text-warning-500' },
+  needs_review: { label: 'Needs review', className: 'bg-warning-subtle text-warning' },
   adverse: { label: 'Adverse finding', className: 'bg-danger/10 text-danger' },
   error: { label: 'Retrying', className: 'bg-bg-tertiary text-text-secondary' },
   pending: { label: 'Checking…', className: 'bg-accent/10 text-accent' },
 };
 
 export const TIER_LABELS: Record<VerificationTier, { label: string; className: string }> = {
-  verified: { label: 'Verified', className: 'bg-success-500/15 text-success-500' },
+  verified: { label: 'Verified', className: 'bg-success-subtle text-success' },
   partially_verified: {
     label: 'Partially verified',
-    className: 'bg-warning-500/10 text-warning-500',
+    className: 'bg-warning-subtle text-warning',
   },
   unverified: { label: 'Unverified', className: 'bg-bg-tertiary text-text-secondary' },
   attention: { label: 'Needs attention', className: 'bg-danger/10 text-danger' },

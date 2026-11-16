@@ -290,7 +290,7 @@ export function HomeBusinessPage() {
       <header className="space-y-3">
         <h1 className="text-2xl font-semibold text-text-primary">{detail.business_name}</h1>
         <div className="flex flex-wrap gap-2">
-          <Link to={`/home/request?link=${detail.link_id}`} className="focus-ring inline-flex min-h-[44px] items-center rounded-xl bg-accent px-4 text-sm font-semibold text-white">
+          <Link to={`/home/request?link=${detail.link_id}`} className="focus-ring inline-flex min-h-[44px] items-center rounded-xl bg-accent px-4 text-sm font-semibold text-on-accent">
             Request service
           </Link>
           {detail.business_phone && (
@@ -321,7 +321,7 @@ export function HomeBusinessPage() {
                 onClick={() => setTab(t.key)}
                 className={cx(
                   'focus-ring min-h-[40px] shrink-0 rounded-full px-4 text-sm font-medium',
-                  tab === t.key ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary',
+                  tab === t.key ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary',
                 )}
               >
                 {t.label}

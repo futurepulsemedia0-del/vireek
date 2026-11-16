@@ -107,16 +107,16 @@ function buildDunningEmail({ toEmail, greetingName, stage, daysLeft, declineReas
       ? "We had trouble charging your card"
       : "Your Vireek subscription is still past due";
 
-  const urgencyColor = isFinal ? "#dc2626" : stage <= 1 ? "#111827" : "#b45309";
+  const urgencyColor = isFinal ? "#d4222a" : stage <= 1 ? "#1C1B15" : "#a93b0f";
 
   const html = `
-    <div style="font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1a1a1a;">
+    <div style="font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1c1b15;">
       <p style="font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: ${urgencyColor}; margin: 0 0 16px;">Billing update</p>
       <h1 style="font-size: 22px; margin: 0 0 16px;">Hi ${escapeHtml(greetingName)}, ${escapeHtml(headline.charAt(0).toLowerCase() + headline.slice(1))}</h1>
-      <p style="font-size: 15px; line-height: 1.6; color: #374151;">
+      <p style="font-size: 15px; line-height: 1.6; color: #44423D;">
         We tried to charge your card for your Vireek subscription and it didn't go through. ${reasonLine}
       </p>
-      <p style="font-size: 15px; line-height: 1.6; color: #374151;">
+      <p style="font-size: 15px; line-height: 1.6; color: #44423D;">
         ${
           isFinal
             ? "Sarah will stop answering calls for your business until this is resolved. Update your payment method now to avoid any interruption."
@@ -127,7 +127,7 @@ function buildDunningEmail({ toEmail, greetingName, stage, daysLeft, declineReas
          style="display: inline-block; margin-top: 24px; padding: 12px 24px; background: ${urgencyColor}; color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 14px;">
         Update payment method
       </a>
-      <p style="margin-top: 24px; font-size: 13px; color: #9ca3af;">
+      <p style="margin-top: 24px; font-size: 13px; color: #a9a8a2;">
         Sent to ${escapeHtml(toEmail)} because a payment on your Vireek account failed. If you've already updated your card, you can ignore this — it may take a few minutes to reflect.
       </p>
     </div>

@@ -65,22 +65,22 @@ import {
 } from '@/lib/crmSync';
 
 const INPUT =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 disabled:opacity-60';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder disabled:opacity-60';
 
 type Tab = 'overview' | 'mapping' | 'log';
 
 const RUN_STYLE: Record<RunStatus, { label: string; cls: string }> = {
   running: { label: 'Syncing', cls: 'bg-accent/10 text-accent' },
-  success: { label: 'Up to date', cls: 'bg-success-500/10 text-success-500' },
-  partial: { label: 'Partially synced', cls: 'bg-warning-500/10 text-warning-500' },
+  success: { label: 'Up to date', cls: 'bg-success-subtle text-success' },
+  partial: { label: 'Partially synced', cls: 'bg-warning-subtle text-warning' },
   failed: { label: 'Failed', cls: 'bg-danger/10 text-danger' },
 };
 
 const ACTION_STYLE: Record<LogAction, string> = {
-  created: 'bg-success-500/10 text-success-500',
+  created: 'bg-success-subtle text-success',
   updated: 'bg-accent/10 text-accent',
   linked: 'bg-bg-tertiary text-text-secondary',
-  conflict: 'bg-warning-500/10 text-warning-500',
+  conflict: 'bg-warning-subtle text-warning',
   skipped: 'bg-bg-tertiary text-text-secondary',
   error: 'bg-danger/10 text-danger',
 };
@@ -334,7 +334,7 @@ function MappingTab({ conn, onSaved }: { conn: CrmConnection; onSaved: () => voi
           type="button"
           disabled={!dirty || saving}
           onClick={handleSave}
-          className="focus-ring flex items-center justify-center gap-2 rounded-xl bg-cta px-5 py-2.5 text-sm font-semibold text-white hover:brightness-110 disabled:opacity-50"
+          className="focus-ring flex items-center justify-center gap-2 rounded-xl bg-cta px-5 py-2.5 text-sm font-semibold text-on-cta hover:brightness-110 disabled:opacity-50"
         >
           {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
           {saving ? 'Saving…' : 'Save mapping'}
@@ -572,7 +572,7 @@ function OverviewTab({
         ) : (
           <ul className="space-y-3">
             {conflicts!.map((c) => (
-              <li key={c.link_id} className="rounded-2xl border border-warning-500/40 bg-bg-secondary p-4">
+              <li key={c.link_id} className="rounded-2xl border border-warning/40 bg-bg-secondary p-4">
                 <p className="text-sm font-semibold text-text-primary">
                   {ENTITY_META[c.entity].label.replace(/s$/, '')} edited on both sides {c.at ? `· ${timeAgo(c.at)}` : ''}
                 </p>
@@ -629,7 +629,7 @@ function OverviewTab({
                   <span className="text-sm font-semibold text-text-primary">
                     {d.amount === null ? '—' : `${d.currency ?? ''} ${Number(d.amount).toLocaleString('en-US')}`.trim()}
                   </span>
-                  <Badge cls={d.status === 'won' ? 'bg-success-500/10 text-success-500' : d.status === 'lost' ? 'bg-danger/10 text-danger' : 'bg-bg-tertiary text-text-secondary'}>{d.status}</Badge>
+                  <Badge cls={d.status === 'won' ? 'bg-success-subtle text-success' : d.status === 'lost' ? 'bg-danger/10 text-danger' : 'bg-bg-tertiary text-text-secondary'}>{d.status}</Badge>
                 </div>
               </li>
             ))}
@@ -852,7 +852,7 @@ export function CrmSyncPage() {
                   <div className="flex items-start justify-between gap-2">
                     <h2 className="text-base font-semibold text-text-primary">{PROVIDER_META[p].label}</h2>
                     {connected ? (
-                      <Badge cls={needsReconnect ? 'bg-danger/10 text-danger' : 'bg-success-500/10 text-success-500'}>{needsReconnect ? 'Reconnect needed' : 'Connected'}</Badge>
+                      <Badge cls={needsReconnect ? 'bg-danger/10 text-danger' : 'bg-success-subtle text-success'}>{needsReconnect ? 'Reconnect needed' : 'Connected'}</Badge>
                     ) : (
                       <Badge cls="bg-bg-tertiary text-text-secondary">Not connected</Badge>
                     )}
@@ -867,7 +867,7 @@ export function CrmSyncPage() {
                       {c.last_error && <p className="mt-1 text-xs text-danger">{c.last_error}</p>}
                       <div className="mt-4 flex flex-wrap gap-2">
                         {needsReconnect ? (
-                          <button type="button" disabled={busy !== null} onClick={() => connect(p)} className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-3.5 py-2 text-sm font-semibold text-white hover:brightness-110 disabled:opacity-60">
+                          <button type="button" disabled={busy !== null} onClick={() => connect(p)} className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-3.5 py-2 text-sm font-semibold text-on-cta hover:brightness-110 disabled:opacity-60">
                             {busy === `connect:${p}` ? <Loader2 size={14} className="animate-spin" /> : <Plug size={14} />} Reconnect
                           </button>
                         ) : (
@@ -879,7 +879,7 @@ export function CrmSyncPage() {
                                 setSelected(p);
                                 void runSync(c);
                               }}
-                              className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-3.5 py-2 text-sm font-semibold text-white hover:brightness-110 disabled:opacity-60"
+                              className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-3.5 py-2 text-sm font-semibold text-on-cta hover:brightness-110 disabled:opacity-60"
                             >
                               {busy === `sync:${c.id}` || (isSel && running) ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
                               {isSel && running ? 'Syncing…' : 'Sync now'}
@@ -896,7 +896,7 @@ export function CrmSyncPage() {
                     </>
                   ) : (
                     <div className="mt-auto pt-4">
-                      <button type="button" disabled={busy !== null} onClick={() => connect(p)} className="focus-ring flex w-full items-center justify-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-white hover:brightness-110 disabled:opacity-60 sm:w-auto">
+                      <button type="button" disabled={busy !== null} onClick={() => connect(p)} className="focus-ring flex w-full items-center justify-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-on-cta hover:brightness-110 disabled:opacity-60 sm:w-auto">
                         {busy === `connect:${p}` ? <Loader2 size={14} className="animate-spin" /> : <Plug size={14} />} Connect {PROVIDER_META[p].label}
                       </button>
                     </div>
@@ -920,7 +920,7 @@ export function CrmSyncPage() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div role="tablist" aria-label="CRM sync sections" className="inline-flex rounded-xl border border-border bg-bg-secondary p-1">
                 {([['overview', 'Overview'], ['mapping', 'Field mapping'], ['log', 'Sync log']] as [Tab, string][]).map(([t, label]) => (
-                  <button key={t} role="tab" type="button" aria-selected={tab === t} onClick={() => setTab(t)} className={`focus-ring rounded-lg px-3.5 py-1.5 text-sm font-medium transition-colors ${tab === t ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}>
+                  <button key={t} role="tab" type="button" aria-selected={tab === t} onClick={() => setTab(t)} className={`focus-ring rounded-lg px-3.5 py-1.5 text-sm font-medium transition-colors ${tab === t ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}>
                     {label}
                   </button>
                 ))}

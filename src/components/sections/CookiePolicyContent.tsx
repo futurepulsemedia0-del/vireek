@@ -57,7 +57,7 @@ function SectionHeading({ id, number, title }: Section) {
         <h2 className="flex items-baseline gap-3 text-2xl font-bold tracking-tight text-text-primary md:text-3xl">
           <span className="text-accent">{number}.</span>
           {title}
-          <span className="ml-1 text-base font-normal text-text-secondary/0 transition-colors group-hover:text-text-secondary/60">
+          <span className="ml-1 text-base font-normal text-text-secondary/0 transition-colors group-hover:text-text-muted">
             #
           </span>
         </h2>
@@ -128,7 +128,7 @@ export function CookiePolicyContent() {
                         : 'border-transparent text-text-secondary hover:text-text-primary'
                     }`}
                   >
-                    <span className="mr-1.5 text-text-secondary/50">{s.number}.</span>
+                    <span className="mr-1.5 text-text-muted">{s.number}.</span>
                     {s.title}
                   </a>
                 ))}
@@ -172,7 +172,7 @@ export function CookiePolicyContent() {
                           : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'
                       }`}
                     >
-                      <span className="mr-1.5 text-text-secondary/50">{s.number}.</span>
+                      <span className="mr-1.5 text-text-muted">{s.number}.</span>
                       {s.title}
                     </a>
                   ))}
@@ -444,7 +444,7 @@ export function CookiePolicyContent() {
                 <button
                   type="button"
                   onClick={openPrivacyCenter}
-                  className="focus-ring mt-5 inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-150 ease-out hover:brightness-110 hover:shadow-glow-accent active:brightness-90"
+                  className="focus-ring mt-5 inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-on-accent shadow-sm transition-all duration-150 ease-out hover:brightness-110 hover:shadow-glow-accent active:brightness-90"
                 >
                   <SlidersHorizontal size={16} />
                   Open cookie settings

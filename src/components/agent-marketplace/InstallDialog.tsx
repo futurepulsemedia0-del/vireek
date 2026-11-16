@@ -13,8 +13,8 @@ import {
 } from '@/lib/agentMarketplace';
 
 const RISK_STYLES = {
-  low: 'bg-success-500/10 text-success-500',
-  medium: 'bg-warning-500/10 text-warning-500',
+  low: 'bg-success-subtle text-success',
+  medium: 'bg-warning-subtle text-warning',
   high: 'bg-danger/10 text-danger',
 } as const;
 
@@ -85,7 +85,7 @@ export function InstallDialog({ open, agent, version, scopes, install, onCancel,
 
   return (
     <>
-      <div className="fixed inset-0 z-[110] bg-black/40 backdrop-blur-sm" onClick={onCancel} aria-hidden="true" />
+      <div className="fixed inset-0 z-[110] bg-overlay/40 backdrop-blur-sm" onClick={onCancel} aria-hidden="true" />
       <div
         ref={dialogRef}
         tabIndex={-1}
@@ -107,7 +107,7 @@ export function InstallDialog({ open, agent, version, scopes, install, onCancel,
         </div>
 
         {newScopes.length > 0 && (
-          <p className="mb-3 rounded-xl bg-warning-500/10 p-3 text-xs text-warning-500">
+          <p className="mb-3 rounded-xl bg-warning-subtle p-3 text-xs text-warning">
             This version asks for new permissions: {newScopes.map((s) => scopeInfo.get(s)?.label ?? s).join(', ')}. Review them below.
           </p>
         )}
@@ -150,7 +150,7 @@ export function InstallDialog({ open, agent, version, scopes, install, onCancel,
 
         <div className="flex justify-end gap-2">
           <button onClick={onCancel} className="focus-ring rounded-xl bg-bg-tertiary px-4 py-2 text-sm font-medium text-text-secondary">Cancel</button>
-          <button disabled={submitting} onClick={submit} className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-4 py-2 text-sm font-medium text-white disabled:opacity-50">
+          <button disabled={submitting} onClick={submit} className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-4 py-2 text-sm font-medium text-on-cta disabled:opacity-50">
             {submitting && <Loader2 size={14} className="animate-spin" />}
             {install ? 'Save permissions' : 'Install agent'}
           </button>

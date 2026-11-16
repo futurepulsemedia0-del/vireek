@@ -2,7 +2,7 @@ import { TrendingDown, TrendingUp } from 'lucide-react';
 import { buildMetricRows, hasBaseline, liveDataState, type Pilot, type Verdict } from '@/lib/pilotManagement';
 
 const VERDICT_CLASS: Record<Verdict, string> = {
-  better: 'text-success-500',
+  better: 'text-success',
   worse: 'text-danger',
   flat: 'text-text-secondary',
   neutral: 'text-text-secondary',

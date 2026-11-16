@@ -36,18 +36,18 @@ const TABS: { id: Tab; label: string }[] = [
 ];
 
 const STATUS_COLORS: Record<string, string> = {
-  paid: 'bg-emerald-100 text-emerald-700',
-  partially_paid: 'bg-blue-100 text-blue-700',
-  sent: 'bg-amber-100 text-amber-700',
-  approved: 'bg-amber-100 text-amber-700',
-  overdue: 'bg-red-100 text-red-700',
-  draft: 'bg-slate-100 text-slate-600',
-  void: 'bg-slate-100 text-slate-400',
+  paid: 'bg-success-subtle text-success-strong',
+  partially_paid: 'bg-info-subtle text-info-strong',
+  sent: 'bg-warning-subtle text-warning-strong',
+  approved: 'bg-warning-subtle text-warning-strong',
+  overdue: 'bg-danger-subtle text-danger-strong',
+  draft: 'bg-bg-tertiary text-text-secondary',
+  void: 'bg-bg-tertiary text-text-muted',
 };
 
 function StatusBadge({ status }: { status: string }) {
   return (
-    <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${STATUS_COLORS[status] ?? 'bg-slate-100 text-slate-600'}`}>
+    <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${STATUS_COLORS[status] ?? 'bg-bg-tertiary text-text-secondary'}`}>
       {status.replace('_', ' ')}
     </span>
   );
@@ -95,15 +95,15 @@ function QuickInvoiceForm({ onCreated }: { onCreated: () => void }) {
 
   return (
     <Card className="mb-6 grid gap-3 p-4 sm:grid-cols-5">
-      <select value={customerId} onChange={(e) => setCustomerId(e.target.value)} className="rounded-lg border border-border-primary bg-bg-primary px-2 py-1.5 text-sm">
+      <select value={customerId} onChange={(e) => setCustomerId(e.target.value)} className="rounded-lg border border-border bg-bg-primary px-2 py-1.5 text-sm">
         <option value="">No customer on file</option>
         {customers.map((c) => (
           <option key={c.id} value={c.id}>{c.name}</option>
         ))}
       </select>
-      <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" className="rounded-lg border border-border-primary bg-bg-primary px-2 py-1.5 text-sm sm:col-span-2" />
-      <input value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Amount $" type="number" step="0.01" className="rounded-lg border border-border-primary bg-bg-primary px-2 py-1.5 text-sm" />
-      <input value={dueDate} onChange={(e) => setDueDate(e.target.value)} type="date" className="rounded-lg border border-border-primary bg-bg-primary px-2 py-1.5 text-sm" />
+      <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" className="rounded-lg border border-border bg-bg-primary px-2 py-1.5 text-sm sm:col-span-2" />
+      <input value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Amount $" type="number" step="0.01" className="rounded-lg border border-border bg-bg-primary px-2 py-1.5 text-sm" />
+      <input value={dueDate} onChange={(e) => setDueDate(e.target.value)} type="date" className="rounded-lg border border-border bg-bg-primary px-2 py-1.5 text-sm" />
       <button type="button" onClick={handleSubmit} disabled={saving} className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-500 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50 sm:col-span-5">
         <Plus size={14} /> Post invoice
       </button>
@@ -152,15 +152,15 @@ function QuickBillForm({ onCreated }: { onCreated: () => void }) {
 
   return (
     <Card className="mb-6 grid gap-3 p-4 sm:grid-cols-5">
-      <select value={vendorId} onChange={(e) => setVendorId(e.target.value)} className="rounded-lg border border-border-primary bg-bg-primary px-2 py-1.5 text-sm">
+      <select value={vendorId} onChange={(e) => setVendorId(e.target.value)} className="rounded-lg border border-border bg-bg-primary px-2 py-1.5 text-sm">
         <option value="">No vendor on file</option>
         {vendors.map((v) => (
           <option key={v.id} value={v.id}>{v.name}</option>
         ))}
       </select>
-      <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" className="rounded-lg border border-border-primary bg-bg-primary px-2 py-1.5 text-sm sm:col-span-2" />
-      <input value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Amount $" type="number" step="0.01" className="rounded-lg border border-border-primary bg-bg-primary px-2 py-1.5 text-sm" />
-      <input value={dueDate} onChange={(e) => setDueDate(e.target.value)} type="date" className="rounded-lg border border-border-primary bg-bg-primary px-2 py-1.5 text-sm" />
+      <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" className="rounded-lg border border-border bg-bg-primary px-2 py-1.5 text-sm sm:col-span-2" />
+      <input value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Amount $" type="number" step="0.01" className="rounded-lg border border-border bg-bg-primary px-2 py-1.5 text-sm" />
+      <input value={dueDate} onChange={(e) => setDueDate(e.target.value)} type="date" className="rounded-lg border border-border bg-bg-primary px-2 py-1.5 text-sm" />
       <button type="button" onClick={handleSubmit} disabled={saving} className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-500 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50 sm:col-span-5">
         <Plus size={14} /> Post bill
       </button>
@@ -174,7 +174,7 @@ function PaymentRow({ label, balanceCents, onPay }: { label: string; balanceCent
   if (balanceCents <= 0) return null;
   return (
     <div className="mt-2 flex items-center gap-2">
-      <input value={amount} onChange={(e) => setAmount(e.target.value)} type="number" step="0.01" className="w-24 rounded-lg border border-border-primary bg-bg-primary px-2 py-1 text-xs" />
+      <input value={amount} onChange={(e) => setAmount(e.target.value)} type="number" step="0.01" className="w-24 rounded-lg border border-border bg-bg-primary px-2 py-1 text-xs" />
       <button
         type="button"
         disabled={paying}
@@ -186,7 +186,7 @@ function PaymentRow({ label, balanceCents, onPay }: { label: string; balanceCent
             setPaying(false);
           }
         }}
-        className="inline-flex items-center gap-1 rounded-lg border border-border-primary px-2 py-1 text-xs font-medium text-text-primary hover:bg-bg-secondary disabled:opacity-50"
+        className="inline-flex items-center gap-1 rounded-lg border border-border px-2 py-1 text-xs font-medium text-text-primary hover:bg-bg-secondary disabled:opacity-50"
       >
         <CheckCircle2 size={12} /> {label}
       </button>
@@ -267,12 +267,12 @@ export function AccountingPage() {
             financial statements — every invoice and bill posts a balanced journal entry automatically.
           </p>
         </div>
-        <button type="button" onClick={load} className="inline-flex items-center gap-1.5 rounded-lg border border-border-primary bg-bg-primary px-3 py-1.5 text-xs font-medium text-text-primary hover:bg-bg-secondary">
+        <button type="button" onClick={load} className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-bg-primary px-3 py-1.5 text-xs font-medium text-text-primary hover:bg-bg-secondary">
           <RefreshCw size={13} /> Refresh
         </button>
       </div>
 
-      <div className="mb-6 flex gap-1 border-b border-border-primary">
+      <div className="mb-6 flex gap-1 border-b border-border">
         {TABS.map((t) => (
           <button
             key={t.id}
@@ -298,14 +298,14 @@ export function AccountingPage() {
             </Card>
             <Card className="p-4">
               <p className="text-xs text-text-secondary">Net income (month to date)</p>
-              <p className={`mt-1 text-2xl font-bold ${totals.netIncome >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>{formatCents(totals.netIncome)}</p>
+              <p className={`mt-1 text-2xl font-bold ${totals.netIncome >= 0 ? 'text-success' : 'text-danger'}`}>{formatCents(totals.netIncome)}</p>
             </Card>
           </div>
           <Card className="p-0">
-            <div className="border-b border-border-primary px-4 py-3">
+            <div className="border-b border-border px-4 py-3">
               <p className="text-sm font-semibold text-text-primary">Chart of accounts</p>
             </div>
-            <div className="divide-y divide-border-primary">
+            <div className="divide-y divide-border">
               {accounts.map((a) => (
                 <div key={a.id} className="flex items-center justify-between px-4 py-2 text-sm">
                   <span className="text-text-secondary">{a.code}</span>
@@ -326,7 +326,7 @@ export function AccountingPage() {
           ) : (
             <Card className="p-0">
               {invoices.map((inv) => (
-                <div key={inv.id} className="border-b border-border-primary px-4 py-3 last:border-b-0">
+                <div key={inv.id} className="border-b border-border px-4 py-3 last:border-b-0">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div>
                       <p className="text-sm font-medium text-text-primary">{inv.invoice_number}</p>
@@ -365,7 +365,7 @@ export function AccountingPage() {
           ) : (
             <Card className="p-0">
               {bills.map((bill) => (
-                <div key={bill.id} className="border-b border-border-primary px-4 py-3 last:border-b-0">
+                <div key={bill.id} className="border-b border-border px-4 py-3 last:border-b-0">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div>
                       <p className="text-sm font-medium text-text-primary">{bill.bill_number}</p>
@@ -419,14 +419,14 @@ export function AccountingPage() {
           {reportView === 'pnl' && (
             <Card className="p-0">
               {pnl.map((r) => (
-                <div key={r.account_code} className="flex justify-between border-b border-border-primary px-4 py-2 text-sm last:border-b-0">
+                <div key={r.account_code} className="flex justify-between border-b border-border px-4 py-2 text-sm last:border-b-0">
                   <span className="text-text-primary">{r.account_name}</span>
                   <span className="font-medium text-text-primary">{formatCents(r.amount_cents)}</span>
                 </div>
               ))}
               <div className="flex justify-between px-4 py-3 text-sm font-bold text-text-primary">
                 <span>Net income</span>
-                <span className={totals.netIncome >= 0 ? 'text-emerald-600' : 'text-red-600'}>{formatCents(totals.netIncome)}</span>
+                <span className={totals.netIncome >= 0 ? 'text-success' : 'text-danger'}>{formatCents(totals.netIncome)}</span>
               </div>
             </Card>
           )}
@@ -434,7 +434,7 @@ export function AccountingPage() {
           {reportView === 'balance_sheet' && (
             <Card className="p-0">
               {balanceSheet.map((r) => (
-                <div key={r.account_code} className="flex justify-between border-b border-border-primary px-4 py-2 text-sm last:border-b-0">
+                <div key={r.account_code} className="flex justify-between border-b border-border px-4 py-2 text-sm last:border-b-0">
                   <span className="text-text-primary">{r.account_name} <span className="text-xs text-text-secondary capitalize">({r.type})</span></span>
                   <span className="font-medium text-text-primary">{formatCents(r.balance_cents)}</span>
                 </div>
@@ -446,7 +446,7 @@ export function AccountingPage() {
           {reportView === 'ar_aging' && (
             <Card className="p-0">
               {arAging.map((r) => (
-                <div key={r.invoice_id} className="flex justify-between border-b border-border-primary px-4 py-2 text-sm last:border-b-0">
+                <div key={r.invoice_id} className="flex justify-between border-b border-border px-4 py-2 text-sm last:border-b-0">
                   <span className="text-text-primary">{r.invoice_number} &middot; {r.customer_name}</span>
                   <span className="flex items-center gap-2">
                     <span className="rounded-full bg-bg-secondary px-2 py-0.5 text-[11px] text-text-secondary">{r.bucket}</span>
@@ -461,7 +461,7 @@ export function AccountingPage() {
           {reportView === 'ap_aging' && (
             <Card className="p-0">
               {apAging.map((r) => (
-                <div key={r.bill_id} className="flex justify-between border-b border-border-primary px-4 py-2 text-sm last:border-b-0">
+                <div key={r.bill_id} className="flex justify-between border-b border-border px-4 py-2 text-sm last:border-b-0">
                   <span className="text-text-primary">{r.bill_number} &middot; {r.vendor_name}</span>
                   <span className="flex items-center gap-2">
                     <span className="rounded-full bg-bg-secondary px-2 py-0.5 text-[11px] text-text-secondary">{r.bucket}</span>

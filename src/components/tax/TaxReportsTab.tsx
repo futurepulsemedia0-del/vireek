@@ -82,7 +82,7 @@ export function TaxReportsTab() {
             ))}
           </div>
           {report.summary.some((r) => r.state === '??') && (
-            <p className="text-xs text-warning-500">Some invoices have no service address, so they are grouped under “??”. Add the address to report them to the right state.</p>
+            <p className="text-xs text-warning">Some invoices have no service address, so they are grouped under “??”. Add the address to report them to the right state.</p>
           )}
 
           <section className="rounded-2xl border border-border bg-bg-secondary p-5">

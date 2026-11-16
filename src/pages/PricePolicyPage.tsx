@@ -227,7 +227,7 @@ function PolicyEditor({ initial, editingId, bookItems, ownerId, onSaved, onCance
             <div aria-live="polite" className="space-y-3">
               <p className="whitespace-pre-line rounded-xl border border-border bg-bg-tertiary p-4 text-sm text-text-primary">{preview.reply.text}</p>
               {preview.reply.answer.downgraded_reason && (
-                <p className="text-sm text-warning-500">{t(`downgrade.${preview.reply.answer.downgraded_reason}`)}</p>
+                <p className="text-sm text-warning">{t(`downgrade.${preview.reply.answer.downgraded_reason}`)}</p>
               )}
               {preview.sourceLabels.length > 0 && (
                 <div>
@@ -352,7 +352,7 @@ export function PricePolicyPage() {
                         <h3 className="truncate font-semibold text-text-primary">{p.display_name}</h3>
                         <p className="text-sm text-text-secondary">{t(`trades.${p.trade}`)} · {t(`modes.${p.mode}`)}</p>
                         <p className={`mt-1 text-xs font-medium ${p.active ? 'text-success' : 'text-text-secondary'}`}>{p.active ? t('page.live') : t('page.disabledBecause')}</p>
-                        {warnings.map((w) => <p key={w} className="mt-1 text-xs text-warning-500">{t(`warnings.${w}`)}</p>)}
+                        {warnings.map((w) => <p key={w} className="mt-1 text-xs text-warning">{t(`warnings.${w}`)}</p>)}
                       </div>
                       <div className="flex shrink-0 items-center gap-2">
                         <Button size="sm" variant="secondary" onClick={() => setEditing({ id: p.id, form: recordToForm(p) })}>

@@ -6,10 +6,10 @@ import { rankJob, recordManualDecision, type RankResult, type RankedTechnician, 
 import { ProvenanceBadge } from '@/components/dispatch/CausalProvenanceBadge';
 
 const OUTCOME_STYLE: Record<string, string> = {
-  pass: 'text-success-500',
-  bonus: 'text-success-500',
+  pass: 'text-success',
+  bonus: 'text-success',
   fail: 'text-danger',
-  penalty: 'text-warning-500',
+  penalty: 'text-warning',
   neutral: 'text-text-secondary',
 };
 const OUTCOME_MARK: Record<string, string> = { pass: '✓', bonus: '+', fail: '✕', penalty: '−', neutral: '·' };
@@ -115,7 +115,7 @@ export function DispatchRulesPanel({ job, bundle, ownerId, busy, onAssign }: Pro
         type="button"
         disabled={busy || working}
         onClick={() => (isTop ? void confirm(row) : setPending(row))}
-        className={`focus-ring shrink-0 rounded-lg px-2.5 py-1 text-xs font-medium disabled:opacity-50 ${isTop ? 'bg-accent text-white' : 'border border-border text-text-secondary hover:border-accent/40 hover:text-accent'}`}
+        className={`focus-ring shrink-0 rounded-lg px-2.5 py-1 text-xs font-medium disabled:opacity-50 ${isTop ? 'bg-accent text-on-accent' : 'border border-border text-text-secondary hover:border-accent/40 hover:text-accent'}`}
       >
         {isTop ? 'Assign' : row.eligible ? 'Override' : 'Override anyway'}
       </button>
@@ -136,7 +136,7 @@ export function DispatchRulesPanel({ job, bundle, ownerId, busy, onAssign }: Pro
           {best ? (
             <span className="text-text-primary">
               {best.technician_name}
-              {closeCall && <span className="ml-1 text-warning-500">(close call)</span>}
+              {closeCall && <span className="ml-1 text-warning">(close call)</span>}
             </span>
           ) : (
             <span className="text-danger">no technician satisfies your rules</span>
@@ -149,9 +149,9 @@ export function DispatchRulesPanel({ job, bundle, ownerId, busy, onAssign }: Pro
         <div className="space-y-2 px-3 pb-3">
           <RankingList ranking={ranking} renderAction={action} />
           {pending && (
-            <div role="group" aria-label="Confirm override" className="rounded-xl border border-warning-500/30 bg-warning-500/10 p-3">
+            <div role="group" aria-label="Confirm override" className="rounded-xl border border-warning/30 bg-warning-subtle p-3">
               <p className="flex items-center gap-1.5 text-xs font-medium text-text-primary">
-                <ShieldAlert size={13} className="text-warning-500" />
+                <ShieldAlert size={13} className="text-warning" />
                 {pending.eligible ? `Override the engine and assign ${pending.technician_name}?` : `${pending.technician_name} breaks your rules. Assign anyway?`}
               </p>
               {!pending.eligible && <p className="mt-1 text-xs text-text-secondary">{pending.blocked_by.join('; ')}</p>}
@@ -173,7 +173,7 @@ export function DispatchRulesPanel({ job, bundle, ownerId, busy, onAssign }: Pro
                   type="button"
                   disabled={working || busy || (!pending.eligible && reason.trim().length < 3)}
                   onClick={() => void confirm(pending)}
-                  className="focus-ring rounded-lg bg-accent px-2.5 py-1 text-xs font-medium text-white disabled:opacity-50"
+                  className="focus-ring rounded-lg bg-accent px-2.5 py-1 text-xs font-medium text-on-accent disabled:opacity-50"
                 >
                   {working ? 'Assigning…' : 'Confirm override'}
                 </button>

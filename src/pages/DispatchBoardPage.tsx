@@ -58,7 +58,7 @@ interface CopilotRecommendation {
 
 function copilotPriorityStyle(priority: number): { color: string; bgColor: string; borderColor: string } {
   if (priority >= 5) return { color: 'text-danger', bgColor: 'bg-danger/10', borderColor: 'border-l-danger' };
-  if (priority >= 3) return { color: 'text-warning-500', bgColor: 'bg-warning-500/10', borderColor: 'border-l-warning-500' };
+  if (priority >= 3) return { color: 'text-warning', bgColor: 'bg-warning-subtle', borderColor: 'border-l-warning-500' };
   return { color: 'text-accent', bgColor: 'bg-accent/10', borderColor: 'border-l-accent' };
 }
 
@@ -298,7 +298,7 @@ const handleAssign = async (job: Job, technicianId: string) => {
               type="button"
               onClick={handleToggleAiDispatch}
               className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                aiDispatchEnabled ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary'
+                aiDispatchEnabled ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary'
               }`}
             >
               AI Dispatch: {aiDispatchEnabled ? 'On' : 'Off'}
@@ -315,7 +315,7 @@ const handleAssign = async (job: Job, technicianId: string) => {
               type="button"
               onClick={handleAskCopilot}
               disabled={copilotLoading}
-              className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-accent/90 disabled:opacity-50"
+              className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3 py-1.5 text-xs font-medium text-on-accent transition-colors hover:bg-accent/90 disabled:opacity-50"
             >
               <Brain size={13} />
               {copilotLoading ? 'Thinking…' : 'Ask AI Copilot'}
@@ -426,7 +426,7 @@ const handleAssign = async (job: Job, technicianId: string) => {
                           <p className="text-xs text-text-secondary">
                             {job.service_type ?? 'Unspecified service'} · {formatTime(job.scheduled_datetime)}
                           </p>
-                          {job.address && <p className="text-xs text-text-secondary/70">{job.address}</p>}
+                          {job.address && <p className="text-xs text-text-muted">{job.address}</p>}
                           {riskMap[job.id] && (
                             <div className="mt-1.5">
                               <RiskChip report={riskMap[job.id]} />
@@ -436,7 +436,7 @@ const handleAssign = async (job: Job, technicianId: string) => {
                             <PartsEtaBadge check={partsEta[job.id]} />
                           </div>
                                                     {job.dispatch_note && (
-                            <p className="mt-1 text-xs italic text-accent/80">{job.dispatch_note}</p>
+                            <p className="mt-1 text-xs italic text-accent">{job.dispatch_note}</p>
                           )}
                         </div>
                         {top && (
@@ -464,7 +464,7 @@ const handleAssign = async (job: Job, technicianId: string) => {
                               {s.technician.member_name ?? s.technician.member_email}
                               <FirstTimeFixChip chip={ftf.chipFor(job, s.technician.id)} />
                               {stockFitBonus(stockFit[job.id]?.[s.technician.id]) >= 12 && (
-                               <PackageCheck size={12} className="ml-1 inline text-success-500" aria-label="Truck has all required parts" />
+                               <PackageCheck size={12} className="ml-1 inline text-success" aria-label="Truck has all required parts" />
                                 )}
                               {(() => {
                                 const conf = passportFitHeadline(passportFit[job.id]?.[s.technician.id]);
@@ -529,7 +529,7 @@ const handleAssign = async (job: Job, technicianId: string) => {
                                         <td className="px-3 py-2 font-medium text-text-primary">
                                           {r.technician.member_name ?? r.technician.member_email}
                                           {r.technician.id === best.technician.id && (
-                                            <span className="ml-1.5 rounded-full bg-success-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-success-500">
+                                            <span className="ml-1.5 rounded-full bg-success-subtle px-1.5 py-0.5 text-[10px] font-semibold text-success">
                                               Recommended
                                             </span>
                                           )}
@@ -543,7 +543,7 @@ const handleAssign = async (job: Job, technicianId: string) => {
                                         <td className="px-3 py-2 text-text-secondary">{formatProfitabilityCents(r.expectedTravelCents)}</td>
                                         <td className="px-3 py-2 text-text-secondary">{formatProfitabilityCents(r.expectedRiskCents)}</td>
                                         <td
-                                          className={`px-3 py-2 font-semibold ${r.expectedGrossProfitCents >= 0 ? 'text-success-500' : 'text-danger'}`}
+                                          className={`px-3 py-2 font-semibold ${r.expectedGrossProfitCents >= 0 ? 'text-success' : 'text-danger'}`}
                                         >
                                           {formatProfitabilityCents(r.expectedGrossProfitCents)}
                                           {r.expectedMarginPct !== null && (

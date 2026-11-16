@@ -235,14 +235,14 @@ export function LiveCopilotPage() {
 
       {/* ---- Camera ---- */}
       <div className="mb-4 rounded-2xl border border-border bg-bg-secondary p-4">
-        <div className="relative overflow-hidden rounded-xl bg-black">
+        <div className="relative overflow-hidden rounded-xl bg-overlay">
           <video ref={cam.videoRef} muted playsInline autoPlay className="aspect-[4/3] w-full object-cover" aria-label="Live camera preview" />
           {cam.status !== 'live' && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/70 p-4 text-center">
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-overlay/70 p-4 text-center">
               {cam.status === 'starting' ? (
                 <Loader2 className="animate-spin text-white" size={28} />
               ) : (
-                <button type="button" onClick={cam.start} className="focus-ring flex min-h-[44px] items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white">
+                <button type="button" onClick={cam.start} className="focus-ring flex min-h-[44px] items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-on-accent">
                   <Video size={16} /> Start camera &amp; microphone
                 </button>
               )}
@@ -250,12 +250,12 @@ export function LiveCopilotPage() {
             </div>
           )}
           {cam.recording && (
-            <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-black/70 px-2.5 py-1 text-xs font-medium text-white" role="status">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-danger-500" /> Recording {cam.elapsed}s / {LIVE_LIMITS.audioSeconds}s
+            <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-overlay/70 px-2.5 py-1 text-xs font-medium text-white" role="status">
+              <span className="h-2 w-2 animate-pulse rounded-full bg-danger" /> Recording {cam.elapsed}s / {LIVE_LIMITS.audioSeconds}s
             </div>
           )}
         </div>
-        {cam.error && <p role="alert" className="mt-2 text-xs text-danger-500">{cam.error}</p>}
+        {cam.error && <p role="alert" className="mt-2 text-xs text-danger">{cam.error}</p>}
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
           {cam.status === 'live' ? (
@@ -264,7 +264,7 @@ export function LiveCopilotPage() {
                 <Camera size={15} /> Add view ({tray.length}/{LIVE_LIMITS.frames})
               </button>
               {cam.recording ? (
-                <button type="button" onClick={cam.stopRecording} className="focus-ring flex min-h-[44px] items-center gap-1.5 rounded-lg bg-danger-500 px-3 py-2 text-sm font-medium text-white">
+                <button type="button" onClick={cam.stopRecording} className="focus-ring flex min-h-[44px] items-center gap-1.5 rounded-lg bg-danger px-3 py-2 text-sm font-medium text-on-danger">
                   <Square size={14} /> Stop recording
                 </button>
               ) : (
@@ -294,13 +294,13 @@ export function LiveCopilotPage() {
             {tray.map((f) => (
               <div key={f.id} className="relative h-16 w-16 overflow-hidden rounded-lg border border-border">
                 <img src={f.url} alt="Captured view" className="h-full w-full object-cover" />
-                <button type="button" onClick={() => removeFrame(f.id)} aria-label="Remove view" className="focus-ring absolute right-0.5 top-0.5 rounded-full bg-black/70 p-0.5 text-white"><X size={10} /></button>
+                <button type="button" onClick={() => removeFrame(f.id)} aria-label="Remove view" className="focus-ring absolute right-0.5 top-0.5 rounded-full bg-overlay/70 p-0.5 text-white"><X size={10} /></button>
               </div>
             ))}
             {cam.clip && (
               <span className="flex items-center gap-1.5 rounded-lg border border-border bg-bg-primary px-2.5 py-1.5 text-xs text-text-secondary">
                 <Ear size={12} /> Clip ready ({cam.clip.seconds}s)
-                <button type="button" onClick={cam.clearClip} aria-label="Remove clip" className="focus-ring hover:text-danger-500"><X size={12} /></button>
+                <button type="button" onClick={cam.clearClip} aria-label="Remove clip" className="focus-ring hover:text-danger"><X size={12} /></button>
               </span>
             )}
           </div>
@@ -316,7 +316,7 @@ export function LiveCopilotPage() {
             placeholder="e.g. This is the compressor noise — what's wrong?"
             className="min-h-[44px] w-full rounded-lg border border-border bg-bg-primary px-3 py-2 text-sm"
           />
-          <button type="button" onClick={analyze} disabled={!canAnalyze} className="focus-ring flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-50">
+          <button type="button" onClick={analyze} disabled={!canAnalyze} className="focus-ring flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-on-accent disabled:opacity-50">
             {analyzing ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} />} {analyzing ? 'Analyzing…' : 'Analyze'}
           </button>
         </div>
@@ -341,10 +341,10 @@ export function LiveCopilotPage() {
           <p className="text-base font-semibold text-text-primary">{latest.result.headline}</p>
 
           {latest.result.safety_warnings.length > 0 && (
-            <div className="rounded-lg border border-danger-500/30 bg-danger-500/5 p-3">
-              <SectionTitle icon={<ShieldAlert size={12} className="text-danger-500" />}><span className="text-danger-500">Safety</span></SectionTitle>
+            <div className="rounded-lg border border-danger/30 bg-danger-subtle p-3">
+              <SectionTitle icon={<ShieldAlert size={12} className="text-danger" />}><span className="text-danger">Safety</span></SectionTitle>
               <ul className="space-y-1">
-                {latest.result.safety_warnings.map((w, i) => <li key={i} className="text-xs text-danger-500">• {w}</li>)}
+                {latest.result.safety_warnings.map((w, i) => <li key={i} className="text-xs text-danger">• {w}</li>)}
               </ul>
             </div>
           )}
@@ -352,7 +352,7 @@ export function LiveCopilotPage() {
           {latest.result.escalate.recommended && (
             <div className="flex flex-col gap-2 rounded-lg border border-accent/30 bg-accent/5 p-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-xs text-text-primary"><span className="font-semibold">Bring in an expert.</span> {latest.result.escalate.reason}</p>
-              <button type="button" onClick={escalate} disabled={escalating} className="focus-ring flex min-h-[44px] shrink-0 items-center justify-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-white disabled:opacity-50">
+              <button type="button" onClick={escalate} disabled={escalating} className="focus-ring flex min-h-[44px] shrink-0 items-center justify-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-on-accent disabled:opacity-50">
                 {escalating ? <Loader2 size={15} className="animate-spin" /> : <LifeBuoy size={15} />} Call an expert
               </button>
             </div>
@@ -373,7 +373,7 @@ export function LiveCopilotPage() {
                 </span>
               )}
               {latest.perception.error_codes.map((c) => (
-                <span key={c} className="rounded-full bg-warning-500/10 px-2 py-0.5 text-xs font-medium text-warning-500">Code {c}</span>
+                <span key={c} className="rounded-full bg-warning-subtle px-2 py-0.5 text-xs font-medium text-warning">Code {c}</span>
               ))}
             </div>
             {np?.legible && (np.ratings || np.refrigerant || np.manufacture_date) && (
@@ -402,7 +402,7 @@ export function LiveCopilotPage() {
                       <div className="h-1.5 rounded-full bg-accent" style={{ width: pct(c.likelihood) }} />
                     </div>
                     {c.reasoning && <p className="mt-1 text-xs text-text-secondary">{c.reasoning}</p>}
-                    {c.evidence.length > 0 && <p className="mt-0.5 text-xs text-text-secondary/80">Evidence: {c.evidence.join(' · ')}</p>}
+                    {c.evidence.length > 0 && <p className="mt-0.5 text-xs text-text-muted">Evidence: {c.evidence.join(' · ')}</p>}
                   </div>
                 ))}
               </div>
@@ -437,7 +437,7 @@ export function LiveCopilotPage() {
               <div className="flex flex-wrap gap-1.5">
                 {latest.result.parts_needed.map((p, i) => (
                   <span key={i} className="rounded-full border border-border px-2 py-0.5 text-xs text-text-secondary">
-                    {p.quantity}× {p.name} <span className="text-text-secondary/70">({p.necessity.replace('_', ' ')})</span>
+                    {p.quantity}× {p.name} <span className="text-text-muted">({p.necessity.replace('_', ' ')})</span>
                   </span>
                 ))}
               </div>
@@ -479,7 +479,7 @@ export function LiveCopilotPage() {
             </button>
           )}
 
-          {latest.result.warnings.map((w, i) => <p key={i} className="text-xs text-warning-500">{w}</p>)}
+          {latest.result.warnings.map((w, i) => <p key={i} className="text-xs text-warning">{w}</p>)}
         </div>
       )}
 

@@ -62,7 +62,7 @@ type Tab = 'queue' | 'permissions' | 'limits' | 'activity';
 // ------------------------------------------------------------
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder transition-colors';
 const btnClass =
   'focus-ring inline-flex items-center gap-1.5 rounded-xl border border-border px-3 py-1.5 text-sm font-medium text-text-primary transition-colors hover:bg-bg-primary disabled:opacity-50';
 
@@ -77,13 +77,13 @@ const errMsg = (e: unknown, fallback: string): string =>
     : fallback;
 
 const STATUS_STYLE: Record<LogStatus, string> = {
-  auto_approved: 'bg-sky-500/10 text-sky-600 dark:text-sky-400',
-  pending_approval: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
-  approved: 'bg-sky-500/10 text-sky-600 dark:text-sky-400',
-  rejected: 'bg-red-500/10 text-red-600 dark:text-red-400',
-  executed: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-  failed: 'bg-red-500/10 text-red-600 dark:text-red-400',
-  rolled_back: 'bg-slate-500/10 text-slate-600 dark:text-slate-400',
+  auto_approved: 'bg-info-subtle text-info',
+  pending_approval: 'bg-warning-subtle text-warning',
+  approved: 'bg-info-subtle text-info',
+  rejected: 'bg-danger-subtle text-danger',
+  executed: 'bg-success-subtle text-success',
+  failed: 'bg-danger-subtle text-danger',
+  rolled_back: 'bg-text-muted/10 text-text-secondary',
 };
 
 function StatusBadge({ status }: { status: LogStatus }) {
@@ -290,7 +290,7 @@ export function AgentGovernancePage() {
               }`}
             >
               <t.icon size={15} /> {t.label}
-              {t.count ? <span className="rounded-full bg-amber-500/15 px-1.5 text-xs text-amber-600 dark:text-amber-400">{t.count}</span> : null}
+              {t.count ? <span className="rounded-full bg-warning-subtle px-1.5 text-xs text-warning">{t.count}</span> : null}
             </button>
           ))}
         </div>
@@ -318,10 +318,10 @@ export function AgentGovernancePage() {
                       </div>
                       <div className="flex gap-2">
                         <button className={btnClass} disabled={busy === `decide:${e.id}`} onClick={() => void decide(e, true)}>
-                          <Check size={15} className="text-emerald-600" /> Approve
+                          <Check size={15} className="text-success" /> Approve
                         </button>
                         <button className={btnClass} disabled={busy === `decide:${e.id}`} onClick={() => void decide(e, false)}>
-                          <X size={15} className="text-red-600" /> Reject
+                          <X size={15} className="text-danger" /> Reject
                         </button>
                       </div>
                     </div>
@@ -360,7 +360,7 @@ export function AgentGovernancePage() {
                         onClick={() => void setEnabled(c.slug, !enabled)}
                         className={`focus-ring relative h-6 w-11 rounded-full transition-colors disabled:opacity-50 ${enabled ? 'bg-accent' : 'bg-border'}`}
                       >
-                        <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all ${enabled ? 'left-[22px]' : 'left-0.5'}`} />
+                        <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-bg-secondary transition-all ${enabled ? 'left-[22px]' : 'left-0.5'}`} />
                       </button>
                     </div>
                     {enabled && (

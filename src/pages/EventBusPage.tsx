@@ -30,14 +30,14 @@ import {
 } from '@/lib/eventBus';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder transition-colors';
 
 function StatusPill({ status }: { status: 'success' | 'error' }) {
   const ok = status === 'success';
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
-        ok ? 'bg-success-500/10 text-success-500' : 'bg-danger/10 text-danger'
+        ok ? 'bg-success-subtle text-success' : 'bg-danger/10 text-danger'
       }`}
     >
       {ok ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
@@ -101,7 +101,7 @@ function NewEndpointForm({ onCreated }: { onCreated: () => void }) {
       <div className="mt-4 space-y-3">
         {EVENT_CATEGORIES.map((category) => (
           <div key={category}>
-            <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-text-secondary/70">
+            <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-text-muted">
               {category}
             </p>
             <div className="flex flex-wrap gap-2">
@@ -115,7 +115,7 @@ function NewEndpointForm({ onCreated }: { onCreated: () => void }) {
                     onClick={() => toggleEvent(entry.type)}
                     className={`focus-ring rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
                       active
-                        ? 'border-accent bg-accent text-white'
+                        ? 'border-accent bg-accent text-on-accent'
                         : 'border-border bg-bg-secondary text-text-secondary hover:border-accent/40 hover:text-text-primary'
                     }`}
                   >
@@ -194,7 +194,7 @@ function EndpointCard({
             <span
               className={`inline-flex shrink-0 items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold capitalize ${
                 endpoint.status === 'active'
-                  ? 'border-success-500/30 bg-success-500/10 text-success-500'
+                  ? 'border-success/30 bg-success-subtle text-success'
                   : 'border-border bg-bg-tertiary text-text-secondary'
               }`}
             >
@@ -248,7 +248,7 @@ function EndpointCard({
 
       {logs.length > 0 && (
         <div className="mt-4">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-secondary/70">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-muted">
             Recent deliveries
           </p>
           <div className="space-y-1.5">
@@ -258,7 +258,7 @@ function EndpointCard({
                 className="flex items-center justify-between gap-3 rounded-lg border border-border/70 px-3 py-1.5 text-xs"
               >
                 <span className="text-text-secondary">{eventLabel(log.event_type)}</span>
-                <span className="text-text-secondary/70">{new Date(log.created_at).toLocaleString()}</span>
+                <span className="text-text-muted">{new Date(log.created_at).toLocaleString()}</span>
                 <StatusPill status={log.status} />
               </div>
             ))}

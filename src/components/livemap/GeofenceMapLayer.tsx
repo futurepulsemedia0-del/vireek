@@ -33,7 +33,7 @@ function handleElement(kind: HandleKind, color: string, label: string): HTMLButt
   el.setAttribute('aria-label', label);
   el.title = label;
   const size = kind === 'first' ? 20 : kind === 'center' ? 22 : 16;
-  el.className = 'focus-ring border-2 border-white shadow-lg';
+  el.className = 'focus-ring border-2 border-on-inverse shadow-lg';
   el.style.cssText = `width:${size}px;height:${size}px;background:${kind === 'radius' ? '#ffffff' : color};border-color:${kind === 'radius' ? color : '#ffffff'};border-radius:${kind === 'radius' ? '4px' : '50%'};cursor:grab;touch-action:none;padding:0;z-index:5`;
   return el;
 }

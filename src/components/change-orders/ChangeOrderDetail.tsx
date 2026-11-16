@@ -187,7 +187,7 @@ export function ChangeOrderDetail({ ownerId, co, all, parent, onChanged, onBack 
       </div>
 
       {actions.canSend === false && co.status === 'draft' && (
-        <p className="text-sm text-warning-500" role="status">Add at least one priced line before sending.</p>
+        <p className="text-sm text-warning" role="status">Add at least one priced line before sending.</p>
       )}
 
       {/* Inline action panels */}
@@ -212,7 +212,7 @@ export function ChangeOrderDetail({ ownerId, co, all, parent, onChanged, onBack 
           <h2 className="text-base font-semibold text-text-primary">Record a decision the customer gave you directly</h2>
           <div role="group" aria-label="Decision" className="flex gap-2">
             {(['approved', 'declined'] as const).map((d) => (
-              <button key={d} type="button" aria-pressed={decision === d} onClick={() => setDecision(d)} className={`focus-ring rounded-full px-3 py-1.5 text-xs font-semibold ${decision === d ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary'}`}>
+              <button key={d} type="button" aria-pressed={decision === d} onClick={() => setDecision(d)} className={`focus-ring rounded-full px-3 py-1.5 text-xs font-semibold ${decision === d ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary'}`}>
                 {d === 'approved' ? 'Approved' : 'Declined'}
               </button>
             ))}

@@ -15,7 +15,7 @@
     if (!s || typeof s !== 'object') return;
     var D = { textSize: 1, contentScale: 1, lineHeight: 1.6, letterSpacing: 0, wordSpacing: 0, focusWidth: 3 };
     var R = { textSize: [0.875, 1.5], contentScale: [0.9, 1.2], lineHeight: [1.4, 2.2], letterSpacing: [0, 0.2], wordSpacing: [0, 0.3], focusWidth: [2, 6] };
-    var FC = { default: ['rgb(var(--accent-primary))', 'rgb(var(--accent-primary) / 0.2)'], black: ['#000000', '#ffffff'], white: ['#ffffff', '#000000'], yellow: ['#ffd400', '#000000'], blue: ['#0050ff', '#ffffff'] };
+    var FC = { default: ['rgb(var(--accent-primary))', 'rgb(var(--accent-primary) / 0.2)'], black: ['#000000', '#ffffff'], white: ['#ffffff', '#000000'], yellow: ['#ffd600', '#000000'], blue: ['#0071e3', '#ffffff'] };
     function ch(k) { var v = s[k]; return typeof v === 'string' && Object.prototype.hasOwnProperty.call(FC, v) ? v : 'default'; }
     function num(k) {
       var v = s[k];

@@ -24,7 +24,7 @@ export function NaturalProgressCard({ analysis, elapsedDays, randomizationEnable
         <h3 className="text-sm font-semibold text-text-primary">{t('experiment.cardTitle')}</h3>
       </div>
       {randomizationEnabled === false && (
-        <p role="alert" className="mt-3 rounded-lg border border-warning-500/30 bg-warning-500/10 p-3 text-sm text-text-primary">{t('experiment.off')}</p>
+        <p role="alert" className="mt-3 rounded-lg border border-warning/30 bg-warning-subtle p-3 text-sm text-text-primary">{t('experiment.off')}</p>
       )}
       <ul className="mt-3 space-y-1 text-sm text-text-primary">
         <li>{t('experiment.draws', { n: num.format(analysis.randomizedJobs) })}</li>

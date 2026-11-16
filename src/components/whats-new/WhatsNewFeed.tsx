@@ -14,8 +14,8 @@ const AUTO_READ_DELAY_MS = 4000;
 
 const TYPE_META: Record<EntryType, { label: string; icon: typeof Sparkles; text: string; ring: string }> = {
   new: { label: 'New', icon: Sparkles, text: 'text-accent', ring: 'border-accent/25 bg-accent/10' },
-  improved: { label: 'Improved', icon: Zap, text: 'text-success-500', ring: 'border-success-500/25 bg-success-500/10' },
-  security: { label: 'Security', icon: ShieldCheck, text: 'text-warning-500', ring: 'border-warning-500/25 bg-warning-500/10' },
+  improved: { label: 'Improved', icon: Zap, text: 'text-success', ring: 'border-success/25 bg-success-subtle' },
+  security: { label: 'Security', icon: ShieldCheck, text: 'text-warning', ring: 'border-warning/25 bg-warning-subtle' },
   fixed: { label: 'Fixed', icon: Wrench, text: 'text-text-secondary', ring: 'border-border bg-bg-tertiary' },
 };
 
@@ -80,7 +80,7 @@ export function WhatsNewFeed() {
       {status === 'error' && (
         <div
           role="alert"
-          className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-warning-500/25 bg-warning-500/10 px-3 py-2 text-sm text-warning-500"
+          className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-warning/25 bg-warning-subtle px-3 py-2 text-sm text-warning"
         >
           <span className="flex items-center gap-2">
             <AlertTriangle className="h-4 w-4 shrink-0" aria-hidden="true" /> We couldn’t load which updates you’ve read.
@@ -113,7 +113,7 @@ export function WhatsNewFeed() {
                 {f.label} <span className="text-xs opacity-70">{counts[f.id]}</span>
               </button>
             ))}
-            <label className={`ml-auto flex items-center gap-2 text-sm ${hasFresh ? 'cursor-pointer text-text-primary' : 'text-text-secondary/60'}`}>
+            <label className={`ml-auto flex items-center gap-2 text-sm ${hasFresh ? 'cursor-pointer text-text-primary' : 'text-text-muted'}`}>
               <input type="checkbox" disabled={!hasFresh} checked={onlyNew && hasFresh} onChange={(e) => setOnlyNew(e.target.checked)} />
               Only new for me
             </label>
@@ -146,7 +146,7 @@ export function WhatsNewFeed() {
                         {isFresh && (
                           <span
                             data-testid="new-badge"
-                            className="rounded-full bg-accent px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-white"
+                            className="rounded-full bg-accent px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-on-accent"
                           >
                             New
                           </span>

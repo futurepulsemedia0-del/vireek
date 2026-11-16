@@ -115,8 +115,8 @@ export const STATUS_LABEL: Record<CompiledStatus, string> = {
 };
 export const STATUS_STYLE: Record<CompiledStatus, string> = {
   draft: 'bg-bg-tertiary text-text-secondary',
-  test: 'bg-warning-500/10 text-warning-500',
-  live: 'bg-success-500/10 text-success-500',
+  test: 'bg-warning-subtle text-warning',
+  live: 'bg-success-subtle text-success',
   paused: 'bg-bg-tertiary text-text-secondary',
   archived: 'bg-bg-tertiary text-text-secondary',
 };
@@ -124,10 +124,10 @@ export const RUN_STATUS_LABEL: Record<CompiledRunStatus, string> = {
   active: 'Running', waiting_approval: 'Needs approval', waiting_timer: 'Waiting', completed: 'Completed', failed: 'Failed', cancelled: 'Cancelled',
 };
 export const RUN_STATUS_STYLE: Record<CompiledRunStatus, string> = {
-  active: 'bg-accent-500/10 text-accent-500',
-  waiting_approval: 'bg-warning-500/10 text-warning-500',
+  active: 'bg-accent-subtle text-accent',
+  waiting_approval: 'bg-warning-subtle text-warning',
   waiting_timer: 'bg-bg-tertiary text-text-secondary',
-  completed: 'bg-success-500/10 text-success-500',
+  completed: 'bg-success-subtle text-success',
   failed: 'bg-danger/10 text-danger',
   cancelled: 'bg-bg-tertiary text-text-secondary',
 };

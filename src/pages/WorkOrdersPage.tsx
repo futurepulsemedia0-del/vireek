@@ -337,7 +337,7 @@ export function WorkOrdersPage() {
                 { label: 'Invoiced, unpaid', value: formatMoney(stats.outstanding) },
               ].map((s) => (
                 <div key={s.label} className="rounded-2xl border border-border bg-bg-secondary p-4 text-center">
-                  <dd className={`text-2xl font-bold ${s.warn ? 'text-warning-500' : 'text-text-primary'}`}>{s.value}</dd>
+                  <dd className={`text-2xl font-bold ${s.warn ? 'text-warning' : 'text-text-primary'}`}>{s.value}</dd>
                   <dt className="mt-1 text-xs text-text-secondary">{s.label}</dt>
                 </div>
               ))}
@@ -360,7 +360,7 @@ export function WorkOrdersPage() {
                     aria-pressed={filter === f.key}
                     onClick={() => setFilter(f.key)}
                     className={`focus-ring min-h-[40px] shrink-0 rounded-xl px-4 text-sm font-medium transition-colors ${
-                      filter === f.key ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
+                      filter === f.key ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
                     }`}
                   >
                     {f.label}

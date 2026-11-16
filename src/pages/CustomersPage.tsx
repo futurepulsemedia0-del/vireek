@@ -42,8 +42,8 @@ import { coerceSort, sortRows, type SortValue } from '@/lib/viewSort';
 
 const LIFECYCLE_STAGES: { key: Customer['lifecycle_stage']; label: string; dotColor: string }[] = [
   { key: 'lead', label: 'Lead', dotColor: 'bg-accent' },
-  { key: 'active', label: 'Active', dotColor: 'bg-success-500' },
-  { key: 'vip', label: 'VIP', dotColor: 'bg-warning-500' },
+  { key: 'active', label: 'Active', dotColor: 'bg-success' },
+  { key: 'vip', label: 'VIP', dotColor: 'bg-warning' },
   { key: 'inactive', label: 'Inactive', dotColor: 'bg-text-secondary/50' },
 ];
 
@@ -189,7 +189,7 @@ function CustomerDrawer({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-40 bg-black/40"
+            className="fixed inset-0 z-40 bg-overlay/40"
           />
           <motion.div
             initial={{ x: '100%' }}
@@ -320,7 +320,7 @@ function CustomerDrawer({
                 type="button"
                 onClick={handleSave}
                 disabled={saving}
-                className="focus-ring flex-1 rounded-xl bg-accent px-4 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+                className="focus-ring flex-1 rounded-xl bg-accent px-4 py-3 text-sm font-semibold text-on-accent transition-opacity hover:opacity-90 disabled:opacity-50"
               >
                 {saving ? 'Saving…' : customer ? 'Save changes' : 'Add customer'}
               </button>
@@ -497,13 +497,13 @@ export function CustomersPage() {
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search customers…  (press /)"
             aria-label="Search customers"
-            className="focus-ring w-full rounded-xl border border-border bg-bg-secondary py-2.5 pl-10 pr-4 text-sm text-text-primary placeholder:text-text-secondary/60"
+            className="focus-ring w-full rounded-xl border border-border bg-bg-secondary py-2.5 pl-10 pr-4 text-sm text-text-primary placeholder:text-text-placeholder"
           />
         </div>
         <button
           type="button"
           onClick={openNewDrawer}
-          className="focus-ring flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+          className="focus-ring flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent transition-opacity hover:opacity-90"
         >
           <Plus size={16} />
           Add customer
@@ -622,7 +622,7 @@ export function CustomersPage() {
                     </td>
                     <td className="px-4 py-3">
                       <span className="flex items-center gap-1.5 text-text-secondary">
-                        {c.lifecycle_stage === 'vip' && <Star size={13} className="text-warning-500" />}
+                        {c.lifecycle_stage === 'vip' && <Star size={13} className="text-warning" />}
                         <span className={`h-1.5 w-1.5 rounded-full ${meta.dotColor}`} />
                         {meta.label}
                       </span>

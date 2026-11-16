@@ -54,7 +54,7 @@ const GROUP_ORDER: VariableGroup[] = ['customer', 'business', 'job', 'links'];
 
 const LINT_STYLES: Record<LintSeverity, { icon: typeof Info; tone: string }> = {
   error: { icon: XCircle, tone: 'text-danger' },
-  warning: { icon: AlertTriangle, tone: 'text-warning-500' },
+  warning: { icon: AlertTriangle, tone: 'text-warning' },
   info: { icon: Info, tone: 'text-text-secondary' },
 };
 
@@ -203,7 +203,7 @@ export function TemplateEditor({
         </div>
       )}
       {template?.status === 'pending_review' && (
-        <div role="status" className="rounded-xl border border-warning-500/30 bg-warning-500/10 p-3 text-sm text-text-primary">
+        <div role="status" className="rounded-xl border border-warning/30 bg-warning-subtle p-3 text-sm text-text-primary">
           {reviewerView ? 'This template is waiting for your review.' : 'Waiting for a reviewer. You will see the decision here.'}
         </div>
       )}

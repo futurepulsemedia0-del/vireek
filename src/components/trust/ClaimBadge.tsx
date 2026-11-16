@@ -35,7 +35,7 @@ export function ClaimBadge({ id, showStatement = true }: { id: string; showState
     <div className="flex flex-col gap-1.5">
       <div className="flex flex-wrap items-center gap-2">
         <StatusBadge status={claim.status} />
-        <span className="text-xs text-text-secondary/70">Last reviewed {formatDate(claim.reviewedOn)}</span>
+        <span className="text-xs text-text-muted">Last reviewed {formatDate(claim.reviewedOn)}</span>
       </div>
       {showStatement ? <p className="text-sm leading-relaxed text-text-secondary">{claim.statement}</p> : null}
       {claim.evidence ? (

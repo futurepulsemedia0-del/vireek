@@ -167,7 +167,7 @@ export function CoverageTab({ data, canManage, canSeeMoney, ownerId, reload }: T
         }
       >
         {noCustomer && (
-          <p className="mb-3 rounded-lg border border-warning-500/30 bg-warning-500/10 p-3 text-sm text-warning-500">Link this agreement to a customer (Edit agreement header) before adding covered properties or equipment.</p>
+          <p className="mb-3 rounded-lg border border-warning/30 bg-warning-subtle p-3 text-sm text-warning">Link this agreement to a customer (Edit agreement header) before adding covered properties or equipment.</p>
         )}
 
         {assetForm.open && (
@@ -236,8 +236,8 @@ export function CoverageTab({ data, canManage, canSeeMoney, ownerId, reload }: T
         )}
 
         {gap.length > 0 && (
-          <div className="mt-4 rounded-lg border border-warning-500/30 bg-warning-500/10 p-3">
-            <p className="text-sm font-medium text-warning-500">Warranty gap: {gap.length} covered unit{gap.length === 1 ? '' : 's'} lose manufacturer warranty before this agreement ends</p>
+          <div className="mt-4 rounded-lg border border-warning/30 bg-warning-subtle p-3">
+            <p className="text-sm font-medium text-warning">Warranty gap: {gap.length} covered unit{gap.length === 1 ? '' : 's'} lose manufacturer warranty before this agreement ends</p>
             <p className="mt-1 text-xs text-text-secondary">After that date repair cost falls on the agreement, so price and cap it accordingly.</p>
             <ul className="mt-2 space-y-0.5 text-xs text-text-secondary">
               {gap.slice(0, 6).map((e) => (
@@ -305,7 +305,7 @@ export function CoverageTab({ data, canManage, canSeeMoney, ownerId, reload }: T
                       : [s.labor_covered ? 'Labor covered' : 'Labor billed', s.parts_covered ? 'Parts covered' : 'Parts billed', s.coverage === 'discounted' ? `${s.discount_percent}% discount` : null, s.per_visit_cap_cents !== null && canSeeMoney ? `cap ${formatMoney(s.per_visit_cap_cents)} / visit` : null].filter(Boolean).join(' · ')}
                   </p>
                 </div>
-                <Pill className={s.coverage === 'included' ? 'bg-success-500/10 text-success-500' : s.coverage === 'discounted' ? 'bg-accent/10 text-accent' : 'bg-danger/10 text-danger'}>{SERVICE_COVERAGE_LABELS[s.coverage]}</Pill>
+                <Pill className={s.coverage === 'included' ? 'bg-success-subtle text-success' : s.coverage === 'discounted' ? 'bg-accent/10 text-accent' : 'bg-danger/10 text-danger'}>{SERVICE_COVERAGE_LABELS[s.coverage]}</Pill>
                 {canManage && (
                   <RowActions
                     label={s.service_type}

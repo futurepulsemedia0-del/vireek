@@ -209,7 +209,7 @@ export function LoyaltyPage() {
             )}
 
             {enabled && rules.length === 0 && (
-              <div role="status" className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-warning-500/30 bg-warning-500/5 p-4">
+              <div role="status" className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-warning/30 bg-warning-subtle p-4">
                 <p className="text-sm text-text-primary">The program is on, but there are no earn rules, so paid invoices earn nothing yet.</p>
                 <Button variant="secondary" size="sm" onClick={() => setTab('program')}>Add an earn rule</Button>
               </div>
@@ -230,7 +230,7 @@ export function LoyaltyPage() {
                   >
                     <Icon size={16} /> {label}
                     {key === 'redemptions' && overview.pending_redemptions > 0 && (
-                      <span className="rounded-full bg-warning-500/15 px-2 py-0.5 text-xs text-warning-500">{overview.pending_redemptions}</span>
+                      <span className="rounded-full bg-warning-subtle px-2 py-0.5 text-xs text-warning">{overview.pending_redemptions}</span>
                     )}
                   </button>
                 ))}

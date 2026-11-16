@@ -66,7 +66,7 @@ export function CsTasksPanel({ labels, version, onOpen }: CsTasksPanelProps) {
   return (
     <Card className="space-y-3 p-4 hover:translate-y-0">
       <h3 className="text-sm font-semibold text-text-primary">Follow-up tasks · {tasks.length}</h3>
-      {actionError && <p role="alert" className="text-xs text-warning-500">That change didn’t save. Nothing was changed; try again.</p>}
+      {actionError && <p role="alert" className="text-xs text-warning">That change didn’t save. Nothing was changed; try again.</p>}
       <ul className="space-y-2">
         {tasks.map((t) => {
           const due = dueLabel(t.dueAt);
@@ -77,7 +77,7 @@ export function CsTasksPanel({ labels, version, onOpen }: CsTasksPanelProps) {
                 <button type="button" onClick={() => onOpen(t.accountId)} className="focus-ring min-w-0 text-left">
                   <span className="block truncate text-sm font-medium text-text-primary">{labels[t.accountId] ?? t.title}</span>
                   <span className="block text-[11px] text-text-secondary">
-                    <span className="capitalize">{t.riskLevel}</span> risk · <span className={due.overdue ? 'font-medium text-warning-500' : ''}>{due.text}</span> · {t.status === 'in_progress' ? 'In progress' : 'Open'} · {t.mine ? 'Assigned to you' : t.assigned ? 'Assigned' : 'Unassigned'}
+                    <span className="capitalize">{t.riskLevel}</span> risk · <span className={due.overdue ? 'font-medium text-warning' : ''}>{due.text}</span> · {t.status === 'in_progress' ? 'In progress' : 'Open'} · {t.mine ? 'Assigned to you' : t.assigned ? 'Assigned' : 'Unassigned'}
                   </span>
                 </button>
                 <span className="flex flex-wrap gap-1.5">

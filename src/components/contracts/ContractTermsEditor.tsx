@@ -269,7 +269,7 @@ export function ContractTermsEditor({ contract, profile, onClose, onSaved }: Pro
     });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:p-8" role="dialog" aria-modal="true" aria-labelledby="cte-title">
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-overlay/50 p-4 sm:p-8" role="dialog" aria-modal="true" aria-labelledby="cte-title">
       <div className="w-full max-w-3xl rounded-2xl border border-border bg-bg-secondary shadow-card dark:shadow-card-dark">
         <div className="flex items-start justify-between gap-3 border-b border-border p-5">
           <div>
@@ -314,9 +314,9 @@ export function ContractTermsEditor({ contract, profile, onClose, onSaved }: Pro
         ) : (
           <div className="space-y-4 p-5">
             {(meta.confidence !== null || meta.missing.length > 0) && (
-              <div className="rounded-xl border border-warning-500/30 bg-warning-500/10 p-3 text-sm text-text-primary">
+              <div className="rounded-xl border border-warning/30 bg-warning-subtle p-3 text-sm text-text-primary">
                 <p className="flex items-center gap-2 font-medium">
-                  <AlertTriangle size={15} className="text-warning-500" />
+                  <AlertTriangle size={15} className="text-warning" />
                   {meta.confidence !== null ? `AI confidence ${Math.round(meta.confidence * 100)}%` : 'Review needed'} — check every value against the contract before verifying.
                 </p>
                 {meta.missing.length > 0 && <p className="mt-1 text-xs text-text-secondary">Not found in the document: {meta.missing.join(', ')}</p>}

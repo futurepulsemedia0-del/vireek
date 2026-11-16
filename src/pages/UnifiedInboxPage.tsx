@@ -202,7 +202,7 @@ export function UnifiedInboxPage() {
                 type="button"
                 onClick={() => setFilter(tab.key)}
                 className={`focus-ring rounded-full px-2.5 py-1 text-xs font-medium transition-colors ${
-                  filter === tab.key ? 'bg-accent text-white' : 'bg-bg-secondary text-text-secondary hover:text-text-primary'
+                  filter === tab.key ? 'bg-accent text-on-accent' : 'bg-bg-secondary text-text-secondary hover:text-text-primary'
                 }`}
               >
                 {tab.label}
@@ -212,7 +212,7 @@ export function UnifiedInboxPage() {
           {loading ? (
             <p className="p-4 text-sm text-text-secondary">Loading conversations…</p>
           ) : loadError ? (
-            <div role="alert" className="m-3 rounded-xl bg-red-500/10 p-3 text-xs text-red-500">
+            <div role="alert" className="m-3 rounded-xl bg-danger-subtle p-3 text-xs text-danger">
               <p>{loadError}</p>
               <button
                 type="button"
@@ -220,7 +220,7 @@ export function UnifiedInboxPage() {
                   setLoading(true);
                   load();
                 }}
-                className="focus-ring mt-2 rounded-lg border border-red-500/30 px-3 py-1 font-medium"
+                className="focus-ring mt-2 rounded-lg border border-danger/30 px-3 py-1 font-medium"
               >
                 Retry
               </button>
@@ -247,7 +247,7 @@ export function UnifiedInboxPage() {
                     <Icon size={12} /> {CHANNEL_META[c.channel].label}
                     {c.subject ? ` · ${c.subject}` : ''}
                   </p>
-                  <p className="mt-0.5 text-[11px] text-text-secondary/70">{formatMessageTime(c.lastMessageAt)}</p>
+                  <p className="mt-0.5 text-[11px] text-text-muted">{formatMessageTime(c.lastMessageAt)}</p>
                 </button>
               );
             })
@@ -299,7 +299,7 @@ export function UnifiedInboxPage() {
                       className={`max-w-[85%] sm:max-w-[70%] rounded-2xl px-3.5 py-2 text-sm leading-relaxed ${
                         m.direction === 'inbound'
                           ? 'rounded-bl-sm border border-border/70 bg-bg-tertiary text-text-primary'
-                          : 'rounded-br-sm bg-gradient-to-br from-accent to-accent-600 text-white'
+                          : 'rounded-br-sm bg-accent text-on-accent'
                       }`}
                     >
                       {m.sentBy?.startsWith('ai') && (
@@ -328,7 +328,7 @@ export function UnifiedInboxPage() {
                   {suggestNote && <span className="text-[11px] text-text-secondary">{suggestNote}</span>}
                 </div>
               )}
-              {sendError && <p className="px-5 pb-1 text-xs text-red-500">{sendError}</p>}
+              {sendError && <p className="px-5 pb-1 text-xs text-danger">{sendError}</p>}
 
               {replyBlocked ? (
                 <p className="border-t border-border p-3 text-center text-xs text-text-secondary">
@@ -360,7 +360,7 @@ export function UnifiedInboxPage() {
                   <button
                     type="submit"
                     disabled={!input.trim() || sending}
-                    className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent text-white disabled:opacity-40"
+                    className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent text-on-accent disabled:opacity-40"
                   >
                     <Send size={16} />
                   </button>

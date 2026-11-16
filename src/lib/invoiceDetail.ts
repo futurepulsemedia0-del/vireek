@@ -149,11 +149,11 @@ export function getDisplayStatus(invoice: Invoice, ledger: InvoiceLedger): Displ
 export const DISPLAY_STATUS_STYLES: Record<DisplayStatus, string> = {
   draft: 'bg-bg-tertiary text-text-secondary',
   sent: 'bg-cta/15 text-cta',
-  viewed: 'bg-warning-500/15 text-warning-500',
-  partial: 'bg-warning-500/15 text-warning-500',
-  paid: 'bg-success-500/15 text-success-500',
+  viewed: 'bg-warning-subtle text-warning',
+  partial: 'bg-warning-subtle text-warning',
+  paid: 'bg-success-subtle text-success',
   refunded: 'bg-bg-tertiary text-text-secondary',
-  overdue: 'bg-danger-500/15 text-danger-500',
+  overdue: 'bg-danger-subtle text-danger',
   void: 'bg-bg-tertiary text-text-secondary',
 };
 

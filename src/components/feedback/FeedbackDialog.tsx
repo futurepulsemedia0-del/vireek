@@ -84,7 +84,7 @@ export function FeedbackDialog() {
   };
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4" onMouseDown={(e) => { if (e.target === e.currentTarget) close(); }}>
+    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-overlay/50 p-0 sm:items-center sm:p-4" onMouseDown={(e) => { if (e.target === e.currentTarget) close(); }}>
       <div ref={ref} role="dialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={descId} tabIndex={-1}
         className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-2xl border border-border bg-bg-secondary p-5 shadow-card-hover sm:rounded-2xl">
         <div className="mb-3 flex items-start justify-between gap-3">
@@ -97,7 +97,7 @@ export function FeedbackDialog() {
 
         {done ? (
           <div role="status" className="space-y-3">
-            <p className="flex items-center gap-2 text-base font-semibold text-text-primary"><Check className="h-5 w-5 text-success-500" aria-hidden="true" /> Thank you — we’ve got it.</p>
+            <p className="flex items-center gap-2 text-base font-semibold text-text-primary"><Check className="h-5 w-5 text-success" aria-hidden="true" /> Thank you — we’ve got it.</p>
             <p className="text-sm text-text-secondary">Your tracking ID is <strong className="font-mono text-text-primary">{done.code}</strong>. You can follow its status any time.</p>
             <div className="flex flex-wrap gap-2">
               <Button type="button" variant="secondary" size="sm" onClick={() => { void navigator.clipboard?.writeText(done.code); setCopied(true); }}>

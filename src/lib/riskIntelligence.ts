@@ -29,8 +29,8 @@ export const DIMENSION_LABELS: Record<RiskDimension, string> = {
 export const LEVEL_LABELS: Record<RiskLevel, string> = { low: 'Low', medium: 'Medium', high: 'High' };
 
 export const LEVEL_COLORS: Record<RiskLevel, string> = {
-  low: 'bg-success-500/10 text-success-500',
-  medium: 'bg-warning-500/10 text-warning-500',
+  low: 'bg-success-subtle text-success',
+  medium: 'bg-warning-subtle text-warning',
   high: 'bg-danger/10 text-danger',
 };
 
@@ -43,9 +43,9 @@ export const DECISION_LABELS: Record<CoverageDecision, string> = {
 };
 
 export const DECISION_COLORS: Record<CoverageDecision, string> = {
-  clear: 'bg-success-500/10 text-success-500',
+  clear: 'bg-success-subtle text-success',
   conditions: 'bg-accent/10 text-accent',
-  manager_review: 'bg-warning-500/10 text-warning-500',
+  manager_review: 'bg-warning-subtle text-warning',
   refer_to_insurer: 'bg-danger/10 text-danger',
   hold: 'bg-danger/10 text-danger',
 };

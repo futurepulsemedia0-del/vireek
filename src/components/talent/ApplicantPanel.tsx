@@ -11,13 +11,13 @@ import {
 } from '@/lib/talentNetwork';
 
 const selectClass = 'w-full rounded-xl border border-border bg-bg-secondary px-3.5 py-3 text-sm text-text-primary focus:border-accent focus:outline-none';
-const toneClass = { good: 'bg-green-500/10 text-green-500', warn: 'bg-amber-500/10 text-amber-500', bad: 'bg-red-500/10 text-red-500', neutral: 'bg-bg-tertiary text-text-secondary' };
+const toneClass = { good: 'bg-success-subtle text-success', warn: 'bg-warning-subtle text-warning', bad: 'bg-danger-subtle text-danger', neutral: 'bg-bg-tertiary text-text-secondary' };
 const STEPS: ApplicationStatus[] = ['reviewing', 'interview', 'offer'];
 
 function StatusIcon({ s }: { s: string }) {
-  if (s === 'pass') return <CheckCircle2 size={16} className="text-green-500" aria-label="Passed" />;
-  if (s === 'fail') return <XCircle size={16} className="text-red-500" aria-label="Not met" />;
-  if (s === 'pending') return <Clock size={16} className="text-amber-500" aria-label="Pending" />;
+  if (s === 'pass') return <CheckCircle2 size={16} className="text-success" aria-label="Passed" />;
+  if (s === 'fail') return <XCircle size={16} className="text-danger" aria-label="Not met" />;
+  if (s === 'pending') return <Clock size={16} className="text-warning" aria-label="Pending" />;
   return <AlertTriangle size={16} className="text-text-secondary" aria-label="Note" />;
 }
 
@@ -48,7 +48,7 @@ export function ApplicantPanel({ applicationId, backgroundProviderEnabled, onCha
     if (url) window.open(url, '_blank', 'noopener,noreferrer'); else toast('Could not open the document.', 'error');
   }
 
-  if (error) return <p role="alert" className="rounded-2xl border border-border bg-bg-secondary p-5 text-sm text-red-500">{error}</p>;
+  if (error) return <p role="alert" className="rounded-2xl border border-border bg-bg-secondary p-5 text-sm text-danger">{error}</p>;
   if (!d) return <Skeleton className="h-96 w-full rounded-2xl" />;
 
   const a = d.application;
@@ -159,7 +159,7 @@ export function ApplicantPanel({ applicationId, backgroundProviderEnabled, onCha
               <p className="text-sm text-text-secondary">Allowed now because a conditional offer is open. The candidate authorizes the check with the screening provider; Vireek never sees the report.</p>
               {backgroundProviderEnabled
                 ? <Button disabled={busy} onClick={() => void act(() => startBackgroundCheck(a.id), 'Background check started. The candidate was emailed by the provider.')}>Start background check</Button>
-                : <p className="text-sm text-amber-500">No screening provider is connected for this workspace yet.</p>}
+                : <p className="text-sm text-warning">No screening provider is connected for this workspace yet.</p>}
             </div>
           )}
           {bg && (
@@ -167,8 +167,8 @@ export function ApplicantPanel({ applicationId, backgroundProviderEnabled, onCha
               <p className="text-text-primary">Status: <span className="font-medium">{bg.status.replace(/_/g, ' ')}</span>{bg.result ? ` · result: ${bg.result}` : ''}</p>
               {bg.status === 'failed' && a.status === 'offer' && backgroundProviderEnabled && <Button disabled={busy} onClick={() => void act(() => startBackgroundCheck(a.id), 'New background check started.')}>Start a new check</Button>}
               {bg.status === 'complete' && bg.result === 'consider' && bg.decision !== 'adverse_final' && (
-                <div className="space-y-3 rounded-xl border border-amber-500/40 p-4">
-                  <p className="flex items-start gap-2 text-text-primary"><AlertTriangle size={16} className="mt-0.5 text-amber-500" aria-hidden="true" />This result needs an individualized review before any decision. Consider the nature of the record, how long ago it happened, and its relevance to the job. Follow your local fair-chance rules.</p>
+                <div className="space-y-3 rounded-xl border border-warning/40 p-4">
+                  <p className="flex items-start gap-2 text-text-primary"><AlertTriangle size={16} className="mt-0.5 text-warning" aria-hidden="true" />This result needs an individualized review before any decision. Consider the nature of the record, how long ago it happened, and its relevance to the job. Follow your local fair-chance rules.</p>
                   <Textarea label="Your individualized assessment (min. 20 characters)" value={bgNote} onChange={(e) => setBgNote(e.target.value)} maxLength={1000} rows={3} />
                   <div className="flex flex-wrap gap-2">
                     <Button disabled={busy || !noteOk} onClick={() => void act(() => recordBackgroundDecision(bg.id, 'engage', bgNote.trim()), 'Decision recorded: proceed.')}>Proceed with hire</Button>
@@ -186,7 +186,7 @@ export function ApplicantPanel({ applicationId, backgroundProviderEnabled, onCha
       {a.status === 'offer' && (
         <section aria-labelledby="ap-hire" className="space-y-3">
           <h3 id="ap-hire" className="text-sm font-semibold text-text-primary">Hire & onboard</h3>
-          {gate.hardBlocked && <p className="text-sm text-red-500">The background-check requirement isn’t satisfied. This can’t be overridden.</p>}
+          {gate.hardBlocked && <p className="text-sm text-danger">The background-check requirement isn’t satisfied. This can’t be overridden.</p>}
           {!showHire ? <Button disabled={gate.hardBlocked} onClick={() => setShowHire(true)}>Hire this person</Button> : (
             <div className="space-y-3 rounded-xl border border-border p-4">
               <div className="grid gap-3 sm:grid-cols-2">

@@ -16,8 +16,8 @@ import {
 import { endVideoSession } from '@/lib/videoSessionApi';
 
 const TONE: Record<string, string> = {
-  success: 'bg-success-500/10 text-success-500',
-  warning: 'bg-warning-500/10 text-warning-500',
+  success: 'bg-success-subtle text-success',
+  warning: 'bg-warning-subtle text-warning',
   danger: 'bg-danger/10 text-danger',
   neutral: 'bg-bg-tertiary text-text-secondary',
 };
@@ -89,7 +89,7 @@ export function VideoSessionRow({ session, clips, title, subtitle, canEnd, canDe
 
       {joinable && (
         <div className="mt-2 flex flex-wrap gap-1.5">
-          <Link to={`/live/${session.join_token}`} className="focus-ring inline-flex items-center gap-1 rounded-lg bg-accent px-2.5 py-1.5 text-xs font-semibold text-white hover:brightness-110">
+          <Link to={`/live/${session.join_token}`} className="focus-ring inline-flex items-center gap-1 rounded-lg bg-accent px-2.5 py-1.5 text-xs font-semibold text-on-accent hover:brightness-110">
             <ExternalLink size={12} aria-hidden="true" /> {status === 'live' ? 'Rejoin' : 'Open session'}
           </Link>
           <button type="button" onClick={() => void copy()} className="focus-ring inline-flex items-center gap-1 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-text-primary hover:bg-bg-tertiary">

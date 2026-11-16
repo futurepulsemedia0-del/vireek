@@ -106,7 +106,7 @@ export function JobKnowledgePanel({ job }: { job: Job }) {
                 <p className="mt-1 text-text-primary">
                   <span className="font-semibold">Do this:</span> {h.recommended_action}
                 </p>
-                {h.caveats && <p className="mt-1 text-warning-500">⚠ {h.caveats}</p>}
+                {h.caveats && <p className="mt-1 text-warning">⚠ {h.caveats}</p>}
                 {h.needs_revalidation && (
                   <p className="mt-1 text-text-secondary">
                     This rule has been failing recently — treat with caution.
@@ -125,7 +125,7 @@ export function JobKnowledgePanel({ job }: { job: Job }) {
                         type="button"
                         disabled={busy === h.id}
                         onClick={() => mark(h, 'resolved')}
-                        className="focus-ring flex items-center gap-1 rounded-lg border border-border px-2.5 py-1 font-medium text-text-primary hover:border-success-500/50 disabled:opacity-50"
+                        className="focus-ring flex items-center gap-1 rounded-lg border border-border px-2.5 py-1 font-medium text-text-primary hover:border-success/50 disabled:opacity-50"
                       >
                         <Check size={12} aria-hidden="true" /> Yes
                       </button>

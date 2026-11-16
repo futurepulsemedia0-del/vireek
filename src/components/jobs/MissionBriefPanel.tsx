@@ -16,7 +16,7 @@ import {
 
 function ConfidenceBar({ confidence }: { confidence: number }) {
   const pct = Math.round(confidence * 100);
-  const color = pct >= 65 ? 'bg-success-500' : pct >= 35 ? 'bg-warning-500' : 'bg-text-secondary';
+  const color = pct >= 65 ? 'bg-success' : pct >= 35 ? 'bg-warning' : 'bg-text-secondary';
   return (
     <div className="flex items-center gap-2">
       <div className="h-1.5 w-16 overflow-hidden rounded-full bg-bg-tertiary">
@@ -78,7 +78,7 @@ export function MissionBriefPanel({ job }: { job: Job }) {
           type="button"
           onClick={handleGenerate}
           disabled={generating}
-          className="focus-ring flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white hover:opacity-90 disabled:opacity-50"
+          className="focus-ring flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent hover:opacity-90 disabled:opacity-50"
         >
           {generating ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />}
           {generating ? 'Building brief...' : 'Generate mission brief'}
@@ -106,7 +106,7 @@ export function MissionBriefPanel({ job }: { job: Job }) {
           {warranty.label}
         </span>
         {brief.customer_previously_declined && (
-          <span className="inline-flex items-center gap-1 rounded-full bg-warning-500/10 px-2 py-0.5 text-xs font-medium text-warning-500">
+          <span className="inline-flex items-center gap-1 rounded-full bg-warning-subtle px-2 py-0.5 text-xs font-medium text-warning">
             <AlertTriangle size={11} /> Previously declined
           </span>
         )}
@@ -145,7 +145,7 @@ export function MissionBriefPanel({ job }: { job: Job }) {
           )}
 
           {brief.customer_decline_context && (
-            <p className="text-xs text-warning-500">
+            <p className="text-xs text-warning">
               <AlertTriangle size={11} className="mr-1 inline" />
               {brief.customer_decline_context}
             </p>
@@ -157,7 +157,7 @@ export function MissionBriefPanel({ job }: { job: Job }) {
               <ul className="space-y-1">
                 {brief.risk_flags.map((flag, i) => (
                   <li key={i} className="flex items-start gap-1.5 text-xs text-text-primary">
-                    <AlertTriangle size={12} className="mt-0.5 shrink-0 text-warning-500" /> {flag}
+                    <AlertTriangle size={12} className="mt-0.5 shrink-0 text-warning" /> {flag}
                   </li>
                 ))}
               </ul>
@@ -176,11 +176,11 @@ export function MissionBriefPanel({ job }: { job: Job }) {
                       <span className="ml-1.5 text-xs text-text-secondary">({PART_NECESSITY_LABELS[part.necessity]})</span>
                     </span>
                     {part.in_van_stock ? (
-                      <span className="flex shrink-0 items-center gap-1 text-xs text-success-500">
+                      <span className="flex shrink-0 items-center gap-1 text-xs text-success">
                         <Truck size={12} /> In van{part.stock_qty !== null ? ` (${part.stock_qty})` : ''}
                       </span>
                     ) : (
-                      <span className="shrink-0 text-xs text-warning-500">Not in van stock</span>
+                      <span className="shrink-0 text-xs text-warning">Not in van stock</span>
                     )}
                   </li>
                 ))}

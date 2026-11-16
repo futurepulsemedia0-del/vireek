@@ -112,7 +112,7 @@ export function HomeAssistantPage() {
             key={i}
             className={cx(
               'max-w-[88%] whitespace-pre-wrap rounded-2xl px-4 py-3 text-sm',
-              m.role === 'user' ? 'ml-auto bg-accent text-white' : 'bg-bg-secondary text-text-primary border border-border',
+              m.role === 'user' ? 'ml-auto bg-accent text-on-accent' : 'bg-bg-secondary text-text-primary border border-border',
             )}
           >
             {m.content}

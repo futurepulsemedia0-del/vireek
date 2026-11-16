@@ -107,11 +107,11 @@ export function stageProgress(stage: HomeHealthStage): number {
 }
 
 export const GRADE_STYLES: Record<HomeHealthScore['grade'], string> = {
-  A: 'bg-success-500/10 text-success-500',
-  B: 'bg-success-500/10 text-success-500',
-  C: 'bg-warning-500/10 text-warning-500',
-  D: 'bg-warning-500/10 text-warning-500',
-  F: 'bg-danger-500/10 text-danger-500',
+  A: 'bg-success-subtle text-success',
+  B: 'bg-success-subtle text-success',
+  C: 'bg-warning-subtle text-warning',
+  D: 'bg-warning-subtle text-warning',
+  F: 'bg-danger-subtle text-danger',
 };
 
 export function windowLabel(min: number | null, max: number | null): string {

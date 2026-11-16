@@ -181,7 +181,7 @@ export function RfiDetail({ ownerId, rfi, attachments, allAttachments, changeOrd
                 <span className="shrink-0 text-xs text-text-secondary">{formatFileSize(a.size_bytes)}</span>
                 <button type="button" aria-label={`Download ${a.file_name}`} onClick={() => void download(a)} className="focus-ring rounded-lg p-1.5 text-text-secondary hover:bg-bg-tertiary hover:text-text-primary"><Download size={16} aria-hidden="true" /></button>
                 {!locked && (
-                  <button type="button" aria-label={`Remove ${a.file_name}`} disabled={busy} onClick={() => ask({ title: 'Remove this file?', description: `“${a.file_name}” will be removed from the RFI.`, label: 'Remove file', onConfirm: () => run(`rm-${a.id}`, () => deleteRfiAttachment(ownerId, a), 'File removed.') })} className="focus-ring rounded-lg p-1.5 text-text-secondary hover:bg-bg-tertiary hover:text-danger-500"><Trash2 size={16} aria-hidden="true" /></button>
+                  <button type="button" aria-label={`Remove ${a.file_name}`} disabled={busy} onClick={() => ask({ title: 'Remove this file?', description: `“${a.file_name}” will be removed from the RFI.`, label: 'Remove file', onConfirm: () => run(`rm-${a.id}`, () => deleteRfiAttachment(ownerId, a), 'File removed.') })} className="focus-ring rounded-lg p-1.5 text-text-secondary hover:bg-bg-tertiary hover:text-danger"><Trash2 size={16} aria-hidden="true" /></button>
                 )}
               </li>
             ))}

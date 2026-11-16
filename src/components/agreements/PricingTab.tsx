@@ -71,8 +71,8 @@ export function PricingTab({ data, derived, canManage, canSeeMoney, ownerId, rel
       <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatTile label={`Fee per ${period.replace('ly', '').replace('annua', 'year')}`} value={formatMoney(contract.contract_value_cents)} icon={Coins} />
         <StatTile label="Annualised value" value={annual === null ? 'One-time' : formatMoney(annual)} icon={TrendingUp} />
-        <StatTile label="Escalation" value={escalation.kind === 'none' ? 'None' : escalation.kind === 'cpi' ? 'CPI-linked' : formatPct(escalation.percent, 1)} icon={TrendingUp} tone="text-warning-500" />
-        <StatTile label="Next escalation" value={escalation.nextDate ? formatDate(escalation.nextDate) : '—'} icon={TrendingUp} tone="text-warning-500" />
+        <StatTile label="Escalation" value={escalation.kind === 'none' ? 'None' : escalation.kind === 'cpi' ? 'CPI-linked' : formatPct(escalation.percent, 1)} icon={TrendingUp} tone="text-warning" />
+        <StatTile label="Next escalation" value={escalation.nextDate ? formatDate(escalation.nextDate) : '—'} icon={TrendingUp} tone="text-warning" />
       </div>
 
       <Panel
@@ -105,7 +105,7 @@ export function PricingTab({ data, derived, canManage, canSeeMoney, ownerId, rel
         )}
 
         {reprice && (
-          <div className="mt-3 flex flex-wrap items-center gap-3 rounded-lg border border-warning-500/30 bg-warning-500/10 p-3">
+          <div className="mt-3 flex flex-wrap items-center gap-3 rounded-lg border border-warning/30 bg-warning-subtle p-3">
             <p className="flex-1 text-sm text-text-primary">
               Actual cost-to-serve is above plan. To reach a {reprice.targetMarginPct}% margin, price at {formatMoney(reprice.suggestedFeeCents)} per {period.replace('ly', '')} (+{formatPct(reprice.increasePct, 1)}) at renewal.
             </p>
@@ -142,7 +142,7 @@ export function PricingTab({ data, derived, canManage, canSeeMoney, ownerId, rel
                   <p className="text-sm font-medium text-text-primary">
                     {c.previous_cents === null ? formatMoney(c.new_cents) : `${formatMoney(c.previous_cents)} → ${formatMoney(c.new_cents)}`}
                     {c.previous_cents !== null && c.previous_cents > 0 && (
-                      <span className={`ml-2 text-xs ${c.new_cents >= c.previous_cents ? 'text-success-500' : 'text-danger'}`}>
+                      <span className={`ml-2 text-xs ${c.new_cents >= c.previous_cents ? 'text-success' : 'text-danger'}`}>
                         {c.new_cents >= c.previous_cents ? '+' : ''}
                         {formatPct(((c.new_cents - c.previous_cents) / c.previous_cents) * 100, 1)}
                       </span>

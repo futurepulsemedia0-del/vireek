@@ -119,7 +119,7 @@ function SignalCard({
           <button type="button" onClick={() => onResolve(signal.id, 'false_positive')} className="focus-ring flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs text-text-secondary hover:text-text-primary">
             <ThumbsDown size={12} /> False alarm
           </button>
-          <button type="button" onClick={() => onResolve(signal.id, 'true_positive')} className="focus-ring flex items-center gap-1 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white hover:brightness-110">
+          <button type="button" onClick={() => onResolve(signal.id, 'true_positive')} className="focus-ring flex items-center gap-1 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent hover:brightness-110">
             <ThumbsUp size={12} /> Resolved
           </button>
           <button type="button" onClick={() => onDismiss(signal.id)} className="focus-ring flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs text-text-secondary hover:text-danger">
@@ -277,7 +277,7 @@ export function BusinessImmuneSystemPage() {
           <>
             <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
               <div className="rounded-2xl border border-border bg-bg-secondary p-4 text-center">
-                <p className={`text-xl font-bold ${health >= 80 ? 'text-success-500' : health >= 50 ? 'text-warning-500' : 'text-danger'}`}>{health}</p>
+                <p className={`text-xl font-bold ${health >= 80 ? 'text-success' : health >= 50 ? 'text-warning' : 'text-danger'}`}>{health}</p>
                 <p className="text-xs text-text-secondary">Health score</p>
               </div>
               <div className="rounded-2xl border border-border bg-bg-secondary p-4 text-center">
@@ -289,7 +289,7 @@ export function BusinessImmuneSystemPage() {
                 <p className="text-xs text-text-secondary">Critical, open</p>
               </div>
               <div className="rounded-2xl border border-border bg-bg-secondary p-4 text-center">
-                <p className="text-xl font-bold text-success-500">{signals.filter((s) => s.resolved_outcome === 'true_positive').length}</p>
+                <p className="text-xl font-bold text-success">{signals.filter((s) => s.resolved_outcome === 'true_positive').length}</p>
                 <p className="text-xs text-text-secondary">Confirmed &amp; resolved</p>
               </div>
             </div>
@@ -300,7 +300,7 @@ export function BusinessImmuneSystemPage() {
                   key={f.key}
                   type="button"
                   onClick={() => setFilter(f.key)}
-                  className={`focus-ring rounded-full px-3 py-1 text-xs font-medium transition-colors ${filter === f.key ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
+                  className={`focus-ring rounded-full px-3 py-1 text-xs font-medium transition-colors ${filter === f.key ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
                 >
                   {f.label}
                 </button>

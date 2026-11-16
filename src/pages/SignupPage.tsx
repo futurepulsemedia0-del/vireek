@@ -44,8 +44,8 @@ function getPasswordStrength(pw: string): Strength {
 
 const STRENGTH_CONFIG: Record<Strength, { label: string; bar: string; text: string }> = {
   weak: { label: 'Weak', bar: 'bg-danger', text: 'text-danger' },
-  medium: { label: 'Medium', bar: 'bg-warning-500', text: 'text-warning-500' },
-  strong: { label: 'Strong', bar: 'bg-success-500', text: 'text-success-500' },
+  medium: { label: 'Medium', bar: 'bg-warning', text: 'text-warning' },
+  strong: { label: 'Strong', bar: 'bg-success', text: 'text-success' },
 };
 
 export function SignupPage() {
@@ -456,10 +456,10 @@ export function SignupPage() {
                 key={label}
                 className={`flex items-center gap-1.5 text-xs transition-colors ${
                   met
-                    ? 'text-success-500'
+                    ? 'text-success'
                     : passwordTouched
                       ? 'text-danger'
-                      : 'text-text-secondary/60'
+                      : 'text-text-muted'
                 }`}
               >
                 {met ? (

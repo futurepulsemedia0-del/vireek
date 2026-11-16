@@ -42,7 +42,7 @@ export function LogTab({ canManage }: { canManage: boolean }) {
   return (
     <div className="mt-4 space-y-3">
       <p className="text-sm text-text-secondary">{t('log.intro')}</p>
-      {error && <p role="alert" className="text-sm text-danger-500">{error}</p>}
+      {error && <p role="alert" className="text-sm text-danger">{error}</p>}
       {canManage && sessions.length > 0 && (
         <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-bg-secondary p-3">
           <label htmlFor="fs-verify-session" className="text-sm text-text-secondary">{t('log.sessionLabel')}</label>

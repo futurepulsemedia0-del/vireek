@@ -77,7 +77,7 @@ export function DataRoomPanel({ rows, busyKey, onSave }: Props) {
                       <div className="min-w-0">
                         <p className="flex flex-wrap items-center gap-2 text-sm font-semibold text-text-primary">
                           {item.title}
-                          {item.weight === 3 && <span className="rounded-full bg-warning-500/10 px-2 py-0.5 text-[11px] font-semibold text-warning-500">Buyers ask first</span>}
+                          {item.weight === 3 && <span className="rounded-full bg-warning-subtle px-2 py-0.5 text-[11px] font-semibold text-warning">Buyers ask first</span>}
                         </p>
                         <p className="mt-0.5 text-xs text-text-secondary">{item.hint}</p>
                         {row?.note && !editing && <p className="mt-1 whitespace-pre-line text-xs text-text-primary">Note: {row.note}</p>}

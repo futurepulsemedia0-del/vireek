@@ -53,7 +53,7 @@ const tab: Tab = tabs.some((t) => t.id === picked) ? picked : tabs[0].id;
           {tabs.map((t) => (
             <button key={t.id} role="tab" id={`tp-tab-${t.id}`} aria-selected={tab === t.id} aria-controls={`tp-panel-${t.id}`}
               onClick={() => setTab(t.id)}
-              className={`focus-ring inline-flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${tab === t.id ? 'bg-accent text-white' : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'}`}>
+              className={`focus-ring inline-flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${tab === t.id ? 'bg-accent text-on-accent' : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'}`}>
               <t.icon size={16} aria-hidden /> {t.label}
             </button>
           ))}

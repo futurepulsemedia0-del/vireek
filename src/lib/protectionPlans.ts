@@ -186,9 +186,9 @@ export const CONTRACT_STATUS_LABELS: Record<EffectiveStatus, string> = {
 };
 
 export const CONTRACT_STATUS_COLORS: Record<EffectiveStatus, string> = {
-  pending_payment: 'bg-warning-500/10 text-warning-500',
+  pending_payment: 'bg-warning-subtle text-warning',
   scheduled: 'bg-accent/10 text-accent',
-  active: 'bg-success-500/10 text-success-500',
+  active: 'bg-success-subtle text-success',
   expired: 'bg-bg-tertiary text-text-secondary',
   cancelled: 'bg-danger/10 text-danger',
 };
@@ -206,10 +206,10 @@ export const CLAIM_STATUS_LABELS: Record<PlanClaimStatus, string> = {
 export const CLAIM_STATUS_COLORS: Record<PlanClaimStatus, string> = {
   eligible: 'bg-bg-tertiary text-text-secondary',
   packet_pending: 'bg-accent/10 text-accent',
-  submitted: 'bg-warning-500/10 text-warning-500',
-  approved: 'bg-success-500/10 text-success-500',
+  submitted: 'bg-warning-subtle text-warning',
+  approved: 'bg-success-subtle text-success',
   denied: 'bg-danger/10 text-danger',
-  credit_received: 'bg-success-500/10 text-success-500',
+  credit_received: 'bg-success-subtle text-success',
   closed: 'bg-bg-tertiary text-text-secondary',
 };
 

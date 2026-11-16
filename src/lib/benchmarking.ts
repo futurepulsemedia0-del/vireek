@@ -77,10 +77,10 @@ export const BUCKET_LABELS: Record<PercentileBucket, string> = {
 };
 
 export const BUCKET_COLORS: Record<PercentileBucket, string> = {
-  top10: 'bg-success-500/15 text-success-500',
-  top25: 'bg-success-500/10 text-success-500',
+  top10: 'bg-success-subtle text-success',
+  top25: 'bg-success-subtle text-success',
   top50: 'bg-accent/10 text-accent',
-  bottom50: 'bg-warning-500/10 text-warning-500',
+  bottom50: 'bg-warning-subtle text-warning',
   bottom25: 'bg-danger/10 text-danger',
 };
 

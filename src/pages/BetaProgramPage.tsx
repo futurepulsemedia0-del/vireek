@@ -60,7 +60,7 @@ const INITIAL: BetaFormData = {
 };
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-3 text-base text-text-primary placeholder:text-text-secondary/60 transition-colors focus-visible:border-accent';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-3 text-base text-text-primary placeholder:text-text-placeholder transition-colors focus-visible:border-accent';
 
 const BENEFITS = [
   {
@@ -236,7 +236,7 @@ export function BetaProgramPage() {
                   See how it works
                 </a>
               </div>
-              <p className="mt-6 flex items-center justify-center gap-1.5 text-xs font-medium text-text-secondary/70">
+              <p className="mt-6 flex items-center justify-center gap-1.5 text-xs font-medium text-text-muted">
                 <ShieldCheck size={13} className="shrink-0" />
                 Free to join. We onboard a small group of businesses at a time.
               </p>
@@ -489,7 +489,7 @@ export function BetaProgramPage() {
               className="pointer-events-none absolute inset-0"
               style={{
                 backgroundImage:
-                  'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
+                  'radial-gradient(circle at 20% 20%, rgb(var(--static-white) / 0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
               }}
             />
             <div className="relative">

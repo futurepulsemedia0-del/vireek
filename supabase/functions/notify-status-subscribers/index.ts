@@ -129,17 +129,17 @@ Deno.serve(async (req: Request) => {
   for (const subscriber of subscribers) {
     const unsubscribeUrl = `${siteUrl}/status/unsubscribe?token=${subscriber.unsubscribe_token}`;
     const html = `
-      <div style="font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1a1a1a;">
-        <p style="font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #6b7280; margin: 0 0 16px;">Vireek Status &middot; ${escapeHtml(impactLabel)}</p>
+      <div style="font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1c1b15;">
+        <p style="font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #73726c; margin: 0 0 16px;">Vireek Status &middot; ${escapeHtml(impactLabel)}</p>
         <h1 style="font-size: 22px; margin: 0 0 16px;">${escapeHtml(title)}</h1>
-        <p style="font-size: 15px; line-height: 1.6; color: #374151;">${escapeHtml(summary)}</p>
+        <p style="font-size: 15px; line-height: 1.6; color: #44423D;">${escapeHtml(summary)}</p>
         <a href="${siteUrl}/status"
-           style="display: inline-block; margin-top: 24px; padding: 12px 24px; background: #111827; color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 14px;">
+           style="display: inline-block; margin-top: 24px; padding: 12px 24px; background: #1C1B15; color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 14px;">
           View live status
         </a>
-        <p style="margin-top: 28px; font-size: 12px; color: #9ca3af;">
+        <p style="margin-top: 28px; font-size: 12px; color: #a9a8a2;">
           Status: ${escapeHtml(status)}. You're getting this because you subscribed to Vireek status updates.
-          <a href="${unsubscribeUrl}" style="color: #9ca3af;">Unsubscribe</a>
+          <a href="${unsubscribeUrl}" style="color: #a9a8a2;">Unsubscribe</a>
         </p>
       </div>
     `;

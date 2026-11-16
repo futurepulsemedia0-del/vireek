@@ -12,7 +12,7 @@ import { fetchWipSourceData, type WipSourceData } from '@/lib/projectWipApi';
 import { Pill, ProgressBar, SectionHeader, Stat, panelClass, selectClass, type TabProps } from './projectUi';
 
 function Line({ label, value, hint, tone, strong }: { label: string; value: ReactNode; hint?: string; tone?: 'danger' | 'warning' | 'success'; strong?: boolean }) {
-  const color = tone === 'danger' ? 'text-danger-500' : tone === 'warning' ? 'text-warning-500' : tone === 'success' ? 'text-success-500' : 'text-text-primary';
+  const color = tone === 'danger' ? 'text-danger' : tone === 'warning' ? 'text-warning' : tone === 'success' ? 'text-success' : 'text-text-primary';
   return (
     <div className={`flex items-start justify-between gap-4 py-2.5 text-sm ${strong ? 'font-semibold' : ''}`}>
       <dt className="min-w-0 text-text-secondary">
@@ -145,7 +145,7 @@ export function WipTab({ ownerId, bundle, today }: TabProps) {
             <option value="cost">{WIP_METHOD_LABEL.cost} (cost ÷ estimated cost)</option>
             <option value="milestone">{WIP_METHOD_LABEL.milestone} (phases &amp; milestones)</option>
           </select>
-          {report.method !== report.methodRequested && <p className="mt-1.5 text-xs text-warning-500">Using milestone progress — no estimated cost is set.</p>}
+          {report.method !== report.methodRequested && <p className="mt-1.5 text-xs text-warning">Using milestone progress — no estimated cost is set.</p>}
         </div>
         <Input
           label="Estimated total cost ($)"
@@ -169,7 +169,7 @@ export function WipTab({ ownerId, bundle, today }: TabProps) {
       {report.warnings.length > 0 && (
         <ul className="space-y-2" aria-label="Report notices">
           {report.warnings.map((w) => (
-            <li key={w} className="flex items-start gap-2 rounded-xl bg-warning-500/10 p-3 text-sm text-warning-500">
+            <li key={w} className="flex items-start gap-2 rounded-xl bg-warning-subtle p-3 text-sm text-warning">
               <TriangleAlert size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
               {w}
             </li>

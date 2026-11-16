@@ -176,7 +176,7 @@ export function BarcodeScanSheet({ open, onClose, onCode, hint = 'Point the came
   };
 
   return (
-    <div role="dialog" aria-modal="true" aria-label="Scan a part" className="fixed inset-0 z-50 flex flex-col bg-black text-white">
+    <div role="dialog" aria-modal="true" aria-label="Scan a part" className="fixed inset-0 z-50 flex flex-col bg-overlay text-white">
       <div className="flex items-center justify-between px-4 pb-2 pt-[max(1rem,env(safe-area-inset-top))]">
         <p className="flex items-center gap-2 text-sm font-medium">
           <ScanLine className="h-4 w-4" aria-hidden /> {hint}
@@ -185,7 +185,7 @@ export function BarcodeScanSheet({ open, onClose, onCode, hint = 'Point the came
           type="button"
           onClick={onClose}
           aria-label="Close scanner"
-          className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 active:bg-white/20"
+          className="flex h-11 w-11 items-center justify-center rounded-full bg-static-white/10 active:bg-bg-secondary/20"
         >
           <X className="h-5 w-5" />
         </button>
@@ -195,12 +195,12 @@ export function BarcodeScanSheet({ open, onClose, onCode, hint = 'Point the came
         <video ref={videoRef} playsInline muted className={`h-full w-full object-cover ${mode === 'camera' ? '' : 'hidden'}`} />
         {mode === 'camera' && (
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center" aria-hidden>
-            <div className="h-40 w-[78%] max-w-sm rounded-2xl border-2 border-white/80 shadow-[0_0_0_9999px_rgba(0,0,0,0.45)]" />
+            <div className="h-40 w-[78%] max-w-sm rounded-2xl border-2 border-on-inverse/80 shadow-[0_0_0_9999px_rgba(0,0,0,0.45)]" />
           </div>
         )}
         {mode === 'starting' && (
           <div className="flex h-full items-center justify-center" role="status">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-on-inverse/30 border-t-white" />
             <span className="sr-only">Starting camera…</span>
           </div>
         )}
@@ -212,7 +212,7 @@ export function BarcodeScanSheet({ open, onClose, onCode, hint = 'Point the came
         )}
       </div>
 
-      <form onSubmit={submit} className="flex gap-2 bg-neutral-900 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3">
+      <form onSubmit={submit} className="flex gap-2 bg-surface-inverse px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3">
         <label className="sr-only" htmlFor="truck-stock-code">Barcode or part number</label>
         <input
           id="truck-stock-code"
@@ -226,12 +226,12 @@ export function BarcodeScanSheet({ open, onClose, onCode, hint = 'Point the came
           spellCheck={false}
           enterKeyHint="go"
           placeholder="Barcode or part number"
-          className="h-12 min-w-0 flex-1 rounded-xl border border-white/20 bg-white/10 px-4 text-base text-white placeholder:text-white/50 focus:border-white focus:outline-none"
+          className="h-12 min-w-0 flex-1 rounded-xl border border-on-inverse/20 bg-static-white/10 px-4 text-base text-white placeholder:text-white/50 focus:border-on-inverse focus:outline-none"
         />
         <button
           type="submit"
           disabled={!cleanScan(text)}
-          className="h-12 rounded-xl bg-white px-5 text-sm font-semibold text-black disabled:opacity-40"
+          className="h-12 rounded-xl bg-bg-secondary px-5 text-sm font-semibold text-text-primary disabled:opacity-40"
         >
           Find
         </button>

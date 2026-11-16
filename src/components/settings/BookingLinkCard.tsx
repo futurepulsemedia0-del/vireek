@@ -38,7 +38,7 @@ export function BookingLinkCard({ slug, enabled, onSlugChange, onEnabledChange }
       <div className="mt-4 flex items-center justify-between gap-4">
         <p className="text-sm font-medium text-text-primary">Enable online booking</p>
         <button type="button" role="switch" aria-checked={enabled} onClick={() => onEnabledChange(!enabled)} className={`focus-ring relative h-6 w-11 shrink-0 rounded-full transition-colors ${enabled ? 'bg-accent' : 'bg-bg-tertiary'}`}>
-          <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${enabled ? 'translate-x-[22px]' : 'translate-x-0.5'}`} />
+          <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-bg-secondary shadow-sm transition-transform ${enabled ? 'translate-x-[22px]' : 'translate-x-0.5'}`} />
         </button>
       </div>
 
@@ -70,7 +70,7 @@ export function BookingLinkCard({ slug, enabled, onSlugChange, onEnabledChange }
             <label className="mb-1.5 block text-xs font-medium text-text-secondary">Embed on your website</label>
             <textarea readOnly value={embedSnippet} rows={2} onClick={(e) => (e.target as HTMLTextAreaElement).select()} className="focus-ring w-full resize-none rounded-xl border border-border bg-bg-primary px-3 py-2.5 font-mono text-xs text-text-secondary" />
           </div>
-          <p className="mt-3 text-xs text-text-secondary/70">For Google Business Profile: paste this link into your listing's "Booking link" field. For Instagram/WhatsApp: put it in your bio or send it directly.</p>
+          <p className="mt-3 text-xs text-text-muted">For Google Business Profile: paste this link into your listing's "Booking link" field. For Instagram/WhatsApp: put it in your bio or send it directly.</p>
         </>
       )}
     </motion.div>

@@ -67,7 +67,7 @@ export function TakeoffItemRow({ item, markupPercent, canSeeCost, disabled, onPa
   const pickCandidate = (c: PriceCandidate) => onPatch(item, applyCandidate(item, c, markupPercent));
 
   return (
-    <li className={`rounded-xl border p-3 ${rejected ? 'border-border/50 opacity-50' : needs || unpriced ? 'border-warning-500/40 bg-warning-500/5' : 'border-border'}`}>
+    <li className={`rounded-xl border p-3 ${rejected ? 'border-border/50 opacity-50' : needs || unpriced ? 'border-warning/40 bg-warning-subtle' : 'border-border'}`}>
       <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_88px_110px_120px_auto] md:items-start">
         <div className="min-w-0">
           <p className={`text-sm font-medium text-text-primary ${rejected ? 'line-through' : ''}`}>{item.description}</p>
@@ -76,7 +76,7 @@ export function TakeoffItemRow({ item, markupPercent, canSeeCost, disabled, onPa
             {item.source_ref ? ` · ${item.source_ref}` : ''}
             {item.vendor_name ? ` · ${item.vendor_name}${item.lead_time_days != null ? ` (${item.lead_time_days}d)` : ''}` : ''}
           </p>
-          {item.evidence && <p className="mt-1 text-xs italic text-text-secondary/80">“{item.evidence}”</p>}
+          {item.evidence && <p className="mt-1 text-xs italic text-text-muted">“{item.evidence}”</p>}
           <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
             <ConfidenceBadge confidence={item.confidence} reviewStatus={item.review_status} />
             {item.flags.filter((f) => FLAG_LABEL[f]).map((f) => (
@@ -125,7 +125,7 @@ export function TakeoffItemRow({ item, markupPercent, canSeeCost, disabled, onPa
           ) : (
             <>
               {item.review_status === 'pending' && (
-                <button type="button" className="focus-ring rounded-lg p-2 text-success-500 hover:bg-success-500/10" disabled={disabled}
+                <button type="button" className="focus-ring rounded-lg p-2 text-success hover:bg-success-subtle" disabled={disabled}
                   onClick={() => onPatch(item, { review_status: 'confirmed' })} title="Confirm this line is correct" aria-label="Confirm line"><Check size={16} /></button>
               )}
               <button type="button" className="focus-ring rounded-lg p-2 text-danger hover:bg-danger/10" disabled={disabled}

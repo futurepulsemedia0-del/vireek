@@ -75,7 +75,7 @@ export function MessageComposer({ disabled, onSendText, onSendPhoto, onSendAudio
             }}
             placeholder="Message the office…"
             aria-label="Message"
-            className="focus-ring max-h-32 min-h-[40px] flex-1 resize-none rounded-xl border border-border bg-bg-primary px-3.5 py-2 text-base text-text-primary placeholder:text-text-secondary/60 focus-visible:border-accent"
+            className="focus-ring max-h-32 min-h-[40px] flex-1 resize-none rounded-xl border border-border bg-bg-primary px-3.5 py-2 text-base text-text-primary placeholder:text-text-placeholder focus-visible:border-accent"
           />
           {text.trim() ? (
             <Button size="sm" className="!px-3" disabled={disabled} onClick={submit} aria-label="Send message"><Send className="h-5 w-5" /></Button>

@@ -42,7 +42,7 @@ export function NewAcquisitionDialog({ open, options, onClose, onCreated }: Prop
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4" role="presentation">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-overlay/50 p-0 sm:items-center sm:p-4" role="presentation">
       <div ref={ref} role="dialog" aria-modal="true" aria-labelledby="new-acq-title" className="max-h-[92vh] w-full overflow-y-auto rounded-t-2xl border border-border bg-bg-secondary p-5 sm:max-w-xl sm:rounded-2xl">
         <div className="mb-4 flex items-start justify-between gap-3">
           <div>

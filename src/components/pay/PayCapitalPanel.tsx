@@ -136,7 +136,7 @@ export function PayCapitalPanel() {
               </li>
             ))}
           </ul>
-          {sandbox && <p className="mt-2 text-xs text-warning-500">Sandbox applications are simulations only.</p>}
+          {sandbox && <p className="mt-2 text-xs text-warning">Sandbox applications are simulations only.</p>}
         </section>
       )}
     </div>

@@ -56,7 +56,7 @@ export const SEVERITY_LABELS: Record<RealitySeverity, string> = {
 
 export const SEVERITY_COLORS: Record<RealitySeverity, string> = {
   low: 'bg-bg-tertiary text-text-secondary',
-  medium: 'bg-warning-500/10 text-warning-500',
+  medium: 'bg-warning-subtle text-warning',
   high: 'bg-danger/10 text-danger',
 };
 

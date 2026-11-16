@@ -295,7 +295,7 @@ export function JobBoardPage() {
                   aria-selected={tab === t.id}
                   onClick={() => setTab(t.id)}
                   className={`focus-ring rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-                    tab === t.id ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
+                    tab === t.id ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
                   }`}
                 >
                   {t.label}

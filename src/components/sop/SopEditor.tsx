@@ -189,7 +189,7 @@ export function SopEditor({
 
   return (
     <div className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center sm:p-4">
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+      <div className="absolute inset-0 bg-overlay/30 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
       <motion.div
         ref={dialogRef}
         role="dialog"
@@ -247,7 +247,7 @@ export function SopEditor({
                   role="tab"
                   aria-selected={preview === (tab === 'Preview')}
                   onClick={() => setPreview(tab === 'Preview')}
-                  className={`focus-ring flex-1 rounded-lg px-3 py-1.5 ${preview === (tab === 'Preview') ? 'bg-accent text-white' : 'text-text-secondary'}`}
+                  className={`focus-ring flex-1 rounded-lg px-3 py-1.5 ${preview === (tab === 'Preview') ? 'bg-accent text-on-accent' : 'text-text-secondary'}`}
                 >
                   {tab}
                 </button>

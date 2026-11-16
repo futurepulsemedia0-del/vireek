@@ -23,11 +23,11 @@ import {
 const field = 'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary';
 const STATUS_STYLES: Record<string, string> = {
   draft: 'bg-bg-tertiary text-text-secondary',
-  in_review: 'bg-warning-500/10 text-warning-500',
-  published: 'bg-success-500/10 text-success-500',
+  in_review: 'bg-warning-subtle text-warning',
+  published: 'bg-success-subtle text-success',
   suspended: 'bg-danger/10 text-danger',
-  submitted: 'bg-warning-500/10 text-warning-500',
-  approved: 'bg-success-500/10 text-success-500',
+  submitted: 'bg-warning-subtle text-warning',
+  approved: 'bg-success-subtle text-success',
   rejected: 'bg-danger/10 text-danger',
   deprecated: 'bg-bg-tertiary text-text-secondary',
 };
@@ -144,14 +144,14 @@ export function PublisherPanel({ userId }: { userId: string }) {
   return (
     <div className="space-y-6">
       {secret && (
-        <div className="rounded-2xl border border-warning-500/40 bg-warning-500/5 p-4">
-          <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-text-primary"><ShieldAlert size={16} className="text-warning-500" /> Your signing secret (shown once)</p>
+        <div className="rounded-2xl border border-warning/40 bg-warning-subtle p-4">
+          <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-text-primary"><ShieldAlert size={16} className="text-warning" /> Your signing secret (shown once)</p>
           <p className="mb-3 text-xs text-text-secondary">
             Verify every request: HMAC-SHA256 of <code>{'`${X-Vireek-Timestamp}.${rawBody}`'}</code> with this secret must equal the value after <code>v1=</code> in <code>X-Vireek-Signature</code>. Reject timestamps older than 5 minutes.
           </p>
           <div className="flex items-center gap-2">
             <code className="min-w-0 flex-1 truncate rounded-lg bg-bg-primary px-3 py-2 text-xs text-text-primary">{secret}</code>
-            <button onClick={copySecret} className="focus-ring flex items-center gap-1.5 rounded-xl bg-cta px-3 py-2 text-xs font-medium text-white">
+            <button onClick={copySecret} className="focus-ring flex items-center gap-1.5 rounded-xl bg-cta px-3 py-2 text-xs font-medium text-on-cta">
               {copied ? <Check size={12} /> : <Copy size={12} />} {copied ? 'Copied' : 'Copy'}
             </button>
             <button onClick={() => setSecret(null)} className="focus-ring rounded-xl bg-bg-tertiary px-3 py-2 text-xs font-medium text-text-secondary">I saved it</button>
@@ -162,7 +162,7 @@ export function PublisherPanel({ userId }: { userId: string }) {
       <div className="rounded-2xl border border-border bg-bg-secondary p-5">
         <div className="mb-3 flex items-center justify-between">
           <p className="text-sm font-semibold text-text-primary">Your agents</p>
-          <button onClick={() => setShowForm((s) => !s)} className="focus-ring flex items-center gap-1.5 rounded-xl bg-cta px-3 py-1.5 text-xs font-medium text-white">
+          <button onClick={() => setShowForm((s) => !s)} className="focus-ring flex items-center gap-1.5 rounded-xl bg-cta px-3 py-1.5 text-xs font-medium text-on-cta">
             <Plus size={12} /> {showForm ? 'Close' : 'Register an agent'}
           </button>
         </div>
@@ -182,7 +182,7 @@ export function PublisherPanel({ userId }: { userId: string }) {
               <option value="free">Free</option><option value="per_run">Per run</option><option value="monthly">Monthly subscription</option>
             </select>
             <input className={field} disabled={form.pricingModel === 'free'} inputMode="decimal" placeholder="Price in USD" value={form.price} onChange={(e) => set('price', e.target.value)} />
-            <button disabled={busy} onClick={handleRegister} className="focus-ring flex w-fit items-center gap-2 rounded-xl bg-cta px-4 py-2 text-sm font-medium text-white disabled:opacity-50 sm:col-span-2">
+            <button disabled={busy} onClick={handleRegister} className="focus-ring flex w-fit items-center gap-2 rounded-xl bg-cta px-4 py-2 text-sm font-medium text-on-cta disabled:opacity-50 sm:col-span-2">
               {busy && <Loader2 size={14} className="animate-spin" />} Register
             </button>
           </div>
@@ -225,7 +225,7 @@ export function PublisherPanel({ userId }: { userId: string }) {
             <textarea className={`${field} font-mono text-xs`} rows={9} spellCheck={false} value={manifestText} onChange={(e) => setManifestText(e.target.value)} aria-label="Manifest JSON" />
             <p className="text-[11px] text-text-secondary">Scopes: read:jobs, read:job_financials, read:customers, read:customer_contact, act:record_insight, act:create_task, act:send_sms. Triggers: manual, schedule.daily, job.scheduled, job.completed.</p>
             <div className="flex gap-2">
-              <button disabled={busy} onClick={handleSubmitVersion} className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-4 py-2 text-sm font-medium text-white disabled:opacity-50">
+              <button disabled={busy} onClick={handleSubmitVersion} className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-4 py-2 text-sm font-medium text-on-cta disabled:opacity-50">
                 {busy && <Loader2 size={14} className="animate-spin" />} Submit for review
               </button>
               <button onClick={() => setVersionAgent(null)} className="focus-ring rounded-xl bg-bg-tertiary px-4 py-2 text-sm font-medium text-text-secondary">Cancel</button>
@@ -248,8 +248,8 @@ export function PublisherPanel({ userId }: { userId: string }) {
                   <pre className="my-2 max-h-40 overflow-auto rounded-lg bg-bg-secondary p-2 text-[11px] text-text-primary">{JSON.stringify(q.manifest, null, 2)}</pre>
                   <input className={`${field} mb-2`} placeholder="Review note (required to reject)" value={notes[q.version_id] ?? ''} onChange={(e) => setNotes((n) => ({ ...n, [q.version_id]: e.target.value }))} />
                   <div className="flex gap-2">
-                    <button disabled={busy} onClick={() => handleReview(q, true)} className="focus-ring rounded-xl bg-success-500 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50">Approve & publish</button>
-                    <button disabled={busy} onClick={() => handleReview(q, false)} className="focus-ring rounded-xl bg-danger px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50">Reject</button>
+                    <button disabled={busy} onClick={() => handleReview(q, true)} className="focus-ring rounded-xl bg-success px-3 py-1.5 text-xs font-medium text-on-success disabled:opacity-50">Approve & publish</button>
+                    <button disabled={busy} onClick={() => handleReview(q, false)} className="focus-ring rounded-xl bg-danger px-3 py-1.5 text-xs font-medium text-on-danger disabled:opacity-50">Reject</button>
                   </div>
                 </div>
               ))}

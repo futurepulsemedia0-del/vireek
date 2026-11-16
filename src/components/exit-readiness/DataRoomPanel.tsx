@@ -20,10 +20,10 @@ interface Props {
 }
 
 const STATE_STYLE: Record<LinkState, string> = {
-  active: 'bg-success-500/10 text-success-500',
+  active: 'bg-success-subtle text-success',
   expired: 'bg-bg-tertiary text-text-secondary',
   revoked: 'bg-danger/10 text-danger',
-  exhausted: 'bg-warning-500/10 text-warning-500',
+  exhausted: 'bg-warning-subtle text-warning',
 };
 const OUTCOME_LABEL: Record<AccessLogEntry['outcome'], string> = {
   granted: 'Viewed', expired: 'Blocked — expired', revoked: 'Blocked — revoked', exhausted: 'Blocked — view limit', invalid_token: 'Invalid link',
@@ -77,7 +77,7 @@ export function DataRoomPanel({ links, logs, creating, createdUrl, onCreate, onR
       <EstimateBanner compact />
 
       {createdUrl && (
-        <Card className="!border-success-500/40">
+        <Card className="!border-success/40">
           <h2 className="text-sm font-semibold text-text-primary">Your link is ready — copy it now</h2>
           <p className="mt-1 text-xs text-text-secondary">For security the full link is shown only once. Anyone with it can open the shared sections until it expires or you revoke it.</p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -159,7 +159,7 @@ export function DataRoomPanel({ links, logs, creating, createdUrl, onCreate, onR
                 {shownLogs.map((g) => (
                   <tr key={g.id} className="border-t border-border/60">
                     <td className="whitespace-nowrap py-2 pr-4 text-text-secondary">{when(g.accessedAt)}</td>
-                    <td className={`py-2 pr-4 ${g.outcome === 'granted' ? 'text-text-primary' : 'text-warning-500'}`}>{OUTCOME_LABEL[g.outcome]}</td>
+                    <td className={`py-2 pr-4 ${g.outcome === 'granted' ? 'text-text-primary' : 'text-warning'}`}>{OUTCOME_LABEL[g.outcome]}</td>
                     <td className="py-2 pr-4 text-text-secondary">{g.linkId ? labelById.get(g.linkId) ?? 'Data room' : '—'}</td>
                     <td className="max-w-[240px] truncate py-2 text-text-secondary" title={g.userAgent ?? ''}>{g.userAgent || '—'}</td>
                   </tr>

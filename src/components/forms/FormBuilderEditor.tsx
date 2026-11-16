@@ -592,7 +592,7 @@ export function FormBuilderEditor({
 
   const showBuild = view !== 'preview';
   const tabClass = (active: boolean) =>
-    `focus-ring whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${active ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`;
+    `focus-ring whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${active ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`;
 
   const gapLine = <div className="h-1 rounded-full bg-accent" aria-hidden="true" />;
 

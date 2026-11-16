@@ -213,7 +213,7 @@ export function CallRoutingPage() {
 
   const selectedRule = config?.rules.find((r) => r.id === selectedId) ?? null;
   const statusLabel = !record?.published ? 'Draft only' : unpublished ? `Live v${record.publishedVersion} · unpublished changes` : `Live v${record.publishedVersion}`;
-  const statusStyle = !record?.published ? 'bg-bg-tertiary text-text-secondary' : unpublished ? 'bg-warning-500/10 text-warning-500' : 'bg-success-500/10 text-success-500';
+  const statusStyle = !record?.published ? 'bg-bg-tertiary text-text-secondary' : unpublished ? 'bg-warning-subtle text-warning' : 'bg-success-subtle text-success';
 
   const header = (
     <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -289,7 +289,7 @@ export function CallRoutingPage() {
       {header}
 
       {conflict && (
-        <div role="alert" className="mb-4 flex flex-col gap-3 rounded-2xl border border-warning-500/40 bg-warning-500/10 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div role="alert" className="mb-4 flex flex-col gap-3 rounded-2xl border border-warning/40 bg-warning-subtle p-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-text-primary">Someone else changed this flow. Reload to see the latest version — your unsaved edits here will be replaced.</p>
           <Button type="button" variant="secondary" size="sm" onClick={() => void load()}>
             <RefreshCw size={14} /> Reload

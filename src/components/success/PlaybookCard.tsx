@@ -14,14 +14,14 @@ interface PlaybookCardProps {
 function StepIcon({ status }: { status: PlaybookStepView['status'] }) {
   if (status === 'done') {
     return (
-      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-success-500 text-white">
+      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-success text-on-success">
         <Check size={13} strokeWidth={3} aria-hidden="true" />
       </span>
     );
   }
-  if (status === 'unknown') return <HelpCircle size={24} className="shrink-0 text-text-secondary/50" aria-hidden="true" />;
-  if (status === 'skipped') return <SkipForward size={24} className="shrink-0 text-text-secondary/40" aria-hidden="true" />;
-  return <CircleDashed size={24} className="shrink-0 text-text-secondary/70" aria-hidden="true" />;
+  if (status === 'unknown') return <HelpCircle size={24} className="shrink-0 text-graphic-muted" aria-hidden="true" />;
+  if (status === 'skipped') return <SkipForward size={24} className="shrink-0 text-graphic-muted" aria-hidden="true" />;
+  return <CircleDashed size={24} className="shrink-0 text-graphic-muted" aria-hidden="true" />;
 }
 
 const STATUS_TEXT: Record<PlaybookStepView['status'], string> = { done: 'Completed', todo: 'To do', skipped: 'Skipped', unknown: 'Can’t be checked yet' };
@@ -48,7 +48,7 @@ export function PlaybookCard({ progress, highlighted = false, onSkip, onUnskip }
           aria-valuemax={100}
           aria-valuenow={pct}
         >
-          <div className={`h-full ${complete ? 'bg-success-500' : 'bg-accent'}`} style={{ width: `${pct}%` }} />
+          <div className={`h-full ${complete ? 'bg-success' : 'bg-accent'}`} style={{ width: `${pct}%` }} />
         </div>
       </div>
 

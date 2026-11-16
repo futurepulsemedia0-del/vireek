@@ -21,10 +21,10 @@ import {
 } from '@/lib/jobBoard';
 
 const PHASE_COPY: Record<OfferPhase, { label: string; className: string }> = {
-  claimable: { label: 'Open to you', className: 'bg-success-500/10 text-success-500' },
-  opens_soon: { label: 'Opens soon', className: 'bg-warning-500/10 text-warning-500' },
+  claimable: { label: 'Open to you', className: 'bg-success-subtle text-success' },
+  opens_soon: { label: 'Opens soon', className: 'bg-warning-subtle text-warning' },
   requested: { label: 'Request sent', className: 'bg-accent/10 text-accent' },
-  won: { label: 'Yours', className: 'bg-success-500/10 text-success-500' },
+  won: { label: 'Yours', className: 'bg-success-subtle text-success' },
   lost: { label: 'Filled', className: 'bg-bg-tertiary text-text-secondary' },
   declined: { label: 'Declined', className: 'bg-bg-tertiary text-text-secondary' },
   closed: { label: 'Closed', className: 'bg-bg-tertiary text-text-secondary' },
@@ -215,12 +215,12 @@ function OfferCard({
       </dl>
 
       {phase === 'opens_soon' && (
-        <p className="mt-3 rounded-lg bg-warning-500/10 px-3 py-2 text-sm text-warning-500">
+        <p className="mt-3 rounded-lg bg-warning-subtle px-3 py-2 text-sm text-warning">
           {formatOpensIn(o.opens_at, now)} — a colleague with fewer recent shifts has a short head start.
         </p>
       )}
       {phase === 'won' && (
-        <p className="mt-3 flex items-center gap-1.5 text-sm text-success-500">
+        <p className="mt-3 flex items-center gap-1.5 text-sm text-success">
           <CheckCircle2 size={14} /> It’s on your schedule.{' '}
           <Link to="/tech/today" className="focus-ring underline">
             Open today’s jobs

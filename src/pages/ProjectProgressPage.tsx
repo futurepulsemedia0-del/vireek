@@ -11,11 +11,11 @@ import { fetchPublicProgress, type PublicProgress } from '@/lib/projectScheduler
 
 const POLL_MS = 60_000;
 const TONE: Record<CustomerPhaseState, string> = {
-  done: 'bg-success-500/10 text-success-500',
+  done: 'bg-success-subtle text-success',
   active: 'bg-accent/10 text-accent',
-  next: 'bg-warning-500/15 text-warning-500',
+  next: 'bg-warning-subtle text-warning',
   upcoming: 'bg-bg-tertiary text-text-secondary',
-  delayed: 'bg-danger-500/15 text-danger-500',
+  delayed: 'bg-danger-subtle text-danger',
 };
 
 export function ProjectProgressPage() {
@@ -105,7 +105,7 @@ export function ProjectProgressPage() {
                         <div key={p.id} className="grid grid-cols-[110px_1fr] items-center gap-2 sm:grid-cols-[160px_1fr]">
                           <span className="truncate text-xs text-text-secondary">{p.name}</span>
                           <div className="relative h-4 rounded bg-bg-tertiary" aria-hidden="true">
-                            {g && <div className={`absolute inset-y-0 rounded ${p.status === 'completed' ? 'bg-success-500' : p.status === 'in_progress' ? 'bg-accent' : 'bg-accent/40'}`} style={{ left: `${g.left}%`, width: `${Math.max(g.width, 1.5)}%` }} />}
+                            {g && <div className={`absolute inset-y-0 rounded ${p.status === 'completed' ? 'bg-success' : p.status === 'in_progress' ? 'bg-accent' : 'bg-accent/40'}`} style={{ left: `${g.left}%`, width: `${Math.max(g.width, 1.5)}%` }} />}
                           </div>
                         </div>
                       );
@@ -128,13 +128,13 @@ export function ProjectProgressPage() {
                       </div>
                       {data.showDates && w && <p className="mt-0.5 text-xs text-text-secondary">{formatDate(w.start)} – {formatDate(w.end)}</p>}
                       <div role="progressbar" aria-label={`${p.name} progress`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={st.percent} className="mt-2 h-2 w-full overflow-hidden rounded-full bg-bg-tertiary">
-                        <div className={`h-full rounded-full ${st.state === 'done' ? 'bg-success-500' : 'bg-accent'}`} style={{ width: `${st.percent}%` }} />
+                        <div className={`h-full rounded-full ${st.state === 'done' ? 'bg-success' : 'bg-accent'}`} style={{ width: `${st.percent}%` }} />
                       </div>
                       {items.length > 0 && (
                         <ul className="mt-3 space-y-1.5">
                           {items.map((m) => (
                             <li key={m.id} className="flex items-center gap-2 text-sm">
-                              {m.status === 'done' ? <CheckCircle2 size={16} className="shrink-0 text-success-500" aria-label="Done" /> : <Circle size={16} className="shrink-0 text-text-secondary" aria-label={m.status === 'skipped' ? 'Skipped' : 'Pending'} />}
+                              {m.status === 'done' ? <CheckCircle2 size={16} className="shrink-0 text-success" aria-label="Done" /> : <Circle size={16} className="shrink-0 text-text-secondary" aria-label={m.status === 'skipped' ? 'Skipped' : 'Pending'} />}
                               <span className={m.status === 'done' || m.status === 'skipped' ? 'text-text-secondary line-through' : 'text-text-primary'}>{m.title}</span>
                               {data.showDates && m.due_date && m.status === 'pending' && <span className="ml-auto text-xs text-text-secondary">{formatDate(m.due_date)}</span>}
                             </li>

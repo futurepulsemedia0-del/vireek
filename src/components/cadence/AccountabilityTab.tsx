@@ -67,8 +67,8 @@ export function AccountabilityTab({ canManage, assignees }: TabProps) {
       </div>
 
       {seats.length > 0 && (gaps.unownedMetrics.length > 0 || gaps.vacantSeats.length > 0) && (
-        <div className="mb-4 flex items-start gap-3 rounded-2xl border border-warning-500/30 bg-warning-500/5 p-4 text-sm" role="note">
-          <AlertTriangle size={18} className="mt-0.5 shrink-0 text-warning-500" />
+        <div className="mb-4 flex items-start gap-3 rounded-2xl border border-warning/30 bg-warning-subtle p-4 text-sm" role="note">
+          <AlertTriangle size={18} className="mt-0.5 shrink-0 text-warning" />
           <div className="space-y-1 text-text-primary">
             {gaps.vacantSeats.length > 0 && <p>No one assigned to: <span className="font-semibold">{gaps.vacantSeats.join(', ')}</span>.</p>}
             {gaps.unownedMetrics.length > 0 && (
@@ -95,7 +95,7 @@ export function AccountabilityTab({ canManage, assignees }: TabProps) {
                     <h3 className="text-base font-semibold text-text-primary">{s.title}</h3>
                     <p className="mt-0.5 inline-flex items-center gap-1.5 text-sm text-text-secondary">
                       <UserRound size={14} />
-                      {s.holder_name ?? <span className="font-medium text-warning-500">Unfilled seat</span>}
+                      {s.holder_name ?? <span className="font-medium text-warning">Unfilled seat</span>}
                     </p>
                     {s.responsibilities.length > 0 && (
                       <ul className="mt-2 list-disc space-y-0.5 ps-5 text-sm text-text-secondary">
@@ -122,7 +122,7 @@ export function AccountabilityTab({ canManage, assignees }: TabProps) {
                       <button type="button" onClick={() => setForm({ open: true, item: s, parentId: s.parent_id ?? '' })} aria-label={`Edit ${s.title}`} title="Edit" className={iconBtn}>
                         <Pencil size={15} />
                       </button>
-                      <button type="button" onClick={() => setRemoving(s)} aria-label={`Delete ${s.title}`} title="Delete" className={`${iconBtn} hover:text-danger-500`}>
+                      <button type="button" onClick={() => setRemoving(s)} aria-label={`Delete ${s.title}`} title="Delete" className={`${iconBtn} hover:text-danger`}>
                         <Trash2 size={15} />
                       </button>
                     </div>

@@ -18,8 +18,8 @@ import { useUndoableActions } from '@/hooks/useUndoableActions';
 const STATUS_STYLES: Record<InvoiceStatus, string> = {
   draft: 'bg-bg-tertiary text-text-secondary',
   sent: 'bg-cta/15 text-cta',
-  viewed: 'bg-warning-500/15 text-warning-500',
-  paid: 'bg-success-500/15 text-success-500',
+  viewed: 'bg-warning-subtle text-warning',
+  paid: 'bg-success-subtle text-success',
   void: 'bg-bg-tertiary text-text-secondary line-through',
 };
 
@@ -146,7 +146,7 @@ function InvoiceForm({ onClose, onCreated }: { onClose: () => void; onCreated: (
       </label>
 
       <button disabled={saving || tax.pending} onClick={submit}
-        className="focus-ring mt-4 flex items-center gap-1.5 rounded-lg bg-cta px-4 py-2 text-xs font-semibold text-white disabled:opacity-50">
+        className="focus-ring mt-4 flex items-center gap-1.5 rounded-lg bg-cta px-4 py-2 text-xs font-semibold text-on-cta disabled:opacity-50">
         {saving ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />} Create invoice
       </button>
     </div>
@@ -324,7 +324,7 @@ export function InvoicesPage() {
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search invoices…"
                 aria-label="Search invoices"
-                className="focus-ring w-full rounded-xl border border-border bg-bg-secondary py-2.5 pl-10 pr-4 text-sm text-text-primary placeholder:text-text-secondary/60"
+                className="focus-ring w-full rounded-xl border border-border bg-bg-secondary py-2.5 pl-10 pr-4 text-sm text-text-primary placeholder:text-text-placeholder"
               />
             </div>
             <select
@@ -369,7 +369,7 @@ export function InvoicesPage() {
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${overdue ? 'bg-danger-500/15 text-danger-500' : STATUS_STYLES[inv.status]}`}>
+                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${overdue ? 'bg-danger-subtle text-danger' : STATUS_STYLES[inv.status]}`}>
                       {overdue ? 'overdue' : inv.status}
                     </span>
                     {inv.status !== 'paid' && inv.status !== 'void' && (
@@ -384,7 +384,7 @@ export function InvoicesPage() {
                           <button onClick={() => copyLink(inv)} className="focus-ring rounded-lg p-1.5 text-text-secondary hover:bg-bg-tertiary"><Copy size={14} /></button>
                         )}
                         <button disabled={busyId === inv.id} onClick={() => pay(inv)}
-                          className="focus-ring flex items-center gap-1 rounded-lg bg-success-500/15 px-2.5 py-1 text-xs font-medium text-success-500 disabled:opacity-50">
+                          className="focus-ring flex items-center gap-1 rounded-lg bg-success-subtle px-2.5 py-1 text-xs font-medium text-success disabled:opacity-50">
                           <CheckCircle2 size={12} /> Mark paid
                         </button>
                       </>

@@ -149,8 +149,8 @@ export interface StatusMeta {
 
 const STATUS_META: Record<DeliveryStatus, StatusMeta> = {
   pending: { label: 'Sending…', tone: 'bg-bg-tertiary text-text-secondary' },
-  sent: { label: 'Delivered', tone: 'bg-success/10 text-success-500' },
-  partial: { label: 'Partly delivered', tone: 'bg-warning-500/10 text-warning-500' },
+  sent: { label: 'Delivered', tone: 'bg-success/10 text-success' },
+  partial: { label: 'Partly delivered', tone: 'bg-warning-subtle text-warning' },
   failed: { label: 'Failed', tone: 'bg-danger/10 text-danger' },
   skipped: { label: 'Skipped', tone: 'bg-bg-tertiary text-text-secondary' },
 };

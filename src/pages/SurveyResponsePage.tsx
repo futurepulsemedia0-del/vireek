@@ -190,7 +190,7 @@ export function SurveyResponsePage() {
                   onClick={() => setScore(n)}
                   className={`focus-ring min-h-[44px] rounded-xl border text-base font-semibold transition-colors ${
                     score === n
-                      ? 'border-accent bg-accent text-white'
+                      ? 'border-accent bg-accent text-on-accent'
                       : 'border-border bg-bg-primary text-text-primary hover:border-accent/50'
                   }`}
                 >
@@ -215,7 +215,7 @@ export function SurveyResponsePage() {
                 onClick={() => setScore(s)}
                 className={`focus-ring flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-xl border px-1 py-2 text-[11px] font-medium leading-tight transition-colors ${
                   score === s
-                    ? 'border-accent bg-accent text-white'
+                    ? 'border-accent bg-accent text-on-accent'
                     : 'border-border bg-bg-primary text-text-secondary hover:border-accent/50'
                 }`}
               >

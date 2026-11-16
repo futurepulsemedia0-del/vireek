@@ -239,17 +239,17 @@ export const DIMENSION_ORDER: UnknownDimensionKey[] = [
 ];
 
 export const STATUS_META: Record<UnknownStatus, { label: string; className: string; hint: string }> = {
-  known: { label: 'Known', className: 'bg-success-500/10 text-success-500', hint: 'Backed by confirmed evidence.' },
+  known: { label: 'Known', className: 'bg-success-subtle text-success', hint: 'Backed by confirmed evidence.' },
   likely: { label: 'Likely', className: 'bg-accent/10 text-accent', hint: 'Strong evidence, not fully confirmed.' },
-  uncertain: { label: 'Uncertain', className: 'bg-warning-500/10 text-warning-500', hint: 'Some evidence, important gaps.' },
+  uncertain: { label: 'Uncertain', className: 'bg-warning-subtle text-warning', hint: 'Some evidence, important gaps.' },
   unknown: { label: 'Unknown', className: 'bg-danger/10 text-danger', hint: 'No usable evidence yet.' },
   contradictory: { label: 'Contradictory', className: 'bg-danger/10 text-danger', hint: 'Sources disagree — confirm which is right.' },
-  unverified: { label: 'Unverified', className: 'bg-warning-500/10 text-warning-500', hint: 'Only machine-generated or unchecked evidence.' },
+  unverified: { label: 'Unverified', className: 'bg-warning-subtle text-warning', hint: 'Only machine-generated or unchecked evidence.' },
 };
 
 export const VERDICT_META: Record<GateVerdict, { label: string; className: string }> = {
-  clear: { label: 'Ready to decide', className: 'border-success-500/30 bg-success-500/5' },
-  proceed_with_caution: { label: 'Proceed with caution', className: 'border-warning-500/30 bg-warning-500/5' },
+  clear: { label: 'Ready to decide', className: 'border-success/30 bg-success-subtle' },
+  proceed_with_caution: { label: 'Proceed with caution', className: 'border-warning/30 bg-warning-subtle' },
   resolve_first: { label: 'Resolve unknowns first', className: 'border-danger/30 bg-danger/5' },
 };
 

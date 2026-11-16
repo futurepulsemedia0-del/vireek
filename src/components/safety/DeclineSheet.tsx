@@ -69,7 +69,7 @@ export function DeclineSheet({ jobId, onClose, onDone }: Props) {
 
       <div className="mt-3 flex justify-end gap-2">
         <button type="button" onClick={onClose} disabled={busy} className="focus-ring min-h-[44px] rounded-lg px-4 text-sm font-semibold text-text-secondary">Cancel</button>
-        <button type="button" onClick={() => void submit()} disabled={busy} className="focus-ring min-h-[44px] rounded-lg bg-accent px-4 text-sm font-semibold text-white disabled:opacity-60">{busy ? 'Sending…' : 'Send to dispatcher'}</button>
+        <button type="button" onClick={() => void submit()} disabled={busy} className="focus-ring min-h-[44px] rounded-lg bg-accent px-4 text-sm font-semibold text-on-accent disabled:opacity-60">{busy ? 'Sending…' : 'Send to dispatcher'}</button>
       </div>
     </section>
   );

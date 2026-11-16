@@ -165,7 +165,7 @@ function MappingTable({ connection, connections, onProviderChange }: { connectio
                       onKeyDown={(e) => { if (e.key === 'Enter') void commit(r); }}
                     />
                     <span className="flex h-12 w-5 items-center" aria-live="polite">
-                      {saving === r.employee_id ? <Loader2 size={16} className="animate-spin text-text-secondary" aria-label="Saving" /> : r.external_id && draft === undefined ? <Check size={16} className="text-success-500" aria-label="Saved" /> : null}
+                      {saving === r.employee_id ? <Loader2 size={16} className="animate-spin text-text-secondary" aria-label="Saving" /> : r.external_id && draft === undefined ? <Check size={16} className="text-success" aria-label="Saved" /> : null}
                     </span>
                   </div>
                 </li>

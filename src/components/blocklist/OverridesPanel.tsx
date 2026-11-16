@@ -128,7 +128,7 @@ export function OverridesPanel({ ownerId, userId, refreshKey, onChanged }: Overr
             {items.map((o) => (
               <li key={o.id}>
                 <Card className="flex items-center gap-3 p-4 hover:translate-y-0">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-success-500/10 text-success-500"><ShieldCheck size={16} /></span>
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-success-subtle text-success"><ShieldCheck size={16} /></span>
                   <div className="min-w-0 flex-1">
                     <p className="font-mono text-sm font-semibold text-text-primary">{formatPhone(o.phone)}</p>
                     <p className="flex flex-wrap items-center gap-x-2 text-xs text-text-secondary">

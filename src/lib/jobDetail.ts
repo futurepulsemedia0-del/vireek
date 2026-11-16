@@ -80,11 +80,11 @@ export const STATUS_LABELS: Record<JobStatus, string> = {
 
 export const STATUS_BADGE: Record<JobStatus, string> = {
   scheduled: 'bg-accent/10 text-accent',
-  en_route: 'bg-blue-500/10 text-blue-500',
-  in_progress: 'bg-warning-500/10 text-warning-500',
-  completed: 'bg-success-500/10 text-success-500',
+  en_route: 'bg-info-subtle text-info',
+  in_progress: 'bg-warning-subtle text-warning',
+  completed: 'bg-success-subtle text-success',
   cancelled: 'bg-danger/10 text-danger',
-  no_show: 'bg-warning-500/10 text-warning-500',
+  no_show: 'bg-warning-subtle text-warning',
 };
 
 export const STATUS_FLOW: JobStatus[] = ['scheduled', 'en_route', 'in_progress', 'completed'];

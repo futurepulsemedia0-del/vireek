@@ -361,7 +361,7 @@ export async function signatureToBlob(sig: SignatureInput, typedFamily = "'Danci
   if (!ctx) throw new Error('Signature could not be rendered');
   ctx.fillStyle = '#fff';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = '#171717';
+  ctx.fillStyle = '#141413';
   await loadSignatureFonts(); // typed signatures must be drawn with the real face, never a fallback
   ctx.font = `64px ${typedFamily}`;
   ctx.textBaseline = 'middle';

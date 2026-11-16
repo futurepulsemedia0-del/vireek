@@ -34,10 +34,10 @@ export function RiskBadge({ level, score }: { level: RiskLevel; score: number })
 }
 
 const GRADE_CLASS: Record<NonNullable<VendorPerformance['grade']>, string> = {
-  A: 'bg-success-500/10 text-success-500',
-  B: 'bg-success-500/10 text-success-500',
+  A: 'bg-success-subtle text-success',
+  B: 'bg-success-subtle text-success',
   C: 'bg-bg-tertiary text-text-secondary',
-  D: 'bg-warning-500/10 text-warning-500',
+  D: 'bg-warning-subtle text-warning',
   F: 'bg-danger/10 text-danger',
 };
 

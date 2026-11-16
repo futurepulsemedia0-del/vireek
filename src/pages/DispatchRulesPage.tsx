@@ -69,7 +69,7 @@ function RuleCard({ rule, canEdit, saving, onSave }: { rule: DispatchRule; canEd
           <p className="mt-0.5 text-xs text-text-secondary">{meta.description}</p>
         </div>
         <label className="flex shrink-0 items-center gap-2 text-xs text-text-secondary">
-          <input type="checkbox" role="switch" checked={draft.enabled} disabled={dis} onChange={(e) => set({ enabled: e.target.checked })} className="h-4 w-4 accent-[var(--color-accent,#3b82f6)]" />
+          <input type="checkbox" role="switch" checked={draft.enabled} disabled={dis} onChange={(e) => set({ enabled: e.target.checked })} className="h-4 w-4 accent-accent" />
           {draft.enabled ? 'On' : 'Off'}
         </label>
       </div>
@@ -86,7 +86,7 @@ function RuleCard({ rule, canEdit, saving, onSave }: { rule: DispatchRule; canEd
           {draft.mode === 'score' && (
             <div>
               <label htmlFor={`w-${rule.rule_type}`} className="mb-1 block text-xs text-text-secondary">Weight: {draft.weight} pts</label>
-              <input id={`w-${rule.rule_type}`} type="range" min={0} max={100} step={5} disabled={dis} value={draft.weight} onChange={(e) => set({ weight: Number(e.target.value) })} className="w-full accent-[var(--color-accent,#3b82f6)]" />
+              <input id={`w-${rule.rule_type}`} type="range" min={0} max={100} step={5} disabled={dis} value={draft.weight} onChange={(e) => set({ weight: Number(e.target.value) })} className="w-full accent-accent" />
             </div>
           )}
           {meta.fields.filter((f) => !f.onlyMode || f.onlyMode === draft.mode).map((f) => (
@@ -101,7 +101,7 @@ function RuleCard({ rule, canEdit, saving, onSave }: { rule: DispatchRule; canEd
       {canEdit && dirty && (
         <div className="mt-3 flex justify-end gap-2">
           <button type="button" disabled={saving} onClick={() => setDraft(rule)} className="focus-ring rounded-lg px-3 py-1.5 text-xs text-text-secondary">Reset</button>
-          <button type="button" disabled={saving} onClick={() => onSave(draft)} className="focus-ring rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50">
+          <button type="button" disabled={saving} onClick={() => onSave(draft)} className="focus-ring rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent disabled:opacity-50">
             {saving ? 'Saving…' : 'Save rule'}
           </button>
         </div>
@@ -162,7 +162,7 @@ function Preferences({ ownerId, canEdit, technicians, onChanged }: { ownerId: st
               <li key={r.id} className="flex items-center gap-2 py-2 text-xs text-text-secondary">
                 <span className="min-w-0 flex-1 truncate">
                   <span className="font-medium text-text-primary">{nameOf(r.technician_id)}</span>{' '}
-                  <span className={r.preference === 'avoid' ? 'text-danger' : 'text-success-500'}>{r.preference}</span>{' '}
+                  <span className={r.preference === 'avoid' ? 'text-danger' : 'text-success'}>{r.preference}</span>{' '}
                   {r.customer_name ? `customer ${r.customer_name}` : `service “${r.service_type}”`}
                 </span>
                 {canEdit && (
@@ -208,7 +208,7 @@ function Preferences({ ownerId, canEdit, technicians, onChanged }: { ownerId: st
                 )}
               </div>
             )}
-            <button type="button" disabled={!ready || busy} onClick={() => void add()} className="focus-ring rounded-lg bg-accent px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50 sm:col-span-2">
+            <button type="button" disabled={!ready || busy} onClick={() => void add()} className="focus-ring rounded-lg bg-accent px-3 py-1.5 text-sm font-medium text-on-accent disabled:opacity-50 sm:col-span-2">
               {busy ? 'Adding…' : 'Add preference'}
             </button>
           </div>

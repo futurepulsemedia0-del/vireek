@@ -23,7 +23,7 @@ import { timeAgo, type QboConnection } from '@/lib/quickbooks';
 const SEVERITY_STYLE: Record<ReconFindingRow['severity'], string> = {
   critical: 'bg-error-500/10 text-error-500',
   high: 'bg-error-500/10 text-error-500',
-  medium: 'bg-warning-500/10 text-warning-500',
+  medium: 'bg-warning-subtle text-warning',
   low: 'bg-bg-tertiary text-text-secondary',
 };
 const selectCls = 'rounded-lg border border-border bg-bg-primary px-2.5 py-1.5 text-sm text-text-primary focus:border-accent focus:outline-none';
@@ -90,7 +90,7 @@ function FindingCard({ f, onChanged }: { f: ReconFindingRow; onChanged: () => vo
         <span className="text-sm font-semibold text-text-primary">{BUCKET_LABEL[f.bucket]}</span>
         <span className="text-sm text-text-secondary">{ref}</span>
         {f.has_payments && <span className="rounded-full bg-accent/10 px-2 py-0.5 text-xs font-medium text-accent">has payments</span>}
-        {f.status !== 'open' && <span className="rounded-full bg-success-500/10 px-2 py-0.5 text-xs font-medium text-success-500">{f.status}</span>}
+        {f.status !== 'open' && <span className="rounded-full bg-success-subtle px-2 py-0.5 text-xs font-medium text-success">{f.status}</span>}
         <span className="ml-auto text-sm font-semibold text-text-primary">{formatCents(f.cents_at_stake)}</span>
       </div>
       <p className="mt-2 text-sm text-text-secondary">{f.suggested_action}</p>
@@ -113,7 +113,7 @@ function FindingCard({ f, onChanged }: { f: ReconFindingRow; onChanged: () => vo
           <label className="block text-sm font-medium text-text-primary" htmlFor={`note-${f.id}`}>What was done? (required, shown in the audit log)</label>
           <textarea id={`note-${f.id}`} value={note} onChange={(e) => setNote(e.target.value)} maxLength={1000} rows={2} className="w-full rounded-lg border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none" />
           <div className="flex gap-2">
-            <button type="button" disabled={busy || note.trim().length < 3} onClick={() => void act('resolved')} className="rounded-lg bg-accent px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-50">{busy ? 'Saving…' : 'Save as resolved'}</button>
+            <button type="button" disabled={busy || note.trim().length < 3} onClick={() => void act('resolved')} className="rounded-lg bg-accent px-3 py-1.5 text-sm font-semibold text-on-accent disabled:opacity-50">{busy ? 'Saving…' : 'Save as resolved'}</button>
             <button type="button" onClick={() => setResolving(false)} className="rounded-lg border border-border px-3 py-1.5 text-sm text-text-primary">Cancel</button>
           </div>
           <p className="text-xs text-text-secondary">This only records your decision. It does not change QuickBooks, the invoice or any payment.</p>
@@ -217,7 +217,7 @@ export function ReconciliationPanel({ conn }: { conn: QboConnection }) {
           <h2 id="qbo-recon" className="flex items-center gap-2 text-lg font-semibold text-text-primary"><ScanSearch size={18} /> Reconciliation audit</h2>
           <p className="text-sm text-text-secondary">Compares imported invoices with QuickBooks. Read-only: it never edits, voids or sends anything.</p>
         </div>
-        <button type="button" onClick={() => void start()} disabled={starting || running} className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
+        <button type="button" onClick={() => void start()} disabled={starting || running} className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-on-accent disabled:opacity-50">
           {running || starting ? <Loader2 size={16} className="animate-spin" /> : <ScanSearch size={16} />} {running ? 'Auditing…' : 'Run audit'}
         </button>
         <button type="button" onClick={exportCsv} disabled={!shown.length} className="inline-flex items-center gap-2 rounded-xl border border-border px-3 py-2 text-sm font-medium text-text-primary disabled:opacity-50"><Download size={16} /> CSV</button>
@@ -226,7 +226,7 @@ export function ReconciliationPanel({ conn }: { conn: QboConnection }) {
       {loading ? (
         <div className="h-24 animate-pulse rounded-2xl bg-bg-tertiary" aria-busy="true" aria-label="Loading reconciliation" />
       ) : failed ? (
-        <p className="rounded-2xl border border-border bg-bg-secondary p-4 text-sm text-text-secondary"><AlertTriangle size={14} className="mr-1 inline text-warning-500" />Couldn't load the audit. <button type="button" className="font-medium text-accent hover:underline" onClick={() => void load()}>Try again</button></p>
+        <p className="rounded-2xl border border-border bg-bg-secondary p-4 text-sm text-text-secondary"><AlertTriangle size={14} className="mr-1 inline text-warning" />Couldn't load the audit. <button type="button" className="font-medium text-accent hover:underline" onClick={() => void load()}>Try again</button></p>
       ) : !run ? (
         <p className="rounded-2xl border border-dashed border-border bg-bg-secondary/50 p-6 text-center text-sm text-text-secondary">No audit yet. Run one to see what differs between your imported invoices and QuickBooks.</p>
       ) : (
@@ -237,7 +237,7 @@ export function ReconciliationPanel({ conn }: { conn: QboConnection }) {
             {run.summary?.skipped_count ? ` · ${run.summary.skipped_count} skipped (not comparable)` : ''}
             {run.summary?.note === 'no_imported_invoices' ? ' · no imported invoices to audit' : ''}
           </p>
-          {run.error && <p className="text-sm text-warning-500">{run.error}</p>}
+          {run.error && <p className="text-sm text-warning">{run.error}</p>}
 
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {RECON_BUCKETS.map((b) => {
@@ -266,7 +266,7 @@ export function ReconciliationPanel({ conn }: { conn: QboConnection }) {
           </div>
 
           {shown.length === 0 ? (
-            <p className="rounded-2xl border border-dashed border-border bg-bg-secondary/50 p-6 text-center text-sm text-text-secondary"><CheckCircle2 size={16} className="mr-1 inline text-success-500" />Nothing to review here.</p>
+            <p className="rounded-2xl border border-dashed border-border bg-bg-secondary/50 p-6 text-center text-sm text-text-secondary"><CheckCircle2 size={16} className="mr-1 inline text-success" />Nothing to review here.</p>
           ) : (
             <ul className="space-y-3">{shown.map((f) => <FindingCard key={f.id} f={f} onChanged={() => void load(true)} />)}</ul>
           )}

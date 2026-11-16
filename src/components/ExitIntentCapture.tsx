@@ -88,7 +88,7 @@ export function ExitIntentCapture() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/60 p-4 backdrop-blur-sm"
           role="dialog"
           aria-modal="true"
           aria-label="Before you go"
@@ -106,14 +106,14 @@ export function ExitIntentCapture() {
               type="button"
               onClick={close}
               aria-label="Close"
-              className="focus-ring absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-lg text-text-secondary/70 transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+              className="focus-ring absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-bg-tertiary hover:text-text-primary"
             >
               <X size={16} />
             </button>
 
             {submitted ? (
               <div className="flex flex-col items-center py-6 text-center">
-                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-success-500/10 text-success-500">
+                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-success-subtle text-success">
                   <CheckCircle2 size={22} />
                 </span>
                 <h2 className="mt-4 text-lg font-bold text-text-primary">You&apos;re on the list</h2>
@@ -139,7 +139,7 @@ export function ExitIntentCapture() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@company.com"
                     aria-label="Email address"
-                    className="focus-ring w-full flex-1 rounded-xl border border-border bg-bg-primary px-4 py-3 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors focus-visible:border-accent"
+                    className="focus-ring w-full flex-1 rounded-xl border border-border bg-bg-primary px-4 py-3 text-sm text-text-primary placeholder:text-text-placeholder transition-colors focus-visible:border-accent"
                   />
                   <Button type="submit" variant="primary" disabled={loading} className="shrink-0">
                     {loading ? 'Sending…' : 'Send it to me'}
@@ -148,7 +148,7 @@ export function ExitIntentCapture() {
                 <button
                   type="button"
                   onClick={close}
-                  className="focus-ring mt-3 text-xs text-text-secondary/70 transition-colors hover:text-text-secondary"
+                  className="focus-ring mt-3 text-xs text-text-muted transition-colors hover:text-text-secondary"
                 >
                   No thanks, just leaving
                 </button>

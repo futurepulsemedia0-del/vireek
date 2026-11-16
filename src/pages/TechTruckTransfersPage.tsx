@@ -37,7 +37,7 @@ type LoadState = 'loading' | 'ready' | 'error' | 'blocked';
 
 const card = 'rounded-2xl border border-border bg-bg-secondary p-4';
 const bigBtn =
-  'focus-ring flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 text-base font-semibold text-white disabled:opacity-50';
+  'focus-ring flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 text-base font-semibold text-on-accent disabled:opacity-50';
 
 export function TechTruckTransfersPage() {
   const { toast } = useToast();
@@ -107,7 +107,7 @@ export function TechTruckTransfersPage() {
   } else {
     body = (
       <div className="space-y-5">
-        {error && <p role="status" className="rounded-xl bg-warning-500/10 p-3 text-sm text-warning-500">Couldn't refresh just now — showing what was loaded last.</p>}
+        {error && <p role="status" className="rounded-xl bg-warning-subtle p-3 text-sm text-warning">Couldn't refresh just now — showing what was loaded last.</p>}
 
         <section aria-label="Deliveries to your truck" className="space-y-3">
           <h2 className="text-base font-semibold text-text-primary">Deliveries to {van?.van_name ?? 'your truck'}</h2>

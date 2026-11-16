@@ -275,9 +275,9 @@ export const TIER_OPTIONS: VendorTier[] = ['strategic', 'preferred', 'approved',
 
 export const TIER_CLASS: Record<VendorTier, string> = {
   strategic: 'bg-accent/10 text-accent',
-  preferred: 'bg-success-500/10 text-success-500',
+  preferred: 'bg-success-subtle text-success',
   approved: 'bg-bg-tertiary text-text-secondary',
-  probation: 'bg-warning-500/10 text-warning-500',
+  probation: 'bg-warning-subtle text-warning',
   blocked: 'bg-danger/10 text-danger',
 };
 
@@ -288,9 +288,9 @@ export const RISK_LABELS: Record<RiskLevel, string> = {
   critical: 'Critical',
 };
 export const RISK_CLASS: Record<RiskLevel, string> = {
-  low: 'bg-success-500/10 text-success-500',
+  low: 'bg-success-subtle text-success',
   moderate: 'bg-bg-tertiary text-text-secondary',
-  high: 'bg-warning-500/10 text-warning-500',
+  high: 'bg-warning-subtle text-warning',
   critical: 'bg-danger/10 text-danger',
 };
 

@@ -107,7 +107,7 @@ export function FlowSettings({ config, ctx, onChange }: FlowSettingsProps) {
                     <label key={m.id} className="flex items-center gap-2 text-sm text-text-primary">
                       <input type="checkbox" className="focus-ring h-4 w-4 rounded border-border" checked={d.memberIds.includes(m.id)} onChange={() => toggleMember(d, m.id)} />
                       <span className="truncate">{m.name}</span>
-                      {!m.phone && <span className="text-[11px] text-warning-500">no phone</span>}
+                      {!m.phone && <span className="text-[11px] text-warning">no phone</span>}
                     </label>
                   ))}
                 </div>

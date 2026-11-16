@@ -47,7 +47,7 @@ const LARGE_TEAM = 60;
 
 const ROLE_TONES: Record<AccessRole, string> = {
   owner: 'bg-accent/10 text-accent',
-  admin: 'bg-blue-500/10 text-blue-500',
+  admin: 'bg-info-subtle text-info',
   technician: 'bg-warning/10 text-warning',
   member: 'bg-bg-tertiary text-text-secondary',
 };
@@ -78,7 +78,7 @@ function StatCard({ label, value, hint }: { label: string; value: string | numbe
     <div className={panelClass}>
       <p className="text-xl font-bold text-text-primary">{value}</p>
       <p className="mt-0.5 text-xs text-text-secondary">{label}</p>
-      {hint && <p className="mt-0.5 text-[11px] text-text-secondary/80">{hint}</p>}
+      {hint && <p className="mt-0.5 text-[11px] text-text-muted">{hint}</p>}
     </div>
   );
 }
@@ -88,7 +88,7 @@ function Sheet({ title, onClose, children }: { title: string; onClose: () => voi
   useEscapeToClose(true, onClose);
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center" role="dialog" aria-modal="true" aria-label={title}>
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} aria-hidden="true" />
+      <div className="absolute inset-0 bg-overlay/50" onClick={onClose} aria-hidden="true" />
       <div
         ref={ref}
         className="relative max-h-[92vh] w-full overflow-y-auto rounded-t-2xl border border-border bg-bg-primary p-5 pb-8 shadow-xl sm:max-w-xl sm:rounded-2xl sm:pb-5"

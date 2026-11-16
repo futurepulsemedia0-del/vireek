@@ -38,9 +38,9 @@ function formatAmount(amount: number | null): string {
 }
 
 function TimelineIcon({ state }: { state: 'done' | 'active' | 'pending' }) {
-  if (state === 'done') return <CheckCircle2 size={18} className="text-success-500 shrink-0" />;
+  if (state === 'done') return <CheckCircle2 size={18} className="text-success shrink-0" />;
   if (state === 'active') return <span className="relative shrink-0 flex h-[18px] w-[18px] items-center justify-center"><span className="absolute h-2.5 w-2.5 animate-ping rounded-full bg-accent/60" /><span className="relative h-2.5 w-2.5 rounded-full bg-accent" /></span>;
-  return <Circle size={18} className="text-text-secondary/40 shrink-0" />;
+  return <Circle size={18} className="text-graphic-muted shrink-0" />;
 }
 
 export function JobRoomPage() {
@@ -111,7 +111,7 @@ export function JobRoomPage() {
                   {buildJobRoomTimeline(room).map((s) => (
                     <li key={s.label} className="flex items-center gap-3">
                       <TimelineIcon state={s.state} />
-                      <span className={s.state === 'pending' ? 'text-sm text-text-secondary/70' : 'text-sm font-medium text-text-primary'}>
+                      <span className={s.state === 'pending' ? 'text-sm text-text-muted' : 'text-sm font-medium text-text-primary'}>
                         {s.label}
                       </span>
                     </li>
@@ -122,7 +122,7 @@ export function JobRoomPage() {
               {/* ETA */}
               {room.job_status === 'en_route' && remaining !== null && (
                 <div className="flex items-center gap-4 rounded-2xl border border-accent/30 bg-accent/5 p-5">
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent text-white">
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent text-on-accent">
                     <Clock size={22} />
                   </span>
                   <div>
@@ -190,7 +190,7 @@ export function JobRoomPage() {
                   {room.quote.status === 'sent' && (
                     <a
                       href={`${window.location.origin}/quote/${room.quote.quote_token}`}
-                      className="focus-ring mt-4 block rounded-lg bg-accent py-2.5 text-center text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                      className="focus-ring mt-4 block rounded-lg bg-accent py-2.5 text-center text-sm font-semibold text-on-accent transition-opacity hover:opacity-90"
                     >
                       Review &amp; approve
                     </a>
@@ -247,7 +247,7 @@ export function JobRoomPage() {
                     href={room.payment_link_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="focus-ring mt-4 block rounded-lg bg-accent py-2.5 text-center text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                    className="focus-ring mt-4 block rounded-lg bg-accent py-2.5 text-center text-sm font-semibold text-on-accent transition-opacity hover:opacity-90"
                   >
                     Pay now
                   </a>

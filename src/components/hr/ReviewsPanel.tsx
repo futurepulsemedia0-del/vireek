@@ -71,9 +71,9 @@ export function ReviewsPanel({ ctx }: { ctx: HrCtx }) {
   return (
     <div className="space-y-5">
       {reminders.length > 0 && (
-        <section aria-label="Review reminders" className="rounded-2xl border border-warning-500/30 bg-warning-500/5 p-4">
+        <section aria-label="Review reminders" className="rounded-2xl border border-warning/30 bg-warning-subtle p-4">
           <h3 className="flex items-center gap-2 text-base font-semibold text-text-primary">
-            <BellRing size={16} className="text-warning-500" aria-hidden="true" /> {reminders.length} review{reminders.length === 1 ? '' : 's'} need attention
+            <BellRing size={16} className="text-warning" aria-hidden="true" /> {reminders.length} review{reminders.length === 1 ? '' : 's'} need attention
           </h3>
           <ul className="mt-3 space-y-2">
             {reminders.slice(0, 6).map((r) => {
@@ -218,7 +218,7 @@ function RatingInput({ label, value, onChange }: { label: string; value: number 
             title={RATING_LABELS[n]}
             onClick={() => onChange(value === n ? undefined : n)}
             className={`focus-ring h-10 w-10 rounded-xl border text-sm font-semibold transition-colors ${
-              value === n ? 'border-accent bg-accent text-white' : 'border-border bg-bg-primary text-text-secondary hover:border-accent/50'
+              value === n ? 'border-accent bg-accent text-on-accent' : 'border-border bg-bg-primary text-text-secondary hover:border-accent/50'
             }`}
           >
             {n}

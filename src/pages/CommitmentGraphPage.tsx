@@ -20,7 +20,7 @@ const ESCALATION_LABELS: Record<NonNullable<Commitment['escalation_stage']>, str
 };
 
 const ESCALATION_COLORS: Record<NonNullable<Commitment['escalation_stage']>, string> = {
-  due_soon: 'bg-warning-500/15 text-warning-500', overdue: 'bg-error-500/15 text-error-500', escalated: 'bg-error-500/25 text-error-500',
+  due_soon: 'bg-warning-subtle text-warning', overdue: 'bg-error-500/15 text-error-500', escalated: 'bg-error-500/25 text-error-500',
 };
 export function CommitmentGraphPage() {
   const { user } = useAuth();
@@ -127,7 +127,7 @@ function CommitmentRow({ c, onResolve }: { c: Commitment; onResolve: (id: string
         </p>
       </div>
       <div className="flex shrink-0 gap-1">
-        <button onClick={() => onResolve(c.id, 'kept')} className="focus-ring rounded-lg bg-success-500/15 p-2 text-success-500" title="Kept"><Check size={14} /></button>
+        <button onClick={() => onResolve(c.id, 'kept')} className="focus-ring rounded-lg bg-success-subtle p-2 text-success" title="Kept"><Check size={14} /></button>
         <button onClick={() => onResolve(c.id, 'broken')} className="focus-ring rounded-lg bg-error-500/15 p-2 text-error-500" title="Broken"><X size={14} /></button>
         <button onClick={() => onResolve(c.id, 'unclear')} className="focus-ring rounded-lg bg-bg-tertiary p-2 text-text-secondary" title="Unclear"><HelpCircle size={14} /></button>
       </div>

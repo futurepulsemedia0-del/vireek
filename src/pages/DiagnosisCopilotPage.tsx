@@ -168,7 +168,7 @@ export function DiagnosisCopilotPage() {
             {files.map((f, i) => (
               <span key={`${f.name}-${i}`} className="flex items-center gap-1.5 rounded-lg border border-border bg-bg-primary px-2.5 py-1 text-xs text-text-secondary">
                 {f.name.length > 20 ? `${f.name.slice(0, 20)}…` : f.name}
-                <button type="button" onClick={() => removeFile(i)} className="focus-ring text-text-secondary hover:text-danger-500"><X size={12} /></button>
+                <button type="button" onClick={() => removeFile(i)} className="focus-ring text-text-secondary hover:text-danger"><X size={12} /></button>
               </span>
             ))}
           </div>
@@ -178,7 +178,7 @@ export function DiagnosisCopilotPage() {
           type="button"
           onClick={runDiagnosis}
           disabled={symptoms.trim().length < 8 || analyzing}
-          className="focus-ring mt-4 flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+          className="focus-ring mt-4 flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-on-accent disabled:opacity-50"
         >
           <Stethoscope size={14} /> {analyzing ? 'Diagnosing…' : 'Run diagnosis'}
         </button>
@@ -191,17 +191,17 @@ export function DiagnosisCopilotPage() {
               </span>
               <span className="text-xs text-text-secondary">Confidence: {Math.round(result.confidence * 100)}%</span>
               {result.recommend_specialist && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-warning-500/10 px-2.5 py-0.5 text-xs font-medium text-warning-500">Recommend specialist</span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-warning-subtle px-2.5 py-0.5 text-xs font-medium text-warning">Recommend specialist</span>
               )}
             </div>
             <p className="text-sm text-text-primary">{result.summary}</p>
               {result.loop && <LoopPriorsPanel loop={result.loop} />}
 
             {result.safety_warnings.length > 0 && (
-              <div className="rounded-lg border border-danger-500/30 bg-danger-500/5 p-3">
-                <p className="flex items-center gap-1 text-xs font-semibold text-danger-500"><ShieldAlert size={12} /> Safety warnings</p>
+              <div className="rounded-lg border border-danger/30 bg-danger-subtle p-3">
+                <p className="flex items-center gap-1 text-xs font-semibold text-danger"><ShieldAlert size={12} /> Safety warnings</p>
                 <ul className="mt-1 space-y-1">
-                  {result.safety_warnings.map((f, i) => <li key={i} className="text-xs text-danger-500">• {f}</li>)}
+                  {result.safety_warnings.map((f, i) => <li key={i} className="text-xs text-danger">• {f}</li>)}
                 </ul>
               </div>
             )}
@@ -244,7 +244,7 @@ export function DiagnosisCopilotPage() {
                 <div className="flex flex-wrap gap-1.5">
                   {result.parts_needed.map((p, i) => (
                     <span key={i} className="rounded-full border border-border px-2 py-0.5 text-xs text-text-secondary">
-                      {p.quantity}× {p.name} <span className="text-text-secondary/70">({p.necessity.replace('_', ' ')})</span>
+                      {p.quantity}× {p.name} <span className="text-text-muted">({p.necessity.replace('_', ' ')})</span>
                     </span>
                   ))}
                 </div>

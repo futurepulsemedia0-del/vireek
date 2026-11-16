@@ -31,7 +31,7 @@ const TARGET_ICONS: Record<TargetKind, LucideIcon> = {
 };
 
 const TRACE_STYLES: Record<TraceStatus, string> = {
-  matched: 'border-success-500 ring-2 ring-success-500/30',
+  matched: 'border-success ring-2 ring-success/30',
   not_matched: 'border-border opacity-80',
   skipped: 'border-border opacity-50',
   disabled: 'border-border opacity-50',
@@ -39,7 +39,7 @@ const TRACE_STYLES: Record<TraceStatus, string> = {
 
 function Connector() {
   return (
-    <div className="flex justify-center py-1 text-text-secondary/60" aria-hidden="true">
+    <div className="flex justify-center py-1 text-graphic-muted" aria-hidden="true">
       <ArrowDown size={16} />
     </div>
   );
@@ -109,7 +109,7 @@ export function RoutingFlow({ config, ctx, selectedId, issues, simulation, readO
                   <span className="flex flex-wrap items-center gap-2">
                     <span className="truncate text-sm font-semibold text-text-primary">{rule.name || 'Untitled rule'}</span>
                     {!rule.enabled && <span className="rounded-full bg-bg-tertiary px-2 py-0.5 text-[11px] font-semibold text-text-secondary">Off</span>}
-                    {status === 'matched' && <span className="rounded-full bg-success-500/10 px-2 py-0.5 text-[11px] font-semibold text-success-500">Matched</span>}
+                    {status === 'matched' && <span className="rounded-full bg-success-subtle px-2 py-0.5 text-[11px] font-semibold text-success">Matched</span>}
                     {hasError && <span className="rounded-full bg-danger/10 px-2 py-0.5 text-[11px] font-semibold text-danger">Needs attention</span>}
                   </span>
                   <span className="mt-0.5 block text-xs text-text-secondary">{describeCondition(rule, config)}</span>
@@ -130,9 +130,9 @@ export function RoutingFlow({ config, ctx, selectedId, issues, simulation, readO
                     aria-checked={rule.enabled}
                     aria-label={`${rule.enabled ? 'Turn off' : 'Turn on'} ${rule.name || 'rule'}`}
                     onClick={() => onToggle(rule.id)}
-                    className={`focus-ring relative h-5 w-9 rounded-full transition-colors ${rule.enabled ? 'bg-success-500' : 'bg-bg-tertiary'}`}
+                    className={`focus-ring relative h-5 w-9 rounded-full transition-colors ${rule.enabled ? 'bg-success' : 'bg-bg-tertiary'}`}
                   >
-                    <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all ${rule.enabled ? 'left-[18px]' : 'left-0.5'}`} />
+                    <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-bg-secondary shadow transition-all ${rule.enabled ? 'left-[18px]' : 'left-0.5'}`} />
                   </button>
                   <button type="button" onClick={() => onMove(rule.id, 1)} disabled={index === config.rules.length - 1} aria-label={`Move ${rule.name || 'rule'} down`} className="focus-ring rounded-lg p-1.5 text-text-secondary hover:bg-bg-tertiary disabled:opacity-30">
                     <ChevronDown size={16} />
@@ -151,7 +151,7 @@ export function RoutingFlow({ config, ctx, selectedId, issues, simulation, readO
           onClick={() => onSelect('fallback')}
           aria-current={selectedId === 'fallback' ? 'true' : undefined}
           className={`focus-ring flex w-full items-start gap-3 rounded-2xl border bg-bg-secondary p-4 text-left transition-colors ${
-            fallbackReached ? 'border-success-500 ring-2 ring-success-500/30' : selectedId === 'fallback' ? 'border-accent ring-2 ring-accent/30' : 'border-border'
+            fallbackReached ? 'border-success ring-2 ring-success/30' : selectedId === 'fallback' ? 'border-accent ring-2 ring-accent/30' : 'border-border'
           }`}
         >
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-bg-tertiary text-text-secondary">

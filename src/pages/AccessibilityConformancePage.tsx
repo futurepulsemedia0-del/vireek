@@ -213,7 +213,7 @@ export function AccessibilityConformancePage() {
                         <span
                           className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                             issue.status === 'in-progress'
-                              ? 'bg-warning-500/10 text-warning-500'
+                              ? 'bg-warning-subtle text-warning'
                               : 'bg-bg-tertiary text-text-secondary'
                           }`}
                         >
@@ -246,7 +246,7 @@ export function AccessibilityConformancePage() {
               </a>
             </Section>
 
-            <p className="text-sm text-text-secondary/70">
+            <p className="text-sm text-text-muted">
               See also our{' '}
               <Link to="/accessibility" className="font-semibold text-accent hover:underline">
                 Accessibility Statement

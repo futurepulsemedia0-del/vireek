@@ -3,15 +3,15 @@ import { CERT_META, type CertLevel } from '@/lib/noSurprise';
 import { shortHash } from '@/lib/jobEvidenceChain';
 
 const TONE_BOX = {
-  success: 'border-success-500/30 bg-success-500/5',
-  warning: 'border-warning-500/30 bg-warning-500/5',
+  success: 'border-success/30 bg-success-subtle',
+  warning: 'border-warning/30 bg-warning-subtle',
   danger: 'border-danger/30 bg-danger/5',
   neutral: 'border-border bg-bg-primary',
 } as const;
 
 const TONE_TEXT = {
-  success: 'text-success-500',
-  warning: 'text-warning-500',
+  success: 'text-success',
+  warning: 'text-warning',
   danger: 'text-danger',
   neutral: 'text-text-secondary',
 } as const;

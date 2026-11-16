@@ -49,7 +49,7 @@ function Toggle({ label, checked, onChange, disabled }: { label: string; checked
         checked={checked}
         disabled={disabled}
         onChange={(e) => onChange(e.target.checked)}
-        className="focus-ring h-5 w-5 shrink-0 accent-[var(--accent-primary,#2563eb)]"
+        className="focus-ring h-5 w-5 shrink-0 accent-accent"
       />
     </label>
   );
@@ -116,7 +116,7 @@ function ColorField({ label, value, onChange, disabled }: { label: string; value
           value={text}
           disabled={disabled}
           maxLength={7}
-          error={invalid ? 'Use a hex color like #203AD8.' : undefined}
+          error={invalid ? 'Use a hex color like #AE3600.' : undefined}
           onChange={(e) => commit(e.target.value)}
           onBlur={() => setText(value)}
           className="font-mono uppercase"
@@ -208,7 +208,7 @@ export function DesignerPanel({ docType, design, onChange, readOnly = false }: D
           <ColorField label="Accent color" value={design.theme.accent} disabled={readOnly} onChange={(v) => set('theme', { accent: v })} />
         </div>
         {lowContrastText && (
-          <p role="status" className="rounded-xl border border-warning-500/40 bg-warning-500/10 p-3 text-xs text-text-primary">
+          <p role="status" className="rounded-xl border border-warning/40 bg-warning-subtle p-3 text-xs text-text-primary">
             This primary color is very light. Titles and table headers may be hard to read on white paper — pick a darker one.
           </p>
         )}

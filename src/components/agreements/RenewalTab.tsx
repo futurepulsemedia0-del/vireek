@@ -26,15 +26,15 @@ import { useAgreementActions } from './useAgreementActions';
 const RISK_STYLES = {
   none: 'bg-bg-tertiary text-text-secondary',
   watch: 'bg-accent/10 text-accent',
-  urgent: 'bg-warning-500/10 text-warning-500',
+  urgent: 'bg-warning-subtle text-warning',
   lapsed: 'bg-danger/10 text-danger',
-  secured: 'bg-success-500/10 text-success-500',
+  secured: 'bg-success-subtle text-success',
 } as const;
 
 const STATUS_STYLES: Record<RenewalStatus, string> = {
-  pending: 'bg-warning-500/10 text-warning-500',
+  pending: 'bg-warning-subtle text-warning',
   quoted: 'bg-accent/10 text-accent',
-  accepted: 'bg-success-500/10 text-success-500',
+  accepted: 'bg-success-subtle text-success',
   declined: 'bg-danger/10 text-danger',
   lapsed: 'bg-bg-tertiary text-text-secondary',
 };

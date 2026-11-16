@@ -8,13 +8,13 @@ import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, BusinessDecision, BusinessDecisionSettings } from '@/lib/supabase';
 
 const CATEGORY_CONFIG: Record<BusinessDecision['category'], { icon: typeof DollarSign; label: string; color: string }> = {
-  pricing: { icon: DollarSign, label: 'Pricing', color: 'text-emerald-500 bg-emerald-500/10' },
-  dispatch: { icon: Zap, label: 'Dispatch', color: 'text-amber-500 bg-amber-500/10' },
-  staffing: { icon: Wrench, label: 'Staffing', color: 'text-blue-500 bg-blue-500/10' },
-  marketing: { icon: Megaphone, label: 'Marketing', color: 'text-violet-500 bg-violet-500/10' },
+  pricing: { icon: DollarSign, label: 'Pricing', color: 'text-success bg-success-subtle' },
+  dispatch: { icon: Zap, label: 'Dispatch', color: 'text-warning bg-warning-subtle' },
+  staffing: { icon: Wrench, label: 'Staffing', color: 'text-info bg-info-subtle' },
+  marketing: { icon: Megaphone, label: 'Marketing', color: 'text-accent bg-accent-subtle' },
   collections: { icon: DollarSign, label: 'Collections', color: 'text-danger bg-danger/10' },
-  retention: { icon: Heart, label: 'Retention', color: 'text-pink-500 bg-pink-500/10' },
-  operations: { icon: Users, label: 'Operations', color: 'text-slate-500 bg-slate-500/10' },
+  retention: { icon: Heart, label: 'Retention', color: 'text-accent bg-accent-subtle' },
+  operations: { icon: Users, label: 'Operations', color: 'text-text-secondary bg-text-muted/10' },
 };
 
 function DecisionCard({ decision, onUpdate, index }: { decision: BusinessDecision; onUpdate: (id: string, status: 'approved' | 'rejected') => void; index: number }) {
@@ -57,7 +57,7 @@ function DecisionCard({ decision, onUpdate, index }: { decision: BusinessDecisio
 
       {isPending ? (
         <div className="flex gap-2 pt-1">
-          <button onClick={() => onUpdate(decision.id, 'approved')} className="focus-ring flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-sm font-semibold text-white hover:opacity-90">
+          <button onClick={() => onUpdate(decision.id, 'approved')} className="focus-ring flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-sm font-semibold text-on-accent hover:opacity-90">
             <Check size={16} /> Approve
           </button>
           <button onClick={() => onUpdate(decision.id, 'rejected')} className="focus-ring flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm font-semibold text-text-secondary hover:bg-bg-primary">
@@ -158,7 +158,7 @@ export function BusinessDecisionEnginePage() {
           <button onClick={() => setShowSettings((s) => !s)} className="focus-ring flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-semibold text-text-primary hover:bg-bg-secondary">
             <SettingsIcon size={16} /> Autonomy Settings
           </button>
-          <button onClick={handleRun} disabled={running} className="focus-ring flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60">
+          <button onClick={handleRun} disabled={running} className="focus-ring flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-on-accent hover:opacity-90 disabled:opacity-60">
             <RefreshCw size={16} className={running ? 'animate-spin' : ''} /> Run Analysis
           </button>
         </div>

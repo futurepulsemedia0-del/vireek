@@ -50,7 +50,7 @@ export function FieldMessagesPage() {
                   <p className="truncate text-xs text-text-secondary">{t.service_type || '—'}</p>
                   <p dir="auto" className="mt-0.5 truncate text-xs text-text-secondary">{previewText(t, 'office')}</p>
                 </div>
-                {t.unread_count > 0 && <span className="rounded-full bg-accent px-1.5 py-0.5 text-xs font-semibold text-white" aria-label={`${t.unread_count} unread`}>{t.unread_count}</span>}
+                {t.unread_count > 0 && <span className="rounded-full bg-accent px-1.5 py-0.5 text-xs font-semibold text-on-accent" aria-label={`${t.unread_count} unread`}>{t.unread_count}</span>}
               </button>
             ))}
           </aside>

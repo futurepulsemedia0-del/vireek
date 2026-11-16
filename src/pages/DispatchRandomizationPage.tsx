@@ -136,7 +136,7 @@ export function DispatchRandomizationPage() {
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <h2 id="rz-status" className="text-base font-semibold text-text-primary">{t('status.title')}</h2>
-                  <p role="status" aria-live="polite" className={`mt-1 text-sm font-medium ${enabled ? 'text-success-500' : 'text-text-secondary'}`}>{enabled ? t('status.on') : t('status.off')}</p>
+                  <p role="status" aria-live="polite" className={`mt-1 text-sm font-medium ${enabled ? 'text-success' : 'text-text-secondary'}`}>{enabled ? t('status.on') : t('status.off')}</p>
                   {settings.updated_at && <p className="mt-1 text-xs text-text-secondary">{t('status.updated', { when: when(settings.updated_at) })}</p>}
                 </div>
                 {enabled && canEdit && (
@@ -246,7 +246,7 @@ export function DispatchRandomizationPage() {
                                 <td className="py-1">{names[r.technician_id] ?? t('balance.unknown')}</td>
                                 <td className="py-1 text-end">{num.format(r.expected)}</td>
                                 <td className="py-1 text-end">{num.format(r.observed)}</td>
-                                <td className={`py-1 text-end font-medium ${off ? 'text-warning-500' : 'text-success-500'}`}>{off ? t('balance.uneven') : t('balance.fair')}</td>
+                                <td className={`py-1 text-end font-medium ${off ? 'text-warning' : 'text-success'}`}>{off ? t('balance.uneven') : t('balance.fair')}</td>
                               </tr>
                             );
                           })}

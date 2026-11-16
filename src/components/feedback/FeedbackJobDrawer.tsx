@@ -54,7 +54,7 @@ export function FeedbackJobDrawer({ record, accountOwnerId, onClose }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true" />
+      <div className="absolute inset-0 bg-overlay/40" onClick={onClose} aria-hidden="true" />
       <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="feedback-job-title" tabIndex={-1} className="relative flex h-full w-full max-w-md flex-col overflow-y-auto border-l border-border bg-bg-primary p-5 shadow-xl">
         <div className="mb-4 flex items-start justify-between gap-3">
           <div className="min-w-0">
@@ -66,7 +66,7 @@ export function FeedbackJobDrawer({ record, accountOwnerId, onClose }: Props) {
 
         <div className={`rounded-2xl border p-4 ${detractor ? 'border-danger/30 bg-danger/5' : 'border-border bg-bg-secondary'}`}>
           <p className="flex items-center gap-1 text-text-primary" aria-label={`${record.rating} out of 5 stars`}>
-            {[1, 2, 3, 4, 5].map((n) => <Star key={n} size={16} className={n <= record.rating ? 'fill-amber-400 text-amber-400' : 'text-border'} />)}
+            {[1, 2, 3, 4, 5].map((n) => <Star key={n} size={16} className={n <= record.rating ? 'fill-warning text-warning' : 'text-border'} />)}
             <span className="ml-2 text-sm font-semibold">{record.rating}/5</span>
             <span className="ml-1 text-xs capitalize text-text-secondary">· {classify(record.rating)} · {sentiment.label}</span>
           </p>

@@ -83,7 +83,7 @@ export function MaterialsTab({ ownerId, bundle, onChanged }: TabProps) {
                 <select aria-label={`Status for ${m.description}`} className={`${selectClass} !w-auto`} value={m.status} disabled={busyKey === `st-${m.id}`} onChange={(e) => run(`st-${m.id}`, () => setMaterialStatus(ownerId, m.id, e.target.value as MaterialStatus))}>
                   {MATERIAL_STATUS_ORDER.map((s) => <option key={s} value={s}>{MATERIAL_STATUS_LABEL[s]}</option>)}
                 </select>
-                <button type="button" aria-label={`Delete ${m.description}`} onClick={() => ask({ title: 'Delete material?', description: `“${m.description}” will be removed from the bill of materials.`, label: 'Delete material', onConfirm: () => run(`del-${m.id}`, () => deleteMaterial(ownerId, m.id), 'Material deleted.') })} className="focus-ring rounded-lg p-1.5 text-text-secondary hover:bg-bg-tertiary hover:text-danger-500">
+                <button type="button" aria-label={`Delete ${m.description}`} onClick={() => ask({ title: 'Delete material?', description: `“${m.description}” will be removed from the bill of materials.`, label: 'Delete material', onConfirm: () => run(`del-${m.id}`, () => deleteMaterial(ownerId, m.id), 'Material deleted.') })} className="focus-ring rounded-lg p-1.5 text-text-secondary hover:bg-bg-tertiary hover:text-danger">
                   <Trash2 size={16} aria-hidden="true" />
                 </button>
               </li>

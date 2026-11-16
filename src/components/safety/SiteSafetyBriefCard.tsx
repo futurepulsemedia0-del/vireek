@@ -19,8 +19,8 @@ import {
 } from '@/lib/siteSafety';
 
 const TIER_STYLE: Record<RiskTier, { label: string; cls: string }> = {
-  standard: { label: 'Standard', cls: 'bg-success-500/10 text-success-500' },
-  elevated: { label: 'Elevated', cls: 'bg-warning-500/10 text-warning-500' },
+  standard: { label: 'Standard', cls: 'bg-success-subtle text-success' },
+  elevated: { label: 'Elevated', cls: 'bg-warning-subtle text-warning' },
   high: { label: 'High', cls: 'bg-danger/10 text-danger' },
 };
 
@@ -171,10 +171,10 @@ export function SiteSafetyBriefCard({ jobId }: { jobId: string }) {
         <p className="mt-2 text-xs text-text-secondary">Some information from calls is waiting for a manager to confirm it, so this level may change.</p>
       )}
       {brief.outside_daytime && (
-        <p className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-warning-500"><TriangleAlert size={13} aria-hidden="true" /> This visit is outside daylight hours.</p>
+        <p className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-warning"><TriangleAlert size={13} aria-hidden="true" /> This visit is outside daylight hours.</p>
       )}
       {brief.job_flag && (
-        <p className="mt-2 rounded-lg bg-warning-500/10 px-3 py-2 text-xs text-warning-500">Flagged for this job{brief.job_flag.note ? `: ${brief.job_flag.note}` : '.'}</p>
+        <p className="mt-2 rounded-lg bg-warning-subtle px-3 py-2 text-xs text-warning">Flagged for this job{brief.job_flag.note ? `: ${brief.job_flag.note}` : '.'}</p>
       )}
 
       {(brief.precautions?.length ?? 0) > 0 && (
@@ -199,7 +199,7 @@ export function SiteSafetyBriefCard({ jobId }: { jobId: string }) {
 
       <div className="mt-3 flex flex-wrap gap-2">
         {!brief.acknowledged && (
-          <button type="button" onClick={() => void ack()} disabled={acking} className="focus-ring min-h-[44px] rounded-lg bg-accent px-4 text-sm font-semibold text-white disabled:opacity-60">
+          <button type="button" onClick={() => void ack()} disabled={acking} className="focus-ring min-h-[44px] rounded-lg bg-accent px-4 text-sm font-semibold text-on-accent disabled:opacity-60">
             {acking ? 'Saving…' : 'I have read this'}
           </button>
         )}
@@ -218,7 +218,7 @@ export function SiteSafetyBriefCard({ jobId }: { jobId: string }) {
           {lintMsg.length > 0 && <p role="alert" className="text-xs text-danger">{lintMsg.join(' ')}</p>}
           <p className="text-[11px] text-text-secondary">Describe events and the property, never people’s traits or the neighbourhood.</p>
           <div className="flex justify-end">
-            <button type="button" onClick={() => void submitFact()} disabled={!lint.ok || saving} className="focus-ring min-h-[44px] rounded-lg bg-accent px-4 text-sm font-semibold text-white disabled:opacity-50">{saving ? 'Saving…' : 'Save note'}</button>
+            <button type="button" onClick={() => void submitFact()} disabled={!lint.ok || saving} className="focus-ring min-h-[44px] rounded-lg bg-accent px-4 text-sm font-semibold text-on-accent disabled:opacity-50">{saving ? 'Saving…' : 'Save note'}</button>
           </div>
         </div>
       )}

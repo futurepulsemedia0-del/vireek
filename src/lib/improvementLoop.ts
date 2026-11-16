@@ -303,10 +303,10 @@ export const CAUSE_LABELS: Record<CauseKey, string> = {
 };
 
 export const CAUSE_COLORS: Record<CauseKey, string> = {
-  parts: 'bg-warning-500',
+  parts: 'bg-warning',
   technician_skill: 'bg-accent',
   diagnosis: 'bg-danger',
-  customer_access: 'bg-success-500',
+  customer_access: 'bg-success',
   schedule_route: 'bg-text-secondary',
   hidden_issue: 'bg-danger/60',
   unexplained: 'bg-bg-tertiary',

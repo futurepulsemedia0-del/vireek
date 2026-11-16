@@ -60,7 +60,7 @@ export function ArrivalWindowSettingsCard() {
       </p>
 
       {state === 'loading' && <div className="mt-4 h-24 animate-pulse rounded-xl bg-bg-primary" aria-busy="true" />}
-      {state === 'error' && <p className="mt-4 text-sm text-red-500" role="alert">Could not load arrival-window settings.</p>}
+      {state === 'error' && <p className="mt-4 text-sm text-danger" role="alert">Could not load arrival-window settings.</p>}
 
       {state === 'ready' && (
         <div className="mt-4 space-y-5">
@@ -83,7 +83,7 @@ export function ArrivalWindowSettingsCard() {
                   );
                 })}
               </div>
-              {invalid && <p className="mt-2 text-xs text-red-500">Pick at least one length.</p>}
+              {invalid && <p className="mt-2 text-xs text-danger">Pick at least one length.</p>}
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
@@ -111,7 +111,7 @@ export function ArrivalWindowSettingsCard() {
 
           <div className="flex items-center gap-3">
             <button type="button" onClick={save} disabled={saving || invalid}
-              className="focus-ring rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
+              className="focus-ring rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-on-accent disabled:opacity-50">
               {saving ? 'Saving…' : 'Save'}
             </button>
             {note && <span className="text-xs text-text-secondary" role="status">{note}</span>}

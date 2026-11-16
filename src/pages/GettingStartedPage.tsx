@@ -37,18 +37,18 @@ const ICONS: Record<StepKey, LucideIcon> = {
 function StatusDot({ status }: { status: StepView['status'] }) {
   if (status === 'done') {
     return (
-      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-success-500 text-white">
+      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-success text-on-success">
         <Check size={15} strokeWidth={3} aria-hidden="true" />
       </span>
     );
   }
   if (status === 'unknown') {
-    return <AlertCircle size={28} className="shrink-0 text-warning-500" aria-hidden="true" />;
+    return <AlertCircle size={28} className="shrink-0 text-warning" aria-hidden="true" />;
   }
   return (
     <CircleDashed
       size={28}
-      className={`shrink-0 ${status === 'skipped' ? 'text-text-secondary/40' : 'text-text-secondary/70'}`}
+      className={`shrink-0 ${status === 'skipped' ? 'text-graphic-muted' : 'text-graphic-muted'}`}
       aria-hidden="true"
     />
   );
@@ -78,7 +78,7 @@ function StepRow({
         <StatusDot status={step.status} />
         <div className="min-w-0">
           <h3 className={`flex items-center gap-2 text-sm font-semibold ${muted ? 'text-text-secondary' : 'text-text-primary'}`}>
-            <Icon size={15} className="shrink-0 text-text-secondary/70" aria-hidden="true" />
+            <Icon size={15} className="shrink-0 text-graphic-muted" aria-hidden="true" />
             <span className={step.status === 'done' ? 'line-through decoration-text-secondary/40' : ''}>{step.title}</span>
             <span className="sr-only"> — {STATUS_LABEL[step.status]}</span>
           </h3>
@@ -195,7 +195,7 @@ export function GettingStartedPage() {
             >
               {summary.complete ? (
                 <div className="flex items-start gap-3">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-success-500/10 text-success-500">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-success-subtle text-success">
                     <PartyPopper size={20} aria-hidden="true" />
                   </span>
                   <div>

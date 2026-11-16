@@ -650,9 +650,9 @@ export function renderEmail(args: {
   const e = escapeHtml;
   const hello = vars.customer_first_name ? `Hi ${vars.customer_first_name},` : "Hello,";
 
-  const h2 = (t: string) => `<h2 style="font-size:15px;margin:24px 0 8px;color:#111">${e(t)}</h2>`;
+  const h2 = (t: string) => `<h2 style="font-size:15px;margin:24px 0 8px;color:#141413">${e(t)}</h2>`;
   const ul = (items: string[]) =>
-    `<ul style="margin:0;padding-left:20px;font-size:15px;line-height:1.6;color:#222">${items.map((i) => `<li>${e(i)}</li>`).join("")}</ul>`;
+    `<ul style="margin:0;padding-left:20px;font-size:15px;line-height:1.6;color:#1C1B15">${items.map((i) => `<li>${e(i)}</li>`).join("")}</ul>`;
 
   const warrantyLines = content.warranty.map((w) => {
     const st = warrantyStatus(w.expires_on, todayISO);
@@ -666,8 +666,8 @@ export function renderEmail(args: {
   const partLines = content.parts.map((p) => `${p.quantity} × ${p.name}`);
 
   let html =
-    `<div style="font-family:system-ui,-apple-system,Segoe UI,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#111">` +
-    `<p style="font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#666;margin:0 0 4px">${e(vars.business_name)}</p>` +
+    `<div style="font-family:system-ui,-apple-system,Segoe UI,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#141413">` +
+    `<p style="font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#73726C;margin:0 0 4px">${e(vars.business_name)}</p>` +
     `<h1 style="font-size:22px;margin:0 0 12px">${e(content.headline)}</h1>` +
     `<p style="font-size:16px">${e(hello)}</p><p style="font-size:15px;line-height:1.6">${e(content.intro)}</p>`;
   if (content.work_summary) html += h2("What we found") + `<p style="font-size:15px;line-height:1.6;margin:0">${e(content.work_summary)}</p>`;
@@ -683,9 +683,9 @@ export function renderEmail(args: {
   }
   const href = e(vars.link);
   html +=
-    `<p style="margin:28px 0"><a href="${href}" style="background:#2563eb;color:#fff;text-decoration:none;padding:14px 24px;border-radius:10px;font-weight:600;display:inline-block">` +
+    `<p style="margin:28px 0"><a href="${href}" style="background:#a93b0f;color:#fff;text-decoration:none;padding:14px 24px;border-radius:10px;font-weight:600;display:inline-block">` +
     `${content.photoCount > 0 ? "View full summary and photos" : "View full summary"}</a></p>` +
-    `<p style="font-size:13px;color:#666">If the button doesn't work, open this link: ${href}</p></div>`;
+    `<p style="font-size:13px;color:#73726C">If the button doesn't work, open this link: ${href}</p></div>`;
 
   const lines: string[] = [hello, "", content.headline, content.intro, ""];
   if (content.work_summary) lines.push("What we found:", content.work_summary, "");

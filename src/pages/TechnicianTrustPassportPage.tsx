@@ -42,7 +42,7 @@ import {
 function StatBlock({ label, value, valueClass = 'text-text-primary' }: { label: string; value: string; valueClass?: string }) {
   return (
     <div>
-      <p className="text-[11px] uppercase tracking-wide text-text-secondary/70">{label}</p>
+      <p className="text-[11px] uppercase tracking-wide text-text-muted">{label}</p>
       <p className={`mt-0.5 text-lg font-bold ${valueClass}`}>{value}</p>
     </div>
   );
@@ -61,7 +61,7 @@ function PassportCard({ p, sim }: { p: TechnicianTrustPassport; sim?: Technician
             {p.certifications.map((c) => (
               <span
                 key={c}
-                className="inline-flex items-center gap-1 rounded-full bg-success-500/10 px-2.5 py-1 text-xs font-medium text-success-500"
+                className="inline-flex items-center gap-1 rounded-full bg-success-subtle px-2.5 py-1 text-xs font-medium text-success"
               >
                 <BadgeCheck size={12} /> {c}
               </span>
@@ -75,7 +75,7 @@ function PassportCard({ p, sim }: { p: TechnicianTrustPassport; sim?: Technician
 
       <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-4 border-t border-border/60 pt-5 sm:grid-cols-3">
         <StatBlock label="First-time fix" value={formatRate(p.first_time_fix_rate)} valueClass={rateColor(p.first_time_fix_rate, 90)} />
-        <StatBlock label="Callback rate" value={formatRate(p.callback_rate)} valueClass={p.callback_rate === null ? 'text-text-secondary' : p.callback_rate <= 5 ? 'text-success-500' : p.callback_rate <= 15 ? 'text-warning-500' : 'text-danger'} />
+        <StatBlock label="Callback rate" value={formatRate(p.callback_rate)} valueClass={p.callback_rate === null ? 'text-text-secondary' : p.callback_rate <= 5 ? 'text-success' : p.callback_rate <= 15 ? 'text-warning' : 'text-danger'} />
         <StatBlock
           label="Customer rating"
           value={p.customer_rating_avg === null ? '—' : `${p.customer_rating_avg.toFixed(1)}/5`}
@@ -98,7 +98,7 @@ function PassportCard({ p, sim }: { p: TechnicianTrustPassport; sim?: Technician
         </span>
         <span
           className={`inline-flex items-center gap-1 ${
-            p.unresolved_complaint_count > 0 ? 'text-danger' : 'text-success-500'
+            p.unresolved_complaint_count > 0 ? 'text-danger' : 'text-success'
           }`}
         >
           <AlertTriangle size={12} /> {p.unresolved_complaint_count} unresolved complaint
@@ -106,7 +106,7 @@ function PassportCard({ p, sim }: { p: TechnicianTrustPassport; sim?: Technician
         </span>
       </div>
       <div className="mt-4 border-t border-border/60 pt-3">
-        <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-text-secondary/70">
+        <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-text-muted">
           <FlaskConical size={12} /> Simulator-verified (training, not real jobs)
         </p>
         {sim && sim.attempts_completed > 0 ? (

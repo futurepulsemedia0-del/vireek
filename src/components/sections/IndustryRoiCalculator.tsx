@@ -181,7 +181,7 @@ export function IndustryRoiCalculator({ industry }: { industry: Industry }) {
               step={5}
               format={(v) => `${v}%`}
             />
-            <p className="text-xs leading-relaxed text-text-secondary/70">
+            <p className="text-xs leading-relaxed text-text-muted">
               {`Defaults reflect typical ${audience} call volume and ticket size, including ${roi.emergencyLabel}. Adjust to match your own numbers.`}
             </p>
           </div>

@@ -209,7 +209,7 @@ export function MissedCallCalculator() {
               step={5}
               format={(v) => `${v}%`}
             />
-            <p className="text-xs leading-relaxed text-text-secondary/70">
+            <p className="text-xs leading-relaxed text-text-muted">
               Based on industry benchmarks showing service businesses miss roughly 60% of inbound
               calls. Adjust the sliders to match your own numbers.
             </p>

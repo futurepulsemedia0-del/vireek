@@ -97,7 +97,7 @@ export function AccessibilityPage() {
               </div>
             </div>
             <div className="relative border-t border-border px-5 py-3">
-              <p className="text-xs text-text-secondary/70">
+              <p className="text-xs text-text-muted">
                 Use the floating accessibility button in the bottom-right corner to customize your experience with profiles, vision controls, contrast settings, and more.
               </p>
             </div>
@@ -183,14 +183,14 @@ export function AccessibilityPage() {
                 <ArrowRight size={14} className="ml-1" />
               </a>
             </div>
-                         <p className="text-sm text-text-secondary/70">
+                         <p className="text-sm text-text-muted">
               Looking for the formal document?{' '}
               <Link to="/accessibility/conformance" className="font-semibold text-accent hover:underline">
                 Read our WCAG Conformance Statement
               </Link>
               .
             </p>
-            <p className="text-sm text-text-secondary/70">
+            <p className="text-sm text-text-muted">
               See also our{' '}
               <Link to="/privacy" className="font-semibold text-accent hover:underline">
                 Privacy Policy

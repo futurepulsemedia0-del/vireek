@@ -55,7 +55,7 @@ export function TechnicianTagPanel({ equipment, onAssigned }: { equipment: Equip
 
       {phase.kind === 'idle' || phase.kind === 'msg' ? (
         <>
-          <button type="button" onClick={() => setOpen(true)} className="focus-ring inline-flex items-center gap-2 rounded-lg bg-accent px-3 py-2.5 text-sm font-semibold text-white hover:opacity-90">
+          <button type="button" onClick={() => setOpen(true)} className="focus-ring inline-flex items-center gap-2 rounded-lg bg-accent px-3 py-2.5 text-sm font-semibold text-on-accent hover:opacity-90">
             <ScanLine size={15} aria-hidden="true" /> Scan a tag
           </button>
           {phase.kind === 'msg' && (
@@ -90,7 +90,7 @@ export function TechnicianTagPanel({ equipment, onAssigned }: { equipment: Equip
 
       {phase.kind === 'done' && (
         <div className="flex items-center justify-between gap-2 text-sm text-text-primary">
-          <span className="inline-flex items-center gap-1.5"><CheckCircle2 size={15} className="text-success-500" aria-hidden="true" /> Tag attached.</span>
+          <span className="inline-flex items-center gap-1.5"><CheckCircle2 size={15} className="text-success" aria-hidden="true" /> Tag attached.</span>
           <Link className="text-xs text-accent underline" to={`/t/${phase.token}`}>View tag page</Link>
         </div>
       )}

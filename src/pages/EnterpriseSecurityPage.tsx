@@ -29,7 +29,7 @@ import {
 } from '@/lib/enterpriseSecurity';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder transition-colors';
 
 type Tab = 'sso' | 'scim' | 'roles' | 'ip' | 'session';
 
@@ -241,7 +241,7 @@ export function EnterpriseSecurityPage() {
             type="button"
             onClick={() => setTab(t.key)}
             className={`focus-ring flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium transition-colors ${
-              tab === t.key ? 'bg-accent text-white' : 'bg-bg-secondary text-text-secondary hover:text-text-primary'
+              tab === t.key ? 'bg-accent text-on-accent' : 'bg-bg-secondary text-text-secondary hover:text-text-primary'
             }`}
           >
             <t.icon size={14} /> {t.label}
@@ -283,7 +283,7 @@ export function EnterpriseSecurityPage() {
                 type="button"
                 onClick={handleRegisterSso}
                 disabled={ssoSaving}
-                className="focus-ring mt-3 flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50"
+                className="focus-ring mt-3 flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent transition-all hover:brightness-110 disabled:opacity-50"
               >
                 {ssoSaving ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />} Register domain
               </button>
@@ -323,7 +323,7 @@ export function EnterpriseSecurityPage() {
               </div>
               <div className="mt-4 flex gap-2">
                 <input type="text" value={newTokenName} onChange={(e) => setNewTokenName(e.target.value)} placeholder="Token name, e.g. Okta" className={inputClass} />
-                <button type="button" onClick={handleCreateToken} className="focus-ring flex shrink-0 items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white transition-all hover:brightness-110">
+                <button type="button" onClick={handleCreateToken} className="focus-ring flex shrink-0 items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent transition-all hover:brightness-110">
                   <Plus size={14} /> Create
                 </button>
               </div>
@@ -366,7 +366,7 @@ export function EnterpriseSecurityPage() {
                   type="button"
                   onClick={handleSaveRole}
                   disabled={savingRole}
-                  className="focus-ring mt-3 flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50"
+                  className="focus-ring mt-3 flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent transition-all hover:brightness-110 disabled:opacity-50"
                 >
                   {savingRole ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />} Save role
                 </button>
@@ -396,7 +396,7 @@ export function EnterpriseSecurityPage() {
                 <input type="text" value={newCidr} onChange={(e) => setNewCidr(e.target.value)} placeholder="203.0.113.0/24" className={inputClass} />
                 <input type="text" value={newLabel} onChange={(e) => setNewLabel(e.target.value)} placeholder="Label (optional)" className={inputClass} />
               </div>
-              <button type="button" onClick={handleAddIpRule} className="focus-ring mt-3 flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white transition-all hover:brightness-110">
+              <button type="button" onClick={handleAddIpRule} className="focus-ring mt-3 flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent transition-all hover:brightness-110">
                 <Plus size={14} /> Add rule
               </button>
             </Section>

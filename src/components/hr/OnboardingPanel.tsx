@@ -364,7 +364,7 @@ function OnboardingCard({ ctx, onboarding, open, onToggle, onCancel }: { ctx: Hr
                           aria-label={t.status === 'done' ? `Mark "${t.title}" not done` : `Mark "${t.title}" done`}
                           onClick={() => void changeStatus(t, t.status === 'done' ? 'pending' : 'done')}
                           className={`focus-ring mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border transition-colors disabled:opacity-50 ${
-                            t.status === 'done' ? 'border-success bg-success text-white' : 'border-border text-transparent hover:border-accent'
+                            t.status === 'done' ? 'border-success bg-success text-on-success' : 'border-border text-transparent hover:border-accent'
                           }`}
                         >
                           <Check size={16} aria-hidden="true" />

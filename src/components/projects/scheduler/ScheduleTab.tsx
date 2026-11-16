@@ -68,7 +68,7 @@ function SharePanel({ projectId, sharing, onChange }: { projectId: string; shari
       <SectionHeader title="Customer progress view" description="A private link your customer can open to follow phases and milestones. It never shows prices, notes or crew names." />
       <div className="flex flex-wrap items-center gap-2">
         <button type="button" role="switch" aria-checked={!!sharing?.enabled} disabled={busy} onClick={() => void act({ enabled: !sharing?.enabled }, sharing?.enabled ? 'Customer link turned off.' : 'Customer link turned on.')} className="focus-ring inline-flex items-center gap-2 rounded-xl border border-border px-3 py-2 text-sm font-medium text-text-primary hover:bg-bg-tertiary">
-          <span className={`h-2.5 w-2.5 rounded-full ${sharing?.enabled ? 'bg-success-500' : 'bg-text-secondary'}`} aria-hidden="true" /> {sharing?.enabled ? 'Link is on' : 'Link is off'}
+          <span className={`h-2.5 w-2.5 rounded-full ${sharing?.enabled ? 'bg-success' : 'bg-text-secondary'}`} aria-hidden="true" /> {sharing?.enabled ? 'Link is on' : 'Link is off'}
         </button>
         {sharing?.enabled && (
           <>
@@ -193,7 +193,7 @@ export function ScheduleTab({ ownerId, bundle, today, onChanged }: TabProps) {
     <div className="space-y-5">
       <SectionHeader title="Schedule" description="Drag a bar to reschedule it, drag its edges to change the length, or use the arrow keys. Later phases move automatically when links require it." />
       {readOnly && <p className="rounded-xl bg-bg-tertiary px-4 py-3 text-sm text-text-secondary">This project is {project.status}. The schedule is read-only — reopen the project to change it.</p>}
-      {data.notes.length > 0 && <p className="rounded-xl bg-warning-500/10 px-4 py-3 text-sm text-warning-500">Conflict checks are missing: {data.notes.join(', ')} could not be loaded.</p>}
+      {data.notes.length > 0 && <p className="rounded-xl bg-warning-subtle px-4 py-3 text-sm text-warning">Conflict checks are missing: {data.notes.join(', ')} could not be loaded.</p>}
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat label="Projected finish" value={finish ? formatDate(finish) : '—'} hint={project.target_end_date ? `Target ${formatDate(project.target_end_date)}` : 'No target date'} tone={finish && project.target_end_date && finish > project.target_end_date ? 'danger' : undefined} />
@@ -204,7 +204,7 @@ export function ScheduleTab({ ownerId, bundle, today, onChanged }: TabProps) {
 
       <div className="flex flex-wrap items-center gap-2" role="toolbar" aria-label="Schedule controls">
         <div role="group" aria-label="Zoom" className="inline-flex overflow-hidden rounded-xl border border-border">
-          {ZOOMS.map((z) => <button key={z.key} type="button" aria-pressed={zoom === z.key} onClick={() => setZoom(z.key)} className={`focus-ring px-3 py-2 text-sm font-medium ${zoom === z.key ? 'bg-accent text-white' : 'bg-bg-secondary text-text-secondary hover:bg-bg-tertiary'}`}>{z.label}</button>)}
+          {ZOOMS.map((z) => <button key={z.key} type="button" aria-pressed={zoom === z.key} onClick={() => setZoom(z.key)} className={`focus-ring px-3 py-2 text-sm font-medium ${zoom === z.key ? 'bg-accent text-on-accent' : 'bg-bg-secondary text-text-secondary hover:bg-bg-tertiary'}`}>{z.label}</button>)}
         </div>
         <Button size="sm" variant="secondary" onClick={() => setScrollSignal((n) => n + 1)}>Today</Button>
         <label className="inline-flex items-center gap-2 text-sm text-text-secondary"><input type="checkbox" checked={showCritical} onChange={(e) => setShowCritical(e.target.checked)} /> Critical path</label>
@@ -244,10 +244,10 @@ export function ScheduleTab({ ownerId, bundle, today, onChanged }: TabProps) {
       />
       <p className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-text-secondary" aria-label="Legend">
         <span><span className="mr-1 inline-block h-2.5 w-4 rounded bg-accent align-middle" />In progress</span>
-        <span><span className="mr-1 inline-block h-2.5 w-4 rounded bg-success-500 align-middle" />Complete</span>
-        <span><span className="mr-1 inline-block h-2.5 w-4 rounded ring-2 ring-danger-500 align-middle" />Critical path</span>
+        <span><span className="mr-1 inline-block h-2.5 w-4 rounded bg-success align-middle" />Complete</span>
+        <span><span className="mr-1 inline-block h-2.5 w-4 rounded ring-2 ring-danger align-middle" />Critical path</span>
         <span><span className="mr-1 inline-block h-2 w-2 rotate-45 bg-text-secondary align-middle" />Milestone</span>
-        <span><span className="mr-1 inline-block h-2 w-2 rotate-45 bg-warning-500 align-middle" />Linked job</span>
+        <span><span className="mr-1 inline-block h-2 w-2 rotate-45 bg-warning align-middle" />Linked job</span>
       </p>
 
       {selected && (
@@ -279,7 +279,7 @@ export function ScheduleTab({ ownerId, bundle, today, onChanged }: TabProps) {
           <ul className="space-y-2">
             {conflicts.map((c) => (
               <li key={c.id}>
-                <button type="button" onClick={() => c.phaseIds[0] && setSelectedId(c.phaseIds[0])} className={`focus-ring w-full rounded-xl px-3 py-2 text-left text-sm ${c.severity === 'error' ? 'bg-danger-500/10 text-danger-500' : c.severity === 'warning' ? 'bg-warning-500/15 text-warning-500' : 'bg-bg-tertiary text-text-secondary'}`}>
+                <button type="button" onClick={() => c.phaseIds[0] && setSelectedId(c.phaseIds[0])} className={`focus-ring w-full rounded-xl px-3 py-2 text-left text-sm ${c.severity === 'error' ? 'bg-danger-subtle text-danger' : c.severity === 'warning' ? 'bg-warning-subtle text-warning' : 'bg-bg-tertiary text-text-secondary'}`}>
                   <span className="font-semibold uppercase tracking-wide text-[11px]">{c.severity}</span> · {c.message}{c.hint ? <span className="block text-xs opacity-80">{c.hint}</span> : null}
                 </button>
               </li>

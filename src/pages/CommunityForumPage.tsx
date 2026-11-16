@@ -96,7 +96,7 @@ function NewThreadForm({
             type="button"
             disabled={saving || title.trim().length < 4 || !body.trim() || !authorName.trim()}
             onClick={submit}
-            className="focus-ring rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
+            className="focus-ring rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-on-accent disabled:opacity-40"
           >
             {saving ? 'Posting…' : 'Post question'}
           </button>
@@ -119,7 +119,7 @@ function ThreadRow({ thread, categoryName }: { thread: CommunityThread; category
             {thread.is_pinned && <Pin size={13} className="text-accent" />}
             <p className="truncate text-sm font-semibold text-text-primary">{thread.title}</p>
             {thread.status === 'answered' && (
-              <span className="flex shrink-0 items-center gap-1 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-600">
+              <span className="flex shrink-0 items-center gap-1 rounded-full border border-success/25 bg-success-subtle px-2 py-0.5 text-[11px] font-semibold text-success">
                 <CheckCircle2 size={11} /> Answered
               </span>
             )}
@@ -180,7 +180,7 @@ export function CommunityForumPage() {
               Ask questions, share what's working, and learn from other Vireek customers.
             </p>
           </div>
-          <button type="button" onClick={() => setShowForm((v) => !v)} className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white">
+          <button type="button" onClick={() => setShowForm((v) => !v)} className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-on-accent">
             <Plus size={15} /> New question
           </button>
         </div>
@@ -207,7 +207,7 @@ export function CommunityForumPage() {
           <div className="space-y-2">{[0, 1, 2].map((i) => <div key={i} className="h-20 animate-pulse rounded-2xl bg-bg-tertiary" />)}</div>
         ) : threads.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border py-12 text-center">
-            <MessageCircle className="mx-auto mb-2 h-6 w-6 text-text-secondary/50" />
+            <MessageCircle className="mx-auto mb-2 h-6 w-6 text-graphic-muted" />
             <p className="mx-auto max-w-sm text-sm text-text-secondary">No questions yet — be the first to ask.</p>
           </div>
         ) : (

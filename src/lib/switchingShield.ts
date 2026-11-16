@@ -99,11 +99,11 @@ export const ALL_OFFERS = Object.keys(OFFER_LABELS) as ShieldOfferType[];
 
 export const LEVEL_LABELS: Record<ShieldLevel, string> = { watch: 'Watch', at_risk: 'At risk', critical: 'Critical' };
 export const LEVEL_BADGE: Record<ShieldLevel, string> = {
-  watch: 'bg-warning-500/10 text-warning-500',
-  at_risk: 'bg-warning-500/20 text-warning-500',
+  watch: 'bg-warning-subtle text-warning',
+  at_risk: 'bg-warning-subtle text-warning',
   critical: 'bg-danger/10 text-danger',
 };
-export const LEVEL_BAR: Record<ShieldLevel, string> = { watch: 'bg-warning-500/60', at_risk: 'bg-warning-500', critical: 'bg-danger' };
+export const LEVEL_BAR: Record<ShieldLevel, string> = { watch: 'bg-warning/60', at_risk: 'bg-warning', critical: 'bg-danger' };
 
 export const ACTIVE_STATUSES: ShieldCaseStatus[] = ['open', 'action_pending'];
 export const isActiveCase = (c: ShieldCase) => ACTIVE_STATUSES.includes(c.status);

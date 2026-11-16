@@ -27,10 +27,10 @@ function formatDateTime(dateStr: string): string {
 const STATUS_COLORS: Record<string, string> = {
   queued: 'bg-bg-tertiary text-text-secondary',
   calling: 'bg-accent/10 text-accent',
-  connected: 'bg-success-500/10 text-success-500',
-  no_answer: 'bg-warning-500/10 text-warning-500',
-  voicemail_left: 'bg-warning-500/10 text-warning-500',
-  converted: 'bg-success-500/10 text-success-500',
+  connected: 'bg-success-subtle text-success',
+  no_answer: 'bg-warning-subtle text-warning',
+  voicemail_left: 'bg-warning-subtle text-warning',
+  converted: 'bg-success-subtle text-success',
   opted_out: 'bg-bg-tertiary text-text-secondary',
   failed: 'bg-danger/10 text-danger',
 };
@@ -98,7 +98,7 @@ function CampaignCard({ type, campaign, eligibleCount, onSave }: CampaignCardPro
           }`}
         >
           <span
-            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
+            className={`absolute top-0.5 h-5 w-5 rounded-full bg-bg-secondary shadow-sm transition-transform ${
               enabled ? 'translate-x-[22px]' : 'translate-x-0.5'
             }`}
           />
@@ -296,7 +296,7 @@ export function OutboundCampaignsPage() {
               )}
             </div>
 
-            <p className="mt-6 text-xs text-text-secondary/70">
+            <p className="mt-6 text-xs text-text-muted">
               These settings control when Sarah calls back. The actual dialing runs through your outbound
               calling workflow (Vapi + Twilio) — this page is the control panel and activity log for it.
             </p>

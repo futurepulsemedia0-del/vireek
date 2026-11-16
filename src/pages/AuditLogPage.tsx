@@ -75,8 +75,8 @@ function Details({ row }: { row: AuditLogRow }) {
           {details.rows.map((d) => (
             <tr key={d.field}>
               <td className="whitespace-nowrap px-3 py-2 font-mono text-xs text-text-primary">{d.field}</td>
-              <td className="break-all bg-danger-500/5 px-3 py-2 font-mono text-xs text-danger-500">{d.from}</td>
-              <td className="break-all bg-success-500/5 px-3 py-2 font-mono text-xs text-success-500">{d.to}</td>
+              <td className="break-all bg-danger-subtle px-3 py-2 font-mono text-xs text-danger">{d.from}</td>
+              <td className="break-all bg-success-subtle px-3 py-2 font-mono text-xs text-success">{d.to}</td>
             </tr>
           ))}
         </tbody>
@@ -265,7 +265,7 @@ export function AuditLogPage() {
       </div>
 
       {error && (
-        <div role="alert" className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-danger-500/30 bg-danger-500/5 px-4 py-3 text-sm text-danger-500">
+        <div role="alert" className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-danger/30 bg-danger-subtle px-4 py-3 text-sm text-danger">
           <span className="flex items-start gap-2">
             <AlertCircle size={16} className="mt-0.5 shrink-0" />
             {error}

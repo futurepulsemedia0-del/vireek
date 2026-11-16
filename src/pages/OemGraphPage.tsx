@@ -30,7 +30,7 @@ import {
 } from '@/lib/oemGraph';
 
 const FIELD =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary py-2 pl-9 pr-3 text-sm text-text-primary placeholder:text-text-secondary/70';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary py-2 pl-9 pr-3 text-sm text-text-primary placeholder:text-text-placeholder';
 const FILTERS = Object.keys(FLEET_FILTER_LABELS) as FleetFilter[];
 
 function StatTile({ label, value, hint }: { label: string; value: string; hint?: string }) {
@@ -217,7 +217,7 @@ export function OemGraphPage() {
                                     <ShieldAlert size={11} aria-hidden="true" /> {row.recall_count} recall{row.recall_count === 1 ? '' : 's'}
                                   </span>
                                 )}
-                                {row.issue_count > 0 && <span className="rounded-full bg-warning-500/10 px-2 py-0.5 font-medium text-warning-500">{row.issue_count} issue{row.issue_count === 1 ? '' : 's'}</span>}
+                                {row.issue_count > 0 && <span className="rounded-full bg-warning-subtle px-2 py-0.5 font-medium text-warning">{row.issue_count} issue{row.issue_count === 1 ? '' : 's'}</span>}
                                 {above && row.reliability && (
                                   <span className="rounded-full bg-danger/10 px-2 py-0.5 font-medium text-danger">
                                     {SIGNAL_LABELS.above_benchmark}

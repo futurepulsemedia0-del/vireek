@@ -65,7 +65,7 @@
   function textOn(hex) {
     var m = /^#([0-9a-f]{6})$/i.exec(hex);
     if (!m) return '#FFFFFF';
-    return lum(parseInt(m[1].slice(0, 2), 16), parseInt(m[1].slice(2, 4), 16), parseInt(m[1].slice(4, 6), 16)) > 0.4 ? '#111827' : '#FFFFFF';
+    return lum(parseInt(m[1].slice(0, 2), 16), parseInt(m[1].slice(2, 4), 16), parseInt(m[1].slice(4, 6), 16)) > 0.4 ? '#1C1B15' : '#FFFFFF';
   }
   function hexLum(hex) { return lum(parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)); }
   function ratio(a, b) { var x = hexLum(a), y = hexLum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
@@ -240,7 +240,7 @@
       '.err{color:var(--err);font-size:13px;min-height:1px}.note{background:var(--sf);border-radius:' + rs + 'px;padding:12px;color:var(--mu);font-size:13px}',
       '.ok{text-align:center;padding:12px 4px;display:flex;flex-direction:column;align-items:center;gap:10px}.ok svg{color:var(--okc)}.ok p{margin:0}.ok .big{font-size:16px;font-weight:700}.ok .mu{color:var(--mu);font-size:13px}',
       '.hp{position:absolute!important;left:-9999px!important;width:1px;height:1px;overflow:hidden}',
-      '.badge{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}.stars{display:inline-flex;gap:1px;color:#F5A623}.sw{display:inline-flex}.num{font-weight:800;font-size:18px}.cnt{color:var(--mu);font-size:13px}',
+      '.badge{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}.stars{display:inline-flex;gap:1px;color:#CAA100}.sw{display:inline-flex}.num{font-weight:800;font-size:18px}.cnt{color:var(--mu);font-size:13px}',
       '.cta{color:var(--a);font-weight:600;font-size:13px;text-decoration:underline}',
       '.opts{display:flex;flex-direction:column;gap:8px;max-height:min(260px,40vh);overflow:auto;padding:2px}',
       '.opt{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:48px;padding:10px 12px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:' + rs + 'px;text-align:left;line-height:1.3;width:100%}',
@@ -273,13 +273,13 @@
     root.appendChild(h('style', { text: css }));
   }
   function applyTheme(wrap, s, dark) {
-    var brand = isHex(s.brand_color) ? s.brand_color : '#3448E8';
-    var bg = dark ? '#111827' : '#FFFFFF';
+    var brand = isHex(s.brand_color) ? s.brand_color : '#A93B0F';
+    var bg = dark ? '#1C1B15' : '#FFFFFF';
     var vars = {
       '--b': brand, '--on': textOn(brand), '--a': accentOn(brand, bg, dark),
-      '--bg': bg, '--sf': dark ? '#1F2937' : '#F3F4F6', '--tx': dark ? '#F9FAFB' : '#111827',
-      '--mu': dark ? '#9CA3AF' : '#6B7280', '--bd': dark ? '#374151' : '#E5E7EB',
-      '--err': dark ? '#F87171' : '#DC2626', '--okc': dark ? '#34D399' : '#059669'
+      '--bg': bg, '--sf': dark ? '#2F2E28' : '#FAF9F5', '--tx': dark ? '#FAF9F5' : '#1C1B15',
+      '--mu': dark ? '#A9A8A2' : '#73726C', '--bd': dark ? '#44423D' : '#E8E6DC',
+      '--err': dark ? '#FF7E75' : '#D4222A', '--okc': dark ? '#67D97A' : '#18A141'
     };
     for (var k in vars) wrap.style.setProperty(k, vars[k]);
   }

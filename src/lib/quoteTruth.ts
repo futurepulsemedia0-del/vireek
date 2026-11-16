@@ -229,24 +229,24 @@ export function formatPct(fraction: number, digits = 0): string {
 }
 
 export const VERDICT_META: Record<TruthVerdict, { label: string; tone: string; summary: string }> = {
-  well_priced: { label: 'Well priced', tone: 'bg-success-500/10 text-success-500', summary: 'Inside the expected range with no serious flags.' },
+  well_priced: { label: 'Well priced', tone: 'bg-success-subtle text-success', summary: 'Inside the expected range with no serious flags.' },
   fair: { label: 'Fair', tone: 'bg-accent/10 text-accent', summary: 'Reasonable, with something worth a second look.' },
-  high: { label: 'High', tone: 'bg-warning-500/10 text-warning-500', summary: 'Above the expected range — expect pushback.' },
+  high: { label: 'High', tone: 'bg-warning-subtle text-warning', summary: 'Above the expected range — expect pushback.' },
   overpriced: { label: 'Overpriced', tone: 'bg-danger/10 text-danger', summary: 'Well above what the evidence supports.' },
-  underpriced: { label: 'Underpriced', tone: 'bg-warning-500/10 text-warning-500', summary: 'Below the expected range — you may be leaving money on the table.' },
+  underpriced: { label: 'Underpriced', tone: 'bg-warning-subtle text-warning', summary: 'Below the expected range — you may be leaving money on the table.' },
   low_evidence: { label: 'Low evidence', tone: 'bg-bg-tertiary text-text-secondary', summary: 'Not enough data to judge confidently. Add costs, history or benchmarks.' },
 };
 
 export const RISK_LEVEL_META: Record<RiskLevel, { label: string; tone: string; bar: string }> = {
-  low: { label: 'Low', tone: 'bg-success-500/10 text-success-500', bar: 'bg-success-500' },
+  low: { label: 'Low', tone: 'bg-success-subtle text-success', bar: 'bg-success' },
   moderate: { label: 'Moderate', tone: 'bg-accent/10 text-accent', bar: 'bg-accent' },
-  high: { label: 'High', tone: 'bg-warning-500/10 text-warning-500', bar: 'bg-warning-500' },
+  high: { label: 'High', tone: 'bg-warning-subtle text-warning', bar: 'bg-warning' },
   severe: { label: 'Severe', tone: 'bg-danger/10 text-danger', bar: 'bg-danger' },
 };
 
 export const SEVERITY_META: Record<Severity, { label: string; tone: string }> = {
   critical: { label: 'Critical', tone: 'bg-danger/10 text-danger' },
-  warning: { label: 'Warning', tone: 'bg-warning-500/10 text-warning-500' },
+  warning: { label: 'Warning', tone: 'bg-warning-subtle text-warning' },
   info: { label: 'Note', tone: 'bg-bg-tertiary text-text-secondary' },
 };
 

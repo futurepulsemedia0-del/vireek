@@ -25,8 +25,8 @@ const selectClass =
   'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-3 text-base text-text-primary focus-visible:border-accent';
 
 const TONE: Record<DispositionRule['tone'], string> = {
-  good: 'border-success-500/40 text-success-500 hover:bg-success-500/10',
-  warn: 'border-warning-500/40 text-warning-500 hover:bg-warning-500/10',
+  good: 'border-success/40 text-success hover:bg-success-subtle',
+  warn: 'border-warning/40 text-warning hover:bg-warning-subtle',
   bad: 'border-danger/40 text-danger hover:bg-danger/10',
   neutral: 'border-border text-text-primary hover:bg-bg-tertiary',
 };
@@ -45,7 +45,7 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
   const ref = useFocusTrap(true);
   useEscapeToClose(true, onClose);
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center sm:p-4" role="presentation" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-overlay/50 sm:items-center sm:p-4" role="presentation" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div ref={ref as React.RefObject<HTMLDivElement>} role="dialog" aria-modal="true" aria-label={title}
         className="max-h-[92vh] w-full overflow-y-auto rounded-t-2xl border border-border bg-bg-secondary p-5 sm:max-w-lg sm:rounded-2xl">
         <div className="mb-4 flex items-center justify-between">
@@ -345,7 +345,7 @@ function Console({ campaign, onChanged }: { campaign: DialerCampaign; onChanged:
               <Phone size={18} aria-hidden="true" /> Dial {formatPhone(contact.phone_e164)} on this device
             </a>
           ) : (
-            <p role="status" className="text-sm font-medium text-success-500">Call placed. Pick up your phone, then choose the outcome below.</p>
+            <p role="status" className="text-sm font-medium text-success">Call placed. Pick up your phone, then choose the outcome below.</p>
           )}
         </div>
       </div>
@@ -512,7 +512,7 @@ function CampaignList({ ownerId, canAdmin }: { ownerId: string; canAdmin: boolea
                   <Link to={`/dashboard/power-dialer/${c.id}`} className="focus-ring block rounded-2xl border border-border bg-bg-secondary p-4 transition-colors hover:border-accent/40">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <p className="text-sm font-semibold text-text-primary">{c.name}</p>
-                      <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${c.status === 'active' ? 'bg-success-500/10 text-success-500' : 'bg-bg-tertiary text-text-secondary'}`}>{CAMPAIGN_STATUS_LABELS[c.status]}</span>
+                      <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${c.status === 'active' ? 'bg-success-subtle text-success' : 'bg-bg-tertiary text-text-secondary'}`}>{CAMPAIGN_STATUS_LABELS[c.status]}</span>
                     </div>
                     <p className="mt-1 text-xs text-text-secondary">{s?.total_contacts ?? 0} contacts · {s?.ready_now ?? 0} ready · {s?.booked ?? 0} booked</p>
                     <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-bg-tertiary" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label={`${c.name} progress`}>

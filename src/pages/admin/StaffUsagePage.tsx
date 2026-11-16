@@ -46,8 +46,8 @@ function SEO() {
 }
 
 const HEALTH_STYLE: Record<Health, string> = {
-  healthy: 'bg-success-500/10 text-success-500',
-  thin: 'bg-warning-500/10 text-warning-500',
+  healthy: 'bg-success-subtle text-success',
+  thin: 'bg-warning-subtle text-warning',
   loss: 'bg-danger/10 text-danger',
   unpriced: 'bg-bg-tertiary text-text-secondary',
 };
@@ -66,7 +66,7 @@ function Kpi({ label, value, sub, tone }: { label: string; value: string; sub?: 
   return (
     <div className="rounded-2xl border border-border bg-bg-secondary p-5">
       <p className="text-sm font-medium text-text-secondary">{label}</p>
-      <p className={`mt-1 text-2xl font-bold tabular-nums sm:text-3xl ${tone === 'bad' ? 'text-danger' : tone === 'good' ? 'text-success-500' : 'text-text-primary'}`}>{value}</p>
+      <p className={`mt-1 text-2xl font-bold tabular-nums sm:text-3xl ${tone === 'bad' ? 'text-danger' : tone === 'good' ? 'text-success' : 'text-text-primary'}`}>{value}</p>
       {sub && <p className="mt-1 text-xs text-text-secondary">{sub}</p>}
     </div>
   );
@@ -210,7 +210,7 @@ export function StaffUsagePage() {
                     role="radio"
                     aria-checked={period === p.key}
                     onClick={() => setPeriod(p.key)}
-                    className={`focus-ring min-h-[36px] rounded-lg px-3 text-sm font-medium transition-colors ${period === p.key ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}
+                    className={`focus-ring min-h-[36px] rounded-lg px-3 text-sm font-medium transition-colors ${period === p.key ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}
                   >
                     {p.label}
                   </button>
@@ -285,7 +285,7 @@ export function StaffUsagePage() {
                   </div>
 
                   {report.truncated && (
-                    <p className="flex items-start gap-2 rounded-xl border border-warning-500/30 bg-warning-500/10 px-4 py-3 text-sm text-warning-500" role="alert">
+                    <p className="flex items-start gap-2 rounded-xl border border-warning/30 bg-warning-subtle px-4 py-3 text-sm text-warning" role="alert">
                       <AlertTriangle size={16} className="mt-0.5 shrink-0" aria-hidden="true" /> More than 5,000 tenants matched; showing the 5,000 with the highest AI cost. Totals cover only those.
                     </p>
                   )}

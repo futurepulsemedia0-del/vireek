@@ -104,8 +104,8 @@ function StatusBadge({ status }: { status: LandingStatus | LandingDomain['status
     published: 'bg-success/10 text-success',
     verified: 'bg-success/10 text-success',
     draft: 'bg-bg-tertiary text-text-secondary',
-    pending: 'bg-warning-500/10 text-warning-500',
-    archived: 'bg-warning-500/10 text-warning-500',
+    pending: 'bg-warning-subtle text-warning',
+    archived: 'bg-warning-subtle text-warning',
     failed: 'bg-danger/10 text-danger',
   };
   return (
@@ -423,7 +423,7 @@ function PageEditor({
                 id="lp-accent"
                 type="color"
                 className="focus-ring h-12 w-14 cursor-pointer rounded-xl border border-border bg-bg-primary p-1"
-                value={/^#[0-9a-fA-F]{6}$/.test(draft.accent_color) ? draft.accent_color : '#2563eb'}
+                value={/^#[0-9a-fA-F]{6}$/.test(draft.accent_color) ? draft.accent_color : '#a93b0f'}
                 onChange={(e) => patch({ accent_color: e.target.value })}
               />
               <Input
@@ -684,7 +684,7 @@ function DomainsPanel({
               </div>
 
               {d.last_error && (
-                <p className="mt-3 flex items-start gap-2 text-sm text-warning-500" role="status">
+                <p className="mt-3 flex items-start gap-2 text-sm text-warning" role="status">
                   <AlertCircle size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
                   {DOMAIN_ERROR_COPY[d.last_error] ?? 'Verification needs attention.'}
                 </p>

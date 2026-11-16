@@ -92,7 +92,7 @@ export function AICapability() {
                     'radial-gradient(circle at 50% 0%, rgb(var(--accent-primary) / 0.06), transparent 60%)',
                 }}
               />
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent transition-colors duration-300 group-hover:bg-accent group-hover:text-white sm:h-12 sm:w-12">
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent transition-colors duration-300 group-hover:bg-accent group-hover:text-on-accent sm:h-12 sm:w-12">
                 <Icon size={20} className="sm:size-[22px]" />
               </span>
               <h3 className="mt-4 text-base font-semibold text-text-primary sm:mt-5 sm:text-lg">{title}</h3>

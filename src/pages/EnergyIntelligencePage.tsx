@@ -40,7 +40,7 @@ import {
 } from '@/lib/energyIntelligence';
 
 const FIELD =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/70';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder';
 
 type Tab = 'overview' | 'anomalies' | 'equipment' | 'upgrades' | 'forecast' | 'portfolio' | 'bills';
 const TABS: { id: Tab; label: string }[] = [
@@ -122,7 +122,7 @@ function OpportunityCard({
           <p className="mt-1 text-xs leading-relaxed text-text-secondary">{o.rationale}</p>
         </div>
         <div className="text-right">
-          <p className="text-lg font-bold text-success-500">
+          <p className="text-lg font-bold text-success">
             {o.savings_cents ? `${fmtMoney(o.savings_cents.expected)}/yr` : 'Needs bill costs'}
           </p>
           {o.savings_cents && (
@@ -145,7 +145,7 @@ function OpportunityCard({
       <div className="mt-3 flex flex-wrap items-end gap-2 border-t border-border pt-3">
         <label className="text-xs text-text-secondary">
           Installed cost ($){' '}
-          <span className="text-text-secondary/70">
+          <span className="text-text-muted">
             (planning estimate, replace with your quote)
           </span>
           <input
@@ -160,7 +160,7 @@ function OpportunityCard({
         </Button>
       </div>
       {state.error && (
-        <p role="alert" className="mt-2 text-xs text-danger-500">
+        <p role="alert" className="mt-2 text-xs text-danger">
           {state.error}
         </p>
       )}
@@ -172,7 +172,7 @@ function OpportunityCard({
           </div>
           <div>
             <dt className="text-text-secondary">Expected incentives</dt>
-            <dd className="font-semibold text-success-500">
+            <dd className="font-semibold text-success">
               {fmtMoney(f.incentives_expected_cents)}
             </dd>
           </div>
@@ -195,7 +195,7 @@ function OpportunityCard({
               <>
                 10-year position after cost:{' '}
                 <strong
-                  className={f.ten_year_net_cents >= 0 ? 'text-success-500' : 'text-danger-500'}
+                  className={f.ten_year_net_cents >= 0 ? 'text-success' : 'text-danger'}
                 >
                   {fmtMoney(f.ten_year_net_cents)}
                 </strong>
@@ -203,7 +203,7 @@ function OpportunityCard({
               </>
             )}
             {f.best_program && <>Best match: {f.best_program}. </>}
-            {f.deadline && <strong className="text-warning-500">{f.deadline}. </strong>}
+            {f.deadline && <strong className="text-warning">{f.deadline}. </strong>}
             <Link
               to="/dashboard/rebate-intelligence"
               className="focus-ring inline-flex items-center gap-1 rounded text-accent"
@@ -472,7 +472,7 @@ export function EnergyIntelligencePage() {
                           </p>
                         </td>
                         <td className="p-3 text-text-primary">{fmtMoney(r.annual_cost_cents)}</td>
-                        <td className="p-3 font-semibold text-success-500">
+                        <td className="p-3 font-semibold text-success">
                           {fmtMoney(r.expected_savings_cents)}
                         </td>
                         <td
@@ -518,7 +518,7 @@ export function EnergyIntelligencePage() {
           ) : error ? (
             <p
               role="alert"
-              className="rounded-2xl border border-danger-500/30 bg-danger-500/5 p-5 text-sm text-danger-500"
+              className="rounded-2xl border border-danger/30 bg-danger-subtle p-5 text-sm text-danger"
             >
               {error}
             </p>
@@ -560,7 +560,7 @@ export function EnergyIntelligencePage() {
                           ? `${report.portfolio.pct_of_annual_cost}% of the bill, all upgrades combined`
                           : undefined
                       }
-                      tone="text-success-500"
+                      tone="text-success"
                     />
                     <div className="rounded-2xl border border-border bg-bg-secondary p-4">
                       <p className="text-[11px] font-medium uppercase tracking-wide text-text-secondary">
@@ -684,14 +684,14 @@ export function EnergyIntelligencePage() {
 
                   {report.data_quality.warnings.length > 0 && (
                     <section
-                      className="rounded-2xl border border-warning-500/30 bg-warning-500/5 p-5"
+                      className="rounded-2xl border border-warning/30 bg-warning-subtle p-5"
                       aria-labelledby="ei-dq"
                     >
                       <h2
                         id="ei-dq"
                         className="flex items-center gap-2 text-sm font-semibold text-text-primary"
                       >
-                        <AlertTriangle size={14} className="text-warning-500" aria-hidden="true" />{' '}
+                        <AlertTriangle size={14} className="text-warning" aria-hidden="true" />{' '}
                         Data quality
                       </h2>
                       <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-text-secondary">
@@ -754,7 +754,7 @@ export function EnergyIntelligencePage() {
                           </Chip>
                           <h3 className="text-sm font-semibold text-text-primary">{a.title}</h3>
                           {a.est_excess_cost_cents != null && a.est_excess_cost_cents > 0 && (
-                            <span className="ml-auto text-xs font-semibold text-danger-500">
+                            <span className="ml-auto text-xs font-semibold text-danger">
                               about {fmtMoney(a.est_excess_cost_cents)} extra
                             </span>
                           )}
@@ -827,7 +827,7 @@ export function EnergyIntelligencePage() {
                           </div>
                           <div>
                             <dt className="text-text-secondary">Lost to age and service</dt>
-                            <dd className="font-semibold text-warning-500">
+                            <dd className="font-semibold text-warning">
                               {fmtMoney(e.waste_cost_cents)}/yr
                             </dd>
                             {e.maintenance_overdue_months > 0 && (
@@ -879,7 +879,7 @@ export function EnergyIntelligencePage() {
                 ) : (
                   <div className="space-y-3">
                     {report.portfolio.savings_cents && (
-                      <div className="rounded-2xl border border-success-500/25 bg-success-500/5 p-4 text-sm text-text-primary">
+                      <div className="rounded-2xl border border-success/25 bg-success-subtle p-4 text-sm text-text-primary">
                         All upgrades together: about{' '}
                         <strong>{fmtMoney(report.portfolio.savings_cents.expected)}/yr</strong> (
                         {fmtMoney(report.portfolio.savings_cents.low)} to{' '}
@@ -927,7 +927,7 @@ export function EnergyIntelligencePage() {
                               : `${fmtNum(s.total_kwh)} kWh`
                           }
                           sub={`${fmtNum(s.total_kwh)} kWh${s.total_therms > 0 ? `, ${fmtNum(s.total_therms)} therms` : ''}`}
-                          tone={s.key === 'upgraded' ? 'text-success-500' : undefined}
+                          tone={s.key === 'upgraded' ? 'text-success' : undefined}
                         />
                       ))}
                     </div>

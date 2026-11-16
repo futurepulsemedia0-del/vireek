@@ -153,12 +153,12 @@ export function PilotManagementPage() {
                             <dl className="grid grid-cols-2 gap-3 self-start lg:grid-cols-1">
                               <div>
                                 <dt className="text-xs text-text-secondary">Revenue recovered</dt>
-                                <dd className="text-lg font-bold text-success-500">{formatMoney(p.live.recovered_cents)}</dd>
+                                <dd className="text-lg font-bold text-success">{formatMoney(p.live.recovered_cents)}</dd>
                                 <dd className="text-xs text-text-secondary">{p.live.recovered_count} opportunit{p.live.recovered_count === 1 ? 'y' : 'ies'}</dd>
                               </div>
                               <div>
                                 <dt className="text-xs text-text-secondary">Flagged calls</dt>
-                                <dd className={`text-lg font-bold ${p.live.flagged_calls > 0 ? 'text-warning-500' : 'text-text-primary'}`}>{p.live.flagged_calls}</dd>
+                                <dd className={`text-lg font-bold ${p.live.flagged_calls > 0 ? 'text-warning' : 'text-text-primary'}`}>{p.live.flagged_calls}</dd>
                                 <dd className="text-xs text-text-secondary">of {p.live.total_calls.toLocaleString('en-US')} calls</dd>
                               </div>
                               <div>

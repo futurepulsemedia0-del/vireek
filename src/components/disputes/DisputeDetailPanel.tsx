@@ -47,11 +47,11 @@ export const TONE_CLASS: Record<DisputeTone, string> = {
   accent: 'bg-accent/10 text-accent border-accent/25',
   success: 'bg-success/10 text-success border-success/25',
   danger: 'bg-danger/10 text-danger border-danger/25',
-  warning: 'bg-warning-500/10 text-warning-500 border-warning-500/25',
+  warning: 'bg-warning-subtle text-warning border-warning/25',
 };
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors focus-visible:border-accent disabled:opacity-60';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder transition-colors focus-visible:border-accent disabled:opacity-60';
 
 interface Props {
   dispute: StripeDisputeRow;
@@ -192,7 +192,7 @@ export function DisputeDetailPanel({ dispute, ownerId, onClose, onChanged }: Pro
   const visibleFields = showAllFields ? [...recommendedFields, ...otherFields] : recommendedFields;
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/50 backdrop-blur-sm" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+    <div className="fixed inset-0 z-50 flex justify-end bg-overlay/50 backdrop-blur-sm" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={`Dispute ${dispute.stripe_dispute_id}`}
         className="flex h-full w-full flex-col overflow-hidden bg-bg-primary shadow-2xl sm:max-w-2xl sm:border-l sm:border-border">
         <header className="flex items-start justify-between gap-3 border-b border-border px-4 py-4 sm:px-6">
@@ -225,7 +225,7 @@ export function DisputeDetailPanel({ dispute, ownerId, onClose, onChanged }: Pro
                 <span className="text-text-secondary">{readiness.pct}%</span>
               </div>
               <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-bg-tertiary" role="progressbar" aria-valuenow={readiness.pct} aria-valuemin={0} aria-valuemax={100}>
-                <div className={`h-full rounded-full transition-all ${readiness.pct >= 80 ? 'bg-success' : readiness.pct >= 40 ? 'bg-warning-500' : 'bg-danger'}`} style={{ width: `${readiness.pct}%` }} />
+                <div className={`h-full rounded-full transition-all ${readiness.pct >= 80 ? 'bg-success' : readiness.pct >= 40 ? 'bg-warning' : 'bg-danger'}`} style={{ width: `${readiness.pct}%` }} />
               </div>
               <p className="mt-1.5 text-[11px] text-text-secondary">Guidance based on what typically supports this reason — it does not guarantee the outcome. You can submit evidence only once.</p>
             </section>

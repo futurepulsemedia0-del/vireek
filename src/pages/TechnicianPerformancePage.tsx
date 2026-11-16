@@ -57,21 +57,21 @@ function formatCents(cents: number): string {
 
 function rateColor(value: number | null, goodAbove: number): string {
   if (value === null) return 'text-text-secondary';
-  if (value >= goodAbove) return 'text-success-500';
-  if (value >= goodAbove - 15) return 'text-warning-500';
+  if (value >= goodAbove) return 'text-success';
+  if (value >= goodAbove - 15) return 'text-warning';
   return 'text-danger';
 }
 
 function severityColor(severity: 'low' | 'medium' | 'high'): string {
   if (severity === 'high') return 'bg-danger/10 text-danger';
-  if (severity === 'medium') return 'bg-warning-500/10 text-warning-500';
+  if (severity === 'medium') return 'bg-warning-subtle text-warning';
   return 'bg-bg-tertiary text-text-secondary';
 }
 
 function ftfBadgeClasses(value: number | null): string {
   if (value === null) return 'bg-bg-tertiary text-text-secondary';
-  if (value >= 80) return 'bg-success-500/10 text-success-500';
-  if (value >= 65) return 'bg-warning-500/10 text-warning-500';
+  if (value >= 80) return 'bg-success-subtle text-success';
+  if (value >= 65) return 'bg-warning-subtle text-warning';
   return 'bg-danger/10 text-danger';
 }
 
@@ -84,7 +84,7 @@ function StatBlock({ label, value, sub, color }: { label: string; value: string;
     <div>
       <p className="text-xs text-text-secondary">{label}</p>
       <p className={`mt-0.5 text-lg font-bold ${color ?? 'text-text-primary'}`}>{value}</p>
-      {sub && <p className="text-[11px] text-text-secondary/70">{sub}</p>}
+      {sub && <p className="text-[11px] text-text-muted">{sub}</p>}
     </div>
   );
 }
@@ -141,7 +141,7 @@ function TechnicianScorecardCard({ metrics }: { metrics: TechnicianMetrics }) {
         <StatBlock
           label="Utilization"
           value={metrics.utilizationRate !== null ? `${metrics.utilizationRate}%` : '—'}
-          color={metrics.utilizationRate !== null && metrics.utilizationRate > 95 ? 'text-warning-500' : undefined}
+          color={metrics.utilizationRate !== null && metrics.utilizationRate > 95 ? 'text-warning' : undefined}
         />
       </div>
 
@@ -151,7 +151,7 @@ function TechnicianScorecardCard({ metrics }: { metrics: TechnicianMetrics }) {
             <span
               key={t.tag}
               className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
-                isNegativeTag(t.tag) ? 'bg-danger/10 text-danger' : 'bg-success-500/10 text-success-500'
+                isNegativeTag(t.tag) ? 'bg-danger/10 text-danger' : 'bg-success-subtle text-success'
               }`}
             >
               {tagLabel(t.tag)} · {t.count}
@@ -170,7 +170,7 @@ function TechnicianScorecardCard({ metrics }: { metrics: TechnicianMetrics }) {
             {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             {expanded ? 'Hide' : 'Show'} training gaps & AI coaching
             {metrics.trainingGaps.length > 0 && (
-              <span className="ml-1 rounded-full bg-warning-500/10 px-1.5 py-0.5 text-[10px] text-warning-500">
+              <span className="ml-1 rounded-full bg-warning-subtle px-1.5 py-0.5 text-[10px] text-warning">
                 {metrics.trainingGaps.length}
               </span>
             )}
@@ -195,7 +195,7 @@ function TechnicianScorecardCard({ metrics }: { metrics: TechnicianMetrics }) {
                       <Lightbulb size={13} className="mt-0.5 shrink-0 text-accent" />
                       <div>
                         <p className="text-text-primary">{note.tip}</p>
-                        <p className="mt-0.5 text-text-secondary/70">{note.basis}</p>
+                        <p className="mt-0.5 text-text-muted">{note.basis}</p>
                       </div>
                     </div>
                   ))}
@@ -382,7 +382,7 @@ export function TechnicianPerformancePage() {
                 type="button"
                 onClick={() => setPreset(p)}
                 className={`focus-ring rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
-                  preset === p ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'
+                  preset === p ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'
                 }`}
               >
                 {p === '7d' ? '7 days' : p === '30d' ? '30 days' : '90 days'}
@@ -402,7 +402,7 @@ export function TechnicianPerformancePage() {
             type="button"
             onClick={handleSaveSnapshot}
             disabled={saving || loading || fleet.jobsCompleted === 0}
-            className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-50"
+            className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-semibold text-on-accent transition-colors hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Save size={14} />
             {saving ? 'Saving…' : 'Save snapshot'}
@@ -452,7 +452,7 @@ export function TechnicianPerformancePage() {
                 </Card>
                 <Card className="p-4 text-center">
                   <p className="flex items-center justify-center gap-1 text-xl font-bold text-text-primary">
-                    <Star size={14} className="text-warning-500" />
+                    <Star size={14} className="text-warning" />
                     {fleet.avgCsat ?? '—'}
                   </p>
                   <p className="text-xs text-text-secondary">Avg CSAT</p>
@@ -512,7 +512,7 @@ export function TechnicianPerformancePage() {
                             <button
                               type="button"
                               onClick={() => handleDeleteHistoryRow(row.id)}
-                              className="focus-ring text-text-secondary/70 transition-colors hover:text-danger"
+                              className="focus-ring text-text-muted transition-colors hover:text-danger"
                               aria-label="Delete snapshot"
                             >
                               <Trash2 size={13} />

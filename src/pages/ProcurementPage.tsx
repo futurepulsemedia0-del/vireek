@@ -89,7 +89,7 @@ function ModalShell({
 }) {
   return (
     <div
-      className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[80] flex items-center justify-center bg-overlay/40 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
       <motion.div
@@ -119,7 +119,7 @@ function fieldClass() {
 }
 
 function primaryBtn() {
-  return 'focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-semibold text-white disabled:opacity-40';
+  return 'focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-semibold text-on-accent disabled:opacity-40';
 }
 
 function secondaryBtn() {
@@ -560,7 +560,7 @@ function RfqDetailModal({
                 return (
                   <div
                     key={q.id}
-                    className={`rounded-xl border p-3 ${q.status === 'selected' ? 'border-emerald-400/50 bg-emerald-500/[0.06]' : 'border-border'}`}
+                    className={`rounded-xl border p-3 ${q.status === 'selected' ? 'border-success/50 bg-success/[0.06]' : 'border-border'}`}
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
@@ -568,12 +568,12 @@ function RfqDetailModal({
                           {q.vendor.name}
                         </span>
                         {isCheapestOnAnyItem && (
-                          <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-500">
+                          <span className="rounded-full bg-success-subtle px-2 py-0.5 text-[10px] font-semibold text-success">
                             Best price
                           </span>
                         )}
                         {q.status === 'selected' && (
-                          <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold text-emerald-600">
+                          <span className="rounded-full bg-success-subtle px-2 py-0.5 text-[10px] font-semibold text-success">
                             Awarded
                           </span>
                         )}
@@ -648,7 +648,7 @@ function RfqDetailModal({
                                 {formatCents(r.unit_price_cents)}
                               </span>
                               {cheapestByItem.get(r.rfq_item_id) === q.id && (
-                                <span className="text-emerald-500"> ✓ lowest</span>
+                                <span className="text-success"> ✓ lowest</span>
                               )}
                             </span>
                           ))}
@@ -826,7 +826,7 @@ function EvaluateVendorModal({
           <button key={n} type="button" onClick={() => onChange(n)} className="focus-ring">
             <Star
               size={16}
-              className={n <= value ? 'fill-amber-400 text-amber-400' : 'text-border'}
+              className={n <= value ? 'fill-warning text-warning' : 'text-border'}
             />
           </button>
         ))}
@@ -1155,8 +1155,8 @@ export function ProcurementPage() {
                     </div>
                     <div className="flex items-center gap-2">
                       {v.avg_overall_score !== null && (
-                        <span className="flex items-center gap-1 text-xs font-semibold text-amber-500">
-                          <Star size={13} className="fill-amber-400" />{' '}
+                        <span className="flex items-center gap-1 text-xs font-semibold text-warning">
+                          <Star size={13} className="fill-warning" />{' '}
                           {v.avg_overall_score.toFixed(1)}
                         </span>
                       )}

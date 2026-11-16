@@ -122,7 +122,7 @@ export function AccessTab({ data, isOwner }: Props) {
   return (
     <div className="space-y-6">
       {secret && (
-        <Card className="space-y-3 border-warning-500/40 p-5 sm:p-6" role="status">
+        <Card className="space-y-3 border-warning/40 p-5 sm:p-6" role="status">
           <div className="flex items-start justify-between gap-3">
             <div>
               <h2 className="text-lg font-semibold text-text-primary">Copy your token now: “{secret.name}”</h2>

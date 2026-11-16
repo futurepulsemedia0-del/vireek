@@ -31,9 +31,9 @@ export const INSURANCE_LABELS: Record<InsuranceType, string> = {
 export const INSURANCE_TYPES = Object.keys(INSURANCE_LABELS) as InsuranceType[];
 
 export const TIER_META: Record<PassportTier, { label: string; ringClass: string; badgeClass: string }> = {
-  elite: { label: 'Elite', ringClass: 'text-success-500', badgeClass: 'bg-success-500/10 text-success-500' },
+  elite: { label: 'Elite', ringClass: 'text-success', badgeClass: 'bg-success-subtle text-success' },
   trusted: { label: 'Trusted', ringClass: 'text-accent', badgeClass: 'bg-accent/10 text-accent' },
-  established: { label: 'Established', ringClass: 'text-warning-500', badgeClass: 'bg-warning-500/10 text-warning-500' },
+  established: { label: 'Established', ringClass: 'text-warning', badgeClass: 'bg-warning-subtle text-warning' },
   emerging: { label: 'Emerging', ringClass: 'text-text-secondary', badgeClass: 'bg-bg-tertiary text-text-secondary' },
   unrated: { label: 'Not enough history', ringClass: 'text-text-secondary', badgeClass: 'bg-bg-tertiary text-text-secondary' },
 };
@@ -295,9 +295,9 @@ export function skillLabel(key: string): string {
 
 export function confidenceLevel(confidence: number, jobs: number): { label: string; barClass: string } {
   if (jobs < 5) return { label: 'Provisional', barClass: 'bg-accent/40' };
-  if (confidence >= 90) return { label: 'Expert', barClass: 'bg-success-500' };
+  if (confidence >= 90) return { label: 'Expert', barClass: 'bg-success' };
   if (confidence >= 75) return { label: 'Proficient', barClass: 'bg-accent' };
-  if (confidence >= 50) return { label: 'Developing', barClass: 'bg-warning-500' };
+  if (confidence >= 50) return { label: 'Developing', barClass: 'bg-warning' };
   return { label: 'Novice', barClass: 'bg-danger' };
 }
 

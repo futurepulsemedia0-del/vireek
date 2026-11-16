@@ -106,7 +106,7 @@ export default function DocumentsGalleryPage() {
             <section key={c.id} className="rounded-xl border border-border p-3">
               <h2 className="mb-2 text-sm font-semibold text-text-primary">{c.title}</h2>
               {!r && <p className="text-sm text-text-secondary">Rendering…</p>}
-              {typeof r === 'string' && <p role="alert" className="text-sm text-red-600">{r}</p>}
+              {typeof r === 'string' && <p role="alert" className="text-sm text-danger">{r}</p>}
               {r && typeof r !== 'string' && (
                 <>
                   <p className="mb-2 text-xs text-text-secondary">{(r.bytes / 1024).toFixed(1)} KB {r.bytes > 100 * 1024 ? '— OVER BUDGET' : ''}</p>

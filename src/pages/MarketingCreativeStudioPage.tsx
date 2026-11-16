@@ -364,7 +364,7 @@ export default function MarketingCreativeStudioPage() {
                               <span className="flex items-center gap-1 text-xs text-text-secondary">
                                 <span className="flex" aria-label={`${r.rating} out of 5 stars`}>
                                   {Array.from({ length: r.rating }).map((_, i) => (
-                                    <Star key={i} className="h-3.5 w-3.5 fill-warning-500 text-warning-500" aria-hidden />
+                                    <Star key={i} className="h-3.5 w-3.5 fill-warning text-warning" aria-hidden />
                                   ))}
                                 </span>
                                 <span className="capitalize">{r.platform}</span> · {fmtDate(r.reviewed_at)}
@@ -509,9 +509,9 @@ export default function MarketingCreativeStudioPage() {
                         <p className="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-text-secondary">
                           <span>{FORMAT_BY_ID[c.format].label}</span>
                           <span aria-hidden>·</span>
-                          <span className={c.status === 'approved' ? 'font-medium text-success-500' : ''}>{STATUS_LABEL[c.status]}</span>
+                          <span className={c.status === 'approved' ? 'font-medium text-success' : ''}>{STATUS_LABEL[c.status]}</span>
                           {c.warnings.length > 0 && (
-                            <span className="inline-flex items-center gap-1 text-warning-500">
+                            <span className="inline-flex items-center gap-1 text-warning">
                               <TriangleAlert className="h-3 w-3" aria-hidden /> {c.warnings.length} to check
                             </span>
                           )}

@@ -161,10 +161,10 @@ export const ADN_DEFAULT_SETTINGS: AdnSettings = {
 
 export const ADN_STATUS_META: Record<AdnStatus, { label: string; className: string }> = {
   active: { label: 'In progress', className: 'bg-accent/10 text-accent' },
-  diagnosed: { label: 'Diagnosed', className: 'bg-warning-500/10 text-warning-500' },
-  confirmed: { label: 'Cause confirmed', className: 'bg-warning-500/10 text-warning-500' },
+  diagnosed: { label: 'Diagnosed', className: 'bg-warning-subtle text-warning' },
+  confirmed: { label: 'Cause confirmed', className: 'bg-warning-subtle text-warning' },
   repaired: { label: 'Awaiting verification', className: 'bg-accent/10 text-accent' },
-  verified: { label: 'Verified', className: 'bg-success-500/15 text-success-500' },
+  verified: { label: 'Verified', className: 'bg-success-subtle text-success' },
   abandoned: { label: 'Abandoned', className: 'bg-bg-tertiary text-text-secondary' },
 };
 

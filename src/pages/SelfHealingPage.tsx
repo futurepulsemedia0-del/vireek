@@ -133,7 +133,7 @@ export function SelfHealingPage() {
                 <p className="text-xs text-text-secondary">Critical, active</p>
               </div>
               <div className="rounded-2xl border border-border bg-bg-secondary p-4 text-center">
-                <p className="text-xl font-bold text-success-500">{stats.recovered}</p>
+                <p className="text-xl font-bold text-success">{stats.recovered}</p>
                 <p className="text-xs text-text-secondary">Auto-recovered</p>
               </div>
               <div className="rounded-2xl border border-border bg-bg-secondary p-4 text-center">
@@ -144,7 +144,7 @@ export function SelfHealingPage() {
 
             <div className="mb-3 flex gap-1.5">
               {FILTERS.map((f) => (
-                <button key={f.key} type="button" onClick={() => setFilter(f.key)} className={`focus-ring rounded-full px-3 py-1 text-xs font-medium transition-colors ${filter === f.key ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>
+                <button key={f.key} type="button" onClick={() => setFilter(f.key)} className={`focus-ring rounded-full px-3 py-1 text-xs font-medium transition-colors ${filter === f.key ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>
                   {f.label}
                 </button>
               ))}

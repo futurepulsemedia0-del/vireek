@@ -226,7 +226,7 @@ export function DocsFeedback({ page }: { page: string }) {
                 type="button"
                 disabled={sending}
                 onClick={() => void send(false, comment)}
-                className="focus-ring rounded-lg bg-cta px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-50"
+                className="focus-ring rounded-lg bg-cta px-3 py-1.5 text-sm font-semibold text-on-cta disabled:opacity-50"
               >
                 {sending ? 'Sending…' : 'Send'}
               </button>

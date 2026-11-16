@@ -6,7 +6,7 @@ import { fetchMyBreakRules, readCachedRules } from '@/lib/breakComplianceApi';
 
 const TONE: Record<string, string> = {
   bad: 'border-danger/40 bg-danger/10',
-  warn: 'border-warning-500/40 bg-warning-500/10',
+  warn: 'border-warning/40 bg-warning-subtle',
   neutral: 'border-border bg-bg-secondary',
   good: 'border-success/40 bg-success/10',
 };
@@ -63,7 +63,7 @@ export function BreakPromptBanner({ shift, now, busy = false, onStartBreak, onBr
 
   return (
     <div role={prompt.tone === 'bad' ? 'alert' : 'status'} className={`flex items-start gap-3 rounded-xl border p-3 text-sm text-text-primary ${TONE[prompt.tone]}`}>
-      <Icon className={`mt-0.5 h-5 w-5 flex-shrink-0 ${prompt.tone === 'bad' ? 'text-danger' : 'text-warning-500'}`} />
+      <Icon className={`mt-0.5 h-5 w-5 flex-shrink-0 ${prompt.tone === 'bad' ? 'text-danger' : 'text-warning'}`} />
       <div className="min-w-0 flex-1">
         <p className="font-semibold">{prompt.title}</p>
         <p className="mt-0.5 text-text-secondary">{prompt.message}</p>

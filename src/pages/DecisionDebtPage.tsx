@@ -33,7 +33,7 @@ import {
 } from '@/lib/decisionDebt';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder';
 
 // ============================================================
 // NEW ITEM FORM
@@ -115,7 +115,7 @@ function NewDebtItemForm({ userId, onSaved }: { userId: string; onSaved: () => v
         type="button"
         disabled={saving}
         onClick={() => void handleSave()}
-        className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-medium text-white disabled:opacity-60"
+        className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-medium text-on-accent disabled:opacity-60"
       >
         {saving ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} />} Log it
       </button>
@@ -182,7 +182,7 @@ function DebtItemCard({ item, onChanged }: { item: DecisionDebtItem; onChanged: 
                   Mark in progress
                 </button>
               )}
-              <button type="button" onClick={() => void setStatus('resolved')} className="focus-ring flex items-center gap-1 rounded-full bg-success-500/10 px-2.5 py-1 text-[11px] font-medium text-success-500">
+              <button type="button" onClick={() => void setStatus('resolved')} className="focus-ring flex items-center gap-1 rounded-full bg-success-subtle px-2.5 py-1 text-[11px] font-medium text-success">
                 <Check size={11} /> Resolved
               </button>
               <button type="button" onClick={() => void setStatus('abandoned')} className="focus-ring rounded-full bg-bg-tertiary px-2.5 py-1 text-[11px] font-medium text-text-secondary">
@@ -253,7 +253,7 @@ export function DecisionDebtPage() {
           <button
             type="button"
             onClick={() => setShowForm((v) => !v)}
-            className="focus-ring flex shrink-0 items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-medium text-white"
+            className="focus-ring flex shrink-0 items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-medium text-on-accent"
           >
             {showForm ? <X size={13} /> : <Plus size={13} />} {showForm ? 'Close' : 'Log stalled item'}
           </button>
@@ -288,14 +288,14 @@ export function DecisionDebtPage() {
           <button
             type="button"
             onClick={() => setFilter('outstanding')}
-            className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium ${filter === 'outstanding' ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
+            className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium ${filter === 'outstanding' ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
           >
             Outstanding
           </button>
           <button
             type="button"
             onClick={() => setFilter('all')}
-            className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium ${filter === 'all' ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
+            className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium ${filter === 'all' ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
           >
             All
           </button>
@@ -307,7 +307,7 @@ export function DecisionDebtPage() {
           </div>
         ) : visible.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border py-10 text-center">
-            <Hourglass className="mx-auto mb-2 h-6 w-6 text-text-secondary/50" />
+            <Hourglass className="mx-auto mb-2 h-6 w-6 text-graphic-muted" />
             <p className="mx-auto max-w-sm text-sm text-text-secondary">
               No stalled decisions logged. Next time something keeps getting pushed to "next week," log it here and let the cost of waiting speak for itself.
             </p>

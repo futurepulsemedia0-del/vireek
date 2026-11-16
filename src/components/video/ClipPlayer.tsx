@@ -38,7 +38,7 @@ export function ClipPlayer({ clip, canDelete, onDeleted }: { clip: VideoClipRow;
   return (
     <div className="rounded-xl border border-border/70 bg-bg-primary p-2.5">
       {url ? (
-        <video src={url} controls playsInline preload="metadata" className="aspect-video w-full rounded-lg bg-black" aria-label="Recorded clip" />
+        <video src={url} controls playsInline preload="metadata" className="aspect-video w-full rounded-lg bg-overlay" aria-label="Recorded clip" />
       ) : (
         <button
           type="button"

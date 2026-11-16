@@ -45,10 +45,10 @@ const FEATURES: FeatureBlock[] = [
 ];
 
 const ACCENT_BG: Record<string, string> = {
-  accent: 'bg-accent/10 text-accent group-hover:bg-accent group-hover:text-white',
-  danger: 'bg-danger/10 text-danger group-hover:bg-danger group-hover:text-white',
-  success: 'bg-success/10 text-success group-hover:bg-success group-hover:text-white',
-  cta: 'bg-cta/10 text-cta group-hover:bg-cta group-hover:text-white',
+  accent: 'bg-accent/10 text-accent group-hover:bg-accent group-hover:text-on-accent',
+  danger: 'bg-danger/10 text-danger group-hover:bg-danger group-hover:text-on-danger',
+  success: 'bg-success/10 text-success group-hover:bg-success group-hover:text-on-success',
+  cta: 'bg-cta/10 text-cta group-hover:bg-cta group-hover:text-on-cta',
 };
 
 const ACCENT_LINE: Record<string, string> = {

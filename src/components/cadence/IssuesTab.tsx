@@ -116,7 +116,7 @@ export function IssuesTab({ canManage, meId, assignees }: TabProps) {
               role="tab"
               aria-selected={view === v}
               onClick={() => setView(v)}
-              className={`focus-ring min-h-[36px] rounded-lg px-3.5 text-sm font-medium transition-colors ${view === v ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}
+              className={`focus-ring min-h-[36px] rounded-lg px-3.5 text-sm font-medium transition-colors ${view === v ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}
             >
               {v === 'live' ? `Open (${live.length})` : `Closed (${closed.length})`}
             </button>
@@ -187,12 +187,12 @@ export function IssuesTab({ canManage, meId, assignees }: TabProps) {
                       <span className="rounded-full bg-bg-tertiary px-2.5 py-0.5 font-medium text-text-secondary">{SOURCE_LABEL[i.source_type]}</span>
                       {i.metric_key && <span className="rounded-full bg-accent/10 px-2.5 py-0.5 font-medium text-accent">{METRIC_BY_KEY[i.metric_key].label}</span>}
                       {i.needs_decision && isLive(i) && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-warning-500/10 px-2.5 py-0.5 font-semibold text-warning-500">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-warning-subtle px-2.5 py-0.5 font-semibold text-warning">
                           <Gavel size={11} /> Decision needed
                         </span>
                       )}
                       {i.status === 'discussing' && <span className="rounded-full bg-accent/10 px-2.5 py-0.5 font-semibold text-accent">Discussing</span>}
-                      {i.status === 'solved' && <span className="rounded-full bg-success-500/10 px-2.5 py-0.5 font-semibold text-success-500">Solved</span>}
+                      {i.status === 'solved' && <span className="rounded-full bg-success-subtle px-2.5 py-0.5 font-semibold text-success">Solved</span>}
                       {i.status === 'dropped' && <span className="rounded-full bg-bg-tertiary px-2.5 py-0.5 font-semibold text-text-secondary">Dropped</span>}
                     </div>
                     <h3 className="mt-1.5 text-base font-semibold text-text-primary">{i.title}</h3>
@@ -217,7 +217,7 @@ export function IssuesTab({ canManage, meId, assignees }: TabProps) {
                               <MessageCircle size={15} />
                             </button>
                           )}
-                          <button type="button" disabled={busy} onClick={() => setSolving(i)} aria-label={`Solve ${i.title}`} title="Mark solved" className={`${iconBtn} hover:text-success-500`}>
+                          <button type="button" disabled={busy} onClick={() => setSolving(i)} aria-label={`Solve ${i.title}`} title="Mark solved" className={`${iconBtn} hover:text-success`}>
                             <CheckCircle2 size={16} />
                           </button>
                           <button type="button" disabled={busy} onClick={() => void patch(i, { status: 'dropped' }, 'Issue dropped.')} aria-label={`Drop ${i.title}`} title="Drop" className={iconBtn}>
@@ -233,7 +233,7 @@ export function IssuesTab({ canManage, meId, assignees }: TabProps) {
                         <Pencil size={15} />
                       </button>
                       {canManage && (
-                        <button type="button" onClick={() => setRemoving(i)} aria-label={`Delete ${i.title}`} title="Delete" className={`${iconBtn} hover:text-danger-500`}>
+                        <button type="button" onClick={() => setRemoving(i)} aria-label={`Delete ${i.title}`} title="Delete" className={`${iconBtn} hover:text-danger`}>
                           <Trash2 size={15} />
                         </button>
                       )}

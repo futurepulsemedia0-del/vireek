@@ -44,7 +44,7 @@ export function LaunchStep({ data, onLaunch, onFinish, launched, saving }: Launc
           <button
             type="button"
             onClick={onFinish}
-            className="focus-ring inline-flex items-center gap-2 rounded-xl bg-cta px-6 py-3 text-sm font-semibold text-white transition-all hover:brightness-110"
+            className="focus-ring inline-flex items-center gap-2 rounded-xl bg-cta px-6 py-3 text-sm font-semibold text-on-cta transition-all hover:brightness-110"
           >
             Go to Dashboard
           </button>

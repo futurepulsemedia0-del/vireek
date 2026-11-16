@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/Button';
 import { formatAddress, formatHoursSummary, isOpenNow, STATUS_LABELS, type BusinessLocation } from '@/lib/locations';
 
 const STATUS_STYLE: Record<BusinessLocation['status'], string> = {
-  active: 'bg-success-500/10 text-success-500',
-  paused: 'bg-warning-500/10 text-warning-500',
+  active: 'bg-success-subtle text-success',
+  paused: 'bg-warning-subtle text-warning',
   archived: 'bg-bg-tertiary text-text-secondary',
 };
 
@@ -70,9 +70,9 @@ export function LocationCard({
           <dd className="min-w-0">
             {formatHoursSummary(l.business_hours)}
             {openNow !== null && (
-              <span className={`ml-2 text-xs font-semibold ${openNow ? 'text-success-500' : 'text-text-secondary'}`}>{openNow ? 'Open now' : 'Closed now'}</span>
+              <span className={`ml-2 text-xs font-semibold ${openNow ? 'text-success' : 'text-text-secondary'}`}>{openNow ? 'Open now' : 'Closed now'}</span>
             )}
-            <span className="block text-[11px] text-text-secondary/80">{l.timezone.replace(/_/g, ' ')}</span>
+            <span className="block text-[11px] text-text-muted">{l.timezone.replace(/_/g, ' ')}</span>
           </dd>
         </div>
         <div className="flex items-center gap-2">

@@ -53,13 +53,13 @@ const FIELD_CLASS =
   'w-full rounded-xl border border-border bg-bg-primary px-3 py-2.5 text-sm text-text-primary focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 disabled:opacity-60';
 const BTN_BASE =
   'focus-ring inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60';
-const BTN_PRIMARY = `${BTN_BASE} bg-accent text-white hover:bg-accent/90`;
+const BTN_PRIMARY = `${BTN_BASE} bg-accent text-on-accent hover:bg-accent/90`;
 const BTN_SECONDARY = `${BTN_BASE} border border-border bg-bg-primary text-text-primary hover:bg-bg-tertiary`;
 
 const TONE_CLASS: Record<StatusTone, string> = {
-  success: 'bg-success/10 text-success-500',
-  warning: 'bg-warning-500/10 text-warning-500',
-  danger: 'bg-danger-500/10 text-danger-500',
+  success: 'bg-success/10 text-success',
+  warning: 'bg-warning-subtle text-warning',
+  danger: 'bg-danger-subtle text-danger',
   neutral: 'bg-bg-tertiary text-text-secondary',
 };
 
@@ -101,7 +101,7 @@ function Field({ id, label, hint, error, children }: { id: string; label: string
       </label>
       {children}
       {error ? (
-        <p id={`${id}-error`} role="alert" className="mt-1.5 text-xs text-danger-500">
+        <p id={`${id}-error`} role="alert" className="mt-1.5 text-xs text-danger">
           {error}
         </p>
       ) : hint ? (
@@ -142,7 +142,7 @@ function DeliveryLog({ destinationId, refreshKey }: { destinationId: string; ref
 
   if (error) {
     return (
-      <div role="alert" className="flex items-center justify-between gap-3 rounded-xl border border-danger-500/30 bg-danger-500/5 px-3 py-2.5 text-sm text-danger-500">
+      <div role="alert" className="flex items-center justify-between gap-3 rounded-xl border border-danger/30 bg-danger-subtle px-3 py-2.5 text-sm text-danger">
         <span>Couldn’t load the delivery log.</span>
         <button type="button" onClick={() => void load()} className="focus-ring inline-flex items-center gap-1 rounded-lg px-2 py-1 font-medium underline">
           <RefreshCw size={13} aria-hidden="true" /> Retry
@@ -180,7 +180,7 @@ function DeliveryLog({ destinationId, refreshKey }: { destinationId: string; ref
                 {formatRelativeTime(r.created_at)}
               </td>
               <td className="px-3 py-2 text-text-primary">{r.kind === 'test' ? 'Test' : 'Delivery'}</td>
-              <td className={`px-3 py-2 font-medium ${r.status === 'ok' ? 'text-success-500' : 'text-danger-500'}`}>{r.status === 'ok' ? 'Delivered' : 'Failed'}</td>
+              <td className={`px-3 py-2 font-medium ${r.status === 'ok' ? 'text-success' : 'text-danger'}`}>{r.status === 'ok' ? 'Delivered' : 'Failed'}</td>
               <td className="px-3 py-2 text-text-primary">
                 {r.event_count.toLocaleString()}
                 {r.dropped_count > 0 ? ` (+${r.dropped_count} rejected)` : ''}
@@ -252,7 +252,7 @@ function DestinationCard({ destination: d, busy, testResult, logVersion, onTest,
       </dl>
 
       {d.last_error && d.status !== 'active' && (
-        <div role="alert" className="mt-4 rounded-xl border border-danger-500/30 bg-danger-500/5 px-3 py-2.5 text-sm text-danger-500">
+        <div role="alert" className="mt-4 rounded-xl border border-danger/30 bg-danger-subtle px-3 py-2.5 text-sm text-danger">
           <p className="font-medium">Last error {formatRelativeTime(d.last_error_at)}</p>
           <p className="mt-0.5 break-words text-xs">{d.last_error}</p>
         </div>
@@ -261,7 +261,7 @@ function DestinationCard({ destination: d, busy, testResult, logVersion, onTest,
       {testResult && (
         <div
           role="status"
-          className={`mt-4 rounded-xl border px-3 py-2.5 text-sm ${testResult.ok ? 'border-success-500/30 bg-success/5 text-success-500' : 'border-danger-500/30 bg-danger-500/5 text-danger-500'}`}
+          className={`mt-4 rounded-xl border px-3 py-2.5 text-sm ${testResult.ok ? 'border-success/30 bg-success/5 text-success' : 'border-danger/30 bg-danger-subtle text-danger'}`}
         >
           {testResult.ok
             ? `Test event delivered${testResult.duration_ms ? ` in ${testResult.duration_ms} ms` : ''}. Search for action "siem_test_event" in your SIEM.`
@@ -289,7 +289,7 @@ function DestinationCard({ destination: d, busy, testResult, logVersion, onTest,
         <button type="button" className={BTN_SECONDARY} onClick={onEdit} disabled={disabled} aria-label={`Edit ${d.name}`}>
           <Pencil size={15} aria-hidden="true" /> Edit
         </button>
-        <button type="button" className={`${BTN_SECONDARY} text-danger-500`} onClick={onDelete} disabled={disabled} aria-label={`Delete ${d.name}`}>
+        <button type="button" className={`${BTN_SECONDARY} text-danger`} onClick={onDelete} disabled={disabled} aria-label={`Delete ${d.name}`}>
           <Trash2 size={15} aria-hidden="true" /> Delete
         </button>
       </div>
@@ -474,7 +474,7 @@ function FormPanel({ editing, onSaved, onCancel }: FormPanelProps) {
       </div>
 
       {serverError && (
-        <div role="alert" className="mt-4 flex items-start gap-2 rounded-xl border border-danger-500/30 bg-danger-500/5 px-3 py-2.5 text-sm text-danger-500">
+        <div role="alert" className="mt-4 flex items-start gap-2 rounded-xl border border-danger/30 bg-danger-subtle px-3 py-2.5 text-sm text-danger">
           <AlertCircle size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
           <span>{serverError}</span>
         </div>
@@ -608,7 +608,7 @@ export function SiemStreamingPage() {
           {loading ? (
             <Skeleton />
           ) : error ? (
-            <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-danger-500/30 bg-danger-500/5 px-4 py-4 text-sm text-danger-500">
+            <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-danger/30 bg-danger-subtle px-4 py-4 text-sm text-danger">
               <span className="flex items-center gap-2">
                 <AlertCircle size={16} aria-hidden="true" /> {error}
               </span>

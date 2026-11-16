@@ -6,14 +6,14 @@ import { AlertTriangle, Loader2 } from 'lucide-react';
 export const card = 'rounded-2xl border border-border bg-bg-secondary p-4 sm:p-5';
 export const label = 'mb-1 block text-xs font-semibold text-text-secondary';
 export const field =
-  'focus-ring min-h-[44px] w-full rounded-lg border border-border bg-bg-primary px-3 text-sm text-text-primary placeholder:text-text-secondary/60 disabled:opacity-60';
+  'focus-ring min-h-[44px] w-full rounded-lg border border-border bg-bg-primary px-3 text-sm text-text-primary placeholder:text-text-placeholder disabled:opacity-60';
 
 export type ChipTone = 'ok' | 'bad' | 'info' | 'warn' | 'neutral';
 
 const CHIP_TONES: Record<ChipTone, string> = {
-  ok: 'bg-success-500/10 text-success-500',
+  ok: 'bg-success-subtle text-success',
   bad: 'bg-danger/10 text-danger',
-  warn: 'bg-warning-500/10 text-warning-500',
+  warn: 'bg-warning-subtle text-warning',
   info: 'bg-accent/10 text-accent',
   neutral: 'bg-bg-tertiary text-text-secondary',
 };

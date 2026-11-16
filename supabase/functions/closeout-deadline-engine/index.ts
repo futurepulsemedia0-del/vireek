@@ -136,12 +136,12 @@ Deno.serve(async (req: Request) => {
         `Escalation level: ${TIER_LABEL[esc_.tier as number]}.\n\nOpen the checklist: ${link}\n\n` +
         `Nothing is submitted automatically — a person must approve and file this with the program or authority.`;
       const html =
-        `<div style="font-family:Arial,sans-serif;max-width:520px;line-height:1.5;color:#111827">` +
+        `<div style="font-family:Arial,sans-serif;max-width:520px;line-height:1.5;color:#1C1B15">` +
         `<h2 style="margin:0 0 8px">${esc(label)} — ${esc(customer)}</h2>` +
         `<p>This step is <strong>${esc(when)}</strong> (deadline ${esc(String(esc_.deadline_on))}).${esc(missing)}</p>` +
         `<p>Escalation level: <strong>${esc(TIER_LABEL[esc_.tier as number])}</strong></p>` +
-        `<p><a href="${esc(link)}" style="color:#2563eb">Open the closeout checklist</a></p>` +
-        `<p style="color:#6b7280;font-size:12px">Nothing is submitted automatically — a person must approve and file this with the program or authority.</p></div>`;
+        `<p><a href="${esc(link)}" style="color:#a93b0f">Open the closeout checklist</a></p>` +
+        `<p style="color:#73726c;font-size:12px">Nothing is submitted automatically — a person must approve and file this with the program or authority.</p></div>`;
 
       if (to.length === 0) {
         await admin.from("closeout_escalations")

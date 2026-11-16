@@ -619,7 +619,7 @@ export function LoginPage() {
             </div>
 
             <AuthLegalLine />
-            <PlatformEndorsement className="mt-3 text-center text-xs text-text-secondary/70" />
+            <PlatformEndorsement className="mt-3 text-center text-xs text-text-muted" />
           </>
         )}
       </AuthStepTransition>

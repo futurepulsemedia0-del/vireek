@@ -139,7 +139,7 @@ export function InsightsSettingsPage() {
 
         {!canView ? (
           <div className="rounded-2xl border border-dashed border-border py-12 text-center">
-            <Lock className="mx-auto mb-2 h-6 w-6 text-text-secondary/50" />
+            <Lock className="mx-auto mb-2 h-6 w-6 text-graphic-muted" />
             <p className="mx-auto max-w-sm text-sm text-text-secondary">Insights settings are available to owners and users with billing access.</p>
           </div>
         ) : loading ? (
@@ -173,7 +173,7 @@ export function InsightsSettingsPage() {
                   <button
                     type="button"
                     onClick={() => setConfirming(true)}
-                    className="focus-ring rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white"
+                    className="focus-ring rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent"
                   >
                     Review and opt in
                   </button>
@@ -185,7 +185,7 @@ export function InsightsSettingsPage() {
                   <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-secondary">What is shared</p>
                   <ul className="space-y-1.5 text-sm text-text-primary">
                     {CONSENT_SHARED.map((t) => (
-                      <li key={t} className="flex gap-2"><Check size={15} className="mt-0.5 shrink-0 text-success-500" />{t}</li>
+                      <li key={t} className="flex gap-2"><Check size={15} className="mt-0.5 shrink-0 text-success" />{t}</li>
                     ))}
                   </ul>
                 </div>
@@ -216,7 +216,7 @@ export function InsightsSettingsPage() {
                       type="button"
                       disabled={!understood || saving}
                       onClick={() => void change(true)}
-                      className="focus-ring rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+                      className="focus-ring rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent disabled:opacity-50"
                     >
                       Confirm opt-in
                     </button>
@@ -237,7 +237,7 @@ export function InsightsSettingsPage() {
                 A metric needs at least 10 records to count.
               </p>
               {preview && preview.trade === 'other' && (
-                <p className="mt-2 text-sm text-warning-500">Set your primary industry in the business profile so your numbers can be grouped.</p>
+                <p className="mt-2 text-sm text-warning">Set your primary industry in the business profile so your numbers can be grouped.</p>
               )}
               <div className="mt-4 grid gap-2 sm:grid-cols-2">
                 {METRIC_ORDER.map((m) => {

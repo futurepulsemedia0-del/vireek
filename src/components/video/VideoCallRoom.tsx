@@ -26,10 +26,10 @@ interface Props {
 }
 
 const QUALITY: Record<EngineSnapshot['quality'], { label: string; cls: string }> = {
-  good: { label: 'Good connection', cls: 'bg-success-500/90' },
-  fair: { label: 'Fair connection', cls: 'bg-warning-500/90' },
+  good: { label: 'Good connection', cls: 'bg-success/90' },
+  fair: { label: 'Fair connection', cls: 'bg-warning/90' },
   poor: { label: 'Poor connection', cls: 'bg-danger/90' },
-  unknown: { label: 'Connecting', cls: 'bg-white/20' },
+  unknown: { label: 'Connecting', cls: 'bg-bg-secondary/20' },
 };
 
 function RoundButton({ label, onClick, active, danger, disabled, children }: { label: string; onClick: () => void; active?: boolean; danger?: boolean; disabled?: boolean; children: React.ReactNode }) {
@@ -41,7 +41,7 @@ function RoundButton({ label, onClick, active, danger, disabled, children }: { l
       aria-label={label}
       title={label}
       aria-pressed={active}
-      className={`focus-ring flex h-12 w-12 items-center justify-center rounded-full text-white transition-colors disabled:opacity-40 ${danger ? 'bg-danger hover:brightness-110' : active ? 'bg-white text-black' : 'bg-white/15 hover:bg-white/25'}`}
+      className={`focus-ring flex h-12 w-12 items-center justify-center rounded-full transition-colors disabled:opacity-40 ${danger ? 'bg-danger text-on-danger hover:brightness-110' : active ? 'bg-bg-secondary text-text-primary' : 'bg-static-white/15 text-white hover:bg-static-white/25'}`}
     >
       {children}
     </button>
@@ -88,8 +88,8 @@ export function VideoCallRoom(p: Props) {
   };
 
   return (
-    <div className="relative flex h-[100dvh] w-full flex-col overflow-hidden bg-black text-white">
-      <video ref={remoteRef} autoPlay playsInline className="absolute inset-0 h-full w-full bg-black object-contain" aria-label="Remote video" />
+    <div className="relative flex h-[100dvh] w-full flex-col overflow-hidden bg-overlay text-white">
+      <video ref={remoteRef} autoPlay playsInline className="absolute inset-0 h-full w-full bg-overlay object-contain" aria-label="Remote video" />
 
       {/* top bar */}
       <div className="relative z-10 flex items-start justify-between gap-2 bg-gradient-to-b from-black/70 to-transparent px-3 pb-6 pt-[max(0.75rem,env(safe-area-inset-top))]">
@@ -109,14 +109,14 @@ export function VideoCallRoom(p: Props) {
               {recording ? `REC ${formatDuration(snap.recordingSeconds)}` : 'This session is being recorded'}
             </span>
           )}
-          {!p.relay && connected && snap.quality === 'poor' && <span className="rounded-full bg-black/60 px-2 py-1 text-[10px] text-white/80">Relay not configured</span>}
+          {!p.relay && connected && snap.quality === 'poor' && <span className="rounded-full bg-overlay/75 px-2 py-1 text-[10px] text-white/80">Relay not configured</span>}
         </div>
       </div>
 
       {/* state overlays */}
       <div className="pointer-events-none relative z-10 flex flex-1 items-center justify-center px-6">
         {waiting && (
-          <div className="pointer-events-auto w-full max-w-sm rounded-2xl bg-black/70 p-5 text-center backdrop-blur">
+          <div className="pointer-events-auto w-full max-w-sm rounded-2xl bg-overlay/70 p-5 text-center backdrop-blur">
             <Loader2 className="mx-auto animate-spin" size={20} aria-hidden="true" />
             <p className="mt-3 text-base font-semibold">{isTech ? 'Waiting for the expert to join' : 'Waiting for the technician'}</p>
             {isTech ? (
@@ -133,21 +133,21 @@ export function VideoCallRoom(p: Props) {
           </div>
         )}
         {snap.phase === 'negotiating' && (
-          <p className="rounded-full bg-black/70 px-4 py-2 text-sm" role="status"><Loader2 className="mr-2 inline animate-spin" size={14} aria-hidden="true" />Connecting video…</p>
+          <p className="rounded-full bg-overlay/70 px-4 py-2 text-sm" role="status"><Loader2 className="mr-2 inline animate-spin" size={14} aria-hidden="true" />Connecting video…</p>
         )}
         {snap.phase === 'reconnecting' && (
-          <p className="rounded-full bg-warning-500/90 px-4 py-2 text-sm font-medium text-black" role="status"><WifiOff className="mr-2 inline" size={14} aria-hidden="true" />Connection lost. Reconnecting…</p>
+          <p className="rounded-full bg-warning/90 px-4 py-2 text-sm font-medium text-on-warning" role="status"><WifiOff className="mr-2 inline" size={14} aria-hidden="true" />Connection lost. Reconnecting…</p>
         )}
         {snap.phase === 'failed' && (
-          <div className="pointer-events-auto max-w-sm rounded-2xl bg-black/80 p-5 text-center" role="alert">
-            <AlertTriangle className="mx-auto text-warning-500" size={26} aria-hidden="true" />
+          <div className="pointer-events-auto max-w-sm rounded-2xl bg-overlay/80 p-5 text-center" role="alert">
+            <AlertTriangle className="mx-auto text-warning" size={26} aria-hidden="true" />
             <p className="mt-2 font-semibold">We could not keep the connection</p>
             <p className="mt-1 text-sm text-white/70">Your network may block video. Switch between Wi-Fi and mobile data, then rejoin.</p>
             <Button size="sm" variant="secondary" className="mt-3" onClick={() => window.location.reload()}><RefreshCw size={14} /> Rejoin</Button>
           </div>
         )}
         {!snap.signalingOk && snap.phase !== 'failed' && (
-          <p className="absolute bottom-2 rounded-full bg-black/70 px-3 py-1 text-xs" role="status">Reconnecting to the session…</p>
+          <p className="absolute bottom-2 rounded-full bg-overlay/70 px-3 py-1 text-xs" role="status">Reconnecting to the session…</p>
         )}
       </div>
 
@@ -159,16 +159,16 @@ export function VideoCallRoom(p: Props) {
           muted
           playsInline
           aria-label="Your camera"
-          className={`absolute right-3 top-[max(5rem,calc(env(safe-area-inset-top)+4rem))] z-20 h-28 w-20 rounded-xl border border-white/30 bg-black object-cover shadow-lg sm:h-36 sm:w-28 ${snap.cameraOn ? '' : 'opacity-30'} ${isTech ? '' : '-scale-x-100'}`}
+          className={`absolute right-3 top-[max(5rem,calc(env(safe-area-inset-top)+4rem))] z-20 h-28 w-20 rounded-xl border border-on-inverse/30 bg-overlay object-cover shadow-lg sm:h-36 sm:w-28 ${snap.cameraOn ? '' : 'opacity-30'} ${isTech ? '' : '-scale-x-100'}`}
         />
       )}
 
       {/* clip status */}
       {p.clip.status !== 'idle' && (
-        <div className="absolute inset-x-3 bottom-28 z-30 mx-auto max-w-sm rounded-xl bg-black/85 p-3 text-sm backdrop-blur" role="status">
+        <div className="absolute inset-x-3 bottom-28 z-30 mx-auto max-w-sm rounded-xl bg-overlay/85 p-3 text-sm backdrop-blur" role="status">
           {p.clip.status === 'uploading' && <p className="flex items-center gap-2"><Loader2 size={14} className="animate-spin" /> Saving clip to the job timeline…</p>}
           {p.clip.status === 'saved' && (
-            <p className="flex items-center justify-between gap-2"><span className="flex items-center gap-2"><Check size={14} className="text-success-500" /> Clip saved to the job timeline.</span><button type="button" className="focus-ring rounded text-xs text-white/70 underline" onClick={p.onDismissClip}>Dismiss</button></p>
+            <p className="flex items-center justify-between gap-2"><span className="flex items-center gap-2"><Check size={14} className="text-success" /> Clip saved to the job timeline.</span><button type="button" className="focus-ring rounded text-xs text-white/70 underline" onClick={p.onDismissClip}>Dismiss</button></p>
           )}
           {p.clip.status === 'error' && (
             <div>
@@ -211,12 +211,12 @@ export function VideoCallRoom(p: Props) {
 
       {/* recording confirmation */}
       {confirmOpen && (
-        <div className="absolute inset-0 z-40 flex items-end justify-center bg-black/60 p-4 sm:items-center" role="dialog" aria-modal="true" aria-labelledby="rec-title">
+        <div className="absolute inset-0 z-40 flex items-end justify-center bg-overlay/75 p-4 sm:items-center" role="dialog" aria-modal="true" aria-labelledby="rec-title">
           <div className="w-full max-w-sm rounded-2xl bg-bg-secondary p-5 text-text-primary">
             <h2 id="rec-title" className="text-lg font-semibold">Record a clip?</h2>
             <p className="mt-1 text-sm text-text-secondary">Your camera view and the conversation are saved to this job (up to 5 minutes per clip). {snap.remoteName ?? 'The expert'} has agreed and will see a recording indicator.</p>
             <label className="mt-3 flex cursor-pointer items-start gap-2.5 text-sm">
-              <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} className="focus-ring mt-0.5 h-4 w-4 accent-[var(--color-accent,#2563eb)]" />
+              <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} className="focus-ring mt-0.5 h-4 w-4 accent-accent" />
               <span>I have told the customer and anyone on site that this is being recorded.</span>
             </label>
             <div className="mt-4 flex justify-end gap-2">

@@ -15,7 +15,7 @@ function Step({
   tone?: 'default' | 'good' | 'bad' | 'muted';
 }) {
   const toneClass =
-    tone === 'good' ? 'text-success-500' : tone === 'bad' ? 'text-danger' : tone === 'muted' ? 'text-text-secondary' : 'text-text-primary';
+    tone === 'good' ? 'text-success' : tone === 'bad' ? 'text-danger' : tone === 'muted' ? 'text-text-secondary' : 'text-text-primary';
   return (
     <div className="min-w-0 flex-1 rounded-xl border border-border bg-bg-primary p-3">
       <p className="mb-1 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-text-secondary">

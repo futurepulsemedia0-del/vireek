@@ -22,7 +22,7 @@ export function KpiStatCard({ label, value, hint, badge, loading = false }: KpiS
         {badge}
       </div>
       <p className="mt-2 text-2xl font-bold tabular-nums text-text-primary">{value}</p>
-      {hint && <p className="mt-1 text-xs text-text-secondary/70">{hint}</p>}
+      {hint && <p className="mt-1 text-xs text-text-muted">{hint}</p>}
     </div>
   );
 }

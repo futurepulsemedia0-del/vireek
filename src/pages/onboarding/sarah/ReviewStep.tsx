@@ -20,7 +20,7 @@ interface Props {
 const HINT_KINDS = new Set(['hours', 'list', 'faq', 'emergency']);
 
 function Badge({ children, tone = 'neutral' }: { children: string; tone?: 'neutral' | 'warn' | 'ok' }) {
-  const cls = tone === 'warn' ? 'border-danger/40 text-danger' : tone === 'ok' ? 'border-success-500/40 text-success-500' : 'border-border text-text-secondary';
+  const cls = tone === 'warn' ? 'border-danger/40 text-danger' : tone === 'ok' ? 'border-success/40 text-success' : 'border-border text-text-secondary';
   return <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${cls}`}>{children}</span>;
 }
 

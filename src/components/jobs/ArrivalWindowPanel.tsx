@@ -115,7 +115,7 @@ export function ArrivalWindowPanel({ job, onChanged }: { job: ArrivalWindowJob; 
             {log.map((n) => (
               <li key={n.id} className="flex items-start justify-between gap-3 text-xs text-text-secondary">
                 <span>{KIND_LABEL[n.kind]} · {formatWindowRange({ start: new Date(n.window_start), end: new Date(n.window_end) })}</span>
-                <span title={n.error ?? undefined} className={n.status === 'failed' ? 'text-red-500' : undefined}>
+                <span title={n.error ?? undefined} className={n.status === 'failed' ? 'text-danger' : undefined}>
                   {n.status === 'skipped' && n.error ? `skipped (${n.error})` : n.status}
                 </span>
               </li>

@@ -24,7 +24,7 @@ const HAZARD_ICON: Record<SdsHazardClass, LucideIcon> = {
 
 export function SignalBadge({ signal }: { signal: SdsSignal }) {
   if (signal === 'none') return null;
-  const tone = signal === 'danger' ? 'bg-danger/10 text-danger' : 'bg-warning-500/10 text-warning-500';
+  const tone = signal === 'danger' ? 'bg-danger/10 text-danger' : 'bg-warning-subtle text-warning';
   return (
     <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold uppercase tracking-wide ${tone}`}>
       <ShieldAlert size={12} aria-hidden="true" /> {SIGNAL_LABEL[signal]}
@@ -55,7 +55,7 @@ export function ReviewBadge({ doc }: { doc: Pick<SdsDocument, 'review_due_date'>
     state === 'overdue'
       ? 'bg-danger/10 text-danger'
       : state === 'due_soon'
-        ? 'bg-warning-500/10 text-warning-500'
+        ? 'bg-warning-subtle text-warning'
         : state === 'current'
           ? 'bg-success/10 text-success'
           : 'bg-bg-tertiary text-text-secondary';

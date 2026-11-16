@@ -6,8 +6,8 @@ export const HVAC_SELECT_CLASS =
   'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-3 text-base text-text-primary sm:py-2.5 sm:text-sm';
 
 export const TONE_CLASS = {
-  good: 'bg-success-500/10 text-success-500',
-  warn: 'bg-warning-500/10 text-warning-500',
+  good: 'bg-success-subtle text-success',
+  warn: 'bg-warning-subtle text-warning',
   bad: 'bg-danger/10 text-danger',
   neutral: 'bg-bg-tertiary text-text-secondary',
 } as const;
@@ -145,7 +145,7 @@ export function CheckField({ label, checked, onChange, disabled }: { label: stri
       <input
         id={id}
         type="checkbox"
-        className="focus-ring h-5 w-5 rounded border-border accent-[var(--color-accent,#2563eb)]"
+        className="focus-ring h-5 w-5 rounded border-border accent-accent"
         checked={checked}
         disabled={disabled}
         onChange={(e) => onChange(e.target.checked)}
@@ -167,7 +167,7 @@ export function StatTile({ label, value, hint }: { label: string; value: string;
 
 export function WarningList({ items, tone = 'warn' }: { items: string[]; tone?: 'warn' | 'bad' }) {
   if (items.length === 0) return null;
-  const box = tone === 'bad' ? 'border-danger/30 bg-danger/10' : 'border-warning-500/30 bg-warning-500/10';
+  const box = tone === 'bad' ? 'border-danger/30 bg-danger/10' : 'border-warning/30 bg-warning-subtle';
   return (
     <ul role="status" className={`space-y-1.5 rounded-xl border p-3 text-sm text-text-primary ${box}`}>
       {items.map((w) => (

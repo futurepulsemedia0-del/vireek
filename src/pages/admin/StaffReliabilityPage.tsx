@@ -52,15 +52,15 @@ interface Overview {
 
 const STATE_STYLE: Record<BudgetState, string> = {
   no_data: 'bg-bg-tertiary text-text-secondary',
-  healthy: 'bg-success-500/10 text-success-500',
-  warning: 'bg-warning-500/10 text-warning-500',
+  healthy: 'bg-success-subtle text-success',
+  warning: 'bg-warning-subtle text-warning',
   exhausted: 'bg-danger/10 text-danger',
 };
 const STATE_LABEL: Record<BudgetState, string> = { no_data: 'No data', healthy: 'Healthy', warning: 'Burning', exhausted: 'Exhausted' };
 const RUN_STYLE: Record<string, string> = {
-  passed: 'text-success-500',
+  passed: 'text-success',
   failed: 'text-danger',
-  error: 'text-warning-500',
+  error: 'text-warning',
   dialing: 'text-text-secondary',
   verifying: 'text-text-secondary',
 };
@@ -197,7 +197,7 @@ export function StaffReliabilityPage() {
                 <div><dt className="text-text-secondary">Burn (1h)</dt><dd className="font-semibold tabular-nums text-text-primary">{burn1h === null ? '—' : `${burn1h.toFixed(1)}x`}</dd></div>
               </dl>
               <div className="mt-3 h-2 overflow-hidden rounded-full bg-bg-tertiary" role="img" aria-label={`Error budget consumed ${all.consumed === null ? 'unknown' : formatPct(Math.min(all.consumed, 1), 0)}`}>
-                <div className={`h-full ${all.state === 'exhausted' ? 'bg-danger' : all.state === 'warning' ? 'bg-warning-500' : 'bg-success-500'}`} style={{ width: `${all.consumed === null ? 0 : Math.min(all.consumed, 1) * 100}%` }} />
+                <div className={`h-full ${all.state === 'exhausted' ? 'bg-danger' : all.state === 'warning' ? 'bg-warning' : 'bg-success'}`} style={{ width: `${all.consumed === null ? 0 : Math.min(all.consumed, 1) * 100}%` }} />
               </div>
               <p className="mt-2 text-xs text-text-secondary">{all.good}/{all.total} good events</p>
               {perRegion.length > 1 && (

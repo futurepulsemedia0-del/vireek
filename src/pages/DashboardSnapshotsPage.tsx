@@ -28,9 +28,9 @@ import {
 import { buildSnapshotPdf } from '@/lib/dashboardSnapshotPdf';
 
 const STATUS_STYLE: Record<SnapshotStatus, string> = {
-  active: 'bg-success-500/10 text-success-500',
+  active: 'bg-success-subtle text-success',
   expired: 'bg-bg-tertiary text-text-secondary',
-  revoked: 'bg-danger-500/10 text-danger-500',
+  revoked: 'bg-danger-subtle text-danger',
 };
 
 const DEFAULT_WIDGETS: WidgetKey[] = ['calls_total', 'missed_call_rate', 'jobs_completed', 'revenue_collected', 'call_volume_trend'];
@@ -211,7 +211,7 @@ export function DashboardSnapshotsPage() {
           type="button"
           onClick={create}
           disabled={creating}
-          className="focus-ring mt-3 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+          className="focus-ring mt-3 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-on-accent disabled:opacity-50"
         >
           {creating ? 'Creating…' : 'Create link'}
         </button>
@@ -225,7 +225,7 @@ export function DashboardSnapshotsPage() {
           </p>
           <div className="mt-3 flex flex-col gap-2 sm:flex-row">
             <input readOnly value={url} onFocus={(e) => e.currentTarget.select()} aria-label="Share link" className={`${field} font-mono text-xs`} />
-            <button type="button" onClick={() => copy(url)} className="focus-ring inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-white">
+            <button type="button" onClick={() => copy(url)} className="focus-ring inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-sm font-medium text-on-accent">
               {copied ? <Check size={14} /> : <Copy size={14} />} {copied ? 'Copied' : 'Copy'}
             </button>
             <button
@@ -275,7 +275,7 @@ export function DashboardSnapshotsPage() {
                         <Download size={12} /> PDF
                       </button>
                       {status === 'active' && (
-                        <button type="button" onClick={() => revoke(s)} disabled={revoking === s.id} className="focus-ring inline-flex items-center gap-1.5 rounded-lg border border-danger-500/40 px-2.5 py-1.5 text-xs font-medium text-danger-500 disabled:opacity-50">
+                        <button type="button" onClick={() => revoke(s)} disabled={revoking === s.id} className="focus-ring inline-flex items-center gap-1.5 rounded-lg border border-danger/40 px-2.5 py-1.5 text-xs font-medium text-danger disabled:opacity-50">
                           <ShieldOff size={12} /> {revoking === s.id ? 'Revoking…' : 'Revoke'}
                         </button>
                       )}

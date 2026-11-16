@@ -139,8 +139,8 @@ function LineChart({
       <svg viewBox={`0 0 ${chartW} ${chartH}`} className="w-full" style={{ height: chartH }}>
         <defs>
           <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="rgb(37 99 235)" stopOpacity="0.2" />
-            <stop offset="100%" stopColor="rgb(37 99 235)" stopOpacity="0" />
+            <stop offset="0%" stopColor="rgb(169 59 15)" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="rgb(169 59 15)" stopOpacity="0" />
           </linearGradient>
         </defs>
         {/* Grid lines */}
@@ -166,10 +166,10 @@ function LineChart({
         )}
         {/* Current period area + line */}
         <path d={currentArea} fill="url(#lineGrad)" />
-        <path d={currentPath} fill="none" stroke="rgb(37 99 235)" strokeWidth="2.5" />
+        <path d={currentPath} fill="none" stroke="rgb(169 59 15)" strokeWidth="2.5" />
         {/* Current period dots */}
         {data.map((d, i) => (
-          <circle key={i} cx={xScale(i)} cy={yScale(d.count)} r="3" fill="rgb(37 99 235)" className="opacity-0 hover:opacity-100" />
+          <circle key={i} cx={xScale(i)} cy={yScale(d.count)} r="3" fill="rgb(169 59 15)" className="opacity-0 hover:opacity-100" />
         ))}
         {/* X axis labels (show first, middle, last) */}
         {data.length > 0 && (
@@ -316,7 +316,7 @@ function LeadFunnel({ stages }: { stages: { label: string; value: number; color:
           <div key={stage.label}>
             {conversionRate !== null && (
               <div className="mb-1 flex items-center gap-1.5 pl-2 text-xs text-text-secondary">
-                <TrendingUp size={12} className={conversionRate >= 50 ? 'text-success-500' : 'text-warning-500'} />
+                <TrendingUp size={12} className={conversionRate >= 50 ? 'text-success' : 'text-warning'} />
                 <span>
                   {conversionRate}% conversion from {stages[i - 1].label}
                 </span>
@@ -389,8 +389,8 @@ function Heatmap({ data }: { data: { day: number; hour: number; count: number }[
     const intensity = count / maxCount;
     if (intensity > 0.75) return 'rgb(var(--accent-secondary))';
     if (intensity > 0.5) return 'rgb(var(--accent-secondary) / 0.7)';
-    if (intensity > 0.25) return 'rgb(37 99 235 / 0.6)';
-    return 'rgb(37 99 235 / 0.25)';
+    if (intensity > 0.25) return 'rgb(169 59 15 / 0.6)';
+    return 'rgb(169 59 15 / 0.25)';
   }
 
   return (
@@ -671,11 +671,11 @@ export function AnalyticsPage() {
 
     // Outcomes breakdown
     const outcomeConfig: Record<string, { label: string; color: string }> = {
-      new_lead: { label: 'New Lead', color: 'rgb(37 99 235)' },
-      booked: { label: 'Booked', color: 'rgb(34 197 94)' },
-      missed: { label: 'Missed', color: 'rgb(239 68 68)' },
-      callback_requested: { label: 'Callback', color: 'rgb(245 158 11)' },
-      spam: { label: 'Spam', color: 'rgb(148 163 184)' },
+      new_lead: { label: 'New Lead', color: 'rgb(169 59 15)' },
+      booked: { label: 'Booked', color: 'rgb(52 199 89)' },
+      missed: { label: 'Missed', color: 'rgb(255 45 85)' },
+      callback_requested: { label: 'Callback', color: 'rgb(255 204 0)' },
+      spam: { label: 'Spam', color: 'rgb(169 168 162)' },
     };
     const totalCalls = callsInRange.length;
     const outcomes = (Object.keys(outcomeConfig) as Call['status'][]).map((status) => {
@@ -690,12 +690,12 @@ export function AnalyticsPage() {
 
     // Lead funnel
     const funnelStages: { label: string; value: number; color: string }[] = [
-      { label: 'New', value: leadsInRange.filter((l) => l.stage === 'new').length, color: 'rgb(37 99 235)' },
-      { label: 'Contacted', value: leadsInRange.filter((l) => l.stage === 'contacted' || l.stage === 'quoted' || l.stage === 'won' || l.stage === 'lost').length, color: 'rgb(59 130 246)' },
-      { label: 'Quoted', value: leadsInRange.filter((l) => l.stage === 'quoted' || l.stage === 'won' || l.stage === 'lost').length, color: 'rgb(245 158 11)' },
-      { label: 'Won', value: leadsInRange.filter((l) => l.stage === 'won').length, color: 'rgb(34 197 94)' },
+      { label: 'New', value: leadsInRange.filter((l) => l.stage === 'new').length, color: 'rgb(169 59 15)' },
+      { label: 'Contacted', value: leadsInRange.filter((l) => l.stage === 'contacted' || l.stage === 'quoted' || l.stage === 'won' || l.stage === 'lost').length, color: 'rgb(61 142 246)' },
+      { label: 'Quoted', value: leadsInRange.filter((l) => l.stage === 'quoted' || l.stage === 'won' || l.stage === 'lost').length, color: 'rgb(255 204 0)' },
+      { label: 'Won', value: leadsInRange.filter((l) => l.stage === 'won').length, color: 'rgb(52 199 89)' },
     ];
-    funnelStages.push({ label: 'Lost', value: leadsInRange.filter((l) => l.stage === 'lost').length, color: 'rgb(239 68 68)' });
+    funnelStages.push({ label: 'Lost', value: leadsInRange.filter((l) => l.stage === 'lost').length, color: 'rgb(255 45 85)' });
 
     // Revenue by month
     const revenueByMonth: { month: string; revenue: number }[] = [];

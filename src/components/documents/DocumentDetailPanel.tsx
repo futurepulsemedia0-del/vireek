@@ -24,7 +24,7 @@ import {
 import { HomeownerShareToggle } from '@/components/documents/HomeownerShareToggle';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder';
 
 interface Props {
   document: DocumentRecord | null;
@@ -170,7 +170,7 @@ export function DocumentDetailPanel({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-[90] bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 z-[90] bg-overlay/40 backdrop-blur-sm"
           />
           <motion.aside
             ref={panelRef}
@@ -434,7 +434,7 @@ export function DocumentDetailPanel({
                       type="button"
                       disabled={!file || uploading}
                       onClick={() => void handleUpload()}
-                      className="focus-ring w-full rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="focus-ring w-full rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {uploading ? 'Uploading…' : 'Upload'}
                     </button>

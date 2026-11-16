@@ -125,20 +125,20 @@ export function UsageLimitBanner() {
         aria-live="polite"
         data-usage-level={snap.level}
         className={`relative mb-6 flex flex-col gap-4 overflow-hidden rounded-2xl border p-5 shadow-card dark:shadow-card-dark sm:flex-row sm:items-center sm:justify-between sm:p-6 ${
-          warn ? 'border-warning-500/30 bg-warning-500/10' : 'border-danger/30 bg-danger/10'
+          warn ? 'border-warning/30 bg-warning-subtle' : 'border-danger/30 bg-danger/10'
         }`}
       >
         <div className="flex min-w-0 items-start gap-4">
           <span
-            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-white ${
-              warn ? 'bg-warning-500' : 'bg-danger'
+            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${
+              warn ? 'bg-warning text-on-warning' : 'bg-danger text-on-danger'
             }`}
           >
             {warn ? <Gauge size={22} strokeWidth={2.25} aria-hidden="true" /> : <AlertTriangle size={22} strokeWidth={2.25} aria-hidden="true" />}
           </span>
 
           <div className="min-w-0">
-            <p className={`text-xs font-semibold uppercase tracking-wider ${warn ? 'text-warning-500' : 'text-danger'}`}>
+            <p className={`text-xs font-semibold uppercase tracking-wider ${warn ? 'text-warning' : 'text-danger'}`}>
               {content.eyebrow}
             </p>
             <h3 className="mt-1 text-base font-bold leading-snug text-text-primary sm:text-lg">{content.title}</h3>
@@ -150,8 +150,8 @@ export function UsageLimitBanner() {
           <button
             type="button"
             onClick={handleUpgrade}
-            className={`focus-ring flex items-center justify-center gap-2 whitespace-nowrap rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-glow-cta transition-all duration-150 ease-out hover:brightness-110 active:brightness-95 ${
-              warn ? 'bg-cta' : 'bg-danger'
+            className={`focus-ring flex items-center justify-center gap-2 whitespace-nowrap rounded-xl px-5 py-2.5 text-sm font-semibold shadow-glow-cta transition-all duration-150 ease-out hover:brightness-110 active:brightness-95 ${
+              warn ? 'bg-cta text-on-cta' : 'bg-danger text-on-danger'
             }`}
           >
             Upgrade
@@ -163,7 +163,7 @@ export function UsageLimitBanner() {
               type="button"
               onClick={dismiss}
               aria-label="Dismiss usage limit banner"
-              className="focus-ring flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-text-secondary/70 transition-colors duration-150 hover:bg-bg-tertiary hover:text-text-primary"
+              className="focus-ring flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-text-muted transition-colors duration-150 hover:bg-bg-tertiary hover:text-text-primary"
             >
               <X size={16} aria-hidden="true" />
             </button>

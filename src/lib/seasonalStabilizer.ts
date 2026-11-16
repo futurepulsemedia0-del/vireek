@@ -1379,11 +1379,11 @@ export const STATUS_LABEL: Record<ActionStatus, string> = {
 };
 
 export const STATUS_TONE: Record<ActionStatus, string> = {
-  proposed: 'bg-warning-500/10 text-warning-500',
+  proposed: 'bg-warning-subtle text-warning',
   approved: 'bg-accent/10 text-accent',
   rejected: 'bg-bg-tertiary text-text-secondary',
   launched: 'bg-accent/10 text-accent',
-  measured: 'bg-success-500/10 text-success-500',
+  measured: 'bg-success-subtle text-success',
   cancelled: 'bg-bg-tertiary text-text-secondary',
 };
 
@@ -1396,9 +1396,9 @@ export const GUARDRAIL_LABEL: Record<GuardrailStatus, string> = {
 
 export const GUARDRAIL_TONE: Record<GuardrailStatus, string> = {
   not_applicable: 'bg-bg-tertiary text-text-secondary',
-  within_floor: 'bg-success-500/10 text-success-500',
+  within_floor: 'bg-success-subtle text-success',
   blocked: 'bg-danger/10 text-danger',
-  overridden: 'bg-warning-500/10 text-warning-500',
+  overridden: 'bg-warning-subtle text-warning',
 };
 
 /** Where each action is carried out, using routes that already exist in the app. */
@@ -1412,8 +1412,8 @@ export const ACTION_LINK: Record<ActionType, { href: string; label: string }> = 
 };
 
 export const CONFIDENCE_TONE: Record<Confidence, string> = {
-  high: 'bg-success-500/10 text-success-500',
-  medium: 'bg-warning-500/10 text-warning-500',
+  high: 'bg-success-subtle text-success',
+  medium: 'bg-warning-subtle text-warning',
   low: 'bg-bg-tertiary text-text-secondary',
 };
 

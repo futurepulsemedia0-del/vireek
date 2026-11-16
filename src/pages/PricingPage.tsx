@@ -94,7 +94,7 @@ function CompareCell({ value }: { value: string | boolean }) {
     return value ? (
       <Check className="mx-auto h-5 w-5 text-success" strokeWidth={2.5} />
     ) : (
-      <Minus className="mx-auto h-4 w-4 text-text-secondary/30" />
+      <Minus className="mx-auto h-4 w-4 text-graphic-muted" />
     );
   }
   return <span className="text-sm font-medium text-text-primary">{value}</span>;
@@ -137,7 +137,7 @@ function PlanCard({
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={viewport}
           transition={{ duration: 0.4, delay: 0.15, ease: EASE }}
-          className="absolute -top-3.5 left-1/2 inline-flex -translate-x-1/2 items-center gap-1 rounded-full bg-gradient-to-r from-accent to-cta px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-white shadow-glow-accent"
+          className="absolute -top-3.5 left-1/2 inline-flex -translate-x-1/2 items-center gap-1 rounded-full bg-accent px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-on-accent shadow-glow-accent"
         >
           <Sparkles size={12} />
           Most popular
@@ -167,7 +167,7 @@ function PlanCard({
           </>
         )}
       </div>
-      <p className="mt-1 text-xs font-medium text-text-secondary/70">
+      <p className="mt-1 text-xs font-medium text-text-muted">
         {isCustomPrice
           ? `Starting from ${formatPrice(plan.startingAt!, currency)}/mo`
           : billing === 'annual'
@@ -221,8 +221,8 @@ function PlanCard({
           </Button>
         </Link>
       )}
-      <p className="mt-2 flex items-center justify-center gap-1.5 text-center text-xs font-medium text-text-secondary/70">
-        <ShieldCheck size={13} className="shrink-0 text-text-secondary/50" />
+      <p className="mt-2 flex items-center justify-center gap-1.5 text-center text-xs font-medium text-text-muted">
+        <ShieldCheck size={13} className="shrink-0 text-graphic-muted" />
         {plan.ctaHint}
       </p>
     </motion.div>
@@ -406,7 +406,7 @@ const [billing, setBilling] = useState<BillingCycle>(defaultBillingVariant as Bi
                 { icon: Clock, label: '14-day free trial on every paid plan' },
                 { icon: Check, label: 'No hidden fees' },
               ].map(({ icon: TrustIcon, label }) => (
-                <span key={label} className="inline-flex items-center gap-1.5 text-xs font-medium text-text-secondary/70">
+                <span key={label} className="inline-flex items-center gap-1.5 text-xs font-medium text-text-muted">
                   <TrustIcon size={14} className="shrink-0 text-accent" />
                   {label}
                 </span>
@@ -499,7 +499,7 @@ const [billing, setBilling] = useState<BillingCycle>(defaultBillingVariant as Bi
                             }`}
                           >
                             <span className="inline-flex items-center gap-2.5">
-                              <RowIcon size={15} className="shrink-0 text-text-secondary/60" />
+                              <RowIcon size={15} className="shrink-0 text-text-muted" />
                               {row.label}
                             </span>
                           </td>
@@ -585,7 +585,7 @@ const [billing, setBilling] = useState<BillingCycle>(defaultBillingVariant as Bi
               className="pointer-events-none absolute inset-0"
               style={{
                 backgroundImage:
-                  'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
+                  'radial-gradient(circle at 20% 20%, rgb(var(--static-white) / 0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
               }}
             />
             <div className="relative">

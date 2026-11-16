@@ -36,7 +36,7 @@ import {
   type NearestTechnician,
 } from '@/lib/routing';
 
-const TERRITORY_COLORS = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#a855f7', '#06b6d4'];
+const TERRITORY_COLORS = ['#3d8ef6', '#34c759', '#ffcc00', '#ff2d55', '#7e6bfd', '#6eacff'];
 
 type JobWithCall = Job & { calls: { is_emergency: boolean } | null };
 
@@ -119,7 +119,7 @@ function RouteOptimizationPanel({ technicians }: { technicians: TeamMember[] }) 
           type="button"
           onClick={handleOptimize}
           disabled={loading || !technicianId}
-          className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-50"
+          className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-on-accent transition-colors hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {loading ? <Loader2 size={14} className="animate-spin" /> : <Navigation size={14} />}
           {loading ? 'Optimizing…' : 'Optimize route'}
@@ -163,7 +163,7 @@ function RouteOptimizationPanel({ technicians }: { technicians: TeamMember[] }) 
                 ))}
               </ol>
               {route.unrouted.length > 0 && (
-                <p className="mt-3 text-xs text-warning-500">
+                <p className="mt-3 text-xs text-warning">
                   {route.unrouted.length} job(s) for this day aren't geocoded yet and were left out — use "Geocode missing addresses" above.
                 </p>
               )}
@@ -314,12 +314,12 @@ function EmergencyDispatchPanel() {
                         <span className="font-medium text-text-primary">{c.technician_name}</span>
                         <span className="text-text-secondary">{c.distance_miles.toFixed(1)} mi</span>
                         <span className="text-text-secondary">{c.today_load}/{c.max_jobs_per_day} today</span>
-                        {c.has_skill && <span className="text-success-500">skill match</span>}
+                        {c.has_skill && <span className="text-success">skill match</span>}
                         <button
                           type="button"
                           onClick={() => handleAssign(job.id, c.technician_id)}
                           disabled={assigning === `${job.id}:${c.technician_id}` || c.today_load >= c.max_jobs_per_day}
-                          className="focus-ring ml-auto rounded-md bg-accent px-2 py-1 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+                          className="focus-ring ml-auto rounded-md bg-accent px-2 py-1 font-semibold text-on-accent disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           Dispatch
                         </button>
@@ -448,7 +448,7 @@ function TerritoryPanel({
             type="button"
             onClick={handleCreate}
             disabled={saving}
-            className="focus-ring rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"
+            className="focus-ring rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-on-accent disabled:opacity-50"
           >
             {saving ? 'Creating…' : 'Create'}
           </button>
@@ -469,7 +469,7 @@ function TerritoryPanel({
               <button
                 type="button"
                 onClick={() => handleDelete(t.territoryId)}
-                className="focus-ring ml-auto text-text-secondary/70 transition-colors hover:text-danger"
+                className="focus-ring ml-auto text-text-muted transition-colors hover:text-danger"
                 aria-label="Delete territory"
               >
                 <Trash2 size={13} />

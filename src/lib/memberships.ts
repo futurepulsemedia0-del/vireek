@@ -16,8 +16,8 @@ export const MEMBERSHIP_STATUS_LABELS: Record<string, string> = {
 
 export const MEMBERSHIP_STATUS_COLORS: Record<string, string> = {
   offered: 'bg-accent/10 text-accent',
-  active: 'bg-success-500/10 text-success-500',
-  past_due: 'bg-warning-500/10 text-warning-500',
+  active: 'bg-success-subtle text-success',
+  past_due: 'bg-warning-subtle text-warning',
   cancelled: 'bg-bg-tertiary text-text-secondary',
   churned: 'bg-danger/10 text-danger',
 };

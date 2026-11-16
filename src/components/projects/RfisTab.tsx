@@ -131,7 +131,7 @@ export function RfisTab({ ownerId, bundle, today, onChanged }: TabProps) {
                   const fileCount = filesByRfi.get(r.id)?.length ?? 0;
                   const phaseName = phases.find((p) => p.id === r.phase_id)?.name;
                   return (
-                    <li key={r.id} id={`rfi-${r.id}`} className={`${panelClass} !p-0 ${late > 0 ? 'border-danger-500/40' : ''}`}>
+                    <li key={r.id} id={`rfi-${r.id}`} className={`${panelClass} !p-0 ${late > 0 ? 'border-danger/40' : ''}`}>
                       <button type="button" aria-expanded={open} aria-controls={`rfi-panel-${r.id}`} onClick={() => toggle(r.id)} className="focus-ring flex w-full items-start gap-3 rounded-2xl p-4 text-left">
                         <div className="min-w-0 flex-1">
                           <p className="flex flex-wrap items-baseline gap-x-2 text-sm"><span className="font-semibold text-text-primary">{r.rfi_number}</span><span className="min-w-0 truncate text-text-primary">{r.subject}</span></p>
@@ -187,7 +187,7 @@ export function RfisTab({ ownerId, bundle, today, onChanged }: TabProps) {
                     </select>
                   )}
                   {canDeleteChangeOrder(c.status) && (
-                    <button type="button" aria-label={`Delete ${c.co_number}`} onClick={() => ask({ title: 'Delete change order?', description: `${c.co_number} “${c.title}” will be deleted. Linked RFIs are kept and unlinked.`, label: 'Delete change order', onConfirm: () => run(`del-${c.id}`, () => deleteChangeOrder(ownerId, c.id), 'Change order deleted.') })} className="focus-ring rounded-lg p-1.5 text-text-secondary hover:bg-bg-tertiary hover:text-danger-500"><Trash2 size={16} aria-hidden="true" /></button>
+                    <button type="button" aria-label={`Delete ${c.co_number}`} onClick={() => ask({ title: 'Delete change order?', description: `${c.co_number} “${c.title}” will be deleted. Linked RFIs are kept and unlinked.`, label: 'Delete change order', onConfirm: () => run(`del-${c.id}`, () => deleteChangeOrder(ownerId, c.id), 'Change order deleted.') })} className="focus-ring rounded-lg p-1.5 text-text-secondary hover:bg-bg-tertiary hover:text-danger"><Trash2 size={16} aria-hidden="true" /></button>
                   )}
                 </li>
               );

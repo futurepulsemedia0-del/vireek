@@ -97,7 +97,7 @@ function StoryCard({ story, index }: { story: CustomerStory; index: number }) {
         </div>
 
         <figure className="flex-1 rounded-xl bg-bg-tertiary/60 p-4">
-          <Quote size={18} className="text-accent/40" aria-hidden />
+          <Quote size={18} className="text-accent" aria-hidden />
           <blockquote className="mt-1.5 text-sm italic leading-relaxed text-text-primary">“{story.quote}”</blockquote>
           <figcaption className="mt-2 text-xs font-semibold text-text-secondary">
             {isVerified(story) ? `${story.name}, ${story.business}` : `Illustrative quote · ${story.industry}`}
@@ -134,7 +134,7 @@ export function CustomerStoriesPage() {
 
   const chip = (active: boolean) =>
     `focus-ring inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold transition-colors ${
-      active ? 'border-accent bg-accent text-white' : 'border-border bg-bg-secondary text-text-primary hover:border-accent/40 hover:text-accent'
+      active ? 'border-accent bg-accent text-on-accent' : 'border-border bg-bg-secondary text-text-primary hover:border-accent/40 hover:text-accent'
     }`;
 
   return (
@@ -212,7 +212,7 @@ export function CustomerStoriesPage() {
 
         <section className="px-6 py-16 md:py-20">
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={viewport} transition={{ duration: 0.5, ease: EASE }} className="bg-noise relative mx-auto flex max-w-6xl flex-col items-center overflow-hidden rounded-3xl bg-gradient-to-br from-accent-800 via-accent-700 to-cta-800 px-6 py-16 text-center shadow-glow-accent md:px-16 md:py-24">
-            <div aria-hidden="true" className="pointer-events-none absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)' }} />
+            <div aria-hidden="true" className="pointer-events-none absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 20% 20%, rgb(var(--static-white) / 0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)' }} />
             <div className="relative">
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-white/80"><Sparkles className="mr-1.5 inline h-4 w-4" aria-hidden />See it on your own calls</p>
               <h2 className="mt-4 text-balance text-3xl font-bold leading-[1.15] tracking-tight text-white md:text-5xl">Your numbers beat anyone’s story</h2>

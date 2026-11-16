@@ -265,10 +265,10 @@ function FlowList({ accountOwnerId, userId }: ScopeProps) {
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <h2 className="truncate text-base font-semibold text-text-primary">{rec.name}</h2>
-                      {isLive && <span className="rounded-full bg-success-500/10 px-2.5 py-1 text-[11px] font-semibold text-success-500">Live</span>}
+                      {isLive && <span className="rounded-full bg-success-subtle px-2.5 py-1 text-[11px] font-semibold text-success">Live</span>}
                       {!rec.published && <span className="rounded-full bg-bg-tertiary px-2.5 py-1 text-[11px] font-semibold text-text-secondary">Draft only</span>}
                       {rec.published && !unpublished && <span className="rounded-full bg-bg-tertiary px-2.5 py-1 text-[11px] font-semibold text-text-secondary">Published v{rec.publishedVersion}</span>}
-                      {rec.published && unpublished && <span className="rounded-full bg-warning-500/10 px-2.5 py-1 text-[11px] font-semibold text-warning-500">v{rec.publishedVersion} · unpublished changes</span>}
+                      {rec.published && unpublished && <span className="rounded-full bg-warning-subtle px-2.5 py-1 text-[11px] font-semibold text-warning">v{rec.publishedVersion} · unpublished changes</span>}
                     </div>
                     <p className="mt-1 text-xs text-text-secondary">
                       {rec.draft.nodes.length} step{rec.draft.nodes.length === 1 ? '' : 's'} · updated {formatWhen(rec.updatedAt)}
@@ -492,7 +492,7 @@ function FlowBuilder({ accountOwnerId, userId, flowId }: ScopeProps & { flowId: 
   };
 
   const statusLabel = !record?.published ? 'Draft only' : unpublished ? `Published v${record.publishedVersion} · unpublished changes` : `Published v${record.publishedVersion}`;
-  const statusStyle = !record?.published ? 'bg-bg-tertiary text-text-secondary' : unpublished ? 'bg-warning-500/10 text-warning-500' : 'bg-success-500/10 text-success-500';
+  const statusStyle = !record?.published ? 'bg-bg-tertiary text-text-secondary' : unpublished ? 'bg-warning-subtle text-warning' : 'bg-success-subtle text-success';
 
   const header = (
     <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -509,7 +509,7 @@ function FlowBuilder({ accountOwnerId, userId, flowId }: ScopeProps & { flowId: 
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="truncate text-2xl font-bold tracking-tight text-text-primary md:text-3xl">{record ? name.trim() || 'Untitled flow' : 'Call Flows'}</h1>
             {record && <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${statusStyle}`}>{statusLabel}</span>}
-            {isLive && <span className="rounded-full bg-success-500/10 px-2.5 py-1 text-[11px] font-semibold text-success-500">Live</span>}
+            {isLive && <span className="rounded-full bg-success-subtle px-2.5 py-1 text-[11px] font-semibold text-success">Live</span>}
           </div>
           <p className="mt-1 text-sm text-text-secondary">Build the journey: what callers hear, which keys they press and where each call ends up.</p>
         </div>
@@ -579,7 +579,7 @@ function FlowBuilder({ accountOwnerId, userId, flowId }: ScopeProps & { flowId: 
       {header}
 
       {conflict && (
-        <div role="alert" className="mb-4 flex flex-col gap-3 rounded-2xl border border-warning-500/40 bg-warning-500/10 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div role="alert" className="mb-4 flex flex-col gap-3 rounded-2xl border border-warning/40 bg-warning-subtle p-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-text-primary">Someone else changed this flow. Reload to see the latest version — your unsaved edits here will be replaced.</p>
           <Button type="button" variant="secondary" size="sm" onClick={() => void load()}>
             <RefreshCw size={14} /> Reload

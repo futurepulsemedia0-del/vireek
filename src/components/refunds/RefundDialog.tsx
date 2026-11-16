@@ -19,7 +19,7 @@ import {
 } from '@/lib/refunds';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors focus-visible:border-accent';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder transition-colors focus-visible:border-accent';
 
 // Refunds at or above this amount require typing a phrase before they are sent.
 const TYPE_TO_CONFIRM_CENTS = 50_000;
@@ -89,7 +89,7 @@ export function RefundDialog({ payment, onClose, onDone }: Props) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={onClose}
-              className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm"
+              className="fixed inset-0 z-[100] bg-overlay/40 backdrop-blur-sm"
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.96, y: 10 }}

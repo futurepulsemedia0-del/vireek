@@ -78,7 +78,7 @@ export function AmbassadorPage() {
                   </Button>
                 </a>
               </div>
-              <p className="mt-6 flex items-center justify-center gap-1.5 text-xs font-medium text-text-secondary/70">
+              <p className="mt-6 flex items-center justify-center gap-1.5 text-xs font-medium text-text-muted">
                 <ShieldCheck size={13} className="shrink-0" />
                 Free, informal, and reviewed personally — no application form to fill out.
               </p>
@@ -177,7 +177,7 @@ export function AmbassadorPage() {
               className="pointer-events-none absolute inset-0"
               style={{
                 backgroundImage:
-                  'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
+                  'radial-gradient(circle at 20% 20%, rgb(var(--static-white) / 0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
               }}
             />
             <div className="relative">

@@ -110,7 +110,7 @@ export function RequestSignatureModal({
         exit={{ opacity: 0 }}
         transition={{ duration: 0.2 }}
         onClick={onClose}
-        className="fixed inset-0 z-[110] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+        className="fixed inset-0 z-[110] flex items-center justify-center bg-overlay/40 backdrop-blur-sm p-4"
       >
         <motion.div
           ref={dialogRef}

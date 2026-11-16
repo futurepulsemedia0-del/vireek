@@ -198,7 +198,7 @@ export function JobWorkflowPanel({
                   type="button"
                   onClick={() => void resume()}
                   disabled={resuming}
-                  className="focus-ring inline-flex min-h-[40px] items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white hover:brightness-110 disabled:opacity-60"
+                  className="focus-ring inline-flex min-h-[40px] items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-on-accent hover:brightness-110 disabled:opacity-60"
                 >
                   {resuming ? <Loader2 size={14} className="animate-spin" aria-hidden="true" /> : <Play size={14} aria-hidden="true" />}
                   Resume

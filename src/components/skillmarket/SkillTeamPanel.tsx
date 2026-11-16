@@ -20,10 +20,10 @@ const selectClass =
   'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-3 text-base text-text-primary transition-colors focus-visible:border-accent';
 
 function stateOf(t: TeamListing): { label: string; className: string } {
-  if (t.listed) return { label: 'Live in market', className: 'bg-success-500/10 text-success-500' };
-  if (t.paused && t.company_consent && t.technician_consent) return { label: 'Paused', className: 'bg-warning-500/10 text-warning-500' };
-  if (t.company_consent && !t.technician_consent) return { label: 'Waiting for technician consent', className: 'bg-warning-500/10 text-warning-500' };
-  if (!t.company_consent && t.technician_consent) return { label: 'Waiting for company approval', className: 'bg-warning-500/10 text-warning-500' };
+  if (t.listed) return { label: 'Live in market', className: 'bg-success-subtle text-success' };
+  if (t.paused && t.company_consent && t.technician_consent) return { label: 'Paused', className: 'bg-warning-subtle text-warning' };
+  if (t.company_consent && !t.technician_consent) return { label: 'Waiting for technician consent', className: 'bg-warning-subtle text-warning' };
+  if (!t.company_consent && t.technician_consent) return { label: 'Waiting for company approval', className: 'bg-warning-subtle text-warning' };
   return { label: 'Not listed', className: 'bg-bg-tertiary text-text-secondary' };
 }
 

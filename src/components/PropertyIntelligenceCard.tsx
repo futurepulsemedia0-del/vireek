@@ -26,21 +26,21 @@ import {
 } from '@/lib/propertyIntelligence';
 
 const LEVEL_STYLES: Record<LikelihoodLevel, string> = {
-  high: 'bg-danger-500/10 text-danger-500',
-  medium: 'bg-warning-500/10 text-warning-500',
-  low: 'bg-success-500/10 text-success-500',
+  high: 'bg-danger-subtle text-danger',
+  medium: 'bg-warning-subtle text-warning',
+  low: 'bg-success-subtle text-success',
   unknown: 'bg-bg-tertiary text-text-secondary',
 };
 
 const SIGNAL_STYLES: Record<PropertySignal['severity'], string> = {
-  alert: 'bg-danger-500/10 text-danger-500',
-  watch: 'bg-warning-500/10 text-warning-500',
+  alert: 'bg-danger-subtle text-danger',
+  watch: 'bg-warning-subtle text-warning',
   info: 'bg-bg-tertiary text-text-secondary',
 };
 
 const STATE_ICON: Record<NodeState, JSX.Element> = {
-  known: <CheckCircle2 size={14} className="text-success-500" aria-label="Known" />,
-  estimated: <Wind size={14} className="text-warning-500" aria-label="Estimated" />,
+  known: <CheckCircle2 size={14} className="text-success" aria-label="Known" />,
+  estimated: <Wind size={14} className="text-warning" aria-label="Estimated" />,
   missing: <CircleDashed size={14} className="text-text-secondary" aria-label="Missing" />,
 };
 
@@ -153,7 +153,7 @@ export function PropertyIntelligenceCard({ siteId, hasAddress }: { siteId: strin
       {header}
 
       {!hasAddress && (
-        <p className="mb-3 flex items-center gap-2 rounded-xl border border-warning-500/30 bg-warning-500/5 p-3 text-xs text-warning-500">
+        <p className="mb-3 flex items-center gap-2 rounded-xl border border-warning/30 bg-warning-subtle p-3 text-xs text-warning">
           <AlertTriangle size={14} /> Add a street address plus a city/state or ZIP to this site to enable property enrichment.
         </p>
       )}
@@ -165,7 +165,7 @@ export function PropertyIntelligenceCard({ siteId, hasAddress }: { siteId: strin
       )}
 
       {briefing.status === 'failed' && (
-        <p className="mb-3 flex items-center gap-2 rounded-xl border border-warning-500/30 bg-warning-500/5 p-3 text-xs text-warning-500">
+        <p className="mb-3 flex items-center gap-2 rounded-xl border border-warning/30 bg-warning-subtle p-3 text-xs text-warning">
           <AlertTriangle size={14} /> No external records were found for this address. Check the spelling, or try again later.
         </p>
       )}

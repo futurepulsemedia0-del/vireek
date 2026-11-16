@@ -150,7 +150,7 @@ function ProviderCard({ provider, connection, onChanged, onGoToMapping }: { prov
 
       {isApi && connection?.external_company_id && (
         <p className="flex items-center gap-2 text-sm text-text-secondary">
-          <CheckCircle2 size={16} className="text-success-500" aria-hidden="true" />
+          <CheckCircle2 size={16} className="text-success" aria-hidden="true" />
           {connection.company_name ?? 'Gusto company'} is connected{connection.environment === 'sandbox' ? ' (sandbox)' : ''}.
         </p>
       )}

@@ -117,7 +117,7 @@ export function CompoundingFlywheelPage() {
                 <p className="text-xs text-text-secondary">Avg lesson confidence</p>
               </div>
               <div className="rounded-2xl border border-border bg-bg-secondary p-4 text-center">
-                <p className="text-xl font-bold text-success-500">{promotions.length}</p>
+                <p className="text-xl font-bold text-success">{promotions.length}</p>
                 <p className="text-xs text-text-secondary">Lessons → actions</p>
               </div>
             </div>

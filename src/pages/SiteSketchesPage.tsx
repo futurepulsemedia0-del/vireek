@@ -113,7 +113,7 @@ export function SiteSketchesPage() {
               type="button"
               aria-pressed={filter === f.key}
               onClick={() => setFilter(f.key)}
-              className={`focus-ring min-h-[40px] whitespace-nowrap rounded-xl px-3 text-sm font-semibold ${filter === f.key ? 'bg-accent text-white' : 'border border-border bg-bg-secondary text-text-secondary hover:text-text-primary'}`}
+              className={`focus-ring min-h-[40px] whitespace-nowrap rounded-xl px-3 text-sm font-semibold ${filter === f.key ? 'bg-accent text-on-accent' : 'border border-border bg-bg-secondary text-text-secondary hover:text-text-primary'}`}
             >
               {f.label}
             </button>

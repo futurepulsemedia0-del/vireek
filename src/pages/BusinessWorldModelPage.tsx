@@ -42,7 +42,7 @@ import {
 } from '@/lib/causalGraph';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder';
 
 const NODE_ICONS: Record<NodeType, typeof UserRound> = {
   customer: UserRound,
@@ -57,11 +57,11 @@ const NODE_ICONS: Record<NodeType, typeof UserRound> = {
 
 const NODE_COLORS: Record<NodeType, string> = {
   customer: 'text-accent bg-accent/10',
-  property: 'text-warning-500 bg-warning-500/10',
+  property: 'text-warning bg-warning-subtle',
   asset: 'text-text-secondary bg-bg-secondary',
-  job: 'text-success-500 bg-success-500/10',
+  job: 'text-success bg-success-subtle',
   technician: 'text-accent bg-accent/10',
-  invoice: 'text-warning-500 bg-warning-500/10',
+  invoice: 'text-warning bg-warning-subtle',
   communication: 'text-danger bg-danger/10',
   event: 'text-text-secondary bg-bg-secondary',
 };
@@ -157,7 +157,7 @@ function WorldGraphTab({ model }: { model: WorldModel }) {
         <div className="flex flex-wrap gap-1.5">
           <button
             onClick={() => setTypeFilter('all')}
-            className={`focus-ring rounded-lg px-2.5 py-1 text-xs font-medium ${typeFilter === 'all' ? 'bg-accent text-white' : 'border border-border text-text-secondary hover:bg-bg-secondary'}`}
+            className={`focus-ring rounded-lg px-2.5 py-1 text-xs font-medium ${typeFilter === 'all' ? 'bg-accent text-on-accent' : 'border border-border text-text-secondary hover:bg-bg-secondary'}`}
           >
             All ({model.nodes.length})
           </button>
@@ -168,7 +168,7 @@ function WorldGraphTab({ model }: { model: WorldModel }) {
               <button
                 key={t}
                 onClick={() => setTypeFilter(t)}
-                className={`focus-ring rounded-lg px-2.5 py-1 text-xs font-medium ${typeFilter === t ? 'bg-accent text-white' : 'border border-border text-text-secondary hover:bg-bg-secondary'}`}
+                className={`focus-ring rounded-lg px-2.5 py-1 text-xs font-medium ${typeFilter === t ? 'bg-accent text-on-accent' : 'border border-border text-text-secondary hover:bg-bg-secondary'}`}
               >
                 {NODE_TYPE_LABELS[t]} ({count})
               </button>
@@ -221,7 +221,7 @@ function WorldGraphTab({ model }: { model: WorldModel }) {
                     ) : (
                       <span className="text-xs text-text-secondary">&larr; {EDGE_RELATION_LABELS[c.relation as keyof typeof EDGE_RELATION_LABELS]}</span>
                     )}
-                    <ArrowRight className="h-3 w-3 shrink-0 text-text-secondary/50" />
+                    <ArrowRight className="h-3 w-3 shrink-0 text-graphic-muted" />
                     <button onClick={() => setSelectedKey(c.other.key)} className="focus-ring flex-1 truncate text-left text-text-primary hover:underline">
                       {c.other.label}
                     </button>
@@ -321,7 +321,7 @@ function CausalGraphTab({
                   <button
                     onClick={() => handleConfirm(c)}
                     disabled={busyKey === key}
-                    className="focus-ring flex items-center gap-1 rounded-lg bg-accent px-2.5 py-1 text-xs font-medium text-white hover:bg-accent/90 disabled:opacity-60"
+                    className="focus-ring flex items-center gap-1 rounded-lg bg-accent px-2.5 py-1 text-xs font-medium text-on-accent hover:bg-accent/90 disabled:opacity-60"
                   >
                     {busyKey === key ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />} Confirm
                   </button>
@@ -377,7 +377,7 @@ function CausalGraphTab({
         <button
           onClick={handleSaveManual}
           disabled={savingManual}
-          className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent/90 disabled:opacity-60"
+          className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent hover:bg-accent/90 disabled:opacity-60"
         >
           {savingManual ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />} Add causal link
         </button>
@@ -488,7 +488,7 @@ export function BusinessWorldModelPage() {
             className={`focus-ring flex items-center gap-1.5 rounded-t-xl px-4 py-2 text-sm font-medium ${tab === 'causal' ? 'border-b-2 border-accent text-accent' : 'text-text-secondary hover:text-text-primary'}`}
           >
             <GitBranch className="h-4 w-4" /> Causal Graph
-            {candidates.length > 0 && <span className="rounded-full bg-accent px-1.5 text-[10px] text-white">{candidates.length}</span>}
+            {candidates.length > 0 && <span className="rounded-full bg-accent px-1.5 text-[10px] text-on-accent">{candidates.length}</span>}
           </button>
           <button
             onClick={() => setTab('external')}

@@ -233,7 +233,7 @@ function TemplateEditor({
         </div>
       )}
       {warnings.length > 0 && (
-        <p role="status" className="flex items-start gap-2 rounded-xl border border-warning-500/40 bg-warning-500/10 p-3 text-sm text-text-primary">
+        <p role="status" className="flex items-start gap-2 rounded-xl border border-warning/40 bg-warning-subtle p-3 text-sm text-text-primary">
           <AlertTriangle size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
           <span>
             PDF fonts only support Latin characters. Other characters in {warnings.join(', ')} will print as “?”.

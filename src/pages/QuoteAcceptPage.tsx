@@ -137,7 +137,7 @@ const handleRespond = async (
                 </div>
               ) : null}
               {totals && totals.discountCents > 0 && (
-           <div className="mb-2 flex items-center justify-between px-1 text-sm text-success-500">
+           <div className="mb-2 flex items-center justify-between px-1 text-sm text-success">
              <span>Discount{quote.promo_codes?.length ? ` (${quote.promo_codes.join(', ')})` : ''}</span>
             <span>−{formatCents(totals.discountCents)}</span>
           </div>
@@ -168,7 +168,7 @@ const handleRespond = async (
                   type="button"
                   disabled={submitting}
                   onClick={() => handleRespond('accepted')}
-                  className="focus-ring flex-1 rounded-xl bg-accent py-2.5 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50"
+                  className="focus-ring flex-1 rounded-xl bg-accent py-2.5 text-sm font-medium text-on-accent transition-all hover:brightness-110 disabled:opacity-50"
                 >
                   Accept quote
                 </button>
@@ -186,7 +186,7 @@ const handleRespond = async (
 
           {responded === 'accepted' && (
             <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="text-center">
-              <CheckCircle2 size={28} className="mx-auto mb-3 text-success-500" />
+              <CheckCircle2 size={28} className="mx-auto mb-3 text-success" />
               <h1 className="text-lg font-semibold text-text-primary">Quote accepted</h1>
               <p className="mt-2 text-sm text-text-secondary">We'll be in touch to schedule the work.</p>
             </motion.div>

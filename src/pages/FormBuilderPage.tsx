@@ -327,7 +327,7 @@ export function FormBuilderPage() {
                 aria-selected={filter === tab.key}
                 onClick={() => setFilter(tab.key)}
                 className={`focus-ring whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-                  filter === tab.key ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'
+                  filter === tab.key ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'
                 }`}
               >
                 {tab.label}

@@ -31,7 +31,7 @@ const TONE_CLASS: Record<Tone, string> = {
   accent: 'bg-accent/10 text-accent border-accent/25',
   success: 'bg-success/10 text-success border-success/25',
   danger: 'bg-danger/10 text-danger border-danger/25',
-  warning: 'bg-warning-500/10 text-warning-500 border-warning-500/25',
+  warning: 'bg-warning-subtle text-warning border-warning/25',
 };
 
 function Badge({ tone, children }: { tone: Tone; children: React.ReactNode }) {
@@ -174,7 +174,7 @@ export function RefundsPage() {
         </div>
 
         {!canIssue && (
-          <p className="flex items-center gap-2 rounded-lg border border-warning-500/25 bg-warning-500/10 px-3 py-2 text-sm text-warning-500">
+          <p className="flex items-center gap-2 rounded-lg border border-warning/25 bg-warning-subtle px-3 py-2 text-sm text-warning">
             <AlertTriangle className="h-4 w-4 shrink-0" /> You can view refunds, but issuing them needs the “Issue refunds” permission.
           </p>
         )}
@@ -227,7 +227,7 @@ export function RefundsPage() {
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder="Search by customer name or email"
                     aria-label="Search payments"
-                    className="focus-ring w-full rounded-xl border border-border bg-bg-primary py-2.5 pl-10 pr-4 text-sm text-text-primary placeholder:text-text-secondary/60 focus-visible:border-accent"
+                    className="focus-ring w-full rounded-xl border border-border bg-bg-primary py-2.5 pl-10 pr-4 text-sm text-text-primary placeholder:text-text-placeholder focus-visible:border-accent"
                   />
                 </div>
 

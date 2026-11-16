@@ -76,14 +76,14 @@ type SpeakerFilter = 'all' | 'caller' | 'agent';
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   new_lead: { label: 'New Lead', color: 'bg-accent/10 text-accent' },
-  booked: { label: 'Booked', color: 'bg-success-500/10 text-success-500' },
+  booked: { label: 'Booked', color: 'bg-success-subtle text-success' },
   missed: { label: 'Missed', color: 'bg-danger/10 text-danger' },
-  callback_requested: { label: 'Callback', color: 'bg-warning-500/10 text-warning-500' },
+  callback_requested: { label: 'Callback', color: 'bg-warning-subtle text-warning' },
   spam: { label: 'Spam', color: 'bg-bg-tertiary text-text-secondary' },
 };
 
 const SENTIMENT_STYLE: Record<SentimentLabel, { label: string; text: string }> = {
-  positive: { label: 'Positive', text: 'text-success-500' },
+  positive: { label: 'Positive', text: 'text-success' },
   neutral: { label: 'Neutral', text: 'text-text-secondary' },
   negative: { label: 'Negative', text: 'text-danger' },
 };
@@ -224,7 +224,7 @@ function RecordingPlayer({
         <button type="button" onClick={() => jump(-10)} className="focus-ring flex h-9 w-9 items-center justify-center rounded-full text-text-secondary hover:bg-bg-tertiary hover:text-text-primary" aria-label="Back 10 seconds">
           <RotateCcw size={16} />
         </button>
-        <button type="button" onClick={toggle} disabled={state === 'loading'} className="focus-ring flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent text-white transition-transform hover:scale-105 disabled:opacity-50" aria-label={playing ? 'Pause' : 'Play'}>
+        <button type="button" onClick={toggle} disabled={state === 'loading'} className="focus-ring flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent text-on-accent transition-transform hover:scale-105 disabled:opacity-50" aria-label={playing ? 'Pause' : 'Play'}>
           {playing ? <Pause size={18} /> : <Play size={18} className="ml-0.5" />}
         </button>
         <button type="button" onClick={() => jump(10)} className="focus-ring flex h-9 w-9 items-center justify-center rounded-full text-text-secondary hover:bg-bg-tertiary hover:text-text-primary" aria-label="Forward 10 seconds">
@@ -274,7 +274,7 @@ function SentimentChart({
   const x = (i: number, atSec: number | null) => (atSec !== null && duration > 0 ? 12 + (atSec / duration) * (W - 24) : 12 + (points.length === 1 ? (W - 24) / 2 : (i / (points.length - 1)) * (W - 24)));
   const y = (score: number) => H / 2 - score * (H / 2 - 12);
   const coords = points.map((p, i) => ({ ...p, cx: x(i, p.atSec), cy: y(p.score) }));
-  const colorFor = (label: SentimentLabel) => (label === 'positive' ? 'text-success-500' : label === 'negative' ? 'text-danger' : 'text-text-secondary');
+  const colorFor = (label: SentimentLabel) => (label === 'positive' ? 'text-success' : label === 'negative' ? 'text-danger' : 'text-text-secondary');
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="group" aria-label="Estimated caller sentiment across the call">
@@ -524,8 +524,8 @@ export function CallDetailPage() {
       {header}
 
       {failedSections.length > 0 && (
-        <div role="alert" className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-warning-500/40 bg-warning-500/10 px-4 py-3 text-sm text-text-primary">
-          <AlertTriangle size={16} className="shrink-0 text-warning-500" aria-hidden="true" />
+        <div role="alert" className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-warning/40 bg-warning-subtle px-4 py-3 text-sm text-text-primary">
+          <AlertTriangle size={16} className="shrink-0 text-warning" aria-hidden="true" />
           <span className="flex-1">Some sections could not load: {failedSections.join(', ')}.</span>
           <button type="button" onClick={load} className="focus-ring rounded-lg border border-border bg-bg-primary px-3 py-1.5 text-xs font-medium hover:border-accent/40">Retry</button>
         </div>
@@ -608,7 +608,7 @@ export function CallDetailPage() {
                       onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); stepMatch(e.shiftKey ? -1 : 1); } if (e.key === 'Escape') setQuery(''); }}
                       placeholder="Search transcript…  (press /)"
                       aria-label="Search transcript"
-                      className="focus-ring w-full rounded-xl border border-border bg-bg-primary py-2 pl-9 pr-8 text-sm text-text-primary placeholder:text-text-secondary/60"
+                      className="focus-ring w-full rounded-xl border border-border bg-bg-primary py-2 pl-9 pr-8 text-sm text-text-primary placeholder:text-text-placeholder"
                     />
                     {query && (
                       <button type="button" onClick={() => setQuery('')} className="focus-ring absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-text-secondary hover:text-text-primary" aria-label="Clear search">
@@ -659,7 +659,7 @@ export function CallDetailPage() {
                             )}
                           </div>
                           <p className="text-sm leading-relaxed text-text-primary">
-                            {splitHighlight(t.text, query).map((seg, i) => (seg.match ? <mark key={i} className="rounded bg-warning-500/30 px-0.5 text-text-primary">{seg.text}</mark> : <span key={i}>{seg.text}</span>))}
+                            {splitHighlight(t.text, query).map((seg, i) => (seg.match ? <mark key={i} className="rounded bg-warning-subtle px-0.5 text-text-primary">{seg.text}</mark> : <span key={i}>{seg.text}</span>))}
                           </p>
                         </li>
                       );

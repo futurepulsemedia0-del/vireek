@@ -82,7 +82,7 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
       aria-selected={active}
       onClick={onClick}
       className={`focus-ring min-h-[40px] rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-        active ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
+        active ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
       }`}
     >
       {children}
@@ -643,7 +643,7 @@ function VideoCard({ video, href, query, onOpen }: { video: HelpVideo; href: str
     >
       <div className="relative flex aspect-video items-center justify-center bg-gradient-to-br from-accent/20 to-bg-tertiary">
         <PlayCircle size={40} className="text-accent transition-transform group-hover:scale-110" />
-        <span className="absolute bottom-2 right-2 rounded-md bg-black/60 px-1.5 py-0.5 text-[11px] font-medium text-white">{video.minutes} min</span>
+        <span className="absolute bottom-2 right-2 rounded-md bg-overlay/60 px-1.5 py-0.5 text-[11px] font-medium text-white">{video.minutes} min</span>
         {state === 'placeholder' && (
           <span className="absolute left-2 top-2">
             <Pill tone="warn">Coming soon</Pill>
@@ -777,7 +777,7 @@ function VideoView({
         <ChevronLeft size={16} /> {hasQuery ? 'Back to results' : 'Video library'}
       </Link>
 
-      <div className="aspect-video w-full overflow-hidden rounded-2xl border border-border bg-black">
+      <div className="aspect-video w-full overflow-hidden rounded-2xl border border-border bg-overlay">
         {state === 'ok' ? (
           <iframe
             key={video.id}

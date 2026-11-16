@@ -17,10 +17,10 @@ const RANGES = [
 ] as const;
 
 const TONE_TEXT: Record<RateTone, string> = {
-  good: 'text-emerald-500', warn: 'text-amber-500', bad: 'text-red-500', none: 'text-text-secondary',
+  good: 'text-success', warn: 'text-warning', bad: 'text-danger', none: 'text-text-secondary',
 };
 const TONE_BAR: Record<RateTone, string> = {
-  good: 'bg-emerald-500', warn: 'bg-amber-500', bad: 'bg-red-500', none: 'bg-border',
+  good: 'bg-success', warn: 'bg-warning', bad: 'bg-danger', none: 'bg-border',
 };
 
 const fmtRate = (r: number | null) => (r === null ? '—' : `${r}%`);
@@ -75,7 +75,7 @@ export function OnTimeRateCard() {
       </div>
 
       {failed ? (
-        <p className="mt-4 text-sm text-red-500" role="alert">Could not load the on-time report. Try again shortly.</p>
+        <p className="mt-4 text-sm text-danger" role="alert">Could not load the on-time report. Try again shortly.</p>
       ) : rows === null ? (
         <div className="mt-4 h-24 animate-pulse rounded-xl bg-bg-primary" aria-busy="true" />
       ) : rows.length === 0 ? (

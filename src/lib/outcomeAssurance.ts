@@ -218,16 +218,16 @@ export const STATUS_LABELS: Record<AssuranceStatus, string> = {
 };
 
 export const STATUS_COLORS: Record<AssuranceStatus, string> = {
-  assured: 'bg-success-500/10 text-success-500',
-  watch: 'bg-warning-500/10 text-warning-500',
+  assured: 'bg-success-subtle text-success',
+  watch: 'bg-warning-subtle text-warning',
   intervene: 'bg-danger/10 text-danger',
   insufficient: 'bg-bg-tertiary text-text-secondary',
 };
 
 export const RISK_LABELS: Record<DisruptionRisk, string> = { low: 'Low', medium: 'Medium', high: 'High' };
 export const RISK_COLORS: Record<DisruptionRisk, string> = {
-  low: 'text-success-500',
-  medium: 'text-warning-500',
+  low: 'text-success',
+  medium: 'text-warning',
   high: 'text-danger',
 };
 

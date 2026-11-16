@@ -63,7 +63,7 @@ export function IndustriesPage() {
                     className="group flex h-full flex-col rounded-2xl border border-border bg-bg-secondary p-7 shadow-card transition-all duration-300 ease-out hover:-translate-y-1 hover:border-accent/30 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/10 text-accent transition-colors duration-300 group-hover:bg-accent group-hover:text-white">
+                      <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/10 text-accent transition-colors duration-300 group-hover:bg-accent group-hover:text-on-accent">
                         <Icon size={22} />
                       </span>
                       <h3 className="text-xl font-semibold text-text-primary">{name}</h3>
@@ -104,7 +104,7 @@ export function IndustriesPage() {
               className="pointer-events-none absolute inset-0"
               style={{
                 backgroundImage:
-                  'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
+                  'radial-gradient(circle at 20% 20%, rgb(var(--static-white) / 0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
               }}
             />
             <div className="relative">
@@ -118,7 +118,7 @@ export function IndustriesPage() {
               <div className="mt-9 flex justify-center">
                 <Link
                   to="/login"
-                  className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-accent-800 shadow-lg transition-all hover:brightness-95 active:scale-[0.98]"
+                  className="inline-flex items-center gap-2 rounded-xl bg-bg-secondary px-6 py-3 text-sm font-semibold text-accent-strong shadow-lg transition-all hover:brightness-95 active:scale-[0.98]"
                 >
                   Start Free Trial
                   <ArrowRight size={18} />

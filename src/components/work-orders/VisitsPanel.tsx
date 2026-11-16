@@ -169,7 +169,7 @@ export function VisitsPanel({ workOrder, visits, technicians, busyId, onCreate, 
       </div>
 
       {!startable && (
-        <p className="rounded-xl bg-warning-500/10 px-3 py-2 text-xs text-warning-500">
+        <p className="rounded-xl bg-warning-subtle px-3 py-2 text-xs text-warning">
           You can schedule visits now, but they can&apos;t start until this work order is approved.
         </p>
       )}

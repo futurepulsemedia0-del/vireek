@@ -68,7 +68,7 @@ export function PricingTeaser() {
               }`}
             >
               {plan.recommended && (
-                <span className="absolute -top-3 right-4 inline-flex items-center rounded-full bg-accent px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wide text-white">
+                <span className="absolute -top-3 right-4 inline-flex items-center rounded-full bg-accent px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wide text-on-accent">
                   Most popular
                 </span>
               )}
@@ -85,7 +85,7 @@ export function PricingTeaser() {
                   </>
                 )}
               </div>
-              <p className="mt-1 text-xs font-medium text-text-secondary/70">
+              <p className="mt-1 text-xs font-medium text-text-muted">
                 {plan.monthly === 0
                   ? plan.ctaHint
                   : plan.monthly === null
@@ -126,7 +126,7 @@ export function PricingTeaser() {
               }
             >
               {plan.recommended && (
-                <span className="absolute -top-3 right-4 inline-flex items-center rounded-full bg-accent px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wide text-white">
+                <span className="absolute -top-3 right-4 inline-flex items-center rounded-full bg-accent px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wide text-on-accent">
                   Most popular
                 </span>
               )}
@@ -143,7 +143,7 @@ export function PricingTeaser() {
                   </>
                 )}
               </div>
-              <p className="mt-1 text-xs font-medium text-text-secondary/70">
+              <p className="mt-1 text-xs font-medium text-text-muted">
                 {plan.monthly === 0
                   ? plan.ctaHint
                   : plan.monthly === null
@@ -182,7 +182,7 @@ export function PricingTeaser() {
             See Full Pricing &amp; Plans
             <ArrowRight size={16} />
           </Link>
-          <p className="flex items-center gap-1.5 text-xs font-medium text-text-secondary/70">
+          <p className="flex items-center gap-1.5 text-xs font-medium text-text-muted">
             <ShieldCheck size={13} className="shrink-0 text-accent" />
             No contracts, no hidden fees, cancel anytime.
           </p>

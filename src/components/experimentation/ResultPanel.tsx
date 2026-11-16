@@ -17,16 +17,16 @@ import {
 
 const VERDICT_STYLE: Record<Verdict, string> = {
   collecting: 'bg-accent/10 text-accent',
-  win: 'bg-success-500/10 text-success-500',
+  win: 'bg-success-subtle text-success',
   loss: 'bg-danger/10 text-danger',
   no_effect: 'bg-bg-tertiary text-text-secondary',
-  inconclusive: 'bg-warning-500/10 text-warning-500',
+  inconclusive: 'bg-warning-subtle text-warning',
   invalid: 'bg-danger/10 text-danger',
 };
 
 const GUARDRAIL_META: Record<GuardrailStatus, { label: string; style: string; Icon: typeof ShieldCheck }> = {
-  ok: { label: 'Within tolerance', style: 'text-success-500', Icon: ShieldCheck },
-  watch: { label: 'Cannot rule out harm yet', style: 'text-warning-500', Icon: ShieldQuestion },
+  ok: { label: 'Within tolerance', style: 'text-success', Icon: ShieldCheck },
+  watch: { label: 'Cannot rule out harm yet', style: 'text-warning', Icon: ShieldQuestion },
   breached: { label: 'Breached', style: 'text-danger', Icon: ShieldAlert },
   unknown: { label: 'Not enough data yet', style: 'text-text-secondary', Icon: ShieldQuestion },
 };
@@ -58,7 +58,7 @@ export function ResultPanel({ snapshot, alpha, analysis }: Props) {
       <div className="mt-4 grid gap-4 sm:grid-cols-3">
         <div>
           <p className="text-xs text-text-secondary">Causal effect on {metric.label.toLowerCase()}</p>
-          <p className={`mt-1 text-3xl font-bold tabular-nums ${effect === null ? 'text-text-secondary' : favourable ? 'text-success-500' : effect === 0 ? 'text-text-primary' : 'text-danger'}`}>
+          <p className={`mt-1 text-3xl font-bold tabular-nums ${effect === null ? 'text-text-secondary' : favourable ? 'text-success' : effect === 0 ? 'text-text-primary' : 'text-danger'}`}>
             {effect === null ? '-' : formatEffect(snapshot.metric, effect)}
           </p>
           {snapshot.relativePct !== null && <p className="text-xs text-text-secondary">{snapshot.relativePct > 0 ? '+' : ''}{snapshot.relativePct.toFixed(1)}% versus the counterfactual</p>}
@@ -119,8 +119,8 @@ export function ResultPanel({ snapshot, alpha, analysis }: Props) {
       {analysis && analysis.warnings.length > 0 && (
         <ul className="mt-4 space-y-2" aria-label="Warnings">
           {analysis.warnings.map((w) => (
-            <li key={w} className="flex gap-2 rounded-xl bg-warning-500/10 p-3 text-sm text-text-primary">
-              <AlertTriangle size={16} className="mt-0.5 shrink-0 text-warning-500" aria-hidden="true" />
+            <li key={w} className="flex gap-2 rounded-xl bg-warning-subtle p-3 text-sm text-text-primary">
+              <AlertTriangle size={16} className="mt-0.5 shrink-0 text-warning" aria-hidden="true" />
               {w}
             </li>
           ))}

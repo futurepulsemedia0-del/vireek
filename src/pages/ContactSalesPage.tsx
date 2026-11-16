@@ -184,7 +184,7 @@ function SlotPicker({
                   onClick={() => onChange(selected ? null : slot.start)}
                   className={`focus-ring min-h-11 rounded-xl border px-2 py-2 text-sm font-medium transition-colors ${
                     selected
-                      ? 'border-accent bg-accent text-white'
+                      ? 'border-accent bg-accent text-on-accent'
                       : 'border-border text-text-primary hover:border-accent/40'
                   }`}
                 >
@@ -476,7 +476,7 @@ export function ContactSalesPage() {
                     </p>
                     <SlotPicker value={slot} onChange={setSlot} refreshKey={refreshKey} disabled={submitting} />
                     {slotNotice && (
-                      <p role="alert" className="mt-3 flex items-start gap-2 text-sm text-warning-500">
+                      <p role="alert" className="mt-3 flex items-start gap-2 text-sm text-warning">
                         <AlertCircle size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
                         {slotNotice}
                       </p>

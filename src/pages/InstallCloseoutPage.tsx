@@ -168,7 +168,7 @@ export default function InstallCloseoutPage() {
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   <Card className="!p-4"><p className="text-xs text-text-secondary">Overdue</p><p className="mt-1 text-2xl font-semibold text-danger">{counts.overdue}</p></Card>
                   <Card className="!p-4"><p className="text-xs text-text-secondary">Critical</p><p className="mt-1 text-2xl font-semibold text-danger">{counts.critical}</p></Card>
-                  <Card className="!p-4"><p className="text-xs text-text-secondary">At risk</p><p className="mt-1 text-2xl font-semibold text-warning-500">{counts.at_risk}</p></Card>
+                  <Card className="!p-4"><p className="text-xs text-text-secondary">At risk</p><p className="mt-1 text-2xl font-semibold text-warning">{counts.at_risk}</p></Card>
                   <Card className="!p-4">
                     <p className="text-xs text-text-secondary">Money at risk (estimate)</p>
                     <p className="mt-1 text-2xl font-semibold text-text-primary">{formatCents(money.atRiskCents)}</p>

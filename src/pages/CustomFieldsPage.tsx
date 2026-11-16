@@ -44,7 +44,7 @@ import {
 } from '@/lib/customFieldsApi';
 
 const INPUT =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 disabled:opacity-60';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder disabled:opacity-60';
 
 function NoAccess() {
   return (
@@ -139,7 +139,7 @@ function FieldModal({
 
   return (
     <div className="fixed inset-0 z-[70] flex items-end justify-center sm:items-center sm:p-4">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-overlay/40 backdrop-blur-sm" onClick={onClose} />
       <div
         ref={ref}
         tabIndex={-1}
@@ -215,7 +215,7 @@ function FieldModal({
             <button type="button" onClick={onClose} className="focus-ring rounded-xl border border-border px-4 py-2.5 text-sm font-medium text-text-secondary hover:text-text-primary">
               Cancel
             </button>
-            <button type="submit" disabled={saving} className="focus-ring flex items-center justify-center gap-2 rounded-xl bg-cta px-5 py-2.5 text-sm font-semibold text-white hover:brightness-110 disabled:opacity-60">
+            <button type="submit" disabled={saving} className="focus-ring flex items-center justify-center gap-2 rounded-xl bg-cta px-5 py-2.5 text-sm font-semibold text-on-cta hover:brightness-110 disabled:opacity-60">
               {saving && <Loader2 size={15} className="animate-spin" />}
               {editing ? 'Save changes' : 'Create field'}
             </button>
@@ -283,7 +283,7 @@ export function CustomFieldsPage() {
             <p className="flex flex-wrap items-center gap-2 text-sm font-semibold text-text-primary">
               {d.label}
               <span className="rounded-full bg-accent/10 px-2 py-0.5 text-[11px] font-medium text-accent">{CUSTOM_FIELD_TYPE_META[d.field_type].label}</span>
-              {d.required && <span className="rounded-full bg-warning-500/10 px-2 py-0.5 text-[11px] font-medium text-warning-500">Required</span>}
+              {d.required && <span className="rounded-full bg-warning-subtle px-2 py-0.5 text-[11px] font-medium text-warning">Required</span>}
             </p>
             <p className="mt-1 text-xs text-text-secondary">
               <code className="rounded bg-bg-tertiary px-1">{d.key}</code>
@@ -350,7 +350,7 @@ export function CustomFieldsPage() {
             type="button"
             disabled={atLimit || loading || !!error}
             onClick={() => setModal({ editing: null })}
-            className="focus-ring flex w-full items-center justify-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-white hover:brightness-110 disabled:opacity-50 sm:w-auto"
+            className="focus-ring flex w-full items-center justify-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-on-cta hover:brightness-110 disabled:opacity-50 sm:w-auto"
           >
             <Plus size={16} /> New field
           </button>
@@ -364,7 +364,7 @@ export function CustomFieldsPage() {
               type="button"
               aria-selected={entity === e}
               onClick={() => setEntity(e)}
-              className={`focus-ring rounded-lg px-4 py-1.5 text-sm font-medium transition-colors ${entity === e ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}
+              className={`focus-ring rounded-lg px-4 py-1.5 text-sm font-medium transition-colors ${entity === e ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}
             >
               {CUSTOM_ENTITY_META[e].plural}
             </button>

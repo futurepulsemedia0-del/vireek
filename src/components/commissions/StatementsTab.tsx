@@ -174,7 +174,7 @@ export function StatementsTab({ ownerId, employees, range, onRangeChange }: { ow
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div role="tablist" aria-label="Filter statements" className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1">
               {FILTERS.map((f) => (
-                <button key={f.id} type="button" role="tab" aria-selected={filter === f.id} onClick={() => setFilter(f.id)} className={`focus-ring shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${filter === f.id ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>
+                <button key={f.id} type="button" role="tab" aria-selected={filter === f.id} onClick={() => setFilter(f.id)} className={`focus-ring shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${filter === f.id ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>
                   {f.label}
                 </button>
               ))}
@@ -202,7 +202,7 @@ export function StatementsTab({ ownerId, employees, range, onRangeChange }: { ow
                         <div className="min-w-0">
                           <p className="truncate text-sm font-semibold text-text-primary">{nameOf.get(s.employee_id) ?? 'Unknown employee'}</p>
                           <p className="text-xs text-text-secondary">{formatDay(s.period_start)} – {formatDay(s.period_end)} · {s.record_count} line{s.record_count === 1 ? '' : 's'}</p>
-                          {s.status === 'draft' && s.review_note && <p className="mt-1 text-xs text-warning-500">Returned: {s.review_note}</p>}
+                          {s.status === 'draft' && s.review_note && <p className="mt-1 text-xs text-warning">Returned: {s.review_note}</p>}
                           {s.status === 'void' && s.void_reason && <p className="mt-1 text-xs text-text-secondary">Voided: {s.void_reason}</p>}
                           {s.payment_reference && <p className="mt-1 text-xs text-text-secondary">Payment ref: {s.payment_reference}</p>}
                         </div>

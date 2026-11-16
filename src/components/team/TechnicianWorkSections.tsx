@@ -16,7 +16,7 @@ import {
 } from '@/lib/technicianDetail';
 import { SectionCard, fmtDate, sectionCard } from '@/components/team/TechnicianProfileSections';
 
-const TONE = { good: 'text-success-500', warn: 'text-warning-500', bad: 'text-danger-500', none: 'text-text-primary' } as const;
+const TONE = { good: 'text-success', warn: 'text-warning', bad: 'text-danger', none: 'text-text-primary' } as const;
 
 function Delta({ value, unit = '', goodWhen = 'up' }: { value: number | null; unit?: string; goodWhen?: 'up' | 'down' }) {
   if (value === null) return <span className="text-[11px] text-text-secondary">no prior data</span>;
@@ -25,7 +25,7 @@ function Delta({ value, unit = '', goodWhen = 'up' }: { value: number | null; un
   const good = goodWhen === 'up' ? up : !up;
   const Icon = up ? ArrowUpRight : ArrowDownRight;
   return (
-    <span className={`flex items-center gap-0.5 text-[11px] font-medium ${good ? 'text-success-500' : 'text-danger-500'}`}>
+    <span className={`flex items-center gap-0.5 text-[11px] font-medium ${good ? 'text-success' : 'text-danger'}`}>
       <Icon size={11} /> {Math.abs(value)}{unit} vs prev
     </span>
   );
@@ -99,7 +99,7 @@ export function ScorecardSection({
                 {current.trainingGaps.map((g, i) => (
                   <li key={i} className="flex items-start justify-between gap-3 text-sm">
                     <span className="min-w-0 break-words text-text-primary">{g.serviceType} <span className="text-xs text-text-secondary">— {g.reason}</span></span>
-                    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${g.severity === 'high' ? 'bg-danger-500/15 text-danger-500' : g.severity === 'medium' ? 'bg-warning-500/15 text-warning-500' : 'bg-bg-tertiary text-text-secondary'}`}>{g.severity}</span>
+                    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${g.severity === 'high' ? 'bg-danger-subtle text-danger' : g.severity === 'medium' ? 'bg-warning-subtle text-warning' : 'bg-bg-tertiary text-text-secondary'}`}>{g.severity}</span>
                   </li>
                 ))}
               </ul>
@@ -111,7 +111,7 @@ export function ScorecardSection({
       <div className="mt-5 border-t border-border pt-3">
         <p className="text-xs font-medium text-text-secondary">Saved snapshots</p>
         {snapshotsError ? (
-          <p role="alert" className="mt-1.5 text-xs text-danger-500">Couldn’t load saved snapshots.</p>
+          <p role="alert" className="mt-1.5 text-xs text-danger">Couldn’t load saved snapshots.</p>
         ) : snapshots.length === 0 ? (
           <p className="mt-1.5 text-xs text-text-secondary">None saved. Save one to keep this period’s numbers for later comparison.</p>
         ) : (
@@ -226,11 +226,11 @@ const FILTERS: { key: JobFilter; label: string }[] = [
 ];
 const STATUS_STYLE: Record<Job['job_status'], string> = {
   scheduled: 'bg-cta/15 text-cta',
-  en_route: 'bg-warning-500/15 text-warning-500',
-  in_progress: 'bg-warning-500/15 text-warning-500',
-  completed: 'bg-success-500/15 text-success-500',
+  en_route: 'bg-warning-subtle text-warning',
+  in_progress: 'bg-warning-subtle text-warning',
+  completed: 'bg-success-subtle text-success',
   cancelled: 'bg-bg-tertiary text-text-secondary',
-  no_show: 'bg-danger-500/15 text-danger-500',
+  no_show: 'bg-danger-subtle text-danger',
 };
 const PAGE = 15;
 
@@ -251,7 +251,7 @@ export function JobHistorySection({ jobs, technicianId, error, onRetry }: { jobs
             <div role="group" aria-label="Filter jobs" className="flex flex-wrap gap-1.5">
               {FILTERS.map((f) => (
                 <button key={f.key} type="button" aria-pressed={filter === f.key} onClick={() => { setFilter(f.key); setLimit(PAGE); }}
-                  className={`focus-ring rounded-full px-3 py-1 text-xs font-medium ${filter === f.key ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>{f.label}</button>
+                  className={`focus-ring rounded-full px-3 py-1 text-xs font-medium ${filter === f.key ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>{f.label}</button>
               ))}
             </div>
             <div className="sm:w-56">
@@ -265,7 +265,7 @@ export function JobHistorySection({ jobs, technicianId, error, onRetry }: { jobs
               {rows.slice(0, limit).map((j) => (
                 <li key={j.id} className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1 py-2.5">
                   <div className="min-w-0">
-                    <p className="break-words text-sm font-medium text-text-primary">{j.customer_name}{j.is_rework && <span className="ml-1.5 rounded bg-warning-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-warning-500">Rework</span>}</p>
+                    <p className="break-words text-sm font-medium text-text-primary">{j.customer_name}{j.is_rework && <span className="ml-1.5 rounded bg-warning-subtle px-1.5 py-0.5 text-[10px] font-semibold text-warning">Rework</span>}</p>
                     <p className="break-words text-xs text-text-secondary">{[j.service_type, j.address].filter(Boolean).join(' · ') || '—'}</p>
                     <p className="text-xs text-text-secondary">{j.scheduled_datetime ? new Date(j.scheduled_datetime).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) : 'Unscheduled'}</p>
                   </div>

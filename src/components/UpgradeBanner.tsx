@@ -144,7 +144,7 @@ export function UpgradeBanner() {
 
           <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-4">
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-accent to-cta text-white shadow-glow-accent">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-accent text-on-accent shadow-glow-accent">
                 <Rocket size={22} strokeWidth={2.25} />
               </span>
 
@@ -175,7 +175,7 @@ export function UpgradeBanner() {
                 type="button"
                 onClick={handleUpgrade}
                 disabled={navigating}
-                className="focus-ring flex items-center gap-2 whitespace-nowrap rounded-xl bg-cta px-5 py-2.5 text-sm font-semibold text-white shadow-glow-cta transition-all duration-150 ease-out hover:brightness-110 active:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
+                className="focus-ring flex items-center gap-2 whitespace-nowrap rounded-xl bg-cta px-5 py-2.5 text-sm font-semibold text-on-cta shadow-glow-cta transition-all duration-150 ease-out hover:brightness-110 active:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {navigating ? (
                   <>
@@ -194,7 +194,7 @@ export function UpgradeBanner() {
                 type="button"
                 onClick={dismiss}
                 aria-label="Dismiss upgrade banner"
-                className="focus-ring flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-text-secondary/70 transition-colors duration-150 hover:bg-bg-tertiary hover:text-text-primary"
+                className="focus-ring flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-text-muted transition-colors duration-150 hover:bg-bg-tertiary hover:text-text-primary"
               >
                 <X size={16} />
               </button>

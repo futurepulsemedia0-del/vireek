@@ -26,7 +26,7 @@ type Tab = 'registration' | 'opt-in' | 'opt-outs';
 
 const STATUS_META: Record<RegistrationStatus, { label: string; cls: string; Icon: typeof Clock }> = {
   not_started: { label: 'Not started', cls: 'bg-bg-tertiary text-text-secondary', Icon: CircleDashed },
-  pending: { label: 'In carrier review', cls: 'bg-warning-500/10 text-warning-500', Icon: Clock },
+  pending: { label: 'In carrier review', cls: 'bg-warning-subtle text-warning', Icon: Clock },
   approved: { label: 'Approved', cls: 'bg-success/10 text-success', Icon: CheckCircle2 },
   rejected: { label: 'Rejected', cls: 'bg-danger/10 text-danger', Icon: XCircle },
 };
@@ -72,7 +72,7 @@ function Modal({ title, id, onClose, children }: { title: string; id: string; on
   useEscapeToClose(true, onClose);
   return (
     <div className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center sm:p-4">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+      <div className="absolute inset-0 bg-overlay/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
       <div
         ref={ref}
         tabIndex={-1}
@@ -152,8 +152,8 @@ function RegistrationTab({
       )}
 
       {state === 'in_review' && (
-        <div className="flex items-start gap-3 rounded-2xl border border-warning-500/30 bg-warning-500/5 p-4">
-          <Clock size={18} className="mt-0.5 shrink-0 text-warning-500" aria-hidden="true" />
+        <div className="flex items-start gap-3 rounded-2xl border border-warning/30 bg-warning-subtle p-4">
+          <Clock size={18} className="mt-0.5 shrink-0 text-warning" aria-hidden="true" />
           <p className="text-sm text-text-secondary">
             Submitted {fmt(reg.a2p_requested_at)}. Carrier vetting usually takes 1–5 business days. Outbound SMS stays blocked until the campaign is approved.
           </p>
@@ -576,9 +576,9 @@ export function SmsCompliancePage() {
         <>
           <div
             role="status"
-            className={`mb-5 flex items-start gap-3 rounded-2xl border p-4 ${sendable ? 'border-success/30 bg-success/5' : 'border-warning-500/30 bg-warning-500/5'}`}
+            className={`mb-5 flex items-start gap-3 rounded-2xl border p-4 ${sendable ? 'border-success/30 bg-success/5' : 'border-warning/30 bg-warning-subtle'}`}
           >
-            {sendable ? <ShieldCheck size={20} className="mt-0.5 shrink-0 text-success" aria-hidden="true" /> : <ShieldAlert size={20} className="mt-0.5 shrink-0 text-warning-500" aria-hidden="true" />}
+            {sendable ? <ShieldCheck size={20} className="mt-0.5 shrink-0 text-success" aria-hidden="true" /> : <ShieldAlert size={20} className="mt-0.5 shrink-0 text-warning" aria-hidden="true" />}
             <div className="text-sm">
               <p className="font-semibold text-text-primary">{sendable ? 'Outbound SMS is enabled' : 'Outbound SMS is blocked'}</p>
               <p className="mt-0.5 text-text-secondary">

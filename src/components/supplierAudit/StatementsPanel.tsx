@@ -8,7 +8,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { FileSpreadsheet } from 'lucide-react';
 
 const today = () => new Date().toISOString().slice(0, 10);
-const STATUS_CLS: Record<string, string> = { pending: 'bg-bg-tertiary text-text-secondary', parsed: 'bg-success-500/10 text-success-500', reviewed: 'bg-success-500/10 text-success-500', needs_review: 'bg-warning-500/10 text-warning-500', failed: 'bg-danger/10 text-danger' };
+const STATUS_CLS: Record<string, string> = { pending: 'bg-bg-tertiary text-text-secondary', parsed: 'bg-success-subtle text-success', reviewed: 'bg-success-subtle text-success', needs_review: 'bg-warning-subtle text-warning', failed: 'bg-danger/10 text-danger' };
 
 function ReviewRow({ line, onDone }: { line: LineRow; onDone: () => Promise<void> }) {
   const { toast } = useToast();
@@ -32,7 +32,7 @@ function ReviewRow({ line, onDone }: { line: LineRow; onDone: () => Promise<void
   const set = (k: keyof typeof v, val: string | boolean) => setV((p) => ({ ...p, [k]: val }));
   return (
     <li className="rounded-xl border border-border bg-bg-primary p-3">
-      <div className="mb-2 flex items-center justify-between text-xs text-text-secondary"><span>Line {line.line_no}</span><Pill cls="bg-warning-500/10 text-warning-500">{Math.round(line.confidence * 100)}% confidence</Pill></div>
+      <div className="mb-2 flex items-center justify-between text-xs text-text-secondary"><span>Line {line.line_no}</span><Pill cls="bg-warning-subtle text-warning">{Math.round(line.confidence * 100)}% confidence</Pill></div>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-6">
         <input className={inputClass} aria-label="Invoice number" placeholder="Invoice #" value={v.invoice_no} onChange={(e) => set('invoice_no', e.target.value)} />
         <input className={inputClass} aria-label="Date" type="date" value={v.invoice_date} onChange={(e) => set('invoice_date', e.target.value)} />

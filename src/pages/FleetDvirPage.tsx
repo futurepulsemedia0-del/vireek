@@ -32,13 +32,13 @@ const TABS: { id: Tab; label: string }[] = [
 ];
 
 const STATUS_STYLE: Record<InspectionStatus, string> = {
-  satisfactory: 'bg-success-500/10 text-success-500',
-  defects_noted: 'bg-warning-500/10 text-warning-500',
+  satisfactory: 'bg-success-subtle text-success',
+  defects_noted: 'bg-warning-subtle text-warning',
   unsafe: 'bg-danger/10 text-danger',
 };
 const SEVERITY_STYLE: Record<DvirFault['severity'], string> = {
   critical: 'bg-danger/10 text-danger',
-  high: 'bg-warning-500/10 text-warning-500',
+  high: 'bg-warning-subtle text-warning',
   medium: 'bg-bg-tertiary text-text-secondary',
   low: 'bg-bg-tertiary text-text-secondary',
 };
@@ -49,7 +49,7 @@ function Tile({ label, value, tone }: { label: string; value: string | number; t
   return (
     <div className="rounded-2xl border border-border bg-bg-secondary p-4">
       <p className="text-xs text-text-secondary">{label}</p>
-      <p className={`mt-1 text-lg font-bold ${tone === 'bad' ? 'text-danger' : tone === 'good' ? 'text-success-500' : 'text-text-primary'}`}>{value}</p>
+      <p className={`mt-1 text-lg font-bold ${tone === 'bad' ? 'text-danger' : tone === 'good' ? 'text-success' : 'text-text-primary'}`}>{value}</p>
     </div>
   );
 }
@@ -148,7 +148,7 @@ function HistoryRow({ row, vehicleLabel, techName }: { row: InspectionRow; vehic
         <div className="mt-3 space-y-2 text-sm text-text-primary">
           <p className="text-xs text-text-secondary">
             Odometer {row.odometer_miles.toLocaleString()} mi
-            {row.odometer_anomaly && <span className="ml-2 font-semibold text-warning-500">· lower than previous reading</span>} · Signed by {row.signed_name}
+            {row.odometer_anomaly && <span className="ml-2 font-semibold text-warning">· lower than previous reading</span>} · Signed by {row.signed_name}
           </p>
           {defects.length === 0 && <p className="text-xs text-text-secondary">All items passed.</p>}
           <ul className="list-disc space-y-1 pl-5">

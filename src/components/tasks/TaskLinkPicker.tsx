@@ -104,7 +104,7 @@ export function TaskLinkPicker({ kind, value, onChange, disabled }: Props) {
             setOpen(false);
           }
         }}
-        className="focus-ring w-full rounded-xl border border-border bg-bg-primary py-2.5 pl-10 pr-3 text-sm text-text-primary placeholder:text-text-secondary/60 focus-visible:border-accent disabled:opacity-50"
+        className="focus-ring w-full rounded-xl border border-border bg-bg-primary py-2.5 pl-10 pr-3 text-sm text-text-primary placeholder:text-text-placeholder focus-visible:border-accent disabled:opacity-50"
       />
       {open && (
         <ul

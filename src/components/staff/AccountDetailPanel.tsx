@@ -91,7 +91,7 @@ export function AccountDetailPanel({ account, onClose }: AccountDetailPanelProps
                 <span className="font-mono text-text-secondary">{f.points}/{f.max}</span>
               </div>
               <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-bg-tertiary" role="progressbar" aria-label={f.label} aria-valuemin={0} aria-valuemax={f.max} aria-valuenow={f.points}>
-                <div className={`h-full ${f.points / f.max >= 0.7 ? 'bg-success-500' : f.points / f.max >= 0.35 ? 'bg-warning-500' : 'bg-danger'}`} style={{ width: `${(f.points / f.max) * 100}%` }} />
+                <div className={`h-full ${f.points / f.max >= 0.7 ? 'bg-success' : f.points / f.max >= 0.35 ? 'bg-warning' : 'bg-danger'}`} style={{ width: `${(f.points / f.max) * 100}%` }} />
               </div>
               <p className="mt-1 text-[11px] text-text-secondary">{f.detail}</p>
             </li>

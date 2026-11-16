@@ -121,25 +121,25 @@ Deno.serve(async (req: Request) => {
     const notes = typeof meeting.notes === "string" ? meeting.notes.trim() : "";
 
     const actionsHtml = actions.length
-      ? `<ul style="margin:0 0 20px;padding-left:20px;color:#374151;font-size:15px;line-height:1.6">${actions
+      ? `<ul style="margin:0 0 20px;padding-left:20px;color:#44423D;font-size:15px;line-height:1.6">${actions
           .map(
             (a) =>
-              `<li>${esc(a.title)} <span style="color:#6b7280;font-size:13px">— ${esc(a.owner_name ?? "Unassigned")}${a.due_date ? `, due ${esc(a.due_date)}` : ""}</span></li>`,
+              `<li>${esc(a.title)} <span style="color:#73726c;font-size:13px">— ${esc(a.owner_name ?? "Unassigned")}${a.due_date ? `, due ${esc(a.due_date)}` : ""}</span></li>`,
           )
           .join("")}</ul>`
-      : `<p style="margin:0 0 20px;color:#6b7280;font-size:14px">No action items were recorded.</p>`;
+      : `<p style="margin:0 0 20px;color:#73726c;font-size:14px">No action items were recorded.</p>`;
 
-    const html = `<!doctype html><html><body style="margin:0;padding:24px;background:#f5f6f8;font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#111827">
+    const html = `<!doctype html><html><body style="margin:0;padding:24px;background:#faf9f5;font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#1C1B15">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td align="center">
 <table role="presentation" width="560" cellspacing="0" cellpadding="0" style="max-width:560px;background:#ffffff;border-radius:16px;padding:28px"><tr><td>
-<p style="margin:0 0 6px;font-size:13px;color:#6b7280">Vireek · Operating Cadence</p>
+<p style="margin:0 0 6px;font-size:13px;color:#73726c">Vireek · Operating Cadence</p>
 <h1 style="margin:0 0 6px;font-size:20px;line-height:1.35">${esc(subject)}</h1>
-<p style="margin:0 0 20px;font-size:13px;color:#6b7280">${minutes ? `${minutes} minutes` : "Completed"}${sections.length ? ` · ${esc(sections.join(" → "))}` : ""}</p>
+<p style="margin:0 0 20px;font-size:13px;color:#73726c">${minutes ? `${minutes} minutes` : "Completed"}${sections.length ? ` · ${esc(sections.join(" → "))}` : ""}</p>
 <h2 style="margin:0 0 8px;font-size:15px">Action items</h2>
 ${actionsHtml}
-${notes ? `<h2 style="margin:0 0 8px;font-size:15px">Notes</h2><p style="margin:0 0 20px;font-size:15px;line-height:1.55;color:#374151;white-space:pre-wrap">${esc(notes)}</p>` : ""}
-<a href="${esc(link)}" style="display:inline-block;background:#2563eb;color:#ffffff;text-decoration:none;font-weight:600;font-size:14px;padding:12px 20px;border-radius:12px">Open in Vireek</a>
-<p style="margin:24px 0 0;font-size:12px;color:#9ca3af">You’re receiving this because you attended the weekly meeting.</p>
+${notes ? `<h2 style="margin:0 0 8px;font-size:15px">Notes</h2><p style="margin:0 0 20px;font-size:15px;line-height:1.55;color:#44423D;white-space:pre-wrap">${esc(notes)}</p>` : ""}
+<a href="${esc(link)}" style="display:inline-block;background:#a93b0f;color:#ffffff;text-decoration:none;font-weight:600;font-size:14px;padding:12px 20px;border-radius:12px">Open in Vireek</a>
+<p style="margin:24px 0 0;font-size:12px;color:#a9a8a2">You’re receiving this because you attended the weekly meeting.</p>
 </td></tr></table></td></tr></table></body></html>`;
 
     const text = [

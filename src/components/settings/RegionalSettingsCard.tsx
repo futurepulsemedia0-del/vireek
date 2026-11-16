@@ -128,11 +128,11 @@ export function RegionalSettingsCard() {
         {rate !== null && (
           <p className="mt-1">
             1 {draft.currency} = {rate.toFixed(4)} {draft.reportingCurrency}
-            {isFxStale(fx?.asOf) && <span className="ml-2 text-danger-500">rates look out of date ({fx?.asOf ?? 'none'})</span>}
+            {isFxStale(fx?.asOf) && <span className="ml-2 text-danger">rates look out of date ({fx?.asOf ?? 'none'})</span>}
           </p>
         )}
         {draft.currency !== draft.reportingCurrency && rate === null && (
-          <p className="mt-1 text-danger-500">No exchange rate yet for {draft.currency} → {draft.reportingCurrency}. Reports will exclude it until rates sync.</p>
+          <p className="mt-1 text-danger">No exchange rate yet for {draft.currency} → {draft.reportingCurrency}. Reports will exclude it until rates sync.</p>
         )}
         <p className="mt-1 text-xs">Changing currency affects NEW documents. Issued invoices keep the currency and rate locked at issue time.</p>
       </div>
@@ -143,7 +143,7 @@ export function RegionalSettingsCard() {
             Use {draft.country} defaults
           </button>
         )}
-        <button type="button" disabled={!isOwner || busy || !dirty} onClick={onSave} className="rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
+        <button type="button" disabled={!isOwner || busy || !dirty} onClick={onSave} className="rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-on-accent disabled:opacity-50">
           {busy ? 'Saving…' : 'Save'}
         </button>
       </div>

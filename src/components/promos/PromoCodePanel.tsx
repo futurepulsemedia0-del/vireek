@@ -55,7 +55,7 @@ export function PromoCodePanel({ kind, docId, onChanged }: Props) {
       {state === 'ready' && promos && (
         promos.length === 0 ? <p className="mt-2 text-xs text-text-secondary">No promo code applied.</p> : (
           <ul className="mt-2 divide-y divide-border text-sm">
-            {promos.map((p) => <li key={p.id} className="flex justify-between gap-3 py-1.5"><span className="text-text-primary">{p.code} <span className="text-xs text-text-secondary">{p.label}</span></span><span className="text-success-500">−${(p.discount_cents / 100).toFixed(2)}</span></li>)}
+            {promos.map((p) => <li key={p.id} className="flex justify-between gap-3 py-1.5"><span className="text-text-primary">{p.code} <span className="text-xs text-text-secondary">{p.label}</span></span><span className="text-success">−${(p.discount_cents / 100).toFixed(2)}</span></li>)}
           </ul>
         )
       )}

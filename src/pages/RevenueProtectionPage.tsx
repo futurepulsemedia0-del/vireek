@@ -89,13 +89,13 @@ function PipelineStep({
 }) {
   const toneClass =
     tone === 'good'
-      ? 'border-success-500/25 bg-success-500/[0.05]'
+      ? 'border-success/25 bg-success-subtle'
       : tone === 'warn'
-        ? 'border-warning-500/25 bg-warning-500/[0.05]'
+        ? 'border-warning/25 bg-warning-subtle'
         : 'border-border bg-bg-secondary';
   return (
     <div className={`relative rounded-2xl border p-4 ${toneClass}`}>
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-text-secondary/70">
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-text-muted">
         {index}. {title}
       </p>
       <p className="mt-1 text-xl font-bold text-text-primary">{value}</p>
@@ -155,7 +155,7 @@ function CaseCard({
             )}
           </div>
           <p className="mt-1 text-sm leading-relaxed text-text-secondary">{explanation.summary}</p>
-          <p className="mt-1 text-[11px] text-text-secondary/70">
+          <p className="mt-1 text-[11px] text-text-muted">
             Detected {relativeFromNow(item.detected_at)}
             {item.customer_phone ? ` · ${item.customer_phone}` : ''}
             {` · ${item.confidence}% confidence`}
@@ -167,12 +167,12 @@ function CaseCard({
             {item.is_capacity ? '~' : ''}
             {formatCents(item.at_risk_cents)}
           </p>
-          <p className="text-[10px] text-text-secondary/70">{VALUE_BASIS_LABELS[item.value_basis] ?? item.value_basis}</p>
+          <p className="text-[10px] text-text-muted">{VALUE_BASIS_LABELS[item.value_basis] ?? item.value_basis}</p>
         </div>
       </div>
 
       {dueSoon && dueHours !== null && (
-        <p className={`mt-2 flex items-center gap-1.5 text-xs font-medium ${dueHours <= 24 ? 'text-danger' : 'text-warning-500'}`}>
+        <p className={`mt-2 flex items-center gap-1.5 text-xs font-medium ${dueHours <= 24 ? 'text-danger' : 'text-warning'}`}>
           <Clock size={12} />
           {dueHours <= 0 ? 'Deadline passed' : `Window closes in ${dueHours}h`}
         </p>
@@ -181,7 +181,7 @@ function CaseCard({
       {!isActive && (
         <p
           className={`mt-2 flex items-center gap-1.5 text-xs font-medium ${
-            item.stage === 'verified' ? 'text-success-500' : 'text-text-secondary'
+            item.stage === 'verified' ? 'text-success' : 'text-text-secondary'
           }`}
         >
           {item.stage === 'verified' && <BadgeCheck size={13} />}
@@ -223,7 +223,7 @@ function CaseCard({
                 ))}
               </dl>
               {explanation.math && (
-                <p className="mt-2 border-t border-border/60 pt-2 text-[11px] leading-relaxed text-text-secondary/80">
+                <p className="mt-2 border-t border-border/60 pt-2 text-[11px] leading-relaxed text-text-muted">
                   {explanation.math}
                 </p>
               )}
@@ -240,7 +240,7 @@ function CaseCard({
               {item.recommended_action?.href && (
                 <Link
                   to={item.recommended_action.href}
-                  className="focus-ring flex items-center gap-1 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white transition-all hover:brightness-110"
+                  className="focus-ring flex items-center gap-1 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent transition-all hover:brightness-110"
                 >
                   {item.recommended_action.label ?? 'Open'} <ArrowRight size={12} />
                 </Link>
@@ -271,7 +271,7 @@ function CaseCard({
                     type="button"
                     onClick={() => setMethod(m.value)}
                     className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                      method === m.value ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
+                      method === m.value ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
                     }`}
                   >
                     {m.label}
@@ -284,7 +284,7 @@ function CaseCard({
                 maxLength={280}
                 onChange={(e) => setNote(e.target.value)}
                 placeholder="Optional note"
-                className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-xs text-text-primary placeholder:text-text-secondary/60"
+                className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-xs text-text-primary placeholder:text-text-placeholder"
               />
               <div className="flex justify-end gap-2">
                 <button
@@ -302,12 +302,12 @@ function CaseCard({
                     setRecovering(false);
                     setNote('');
                   }}
-                  className="focus-ring flex items-center gap-1.5 rounded-lg bg-success-500 px-3 py-1.5 text-xs font-medium text-white hover:brightness-110 disabled:opacity-50"
+                  className="focus-ring flex items-center gap-1.5 rounded-lg bg-success px-3 py-1.5 text-xs font-medium text-on-success hover:brightness-110 disabled:opacity-50"
                 >
                   {busy ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />} Start recovery
                 </button>
               </div>
-              <p className="text-[11px] text-text-secondary/70">
+              <p className="text-[11px] text-text-muted">
                 Vireek will keep watching this case and only mark it Verified when the numbers actually change.
               </p>
             </div>
@@ -351,7 +351,7 @@ function NumberField({
         }}
         className="focus-ring mt-1 w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary"
       />
-      <span className="mt-0.5 block text-[11px] text-text-secondary/70">{hint}</span>
+      <span className="mt-0.5 block text-[11px] text-text-muted">{hint}</span>
     </label>
   );
 }
@@ -419,7 +419,7 @@ function SettingsPanel({
               <option key={z} value={z} />
             ))}
           </datalist>
-          <span className="mt-0.5 block text-[11px] text-text-secondary/70">Used to decide which day a job belongs to.</span>
+          <span className="mt-0.5 block text-[11px] text-text-muted">Used to decide which day a job belongs to.</span>
         </label>
       </div>
 
@@ -435,7 +435,7 @@ function SettingsPanel({
             await onSave(values);
             setSaving(false);
           }}
-          className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-xs font-medium text-white hover:brightness-110 disabled:opacity-50"
+          className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-xs font-medium text-on-accent hover:brightness-110 disabled:opacity-50"
         >
           {saving && <Loader2 size={12} className="animate-spin" />} Save &amp; rescan
         </button>
@@ -584,10 +584,10 @@ export function RevenueProtectionPage() {
               <h1 className="text-2xl font-bold text-text-primary">Revenue Protection</h1>
               <span
                 className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                  liveStatus === 'live' ? 'bg-success-500/10 text-success-500' : 'bg-bg-tertiary text-text-secondary'
+                  liveStatus === 'live' ? 'bg-success-subtle text-success' : 'bg-bg-tertiary text-text-secondary'
                 }`}
               >
-                <span className={`h-1.5 w-1.5 rounded-full ${liveStatus === 'live' ? 'bg-success-500' : 'bg-text-secondary/50'}`} />
+                <span className={`h-1.5 w-1.5 rounded-full ${liveStatus === 'live' ? 'bg-success' : 'bg-text-secondary/50'}`} />
                 {liveStatus === 'live' ? 'Live' : liveStatus === 'connecting' ? 'Connecting' : 'Reconnecting'}
               </span>
             </div>
@@ -609,7 +609,7 @@ export function RevenueProtectionPage() {
               type="button"
               onClick={() => void scan(false)}
               disabled={scanning}
-              className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-medium text-white hover:brightness-110 disabled:opacity-50"
+              className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-medium text-on-accent hover:brightness-110 disabled:opacity-50"
             >
               <RefreshCw size={13} className={scanning ? 'animate-spin' : ''} /> Scan now
             </button>
@@ -632,8 +632,8 @@ export function RevenueProtectionPage() {
                 stats.criticalCount > 0 ? 'border-danger/30 bg-danger/[0.04]' : 'border-border bg-bg-secondary'
               }`}
             >
-              <p className="text-xs font-medium uppercase tracking-wider text-text-secondary/80">Revenue at risk right now</p>
-              <p className={`mt-1 text-4xl font-bold ${stats.atRiskCents > 0 ? 'text-text-primary' : 'text-success-500'}`}>
+              <p className="text-xs font-medium uppercase tracking-wider text-text-muted">Revenue at risk right now</p>
+              <p className={`mt-1 text-4xl font-bold ${stats.atRiskCents > 0 ? 'text-text-primary' : 'text-success'}`}>
                 {formatCents(stats.atRiskCents)}
               </p>
               <p className="mt-1 text-xs text-text-secondary">
@@ -680,7 +680,7 @@ export function RevenueProtectionPage() {
                       setTypeFilter('all');
                     }}
                     className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                      view === v.key ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
+                      view === v.key ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
                     }`}
                   >
                     {v.label}
@@ -688,7 +688,7 @@ export function RevenueProtectionPage() {
                 ))}
               </div>
               {settings?.last_scan_at && (
-                <p className="ml-auto text-[11px] text-text-secondary/70">Last scan {relativeFromNow(settings.last_scan_at)}</p>
+                <p className="ml-auto text-[11px] text-text-muted">Last scan {relativeFromNow(settings.last_scan_at)}</p>
               )}
             </div>
 
@@ -719,7 +719,7 @@ export function RevenueProtectionPage() {
             )}
 
             {view === 'closed' && stats.selfResolvedCount > 0 && (
-              <p className="mb-3 flex items-center gap-1.5 text-[11px] text-text-secondary/80">
+              <p className="mb-3 flex items-center gap-1.5 text-[11px] text-text-muted">
                 <Sparkles size={11} /> {stats.selfResolvedCount} case{stats.selfResolvedCount === 1 ? '' : 's'} resolved on their own are
                 listed here but never counted as recovered revenue.
               </p>
@@ -728,7 +728,7 @@ export function RevenueProtectionPage() {
             {/* Cases */}
             {rows.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-border py-14 text-center">
-                <AlertTriangle size={18} className="mx-auto text-text-secondary/60" />
+                <AlertTriangle size={18} className="mx-auto text-graphic-muted" />
                 <p className="mt-2 text-sm font-medium text-text-primary">
                   {view === 'active' ? 'No revenue at risk right now' : 'Nothing here yet'}
                 </p>

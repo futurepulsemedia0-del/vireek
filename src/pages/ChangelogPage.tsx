@@ -20,8 +20,8 @@ import { CHANGELOG_RELEASES, type EntryType } from '@/lib/changelog';
 
 const TYPE_META: Record<EntryType, { label: string; icon: typeof Sparkles; text: string; ring: string }> = {
   new: { label: 'New', icon: Sparkles, text: 'text-accent', ring: 'border-accent/25 bg-accent/10' },
-  improved: { label: 'Improved', icon: Zap, text: 'text-success-500', ring: 'border-success-500/25 bg-success-500/10' },
-  security: { label: 'Security', icon: ShieldCheck, text: 'text-warning-500', ring: 'border-warning-500/25 bg-warning-500/10' },
+  improved: { label: 'Improved', icon: Zap, text: 'text-success', ring: 'border-success/25 bg-success-subtle' },
+  security: { label: 'Security', icon: ShieldCheck, text: 'text-warning', ring: 'border-warning/25 bg-warning-subtle' },
   fixed: { label: 'Fixed', icon: Wrench, text: 'text-text-secondary', ring: 'border-border bg-bg-tertiary' },
 };
 
@@ -101,7 +101,7 @@ export function ChangelogPage() {
                   className="relative"
                 >
                   <span className="absolute -start-[2.55rem] top-1 flex h-4 w-4 items-center justify-center rounded-full border-2 border-bg-primary bg-accent sm:-start-[3.05rem]" />
-                  <p className="text-sm font-semibold uppercase tracking-wide text-text-secondary/80">
+                  <p className="text-sm font-semibold uppercase tracking-wide text-text-muted">
                   <a href={`#${releaseSlug(release.date)}`} className="hover:text-accent" aria-label={`Permalink to ${release.date}`}>{release.date}</a>
                    </p>
                   <div className="mt-4 space-y-4">
@@ -134,7 +134,7 @@ export function ChangelogPage() {
               whileInView={{ opacity: 1 }}
               viewport={viewport}
               transition={{ duration: 0.5, ease: EASE }}
-              className="mt-12 text-center text-sm text-text-secondary/70"
+              className="mt-12 text-center text-sm text-text-muted"
             >
               That&rsquo;s everything since launch on August 21, 2026. Have a feature request?{' '}
               <Link to="/roadmap" className="font-semibold text-accent hover:text-cta">

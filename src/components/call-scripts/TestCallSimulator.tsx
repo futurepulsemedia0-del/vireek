@@ -116,8 +116,8 @@ export function TestCallSimulator({ scenario, opening_line, body, sourceLabel }:
       </div>
 
       {!check.ok && (
-        <div role="alert" className="flex items-start gap-2 rounded-xl border border-warning-500/30 bg-warning-500/10 px-4 py-3 text-sm text-text-primary">
-          <AlertTriangle size={16} className="mt-0.5 shrink-0 text-warning-500" />
+        <div role="alert" className="flex items-start gap-2 rounded-xl border border-warning/30 bg-warning-subtle px-4 py-3 text-sm text-text-primary">
+          <AlertTriangle size={16} className="mt-0.5 shrink-0 text-warning" />
           <span>Fix the script in the Editor tab first: {Object.values(check.errors)[0]}</span>
         </div>
       )}
@@ -143,7 +143,7 @@ export function TestCallSimulator({ scenario, opening_line, body, sourceLabel }:
               )}
               <p
                 className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-3.5 py-2 text-sm leading-relaxed ${
-                  t.role === 'caller' ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-primary'
+                  t.role === 'caller' ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-primary'
                 }`}
               >
                 <span className="sr-only">{t.role === 'caller' ? 'Caller: ' : 'Assistant: '}</span>

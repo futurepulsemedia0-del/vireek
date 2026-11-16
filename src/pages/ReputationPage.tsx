@@ -116,7 +116,7 @@ export function ReputationPage() {
                   className={`focus-ring -mb-px shrink-0 border-b-2 px-4 py-2.5 text-sm font-semibold ${tab === t.key ? 'border-accent text-accent' : 'border-transparent text-text-secondary hover:text-text-primary'}`}
                 >
                   {t.label}
-                  {t.key === 'inbox' && open > 0 && <span className="ml-2 rounded-full bg-warning-500/10 px-2 py-0.5 text-xs text-warning-500">{open}</span>}
+                  {t.key === 'inbox' && open > 0 && <span className="ml-2 rounded-full bg-warning-subtle px-2 py-0.5 text-xs text-warning">{open}</span>}
                 </button>
               ))}
             </div>

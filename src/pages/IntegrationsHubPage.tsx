@@ -201,13 +201,13 @@ export function IntegrationsHubPage() {
             {/* Search + category filter */}
             <div className="mx-auto mt-8 flex max-w-3xl flex-col gap-4 sm:mt-10">
               <div className="relative">
-                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary/60" />
+                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-graphic-muted" />
                 <input
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search integrations (e.g. QuickBooks, calendar, CRM)…"
-                  className="focus-ring w-full rounded-xl border border-border bg-bg-secondary py-3 pl-11 pr-4 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors focus-visible:border-accent sm:text-base"
+                  className="focus-ring w-full rounded-xl border border-border bg-bg-secondary py-3 pl-11 pr-4 text-sm text-text-primary placeholder:text-text-placeholder transition-colors focus-visible:border-accent sm:text-base"
                 />
               </div>
               <div className="flex flex-wrap justify-center gap-2">
@@ -259,7 +259,7 @@ export function IntegrationsHubPage() {
                           <Icon className="h-5 w-5" />
                         </span>
                         <span className={`rounded-full border px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-wider ${
-                          isLive ? 'border-success-500/30 bg-success-500/10 text-success-500' : 'border-border bg-bg-tertiary text-text-secondary'
+                          isLive ? 'border-success/30 bg-success-subtle text-success' : 'border-border bg-bg-tertiary text-text-secondary'
                         }`}>
                           {isLive ? 'Live now' : 'Coming soon'}
                         </span>
@@ -300,7 +300,7 @@ export function IntegrationsHubPage() {
                   onChange={(e) => setRequestTitle(e.target.value)}
                   placeholder="Name the tool you want to connect (e.g. Xero, ServiceFusion…)"
                   maxLength={200}
-                  className="focus-ring w-full flex-1 rounded-xl border border-border bg-bg-primary px-4 py-3 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors focus-visible:border-accent sm:text-base"
+                  className="focus-ring w-full flex-1 rounded-xl border border-border bg-bg-primary px-4 py-3 text-sm text-text-primary placeholder:text-text-placeholder transition-colors focus-visible:border-accent sm:text-base"
                 />
                 <Button type="submit" variant="primary" disabled={submittingRequest || !requestTitle.trim()}>
                   {submittingRequest ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Request it'}

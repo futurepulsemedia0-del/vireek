@@ -50,7 +50,7 @@ const inputCls = 'focus-ring w-full rounded-xl border border-border bg-bg-primar
 const HEALTH_STYLE: Record<KeyHealth, { label: string; cls: string }> = {
   idle: { label: 'No traffic', cls: 'bg-bg-tertiary text-text-secondary' },
   healthy: { label: 'Healthy', cls: 'bg-success/10 text-success' },
-  warning: { label: 'Needs attention', cls: 'bg-warning-500/10 text-warning-500' },
+  warning: { label: 'Needs attention', cls: 'bg-warning-subtle text-warning' },
   critical: { label: 'Critical', cls: 'bg-danger/10 text-danger' },
 };
 
@@ -63,7 +63,7 @@ function Kpi({ label, value, sub, tone }: { label: string; value: string; sub?: 
   return (
     <Card className="p-4 hover:translate-y-0">
       <p className="text-xs font-medium text-text-secondary">{label}</p>
-      <p className={`mt-1 text-2xl font-bold tabular-nums ${tone === 'danger' ? 'text-danger' : tone === 'warning' ? 'text-warning-500' : 'text-text-primary'}`}>{value}</p>
+      <p className={`mt-1 text-2xl font-bold tabular-nums ${tone === 'danger' ? 'text-danger' : tone === 'warning' ? 'text-warning' : 'text-text-primary'}`}>{value}</p>
       {sub && <p className="mt-0.5 text-[11px] text-text-secondary">{sub}</p>}
     </Card>
   );
@@ -245,7 +245,7 @@ export function ApiUsagePage() {
         <div className="flex items-center gap-2">
           <div role="radiogroup" aria-label="Time range" className="inline-flex rounded-xl border border-border bg-bg-primary p-1">
             {RANGES.map((r) => (
-              <button key={r.hours} type="button" role="radio" aria-checked={hours === r.hours} onClick={() => setHours(r.hours)} className={`focus-ring rounded-lg px-3 py-1.5 text-xs font-medium ${hours === r.hours ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}>
+              <button key={r.hours} type="button" role="radio" aria-checked={hours === r.hours} onClick={() => setHours(r.hours)} className={`focus-ring rounded-lg px-3 py-1.5 text-xs font-medium ${hours === r.hours ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}>
                 {r.label}
               </button>
             ))}
@@ -264,10 +264,10 @@ export function ApiUsagePage() {
         </div>
       ) : error ? (
         <div role="alert" className="rounded-2xl border border-dashed border-border bg-bg-secondary/50 px-6 py-16 text-center">
-          <AlertTriangle className="mx-auto mb-3 text-warning-500" size={28} />
+          <AlertTriangle className="mx-auto mb-3 text-warning" size={28} />
           <h3 className="text-lg font-semibold text-text-primary">Couldn’t load API usage</h3>
           <p className="mt-1.5 text-sm text-text-secondary">Check your connection and try again.</p>
-          <button type="button" onClick={() => load(true)} className="focus-ring mt-4 inline-flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white hover:opacity-90"><RefreshCw size={14} /> Retry</button>
+          <button type="button" onClick={() => load(true)} className="focus-ring mt-4 inline-flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent hover:opacity-90"><RefreshCw size={14} /> Retry</button>
         </div>
       ) : !hasKeys ? (
         <EmptyState icon={KeyRound} title="No API keys yet" description="Create an API key to start using the Vireek API. Usage appears here as soon as requests arrive." action={{ label: 'Create an API key', onClick: () => navigate('/dashboard/settings/api-keys') }} />
@@ -394,7 +394,7 @@ export function ApiUsagePage() {
             </div>
             <div className="flex items-center justify-between gap-3">
               <p className="text-xs text-text-secondary" aria-live="polite">{rulesDirty ? 'You have unsaved changes.' : updatedAt ? `Usage updated ${formatRelative(new Date(updatedAt).toISOString())}.` : ''}</p>
-              <button type="button" onClick={handleSaveRules} disabled={saving || !rulesDirty} className="focus-ring rounded-xl bg-accent px-5 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-40">{saving ? 'Saving…' : 'Save alerts'}</button>
+              <button type="button" onClick={handleSaveRules} disabled={saving || !rulesDirty} className="focus-ring rounded-xl bg-accent px-5 py-2 text-sm font-medium text-on-accent hover:opacity-90 disabled:opacity-40">{saving ? 'Saving…' : 'Save alerts'}</button>
             </div>
 
             <div className="border-t border-border/60 pt-3">

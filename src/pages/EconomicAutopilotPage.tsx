@@ -27,11 +27,11 @@ import {
 } from '@/lib/economicAutopilot';
 
 const SIGNAL_TYPES = Object.keys(SIGNAL_LABELS) as SignalType[];
-const URGENCY_COLOR: Record<string, string> = { high: 'text-error-500', medium: 'text-warning-500', low: 'text-text-secondary' };
+const URGENCY_COLOR: Record<string, string> = { high: 'text-error-500', medium: 'text-warning', low: 'text-text-secondary' };
 
 function HealthGauge({ score }: { score: number | null }) {
   const s = score ?? 0;
-  const color = s >= 70 ? 'text-success-500' : s >= 45 ? 'text-warning-500' : 'text-error-500';
+  const color = s >= 70 ? 'text-success' : s >= 45 ? 'text-warning' : 'text-error-500';
   return (
     <div className="flex items-center gap-3 rounded-xl border border-border bg-bg-primary p-4">
       <Gauge className={color} size={28} />
@@ -157,7 +157,7 @@ export function EconomicAutopilotPage() {
               <p className="text-xs text-text-secondary">Revenue, cost, capacity, margin and cash — scored, and turned into owner-approved actions.</p>
             </div>
           </div>
-          <button onClick={handleRun} disabled={running} className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-4 py-2 text-sm font-medium text-white disabled:opacity-60">
+          <button onClick={handleRun} disabled={running} className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-4 py-2 text-sm font-medium text-on-cta disabled:opacity-60">
             {running ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
             Run autopilot
           </button>
@@ -184,7 +184,7 @@ export function EconomicAutopilotPage() {
               {SIGNAL_TYPES.map((t) => <option key={t} value={t}>{SIGNAL_LABELS[t]}</option>)}
             </select>
             <input className="focus-ring rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary" type="number" placeholder="Value" value={sigValue} onChange={(e) => setSigValue(e.target.value)} />
-            <button onClick={handleLogSignal} disabled={sigSaving} className="focus-ring flex items-center justify-center gap-2 rounded-xl bg-cta px-4 py-2 text-sm font-medium text-white disabled:opacity-60">
+            <button onClick={handleLogSignal} disabled={sigSaving} className="focus-ring flex items-center justify-center gap-2 rounded-xl bg-cta px-4 py-2 text-sm font-medium text-on-cta disabled:opacity-60">
               {sigSaving ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />} Log signal
             </button>
           </div>
@@ -209,12 +209,12 @@ export function EconomicAutopilotPage() {
                       </p>
                       <p className="mt-1 text-xs text-text-secondary">{a.rationale}</p>
                       {a.estimated_impact_cents > 0 && <p className="mt-1 text-[11px] text-text-secondary">Estimated impact: <span className="font-medium text-text-primary">{formatCents(a.estimated_impact_cents)}</span></p>}
-                      {a.status === 'implemented' && <p className="mt-1 text-[11px] text-success-500">Implemented · realized {formatCents(a.realized_impact_cents)}</p>}
+                      {a.status === 'implemented' && <p className="mt-1 text-[11px] text-success">Implemented · realized {formatCents(a.realized_impact_cents)}</p>}
                     </div>
                     <div className="flex shrink-0 gap-2">
                       {a.status === 'pending' && (
                         <>
-                          <button onClick={() => handleDecide(a, 'approved')} className="focus-ring flex items-center gap-1 rounded-lg bg-success-500/15 px-3 py-1.5 text-xs font-medium text-success-500"><Check size={14} /> Approve</button>
+                          <button onClick={() => handleDecide(a, 'approved')} className="focus-ring flex items-center gap-1 rounded-lg bg-success-subtle px-3 py-1.5 text-xs font-medium text-success"><Check size={14} /> Approve</button>
                           <button onClick={() => handleDecide(a, 'dismissed')} className="focus-ring flex items-center gap-1 rounded-lg bg-error-500/15 px-3 py-1.5 text-xs font-medium text-error-500"><X size={14} /> Dismiss</button>
                         </>
                       )}

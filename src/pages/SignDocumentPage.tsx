@@ -123,7 +123,7 @@ export function SignDocumentPage() {
 
           {(viewState === 'signed_wait' || viewState === 'completed') && info && (
             <Card className="text-center">
-              <CheckCircle2 size={28} className="mx-auto mb-3 text-success-500" />
+              <CheckCircle2 size={28} className="mx-auto mb-3 text-success" />
               <h1 className="text-lg font-semibold text-text-primary">{viewState === 'completed' ? 'Everyone has signed' : "You're signed"}</h1>
               <p className="mt-2 text-sm text-text-secondary">
                 {viewState === 'completed'

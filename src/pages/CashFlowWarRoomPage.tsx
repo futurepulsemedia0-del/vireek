@@ -12,8 +12,8 @@ function money(n: number) {
 
 const SEVERITY_COPY: Record<CashFlowWarRoomPlan['severity'], { label: string; classes: string }> = {
   critical: { label: 'Critical — act today', classes: 'border-l-danger bg-danger/10 text-danger' },
-  watch: { label: 'Watch — building risk', classes: 'border-l-amber-500 bg-amber-500/10 text-amber-600' },
-  safe: { label: 'Safe — no near-term risk', classes: 'border-l-emerald-500 bg-emerald-500/10 text-emerald-600' },
+  watch: { label: 'Watch — building risk', classes: 'border-l-amber-500 bg-warning-subtle text-warning' },
+  safe: { label: 'Safe — no near-term risk', classes: 'border-l-emerald-500 bg-success-subtle text-success' },
 };
 
 const ACTION_ICON = {
@@ -107,7 +107,7 @@ export function CashFlowWarRoomPage() {
             <p className="text-sm text-text-secondary">Your ranked, dollar-weighted plan to protect the account's runway.</p>
           </div>
         </div>
-        <button onClick={handleGeneratePlan} disabled={running} className="focus-ring flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60">
+        <button onClick={handleGeneratePlan} disabled={running} className="focus-ring flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-on-accent hover:opacity-90 disabled:opacity-60">
           <RefreshCw size={16} className={running ? 'animate-spin' : ''} /> {plan ? 'Refresh Battle Plan' : 'Generate Battle Plan'}
         </button>
       </div>
@@ -161,7 +161,7 @@ export function CashFlowWarRoomPage() {
                   <div className="flex shrink-0 gap-1.5">
                     <button
                       onClick={() => handleSetStatus(i, status === 'done' ? 'pending' : 'done')}
-                      className={`focus-ring rounded-lg border border-border p-2 hover:bg-bg-secondary ${status === 'done' ? 'bg-emerald-500/10 text-emerald-600' : 'text-text-secondary'}`}
+                      className={`focus-ring rounded-lg border border-border p-2 hover:bg-bg-secondary ${status === 'done' ? 'bg-success-subtle text-success' : 'text-text-secondary'}`}
                       title="Mark done"
                     >
                       <CircleCheck size={16} />

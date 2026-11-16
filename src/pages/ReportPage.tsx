@@ -121,12 +121,12 @@ function EarlyAccessForm() {
           placeholder="you@company.com"
           aria-label="Email address"
           disabled={state === 'loading'}
-          className="focus-ring w-full flex-1 rounded-xl border border-border bg-bg-primary px-4 py-3.5 text-base text-text-primary placeholder:text-text-secondary/50 disabled:opacity-60"
+          className="focus-ring w-full flex-1 rounded-xl border border-border bg-bg-primary px-4 py-3.5 text-base text-text-primary placeholder:text-text-placeholder disabled:opacity-60"
         />
         <button
           type="submit"
           disabled={state === 'loading'}
-          className="focus-ring inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-accent px-6 py-3.5 font-semibold text-white shadow-glow-accent transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-80"
+          className="focus-ring inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-accent px-6 py-3.5 font-semibold text-on-accent shadow-glow-accent transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-80"
         >
           {state === 'loading' ? 'Submitting…' : 'Notify Me'}
           {state !== 'loading' && <ArrowRight size={16} />}
@@ -145,7 +145,7 @@ function EarlyAccessForm() {
         </span>
       </label>
       {state === 'error' && <p className="mt-2 text-sm text-danger">{error}</p>}
-      <p className="mt-3 text-xs text-text-secondary/60">No spam. Unsubscribe anytime.</p>
+      <p className="mt-3 text-xs text-text-muted">No spam. Unsubscribe anytime.</p>
     </form>
   );
 }

@@ -25,7 +25,7 @@ export function FreshnessBadge({ lastUpdatedAt, now, decision, refreshing, onRef
     <div className={`inline-flex flex-wrap items-center gap-2 text-xs text-text-secondary ${className}`}>
       <span>{lastUpdatedAt == null ? '' : t('fresh.updated', { when })}</span>
       {decision.stale && (
-        <span role="status" title={staleText} className="inline-flex items-center gap-1 rounded-full bg-warning-500/10 px-2 py-0.5 font-medium text-warning-500">
+        <span role="status" title={staleText} className="inline-flex items-center gap-1 rounded-full bg-warning-subtle px-2 py-0.5 font-medium text-warning">
           {decision.reason === 'offline' && <WifiOff size={12} aria-hidden="true" />}
           {t('fresh.stale')}
           <span className="sr-only"> — {staleText}</span>

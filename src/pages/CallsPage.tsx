@@ -73,14 +73,14 @@ function escalationLabel(call: Call): string | null {
 
 const statusConfig: Record<string, { label: string; color: string }> = {
   new_lead: { label: 'New Lead', color: 'bg-accent/10 text-accent' },
-  booked: { label: 'Booked', color: 'bg-success-500/10 text-success-500' },
+  booked: { label: 'Booked', color: 'bg-success-subtle text-success' },
   missed: { label: 'Missed', color: 'bg-danger/10 text-danger' },
-  callback_requested: { label: 'Callback', color: 'bg-warning-500/10 text-warning-500' },
+  callback_requested: { label: 'Callback', color: 'bg-warning-subtle text-warning' },
   spam: { label: 'Spam', color: 'bg-bg-tertiary text-text-secondary' },
 };
 
 const sentimentConfig: Record<string, { label: string; color: string }> = {
-  positive: { label: 'Positive', color: 'text-success-500' },
+  positive: { label: 'Positive', color: 'text-success' },
   neutral: { label: 'Neutral', color: 'text-text-secondary' },
   negative: { label: 'Negative', color: 'text-danger' },
 };
@@ -158,7 +158,7 @@ function AudioPlayer({ url }: { url: string }) {
       <button
         type="button"
         onClick={toggle}
-        className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-white transition-transform hover:scale-105"
+        className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-on-accent transition-transform hover:scale-105"
       >
         {playing ? <Pause size={18} /> : <Play size={18} className="ml-0.5" />}
       </button>
@@ -350,7 +350,7 @@ function CallDetailPanel({
             {call.objections_raised?.length > 0 && (
               <p className="text-sm text-text-primary">
                 <span className="text-text-secondary">Objections:</span> {call.objections_raised.join(', ')}
-                {call.objections_resolved === true && <span className="ml-1 text-success-500">(resolved)</span>}
+                {call.objections_resolved === true && <span className="ml-1 text-success">(resolved)</span>}
                 {call.objections_resolved === false && <span className="ml-1 text-danger">(not resolved)</span>}
               </p>
             )}
@@ -367,7 +367,7 @@ function CallDetailPanel({
               </div>
             )}
             {call.missed_opportunity_reason && (
-              <div className="rounded-lg bg-warning-500/10 p-3 text-sm text-warning-500">
+              <div className="rounded-lg bg-warning-subtle p-3 text-sm text-warning">
                 <strong>Missed opportunity:</strong> {call.missed_opportunity_reason}
               </div>
             )}
@@ -672,7 +672,7 @@ const updateCall = useCallback(
   };
 
   const SortIcon = ({ col }: { col: SortKey }) => {
-    if (sortKey !== col) return <ChevronDown size={14} className="text-text-secondary/40" />;
+    if (sortKey !== col) return <ChevronDown size={14} className="text-graphic-muted" />;
     return sortDir === 'asc' ? <ChevronUp size={14} className="text-accent" /> : <ChevronDown size={14} className="text-accent" />;
   };
 
@@ -814,7 +814,7 @@ const updateCall = useCallback(
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search by caller, phone, summary, or transcript…  (press /)"
-                className="focus-ring w-full rounded-xl border border-border bg-bg-secondary py-2.5 pl-10 pr-4 text-sm text-text-primary placeholder:text-text-secondary/60"
+                className="focus-ring w-full rounded-xl border border-border bg-bg-secondary py-2.5 pl-10 pr-4 text-sm text-text-primary placeholder:text-text-placeholder"
               />
             </div>
             <div className="flex items-center gap-2">
@@ -880,7 +880,7 @@ const updateCall = useCallback(
                 onClick={() => setEmergencyOnly(false)}
                 aria-pressed={!emergencyOnly}
                 className={`focus-ring rounded-lg px-3 py-1.5 font-medium transition-colors ${
-                  !emergencyOnly ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'
+                  !emergencyOnly ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'
                 }`}
               >
                 All Calls
@@ -890,7 +890,7 @@ const updateCall = useCallback(
                 onClick={() => setEmergencyOnly(true)}
                 aria-pressed={emergencyOnly}
                 className={`focus-ring flex items-center gap-1 rounded-lg px-3 py-1.5 font-medium transition-colors ${
-                  emergencyOnly ? 'bg-danger text-white' : 'text-text-secondary hover:text-text-primary'
+                  emergencyOnly ? 'bg-danger text-on-danger' : 'text-text-secondary hover:text-text-primary'
                 }`}
               >
                 🚨 Emergency Only
@@ -1055,7 +1055,7 @@ const updateCall = useCallback(
                               )}
                             </div>
                           ) : (
-                            <span className="text-text-secondary/30">—</span>
+                            <span className="text-text-muted">—</span>
                           )}
                         </td>
                       </tr>
@@ -1136,7 +1136,7 @@ const updateCall = useCallback(
         {selectedCall && (
           <>
             <div
-              className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm"
+              className="fixed inset-0 z-40 bg-overlay/20 backdrop-blur-sm"
               onClick={() => setSelectedCall(null)}
             />
             <CallDetailPanel

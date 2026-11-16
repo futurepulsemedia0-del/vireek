@@ -106,7 +106,7 @@ export function PartnerPortalDashboardPage() {
             <button
               type="button"
               onClick={copyLink}
-              className="focus-ring flex items-center justify-center gap-1.5 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110"
+              className="focus-ring flex items-center justify-center gap-1.5 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent transition-all hover:brightness-110"
             >
               {copied ? <Check size={16} /> : <Copy size={16} />}
               {copied ? 'Copied' : 'Copy'}
@@ -131,7 +131,7 @@ export function PartnerPortalDashboardPage() {
             <p className="text-sm font-semibold text-text-primary">Commission paid to date</p>
             <p className="mt-1 text-2xl font-bold text-text-primary">{formatCents(stats.paid_commission_cents ?? 0)}</p>
           </div>
-          <Link to="/partner-portal/referrals" className="focus-ring shrink-0 text-sm font-semibold text-accent hover:text-accent/80">
+          <Link to="/partner-portal/referrals" className="focus-ring shrink-0 text-sm font-semibold text-accent hover:text-accent">
             View referrals →
           </Link>
         </Card>
@@ -147,7 +147,7 @@ export function PartnerPortalDashboardPage() {
           </div>
           <Link
             to={stats.is_certified ? '/partner-portal/certificate' : '/partner-portal/certification'}
-            className="focus-ring shrink-0 text-sm font-semibold text-accent hover:text-accent/80"
+            className="focus-ring shrink-0 text-sm font-semibold text-accent hover:text-accent"
           >
             {stats.is_certified ? 'View certificate →' : 'Get certified →'}
           </Link>

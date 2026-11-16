@@ -36,8 +36,8 @@ import {
 } from '@/lib/failureAtlas';
 
 const CONFIDENCE_STYLES: Record<AtlasConfidence, string> = {
-  high: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/25',
-  medium: 'bg-amber-500/10 text-amber-600 border-amber-500/25',
+  high: 'bg-success-subtle text-success border-success/25',
+  medium: 'bg-warning-subtle text-warning border-warning/25',
   low: 'bg-bg-tertiary text-text-secondary border-border',
 };
 
@@ -254,7 +254,7 @@ function FailureModeCard({ cell, ownerId }: { cell: AtlasCell; ownerId: string |
         </div>
       )}
 
-      <p className="mt-3 text-[11px] text-text-secondary/80">
+      <p className="mt-3 text-[11px] text-text-muted">
         {cell.contributor_count} contributing businesses · last {cell.window_months} months ·
         updated {new Date(cell.computed_at).toLocaleDateString()}
       </p>

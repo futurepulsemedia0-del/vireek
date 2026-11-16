@@ -43,10 +43,10 @@ export const CLAIM_STATUS_COLORS: Record<ClaimStatus, string> = {
   intake: 'bg-bg-tertiary text-text-secondary',
   documentation: 'bg-accent/10 text-accent',
   submitted_to_carrier: 'bg-accent/10 text-accent',
-  adjuster_scheduled: 'bg-warning-500/10 text-warning-500',
-  approved: 'bg-success-500/10 text-success-500',
+  adjuster_scheduled: 'bg-warning-subtle text-warning',
+  approved: 'bg-success-subtle text-success',
   denied: 'bg-danger/10 text-danger',
-  in_repair: 'bg-warning-500/10 text-warning-500',
+  in_repair: 'bg-warning-subtle text-warning',
   closed: 'bg-bg-tertiary text-text-secondary',
 };
 

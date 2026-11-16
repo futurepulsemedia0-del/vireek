@@ -136,17 +136,17 @@ export const PART_STATUS_LABEL: Record<PartStatus, string> = {
 
 export const PART_STATUS_STYLE: Record<PartStatus, string> = {
   unchecked: 'bg-bg-tertiary text-text-secondary',
-  reserved: 'bg-success-500/10 text-success-500',
-  low_stock: 'bg-warning-500/10 text-warning-500',
-  backorder: 'bg-warning-500/10 text-warning-500',
-  not_found: 'bg-warning-500/10 text-warning-500',
+  reserved: 'bg-success-subtle text-success',
+  low_stock: 'bg-warning-subtle text-warning',
+  backorder: 'bg-warning-subtle text-warning',
+  not_found: 'bg-warning-subtle text-warning',
   not_required: 'bg-bg-tertiary text-text-secondary',
 };
 
 export const SEVERITY_STYLE: Record<'watch' | 'high' | 'critical', string> = {
-  watch: 'bg-warning-500/10 text-warning-500',
-  high: 'bg-danger-500/10 text-danger-500',
-  critical: 'bg-danger-500 text-white',
+  watch: 'bg-warning-subtle text-warning',
+  high: 'bg-danger-subtle text-danger',
+  critical: 'bg-danger text-on-danger',
 };
 
 export function formatRelative(iso: string | null): string {

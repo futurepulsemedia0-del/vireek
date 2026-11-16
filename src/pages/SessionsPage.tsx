@@ -85,7 +85,7 @@ function SectionError({ message, onRetry }: { message: string; onRetry: () => vo
 }
 
 function Pill({ tone, children }: { tone: 'info' | 'success' | 'warning'; children: ReactNode }) {
-  const cls = { info: 'bg-accent/10 text-accent', success: 'bg-success-500/10 text-success-500', warning: 'bg-warning-500/10 text-warning-500' }[tone];
+  const cls = { info: 'bg-accent/10 text-accent', success: 'bg-success-subtle text-success', warning: 'bg-warning-subtle text-warning' }[tone];
   return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${cls}`}>{children}</span>;
 }
 
@@ -216,9 +216,9 @@ export function SessionsPage() {
 
       <div className="space-y-4">
         {alerts.length > 0 && (
-          <div role="alert" className="rounded-2xl border border-warning-500/40 bg-warning-500/10 p-4 sm:p-5">
+          <div role="alert" className="rounded-2xl border border-warning/40 bg-warning-subtle p-4 sm:p-5">
             <div className="flex items-start gap-3">
-              <TriangleAlert size={20} className="mt-0.5 shrink-0 text-warning-500" />
+              <TriangleAlert size={20} className="mt-0.5 shrink-0 text-warning" />
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold text-text-primary">
                   {alerts.length === 1 ? 'New sign-in from a device we have not seen before' : `${alerts.length} sign-ins from devices we have not seen before`}
@@ -320,7 +320,7 @@ export function SessionsPage() {
                 onClick={() => void togglePref()}
                 className={`focus-ring relative h-7 w-12 shrink-0 rounded-full transition-colors disabled:opacity-50 ${alertsOn ? 'bg-accent' : 'bg-bg-tertiary'}`}
               >
-                <span className={`absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform ${alertsOn ? 'translate-x-5' : ''}`} />
+                <span className={`absolute left-0.5 top-0.5 h-6 w-6 rounded-full bg-bg-secondary shadow transition-transform ${alertsOn ? 'translate-x-5' : ''}`} />
               </button>
             )
           }

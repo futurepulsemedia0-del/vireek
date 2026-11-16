@@ -80,11 +80,11 @@ export function ItemEditorDialog({ item, seed, saving, onSave, onClose, onDuplic
   };
 
   const err = (key: keyof typeof errors) => (submitted ? errors[key] : undefined);
-  const counterTone = bodyLen > channel.limit ? 'text-danger' : bodyLen > channel.limit * 0.9 ? 'text-warning-500' : 'text-text-secondary';
+  const counterTone = bodyLen > channel.limit ? 'text-danger' : bodyLen > channel.limit * 0.9 ? 'text-warning' : 'text-text-secondary';
 
   return (
     <>
-      <div className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm" onClick={requestClose} aria-hidden />
+      <div className="fixed inset-0 z-[100] bg-overlay/40 backdrop-blur-sm" onClick={requestClose} aria-hidden />
       <div
         ref={dialogRef}
         tabIndex={-1}
@@ -106,7 +106,7 @@ export function ItemEditorDialog({ item, seed, saving, onSave, onClose, onDuplic
         </div>
 
         {confirmDiscard && (
-          <div role="alert" className="mb-4 flex flex-col gap-3 rounded-xl border border-warning-500/40 bg-warning-500/10 p-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+          <div role="alert" className="mb-4 flex flex-col gap-3 rounded-xl border border-warning/40 bg-warning-subtle p-3 text-sm sm:flex-row sm:items-center sm:justify-between">
             <span className="text-text-primary">Discard your unsaved changes?</span>
             <span className="flex gap-2">
               <Button type="button" size="sm" variant="secondary" onClick={() => setConfirmDiscard(false)}>

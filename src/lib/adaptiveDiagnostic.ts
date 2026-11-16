@@ -97,9 +97,9 @@ export const LEARNING_MIN_SAMPLES = 20;
 export const TREND_MIN_BUCKET = 5;
 
 export const STATUS_META: Record<SessionStatus, { label: string; tone: string }> = {
-  open: { label: 'In progress', tone: 'bg-amber-500/10 text-amber-600 dark:text-amber-400' },
-  completed: { label: 'Completed', tone: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' },
-  hazard: { label: 'Safety hazard', tone: 'bg-red-500/10 text-red-600 dark:text-red-400' },
+  open: { label: 'In progress', tone: 'bg-warning-subtle text-warning' },
+  completed: { label: 'Completed', tone: 'bg-success-subtle text-success' },
+  hazard: { label: 'Safety hazard', tone: 'bg-danger-subtle text-danger' },
   unsupported: { label: 'Not covered yet', tone: 'bg-bg-tertiary text-text-secondary' },
 };
 

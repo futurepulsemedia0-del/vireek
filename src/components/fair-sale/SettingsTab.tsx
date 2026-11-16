@@ -94,7 +94,7 @@ export function SettingsTab({ initial, canEdit, onSaved }: { initial: FairSaleCo
         <Button type="submit" loading={busy} disabled={!canEdit || invalid} disabledReason={!canEdit ? t('settings.readOnly') : undefined}>
           {t('settings.save')}
         </Button>
-        <span role="status" aria-live="polite" className={`text-sm ${msg?.ok ? 'text-success-500' : 'text-danger-500'}`}>{msg?.text ?? ''}</span>
+        <span role="status" aria-live="polite" className={`text-sm ${msg?.ok ? 'text-success' : 'text-danger'}`}>{msg?.text ?? ''}</span>
       </div>
     </form>
   );

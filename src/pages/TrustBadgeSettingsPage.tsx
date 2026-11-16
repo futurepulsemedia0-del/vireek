@@ -144,7 +144,7 @@ export function TrustBadgeSettingsPage() {
         <p className="mt-1 text-sm text-text-secondary">Show visitors that real calls are answered by Vireek — backed by a public verification page that only confirms what you approve.</p>
       </div>
 
-      {unhealthy && <p role="alert" className={`${BOX} mb-4 flex gap-2 text-sm`}><AlertTriangle size={18} className="shrink-0 text-warning-500" aria-hidden="true" />Your account is not active, so the badge is hidden on your website until billing is resolved.</p>}
+      {unhealthy && <p role="alert" className={`${BOX} mb-4 flex gap-2 text-sm`}><AlertTriangle size={18} className="shrink-0 text-warning" aria-hidden="true" />Your account is not active, so the badge is hidden on your website until billing is resolved.</p>}
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card className="space-y-4 p-5">

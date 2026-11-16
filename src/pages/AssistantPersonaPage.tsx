@@ -226,9 +226,9 @@ export function AssistantPersonaPage() {
               onChange={(e) => setAssistantName(e.target.value)}
               maxLength={NAME_MAX_LENGTH}
               placeholder="e.g. Sarah, Alex, Riley"
-              className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors"
+              className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder transition-colors"
             />
-            <p className="mt-2 text-xs text-text-secondary/60">
+            <p className="mt-2 text-xs text-text-muted">
               {assistantName.trim().length}/{NAME_MAX_LENGTH} characters
             </p>
           </SectionCard>
@@ -255,7 +255,7 @@ export function AssistantPersonaPage() {
                     </p>
                   </div>
                   {useCustomVoice && (
-                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent text-white">
+                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent text-on-accent">
                       <Check size={12} />
                     </span>
                   )}
@@ -280,7 +280,7 @@ export function AssistantPersonaPage() {
                     <p className="mt-0.5 text-xs text-text-secondary">{voice.detail}</p>
                   </div>
                   {!useCustomVoice && assistantVoice === voice.id && (
-                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent text-white">
+                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent text-on-accent">
                       <Check size={12} />
                     </span>
                   )}
@@ -312,7 +312,7 @@ export function AssistantPersonaPage() {
                     <p className="mt-0.5 text-xs text-text-secondary">{tone.detail}</p>
                   </div>
                   {assistantTone === tone.id && (
-                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent text-white">
+                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent text-on-accent">
                       <Check size={12} />
                     </span>
                   )}
@@ -331,7 +331,7 @@ export function AssistantPersonaPage() {
             description="Sarah always states upfront that she's an AI before anything else — required in some jurisdictions (e.g. California's AB 2905, and EU AI Act Article 50 for callers in the EU) for calls using an AI-generated voice, and a safe default everywhere else."
           >
             <div className="mb-3 flex items-center gap-2 rounded-lg bg-bg-tertiary px-3 py-2 text-xs font-medium text-text-secondary">
-              <Lock size={13} className="shrink-0 text-text-secondary/70" />
+              <Lock size={13} className="shrink-0 text-graphic-muted" />
               Always on — this can&rsquo;t be disabled. You can edit the wording below.
             </div>
             <label htmlFor="disclosure-script" className="sr-only">
@@ -344,9 +344,9 @@ export function AssistantPersonaPage() {
               rows={2}
               maxLength={280}
               placeholder={DEFAULT_DISCLOSURE_SCRIPT}
-              className="focus-ring w-full resize-none rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors"
+              className="focus-ring w-full resize-none rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder transition-colors"
             />
-            <p className="mt-2 text-xs text-text-secondary/60">
+            <p className="mt-2 text-xs text-text-muted">
               Spoken first, before your greeting script — on every inbound and outbound call, for
               every account, with no on/off switch. That's what satisfies EU AI Act Article 50
               (in force since Aug 2, 2026) as well as US rules like AB 2905 — the obligation is
@@ -370,7 +370,7 @@ export function AssistantPersonaPage() {
               <p className="mt-1 text-sm italic leading-relaxed text-text-secondary">
                 &ldquo;{previewGreeting}&rdquo;
               </p>
-              <p className="mt-2 text-xs text-text-secondary/60">
+              <p className="mt-2 text-xs text-text-muted">
                 The disclosure sentence above, followed by your greeting script from Business
                 Profile, with the name above swapped in.
               </p>
@@ -390,7 +390,7 @@ export function AssistantPersonaPage() {
               type="button"
               onClick={handleSave}
               disabled={saving}
-              className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-5 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110 disabled:opacity-50"
+              className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-5 py-2.5 text-sm font-semibold text-on-cta transition-all hover:brightness-110 disabled:opacity-50"
             >
               {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
               {saving ? 'Saving…' : 'Save changes'}

@@ -10,7 +10,7 @@ import {
 const toneClass = {
   success: 'bg-success/10 text-success',
   danger: 'bg-danger/10 text-danger',
-  warning: 'bg-warning-500/10 text-warning-500',
+  warning: 'bg-warning-subtle text-warning',
   info: 'bg-accent/10 text-accent',
   neutral: 'bg-bg-tertiary text-text-secondary',
 } as const;

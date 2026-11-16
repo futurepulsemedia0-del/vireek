@@ -98,7 +98,7 @@ export function FlowSimulator({ config, input, result, onChange }: FlowSimulator
         )}
 
         {result.status === 'ended' && result.end && (
-          <p className="rounded-xl bg-success-500/10 p-3 text-sm font-semibold text-success-500">
+          <p className="rounded-xl bg-success-subtle p-3 text-sm font-semibold text-success">
             {END_LABELS[result.end.kind] ?? 'The call ends'}
             {result.end.kind !== 'hangup' && <span className="block text-xs font-normal text-text-secondary">{result.end.label}</span>}
           </p>

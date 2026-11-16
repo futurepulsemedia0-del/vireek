@@ -34,7 +34,7 @@ function formatTimeAgo(dateStr: string): string {
 
 const STATUS_CONFIG: Record<ReviewRequest['status'], { label: string; badge: string }> = {
   sent: { label: 'Awaiting response', badge: 'bg-accent/10 text-accent' },
-  completed: { label: 'Review left', badge: 'bg-success-500/10 text-success-500' },
+  completed: { label: 'Review left', badge: 'bg-success-subtle text-success' },
   declined: { label: 'Declined', badge: 'bg-danger/10 text-danger' },
 };
 
@@ -45,7 +45,7 @@ function StarRow({ rating, size = 14 }: { rating: number; size?: number }) {
         <Star
           key={i}
           size={size}
-          className={i < rating ? 'fill-warning-500 text-warning-500' : 'text-bg-tertiary'}
+          className={i < rating ? 'fill-warning text-warning' : 'text-bg-tertiary'}
         />
       ))}
     </div>
@@ -81,7 +81,7 @@ function StatCard({
       </span>
       <p className="mt-4 text-2xl font-bold tracking-tight text-text-primary">{value}</p>
       <p className="mt-0.5 text-sm font-medium text-text-secondary">{label}</p>
-      <p className="mt-0.5 text-xs text-text-secondary/70">{sub}</p>
+      <p className="mt-0.5 text-xs text-text-muted">{sub}</p>
     </motion.div>
   );
 }
@@ -103,7 +103,7 @@ function LogOutcomeModal({
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-overlay/30 backdrop-blur-sm" onClick={onClose} />
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -135,7 +135,7 @@ function LogOutcomeModal({
               >
                 <Star
                   size={26}
-                  className={value <= rating ? 'fill-warning-500 text-warning-500' : 'text-bg-tertiary'}
+                  className={value <= rating ? 'fill-warning text-warning' : 'text-bg-tertiary'}
                 />
               </button>
             );
@@ -146,7 +146,7 @@ function LogOutcomeModal({
           <button
             type="button"
             onClick={() => onSave('completed', rating)}
-            className="focus-ring flex flex-1 items-center justify-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110"
+            className="focus-ring flex flex-1 items-center justify-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-on-cta transition-all hover:brightness-110"
           >
             <Check size={16} /> Review left
           </button>
@@ -267,9 +267,9 @@ export function ReviewsPage() {
 
       {/* Missing Google review link banner */}
       {!loading && !businessProfile?.google_review_url && (
-        <div className="mb-6 flex flex-col items-start gap-3 rounded-2xl border border-warning-500/30 bg-warning-500/5 p-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mb-6 flex flex-col items-start gap-3 rounded-2xl border border-warning/30 bg-warning-subtle p-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-start gap-3">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-warning-500/10 text-warning-500">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-warning-subtle text-warning">
               <LinkIcon size={18} />
             </span>
             <div>
@@ -282,7 +282,7 @@ export function ReviewsPage() {
           <button
             type="button"
             onClick={() => navigate('/dashboard/business-profile')}
-            className="focus-ring flex shrink-0 items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110"
+            className="focus-ring flex shrink-0 items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-on-cta transition-all hover:brightness-110"
           >
             <Settings size={16} /> Set it up
           </button>

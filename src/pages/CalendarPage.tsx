@@ -53,9 +53,9 @@ const DURATION_OPTIONS = [30, 60, 90, 120, 180, 240];
 const TECH_PALETTE: PaletteEntry[] = [
   { bg: 'bg-accent/15', text: 'text-accent' },
   { bg: 'bg-cta/15', text: 'text-cta' },
-  { bg: 'bg-success-500/15', text: 'text-success-500' },
-  { bg: 'bg-warning-500/15', text: 'text-warning-500' },
-  { bg: 'bg-blue-500/15', text: 'text-blue-500' },
+  { bg: 'bg-success-subtle', text: 'text-success' },
+  { bg: 'bg-warning-subtle', text: 'text-warning' },
+  { bg: 'bg-info-subtle', text: 'text-info' },
   { bg: 'bg-danger/15', text: 'text-danger' },
 ];
 
@@ -269,7 +269,7 @@ function ScheduleDrawer({
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="focus-ring flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:brightness-110 disabled:opacity-60"
+            className="focus-ring flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent transition-colors hover:brightness-110 disabled:opacity-60"
           >
             {saving ? 'Saving…' : 'Save Changes'}
           </button>
@@ -638,7 +638,7 @@ export function CalendarPage() {
           <button
             type="button"
             onClick={() => navigate('/dashboard/jobs')}
-            className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:brightness-110 hover:shadow-glow-cta"
+            className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-on-cta shadow-sm transition-all hover:brightness-110 hover:shadow-glow-cta"
           >
             <Plus size={16} /> New Job
           </button>
@@ -747,7 +747,7 @@ export function CalendarPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSelectedJob(null)}
-              className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+              className="fixed inset-0 z-40 bg-overlay/40 backdrop-blur-sm"
             />
             <ScheduleDrawer
               job={selectedJob}

@@ -30,9 +30,9 @@ interface Props {
 }
 
 const STATUS_TONE: Record<GoalRow['progress']['status'], string> = {
-  ahead: 'bg-success-500/10 text-success-500',
+  ahead: 'bg-success-subtle text-success',
   on_track: 'bg-accent/10 text-accent',
-  behind: 'bg-warning-500/10 text-warning-500',
+  behind: 'bg-warning-subtle text-warning',
   unavailable: 'bg-bg-tertiary text-text-secondary',
 };
 
@@ -316,7 +316,7 @@ function GoalIntake({ onClose, onSaved }: { onClose: () => void; onSaved: () => 
       {result && (
         <div className="space-y-4" aria-live="polite">
           {result.warnings.map((w, i) => (
-            <p key={i} className="text-xs text-warning-500">
+            <p key={i} className="text-xs text-warning">
               {w.code === 'fraction_converted'
                 ? t('intake.warn.fraction_converted', { ref: w.ref })
                 : t(`intake.warn.${w.code}`)}

@@ -60,7 +60,7 @@ import {
 
 const CARD = 'rounded-2xl border border-border bg-bg-secondary p-4';
 const FIELD =
-  'w-full rounded-xl border border-border bg-bg-tertiary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60 focus-ring';
+  'w-full rounded-xl border border-border bg-bg-tertiary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder focus-ring';
 const LABEL = 'mb-1 block text-xs font-medium text-text-secondary';
 
 const MAPPING_PLACEHOLDER = `{
@@ -442,7 +442,7 @@ export function DataFabricPage() {
                       </span>
                       <span className="mt-2 block text-sm font-semibold text-text-primary">{d.label}</span>
                       <span className="mt-0.5 block text-[11px] leading-snug text-text-secondary">{d.description}</span>
-                      <span className="mt-1 block text-[10px] text-text-secondary/80">{d.examples}</span>
+                      <span className="mt-1 block text-[10px] text-text-muted">{d.examples}</span>
                     </button>
                   );
                 })}
@@ -480,7 +480,7 @@ export function DataFabricPage() {
                             </div>
                           </div>
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${c.status === 'active' ? 'bg-success/15 text-success' : 'bg-warning-500/15 text-warning-500'}`}>
+                            <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${c.status === 'active' ? 'bg-success/15 text-success' : 'bg-warning-subtle text-warning'}`}>
                               {c.status === 'active' ? 'Active' : 'Paused'}
                             </span>
                             <span className="text-xs text-text-secondary">
@@ -550,7 +550,7 @@ export function DataFabricPage() {
                   {recent.map((r) => (
                     <div key={r.id} className="flex flex-wrap items-center justify-between gap-2 px-3 py-2.5 text-xs">
                       <span className="flex items-center gap-2 text-text-primary">
-                        {r.status === 'applied' ? <CheckCircle2 size={14} className="text-success" /> : <AlertTriangle size={14} className="text-warning-500" />}
+                        {r.status === 'applied' ? <CheckCircle2 size={14} className="text-success" /> : <AlertTriangle size={14} className="text-warning" />}
                         {ENTITY_LABELS[r.entity]} · <code>{r.external_id}</code>
                         <span className="text-text-secondary">from {connById.get(r.connection_id)?.name ?? 'source'}</span>
                       </span>

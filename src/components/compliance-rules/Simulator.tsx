@@ -27,8 +27,8 @@ const INITIAL: SimulatorForm = {
 };
 
 const OUTCOME = {
-  allow: { label: 'Allowed', Icon: CheckCircle2, cls: 'border-success-500/40 bg-success-500/10 text-success-500' },
-  allow_with_actions: { label: 'Allowed — actions required', Icon: AlertTriangle, cls: 'border-warning-500/40 bg-warning-500/10 text-warning-500' },
+  allow: { label: 'Allowed', Icon: CheckCircle2, cls: 'border-success/40 bg-success-subtle text-success' },
+  allow_with_actions: { label: 'Allowed — actions required', Icon: AlertTriangle, cls: 'border-warning/40 bg-warning-subtle text-warning' },
   block: { label: 'Blocked', Icon: XCircle, cls: 'border-danger/40 bg-danger/10 text-danger' },
 } as const;
 
@@ -186,10 +186,10 @@ export function Simulator({ catalog, profile }: { catalog: RuleVersion[]; profil
                   {result.findings.map((fd) => (
                     <li key={fd.versionId} className="rounded-xl border border-border bg-bg-secondary p-3">
                       <div className="flex items-start gap-2">
-                        {fd.status === 'pass' ? <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success-500" aria-label="Passed" />
+                        {fd.status === 'pass' ? <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success" aria-label="Passed" />
                           : fd.status === 'info' ? <Info className="mt-0.5 h-4 w-4 shrink-0 text-text-secondary" aria-label="Info" />
                           : fd.status === 'fail' ? <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-danger" aria-label="Failed" />
-                          : <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning-500" aria-label="Action needed" />}
+                          : <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning" aria-label="Action needed" />}
                         <div className="min-w-0">
                           <p className="text-sm font-medium text-text-primary">{fd.title}</p>
                           <p className="text-sm text-text-secondary">{fd.message}</p>

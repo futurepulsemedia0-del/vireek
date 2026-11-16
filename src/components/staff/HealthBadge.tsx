@@ -1,9 +1,9 @@
 import { BAND_LABELS, type HealthBand } from '@/lib/staffCustomers';
 
 const STYLES: Record<HealthBand, string> = {
-  healthy: 'bg-success-500/10 text-success-500',
-  watch: 'bg-warning-500/10 text-warning-500',
-  at_risk: 'bg-warning-500/15 text-warning-500',
+  healthy: 'bg-success-subtle text-success',
+  watch: 'bg-warning-subtle text-warning',
+  at_risk: 'bg-warning-subtle text-warning',
   critical: 'bg-danger/10 text-danger',
   new: 'bg-accent/10 text-accent',
   churned: 'bg-bg-tertiary text-text-secondary',

@@ -253,8 +253,8 @@ export const REVERSIBILITY_LABELS: Record<Reversibility, string> = {
 };
 
 export const REVERSIBILITY_COLORS: Record<Reversibility, string> = {
-  easy: 'bg-success-500/10 text-success-500',
-  moderate: 'bg-warning-500/10 text-warning-500',
+  easy: 'bg-success-subtle text-success',
+  moderate: 'bg-warning-subtle text-warning',
   hard: 'bg-danger/10 text-danger',
 };
 

@@ -91,7 +91,7 @@ function linkify(text: string, tracked?: Map<string, string>): string {
     html += escapeHtml(text.slice(last, start));
     if (isHttpUrl(url)) {
       const href = tracked?.get(url) ?? url;
-      html += `<a href="${escapeHtml(href)}" style="color:#2563eb">${escapeHtml(url)}</a>${escapeHtml(trail)}`;
+      html += `<a href="${escapeHtml(href)}" style="color:#a93b0f">${escapeHtml(url)}</a>${escapeHtml(trail)}`;
     } else {
       html += escapeHtml(match[0]);
     }
@@ -117,16 +117,16 @@ export function renderEmail(input: RenderInput): RenderedEmail {
 
   const html =
     `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(subject)}</title></head>` +
-    `<body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#18181b">` +
+    `<body style="margin:0;padding:0;background:#faf9f5;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#1c1b15">` +
     (preheader
       ? `<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent">${escapeHtml(preheader)}</div>`
       : "") +
     `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:24px 12px">` +
     `<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:12px">` +
     `<tr><td style="padding:32px 28px;font-size:16px">${paragraphs}</td></tr>` +
-    `<tr><td style="padding:20px 28px;border-top:1px solid #e4e4e7;font-size:12px;line-height:1.5;color:#71717a">` +
+    `<tr><td style="padding:20px 28px;border-top:1px solid #e8e6dc;font-size:12px;line-height:1.5;color:#73726c">` +
     `${company}<br>${address}<br>You received this because you're a customer of ${company}. ` +
-    `<a href="${unsub}" style="color:#71717a">Unsubscribe</a></td></tr>` +
+    `<a href="${unsub}" style="color:#73726c">Unsubscribe</a></td></tr>` +
     `</table></td></tr></table>` +
     (input.openPixelUrl
       ? `<img src="${escapeHtml(input.openPixelUrl)}" width="1" height="1" alt="" style="display:block;border:0">`

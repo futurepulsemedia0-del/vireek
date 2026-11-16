@@ -85,8 +85,8 @@ interface EquipmentOption {
 }
 
 const CONFIDENCE_STYLES = {
-  high: 'bg-success-500/15 text-success-500',
-  moderate: 'bg-warning-500/15 text-warning-500',
+  high: 'bg-success-subtle text-success',
+  moderate: 'bg-warning-subtle text-warning',
   low: 'bg-bg-tertiary text-text-secondary',
 } as const;
 
@@ -112,14 +112,14 @@ function DifferentialBars({ items }: { items: AdnState['decision']['differential
             <span
               className={`flex items-center gap-1 font-medium ${i === 0 ? 'text-text-primary' : 'text-text-secondary'}`}
             >
-              {d.safety_critical && <ShieldAlert size={12} className="text-danger-500" />}
+              {d.safety_critical && <ShieldAlert size={12} className="text-danger" />}
               {d.label}
             </span>
             <span className="tabular-nums text-text-secondary">{pct(d.probability)}</span>
           </div>
           <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-bg-tertiary">
             <div
-              className={`h-full rounded-full transition-all duration-500 ${d.safety_critical ? 'bg-danger-500' : i === 0 ? 'bg-accent' : 'bg-text-secondary/40'}`}
+              className={`h-full rounded-full transition-all duration-500 ${d.safety_critical ? 'bg-danger' : i === 0 ? 'bg-accent' : 'bg-text-secondary/40'}`}
               style={{ width: `${Math.max(d.probability * 100, 1)}%` }}
             />
           </div>
@@ -662,9 +662,9 @@ export function AdaptiveDiagnosticsPage() {
                   {d.hazards.length > 0 && (
                     <div
                       role="alert"
-                      className="mb-4 rounded-xl border border-danger-500/40 bg-danger-500/10 p-4"
+                      className="mb-4 rounded-xl border border-danger/40 bg-danger-subtle p-4"
                     >
-                      <p className="flex items-center gap-2 text-sm font-semibold text-danger-500">
+                      <p className="flex items-center gap-2 text-sm font-semibold text-danger">
                         <AlertTriangle size={16} /> Safety hazard reported - stop work
                       </p>
                       <p className="mt-1 text-xs text-text-primary">
@@ -677,9 +677,9 @@ export function AdaptiveDiagnosticsPage() {
                   {d.hazards.length === 0 && d.safety_alerts.length > 0 && (
                     <div
                       role="alert"
-                      className="mb-4 rounded-xl border border-warning-500/40 bg-warning-500/10 p-3 text-xs text-text-primary"
+                      className="mb-4 rounded-xl border border-warning/40 bg-warning-subtle p-3 text-xs text-text-primary"
                     >
-                      <span className="font-semibold text-warning-500">Safety watch:</span>{' '}
+                      <span className="font-semibold text-warning">Safety watch:</span>{' '}
                       {d.safety_alerts.map((a) => `${a.label} (${pct(a.probability)})`).join(', ')}.
                       Keep safety checks in mind while testing.
                     </div>
@@ -718,7 +718,7 @@ export function AdaptiveDiagnosticsPage() {
                             </p>
                           )}
                           {d.next.test.safety_note && (
-                            <p className="mt-2 flex gap-1.5 text-xs text-warning-500">
+                            <p className="mt-2 flex gap-1.5 text-xs text-warning">
                               <AlertTriangle size={12} className="mt-0.5 shrink-0" />
                               {d.next.test.safety_note}
                             </p>
@@ -731,7 +731,7 @@ export function AdaptiveDiagnosticsPage() {
                                   key={a.key}
                                   disabled={busy}
                                   onClick={() => onAnswer(d.next!.test.key, a.key)}
-                                  className={`w-full rounded-xl border px-3 py-2 text-left text-sm transition hover:border-accent disabled:opacity-50 ${a.hazard ? 'border-danger-500/40 text-danger-500' : 'border-border text-text-primary'} bg-bg-primary`}
+                                  className={`w-full rounded-xl border px-3 py-2 text-left text-sm transition hover:border-accent disabled:opacity-50 ${a.hazard ? 'border-danger/40 text-danger' : 'border-border text-text-primary'} bg-bg-primary`}
                                 >
                                   <span className="block font-medium">{a.label}</span>
                                   {pv && (
@@ -911,7 +911,7 @@ export function AdaptiveDiagnosticsPage() {
                         </>
                       ) : (
                         <p className="flex items-center gap-2 text-sm font-semibold text-text-primary">
-                          <CheckCircle2 size={16} className="text-success-500" /> Verified:{' '}
+                          <CheckCircle2 size={16} className="text-success" /> Verified:{' '}
                           {sess.outcome} - this outcome is now training the network.
                         </p>
                       )}
@@ -950,7 +950,7 @@ export function AdaptiveDiagnosticsPage() {
                               : ''}
                           </span>
                           {s.needs_review && (
-                            <span className="rounded-full bg-warning-500/10 px-2 py-0.5 text-warning-500">
+                            <span className="rounded-full bg-warning-subtle px-2 py-0.5 text-warning">
                               Customer had a repeat job - please review
                             </span>
                           )}
@@ -958,7 +958,7 @@ export function AdaptiveDiagnosticsPage() {
                             <button
                               disabled={busy}
                               onClick={() => onOutcome(s.id, 'success')}
-                              className="rounded-lg bg-success-500/15 px-2.5 py-1 text-success-500"
+                              className="rounded-lg bg-success-subtle px-2.5 py-1 text-success"
                             >
                               Fixed
                             </button>
@@ -1093,21 +1093,21 @@ function OutcomeButtons({
         <button
           disabled={busy}
           onClick={() => onOutcome('success')}
-          className="rounded-xl bg-success-500/15 px-4 py-2 text-sm font-semibold text-success-500 disabled:opacity-50"
+          className="rounded-xl bg-success-subtle px-4 py-2 text-sm font-semibold text-success disabled:opacity-50"
         >
           Fixed
         </button>
         <button
           disabled={busy}
           onClick={() => onOutcome('partial')}
-          className="rounded-xl bg-warning-500/10 px-4 py-2 text-sm font-semibold text-warning-500 disabled:opacity-50"
+          className="rounded-xl bg-warning-subtle px-4 py-2 text-sm font-semibold text-warning disabled:opacity-50"
         >
           Partly fixed
         </button>
         <button
           disabled={busy}
           onClick={() => setNotFixed((v) => !v)}
-          className="rounded-xl bg-danger-500/10 px-4 py-2 text-sm font-semibold text-danger-500 disabled:opacity-50"
+          className="rounded-xl bg-danger-subtle px-4 py-2 text-sm font-semibold text-danger disabled:opacity-50"
         >
           Not fixed
         </button>
@@ -1133,7 +1133,7 @@ function OutcomeButtons({
           <button
             disabled={busy}
             onClick={() => onOutcome('failed', correctedKey || undefined)}
-            className="mt-2 rounded-xl bg-danger-500 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+            className="mt-2 rounded-xl bg-danger px-4 py-2 text-sm font-semibold text-on-danger disabled:opacity-50"
           >
             Record as not fixed
           </button>

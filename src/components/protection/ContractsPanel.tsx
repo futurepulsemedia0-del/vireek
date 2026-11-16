@@ -126,7 +126,7 @@ export function ContractsPanel({
               type="button"
               aria-pressed={filter === f.key}
               onClick={() => setFilter(f.key)}
-              className={`focus-ring rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${filter === f.key ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
+              className={`focus-ring rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${filter === f.key ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
             >
               {f.label} <span className="opacity-70">{counts[f.key]}</span>
             </button>
@@ -202,7 +202,7 @@ export function ContractsPanel({
 
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {c.protection_contract_equipment.length === 0 ? (
-                    <span className="rounded-lg bg-warning-500/10 px-2 py-1 text-xs text-warning-500">No equipment linked</span>
+                    <span className="rounded-lg bg-warning-subtle px-2 py-1 text-xs text-warning">No equipment linked</span>
                   ) : (
                     c.protection_contract_equipment.map((u) => (
                       <span key={u.equipment_id} className="rounded-lg bg-bg-tertiary px-2 py-1 text-xs text-text-primary">

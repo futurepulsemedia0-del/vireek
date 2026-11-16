@@ -105,7 +105,7 @@ export function ForgotPasswordPage() {
             <p className="text-sm text-text-secondary">
               Sent to <span className="font-semibold text-text-primary">{email.trim()}</span>
             </p>
-            <p className="mt-1.5 text-xs leading-relaxed text-text-secondary/70">
+            <p className="mt-1.5 text-xs leading-relaxed text-text-muted">
               The link works even if you open it on a different device or browser than the one you
               requested it from. It expires after a while, so use it soon.
             </p>

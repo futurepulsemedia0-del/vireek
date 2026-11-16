@@ -54,10 +54,10 @@ const fieldCls = 'w-full rounded-md border border-border bg-bg-primary px-2.5 py
 
 function StatusPill({ status }: { status: FindingsPackageRow['status'] }) {
   const tone =
-    status === 'approved' ? 'bg-success-500/10 text-success-500' :
+    status === 'approved' ? 'bg-success-subtle text-success' :
     status === 'partially_approved' ? 'bg-accent/10 text-accent' :
     status === 'declined' ? 'bg-danger/10 text-danger' :
-    status === 'sent' ? 'bg-warning-500/10 text-warning-500' : 'bg-bg-tertiary text-text-secondary';
+    status === 'sent' ? 'bg-warning-subtle text-warning' : 'bg-bg-tertiary text-text-secondary';
   return <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${tone}`}>{STATUS_LABEL[status]}</span>;
 }
 
@@ -114,7 +114,7 @@ function PackageList({ ownerId }: { ownerId: string }) {
           <h1 className="text-2xl font-bold text-text-primary">Findings Packages</h1>
           <p className="text-sm text-text-secondary">Annotated photos → priced findings → one-tap customer approval → job.</p>
         </div>
-        <button type="button" onClick={() => setCreating(true)} className="focus-ring inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-white">
+        <button type="button" onClick={() => setCreating(true)} className="focus-ring inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-on-accent">
           <Plus size={16} /> New package
         </button>
       </div>
@@ -208,7 +208,7 @@ function CreateDialog({ ownerId, onClose, onCreated }: { ownerId: string; onClos
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-label="New findings package">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-overlay/50 p-0 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-label="New findings package">
       <div className="flex max-h-[92vh] w-full max-w-2xl flex-col rounded-t-2xl bg-bg-secondary shadow-xl sm:rounded-2xl">
         <div className="border-b border-border p-4">
           <h2 className="text-lg font-semibold text-text-primary">{jobId ? 'Choose the photos to include' : 'Choose a job'}</h2>
@@ -244,8 +244,8 @@ function CreateDialog({ ownerId, onClose, onCreated }: { ownerId: string; onClos
                   <li key={p.id}>
                     <button type="button" aria-pressed={on} onClick={() => setPicked((prev) => (on ? prev.filter((x) => x !== p.id) : prev.length >= 30 ? prev : [...prev, p.id]))} className={`focus-ring relative block aspect-square w-full overflow-hidden rounded-lg border-2 ${on ? 'border-accent' : 'border-transparent'}`}>
                       {p.url ? <img src={p.url} alt={p.caption ?? 'Job photo'} loading="lazy" className="h-full w-full object-cover" /> : <span className="flex h-full items-center justify-center bg-bg-tertiary text-xs text-text-secondary">Unavailable</span>}
-                      {p.annotations.length > 0 && <span className="absolute left-1 top-1 rounded bg-danger px-1.5 text-[10px] font-medium text-white">{p.annotations.length} pin{p.annotations.length === 1 ? '' : 's'}</span>}
-                      {on && <span className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-white"><Check size={12} /></span>}
+                      {p.annotations.length > 0 && <span className="absolute left-1 top-1 rounded bg-danger px-1.5 text-[10px] font-medium text-on-danger">{p.annotations.length} pin{p.annotations.length === 1 ? '' : 's'}</span>}
+                      {on && <span className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-on-accent"><Check size={12} /></span>}
                     </button>
                   </li>
                 );
@@ -256,7 +256,7 @@ function CreateDialog({ ownerId, onClose, onCreated }: { ownerId: string; onClos
         <div className="flex items-center justify-between gap-2 border-t border-border p-4">
           <button type="button" onClick={jobId ? () => setJobId(null) : onClose} className="focus-ring rounded-lg border border-border px-4 py-2 text-sm text-text-secondary">{jobId ? 'Back' : 'Cancel'}</button>
           {jobId && (
-            <button type="button" disabled={picked.length === 0 || busy} onClick={create} className="focus-ring inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-50">
+            <button type="button" disabled={picked.length === 0 || busy} onClick={create} className="focus-ring inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-on-accent disabled:opacity-50">
               {busy && <Loader2 size={14} className="animate-spin" />} Create with {picked.length} photo{picked.length === 1 ? '' : 's'}
             </button>
           )}
@@ -406,8 +406,8 @@ function PackageBuilder({ ownerId, id, canSend }: { ownerId: string; id: string;
       {!draft && (
         <section className="mb-6 rounded-2xl border border-border bg-bg-secondary p-4 sm:p-5" aria-label="Customer link and outcome">
           {(pkg.status === 'approved' || pkg.status === 'partially_approved') && (
-            <div className="mb-4 flex flex-col gap-2 rounded-xl bg-success-500/10 p-3 sm:flex-row sm:items-center sm:justify-between">
-              <p className="flex items-center gap-2 text-sm font-medium text-success-500"><CheckCircle2 size={16} /> {formatMoney(pkg.approved_total_cents)} approved{pkg.approver_name ? ` by ${pkg.approver_name}` : ''} on {formatDate(pkg.responded_at)}</p>
+            <div className="mb-4 flex flex-col gap-2 rounded-xl bg-success-subtle p-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="flex items-center gap-2 text-sm font-medium text-success"><CheckCircle2 size={16} /> {formatMoney(pkg.approved_total_cents)} approved{pkg.approver_name ? ` by ${pkg.approver_name}` : ''} on {formatDate(pkg.responded_at)}</p>
               {pkg.converted_job_id && <Link to={`/dashboard/jobs/${pkg.converted_job_id}`} className="focus-ring inline-flex items-center gap-1 rounded text-sm font-medium text-accent">Open the new job <ExternalLink size={13} /></Link>}
             </div>
           )}
@@ -472,7 +472,7 @@ function PackageBuilder({ ownerId, id, canSend }: { ownerId: string; id: string;
       {draft && (
         <section className="mt-8 rounded-2xl border border-border bg-bg-secondary p-4 sm:p-5" aria-label="Send to customer">
           {errors.length > 0 && (
-            <ul role="status" className="mb-4 list-disc space-y-1 pl-5 text-sm text-warning-500">
+            <ul role="status" className="mb-4 list-disc space-y-1 pl-5 text-sm text-warning">
               {errors.map((e) => <li key={e}>{e}</li>)}
             </ul>
           )}
@@ -485,7 +485,7 @@ function PackageBuilder({ ownerId, id, canSend }: { ownerId: string; id: string;
             </div>
             <div className="flex gap-2">
               <button type="button" onClick={() => setConfirmDelete(true)} className="focus-ring inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm text-text-secondary hover:text-danger"><Trash2 size={14} /> Delete draft</button>
-              <button type="button" onClick={send} disabled={errors.length > 0 || busy === 'send' || !canSend} title={!canSend ? 'You need job visibility permission to send prices to customers.' : undefined} className="focus-ring inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-50">
+              <button type="button" onClick={send} disabled={errors.length > 0 || busy === 'send' || !canSend} title={!canSend ? 'You need job visibility permission to send prices to customers.' : undefined} className="focus-ring inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-on-accent disabled:opacity-50">
                 {busy === 'send' ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />} Send to customer
               </button>
             </div>
@@ -495,7 +495,7 @@ function PackageBuilder({ ownerId, id, canSend }: { ownerId: string; id: string;
       )}
 
       {addingPhotos && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-label="Add photos">
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-overlay/50 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-label="Add photos">
           <div className="max-h-[85vh] w-full max-w-xl overflow-y-auto rounded-t-2xl bg-bg-secondary p-4 sm:rounded-2xl">
             <h2 className="mb-3 text-lg font-semibold text-text-primary">Add a photo as a finding</h2>
             {addingPhotos.length === 0 ? <p className="py-6 text-center text-sm text-text-secondary">Every photo from this job is already in the package.</p> : (

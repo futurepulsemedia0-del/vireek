@@ -126,7 +126,7 @@ function ProbabilityBar({ value, critical }: { value: number; critical?: boolean
   return (
     <div className="flex items-center gap-2" aria-label={`Failure probability ${pct}%`}>
       <div className="h-2 w-28 overflow-hidden rounded-full bg-bg-tertiary">
-        <div className={`h-full rounded-full ${critical ? 'bg-danger-500' : 'bg-warning-500'}`} style={{ width: `${pct}%` }} />
+        <div className={`h-full rounded-full ${critical ? 'bg-danger' : 'bg-warning'}`} style={{ width: `${pct}%` }} />
       </div>
       <span className="text-sm font-bold text-text-primary">{pct}%</span>
     </div>
@@ -198,7 +198,7 @@ function MissionCard({ m, onChanged }: { m: PioMission; onChanged: () => void })
         )}
       </div>
 
-      {m.blocked_reason && <p className="mt-2 rounded-lg bg-warning-500/10 px-3 py-2 text-xs text-warning-500">{m.blocked_reason}</p>}
+      {m.blocked_reason && <p className="mt-2 rounded-lg bg-warning-subtle px-3 py-2 text-xs text-warning">{m.blocked_reason}</p>}
 
       {(canDismiss || needsOutcome) && (
         <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -224,7 +224,7 @@ function MissionCard({ m, onChanged }: { m: PioMission; onChanged: () => void })
         </div>
       )}
       {m.outcome && (
-        <p className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-success-500">
+        <p className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-success">
           <CheckCircle2 size={12} /> Outcome recorded: {m.outcome.replace('_', ' ')}
         </p>
       )}
@@ -326,7 +326,7 @@ function DevicesPanel({ devices, onChanged }: { devices: PioDevice[]; onChanged:
           {created ? (
             <div className="space-y-3">
               <p className="text-sm font-semibold text-text-primary">Sensor registered — copy its key now.</p>
-              <p className="text-xs text-warning-500">This key is shown only once. If you lose it, revoke the sensor and register a new one.</p>
+              <p className="text-xs text-warning">This key is shown only once. If you lose it, revoke the sensor and register a new one.</p>
               <div className="flex items-center gap-2">
                 <code className="min-w-0 flex-1 overflow-x-auto rounded-lg bg-bg-tertiary px-3 py-2 text-xs text-text-primary">{created.api_key}</code>
                 <Button size="sm" variant="secondary" onClick={() => copy(created.api_key)} aria-label="Copy API key"><Copy size={14} /></Button>
@@ -369,7 +369,7 @@ function DevicesPanel({ devices, onChanged }: { devices: PioDevice[]; onChanged:
             <Card key={d.id} className="!p-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <span className={`flex h-9 w-9 items-center justify-center rounded-xl ${online ? 'bg-success-500/10 text-success-500' : 'bg-bg-tertiary text-text-secondary'}`}>
+                  <span className={`flex h-9 w-9 items-center justify-center rounded-xl ${online ? 'bg-success-subtle text-success' : 'bg-bg-tertiary text-text-secondary'}`}>
                     {online ? <Wifi size={18} /> : <WifiOff size={18} />}
                   </span>
                   <div>
@@ -382,7 +382,7 @@ function DevicesPanel({ devices, onChanged }: { devices: PioDevice[]; onChanged:
                 </div>
                 <div className="flex items-center gap-2">
                   {d.battery_pct !== null && (
-                    <span className={`inline-flex items-center gap-1 text-xs ${d.battery_pct <= 15 ? 'text-danger-500' : 'text-text-secondary'}`}>
+                    <span className={`inline-flex items-center gap-1 text-xs ${d.battery_pct <= 15 ? 'text-danger' : 'text-text-secondary'}`}>
                       <BatteryLow size={13} /> {d.battery_pct}%
                     </span>
                   )}
@@ -565,8 +565,8 @@ export function PropertyIntelligencePage() {
 // =====================================================================================
 
 const SEVERITY_STYLES: Record<Insight['severity'], string> = {
-  high: 'bg-danger-500/10 text-danger-500',
-  medium: 'bg-warning-500/10 text-warning-500',
+  high: 'bg-danger-subtle text-danger',
+  medium: 'bg-warning-subtle text-warning',
   low: 'bg-bg-tertiary text-text-secondary',
 };
 
@@ -595,10 +595,10 @@ function Provenance({ layer }: { layer: IntelLayer | undefined }) {
   if (!layer) return null;
   const tone =
     layer.status === 'ok' || layer.status === 'manual'
-      ? 'bg-success-500/10 text-success-500'
+      ? 'bg-success-subtle text-success'
       : layer.status === 'partial'
-        ? 'bg-warning-500/10 text-warning-500'
-        : 'bg-danger-500/10 text-danger-500';
+        ? 'bg-warning-subtle text-warning'
+        : 'bg-danger-subtle text-danger';
   return (
     <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-border pt-3 text-[11px] text-text-secondary">
       <span className={`rounded-full px-2 py-0.5 font-medium ${tone}`}>{layer.status === 'manual' ? 'verified by you' : layer.status}</span>

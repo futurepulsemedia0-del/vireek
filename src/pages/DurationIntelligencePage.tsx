@@ -53,7 +53,7 @@ const TD = 'px-3 py-2 text-sm tabular-nums text-text-primary';
 
 const SEVERITY_STYLE: Record<'info' | 'warning' | 'critical', string> = {
   info: 'border-border bg-bg-primary text-text-primary',
-  warning: 'border-amber-500/40 bg-amber-500/5 text-text-primary',
+  warning: 'border-warning/40 bg-warning-subtle text-text-primary',
   critical: 'border-danger/40 bg-danger/5 text-text-primary',
 };
 
@@ -68,7 +68,7 @@ const fmtSigned = (v: number) => `${v >= 0 ? '+' : ''}${Math.round(v)}%`;
 const fmtDateTime = (iso: string | null) => (iso ? new Date(iso).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '—');
 
 function Stat({ label, value, hint, tone }: { label: string; value: string; hint?: string; tone?: 'ok' | 'warn' | 'bad' }) {
-  const color = tone === 'bad' ? 'text-danger' : tone === 'warn' ? 'text-amber-500' : 'text-text-primary';
+  const color = tone === 'bad' ? 'text-danger' : tone === 'warn' ? 'text-warning' : 'text-text-primary';
   return (
     <div className="rounded-xl border border-border bg-bg-primary p-4">
       <p className="text-xs font-medium text-text-secondary">{label}</p>
@@ -114,8 +114,8 @@ function PredictedActualChart({ points }: { points: Point[] }) {
       <line x1={x(0)} y1={y(0)} x2={x(max)} y2={y(max)} stroke="currentColor" className="text-text-secondary" strokeDasharray="4 4" strokeWidth={1} />
       {shown.map((p, i) => (
         <g key={i}>
-          <line x1={x(p.predicted)} x2={x(p.predicted)} y1={y(p.low)} y2={y(p.high)} stroke="currentColor" className={p.within ? 'text-success' : 'text-amber-500'} strokeOpacity={0.35} strokeWidth={2} />
-          <circle cx={x(p.predicted)} cy={y(p.actual)} r={3.2} className={p.within ? 'fill-success' : 'fill-amber-500'} />
+          <line x1={x(p.predicted)} x2={x(p.predicted)} y1={y(p.low)} y2={y(p.high)} stroke="currentColor" className={p.within ? 'text-success' : 'text-warning'} strokeOpacity={0.35} strokeWidth={2} />
+          <circle cx={x(p.predicted)} cy={y(p.actual)} r={3.2} className={p.within ? 'fill-success' : 'fill-warning'} />
         </g>
       ))}
       <text x={(W + pad.l) / 2} y={H - 4} textAnchor="middle" className="fill-text-secondary" fontSize={11}>Predicted minutes (P50)</text>
@@ -298,7 +298,7 @@ export function DurationIntelligencePage() {
               {report?.status === 'drifting' ? (
                 <ShieldAlert size={18} className="text-danger" aria-hidden="true" />
               ) : report?.status === 'watch' ? (
-                <AlertTriangle size={18} className="text-amber-500" aria-hidden="true" />
+                <AlertTriangle size={18} className="text-warning" aria-hidden="true" />
               ) : (
                 <CheckCircle2 size={18} className="text-success" aria-hidden="true" />
               )}
@@ -354,7 +354,7 @@ export function DurationIntelligencePage() {
                   aria-pressed={view === 'asMade'}
                   disabled={storedRecords.length < 10}
                   onClick={() => setView('asMade')}
-                  className={`focus-ring rounded-lg px-3 py-1 text-xs font-medium disabled:opacity-40 ${view === 'asMade' && storedRecords.length >= 10 ? 'bg-accent text-white' : 'text-text-secondary'}`}
+                  className={`focus-ring rounded-lg px-3 py-1 text-xs font-medium disabled:opacity-40 ${view === 'asMade' && storedRecords.length >= 10 ? 'bg-accent text-on-accent' : 'text-text-secondary'}`}
                 >
                   As predicted at the time ({storedRecords.length})
                 </button>
@@ -362,7 +362,7 @@ export function DurationIntelligencePage() {
                   type="button"
                   aria-pressed={view === 'backtest'}
                   onClick={() => setView('backtest')}
-                  className={`focus-ring rounded-lg px-3 py-1 text-xs font-medium ${view === 'backtest' || storedRecords.length < 10 ? 'bg-accent text-white' : 'text-text-secondary'}`}
+                  className={`focus-ring rounded-lg px-3 py-1 text-xs font-medium ${view === 'backtest' || storedRecords.length < 10 ? 'bg-accent text-on-accent' : 'text-text-secondary'}`}
                 >
                   Walk-forward backtest ({backtest.length})
                 </button>
@@ -406,7 +406,7 @@ export function DurationIntelligencePage() {
                             <span className="block text-xs text-text-secondary">{job.service_type ?? 'Unspecified'}</span>
                           </td>
                           <td className="px-3 py-2 text-sm text-text-primary">{job.assigned_technician_id ? (techNames[job.assigned_technician_id] ?? 'Technician') : 'Unassigned'}</td>
-                          <td className={`${TD} ${short ? 'text-amber-500' : ''}`}>{booked !== null ? formatMinutes(booked) : '—'}</td>
+                          <td className={`${TD} ${short ? 'text-warning' : ''}`}>{booked !== null ? formatMinutes(booked) : '—'}</td>
                           <td className={TD}>
                             {p.source === 'prior' ? <span className="text-text-secondary">Learning · {formatMinutes(p.existing.minutes)}</span> : `${formatMinutes(p.minutes)} (${formatRange(p.low, p.high)})`}
                           </td>

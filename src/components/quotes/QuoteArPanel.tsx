@@ -48,8 +48,8 @@ const SELECT =
   'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-3 text-base text-text-primary focus-visible:border-accent disabled:opacity-50';
 const TONE: Record<ArTone, string> = {
   neutral: 'bg-bg-tertiary text-text-secondary',
-  warning: 'bg-warning-500/10 text-warning-500',
-  success: 'bg-success-500/10 text-success-500',
+  warning: 'bg-warning-subtle text-warning',
+  success: 'bg-success-subtle text-success',
 };
 
 interface Props {
@@ -152,7 +152,7 @@ function UploadForm({ ownerId, onDone, onCancel }: { ownerId: string; onDone: ()
                 type="button"
                 aria-pressed={unit === u}
                 onClick={() => setUnit(u)}
-                className={`focus-ring min-h-[36px] px-3 text-xs font-medium ${unit === u ? 'bg-accent text-white' : 'text-text-secondary'}`}
+                className={`focus-ring min-h-[36px] px-3 text-xs font-medium ${unit === u ? 'bg-accent text-on-accent' : 'text-text-secondary'}`}
               >
                 {u === 'in' ? 'in' : 'cm'}
               </button>
@@ -473,7 +473,7 @@ export function QuoteArPanel({ quoteId, quoteStatus, rawOptions, customerName }:
                       <p className="text-xs text-text-secondary">{formatDimensions(modelDimensions(m), 'in')}</p>
                       {result && result !== 'unavailable' ? (
                         <p
-                          className={`mt-1 flex items-center gap-1.5 text-xs font-medium ${result.ok ? 'text-success-500' : 'text-warning-500'}`}
+                          className={`mt-1 flex items-center gap-1.5 text-xs font-medium ${result.ok ? 'text-success' : 'text-warning'}`}
                         >
                           {result.ok ? <CheckCircle2 size={12} aria-hidden="true" /> : <TriangleAlert size={12} aria-hidden="true" />}
                           {result.ok

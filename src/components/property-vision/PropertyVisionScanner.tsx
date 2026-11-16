@@ -91,7 +91,7 @@ export function PropertyVisionScanner({ scope, assetId = null, assetLabel = null
             <li key={p.id} className="relative aspect-square overflow-hidden rounded-xl border border-border bg-bg-tertiary">
               <img src={p.url} alt="Selected equipment" className="h-full w-full object-cover" />
               {!busy && (
-                <button type="button" onClick={() => remove(p.id)} aria-label="Remove photo" className="focus-ring absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white">
+                <button type="button" onClick={() => remove(p.id)} aria-label="Remove photo" className="focus-ring absolute right-1 top-1 rounded-full bg-overlay/60 p-1 text-white">
                   <X size={12} />
                 </button>
               )}

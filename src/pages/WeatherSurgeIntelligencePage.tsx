@@ -36,7 +36,7 @@ import {
 } from '@/lib/weatherSurge';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder transition-colors';
 
 function eventIcon(eventType: string) {
   if (eventType.includes('Heat')) return Flame;
@@ -77,11 +77,11 @@ function EventRow({ event }: { event: WeatherSurgeEvent }) {
             </span>
           )}
           {event.resolved_at && (
-            <span className="rounded-full bg-success-500/10 px-2 py-0.5 text-[10px] font-medium text-success-500">Resolved</span>
+            <span className="rounded-full bg-success-subtle px-2 py-0.5 text-[10px] font-medium text-success">Resolved</span>
           )}
         </div>
         {event.headline && <p className="mt-1 text-xs leading-relaxed text-text-secondary">{event.headline}</p>}
-        <p className="mt-1 text-xs text-text-secondary/70">{relativeTime(event.created_at)}</p>
+        <p className="mt-1 text-xs text-text-muted">{relativeTime(event.created_at)}</p>
       </div>
     </div>
   );
@@ -254,7 +254,7 @@ export function WeatherSurgeIntelligencePage() {
               }`}
             >
               <span
-                className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
+                className={`absolute top-0.5 h-5 w-5 rounded-full bg-bg-secondary shadow-sm transition-transform ${
                   settings?.weather_surge_enabled ? 'translate-x-[22px]' : 'translate-x-0.5'
                 }`}
               />
@@ -306,7 +306,7 @@ export function WeatherSurgeIntelligencePage() {
         <h2 className="mb-3 text-sm font-semibold text-text-primary">Alert history</h2>
         {history.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border py-10 text-center">
-            <Power className="mx-auto mb-2 h-6 w-6 text-text-secondary/50" />
+            <Power className="mx-auto mb-2 h-6 w-6 text-graphic-muted" />
             <p className="text-sm text-text-secondary">No weather alerts recorded yet.</p>
           </div>
         ) : (
@@ -317,7 +317,7 @@ export function WeatherSurgeIntelligencePage() {
           </div>
         )}
 
-        <p className="mt-6 flex items-center gap-1.5 text-xs text-text-secondary/70">
+        <p className="mt-6 flex items-center gap-1.5 text-xs text-text-muted">
           <CheckCircle2 size={12} />
           Powered by the National Weather Service's public alerts API. Only alerts relevant to your trade
           trigger Surge Mode — everything else is logged here for reference only.

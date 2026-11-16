@@ -13,13 +13,13 @@ const PAGE = 20;
 
 const DOT_CLASS: Record<FeedKind, string> = {
   created: 'bg-accent',
-  completed: 'bg-success-500',
-  rescheduled: 'bg-warning-500',
-  eta: 'bg-blue-500',
-  signed: 'bg-success-500',
-  invoice_sent: 'bg-blue-500',
-  invoice_viewed: 'bg-blue-500',
-  invoice_paid: 'bg-success-500',
+  completed: 'bg-success',
+  rescheduled: 'bg-warning',
+  eta: 'bg-info',
+  signed: 'bg-success',
+  invoice_sent: 'bg-info',
+  invoice_viewed: 'bg-info',
+  invoice_paid: 'bg-success',
   note: 'bg-accent',
   other: 'bg-text-secondary',
 };

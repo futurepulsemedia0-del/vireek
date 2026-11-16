@@ -86,7 +86,7 @@ export function InviteAcceptPage() {
 
           {invite && invite.invite_status === 'active' && (
             <div className="text-center">
-              <CheckCircle2 size={28} className="mx-auto mb-3 text-success-500" />
+              <CheckCircle2 size={28} className="mx-auto mb-3 text-success" />
               <h1 className="text-lg font-semibold text-text-primary">Already accepted</h1>
               <p className="mt-2 text-sm text-text-secondary">
                 This invite has already been accepted.{' '}
@@ -100,7 +100,7 @@ export function InviteAcceptPage() {
 
           {invite && invite.invite_status === 'pending' && invite.is_expired && (
             <div className="text-center">
-              <AlertCircle size={28} className="mx-auto mb-3 text-warning-500" />
+              <AlertCircle size={28} className="mx-auto mb-3 text-warning" />
               <h1 className="text-lg font-semibold text-text-primary">This invite has expired</h1>
               <p className="mt-2 text-sm text-text-secondary">
                 Ask {invite.inviter_name ?? 'the account owner'} to send you a new invite from the Team page.

@@ -135,7 +135,7 @@ export const PARTNER_TYPE_LABELS: Record<PartnerType, string> = {
 export const PARTNER_TYPES = Object.keys(PARTNER_TYPE_LABELS) as PartnerType[];
 
 export const GRADE_META: Record<Grade, { label: string; className: string; description: string }> = {
-  A: { label: 'Grade A', className: 'bg-success-500/10 text-success-500', description: '25+ businesses, 500+ jobs, at least half backed by photo/measurement/test evidence' },
+  A: { label: 'Grade A', className: 'bg-success-subtle text-success', description: '25+ businesses, 500+ jobs, at least half backed by photo/measurement/test evidence' },
   B: { label: 'Grade B', className: 'bg-accent/10 text-accent', description: '10+ businesses and 100+ jobs' },
   C: { label: 'Grade C', className: 'bg-bg-tertiary text-text-secondary', description: 'Meets the privacy floor (5+ businesses, 30+ jobs); treat as directional' },
 };

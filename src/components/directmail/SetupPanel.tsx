@@ -80,7 +80,7 @@ export function SetupPanel({ settings, onChange, onReload }: Props) {
             <p className="mt-1 text-xs text-text-secondary">Postcards are printed and mailed by Lob using your own account, so costs appear on your Lob invoice.</p>
           </div>
           {settings.configured ? (
-            <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${settings.api_mode === 'live' ? 'bg-success/10 text-success' : 'bg-warning-500/10 text-warning-500'}`}>
+            <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${settings.api_mode === 'live' ? 'bg-success/10 text-success' : 'bg-warning-subtle text-warning'}`}>
               {settings.api_mode === 'live' ? 'Live' : 'Test mode'} · …{settings.api_key_last4}
             </span>
           ) : (
@@ -89,8 +89,8 @@ export function SetupPanel({ settings, onChange, onReload }: Props) {
         </div>
 
         {settings.configured && settings.api_mode === 'test' && (
-          <div className="mt-4 flex items-start gap-2 rounded-xl border border-warning-500/30 bg-warning-500/5 p-3 text-xs text-text-secondary">
-            <AlertTriangle size={14} className="mt-0.5 shrink-0 text-warning-500" />
+          <div className="mt-4 flex items-start gap-2 rounded-xl border border-warning/30 bg-warning-subtle p-3 text-xs text-text-secondary">
+            <AlertTriangle size={14} className="mt-0.5 shrink-0 text-warning" />
             <span>Test keys create PDF proofs only — nothing is printed or mailed and nothing is charged. Connect your <code>live_</code> key to mail real postcards.</span>
           </div>
         )}
@@ -125,7 +125,7 @@ export function SetupPanel({ settings, onChange, onReload }: Props) {
             <Button size="sm" variant="secondary" onClick={() => setConfirmRotate(true)} disabled={!settings.configured || busy !== null}><RefreshCw size={14} /> New URL</Button>
           </div>
         </div>
-        <p className="mt-2 text-xs text-text-secondary">Signing secret: {settings.webhook_secret_set ? <span className="text-success">saved</span> : <span className="text-warning-500">not set — delivery status will not update</span>}</p>
+        <p className="mt-2 text-xs text-text-secondary">Signing secret: {settings.webhook_secret_set ? <span className="text-success">saved</span> : <span className="text-warning">not set — delivery status will not update</span>}</p>
         {settings.configured && !settings.webhook_secret_set && (
           <div className="mt-3 flex flex-col gap-2 sm:flex-row">
             <Input label="Webhook signing secret" type="password" autoComplete="off" value={secret} onChange={(e) => setSecret(e.target.value)} />

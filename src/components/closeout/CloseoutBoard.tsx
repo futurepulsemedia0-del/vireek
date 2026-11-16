@@ -12,7 +12,7 @@ export type RiskFilter = 'all' | 'overdue' | 'critical' | 'at_risk' | 'blocked';
 export const RISK_STYLE: Record<RiskLevel, string> = {
   overdue: 'bg-danger/15 text-danger',
   critical: 'bg-danger/10 text-danger',
-  at_risk: 'bg-warning-500/15 text-warning-500',
+  at_risk: 'bg-warning-subtle text-warning',
   on_track: 'bg-success/10 text-success',
   no_deadline: 'bg-bg-tertiary text-text-secondary',
   done: 'bg-success/10 text-success',
@@ -109,7 +109,7 @@ export function CloseoutBoard({ steps, evidenceByStep, today, settings, filter, 
                       {(missing.length > 0 || gated || !s.closeout_programs) && (
                         <div className="mt-2 space-y-1 text-[11px]">
                           {gated && <p className="flex items-center gap-1 text-danger"><ShieldAlert size={12} />Pre-approval blocks job start</p>}
-                          {missing.length > 0 && <p className="flex items-center gap-1 text-warning-500"><FileWarning size={12} />{missing.length} item(s) missing</p>}
+                          {missing.length > 0 && <p className="flex items-center gap-1 text-warning"><FileWarning size={12} />{missing.length} item(s) missing</p>}
                           {!s.closeout_programs && <p className="flex items-center gap-1 text-text-secondary"><AlertTriangle size={12} />No rule — deadline unknown</p>}
                         </div>
                       )}

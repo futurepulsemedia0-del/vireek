@@ -61,7 +61,7 @@ export function StateOfCallsReportPage() {
     <>
       <Header />
       <main id="main" className="mx-auto max-w-4xl px-4 py-10">
-        {doc.synthetic && <div role="alert" className="mb-6 rounded-lg border-2 border-red-600 bg-red-50 p-4 text-sm font-semibold text-red-800">{doc.notice}</div>}
+        {doc.synthetic && <div role="alert" className="mb-6 rounded-lg border-2 border-danger bg-danger-subtle p-4 text-sm font-semibold text-danger-strong">{doc.notice}</div>}
         <h1 className="text-3xl font-bold text-text-primary">{doc.title}</h1>
         <p className="mt-2 text-sm text-text-secondary">Period {doc.period_start} to {doc.period_end} · data as of {doc.as_of.slice(0, 10)} · method v{doc.method_version} · integrity hash {doc.cells_hash.slice(0, 12)}</p>
         <p className="mt-3 text-sm text-text-secondary">Built from anonymized statistics contributed by Vireek customers who opted in. Every figure reflects at least {doc.thresholds.k_min} businesses; smaller groups are withheld.</p>
@@ -87,7 +87,7 @@ export function StateOfCallsReportPage() {
               <ul className="mt-3 space-y-2" aria-label={`${metricDef?.label} by ${DIM_LABEL[activeDim]}`}>{rows.map((r) => (
                 <li key={`${r.dim}-${r.dim_value}`} className="flex items-center gap-3 text-sm"><span className="w-32 shrink-0 capitalize">{r.dim_value.replace(/[-_]/g, ' ')}</span>
                   {r.suppressed ? <span className="text-text-secondary">Withheld — too few businesses to publish safely</span> : <>
-                    <span aria-hidden="true" className="h-4 rounded bg-blue-700" style={{ width: `${Math.max(2, ((r.value ?? 0) / max) * 60)}%` }} />
+                    <span aria-hidden="true" className="h-4 rounded bg-info-strong" style={{ width: `${Math.max(2, ((r.value ?? 0) / max) * 60)}%` }} />
                     <span className="font-semibold">{formatValue(r)}</span><span className="text-xs text-text-secondary">~{r.n_orgs} businesses</span></>}</li>))}</ul>
               <details className="mt-3"><summary className="cursor-pointer text-sm">Data table</summary>
                 <table className="mt-2 w-full text-left text-sm"><thead><tr><th scope="col">Group</th><th scope="col">Value</th><th scope="col">Middle half</th><th scope="col">Businesses</th><th scope="col">{metricDef?.event_label}</th></tr></thead>

@@ -49,7 +49,7 @@ export function TagAssignDialog({ token, onClose, onDone }: { token: string; onC
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true" aria-labelledby="tag-assign-title">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/50 p-4" role="dialog" aria-modal="true" aria-labelledby="tag-assign-title">
       <div className="flex max-h-[85vh] w-full max-w-lg flex-col rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
         <div className="mb-3 flex items-start justify-between gap-3">
           <div>

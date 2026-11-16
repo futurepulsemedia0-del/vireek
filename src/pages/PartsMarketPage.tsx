@@ -71,16 +71,16 @@ const TABS: { key: TabKey; label: string }[] = [
 ];
 
 const VERDICT_STYLES: Record<Verdict, string> = {
-  buy: 'bg-sky-100 text-sky-800 dark:bg-sky-500/10 dark:text-sky-400',
-  borrow: 'bg-violet-100 text-violet-800 dark:bg-violet-500/10 dark:text-violet-400',
-  internal: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400',
-  none: 'bg-rose-100 text-rose-800 dark:bg-rose-500/10 dark:text-rose-400',
+  buy: 'bg-info-subtle text-info-strong',
+  borrow: 'bg-accent-subtle text-accent-strong',
+  internal: 'bg-success-subtle text-success-strong',
+  none: 'bg-danger-subtle text-danger-strong',
 };
 
 const fieldClass =
   'w-full rounded-xl border border-border bg-bg-secondary px-3 py-2 text-sm text-text-primary focus-ring';
 const primaryBtn =
-  'focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-semibold text-white disabled:opacity-40';
+  'focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-semibold text-on-accent disabled:opacity-40';
 const secondaryBtn =
   'focus-ring flex items-center gap-1.5 rounded-xl border border-border px-3 py-2 text-xs font-medium text-text-secondary hover:text-text-primary disabled:opacity-40';
 
@@ -110,7 +110,7 @@ function ModalShell({
 }) {
   return (
     <div
-      className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[80] flex items-center justify-center bg-overlay/40 p-4 backdrop-blur-sm"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -392,7 +392,7 @@ function ConfirmModal({
         </p>
         <p>{consequence[option.action]}</p>
         {isOverride && (
-          <p className="rounded-xl bg-amber-100 p-2 text-xs text-amber-800 dark:bg-amber-500/10 dark:text-amber-400">
+          <p className="rounded-xl bg-warning-subtle p-2 text-xs text-warning-strong">
             This differs from the engine’s recommendation and will be logged as an override.
           </p>
         )}
@@ -585,7 +585,7 @@ export function PartsMarketPage() {
           </div>
           <div className="flex items-center gap-2">
             <span className="flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-[11px] text-text-secondary">
-              <Radio size={12} className="text-emerald-500" />
+              <Radio size={12} className="text-success" />
               Live{updatedAt ? ` · ${updatedAt.toLocaleTimeString()}` : ''}
             </span>
             <button type="button" className={secondaryBtn} onClick={() => setTick((t) => t + 1)} disabled={inputLoading}>
@@ -820,14 +820,14 @@ export function PartsMarketPage() {
                                   <p className="font-semibold text-text-primary">{o.label}</p>
                                   <p className="text-text-secondary">{OPTION_KIND_LABELS[o.kind]}</p>
                                   {o.flags.map((f) => (
-                                    <p key={f} className="text-[11px] text-amber-700 dark:text-amber-400">
+                                    <p key={f} className="text-[11px] text-warning-strong">
                                       {f}
                                     </p>
                                   ))}
                                 </td>
                                 <td className="px-3 py-2 text-text-secondary">
                                   {o.partName}
-                                  {o.isSubstitute && <span className="ml-1 rounded bg-slate-100 px-1 text-[10px] dark:bg-slate-500/10">SUB</span>}
+                                  {o.isSubstitute && <span className="ml-1 rounded bg-bg-tertiary px-1 text-[10px]">SUB</span>}
                                 </td>
                                 <td className="px-3 py-2">{formatCents(o.unitPriceCents)}</td>
                                 <td className="px-3 py-2">{o.quantityAvailable}</td>
@@ -838,7 +838,7 @@ export function PartsMarketPage() {
                                 </td>
                                 <td className="px-3 py-2">{Math.round(o.onTimeProbability * 100)}%</td>
                                 <td className="px-3 py-2 font-semibold text-text-primary">{formatCents(o.expectedTotalCostCents)}</td>
-                                <td className={`px-3 py-2 ${o.marginErosionCents > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                                <td className={`px-3 py-2 ${o.marginErosionCents > 0 ? 'text-danger' : 'text-success'}`}>
                                   {formatCents(o.marginErosionCents)}
                                 </td>
                                 <td className="px-3 py-2 text-text-secondary">{formatAge(o.freshnessMinutes)}</td>
@@ -867,7 +867,7 @@ export function PartsMarketPage() {
                       </div>
 
                       {decision.splitPlan && (
-                        <p className="rounded-xl bg-sky-100 p-3 text-xs text-sky-800 dark:bg-sky-500/10 dark:text-sky-400">
+                        <p className="rounded-xl bg-info-subtle p-3 text-xs text-info-strong">
                           Split plan: {decision.splitPlan.map((s) => `${s.quantity}× ${s.label}`).join(' + ')}
                         </p>
                       )}

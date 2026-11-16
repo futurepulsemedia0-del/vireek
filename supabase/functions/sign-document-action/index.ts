@@ -69,10 +69,10 @@ Deno.serve(async (req: Request) => {
               await sendEmail(
                 profile.email,
                 `Fully signed: ${request.title}`,
-                `<div style="font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1a1a1a;">
-                  <p style="font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #16a34a; margin: 0 0 16px;">Fully executed</p>
+                `<div style="font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1c1b15;">
+                  <p style="font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #18a141; margin: 0 0 16px;">Fully executed</p>
                   <h1 style="font-size: 22px; margin: 0 0 12px;">"${request.title}" has been signed by everyone</h1>
-                  <p style="font-size: 14px; color: #4b5563;">Open it in Vireek to view the signatures and the audit trail.</p>
+                  <p style="font-size: 14px; color: #595852;">Open it in Vireek to view the signatures and the audit trail.</p>
                 </div>`,
                 `"${request.title}" has been signed by everyone. Open Vireek to view it.`
               );

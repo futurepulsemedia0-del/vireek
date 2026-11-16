@@ -227,7 +227,7 @@ export function StaffAiIncidentsPage() {
             </div>
           </div>
 
-          <p role="note" className="rounded-xl border border-warning-500/30 bg-warning-500/5 p-3 text-sm text-text-primary">{t('privacy')}</p>
+          <p role="note" className="rounded-xl border border-warning/30 bg-warning-subtle p-3 text-sm text-text-primary">{t('privacy')}</p>
 
           {creating && <CreateForm onCreated={onCreated} onCancel={() => setCreating(false)} />}
 

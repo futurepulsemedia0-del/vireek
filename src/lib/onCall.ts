@@ -17,8 +17,8 @@ export const ESCALATION_STATUS_LABELS: Record<string, string> = {
 };
 
 export const ESCALATION_STATUS_COLORS: Record<string, string> = {
-  active: 'bg-warning-500/10 text-warning-500',
-  acknowledged: 'bg-success-500/10 text-success-500',
+  active: 'bg-warning-subtle text-warning',
+  acknowledged: 'bg-success-subtle text-success',
   exhausted: 'bg-error-500/10 text-error-500',
   cancelled: 'bg-bg-tertiary text-text-secondary',
 };

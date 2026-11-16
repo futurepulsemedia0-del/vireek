@@ -19,9 +19,9 @@ export function compoundingScoreLabel(score: number): string {
 }
 
 export function compoundingScoreColor(score: number): string {
-  if (score >= 75) return 'text-success-500';
+  if (score >= 75) return 'text-success';
   if (score >= 55) return 'text-accent';
-  if (score >= 45) return 'text-warning-500';
+  if (score >= 45) return 'text-warning';
   return 'text-danger';
 }
 

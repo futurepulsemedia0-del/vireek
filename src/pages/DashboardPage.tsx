@@ -98,7 +98,7 @@ function KpiCard({
         <p className="text-sm font-medium text-text-secondary">{label}</p>
         {delta}
       </div>
-      <p className="mt-0.5 text-xs text-text-secondary/70">{sub}</p>
+      <p className="mt-0.5 text-xs text-text-muted">{sub}</p>
     </motion.div>
   );
 }
@@ -259,14 +259,14 @@ interface AttentionItem {
 function NeedsAttention({ items, onInsightClick }: { items: AttentionItem[]; onInsightClick?: () => void }) {
   const priorityConfig = {
     urgent: { color: 'border-l-danger bg-danger/5', iconColor: 'text-danger', label: 'Urgent' },
-    warning: { color: 'border-l-warning-500 bg-warning-500/5', iconColor: 'text-warning-500', label: 'Warning' },
+    warning: { color: 'border-l-warning-500 bg-warning-subtle', iconColor: 'text-warning', label: 'Warning' },
     info: { color: 'border-l-accent bg-accent/5', iconColor: 'text-accent', label: 'Info' },
   };
 
   return (
     <div className="rounded-2xl border-2 border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
       <div className="flex items-center gap-2.5">
-        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-warning-500/10 text-warning-500">
+        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-warning-subtle text-warning">
           <Bell size={20} />
         </span>
         <div>
@@ -279,7 +279,7 @@ function NeedsAttention({ items, onInsightClick }: { items: AttentionItem[]; onI
 
       {items.length === 0 ? (
         <div className="mt-5 flex items-center gap-3 rounded-xl border border-dashed border-border bg-bg-tertiary/50 px-4 py-5">
-          <CheckCircle2 size={20} className="text-success-500" />
+          <CheckCircle2 size={20} className="text-success" />
           <p className="text-sm text-text-secondary">Everything is on track. No urgent items.</p>
         </div>
       ) : (
@@ -353,7 +353,7 @@ function RecentActivity({ items, highlightId }: { items: ActivityItem[]; highlig
                 animate={{
                   opacity: 1,
                   y: 0,
-                  backgroundColor: isNew ? 'rgba(79, 70, 229, 0.08)' : 'rgba(0, 0, 0, 0)',
+                  backgroundColor: isNew ? 'rgba(83, 58, 253, 0.08)' : 'rgba(0, 0, 0, 0)',
                 }}
                 transition={{ duration: 0.25, delay: i * 0.04, ease: [0.16, 1, 0.3, 1] }}
                 className={`flex items-start gap-3 rounded-xl px-3 py-3 transition-colors hover:bg-bg-tertiary/50 ${
@@ -663,9 +663,9 @@ export function DashboardPage() {
     calls.slice(0, 5).forEach((c) => {
       const statusColors: Record<string, string> = {
         new_lead: 'bg-accent/10 text-accent',
-        booked: 'bg-success-500/10 text-success-500',
+        booked: 'bg-success-subtle text-success',
         missed: 'bg-danger/10 text-danger',
-        callback_requested: 'bg-warning-500/10 text-warning-500',
+        callback_requested: 'bg-warning-subtle text-warning',
         spam: 'bg-bg-tertiary text-text-secondary',
       };
       activityItems.push({
@@ -682,9 +682,9 @@ export function DashboardPage() {
     jobs.slice(0, 5).forEach((j) => {
       const statusColors: Record<string, string> = {
         scheduled: 'bg-accent/10 text-accent',
-        en_route: 'bg-warning-500/10 text-warning-500',
-        in_progress: 'bg-warning-500/10 text-warning-500',
-        completed: 'bg-success-500/10 text-success-500',
+        en_route: 'bg-warning-subtle text-warning',
+        in_progress: 'bg-warning-subtle text-warning',
+        completed: 'bg-success-subtle text-success',
         cancelled: 'bg-danger/10 text-danger',
       };
       activityItems.push({
@@ -701,9 +701,9 @@ export function DashboardPage() {
     leads.slice(0, 5).forEach((l) => {
       const stageColors: Record<string, string> = {
         new: 'bg-accent/10 text-accent',
-        contacted: 'bg-warning-500/10 text-warning-500',
-        quoted: 'bg-warning-500/10 text-warning-500',
-        won: 'bg-success-500/10 text-success-500',
+        contacted: 'bg-warning-subtle text-warning',
+        quoted: 'bg-warning-subtle text-warning',
+        won: 'bg-success-subtle text-success',
         lost: 'bg-danger/10 text-danger',
       };
       activityItems.push({
@@ -832,7 +832,7 @@ export function DashboardPage() {
         );
       case 'kpi_jobs':
         return busy ? <KpiSkeleton /> : (
-          <KpiCard icon={CheckCircle2} label="Jobs Completed" value={String(metrics.jobsCompletedCount)} sub={range.label} accentColor="bg-success-500/10 text-success-500" delay={0.1} delta={deltaBadge('jobsCompleted')} />
+          <KpiCard icon={CheckCircle2} label="Jobs Completed" value={String(metrics.jobsCompletedCount)} sub={range.label} accentColor="bg-success-subtle text-success" delay={0.1} delta={deltaBadge('jobsCompleted')} />
         );
       case 'kpi_revenue':
         return busy ? <KpiSkeleton /> : (
@@ -849,7 +849,7 @@ export function DashboardPage() {
                 animate={{ width: `${metrics.usagePercent}%` }}
                 transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                 className={`h-full rounded-full ${
-                  metrics.usagePercent > 80 ? 'bg-cta' : metrics.usagePercent > 50 ? 'bg-accent' : 'bg-success-500'
+                  metrics.usagePercent > 80 ? 'bg-cta' : metrics.usagePercent > 50 ? 'bg-accent' : 'bg-success'
                 }`}
               />
             </div>
@@ -888,7 +888,7 @@ export function DashboardPage() {
             <ul className="mt-2 divide-y divide-border rounded-surface border border-border bg-bg-secondary">
               {otherInsights.map((insight) => {
                 const Icon = insight.insight_type === 'pattern' ? TrendingUp : insight.insight_type === 'suggestion' ? Lightbulb : AlertTriangle;
-                const iconClass = insight.insight_type === 'pattern' ? 'text-accent' : insight.insight_type === 'suggestion' ? 'text-success-500' : 'text-warning-500';
+                const iconClass = insight.insight_type === 'pattern' ? 'text-accent' : insight.insight_type === 'suggestion' ? 'text-success' : 'text-warning';
                 return (
                   <li key={insight.id} className="flex items-start gap-3 px-4 py-3">
                     <Icon size={16} className={`mt-0.5 shrink-0 ${iconClass}`} />

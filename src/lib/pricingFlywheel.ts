@@ -163,19 +163,19 @@ export const FLYWHEEL = {
 
 export const STATE_META: Record<ItemState, { label: string; className: string }> = {
   proposal: { label: 'Price rise proposed', className: 'bg-accent/10 text-accent' },
-  healthy: { label: 'On target', className: 'bg-emerald-500/10 text-emerald-600' },
-  discounting: { label: 'Discount leakage', className: 'bg-red-500/10 text-red-600' },
-  mixed: { label: 'Inconsistent', className: 'bg-amber-500/10 text-amber-600' },
-  cooldown: { label: 'Being measured', className: 'bg-slate-500/10 text-slate-500' },
-  insufficient: { label: 'Learning', className: 'bg-slate-500/10 text-slate-500' },
-  too_small: { label: 'Gap too small', className: 'bg-slate-500/10 text-slate-500' },
+  healthy: { label: 'On target', className: 'bg-success-subtle text-success' },
+  discounting: { label: 'Discount leakage', className: 'bg-danger-subtle text-danger' },
+  mixed: { label: 'Inconsistent', className: 'bg-warning-subtle text-warning' },
+  cooldown: { label: 'Being measured', className: 'bg-text-muted/10 text-text-secondary' },
+  insufficient: { label: 'Learning', className: 'bg-text-muted/10 text-text-secondary' },
+  too_small: { label: 'Gap too small', className: 'bg-text-muted/10 text-text-secondary' },
 };
 
 export const VERDICT_META: Record<ResultVerdict, { label: string; className: string }> = {
-  improved: { label: 'Margin improved', className: 'bg-emerald-500/10 text-emerald-600' },
-  flat: { label: 'No change', className: 'bg-slate-500/10 text-slate-500' },
-  worsened: { label: 'Margin worse', className: 'bg-red-500/10 text-red-600' },
-  insufficient: { label: 'Not enough jobs yet', className: 'bg-amber-500/10 text-amber-600' },
+  improved: { label: 'Margin improved', className: 'bg-success-subtle text-success' },
+  flat: { label: 'No change', className: 'bg-text-muted/10 text-text-secondary' },
+  worsened: { label: 'Margin worse', className: 'bg-danger-subtle text-danger' },
+  insufficient: { label: 'Not enough jobs yet', className: 'bg-warning-subtle text-warning' },
 };
 
 // ============================================================

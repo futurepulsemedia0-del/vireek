@@ -438,7 +438,7 @@ export function GlobalSearchPalette() {
             exit={{ opacity: 0 }}
             transition={fade}
             onClick={close}
-            className="fixed inset-0 z-[130] bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 z-[130] bg-overlay/40 backdrop-blur-sm"
           />
           <div key="cmdk-wrap" className="pointer-events-none fixed inset-x-0 top-[12vh] z-[140] flex justify-center">
           <motion.div
@@ -485,7 +485,7 @@ export function GlobalSearchPalette() {
                     spellCheck={false}
                     maxLength={80}
                     placeholder={t('palette.placeholder', { defaultValue: 'Search records, jump to a page, or type > for actions' })}
-                    className="min-w-0 flex-1 bg-transparent text-sm text-text-primary outline-none placeholder:text-text-secondary/60"
+                    className="min-w-0 flex-1 bg-transparent text-sm text-text-primary outline-none placeholder:text-text-placeholder"
                   />
                   <kbd className="hidden rounded border border-border px-1.5 py-0.5 text-[10px] font-medium text-text-secondary sm:inline">
                     {t('palette.close', { defaultValue: 'Esc' })}
@@ -512,7 +512,7 @@ export function GlobalSearchPalette() {
                   )}
 
                   {q.length === 0 && (
-                    <p className="px-4 pb-1 pt-1 text-[11px] text-text-secondary/70">
+                    <p className="px-4 pb-1 pt-1 text-[11px] text-text-muted">
                       {t('palette.tip', { defaultValue: 'Tip: > actions · @ people · # jobs' })}
                     </p>
                   )}
@@ -525,7 +525,7 @@ export function GlobalSearchPalette() {
 
                   {sections.map((section) => (
                     <div key={section.id} role="group" aria-label={section.label}>
-                      <p className="px-4 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wider text-text-secondary/60">
+                      <p className="px-4 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                         {section.label}
                       </p>
                       {section.items.map((item) => {
@@ -565,7 +565,7 @@ export function GlobalSearchPalette() {
                               </span>
                             )}
                             {item.shortcutId && <ShortcutHint id={item.shortcutId} className="hidden sm:inline-flex" />}
-                            {active && <CornerDownLeft size={13} className="shrink-0 text-text-secondary/60 rtl:-scale-x-100" aria-hidden="true" />}
+                            {active && <CornerDownLeft size={13} className="shrink-0 text-graphic-muted rtl:-scale-x-100" aria-hidden="true" />}
                           </button>
                         );
                       })}

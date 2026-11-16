@@ -70,7 +70,7 @@ function AlertCard({ alert, onUpdate, index }: { alert: IdentityDriftAlert; onUp
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2">
-          {positive ? <TrendingUp size={16} className="text-emerald-500" /> : <TrendingDown size={16} className="text-danger" />}
+          {positive ? <TrendingUp size={16} className="text-success" /> : <TrendingDown size={16} className="text-danger" />}
           <h3 className="font-semibold text-text-primary">{alert.title}</h3>
         </div>
         <span className="shrink-0 rounded-full bg-accent/10 px-2.5 py-1 text-xs font-semibold text-accent">
@@ -80,7 +80,7 @@ function AlertCard({ alert, onUpdate, index }: { alert: IdentityDriftAlert; onUp
       <p className="text-sm text-text-secondary">{alert.summary}</p>
       {alert.status === 'open' && (
         <div className="flex gap-2 pt-1">
-          <button onClick={() => onUpdate(alert.id, 'acknowledged')} className="focus-ring flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-sm font-semibold text-white hover:opacity-90">
+          <button onClick={() => onUpdate(alert.id, 'acknowledged')} className="focus-ring flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-sm font-semibold text-on-accent hover:opacity-90">
             <Check size={16} /> Got it
           </button>
           <button onClick={() => onUpdate(alert.id, 'dismissed')} className="focus-ring flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm font-semibold text-text-secondary hover:bg-bg-primary">
@@ -159,7 +159,7 @@ export function IdentityLearnerPage() {
             <p className="text-sm text-text-secondary">Learned from what you actually decide — not what you said once. Flags when who you are has changed.</p>
           </div>
         </div>
-        <button onClick={handleScan} disabled={scanning} className="focus-ring flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60">
+        <button onClick={handleScan} disabled={scanning} className="focus-ring flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-on-accent hover:opacity-90 disabled:opacity-60">
           {scanning ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />} Scan for shifts
         </button>
       </div>

@@ -36,7 +36,7 @@ function StarRow({ rating }: { rating: number }) {
           <Star
             key={i}
             size={15}
-            className={filled ? 'fill-success text-success' : half ? 'fill-success/50 text-success' : 'fill-transparent text-text-secondary/30'}
+            className={filled ? 'fill-success text-success' : half ? 'fill-success/50 text-success' : 'fill-transparent text-graphic-muted'}
           />
         );
       })}
@@ -54,7 +54,7 @@ export function ReviewBadges() {
           whileInView={{ opacity: 1 }}
           viewport={viewport}
           transition={{ duration: 0.5, ease: EASE }}
-          className="text-center text-[0.65rem] font-semibold uppercase tracking-[0.15em] text-text-secondary/60 sm:text-xs sm:tracking-[0.18em]"
+          className="text-center text-[0.65rem] font-semibold uppercase tracking-[0.15em] text-text-muted sm:text-xs sm:tracking-[0.18em]"
         >
           Verified by independent review platforms
         </motion.p>

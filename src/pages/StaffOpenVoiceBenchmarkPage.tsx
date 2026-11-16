@@ -51,7 +51,7 @@ export function StaffOpenVoiceBenchmarkPage() {
         <div className="mx-auto max-w-7xl space-y-6 px-6 pb-20">
           <h1 className="pt-6 text-2xl font-bold text-text-primary">Open Voice Benchmark — staff console</h1>
           <nav role="tablist" className="flex flex-wrap gap-2 border-b border-border pb-3">
-            {TABS.map((t) => <button key={t} role="tab" aria-selected={tab === t} type="button" onClick={() => setTab(t)} className={`focus-ring rounded-xl px-4 py-2 text-sm font-medium capitalize ${tab === t ? 'bg-accent text-white' : 'text-text-secondary hover:bg-bg-tertiary'}`}>{t}</button>)}
+            {TABS.map((t) => <button key={t} role="tab" aria-selected={tab === t} type="button" onClick={() => setTab(t)} className={`focus-ring rounded-xl px-4 py-2 text-sm font-medium capitalize ${tab === t ? 'bg-accent text-on-accent' : 'text-text-secondary hover:bg-bg-tertiary'}`}>{t}</button>)}
           </nav>
           {msg && <p role="status" className="text-sm text-text-secondary">{msg}</p>}
           {tab === 'runs' && <Runs tick={tick} act={act} />}

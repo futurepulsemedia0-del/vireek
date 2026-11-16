@@ -2,7 +2,7 @@ import { ringOffset, scoreTone, type ScoreTone } from '@/lib/agentReadinessCore'
 
 const R = 52;
 const C = 2 * Math.PI * R;
-const TONE: Record<ScoreTone, string> = { good: 'text-success-500', ok: 'text-accent', poor: 'text-warning-500' };
+const TONE: Record<ScoreTone, string> = { good: 'text-success', ok: 'text-accent', poor: 'text-warning' };
 
 /** Score ring. The number is real text (not only colour), and the arc animation is off under reduced motion. */
 export function ProgressRing({ score, label, unknownLabel }: { score: number | null; label: string; unknownLabel: string }) {

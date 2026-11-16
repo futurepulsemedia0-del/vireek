@@ -10,9 +10,9 @@ import {
 } from '@/lib/homeHealth';
 
 const RISK_DOT: Record<string, string> = {
-  high: 'bg-danger-500',
-  medium: 'bg-warning-500',
-  low: 'bg-success-500',
+  high: 'bg-danger',
+  medium: 'bg-warning',
+  low: 'bg-success',
 };
 
 /** Compact Home Health Score for one customer — drop into CustomerDetailPage. */

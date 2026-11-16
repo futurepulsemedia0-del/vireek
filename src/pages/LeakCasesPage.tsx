@@ -386,7 +386,7 @@ export function LeakCasesPage() {
 
       {tab === 'chronic' && (
         <section aria-label="Chronic leakers">
-          <p className="mb-3 rounded-xl border border-warning-500/30 bg-warning-500/5 p-3 text-xs text-text-secondary">
+          <p className="mb-3 rounded-xl border border-warning/30 bg-warning-subtle p-3 text-xs text-text-secondary">
             {HAWK_EXPORT_NOTICE}
           </p>
           <div className="mb-3 flex flex-wrap items-end gap-3">

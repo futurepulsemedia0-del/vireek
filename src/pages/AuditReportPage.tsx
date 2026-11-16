@@ -136,7 +136,7 @@ export function AuditReportPage({ shared = false }: { shared?: boolean }) {
             <section className="space-y-4 print:hidden" aria-labelledby="act-h">
               <h2 id="act-h" className="text-xl font-bold text-text-primary">Next</h2>
               <div className="flex flex-wrap gap-3">
-                {r.trial_url && <a className="focus-ring inline-flex min-h-[48px] items-center rounded-xl bg-accent px-5 py-3 font-semibold text-white" href={r.trial_url}>See how Vireek would answer these calls</a>}
+                {r.trial_url && <a className="focus-ring inline-flex min-h-[48px] items-center rounded-xl bg-accent px-5 py-3 font-semibold text-on-accent" href={r.trial_url}>See how Vireek would answer these calls</a>}
                 <Button variant="secondary" onClick={printReport}>Download PDF</Button>
                 <Button variant="secondary" loading={busy} onClick={() => act(async () => { const x = await auditCall<{ share_token: string | null }>('share', { token, enable: !r.share_enabled }); setShareUrl(x.share_token ? `${window.location.origin}/audit/share/${x.share_token}` : null); await load(); })}>{r.share_enabled ? 'Stop sharing' : 'Create share link'}</Button>
                 {r.can_cancel && <Button variant="secondary" loading={busy} onClick={() => act(async () => { await auditCall('cancel', { token }); await load(); })}>Cancel remaining calls</Button>}

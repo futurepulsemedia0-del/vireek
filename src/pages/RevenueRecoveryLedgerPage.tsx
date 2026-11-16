@@ -82,7 +82,7 @@ function RecoverManuallyModal({
 
   return (
     <div
-      className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[80] flex items-center justify-center bg-overlay/40 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
       <motion.div
@@ -126,7 +126,7 @@ function RecoverManuallyModal({
           value={note}
           onChange={(e) => setNote(e.target.value)}
           placeholder="Rebooked directly for next Tuesday"
-          className="focus-ring mt-1 w-full resize-y rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60"
+          className="focus-ring mt-1 w-full resize-y rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder"
         />
 
         <div className="mt-4 flex justify-end gap-2">
@@ -145,7 +145,7 @@ function RecoverManuallyModal({
               await onConfirm(parsed, note.trim());
               setSaving(false);
             }}
-            className="focus-ring flex items-center gap-1.5 rounded-xl bg-success-500 px-4 py-2 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50"
+            className="focus-ring flex items-center gap-1.5 rounded-xl bg-success px-4 py-2 text-sm font-medium text-on-success transition-all hover:brightness-110 disabled:opacity-50"
           >
             {saving && <Loader2 size={14} className="animate-spin" />}
             Mark recovered
@@ -204,12 +204,12 @@ function LedgerRow({
           <p className="text-lg font-bold text-text-primary">
             {event.estimated_value_basis === 'none' ? '—' : formatCents(event.estimated_value_cents)}
           </p>
-          <p className="text-[10px] text-text-secondary/70">{VALUE_BASIS_LABELS[event.estimated_value_basis]}</p>
+          <p className="text-[10px] text-text-muted">{VALUE_BASIS_LABELS[event.estimated_value_basis]}</p>
         </div>
       </div>
 
       {event.status === 'recovered' && (
-        <p className="mt-2 flex items-center gap-1.5 text-xs font-medium text-success-500">
+        <p className="mt-2 flex items-center gap-1.5 text-xs font-medium text-success">
           <Check size={12} />
           Recovered {formatCents(event.recovered_amount_cents ?? 0)}
           {event.recovery_method && ` · ${METHOD_LABELS[event.recovery_method]}`}
@@ -242,7 +242,7 @@ function LedgerRow({
             type="button"
             disabled={busy}
             onClick={onOpenRecover}
-            className="focus-ring flex items-center gap-1 rounded-lg bg-success-500/10 px-2.5 py-1.5 text-xs font-medium text-success-500 transition-colors hover:bg-success-500/15 disabled:opacity-40"
+            className="focus-ring flex items-center gap-1 rounded-lg bg-success-subtle px-2.5 py-1.5 text-xs font-medium text-success transition-colors hover:bg-success-subtle disabled:opacity-40"
           >
             <DollarSign size={11} /> Mark recovered
           </button>
@@ -395,8 +395,8 @@ export function RevenueRecoveryLedgerPage() {
             <p className="text-2xl font-bold text-text-primary">{stats.openCount}</p>
             <p className="text-xs text-text-secondary">Open entries</p>
           </div>
-          <div className="rounded-2xl border border-success-500/25 bg-success-500/[0.05] p-4">
-            <p className="text-2xl font-bold text-success-500">{formatCents(stats.recoveredThisMonthCents)}</p>
+          <div className="rounded-2xl border border-success/25 bg-success-subtle p-4">
+            <p className="text-2xl font-bold text-success">{formatCents(stats.recoveredThisMonthCents)}</p>
             <p className="text-xs text-text-secondary">Recovered this month</p>
           </div>
           <div className="rounded-2xl border border-border bg-bg-secondary p-4">
@@ -426,7 +426,7 @@ export function RevenueRecoveryLedgerPage() {
                 type="button"
                 onClick={() => setFilter(f.key)}
                 className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                  filter === f.key ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
+                  filter === f.key ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
                 }`}
               >
                 {f.label}
@@ -458,12 +458,12 @@ export function RevenueRecoveryLedgerPage() {
           <div className="rounded-2xl border border-dashed border-border py-10 text-center">
             {filter === 'active' ? (
               <>
-                <Sparkles className="mx-auto mb-2 h-6 w-6 text-success-500/70" />
+                <Sparkles className="mx-auto mb-2 h-6 w-6 text-success" />
                 <p className="text-sm text-text-secondary">Nothing outstanding — every miss has been worked.</p>
               </>
             ) : (
               <>
-                <PhoneCall className="mx-auto mb-2 h-6 w-6 text-text-secondary/50" />
+                <PhoneCall className="mx-auto mb-2 h-6 w-6 text-graphic-muted" />
                 <p className="text-sm text-text-secondary">Nothing here yet.</p>
               </>
             )}
@@ -483,7 +483,7 @@ export function RevenueRecoveryLedgerPage() {
           </div>
         )}
 
-        <p className="mt-6 flex items-center gap-1.5 text-xs text-text-secondary/70">
+        <p className="mt-6 flex items-center gap-1.5 text-xs text-text-muted">
           <TrendingUp size={12} />
           Entries appear automatically from missed calls, declined or expired quotes, and cancelled jobs, and
           close automatically the moment a linked job is paid. Statuses below only track your follow-up.

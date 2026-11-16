@@ -92,8 +92,8 @@ export interface Payer {
 // ------------------------------------------------------------
 const NEUTRAL = 'bg-bg-tertiary text-text-secondary';
 const ACCENT = 'bg-accent/10 text-accent';
-const SUCCESS = 'bg-success-500/10 text-success-500';
-const WARNING = 'bg-warning-500/10 text-warning-500';
+const SUCCESS = 'bg-success-subtle text-success';
+const WARNING = 'bg-warning-subtle text-warning';
 const DANGER = 'bg-danger/10 text-danger';
 
 export const STATUS_LABELS: Record<IntakeStatus, string> = {

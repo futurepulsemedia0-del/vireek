@@ -2,7 +2,7 @@ import { ArrowDownRight, ArrowUpRight, Minus } from 'lucide-react';
 import { describeDelta, formatDelta, type Delta } from '@/lib/dateRange';
 
 const TONE: Record<Delta['sentiment'], string> = {
-  good: 'bg-success-500/10 text-success-500',
+  good: 'bg-success-subtle text-success',
   bad: 'bg-danger/10 text-danger',
   neutral: 'bg-bg-tertiary text-text-secondary',
 };
@@ -45,7 +45,7 @@ export function DeltaBadge({ delta, versus, format, className = '' }: DeltaBadge
       data-sentiment={delta.sentiment}
       title={title}
       className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums ${
-        muted ? 'bg-bg-tertiary text-text-secondary/70' : TONE[delta.sentiment]
+        muted ? 'bg-bg-tertiary text-text-muted' : TONE[delta.sentiment]
       } ${className}`}
     >
       {!muted && <Icon size={12} aria-hidden="true" />}

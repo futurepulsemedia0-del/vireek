@@ -64,7 +64,7 @@ export function SchemaTab() {
             aria-selected={active === k}
             type="button"
             onClick={() => setActive(k)}
-            className={`focus-ring rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${active === k ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
+            className={`focus-ring rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${active === k ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
           >
             {k}
           </button>

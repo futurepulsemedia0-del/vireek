@@ -115,7 +115,7 @@ export function IncidentReportForm({ ownerId, jobId = null, onSaved }: Props) {
       </div>
 
       <div className="mt-4 flex justify-end">
-        <button type="button" onClick={() => void submit()} disabled={busy || !description.trim()} className="focus-ring min-h-[48px] rounded-lg bg-accent px-5 text-sm font-semibold text-white disabled:opacity-50">
+        <button type="button" onClick={() => void submit()} disabled={busy || !description.trim()} className="focus-ring min-h-[48px] rounded-lg bg-accent px-5 text-sm font-semibold text-on-accent disabled:opacity-50">
           {busy ? 'Saving…' : 'Submit report'}
         </button>
       </div>

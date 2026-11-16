@@ -54,7 +54,7 @@ const card = 'rounded-2xl border border-border bg-bg-secondary p-4 sm:p-5';
 const field = 'focus-ring min-h-[44px] w-full rounded-lg border border-border bg-bg-primary px-3 text-sm text-text-primary';
 const lab = 'mb-1 block text-xs font-semibold text-text-secondary';
 const btn = 'focus-ring min-h-[40px] rounded-lg px-3 text-sm font-semibold disabled:opacity-50';
-const primary = `${btn} bg-accent text-white`;
+const primary = `${btn} bg-accent text-on-accent`;
 const ghost = `${btn} border border-border text-text-primary`;
 
 const fmtTime = (iso: string | null) => (iso ? new Date(iso).toLocaleString() : '—');
@@ -163,7 +163,7 @@ function LiveTab() {
                 <div className="min-w-0 text-sm">
                   <p className="flex flex-wrap items-center gap-2 font-semibold text-text-primary">
                     {s.technician_name ?? 'Technician'} · {s.customer_name}
-                    <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${s.status === 'active' ? 'bg-success-500/10 text-success-500' : 'bg-danger/10 text-danger'}`}>{s.status === 'duress' ? 'Duress' : s.status === 'escalating' ? 'Missed check-in' : 'On track'}</span>
+                    <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${s.status === 'active' ? 'bg-success-subtle text-success' : 'bg-danger/10 text-danger'}`}>{s.status === 'duress' ? 'Duress' : s.status === 'escalating' ? 'Missed check-in' : 'On track'}</span>
                     {s.is_drill && <span className="rounded-full bg-bg-tertiary px-2 py-0.5 text-[11px] font-semibold text-text-secondary">Drill</span>}
                   </p>
                   <p className="text-xs text-text-secondary">{s.address ?? 'No address'} · next check-in {fmtTime(s.next_checkin_due_at)} · last seen {fmtTime(s.last_seen_at)}</p>

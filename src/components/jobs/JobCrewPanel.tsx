@@ -41,7 +41,7 @@ type TextKey = `${string}:labor` | `${string}:commission`;
 const ROLE_STYLE: Record<CrewRole, string> = {
   lead: 'bg-accent/15 text-accent',
   helper: 'bg-bg-tertiary text-text-secondary',
-  apprentice: 'bg-amber-500/10 text-amber-500',
+  apprentice: 'bg-warning-subtle text-warning',
 };
 
 /**
@@ -263,7 +263,7 @@ export function JobCrewPanel({
         ) : (
           <div className="space-y-3">
             {crew.skill_gaps.length > 0 && (
-              <p className="flex items-start gap-2 rounded-xl bg-amber-500/10 px-3 py-2 text-xs font-medium text-amber-500" role="status">
+              <p className="flex items-start gap-2 rounded-xl bg-warning-subtle px-3 py-2 text-xs font-medium text-warning" role="status">
                 <AlertTriangle size={14} className="mt-0.5 shrink-0" aria-hidden="true" />
                 No one on this crew has: {crew.skill_gaps.join(', ')}
               </p>
@@ -438,7 +438,7 @@ export function JobCrewPanel({
           </label>
           <input id="crew-skills" className={field} value={skillsText} onChange={(e) => setSkillsText(e.target.value)} placeholder="hvac, electrical" disabled={saving} />
           {gapsPreview.length > 0 && (
-            <p className="mt-1 flex items-start gap-2 text-xs font-medium text-amber-500" role="status">
+            <p className="mt-1 flex items-start gap-2 text-xs font-medium text-warning" role="status">
               <AlertTriangle size={13} className="mt-0.5 shrink-0" aria-hidden="true" />
               No one on this crew has: {gapsPreview.join(', ')}. You can still save.
             </p>
@@ -446,7 +446,7 @@ export function JobCrewPanel({
         </div>
 
         {(formError || problem) && (
-          <p className="rounded-xl bg-red-500/10 px-3 py-2 text-xs font-medium text-red-500" role="alert">
+          <p className="rounded-xl bg-danger-subtle px-3 py-2 text-xs font-medium text-danger" role="alert">
             {formError ?? problem}
           </p>
         )}

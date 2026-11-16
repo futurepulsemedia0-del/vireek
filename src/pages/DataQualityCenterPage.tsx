@@ -45,7 +45,7 @@ function IssueRow({ issue, busy, onFix }: { issue: DqIssue; busy: boolean; onFix
           type="button"
           disabled={busy}
           onClick={() => onFix(issue)}
-          className="focus-ring flex items-center gap-1 rounded-lg bg-accent px-2.5 py-1.5 text-xs font-semibold text-white disabled:opacity-50"
+          className="focus-ring flex items-center gap-1 rounded-lg bg-accent px-2.5 py-1.5 text-xs font-semibold text-on-accent disabled:opacity-50"
         >
           {fix.type === 'consent_link' ? <Copy size={11} /> : <Wand2 size={11} />}
           {fix.type === 'consent_link' ? 'Copy preference link' : fix.type === 'link_equipment' ? 'Link to latest job' : 'Fix'}
@@ -71,7 +71,7 @@ function CheckCard({ check, busy, onFix, onFixAll }: { check: DqCheck; busy: boo
             type="button"
             disabled={busy}
             onClick={() => onFixAll(check)}
-            className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"
+            className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3 py-1.5 text-xs font-semibold text-on-accent disabled:opacity-50"
           >
             <Wand2 size={12} /> Fix {check.fixable} automatically
           </button>
@@ -211,7 +211,7 @@ export function DataQualityCenterPage() {
                     type="button"
                     disabled={busy}
                     onClick={onFixEverything}
-                    className="focus-ring hidden shrink-0 items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-semibold text-white disabled:opacity-50 sm:flex"
+                    className="focus-ring hidden shrink-0 items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-semibold text-on-accent disabled:opacity-50 sm:flex"
                   >
                     {busy ? <Loader2 size={13} className="animate-spin" /> : <Wand2 size={13} />} Fix {totalFixable} automatically
                   </button>
@@ -222,7 +222,7 @@ export function DataQualityCenterPage() {
                   type="button"
                   disabled={busy}
                   onClick={onFixEverything}
-                  className="focus-ring mt-3 flex w-full items-center justify-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-semibold text-white disabled:opacity-50 sm:hidden"
+                  className="focus-ring mt-3 flex w-full items-center justify-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-semibold text-on-accent disabled:opacity-50 sm:hidden"
                 >
                   {busy ? <Loader2 size={13} className="animate-spin" /> : <Wand2 size={13} />} Fix {totalFixable} automatically
                 </button>
@@ -253,7 +253,7 @@ export function DataQualityCenterPage() {
 
             {health.checks.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-border py-10 text-center">
-                <CheckCircle2 className="mx-auto mb-2 h-6 w-6 text-success-500" />
+                <CheckCircle2 className="mx-auto mb-2 h-6 w-6 text-success" />
                 <p className="text-sm text-text-secondary">No data-quality issues found. Nice and clean.</p>
               </div>
             ) : (

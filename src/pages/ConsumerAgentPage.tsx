@@ -121,7 +121,7 @@ export function ConsumerAgentPage() {
 
   const sk = settings ? statusKey(settings, preview) : 'off';
   const urls = preview?.profile && typeof preview.profile.slug === 'string' ? publicUrls(preview.profile.slug) : null;
-  const toneClass = sk === 'live' ? 'text-success-500' : sk === 'off' ? 'text-text-secondary' : 'text-danger';
+  const toneClass = sk === 'live' ? 'text-success' : sk === 'off' ? 'text-text-secondary' : 'text-danger';
   const open = requests.filter((r) => r.status === 'pending' || r.status === 'held');
   const closed = requests.filter((r) => r.status !== 'pending' && r.status !== 'held');
 
@@ -210,7 +210,7 @@ export function ConsumerAgentPage() {
                           {t('queue.from', { agent: r.agent_label ?? t('queue.unnamed') })} · {r.principal_kind === 'registered' ? t('queue.verified') : t('queue.unverified')} · {t('queue.tag')}
                         </p>
                       </div>
-                      <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${r.sla_state === 'overdue' ? 'bg-danger/10 text-danger' : r.sla_state === 'due_soon' ? 'bg-warning-500/10 text-warning-500' : 'bg-bg-tertiary text-text-secondary'}`}>
+                      <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${r.sla_state === 'overdue' ? 'bg-danger/10 text-danger' : r.sla_state === 'due_soon' ? 'bg-warning-subtle text-warning' : 'bg-bg-tertiary text-text-secondary'}`}>
                         {r.sla_state === 'closed' ? t(`queue.closed.${r.status as 'accepted' | 'declined' | 'expired'}`) : t(`queue.sla.${r.sla_state}`)}
                       </span>
                     </div>

@@ -81,8 +81,8 @@ export function CsrQaPanel() {
       <section aria-labelledby="qa-title" className="rounded-2xl border border-border bg-bg-secondary p-5">
         <h3 id="qa-title" className="flex items-center gap-2 text-base font-semibold text-text-primary"><ClipboardCheck size={18} aria-hidden="true" className="text-accent" />{t('qa.title')}</h3>
         <p className="mt-1 text-sm text-text-secondary">{t('qa.intro')}</p>
-        <div role="note" className="mt-3 flex items-start gap-2 rounded-xl border border-warning-500/30 bg-warning-500/10 px-4 py-3 text-sm text-text-primary">
-          <ShieldAlert size={16} className="mt-0.5 shrink-0 text-warning-500" aria-hidden="true" />
+        <div role="note" className="mt-3 flex items-start gap-2 rounded-xl border border-warning/30 bg-warning-subtle px-4 py-3 text-sm text-text-primary">
+          <ShieldAlert size={16} className="mt-0.5 shrink-0 text-warning" aria-hidden="true" />
           <p><strong>{t('qa.policyTitle')}.</strong> {t('qa.policy')}</p>
         </div>
         <div className="mt-4 space-y-4">

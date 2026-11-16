@@ -44,9 +44,9 @@ function when(iso: string | null): string {
 function StatusBadge({ row }: { row: SalesAppointment }) {
   const status = row.presentation_status ?? 'none';
   const tone =
-    status === 'sold' ? 'bg-success-500/10 text-success-500'
+    status === 'sold' ? 'bg-success-subtle text-success'
     : status === 'lost' ? 'bg-danger/10 text-danger'
-    : status === 'presented' ? 'bg-warning-500/10 text-warning-500'
+    : status === 'presented' ? 'bg-warning-subtle text-warning'
     : status === 'draft' ? 'bg-accent/10 text-accent' : 'bg-bg-tertiary text-text-secondary';
   return <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${tone}`}>{APPOINTMENT_STATUS_LABEL[status]}</span>;
 }
@@ -58,7 +58,7 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
   const ref = useFocusTrap(true);
   useEscapeToClose(true, onClose);
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-label={title}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-overlay/60 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-label={title}>
       <div ref={ref} className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-3xl border border-border bg-bg-primary p-6 sm:rounded-3xl">
         <h2 className="mb-4 text-lg font-bold text-text-primary">{title}</h2>
         {children}
@@ -262,7 +262,7 @@ function Appointments({ access }: { access: SalesAccess }) {
         {r.notes && <p className="line-clamp-2 text-xs italic text-text-secondary">{r.notes}</p>}
       </div>
       <div className="flex shrink-0 items-center gap-3">
-        {r.presentation_status === 'sold' && r.sold_total_cents !== null && <span className="text-sm font-semibold text-success-500">{money(r.sold_total_cents)}</span>}
+        {r.presentation_status === 'sold' && r.sold_total_cents !== null && <span className="text-sm font-semibold text-success">{money(r.sold_total_cents)}</span>}
         <Button size="sm" variant={r.presentation_status === 'sold' || r.presentation_status === 'lost' ? 'secondary' : 'primary'}
           onClick={() => (r.presentation_id ? navigate(`/dashboard/sales/present/${r.presentation_id}`) : setStarting(r))}>
           <Presentation size={16} aria-hidden="true" />

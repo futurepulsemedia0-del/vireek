@@ -20,9 +20,9 @@ import {
 const PAGE = 10;
 
 const TONE_CLASS = {
-  high: 'bg-emerald-500/10 text-emerald-500',
-  medium: 'bg-amber-500/10 text-amber-500',
-  low: 'bg-slate-500/10 text-text-secondary',
+  high: 'bg-success-subtle text-success',
+  medium: 'bg-warning-subtle text-warning',
+  low: 'bg-text-muted/10 text-text-secondary',
 } as const;
 
 function errorText(e: unknown): string {

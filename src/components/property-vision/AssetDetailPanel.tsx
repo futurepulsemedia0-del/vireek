@@ -32,8 +32,8 @@ function Fact({ label, value }: { label: string; value: React.ReactNode }) {
 }
 
 const EVENT_DOT: Record<string, string> = {
-  finding_new: 'bg-danger-500', finding_worsened: 'bg-danger-500', finding_reopened: 'bg-warning-500',
-  condition_changed: 'bg-warning-500', finding_not_reobserved: 'bg-warning-500', identity_conflict: 'bg-warning-500',
+  finding_new: 'bg-danger', finding_worsened: 'bg-danger', finding_reopened: 'bg-warning',
+  condition_changed: 'bg-warning', finding_not_reobserved: 'bg-warning', identity_conflict: 'bg-warning',
 };
 
 function FindingRow({ f, busy, act }: { f: PvFinding; busy: boolean; act: (fn: () => Promise<void>, ok: string) => Promise<void> }) {
@@ -43,7 +43,7 @@ function FindingRow({ f, busy, act }: { f: PvFinding; busy: boolean; act: (fn: (
       <div className="flex flex-wrap items-center gap-2">
         <Badge className={SEVERITY_STYLES[f.severity]}>{humanize(f.severity)}</Badge>
         <span className="text-sm font-medium text-text-primary">{f.title}</span>
-        {f.status === 'not_reobserved' && <Badge className="bg-warning-500/10 text-warning-500">No longer visible — confirm</Badge>}
+        {f.status === 'not_reobserved' && <Badge className="bg-warning-subtle text-warning">No longer visible — confirm</Badge>}
         {done && <Badge className="bg-bg-tertiary text-text-secondary">{humanize(f.status)}</Badge>}
       </div>
       {f.description && <p className="mt-1 text-xs text-text-secondary">{f.description}</p>}
@@ -150,11 +150,11 @@ export function AssetDetailPanel({ asset, duplicateOf, onChanged, onRescan }: Pr
           <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
             <Badge className={CONDITION_STYLES[asset.condition]}>Condition: {asset.condition}</Badge>
             {asset.installation_quality !== 'unknown' && (
-              <Badge className={asset.installation_quality === 'unsafe' || asset.installation_quality === 'deficient' ? 'bg-warning-500/10 text-warning-500' : 'bg-bg-tertiary text-text-secondary'}>
+              <Badge className={asset.installation_quality === 'unsafe' || asset.installation_quality === 'deficient' ? 'bg-warning-subtle text-warning' : 'bg-bg-tertiary text-text-secondary'}>
                 Install: {asset.installation_quality}
               </Badge>
             )}
-            <Badge className={asset.human_confirmed ? 'bg-success-500/10 text-success-500' : 'bg-bg-tertiary text-text-secondary'}>
+            <Badge className={asset.human_confirmed ? 'bg-success-subtle text-success' : 'bg-bg-tertiary text-text-secondary'}>
               {asset.human_confirmed ? 'Confirmed by staff' : 'AI draft — unconfirmed'}
             </Badge>
             {asset.equipment_id && <Badge className="bg-accent/10 text-accent">In equipment records</Badge>}
@@ -164,7 +164,7 @@ export function AssetDetailPanel({ asset, duplicateOf, onChanged, onRescan }: Pr
       </div>
 
       {duplicateOf && (
-        <div role="alert" className="mt-4 rounded-xl border border-warning-500/30 bg-warning-500/5 p-3 text-xs text-text-primary">
+        <div role="alert" className="mt-4 rounded-xl border border-warning/30 bg-warning-subtle p-3 text-xs text-text-primary">
           <p className="font-medium">This may be the same unit as “{duplicateOf.label}”.</p>
           <p className="mt-0.5 text-text-secondary">Merge to keep one history, or keep them separate if these are different units.</p>
           <div className="mt-2 flex gap-2">

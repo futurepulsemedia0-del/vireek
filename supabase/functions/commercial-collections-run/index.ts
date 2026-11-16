@@ -126,11 +126,11 @@ Deno.serve(async (req: Request) => {
         const greeting = renderTemplate("invoice.email.greeting", language, { name: r.customer_name });
         const poLine = r.po_number || r.work_order_number ? `PO / WO: ${r.po_number ?? r.work_order_number}` : "";
         const text = `${greeting}\n\n${L("invoice.email.lead.reminder")}\n\n${L("invoice.email.label.invoice")} ${r.invoice_number}\n${poLine ? poLine + "\n" : ""}${L("invoice.email.label.balance")}: ${balanceLabel}\n${dueLine}\n\n${L("invoice.email.viewHere")} ${link}\n\n${L("invoice.email.signoff")}\n${biz}`;
-        const html = `<div ${htmlLangAttrs(language)} style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:520px;margin:0 auto;color:#171717">
+        const html = `<div ${htmlLangAttrs(language)} style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:520px;margin:0 auto;color:#141413">
 <p>${escapeHtml(greeting)}</p><p>${escapeHtml(L("invoice.email.lead.reminder"))}</p>
 <p><strong>${escapeHtml(L("invoice.email.label.invoice"))} ${escapeHtml(r.invoice_number)}</strong>${poLine ? `<br/>${escapeHtml(poLine)}` : ""}<br/>${escapeHtml(L("invoice.email.label.balance"))}: ${escapeHtml(balanceLabel)}${dueLine ? `<br/>${escapeHtml(dueLine)}` : ""}</p>
-<p><a href="${escapeHtml(link)}" style="background:#203ad8;color:#fff;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:600;display:inline-block">${escapeHtml(L("invoice.email.cta"))}</a></p>
-<p style="color:#6e6e78;font-size:13px">${escapeHtml(L("invoice.email.signoff"))}<br/>${escapeHtml(biz)}</p></div>`;
+<p><a href="${escapeHtml(link)}" style="background:#ae3600;color:#fff;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:600;display:inline-block">${escapeHtml(L("invoice.email.cta"))}</a></p>
+<p style="color:#73726c;font-size:13px">${escapeHtml(L("invoice.email.signoff"))}<br/>${escapeHtml(biz)}</p></div>`;
 
         let anyOk = false; let lastError = "";
         for (const to of recipients) {

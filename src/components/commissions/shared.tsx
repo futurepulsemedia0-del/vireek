@@ -12,8 +12,8 @@ export type Tone = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
 const TONE_CLASS: Record<Tone, string> = {
   neutral: 'bg-bg-tertiary text-text-secondary',
   info: 'bg-accent/10 text-accent',
-  success: 'bg-success-500/10 text-success-500',
-  warning: 'bg-warning-500/10 text-warning-500',
+  success: 'bg-success-subtle text-success',
+  warning: 'bg-warning-subtle text-warning',
   danger: 'bg-danger/10 text-danger',
 };
 
@@ -106,7 +106,7 @@ export function Dialog({
     <AnimatePresence>
       {open && (
         <>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="fixed inset-0 z-[110] bg-black/40 backdrop-blur-sm" />
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="fixed inset-0 z-[110] bg-overlay/40 backdrop-blur-sm" />
           <motion.div
             ref={ref}
             tabIndex={-1}

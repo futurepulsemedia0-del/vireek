@@ -80,7 +80,7 @@ export function MessageBubble({
       <div
         className={`max-w-[78%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
           isUser
-            ? 'rounded-br-sm bg-gradient-to-br from-accent to-accent-600 text-white shadow-sm'
+            ? 'rounded-br-sm bg-accent text-on-accent shadow-sm'
             : `rounded-bl-sm border ${
                 isError
                   ? 'border-danger/20 bg-danger/[0.06] text-danger'
@@ -145,7 +145,7 @@ export function StarterPromptChip({ label, onClick }: { label: string; onClick: 
  * ping+dot language as `LiveIndicator`, scaled down for inline use next
  * to a title instead of as a standalone badge. */
 export function OnlineDot({ online = true }: { online?: boolean }) {
-  const color = online ? 'bg-success-500' : 'bg-text-secondary/40';
+  const color = online ? 'bg-success' : 'bg-text-secondary/40';
   return (
     <span className="relative flex h-1.5 w-1.5" aria-hidden="true">
       {online && (

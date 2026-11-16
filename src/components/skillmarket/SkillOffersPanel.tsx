@@ -20,8 +20,8 @@ const selectClass =
   'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-3 text-base text-text-primary transition-colors focus-visible:border-accent';
 
 const STATUS_STYLE: Record<OfferStatus, string> = {
-  offered: 'bg-warning-500/10 text-warning-500',
-  accepted: 'bg-success-500/10 text-success-500',
+  offered: 'bg-warning-subtle text-warning',
+  accepted: 'bg-success-subtle text-success',
   completed: 'bg-accent/10 text-accent',
   declined: 'bg-bg-tertiary text-text-secondary',
   expired: 'bg-bg-tertiary text-text-secondary',

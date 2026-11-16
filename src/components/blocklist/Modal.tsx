@@ -17,7 +17,7 @@ export function Modal({ open, title, description, onClose, children }: ModalProp
   if (!open) return null;
   return (
     <>
-      <div className="fixed inset-0 z-[110] bg-black/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+      <div className="fixed inset-0 z-[110] bg-overlay/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
       <div
         ref={ref}
         tabIndex={-1}

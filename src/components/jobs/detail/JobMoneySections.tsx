@@ -146,9 +146,9 @@ export function JobCostsCard({
 
 const INVOICE_STATUS_CLASS: Record<InvoiceStatus, string> = {
   draft: 'bg-bg-tertiary text-text-secondary',
-  sent: 'bg-blue-500/10 text-blue-500',
-  viewed: 'bg-blue-500/10 text-blue-500',
-  paid: 'bg-success-500/10 text-success-500',
+  sent: 'bg-info-subtle text-info',
+  viewed: 'bg-info-subtle text-info',
+  paid: 'bg-success-subtle text-success',
   void: 'bg-bg-tertiary text-text-secondary',
 };
 

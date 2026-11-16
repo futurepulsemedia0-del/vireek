@@ -145,24 +145,24 @@ export const NODE_LABELS: Record<GraphNodeType, string> = {
 };
 
 export const NODE_COLORS: Record<GraphNodeType, string> = {
-  customer: '#3b82f6',
-  property: '#14b8a6',
-  equipment: '#f59e0b',
-  failure: '#ef4444',
-  technician: '#8b5cf6',
-  part: '#ec4899',
-  job: '#64748b',
-  outcome: '#22c55e',
-  warranty: '#06b6d4',
-  vendor: '#a855f7',
-  call: '#0ea5e9',
-  payment: '#84cc16',
-  contractor: '#f97316',
-  knowledge: '#6366f1',
-  agent: '#d946ef',
-  component: '#eab308',
-  hazard: '#dc2626',
-  capture: '#94a3b8',
+  customer: '#3d8ef6',
+  property: '#34c759',
+  equipment: '#ffcc00',
+  failure: '#ff2d55',
+  technician: '#6c6fff',
+  part: '#ff375f',
+  job: '#73726c',
+  outcome: '#34c759',
+  warranty: '#6eacff',
+  vendor: '#7e6bfd',
+  call: '#3d8ef6',
+  payment: '#30d158',
+  contractor: '#f9774c',
+  knowledge: '#6c6fff',
+  agent: '#7e6bfd',
+  component: '#caa100',
+  hazard: '#d4222a',
+  capture: '#a9a8a2',
 };
 
 const RELATION_LABELS: Record<string, string> = {
@@ -211,7 +211,7 @@ export function riskTier(score: number): RiskTier {
 
 export const RISK_COLORS: Record<RiskTier, string> = {
   high: 'bg-danger/10 text-danger',
-  medium: 'bg-warning-500/10 text-warning-500',
+  medium: 'bg-warning-subtle text-warning',
   low: 'bg-bg-tertiary text-text-secondary',
 };
 

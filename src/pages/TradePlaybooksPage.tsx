@@ -28,7 +28,7 @@ const KIND_META: Record<SuggestionKind, { icon: LucideIcon; label: string }> = {
 
 const CARD = 'rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark';
 const BTN_SECONDARY = 'focus-ring flex items-center justify-center gap-2 rounded-xl border border-border bg-bg-secondary px-4 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-bg-tertiary disabled:opacity-50';
-const BTN_PRIMARY = 'focus-ring flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent/90 disabled:opacity-50';
+const BTN_PRIMARY = 'focus-ring flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-on-accent transition-colors hover:bg-accent/90 disabled:opacity-50';
 
 const pct = (v: number | null) => (v === null ? '—' : `${Math.round(v)}%`);
 
@@ -127,7 +127,7 @@ function SuggestionCard({ s, busy, onApply, onDismiss }: { s: LearningSuggestion
   return (
     <div className="rounded-2xl border border-accent/30 bg-accent/5 p-4">
       <div className="flex items-start gap-3">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent text-white"><Icon size={16} /></span>
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent text-on-accent"><Icon size={16} /></span>
         <div className="min-w-0 flex-1">
           <p className="text-[11px] font-medium uppercase tracking-wide text-accent">{meta.label}</p>
           <h4 className="text-sm font-semibold text-text-primary">{s.title}</h4>

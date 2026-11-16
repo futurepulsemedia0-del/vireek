@@ -67,7 +67,7 @@ const TABS: { key: Tab; label: string }[] = [
   { key: 'activity', label: 'Activity' },
 ];
 
-const toneClass = { good: 'text-success-500', ok: 'text-warning-500', bad: 'text-danger', none: 'text-text-secondary' } as const;
+const toneClass = { good: 'text-success', ok: 'text-warning', bad: 'text-danger', none: 'text-text-secondary' } as const;
 const DAY = 86_400_000;
 
 function formatDate(iso: string | null): string {
@@ -82,7 +82,7 @@ function Delta({ current, previous, suffix = '' }: { current: number | null; pre
   const up = d > 0;
   const Icon = up ? TrendingUp : TrendingDown;
   return (
-    <span className={`inline-flex items-center gap-1 text-xs font-medium ${up ? 'text-success-500' : 'text-danger'}`}>
+    <span className={`inline-flex items-center gap-1 text-xs font-medium ${up ? 'text-success' : 'text-danger'}`}>
       <Icon size={13} aria-hidden="true" />
       {up ? '+' : ''}
       {d}
@@ -346,12 +346,12 @@ export function SurveysPage() {
               aria-controls={`surveys-panel-${t.key}`}
               onClick={() => setTab(t.key)}
               className={`focus-ring relative min-h-[40px] flex-1 whitespace-nowrap rounded-xl px-4 text-sm font-medium transition-colors sm:flex-none ${
-                tab === t.key ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'
+                tab === t.key ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'
               }`}
             >
               {t.label}
               {t.key === 'recovery' && openCases.length > 0 && (
-                <span className={`ml-2 rounded-full px-1.5 py-0.5 text-[11px] font-semibold ${tab === t.key ? 'bg-white/25 text-white' : 'bg-danger text-white'}`}>{openCases.length}</span>
+                <span className={`ml-2 rounded-full px-1.5 py-0.5 text-[11px] font-semibold ${tab === t.key ? 'bg-surface-inverse text-on-inverse' : 'bg-danger text-on-danger'}`}>{openCases.length}</span>
               )}
             </button>
           ))}
@@ -387,13 +387,13 @@ export function SurveysPage() {
                         role="radio"
                         aria-checked={range === r.key}
                         onClick={() => setRange(r.key)}
-                        className={`focus-ring min-h-[36px] rounded-lg px-3 text-sm font-medium transition-colors ${range === r.key ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}
+                        className={`focus-ring min-h-[36px] rounded-lg px-3 text-sm font-medium transition-colors ${range === r.key ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}
                       >
                         {r.label}
                       </button>
                     ))}
                   </div>
-                  {hitCap && <p className="text-xs text-warning-500">Showing the most recent {INVITATION_FETCH_LIMIT.toLocaleString()} surveys.</p>}
+                  {hitCap && <p className="text-xs text-warning">Showing the most recent {INVITATION_FETCH_LIMIT.toLocaleString()} surveys.</p>}
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -435,7 +435,7 @@ export function SurveysPage() {
                           role="radio"
                           aria-checked={effectiveType === t}
                           onClick={() => setChartType(t)}
-                          className={`focus-ring min-h-[36px] rounded-lg px-3 text-sm font-medium transition-colors ${effectiveType === t ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}
+                          className={`focus-ring min-h-[36px] rounded-lg px-3 text-sm font-medium transition-colors ${effectiveType === t ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}
                         >
                           {SURVEY_TYPE_LABELS[t]}
                         </button>
@@ -446,7 +446,7 @@ export function SurveysPage() {
                   {effectiveType === 'nps' && sum.nps.responses > 0 && (
                     <div className="mt-4">
                       <div className="flex h-2.5 overflow-hidden rounded-full bg-bg-tertiary" role="img" aria-label={`${sum.nps.promoters} promoters, ${sum.nps.passives} passives, ${sum.nps.detractors} detractors`}>
-                        <div className="bg-success-500" style={{ width: `${(sum.nps.promoters / sum.nps.responses) * 100}%` }} />
+                        <div className="bg-success" style={{ width: `${(sum.nps.promoters / sum.nps.responses) * 100}%` }} />
                         <div className="bg-text-secondary/40" style={{ width: `${(sum.nps.passives / sum.nps.responses) * 100}%` }} />
                         <div className="bg-danger" style={{ width: `${(sum.nps.detractors / sum.nps.responses) * 100}%` }} />
                       </div>
@@ -588,7 +588,7 @@ export function SurveysPage() {
                       )}
                       <span
                         className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                          i.status === 'responded' ? 'bg-success-500/10 text-success-500' : i.status === 'failed' ? 'bg-danger/10 text-danger' : 'bg-bg-tertiary text-text-secondary'
+                          i.status === 'responded' ? 'bg-success-subtle text-success' : i.status === 'failed' ? 'bg-danger/10 text-danger' : 'bg-bg-tertiary text-text-secondary'
                         }`}
                       >
                         {INVITATION_STATUS_LABELS[i.status]}

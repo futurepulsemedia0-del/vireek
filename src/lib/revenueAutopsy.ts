@@ -101,13 +101,13 @@ export const ROOT_CAUSE_PREVENTION: Record<RootCause, string> = {
 };
 
 export const ROOT_CAUSE_COLORS: Record<RootCause, string> = {
-  price_objection: 'bg-warning-500/10 text-warning-500',
+  price_objection: 'bg-warning-subtle text-warning',
   went_to_competitor: 'bg-danger/10 text-danger',
   slow_response: 'bg-danger/10 text-danger',
-  unresolved_sales_objection: 'bg-warning-500/10 text-warning-500',
+  unresolved_sales_objection: 'bg-warning-subtle text-warning',
   scope_mismatch: 'bg-bg-tertiary text-text-secondary',
   scheduling_conflict: 'bg-bg-tertiary text-text-secondary',
-  financing_friction: 'bg-warning-500/10 text-warning-500',
+  financing_friction: 'bg-warning-subtle text-warning',
   billing_or_payment_issue: 'bg-danger/10 text-danger',
   unknown: 'bg-bg-tertiary text-text-secondary',
 };

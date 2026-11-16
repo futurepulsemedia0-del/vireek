@@ -24,7 +24,7 @@ const BLOCKED_COPY: Record<PublicSplitReason, { title: string; body: string }> =
 function Shell({ children }: { children: ReactNode }) {
   return (
     <main className="flex min-h-screen items-center justify-center bg-bg-primary px-4 py-10">
-      <div className="w-full max-w-md rounded-2xl border border-border-primary bg-bg-secondary p-6 shadow-sm">{children}</div>
+      <div className="w-full max-w-md rounded-2xl border border-border bg-bg-secondary p-6 shadow-sm">{children}</div>
     </main>
   );
 }
@@ -143,7 +143,7 @@ export function SplitPayerPayPage() {
           </p>
         </div>
 
-        <dl className="space-y-1 border-t border-border-primary pt-4 text-sm">
+        <dl className="space-y-1 border-t border-border pt-4 text-sm">
           <div className="flex justify-between text-text-secondary"><dt>Your share</dt><dd>{formatCents(summary.share_cents ?? payable)}</dd></div>
           {paid > 0 && <div className="flex justify-between text-text-secondary"><dt>Already paid</dt><dd>−{formatCents(paid)}</dd></div>}
           <div className="flex justify-between text-base font-bold text-text-primary"><dt>Due now</dt><dd>{formatCents(payable)}</dd></div>

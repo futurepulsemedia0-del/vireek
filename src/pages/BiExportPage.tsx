@@ -251,7 +251,7 @@ export function BiExportPage() {
   const tabs = (
     <div className="mb-5 flex gap-2" role="tablist">
       {([['delivery', 'Delivery to your bucket'], ['sql', 'Power BI & SQL']] as const).map(([id, label]) => (
-        <button key={id} role="tab" aria-selected={tab === id} onClick={() => setTab(id)} className={`focus-ring rounded-xl px-4 py-2 text-sm font-semibold ${tab === id ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>{label}</button>
+        <button key={id} role="tab" aria-selected={tab === id} onClick={() => setTab(id)} className={`focus-ring rounded-xl px-4 py-2 text-sm font-semibold ${tab === id ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>{label}</button>
       ))}
     </div>
   );
@@ -262,7 +262,7 @@ export function BiExportPage() {
       {tabs}
       {error && <div className="mb-4"><ErrorBanner message={error} onRetry={() => void reload()} /></div>}
       {secretShown && (
-        <Card className="mb-5 space-y-3 border-warning-500/40 p-5">
+        <Card className="mb-5 space-y-3 border-warning/40 p-5">
           <h3 className="flex items-center gap-2 text-base font-semibold text-text-primary"><KeyRound size={18} />Signing secret (shown once)</h3>
           <p className="text-sm text-text-secondary">Every delivery includes a manifest signed with this secret so you can prove files are complete and unmodified. Store it in your secrets manager.</p>
           <CodeBlock code={secretShown} />
@@ -370,7 +370,7 @@ export function BiExportPage() {
               </Button>
             </div>
             {reader && (
-              <div className="space-y-3 rounded-xl border border-warning-500/40 p-4">
+              <div className="space-y-3 rounded-xl border border-warning/40 p-4">
                 <p className="text-sm font-semibold text-text-primary">Copy these now. The password is shown once.</p>
                 <CodeBlock code={`Host: ${reader.host}\nPort: ${reader.port}\nDatabase: ${reader.database}\nUser: ${reader.role_name}\nPassword: ${reader.password}\n\nIf you connect through the Supabase pooler use this user instead: ${reader.pooler_user}`} />
                 <CodeBlock code={powerBiQuery(reader.host, 'bi_jobs')} />

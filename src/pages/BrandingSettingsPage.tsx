@@ -175,7 +175,7 @@ function ColorField({
           spellCheck={false}
           autoComplete="off"
           error={error}
-          placeholder="#2563EB"
+          placeholder="#A93B0F"
           className="font-mono uppercase"
         />
       </div>
@@ -191,7 +191,7 @@ function ContrastBadge({ background }: { background: string }) {
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
-        ok ? 'bg-success-500/10 text-success' : 'bg-warning-500/10 text-warning-500'
+        ok ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning'
       }`}
     >
       {ok ? <CheckCircle2 size={12} /> : <AlertTriangle size={12} />}
@@ -202,8 +202,8 @@ function ContrastBadge({ background }: { background: string }) {
 
 const DOMAIN_BADGE: Record<DomainStatus, { label: string; cls: string; icon: typeof Clock }> = {
   unconfigured: { label: 'Not set up', cls: 'bg-bg-tertiary text-text-secondary', icon: Globe },
-  pending: { label: 'Waiting for DNS', cls: 'bg-warning-500/10 text-warning-500', icon: Clock },
-  verified: { label: 'Verified', cls: 'bg-success-500/10 text-success', icon: CheckCircle2 },
+  pending: { label: 'Waiting for DNS', cls: 'bg-warning-subtle text-warning', icon: Clock },
+  verified: { label: 'Verified', cls: 'bg-success-subtle text-success', icon: CheckCircle2 },
   failed: { label: 'Not verified', cls: 'bg-danger/10 text-danger', icon: XCircle },
 };
 
@@ -247,10 +247,10 @@ function PreviewShell({ title, children }: { title: string; children: React.Reac
 function PortalPreview({ form, logoUrl, businessName, showVireek }: { form: BrandForm; logoUrl: string | null; businessName: string; showVireek: boolean }) {
   const vars = brandCssVars(form.primary_color, form.accent_color) as React.CSSProperties;
   const dark = form.portal_theme === 'dark';
-  const bg = dark ? '#0B1220' : '#FFFFFF';
-  const fg = dark ? '#E5E7EB' : '#0F172A';
-  const muted = dark ? '#94A3B8' : '#64748B';
-  const line = dark ? '#1F2A3D' : '#E2E8F0';
+  const bg = dark ? '#141413' : '#FFFFFF';
+  const fg = dark ? '#E8E6DC' : '#1C1B15';
+  const muted = dark ? '#A9A8A2' : '#73726C';
+  const line = dark ? '#2F2E28' : '#E8E6DC';
   const title = form.portal_welcome_title.trim() || `Welcome to ${businessName}`;
   const message = form.portal_welcome_message.trim() || 'View your jobs, quotes and equipment — all in one place.';
   return (
@@ -259,7 +259,7 @@ function PortalPreview({ form, logoUrl, businessName, showVireek }: { form: Bran
         {logoUrl ? (
           <img src={logoUrl} alt="" className="h-7 max-w-[120px] rounded object-contain" />
         ) : (
-          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-white/20 text-xs font-bold">
+          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-bg-secondary/20 text-xs font-bold">
             {businessName.slice(0, 1).toUpperCase()}
           </span>
         )}
@@ -709,7 +709,7 @@ export function BrandingSettingsPage() {
                       aria-checked={form.portal_theme === o.id}
                       onClick={() => set('portal_theme', o.id)}
                       className={`focus-ring rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-                        form.portal_theme === o.id ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'
+                        form.portal_theme === o.id ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'
                       }`}
                     >
                       {o.label}
@@ -851,7 +851,7 @@ export function BrandingSettingsPage() {
                     aria-selected={previewTab === id}
                     onClick={() => setPreviewTab(id)}
                     className={`focus-ring flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors ${
-                      previewTab === id ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'
+                      previewTab === id ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'
                     }`}
                   >
                     <Icon size={13} /> {label}

@@ -41,7 +41,7 @@ import {
 } from '@/lib/dataGovernance';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder transition-colors';
 
 type Tab = 'overview' | 'retention' | 'consent' | 'pii' | 'deletion';
 
@@ -245,7 +245,7 @@ export function DataGovernancePage() {
             type="button"
             onClick={() => setTab(t.key)}
             className={`focus-ring flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium transition-colors ${
-              tab === t.key ? 'bg-accent text-white' : 'bg-bg-secondary text-text-secondary hover:text-text-primary'
+              tab === t.key ? 'bg-accent text-on-accent' : 'bg-bg-secondary text-text-secondary hover:text-text-primary'
             }`}
           >
             <t.icon size={14} /> {t.label}
@@ -289,7 +289,7 @@ export function DataGovernancePage() {
                         {health.drillPassed ? (
                           <CheckCircle2 size={16} className="text-success" />
                         ) : (
-                          <AlertTriangle size={16} className="text-warning-500" />
+                          <AlertTriangle size={16} className="text-warning" />
                         )}
                         <p className="text-sm text-text-primary capitalize">{health.lastDrill.status}</p>
                       </div>
@@ -359,7 +359,7 @@ export function DataGovernancePage() {
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <p className="text-sm font-semibold text-text-primary">{ds.label}</p>
                         {policy?.legal_hold && (
-                          <span className="flex items-center gap-1 rounded-full bg-warning-500/10 px-2 py-0.5 text-[11px] font-semibold text-warning-500">
+                          <span className="flex items-center gap-1 rounded-full bg-warning-subtle px-2 py-0.5 text-[11px] font-semibold text-warning">
                             <Lock size={11} /> Legal hold
                           </span>
                         )}
@@ -441,7 +441,7 @@ export function DataGovernancePage() {
                   type="button"
                   onClick={handleRecordConsent}
                   disabled={savingConsent}
-                  className="focus-ring flex items-center justify-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50"
+                  className="focus-ring flex items-center justify-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent transition-all hover:brightness-110 disabled:opacity-50"
                 >
                   {savingConsent ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />} Record
                 </button>
@@ -492,7 +492,7 @@ export function DataGovernancePage() {
                               p.sensitivity === 'critical'
                                 ? 'bg-danger/10 text-danger'
                                 : p.sensitivity === 'high'
-                                ? 'bg-warning-500/10 text-warning-500'
+                                ? 'bg-warning-subtle text-warning'
                                 : 'bg-bg-tertiary text-text-secondary'
                             }`}
                           >
@@ -537,7 +537,7 @@ export function DataGovernancePage() {
                   type="button"
                   onClick={handleCreateRequest}
                   disabled={creatingRequest}
-                  className="focus-ring flex items-center justify-center gap-1.5 rounded-xl bg-danger px-4 py-2 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50"
+                  className="focus-ring flex items-center justify-center gap-1.5 rounded-xl bg-danger px-4 py-2 text-sm font-medium text-on-danger transition-all hover:brightness-110 disabled:opacity-50"
                 >
                   {creatingRequest ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />} Request deletion
                 </button>

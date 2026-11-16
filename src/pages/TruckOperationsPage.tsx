@@ -71,9 +71,9 @@ import {
 
 const cardClass = 'rounded-2xl border border-border bg-bg-secondary p-4';
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder';
 const btnPrimary =
-  'focus-ring inline-flex items-center justify-center gap-1.5 rounded-xl bg-accent px-3.5 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50';
+  'focus-ring inline-flex items-center justify-center gap-1.5 rounded-xl bg-accent px-3.5 py-2 text-sm font-semibold text-on-accent transition-opacity hover:opacity-90 disabled:opacity-50';
 const btnGhost =
   'focus-ring inline-flex items-center justify-center gap-1.5 rounded-xl border border-border px-3 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:text-text-primary disabled:opacity-50';
 
@@ -99,7 +99,7 @@ function Badge({ tone, children }: { tone: Tone; children: ReactNode }) {
 function Stat({ label, value, tone }: { label: string; value: string | number; tone?: Tone }) {
   return (
     <div className={cardClass}>
-      <p className={`text-2xl font-bold ${tone === 'danger' ? 'text-danger' : tone === 'warning' ? 'text-warning-500' : 'text-text-primary'}`}>{value}</p>
+      <p className={`text-2xl font-bold ${tone === 'danger' ? 'text-danger' : tone === 'warning' ? 'text-warning' : 'text-text-primary'}`}>{value}</p>
       <p className="mt-0.5 text-xs text-text-secondary">{label}</p>
     </div>
   );
@@ -227,11 +227,11 @@ export function TruckOperationsPage() {
               aria-selected={tab === key}
               onClick={() => setParams({ tab: key })}
               className={`focus-ring inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                tab === key ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
+                tab === key ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
               }`}
             >
               <Icon className="h-3.5 w-3.5" aria-hidden /> {label}
-              {key === 'alerts' && open.length > 0 && <span className="ml-1 rounded-full bg-white/20 px-1.5 text-[10px]">{open.length}</span>}
+              {key === 'alerts' && open.length > 0 && <span className="ml-1 rounded-full bg-bg-secondary/20 px-1.5 text-[10px]">{open.length}</span>}
             </button>
           ))}
         </div>
@@ -303,7 +303,7 @@ function ForecastTab({ refreshKey, onChanged }: { refreshKey: number; onChanged:
       </div>
 
       {totalShortfall > 0 && (
-        <p role="status" className="rounded-xl bg-warning-500/10 p-3 text-sm text-warning-500">
+        <p role="status" className="rounded-xl bg-warning-subtle p-3 text-sm text-warning">
           {totalShortfall} unit(s) can't be covered from your warehouses. Order them under{' '}
           <Link to="/dashboard/inventory" className="font-semibold underline">
             Parts &amp; Inventory
@@ -370,7 +370,7 @@ function ForecastRowView({ row: r }: { row: ForecastRow }) {
       <td className="px-2 py-2 font-semibold text-text-primary">+{r.suggested_qty}</td>
       <td className="px-2 py-2">
         {r.fulfillable_qty}
-        {r.order_shortfall > 0 && <span className="ml-1 text-xs text-warning-500">(short {r.order_shortfall})</span>}
+        {r.order_shortfall > 0 && <span className="ml-1 text-xs text-warning">(short {r.order_shortfall})</span>}
       </td>
       <td className="py-2 pl-2">
         <div className="flex flex-wrap gap-1">
@@ -413,7 +413,7 @@ function TransfersTab({ refreshKey, onChanged }: { refreshKey: number; onChanged
               type="button"
               aria-pressed={filter === f}
               onClick={() => setFilter(f)}
-              className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium capitalize ${filter === f ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
+              className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium capitalize ${filter === f ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
             >
               {f}
             </button>
@@ -512,7 +512,7 @@ function TransferCard({ order, onChanged }: { order: TransferOrder; onChanged: (
           {order.lines.map((l) => (
             <li key={l.id} className="flex justify-between gap-3 text-text-secondary">
               <span className="truncate">{l.part?.name ?? 'Part'}</span>
-              <span className={l.qty_received < l.qty_picked ? 'text-warning-500' : undefined}>
+              <span className={l.qty_received < l.qty_picked ? 'text-warning' : undefined}>
                 {order.status === 'completed' ? `${l.qty_received}/${l.qty_picked}` : l.qty_planned}
               </span>
             </li>

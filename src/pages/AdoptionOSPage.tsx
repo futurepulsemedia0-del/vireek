@@ -48,18 +48,18 @@ const WINDOWS: AdoptionWindowDays[] = [30, 60, 90];
 
 const TONE_CLASSES = {
   neutral: 'bg-bg-tertiary text-text-secondary',
-  warning: 'bg-warning-500/10 text-warning-500',
+  warning: 'bg-warning-subtle text-warning',
   accent: 'bg-accent/10 text-accent',
-  success: 'bg-success-500/10 text-success-500',
+  success: 'bg-success-subtle text-success',
 } as const;
 
 const LEVEL_ORDER: Record<AdoptionLevel, number> = { low: 0, medium: 1, high: 2, insufficient: 3 };
 
 function barColor(pct: number | null): string {
   if (pct === null) return 'bg-bg-tertiary';
-  if (pct >= 75) return 'bg-success-500';
+  if (pct >= 75) return 'bg-success';
   if (pct >= 50) return 'bg-accent';
-  return 'bg-warning-500';
+  return 'bg-warning';
 }
 
 function formatPct(value: number | null): string {
@@ -83,9 +83,9 @@ function LevelBadge({ level }: { level: AdoptionLevel }) {
 
 function TrendIcon({ trend }: { trend: AdoptionTrend }) {
   if (trend === 'improving')
-    return <TrendingUp size={16} className="text-success-500" aria-label="Improving" />;
+    return <TrendingUp size={16} className="text-success" aria-label="Improving" />;
   if (trend === 'declining')
-    return <TrendingDown size={16} className="text-warning-500" aria-label="Declining" />;
+    return <TrendingDown size={16} className="text-warning" aria-label="Declining" />;
   if (trend === 'steady') return <Minus size={16} className="text-text-secondary" aria-label="Steady" />;
   return null;
 }
@@ -270,8 +270,8 @@ export function AdoptionOSPage() {
       </div>
 
       {setupMissing && (
-        <div className="mb-6 flex items-start gap-3 rounded-2xl border border-warning-500/30 bg-warning-500/5 p-4 text-sm text-text-secondary">
-          <Database size={18} className="mt-0.5 shrink-0 text-warning-500" />
+        <div className="mb-6 flex items-start gap-3 rounded-2xl border border-warning/30 bg-warning-subtle p-4 text-sm text-text-secondary">
+          <Database size={18} className="mt-0.5 shrink-0 text-warning" />
           <p>
             The adoption database objects are not available yet. Apply the migration{' '}
             <span className="font-mono text-text-primary">20270210000000_adoption_os.sql</span> to

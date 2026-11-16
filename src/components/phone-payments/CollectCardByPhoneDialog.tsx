@@ -94,7 +94,7 @@ export function CollectCardByPhoneDialog({ open, vapiCallId, callerPhone, onClos
   const finished = session && !active;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" role="presentation">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/50 p-4" role="presentation">
       <div ref={ref} role="dialog" aria-modal="true" aria-labelledby="cc-title" className="w-full max-w-md rounded-2xl border border-border bg-bg-primary p-6 shadow-xl">
         <div className="flex items-center gap-2">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent/10 text-accent"><Lock size={18} /></span>
@@ -142,7 +142,7 @@ export function CollectCardByPhoneDialog({ open, vapiCallId, callerPhone, onClos
               <li>{session?.recording_resumed_at ? '✓' : '○'} Call recording resumed</li>
             </ul>
             {finished && session.status === 'succeeded' && (
-              <p role="status" className="mt-3 flex items-center gap-2 rounded-xl border border-success-500/30 bg-success-500/10 px-3 py-2 text-sm text-text-primary"><CircleCheck size={16} />Payment received. A receipt is being sent.</p>
+              <p role="status" className="mt-3 flex items-center gap-2 rounded-xl border border-success/30 bg-success-subtle px-3 py-2 text-sm text-text-primary"><CircleCheck size={16} />Payment received. A receipt is being sent.</p>
             )}
             {finished && session.status !== 'succeeded' && (
               <p role="alert" className="mt-3 flex items-center gap-2 rounded-xl border border-danger/30 bg-danger/10 px-3 py-2 text-sm text-text-primary"><CircleX size={16} />{FAILURE_COPY[session.failure_code ?? ''] ?? 'The payment did not complete.'}</p>

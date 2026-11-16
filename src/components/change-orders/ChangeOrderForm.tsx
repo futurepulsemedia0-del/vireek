@@ -65,7 +65,7 @@ function ParentPicker({ ownerId, value, onChange }: { ownerId: string; value: Pa
         {options === null ? (
           <p className="flex items-center gap-2 p-3 text-sm text-text-secondary" aria-busy="true"><Loader2 size={14} className="animate-spin" aria-hidden="true" /> Loading…</p>
         ) : failed ? (
-          <p className="p-3 text-sm text-danger-500">Couldn’t load jobs and projects. Try searching again.</p>
+          <p className="p-3 text-sm text-danger">Couldn’t load jobs and projects. Try searching again.</p>
         ) : options.length === 0 ? (
           <p className="p-3 text-sm text-text-secondary">Nothing matches. Try a different customer, project number or address.</p>
         ) : (
@@ -122,7 +122,7 @@ export function ChangeOrderForm({ mode, ownerId, initial, submitting, onSubmit, 
           <h2 className="text-base font-semibold text-text-primary">Applies to</h2>
           <p className="mb-3 mt-0.5 text-sm text-text-secondary">The job or install project whose scope or price is changing.</p>
           <ParentPicker ownerId={ownerId} value={parent} onChange={pickParent} />
-          {parentError && <p role="alert" className="mt-2 text-sm text-danger-500">{parentError}</p>}
+          {parentError && <p role="alert" className="mt-2 text-sm text-danger">{parentError}</p>}
         </section>
       )}
 
@@ -175,18 +175,18 @@ export function ChangeOrderForm({ mode, ownerId, initial, submitting, onSubmit, 
                       aria-label={`Remove line ${i + 1}`}
                       disabled={v.lines.length === 1}
                       onClick={() => setV((p) => ({ ...p, lines: p.lines.filter((_, idx) => idx !== i) }))}
-                      className="focus-ring rounded-lg p-2 text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-danger-500 disabled:opacity-40"
+                      className="focus-ring rounded-lg p-2 text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-danger disabled:opacity-40"
                     >
                       <Trash2 size={16} aria-hidden="true" />
                     </button>
                   </div>
                 </div>
-                {lineErr && <p role="alert" className="mt-2 text-sm text-danger-500">{lineErr}</p>}
+                {lineErr && <p role="alert" className="mt-2 text-sm text-danger">{lineErr}</p>}
               </li>
             );
           })}
         </ul>
-        {errors.lines && <p role="alert" className="text-sm text-danger-500">{errors.lines}</p>}
+        {errors.lines && <p role="alert" className="text-sm text-danger">{errors.lines}</p>}
 
         <Button type="button" variant="secondary" size="sm" disabled={v.lines.length >= MAX_LINES} onClick={() => setV((p) => ({ ...p, lines: [...p.lines, { ...EMPTY_LINE }] }))}>
           <Plus size={16} aria-hidden="true" /> Add line

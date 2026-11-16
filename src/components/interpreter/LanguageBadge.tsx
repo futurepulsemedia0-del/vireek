@@ -18,7 +18,7 @@ export function LanguageBadge({ lang, mode, degraded }: Props) {
     <span
       title={title}
       aria-label={`Caller language: ${meta.name}`}
-      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${degraded ? 'bg-warning-500/10 text-warning-500' : 'bg-accent/10 text-accent'}`}
+      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${degraded ? 'bg-warning-subtle text-warning' : 'bg-accent/10 text-accent'}`}
     >
       <Languages size={11} aria-hidden />
       <span lang={code} dir={meta.dir}>{meta.nativeName}</span>

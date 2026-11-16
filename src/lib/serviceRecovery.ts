@@ -25,7 +25,7 @@ export const SIGNAL_TYPE_OPTIONS: SignalType[] = ['payment_dispute','customer_di
 export const SEVERITY_LABELS: Record<Severity, string> = { low: 'Low', medium: 'Medium', high: 'High', critical: 'Critical' };
 export const SEVERITY_COLORS: Record<Severity, string> = {
   low: 'bg-bg-tertiary text-text-secondary', medium: 'bg-accent/10 text-accent',
-  high: 'bg-warning-500/10 text-warning-500', critical: 'bg-danger/10 text-danger',
+  high: 'bg-warning-subtle text-warning', critical: 'bg-danger/10 text-danger',
 };
 const SEVERITY_RANK: Record<Severity, number> = { low: 0, medium: 1, high: 2, critical: 3 };
 export const STATUS_LABELS: Record<SignalStatus, string> = {
@@ -33,9 +33,9 @@ export const STATUS_LABELS: Record<SignalStatus, string> = {
   action_sent: 'Response sent', resolved: 'Resolved', ignored: 'Ignored',
 };
 export const STATUS_COLORS: Record<SignalStatus, string> = {
-  open: 'bg-danger/10 text-danger', playbook_enrolled: 'bg-accent/10 text-accent', escalated: 'bg-warning-500/10 text-warning-500',
+  open: 'bg-danger/10 text-danger', playbook_enrolled: 'bg-accent/10 text-accent', escalated: 'bg-warning-subtle text-warning',
   action_queued: 'bg-accent/10 text-accent', action_sent: 'bg-accent/10 text-accent',
-  resolved: 'bg-success-500/10 text-success-500', ignored: 'bg-bg-tertiary text-text-secondary',
+  resolved: 'bg-success-subtle text-success', ignored: 'bg-bg-tertiary text-text-secondary',
 };
 const OPEN_STATUSES: ReadonlySet<SignalStatus> = new Set(['open', 'playbook_enrolled', 'escalated', 'action_queued']);
 export function isOpenSignal(status: SignalStatus): boolean { return OPEN_STATUSES.has(status); }

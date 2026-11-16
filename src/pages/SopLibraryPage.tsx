@@ -111,7 +111,7 @@ function CompletionDialog({ sop, onClose }: { sop: SopSummary; onClose: () => vo
 
   return (
     <div className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center sm:p-4">
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+      <div className="absolute inset-0 bg-overlay/30 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
       <div
         ref={dialogRef}
         role="dialog"
@@ -312,7 +312,7 @@ export function SopLibraryPage() {
           <StatCard label="Published SOPs" value={published} />
           <StatCard label="Completion" value={`${overall.pct}%`} tone="text-success" />
           <StatCard label="Overdue" value={overall.overdue} tone={overall.overdue > 0 ? 'text-danger' : 'text-text-primary'} />
-          <StatCard label="Needs re-acknowledge" value={overall.needsReack} tone={overall.needsReack > 0 ? 'text-warning-500' : 'text-text-primary'} />
+          <StatCard label="Needs re-acknowledge" value={overall.needsReack} tone={overall.needsReack > 0 ? 'text-warning' : 'text-text-primary'} />
         </div>
       )}
 
@@ -329,7 +329,7 @@ export function SopLibraryPage() {
                 role="tab"
                 aria-selected={status === tab.key}
                 onClick={() => setStatus(tab.key)}
-                className={`focus-ring whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${status === tab.key ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}
+                className={`focus-ring whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${status === tab.key ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}
               >
                 {tab.label}
               </button>
@@ -366,7 +366,7 @@ export function SopLibraryPage() {
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <h2 className="truncate text-base font-semibold text-text-primary">{s.title}</h2>
-                      <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${s.status === 'published' ? 'bg-success/10 text-success' : s.status === 'draft' ? 'bg-bg-tertiary text-text-secondary' : 'bg-warning-500/10 text-warning-500'}`}>
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${s.status === 'published' ? 'bg-success/10 text-success' : s.status === 'draft' ? 'bg-bg-tertiary text-text-secondary' : 'bg-warning-subtle text-warning'}`}>
                         {s.status === 'published' ? `Published v${s.published_version}` : s.status === 'draft' ? 'Draft' : 'Archived'}
                       </span>
                       {s.category && <span className="text-xs text-text-secondary">{s.category}</span>}

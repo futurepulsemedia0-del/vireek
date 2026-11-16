@@ -308,7 +308,7 @@ export function validateSettings(s: BookingSettings): SettingsErrors {
 
   const b = s.branding;
   if (b.accent_color) {
-    if (!HEX_RE.test(b.accent_color)) e.accent = 'Use a 6-digit hex colour like #1f3ad8.';
+    if (!HEX_RE.test(b.accent_color)) e.accent = 'Use a 6-digit hex colour like #a93b0f.';
     else if (contrastWithWhite(b.accent_color) < L.minContrastWithWhite) e.accent = 'Too light — white button text would be hard to read. Pick a darker colour.';
   }
   if (b.logo_url && (!isHttpsUrl(b.logo_url) || b.logo_url.length > 500)) e.logo = 'Use a secure https:// image link.';

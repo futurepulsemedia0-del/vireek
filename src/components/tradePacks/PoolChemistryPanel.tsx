@@ -655,7 +655,7 @@ export function PoolChemistryPanel({ pack, ownerId, job, onChanged }: Props) {
                   <div className="flex flex-wrap items-center gap-2">
                     {s.order > 0 && (
                       <span
-                        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-bold text-white"
+                        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-bold text-on-accent"
                         aria-label={`Step ${s.order}`}
                       >
                         {s.order}

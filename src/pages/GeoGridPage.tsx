@@ -374,7 +374,7 @@ export function GeoGridPage() {
         </div>
 
         {statusFailed && status === null && (
-          <div role="alert" className="mb-4 flex flex-col gap-2 rounded-xl border border-warning-500/40 bg-warning-500/10 p-3 text-sm text-warning-500 sm:flex-row sm:items-center sm:justify-between">
+          <div role="alert" className="mb-4 flex flex-col gap-2 rounded-xl border border-warning/40 bg-warning-subtle p-3 text-sm text-warning sm:flex-row sm:items-center sm:justify-between">
             <span>We couldn't reach the scanning service, so new scans are paused.</span>
             <Button variant="secondary" size="sm" onClick={() => void load()}>
               <RefreshCw size={14} aria-hidden="true" /> Try again
@@ -382,7 +382,7 @@ export function GeoGridPage() {
           </div>
         )}
         {status && !status.configured && (
-          <div role="status" className="mb-4 rounded-xl border border-warning-500/40 bg-warning-500/10 p-3 text-sm text-warning-500">
+          <div role="status" className="mb-4 rounded-xl border border-warning/40 bg-warning-subtle p-3 text-sm text-warning">
             Scanning isn't set up yet. An administrator needs to add a Google Places API key (GOOGLE_PLACES_API_KEY) to the scanning function. You can still view saved results.
           </div>
         )}
@@ -670,7 +670,7 @@ export function GeoGridPage() {
                       </div>
                     </div>
 
-                    {shownCompleted.error && <p className="mb-3 text-xs text-warning-500">{shownCompleted.error}</p>}
+                    {shownCompleted.error && <p className="mb-3 text-xs text-warning">{shownCompleted.error}</p>}
 
                     {points && points.scanId === shownCompleted.id ? (
                       <div className="space-y-4">

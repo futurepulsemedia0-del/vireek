@@ -85,7 +85,7 @@ export function applyFooter(html: string, text: string, brand: EmailBrand): { ht
   if (lines.length === 0) return { html, text };
   return {
     html:
-      `${html}<div style="max-width:480px;margin:0 auto;padding:0 24px 24px;font:12px/1.5 -apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#9ca3af;white-space:pre-line">` +
+      `${html}<div style="max-width:480px;margin:0 auto;padding:0 24px 24px;font:12px/1.5 -apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#a9a8a2;white-space:pre-line">` +
       `${esc(lines.join("\n"))}</div>`,
     text: `${text}\n\n-- \n${lines.join("\n")}`,
   };

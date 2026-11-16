@@ -52,7 +52,7 @@ function MilestoneRow({ m, today, ownerId, run, busyKey, ask }: { m: ProjectMile
         aria-label={`${done ? 'Reopen' : 'Complete'} ${m.title}`}
         disabled={busy}
         onClick={() => run(`ms-${m.id}`, () => setMilestoneStatus(ownerId, m.id, done ? 'pending' : 'done'))}
-        className={`focus-ring flex h-6 w-6 shrink-0 items-center justify-center rounded-md border transition-colors disabled:opacity-50 ${done ? 'border-success-500 bg-success-500 text-white' : 'border-border bg-bg-primary text-transparent hover:border-accent'}`}
+        className={`focus-ring flex h-6 w-6 shrink-0 items-center justify-center rounded-md border transition-colors disabled:opacity-50 ${done ? 'border-success bg-success text-on-success' : 'border-border bg-bg-primary text-transparent hover:border-accent'}`}
       >
         <Check size={14} aria-hidden="true" />
       </button>
@@ -70,14 +70,14 @@ function MilestoneRow({ m, today, ownerId, run, busyKey, ask }: { m: ProjectMile
         type="date"
         defaultValue={m.due_date ?? ''}
         onBlur={(e) => { if (e.target.value !== (m.due_date ?? '')) void run(`ms-${m.id}`, () => setMilestoneDueDate(ownerId, m.id, e.target.value)); }}
-        className={`focus-ring rounded-lg border bg-bg-primary px-2 py-1 text-xs ${late ? 'border-danger-500 text-danger-500' : 'border-border text-text-secondary'}`}
+        className={`focus-ring rounded-lg border bg-bg-primary px-2 py-1 text-xs ${late ? 'border-danger text-danger' : 'border-border text-text-secondary'}`}
       />
       {m.status !== 'done' && (
         <button type="button" disabled={busy} aria-label={skipped ? `Restore ${m.title}` : `Skip ${m.title}`} title={skipped ? 'Restore' : 'Skip (not needed)'} onClick={() => run(`ms-${m.id}`, () => setMilestoneStatus(ownerId, m.id, skipped ? 'pending' : 'skipped'))} className="focus-ring rounded-lg p-1.5 text-text-secondary hover:bg-bg-tertiary">
           {skipped ? <Undo2 size={14} aria-hidden="true" /> : <CircleSlash size={14} aria-hidden="true" />}
         </button>
       )}
-      <button type="button" aria-label={`Delete ${m.title}`} onClick={() => ask({ title: 'Delete milestone?', description: `“${m.title}” will be removed from this project.`, label: 'Delete milestone', onConfirm: () => run(`ms-${m.id}`, () => deleteMilestone(ownerId, m.id), 'Milestone deleted.') })} className="focus-ring rounded-lg p-1.5 text-text-secondary hover:bg-bg-tertiary hover:text-danger-500">
+      <button type="button" aria-label={`Delete ${m.title}`} onClick={() => ask({ title: 'Delete milestone?', description: `“${m.title}” will be removed from this project.`, label: 'Delete milestone', onConfirm: () => run(`ms-${m.id}`, () => deleteMilestone(ownerId, m.id), 'Milestone deleted.') })} className="focus-ring rounded-lg p-1.5 text-text-secondary hover:bg-bg-tertiary hover:text-danger">
         <Trash2 size={14} aria-hidden="true" />
       </button>
     </li>
@@ -121,14 +121,14 @@ export function PhasesTab({ ownerId, bundle, today, onChanged }: TabProps) {
                 <select aria-label={`Status for ${p.name}`} className={`${selectClass} !w-auto`} value={p.status} disabled={busyKey === `ph-${p.id}`} onChange={(e) => run(`ph-${p.id}`, () => setPhaseStatus(ownerId, p.id, e.target.value as PhaseStatus))}>
                   {(Object.keys(PHASE_STATUS_LABEL) as PhaseStatus[]).map((s) => <option key={s} value={s}>{PHASE_STATUS_LABEL[s]}</option>)}
                 </select>
-                <button type="button" aria-label={`Delete phase ${p.name}`} onClick={() => ask({ title: 'Delete phase?', description: `“${p.name}” and its ${items.length} milestone${items.length === 1 ? '' : 's'} will be deleted. Billing steps and materials tied to it are kept.`, label: 'Delete phase', onConfirm: () => run(`ph-${p.id}`, () => deletePhase(ownerId, p.id), 'Phase deleted.') })} className="focus-ring rounded-lg p-1.5 text-text-secondary hover:bg-bg-tertiary hover:text-danger-500">
+                <button type="button" aria-label={`Delete phase ${p.name}`} onClick={() => ask({ title: 'Delete phase?', description: `“${p.name}” and its ${items.length} milestone${items.length === 1 ? '' : 's'} will be deleted. Billing steps and materials tied to it are kept.`, label: 'Delete phase', onConfirm: () => run(`ph-${p.id}`, () => deletePhase(ownerId, p.id), 'Phase deleted.') })} className="focus-ring rounded-lg p-1.5 text-text-secondary hover:bg-bg-tertiary hover:text-danger">
                   <Trash2 size={16} aria-hidden="true" />
                 </button>
               </div>
             </div>
             <div className="mt-3"><ProgressBar value={pct} label={`${p.name} progress`} tone={p.status === 'blocked' ? 'danger' : pct === 100 ? 'success' : 'info'} /></div>
             {allDone && (
-              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-success-500/10 p-3 text-sm text-success-500">
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-success-subtle p-3 text-sm text-success">
                 All milestones are finished.
                 <Button size="sm" variant="secondary" disabled={busyKey === `ph-${p.id}`} onClick={() => run(`ph-${p.id}`, () => setPhaseStatus(ownerId, p.id, 'completed'), 'Phase completed.')}>Mark phase complete</Button>
               </div>

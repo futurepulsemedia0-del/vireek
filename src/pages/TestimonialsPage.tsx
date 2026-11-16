@@ -186,7 +186,7 @@ export function TestimonialsPage() {
                       </span>
                       <span className="text-xs font-semibold uppercase tracking-wider text-accent">{t.industry}</span>
                     </div>
-                    <Quote size={24} className="mt-4 text-accent/30" />
+                    <Quote size={24} className="mt-4 text-accent" />
                     <p className="mt-3 flex-1 text-base leading-relaxed text-text-primary">&ldquo;{t.quote}&rdquo;</p>
                     <div className="mt-6 flex items-center gap-3 border-t border-border/60 pt-4">
                       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/15 text-sm font-bold text-accent">
@@ -203,7 +203,7 @@ export function TestimonialsPage() {
                     </div>
                     <Link
                       to={`/case-studies#${t.slug}`}
-                      className="focus-ring mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-accent transition-colors hover:text-accent/80"
+                      className="focus-ring mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-accent transition-colors hover:text-accent"
                     >
                       Read the full story <ArrowRight className="h-3.5 w-3.5" />
                     </Link>
@@ -285,7 +285,7 @@ export function TestimonialsPage() {
                 </div>
                 <Link
                   to="/blog"
-                  className="focus-ring hidden shrink-0 items-center gap-1.5 text-sm font-semibold text-accent transition-colors hover:text-accent/80 sm:inline-flex"
+                  className="focus-ring hidden shrink-0 items-center gap-1.5 text-sm font-semibold text-accent transition-colors hover:text-accent sm:inline-flex"
                 >
                   Visit the blog <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
@@ -328,7 +328,7 @@ export function TestimonialsPage() {
               <div className="mt-8 flex justify-center sm:hidden">
                 <Link
                   to="/blog"
-                  className="focus-ring inline-flex items-center gap-1.5 text-sm font-semibold text-accent transition-colors hover:text-accent/80"
+                  className="focus-ring inline-flex items-center gap-1.5 text-sm font-semibold text-accent transition-colors hover:text-accent"
                 >
                   Visit the blog <ArrowRight className="h-3.5 w-3.5" />
                 </Link>

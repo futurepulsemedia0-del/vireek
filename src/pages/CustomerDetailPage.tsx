@@ -162,14 +162,14 @@ function EquipmentCard({ eq, onDelete }: { eq: Equipment; onDelete: (eq: Equipme
       {warrantyDate && (
         <div
           className={`mt-3 flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] font-medium ${
-            underWarranty ? 'bg-success-500/10 text-success-500' : 'bg-bg-tertiary text-text-secondary'
+            underWarranty ? 'bg-success-subtle text-success' : 'bg-bg-tertiary text-text-secondary'
           }`}
         >
           {underWarranty ? <ShieldCheck size={13} /> : <ShieldAlert size={13} />}
           {underWarranty ? `Under warranty until ${formatDate(eq.warranty_expires_at)}` : `Warranty expired ${formatDate(eq.warranty_expires_at)}`}
         </div>
       )}
-      {eq.warranty_notes && <p className="mt-1.5 text-[11px] text-text-secondary/80">{eq.warranty_notes}</p>}
+      {eq.warranty_notes && <p className="mt-1.5 text-[11px] text-text-muted">{eq.warranty_notes}</p>}
       <EquipmentPassportChip equipmentId={eq.id} />
        <Link to={`/dashboard/predictive-failure?equipment=${eq.id}`} className="text-xs font-medium text-accent hover:underline">Failure forecast</Link>
       {eq.status !== 'active' && (
@@ -524,7 +524,7 @@ export function CustomerDetailPage() {
                   type="button"
                   onClick={handleAddEquipment}
                   disabled={saving}
-                  className="focus-ring rounded-lg bg-accent px-4 py-1.5 text-xs font-semibold text-white disabled:opacity-60"
+                  className="focus-ring rounded-lg bg-accent px-4 py-1.5 text-xs font-semibold text-on-accent disabled:opacity-60"
                 >
                   {saving ? 'Saving…' : 'Save equipment'}
                 </button>

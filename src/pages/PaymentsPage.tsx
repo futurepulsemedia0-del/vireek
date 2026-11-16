@@ -21,7 +21,7 @@ import {
 } from '@/lib/payments';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors focus-visible:border-accent';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder transition-colors focus-visible:border-accent';
 
 function formatMoney(amount: number) {
   return fmtRegional(amount, getActiveRegional().reportingCurrency);
@@ -181,7 +181,7 @@ const stats = useMemo(() => {
                 {job.customer_name} — {formatMoney(Number(job.invoice_amount ?? 0))}
               </p>
               {!connected ? (
-                <p className="flex items-center gap-2 rounded-lg border border-warning-500/25 bg-warning-500/10 px-3 py-2 text-sm text-warning-500">
+                <p className="flex items-center gap-2 rounded-lg border border-warning/25 bg-warning-subtle px-3 py-2 text-sm text-warning">
                   <AlertTriangle className="h-4 w-4 shrink-0" /> Connect Stripe above before sending payment requests.
                 </p>
               ) : (

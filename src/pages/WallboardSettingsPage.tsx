@@ -195,7 +195,7 @@ export function WallboardSettingsPage() {
 
         {fresh && (
           <FadeIn>
-            <section className="rounded-xl border border-success-500/30 bg-success-500/10 p-4" aria-live="polite">
+            <section className="rounded-xl border border-success/30 bg-success-subtle p-4" aria-live="polite">
               <p className="text-sm font-semibold text-text-primary">&quot;{fresh.name}&quot; is ready. Copy its link now.</p>
               <p className="mt-1 text-xs text-text-secondary">For security the link is shown only once. If you lose it, revoke this display and create a new one.</p>
               <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -287,7 +287,7 @@ export function WallboardSettingsPage() {
                     <p className="flex items-center gap-2 text-base font-semibold text-text-primary">
                       <Monitor size={18} aria-hidden="true" className="text-text-secondary" />
                       <span className="truncate">{r.name}</span>
-                      <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${online ? 'bg-success-500/15 text-success-500' : 'bg-bg-tertiary text-text-secondary'}`}>{online ? 'Online' : 'Offline'}</span>
+                      <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${online ? 'bg-success-subtle text-success' : 'bg-bg-tertiary text-text-secondary'}`}>{online ? 'Online' : 'Offline'}</span>
                     </p>
                     <p className="mt-1 text-xs text-text-secondary">
                       {r.panels.map((p) => PANEL_LABELS[p]).join(' · ')} · {r.rotationSeconds}s per panel · last seen {r.lastSeenAt ? formatAge(r.lastSeenAt, nowMs) : 'never'}

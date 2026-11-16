@@ -355,7 +355,7 @@ export function EmergencyIntelligence() {
             {/* Converging lines */}
             <div className="flex items-center gap-6 text-border sm:gap-10">
               {CHANNELS.map((c) => (
-                <ArrowDown key={c.label} size={16} className="text-accent/40" />
+                <ArrowDown key={c.label} size={16} className="text-accent" />
               ))}
             </div>
 
@@ -376,7 +376,7 @@ export function EmergencyIntelligence() {
               <p className="mt-2 text-sm font-semibold text-text-primary">One AI Brain</p>
             </motion.div>
 
-            <ArrowDown size={16} className="text-accent/40" />
+            <ArrowDown size={16} className="text-accent" />
 
             {/* Unified output */}
             <motion.div

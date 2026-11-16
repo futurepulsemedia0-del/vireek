@@ -139,7 +139,7 @@ const MAINTENANCE_LOG: MaintenanceEvent[] = [];
 
 const MAINTENANCE_STATUS_META: Record<MaintenanceEvent['status'], string> = {
   scheduled: 'text-accent border-accent/25 bg-accent/10',
-  completed: 'text-success-500 border-success-500/25 bg-success-500/10',
+  completed: 'text-success border-success/25 bg-success-subtle',
 };
 
 // Last 90 days, oldest first. Defaults to fully operational. Flip an entry
@@ -152,14 +152,14 @@ const HAS_MEASURED_HISTORY = false;
 const LAST_UPDATED = 'September 6, 2026';
 
 const STATUS_META: Record<SystemStatus, { label: string; dot: string; text: string; ring: string }> = {
-  operational: { label: 'Operational', dot: 'bg-success-500', text: 'text-success-500', ring: 'border-success-500/25 bg-success-500/10' },
-  degraded: { label: 'Degraded performance', dot: 'bg-warning-500', text: 'text-warning-500', ring: 'border-warning-500/25 bg-warning-500/10' },
+  operational: { label: 'Operational', dot: 'bg-success', text: 'text-success', ring: 'border-success/25 bg-success-subtle' },
+  degraded: { label: 'Degraded performance', dot: 'bg-warning', text: 'text-warning', ring: 'border-warning/25 bg-warning-subtle' },
   outage: { label: 'Outage', dot: 'bg-danger', text: 'text-danger', ring: 'border-danger/25 bg-danger/10' },
   maintenance: { label: 'Scheduled maintenance', dot: 'bg-accent', text: 'text-accent', ring: 'border-accent/25 bg-accent/10' },
 };
 
 const INCIDENT_IMPACT_META: Record<Incident['impact'], string> = {
-  minor: 'text-warning-500 border-warning-500/25 bg-warning-500/10',
+  minor: 'text-warning border-warning/25 bg-warning-subtle',
   major: 'text-danger border-danger/25 bg-danger/10',
 };
 
@@ -248,8 +248,8 @@ function SubscribeForm() {
 
   if (status === 'success') {
     return (
-      <div className="flex items-center gap-3 rounded-2xl border border-success-500/25 bg-success-500/10 px-6 py-5">
-        <CheckCircle2 className="h-6 w-6 shrink-0 text-success-500" />
+      <div className="flex items-center gap-3 rounded-2xl border border-success/25 bg-success-subtle px-6 py-5">
+        <CheckCircle2 className="h-6 w-6 shrink-0 text-success" />
         <p className="text-sm font-medium text-text-primary">
           You&rsquo;re subscribed — we&rsquo;ll email you the moment something changes.
         </p>
@@ -267,7 +267,7 @@ function SubscribeForm() {
           onChange={(e) => setEmail(e.target.value)}
           placeholder="you@company.com"
           aria-label="Email address"
-          className="focus-ring w-full flex-1 rounded-xl border border-border bg-bg-primary px-4 py-3 text-sm text-text-primary placeholder:text-text-secondary/60"
+          className="focus-ring w-full flex-1 rounded-xl border border-border bg-bg-primary px-4 py-3 text-sm text-text-primary placeholder:text-text-placeholder"
         />
         <Button type="submit" variant="primary" disabled={status === 'loading'} className="shrink-0 gap-2">
           {status === 'loading' ? <Loader2 size={16} className="animate-spin" /> : <BellRing size={16} />}
@@ -281,7 +281,7 @@ function SubscribeForm() {
           onChange={(e) => setPhone(e.target.value)}
           placeholder="Phone (optional — for SMS, coming soon)"
           aria-label="Phone number, optional"
-          className="focus-ring w-full flex-1 rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60"
+          className="focus-ring w-full flex-1 rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder"
         />
         <label className="flex shrink-0 items-center gap-2 whitespace-nowrap text-xs text-text-secondary">
           <input
@@ -294,7 +294,7 @@ function SubscribeForm() {
         </label>
       </div>
       {status === 'error' && <p className="text-xs font-medium text-danger">{errorMessage}</p>}
-      <p className="text-xs text-text-secondary/60">
+      <p className="text-xs text-text-muted">
         Email alerts are live today. Unsubscribe any time from a link in every email.
       </p>
     </form>
@@ -364,7 +364,7 @@ export function StatusPage() {
                 {OVERALL_BANNER_COPY[overall]}
               </span>
             </motion.div>
-            <p className="mt-4 flex items-center justify-center gap-1.5 text-xs text-text-secondary/70">
+            <p className="mt-4 flex items-center justify-center gap-1.5 text-xs text-text-muted">
               <Clock className="h-3.5 w-3.5" />
               Last updated {effectiveLastUpdated}
             </p>
@@ -452,7 +452,7 @@ export function StatusPage() {
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <span className="text-sm font-semibold text-text-primary">Overall platform uptime</span>
                 {uptimePercent !== null ? (
-                  <span className="text-2xl font-extrabold tracking-tight text-success-500">{uptimePercent}%</span>
+                  <span className="text-2xl font-extrabold tracking-tight text-success">{uptimePercent}%</span>
                 ) : (
                   <span className="text-sm font-semibold text-text-secondary">Not yet measured</span>
                 )}
@@ -464,11 +464,11 @@ export function StatusPage() {
                       <span
                         key={i}
                         title={day === 'operational' ? 'Operational' : 'Incident reported'}
-                        className={`h-full flex-1 rounded-sm ${day === 'operational' ? 'bg-success-500/70' : 'bg-danger'}`}
+                        className={`h-full flex-1 rounded-sm ${day === 'operational' ? 'bg-success/70' : 'bg-danger'}`}
                       />
                     ))}
                   </div>
-                  <div className="mt-3 flex justify-between text-xs text-text-secondary/70">
+                  <div className="mt-3 flex justify-between text-xs text-text-muted">
                     <span>90 days ago</span>
                     <span>Today</span>
                   </div>
@@ -496,9 +496,9 @@ export function StatusPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={viewport}
                 transition={{ duration: 0.5, ease: EASE }}
-                className="mt-10 flex flex-col items-center gap-3 rounded-2xl border border-success-500/25 bg-success-500/10 px-6 py-10 text-center"
+                className="mt-10 flex flex-col items-center gap-3 rounded-2xl border border-success/25 bg-success-subtle px-6 py-10 text-center"
               >
-                <CheckCircle2 className="h-8 w-8 text-success-500" />
+                <CheckCircle2 className="h-8 w-8 text-success" />
                 <p className="text-base font-semibold text-text-primary">
                   No incidents reported in the last 90 days.
                 </p>
@@ -523,7 +523,7 @@ export function StatusPage() {
                         <AlertTriangle className={`h-4 w-4 ${INCIDENT_IMPACT_META[incident.impact].split(' ')[0]}`} />
                         <h3 className="text-base font-semibold text-text-primary">{incident.title}</h3>
                       </div>
-                      <span className="text-xs font-medium text-text-secondary/70">{incident.date}</span>
+                      <span className="text-xs font-medium text-text-muted">{incident.date}</span>
                     </div>
                     <div className="mt-3 flex flex-wrap items-center gap-2">
                       <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${INCIDENT_IMPACT_META[incident.impact]}`}>
@@ -580,7 +580,7 @@ export function StatusPage() {
                         <Wrench className="h-4 w-4 text-accent" />
                         <h3 className="text-base font-semibold text-text-primary">{m.title}</h3>
                       </div>
-                      <span className="text-xs font-medium text-text-secondary/70">{m.date}</span>
+                      <span className="text-xs font-medium text-text-muted">{m.date}</span>
                     </div>
                     <div className="mt-3 flex flex-wrap items-center gap-2">
                       <span

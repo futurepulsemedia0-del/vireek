@@ -72,7 +72,7 @@ export function ResidencyPanel({ ownerId, isOwner }: { ownerId: string; isOwner:
                     <input type="radio" name="region" className="sr-only" checked={pick === code} disabled={!ok} onChange={() => setPick(code)} />
                     <span className="block font-semibold text-text-primary">{REGIONS[code].label}</span>
                     <span className="mt-0.5 block text-xs text-text-secondary">{REGIONS[code].frameworks.join(' · ')}</span>
-                    {!ok && <span className="mt-2 block text-xs text-amber-600 dark:text-amber-400">Not available yet</span>}
+                    {!ok && <span className="mt-2 block text-xs text-warning">Not available yet</span>}
                   </label>
                 );
               })}
@@ -142,14 +142,14 @@ export function ResidencyPanel({ ownerId, isOwner }: { ownerId: string; isOwner:
           ))}
         </ul>
         {impact.outsideRegion.length > 0 && (
-          <div className="mt-4 rounded-xl bg-amber-500/5 p-4 text-sm text-text-secondary">
+          <div className="mt-4 rounded-xl bg-warning-subtle p-4 text-sm text-text-secondary">
             <p className="font-medium text-text-primary">Sub-processors that handle data outside {regionLabel(current)}</p>
             <p className="mt-1">{impact.outsideRegion.map((p) => p.name).join(', ')}.</p>
             <p className="mt-2 text-xs">Review <a className="text-accent underline" href="/subprocessors">the full sub-processor list</a> and your DPA before enabling regional storage for regulated data.</p>
           </div>
         )}
         {impact.unclassified.length > 0 && (
-          <p role="alert" className="mt-3 text-xs text-red-500">Unclassified sub-processors: {impact.unclassified.map((p) => p.name).join(', ')}.</p>
+          <p role="alert" className="mt-3 text-xs text-danger">Unclassified sub-processors: {impact.unclassified.map((p) => p.name).join(', ')}.</p>
         )}
       </Card>
 

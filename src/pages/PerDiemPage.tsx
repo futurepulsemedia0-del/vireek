@@ -47,8 +47,8 @@ const selectClass =
 
 const BADGE: Record<TripStatus, string> = {
   draft: 'bg-bg-tertiary text-text-secondary',
-  submitted: 'bg-warning-500/10 text-warning-500',
-  approved: 'bg-success-500/10 text-success-500',
+  submitted: 'bg-warning-subtle text-warning',
+  approved: 'bg-success-subtle text-success',
   rejected: 'bg-danger/10 text-danger',
 };
 
@@ -354,10 +354,10 @@ export function PerDiemPage() {
             role="tab"
             aria-selected={tab === t.id}
             onClick={() => setTab(t.id)}
-            className={`focus-ring flex h-10 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl px-4 text-sm font-semibold ${tab === t.id ? 'bg-accent text-white' : 'text-text-secondary hover:bg-bg-tertiary'}`}
+            className={`focus-ring flex h-10 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl px-4 text-sm font-semibold ${tab === t.id ? 'bg-accent text-on-accent' : 'text-text-secondary hover:bg-bg-tertiary'}`}
           >
             {t.label}
-            {t.count ? <span className="rounded-full bg-white/20 px-1.5 text-[11px]">{t.count}</span> : null}
+            {t.count ? <span className="rounded-full bg-bg-secondary/20 px-1.5 text-[11px]">{t.count}</span> : null}
           </button>
         ))}
       </div>
@@ -438,7 +438,7 @@ export function PerDiemPage() {
                       <div className="space-y-1 text-sm">
                         <div className="flex justify-between"><span className="text-text-secondary">Meals · {preview.days} {preview.days === 1 ? 'day' : 'days'} at {formatCents(preview.mealRateCents)}</span><span className="tabular-nums text-text-primary">{formatCents(preview.mealTotalCents)}</span></div>
                         <div className="flex justify-between"><span className="text-text-secondary">Lodging · {preview.nights} {preview.nights === 1 ? 'night' : 'nights'}, cap {formatCents(preview.lodgingCapCents)}</span><span className="tabular-nums text-text-primary">{formatCents(preview.lodgingAllowedCents)}</span></div>
-                        {preview.lodgingOverCents > 0 && <p className="text-xs text-warning-500">{formatCents(preview.lodgingOverCents)} of lodging is over the cap and won't be paid.</p>}
+                        {preview.lodgingOverCents > 0 && <p className="text-xs text-warning">{formatCents(preview.lodgingOverCents)} of lodging is over the cap and won't be paid.</p>}
                         <div className="flex justify-between border-t border-border pt-2 font-semibold"><span className="text-text-primary">You can claim</span><span className="tabular-nums text-text-primary">{formatCents(preview.totalCents)}</span></div>
                         <p className="text-xs text-text-secondary">{describeRate(preview.rateSource, form.state, form.city)}. The final amount is confirmed when you submit.</p>
                       </div>
@@ -569,7 +569,7 @@ export function PerDiemPage() {
       )}
 
       {rejecting && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4 sm:items-center" role="dialog" aria-modal="true" aria-label="Reject trip">
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-overlay/50 p-4 sm:items-center" role="dialog" aria-modal="true" aria-label="Reject trip">
           <Card className="w-full max-w-md p-5">
             <h2 className="text-base font-semibold text-text-primary">Reject this trip?</h2>
             <p className="mt-1 text-sm text-text-secondary">{rejecting.travelerName} will see your reason and can fix and resubmit.</p>

@@ -21,7 +21,7 @@ export function AckEscalationPage() {
         {status === 'loading' && <p className="text-text-secondary">Checking…</p>}
         {status === 'ok' && (
           <>
-            <CheckCircle2 className="mx-auto mb-3 text-success-500" size={40} />
+            <CheckCircle2 className="mx-auto mb-3 text-success" size={40} />
             <h1 className="text-lg font-semibold text-text-primary">You're on it</h1>
             <p className="mt-1 text-sm text-text-secondary">This escalation has been acknowledged. No further alerts will go out.</p>
           </>

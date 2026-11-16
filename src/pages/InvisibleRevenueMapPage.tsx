@@ -95,7 +95,7 @@ export function InvisibleRevenueMapPage() {
                         <motion.div key={o.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl border border-border bg-bg-secondary p-4">
                           <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
                             <p className="text-sm font-semibold text-text-primary">{o.title}</p>
-                            {o.estimatedValue !== null && <span className="text-sm font-semibold text-success-500">{formatDollars(o.estimatedValue)}</span>}
+                            {o.estimatedValue !== null && <span className="text-sm font-semibold text-success">{formatDollars(o.estimatedValue)}</span>}
                           </div>
                           <p className="text-xs text-text-secondary">{o.detail}</p>
                           <div className="mt-2 flex items-center justify-between gap-2">

@@ -5,7 +5,7 @@ import { buildChangeRows, type ChangeRow } from '@/lib/changesSinceYesterday';
 import { fetchChangeSnapshot } from '@/lib/changesSinceYesterdayApi';
 
 const TONE_TEXT: Record<ChangeRow['tone'], string> = {
-  good: 'text-success-500',
+  good: 'text-success',
   bad: 'text-danger',
   neutral: 'text-text-primary',
 };
@@ -46,7 +46,7 @@ export function SinceYesterdayCard() {
         </span>
         <div>
           <h2 className="text-sm font-semibold text-text-primary">Since yesterday</h2>
-          <p className="text-xs text-text-secondary/70">Last 24 hours vs. the 24 hours before</p>
+          <p className="text-xs text-text-muted">Last 24 hours vs. the 24 hours before</p>
         </div>
       </div>
 

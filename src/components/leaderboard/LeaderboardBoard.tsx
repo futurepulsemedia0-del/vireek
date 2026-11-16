@@ -19,7 +19,7 @@ import {
   type SpiffKpi,
 } from '@/lib/technicianLeaderboard';
 
-const MEDAL: Record<number, string> = { 1: 'bg-warning-500/15 text-warning-500', 2: 'bg-bg-tertiary text-text-primary', 3: 'bg-accent/10 text-accent' };
+const MEDAL: Record<number, string> = { 1: 'bg-warning-subtle text-warning', 2: 'bg-bg-tertiary text-text-primary', 3: 'bg-accent/10 text-accent' };
 
 function RankBadge({ rank }: { rank: number | null }) {
   if (rank === null) return <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-bg-tertiary text-xs text-text-secondary" aria-label="Not ranked">–</span>;
@@ -80,7 +80,7 @@ export function LeaderboardBoard({
               type="button"
               onClick={() => onPeriod(p)}
               aria-pressed={period === p}
-              className={`focus-ring min-h-[40px] rounded-xl px-4 text-sm font-semibold transition-colors ${period === p ? 'bg-accent text-white' : 'border border-border bg-bg-secondary text-text-secondary hover:text-text-primary'}`}
+              className={`focus-ring min-h-[40px] rounded-xl px-4 text-sm font-semibold transition-colors ${period === p ? 'bg-accent text-on-accent' : 'border border-border bg-bg-secondary text-text-secondary hover:text-text-primary'}`}
             >
               {p === 'weekly' ? 'Weekly' : 'Monthly'}
             </button>

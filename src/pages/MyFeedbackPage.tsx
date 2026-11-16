@@ -70,7 +70,7 @@ export function MyFeedbackPage() {
           <Button onClick={() => openFeedback()}><MessageSquarePlus className="h-4 w-4" aria-hidden="true" /> Send feedback</Button>
         </div>
 
-        {error && <div role="alert" className="rounded-lg border border-warning-500/25 bg-warning-500/10 px-3 py-2 text-sm text-warning-500">We couldn’t load your feedback. <button type="button" className="underline" onClick={() => void load()}>Try again</button></div>}
+        {error && <div role="alert" className="rounded-lg border border-warning/25 bg-warning-subtle px-3 py-2 text-sm text-warning">We couldn’t load your feedback. <button type="button" className="underline" onClick={() => void load()}>Try again</button></div>}
 
         {items === null && !error ? <SkeletonCardList count={2} rows={3} /> : items && items.length === 0 ? (
           <EmptyState icon={MessageSquarePlus} title="No feedback sent yet" description="Press F then B anywhere, or use the button above." action={{ label: 'Send feedback', onClick: () => openFeedback() }} />

@@ -147,7 +147,7 @@ export function ProjectDetail({ ownerId, projectId }: { ownerId: string; project
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {actions.map((a) => <Button key={a.label} size="sm" variant={a.variant} disabled={busyKey === 'status'} onClick={a.onClick}>{a.label}</Button>)}
-            <button type="button" aria-label="Delete project" onClick={() => ask({ title: 'Delete this project?', description: 'Phases, milestones, billing steps, links, materials, RFIs and change orders are deleted permanently. Invoices already created stay in Invoicing.', label: 'Delete project', confirmPhrase: 'delete project', onConfirm: async () => { const ok = await run('delete', () => deleteProject(ownerId, project.id), 'Project deleted.'); if (ok) navigate('/dashboard/projects'); } })} className="focus-ring rounded-xl p-2.5 text-text-secondary hover:bg-bg-tertiary hover:text-danger-500"><Trash2 size={18} aria-hidden="true" /></button>
+            <button type="button" aria-label="Delete project" onClick={() => ask({ title: 'Delete this project?', description: 'Phases, milestones, billing steps, links, materials, RFIs and change orders are deleted permanently. Invoices already created stay in Invoicing.', label: 'Delete project', confirmPhrase: 'delete project', onConfirm: async () => { const ok = await run('delete', () => deleteProject(ownerId, project.id), 'Project deleted.'); if (ok) navigate('/dashboard/projects'); } })} className="focus-ring rounded-xl p-2.5 text-text-secondary hover:bg-bg-tertiary hover:text-danger"><Trash2 size={18} aria-hidden="true" /></button>
           </div>
         </div>
       </div>
@@ -165,7 +165,7 @@ export function ProjectDetail({ ownerId, projectId }: { ownerId: string; project
             className={`focus-ring -mb-px shrink-0 border-b-2 px-4 py-2.5 text-sm font-medium transition-colors ${tab === t.key ? 'border-accent text-text-primary' : 'border-transparent text-text-secondary hover:text-text-primary'}`}
           >
             {t.label}
-            {t.key === 'rfis' && rfiOverdue > 0 && <span className="ml-1.5 rounded-full bg-danger-500/15 px-1.5 py-0.5 text-xs font-semibold text-danger-500" aria-label={`${rfiOverdue} overdue`}>{rfiOverdue}</span>}
+            {t.key === 'rfis' && rfiOverdue > 0 && <span className="ml-1.5 rounded-full bg-danger-subtle px-1.5 py-0.5 text-xs font-semibold text-danger" aria-label={`${rfiOverdue} overdue`}>{rfiOverdue}</span>}
           </button>
         ))}
       </div>

@@ -126,9 +126,9 @@ export const STATUS_LABELS: Record<KceStatus, string> = {
 
 export const STATUS_STYLES: Record<KceStatus, string> = {
   candidate: 'bg-accent/10 text-accent border-accent/25',
-  in_review: 'bg-warning-500/10 text-warning-500 border-warning-500/25',
-  approved: 'bg-success-500/10 text-success-500 border-success-500/25',
-  deployed: 'bg-success-500/10 text-success-500 border-success-500/25',
+  in_review: 'bg-warning-subtle text-warning border-warning/25',
+  approved: 'bg-success-subtle text-success border-success/25',
+  deployed: 'bg-success-subtle text-success border-success/25',
   rejected: 'bg-bg-tertiary text-text-secondary border-border',
   retired: 'bg-bg-tertiary text-text-secondary border-border',
 };
@@ -169,8 +169,8 @@ export const CONFIDENCE_TIER_LABELS: Record<ConfidenceTier, string> = {
 };
 
 export const CONFIDENCE_TIER_STYLES: Record<ConfidenceTier, string> = {
-  high: 'text-success-500',
-  medium: 'text-warning-500',
+  high: 'text-success',
+  medium: 'text-warning',
   low: 'text-text-secondary',
 };
 
@@ -360,7 +360,7 @@ export const RISK_TIER_LABELS: Record<RiskTier, string> = {
 
 export const RISK_TIER_STYLES: Record<RiskTier, string> = {
   critical: 'bg-danger/10 text-danger border-danger/25',
-  high: 'bg-warning-500/10 text-warning-500 border-warning-500/25',
+  high: 'bg-warning-subtle text-warning border-warning/25',
   moderate: 'bg-accent/10 text-accent border-accent/25',
   low: 'bg-bg-tertiary text-text-secondary border-border',
 };

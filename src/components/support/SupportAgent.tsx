@@ -264,13 +264,13 @@ export function SupportAgent() {
           aria-expanded={open}
           aria-haspopup="dialog"
           whileHover={reduced ? undefined : { scale: 1.06 }} whileTap={reduced ? undefined : { scale: 0.94 }}
-          className="focus-ring relative flex h-12 w-12 items-center justify-center rounded-control border border-white/30 bg-gradient-to-br from-accent to-cta text-white shadow-glow-accent"
+          className="focus-ring relative flex h-12 w-12 items-center justify-center rounded-control border border-on-inverse/30 bg-accent text-on-accent shadow-glow-accent"
         >
           {open ? <X size={20} aria-hidden="true" /> : <SupportAgentIcon size="md" state={d.iconState} />}
           {d.nudge && !open && (
             <span className="absolute -right-1 -top-1 flex h-3 w-3" aria-hidden="true">
               <span className="absolute inline-flex h-full w-full rounded-full bg-cta opacity-75 motion-safe:animate-ping" />
-              <span className="relative inline-flex h-3 w-3 rounded-full border-2 border-white bg-cta" />
+              <span className="relative inline-flex h-3 w-3 rounded-full border-2 border-on-inverse bg-cta" />
             </span>
           )}
           <AnimatePresence>
@@ -292,7 +292,7 @@ export function SupportAgent() {
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: dur }}
               onClick={() => setOpen(false)} aria-hidden="true"
-              className="fixed inset-0 z-overlay bg-slate-950/40 backdrop-blur-sm sm:hidden"
+              className="fixed inset-0 z-overlay bg-overlay/40 backdrop-blur-sm sm:hidden"
             />
             <motion.div
               initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 24 }} transition={{ duration: dur, ease: [0.16, 1, 0.3, 1] }}
@@ -300,7 +300,7 @@ export function SupportAgent() {
               className="fixed inset-x-0 bottom-0 z-overlay flex h-[min(85dvh,44rem)] flex-col overflow-hidden rounded-t-overlay border border-border bg-bg-secondary pb-[env(safe-area-inset-bottom)] shadow-elevation-4 sm:inset-x-auto sm:right-5 sm:bottom-[calc(8.5rem_+_var(--vk-bottom-nav-h,0px))] sm:h-[min(36rem,calc(100dvh-11rem))] sm:w-96 sm:max-w-[calc(100vw-2.5rem)] sm:rounded-overlay sm:pb-0"
             >
               <header className="flex items-center gap-3 border-b border-border/80 px-4 py-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-inset bg-gradient-to-br from-accent to-cta text-white">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-inset bg-accent text-on-accent">
                   <SupportAgentIcon size="lg" state={d.iconState} />
                 </span>
                 <div className="min-w-0 flex-1">

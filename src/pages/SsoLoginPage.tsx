@@ -46,7 +46,7 @@ export function SsoLoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="focus-ring flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50"
+          className="focus-ring flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-on-accent transition-all hover:brightness-110 disabled:opacity-50"
         >
           {loading && <Loader2 size={14} className="animate-spin" />}
           Continue

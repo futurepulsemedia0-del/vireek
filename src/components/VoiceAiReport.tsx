@@ -85,8 +85,8 @@ export function VoiceAiReport({ start, end }: Props) {
       )}
 
       {state === 'error' && (
-        <div role="alert" className="mt-5 flex flex-wrap items-center gap-3 rounded-xl border border-warning-500/40 bg-warning-500/10 px-4 py-3 text-sm text-text-primary">
-          <AlertTriangle size={16} className="shrink-0 text-warning-500" aria-hidden="true" />
+        <div role="alert" className="mt-5 flex flex-wrap items-center gap-3 rounded-xl border border-warning/40 bg-warning-subtle px-4 py-3 text-sm text-text-primary">
+          <AlertTriangle size={16} className="shrink-0 text-warning" aria-hidden="true" />
           <span className="flex-1">Could not load the voice AI report.</span>
           <Button size="sm" variant="secondary" onClick={retry}>Try again</Button>
         </div>

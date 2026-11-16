@@ -54,7 +54,7 @@ export function NewsletterConfirmPage({ mode }: { mode: 'confirm' | 'unsubscribe
           ) : (
             <>
               <p className="mt-4 text-text-secondary">{isConfirm ? 'Click the button to finish subscribing to Vireek articles and playbooks.' : 'Click the button to stop receiving Vireek article emails.'}</p>
-              {status === 'error' && <p role="alert" className="mt-4 text-sm font-medium text-red-600 dark:text-red-400">{message}</p>}
+              {status === 'error' && <p role="alert" className="mt-4 text-sm font-medium text-danger">{message}</p>}
               <div className="mt-6"><Button variant="primary" size="lg" onClick={run} disabled={status === 'working'}>{status === 'working' ? 'Working…' : isConfirm ? 'Confirm subscription' : 'Unsubscribe'}</Button></div>
             </>
           )}

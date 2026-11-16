@@ -33,16 +33,16 @@ import type {
 } from '@/lib/supplyChainOutcome';
 
 const TIER_STYLES: Record<ChainTier, string> = {
-  preferred: 'bg-success-500/10 text-success-500',
+  preferred: 'bg-success-subtle text-success',
   approved: 'bg-accent/10 text-accent',
-  watch: 'bg-warning-500/10 text-warning-500',
+  watch: 'bg-warning-subtle text-warning',
   avoid: 'bg-danger/10 text-danger',
-  quarantine: 'bg-danger text-white',
+  quarantine: 'bg-danger text-on-danger',
 };
 
 const SEVERITY_STYLES = {
   critical: 'border-danger/40 bg-danger/5',
-  high: 'border-warning-500/40 bg-warning-500/5',
+  high: 'border-warning/40 bg-warning-subtle',
   medium: 'border-border bg-bg-primary',
   info: 'border-border bg-bg-primary',
 } as const;
@@ -100,7 +100,7 @@ function ChainRow({ chain }: { chain: SupplyChain }) {
                     <span className="text-text-secondary">{pct(d.score)}</span>
                   </div>
                   <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-border/60">
-                    <div className={`h-full ${d.score >= 0.8 ? 'bg-success-500' : d.score >= 0.6 ? 'bg-warning-500' : 'bg-danger'}`} style={{ width: pct(d.score) }} />
+                    <div className={`h-full ${d.score >= 0.8 ? 'bg-success' : d.score >= 0.6 ? 'bg-warning' : 'bg-danger'}`} style={{ width: pct(d.score) }} />
                   </div>
                   <p className="mt-1.5 text-[11px] text-text-secondary">{d.detail}</p>
                 </div>
@@ -110,7 +110,7 @@ function ChainRow({ chain }: { chain: SupplyChain }) {
               <ul className="mt-3 space-y-1">
                 {chain.flags.map((f) => (
                   <li key={f} className="flex items-start gap-1.5 text-xs text-text-secondary">
-                    <AlertTriangle size={12} className="mt-0.5 shrink-0 text-warning-500" /> {f}
+                    <AlertTriangle size={12} className="mt-0.5 shrink-0 text-warning" /> {f}
                   </li>
                 ))}
               </ul>
@@ -400,7 +400,7 @@ function RecordLotForm({ parts, sources, onSaved }: { parts: MarketPart[]; sourc
             })}
           </div>
         </fieldset>
-        <button type="submit" disabled={saving} className="focus-ring w-full rounded-lg bg-accent px-3 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50">
+        <button type="submit" disabled={saving} className="focus-ring w-full rounded-lg bg-accent px-3 py-2 text-sm font-medium text-on-accent hover:opacity-90 disabled:opacity-50">
           {saving ? 'Saving…' : 'Record lot'}
         </button>
       </form>
@@ -454,7 +454,7 @@ function PartEventForm({ data, onSaved }: { data: ChainInput | null; onSaved: ()
           <input className={FIELD} type="number" min={1} step={1} value={qty} onChange={(e) => setQty(e.target.value)} aria-label="Units" />
         </div>
         <input className={FIELD} placeholder="Note (optional)" value={note} onChange={(e) => setNote(e.target.value)} aria-label="Note" />
-        <button type="submit" disabled={saving} className="focus-ring w-full rounded-lg bg-accent px-3 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50">
+        <button type="submit" disabled={saving} className="focus-ring w-full rounded-lg bg-accent px-3 py-2 text-sm font-medium text-on-accent hover:opacity-90 disabled:opacity-50">
           {saving ? 'Saving…' : 'Record event'}
         </button>
       </form>

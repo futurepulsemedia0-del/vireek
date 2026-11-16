@@ -96,7 +96,7 @@ export function EscalationSettings() {
           }`}
         >
           <span
-            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
+            className={`absolute top-0.5 h-5 w-5 rounded-full bg-bg-secondary shadow-sm transition-transform ${
               enabled ? 'translate-x-[22px]' : 'translate-x-0.5'
             }`}
           />
@@ -122,7 +122,7 @@ export function EscalationSettings() {
                 setPhone(e.target.value);
                 markDirty();
               }}
-              className="focus-ring mt-2 w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/50"
+              className="focus-ring mt-2 w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder"
             />
           </div>
 
@@ -142,7 +142,7 @@ export function EscalationSettings() {
                 }}
                 className={`flex flex-1 items-center justify-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
                   mode === 'warm_transfer'
-                    ? 'bg-accent text-white shadow-sm'
+                    ? 'bg-accent text-on-accent shadow-sm'
                     : 'text-text-secondary hover:text-text-primary'
                 }`}
               >
@@ -158,7 +158,7 @@ export function EscalationSettings() {
                 }}
                 className={`flex flex-1 items-center justify-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
                   mode === 'barge_in'
-                    ? 'bg-accent text-white shadow-sm'
+                    ? 'bg-accent text-on-accent shadow-sm'
                     : 'text-text-secondary hover:text-text-primary'
                 }`}
               >
@@ -200,7 +200,7 @@ export function EscalationSettings() {
           type="button"
           onClick={handleSave}
           disabled={!dirty || saving}
-          className="focus-ring rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-opacity disabled:opacity-40"
+          className="focus-ring rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-on-accent transition-opacity disabled:opacity-40"
         >
           {saving ? 'Saving…' : 'Save changes'}
         </button>

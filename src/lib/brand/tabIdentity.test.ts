@@ -29,7 +29,7 @@ describe('title composition', () => {
     expect(stripTabPrefix('\u25CF Live call \u00B7 (3) Jobs')).toBe('Jobs');
   });
   it('cssVarToHex converts the app\u2019s "r g b" tokens', () => {
-    expect(cssVarToHex('253 252 250')).toBe('#FDFCFA');
+    expect(cssVarToHex('250 249 245')).toBe('#FAF9F5');
     expect(cssVarToHex('')).toBeNull();
   });
 });
@@ -72,7 +72,7 @@ describe('tab identity runtime', () => {
     initTabIdentity();
     const metas = document.head.querySelectorAll('meta[name="theme-color"]');
     expect(metas).toHaveLength(1);
-    expect(metas[0].getAttribute('content')).toBe('#090A0D');
+    expect(metas[0].getAttribute('content')).toBe('#141413');
     expect(metas[0].hasAttribute('media')).toBe(false);
   });
 });

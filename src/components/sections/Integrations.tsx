@@ -76,7 +76,7 @@ export function Integrations() {
                   </div>
                 </motion.div>
                 {i < DATA_FLOW_STEPS.length - 1 && (
-                  <ArrowRight size={16} className="shrink-0 text-text-secondary/30 sm:mt-0 sm:rotate-90" />
+                  <ArrowRight size={16} className="shrink-0 text-graphic-muted sm:mt-0 sm:rotate-90" />
                 )}
               </div>
             ))}
@@ -108,7 +108,7 @@ export function Integrations() {
                 <Icon size={20} className="sm:size-5" />
               </span>
               <h3 className="mt-3 text-sm font-semibold text-text-primary sm:text-base">{name}</h3>
-              <p className="mt-0.5 text-xs text-text-secondary/60">{category}</p>
+              <p className="mt-0.5 text-xs text-text-muted">{category}</p>
               <p className="mt-2 text-xs leading-relaxed text-text-secondary">{description}</p>
             </motion.div>
           ))}
@@ -119,7 +119,7 @@ export function Integrations() {
           whileInView={{ opacity: 1 }}
           viewport={viewport}
           transition={{ duration: 0.5, delay: 0.2, ease: EASE }}
-          className="mt-6 text-center text-xs text-text-secondary/70 sm:mt-8 sm:text-sm"
+          className="mt-6 text-center text-xs text-text-muted sm:mt-8 sm:text-sm"
         >
           Don&apos;t see your tool? Sarah connects to any system that accepts webhooks or a Zapier trigger.
         </motion.p>

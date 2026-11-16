@@ -37,8 +37,8 @@ const kit = existsSync(kitDir) ? readdirSync(kitDir).filter((f) => f.endsWith('.
 
 await mkdir(out, { recursive: true });
 await writeFile(path.join(out, 'index.html'), `<!doctype html><meta charset="utf-8"><title>Vireek brand preview</title>
-<style>body{font:14px system-ui;margin:24px;background:#FDFCFA;color:#17171A}h2{margin-top:40px}.grid{display:flex;flex-wrap:wrap;gap:16px}figure{margin:0}figcaption{font-size:12px;color:#676770;max-width:400px}
-.chk{background:repeating-conic-gradient(#ddd 0 25%,#fff 0 50%) 0/16px 16px}.safe{position:absolute;inset:10%;border:2px dashed #D6582A;border-radius:50%}
+<style>body{font:14px system-ui;margin:24px;background:#FAF9F5;color:#141413}h2{margin-top:40px}.grid{display:flex;flex-wrap:wrap;gap:16px}figure{margin:0}figcaption{font-size:12px;color:#73726C;max-width:400px}
+.chk{background:repeating-conic-gradient(#dddcd8 0 25%,#fff 0 50%) 0/16px 16px}.safe{position:absolute;inset:10%;border:2px dashed #533AFD;border-radius:50%}
 .install{display:flex;gap:16px;align-items:center;padding:16px;border-radius:16px;background:#fff;box-shadow:0 2px 12px #0002;max-width:420px}img{border-radius:6px}</style>
 <h1>Vireek brand preview</h1><h2>PWA install card</h2>${install}<h2>Install screenshots</h2><div class="grid">${shots}</div>
 <h2>PWA icons (dashed ring = 80% safe zone)</h2><div class="grid">${icons}</div>

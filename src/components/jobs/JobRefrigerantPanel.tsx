@@ -56,7 +56,7 @@ interface TechRow {
 }
 
 const inputClass =
-  'focus-ring w-full rounded-lg border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60';
+  'focus-ring w-full rounded-lg border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder';
 
 const unitName = (u: UnitRow) =>
   [u.make, u.model, u.equipment_type].filter(Boolean).join(' ') +
@@ -345,7 +345,7 @@ export function JobRefrigerantPanel({ job }: { job: RefrigerantPanelJob }) {
               {/* Certification check */}
               <div
                 role="status"
-                className={`flex items-start gap-2 rounded-lg p-3 text-xs ${cert.ok ? 'bg-success-500/10 text-success-500' : 'bg-danger/10 text-danger'}`}
+                className={`flex items-start gap-2 rounded-lg p-3 text-xs ${cert.ok ? 'bg-success-subtle text-success' : 'bg-danger/10 text-danger'}`}
               >
                 {cert.ok ? (
                   <ShieldCheck size={16} className="mt-0.5 shrink-0" />
@@ -371,7 +371,7 @@ export function JobRefrigerantPanel({ job }: { job: RefrigerantPanelJob }) {
                     <p className="font-medium">{cert.reason}</p>
                   )}
                   {cert.warnings.map((w) => (
-                    <p key={w} className="mt-0.5 text-warning-500">
+                    <p key={w} className="mt-0.5 text-warning">
                       {w}
                     </p>
                   ))}
@@ -452,7 +452,7 @@ export function JobRefrigerantPanel({ job }: { job: RefrigerantPanelJob }) {
                       type="button"
                       aria-pressed={eventType === t}
                       onClick={() => setEventType(t)}
-                      className={`focus-ring rounded-lg px-3 py-2 text-sm font-medium ${eventType === t ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary'}`}
+                      className={`focus-ring rounded-lg px-3 py-2 text-sm font-medium ${eventType === t ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary'}`}
                     >
                       {EVENT_LABELS[t]}
                     </button>
@@ -539,13 +539,13 @@ export function JobRefrigerantPanel({ job }: { job: RefrigerantPanelJob }) {
                   onChange={(e) => setNotes(e.target.value)}
                 />
                 {formErrors.length > 0 && (pounds !== '' || refrigerant !== '') && (
-                  <p className="text-xs text-warning-500">{formErrors[0]}</p>
+                  <p className="text-xs text-warning">{formErrors[0]}</p>
                 )}
                 <button
                   type="button"
                   onClick={handleSubmit}
                   disabled={!canSubmit}
-                  className="focus-ring flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
+                  className="focus-ring flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-on-accent disabled:opacity-50"
                 >
                   {saving && <Loader2 size={14} className="animate-spin" />} Log entry
                 </button>

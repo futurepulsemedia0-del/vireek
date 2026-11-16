@@ -136,7 +136,7 @@ export function CompanyReflexesPage() {
           <button
             type="button"
             onClick={() => setShowBuilder((v) => !v)}
-            className="focus-ring flex shrink-0 items-center gap-1.5 rounded-xl bg-cta px-3 py-2 text-xs font-medium text-white"
+            className="focus-ring flex shrink-0 items-center gap-1.5 rounded-xl bg-cta px-3 py-2 text-xs font-medium text-on-cta"
           >
             <Plus size={14} /> New reflex
           </button>
@@ -196,7 +196,7 @@ export function CompanyReflexesPage() {
               </button>
 
               <div className="flex justify-end pt-2">
-                <button onClick={() => void handleSave()} disabled={saving || !name.trim()} className="focus-ring rounded-xl bg-cta px-4 py-2 text-sm font-medium text-white disabled:opacity-40">
+                <button onClick={() => void handleSave()} disabled={saving || !name.trim()} className="focus-ring rounded-xl bg-cta px-4 py-2 text-sm font-medium text-on-cta disabled:opacity-40">
                   {saving ? 'Saving…' : 'Save reflex'}
                 </button>
               </div>
@@ -205,7 +205,7 @@ export function CompanyReflexesPage() {
         )}
 
         {queue.length > 0 && (
-          <div className="rounded-2xl border border-warning-500/40 bg-warning-500/10 p-4">
+          <div className="rounded-2xl border border-warning/40 bg-warning-subtle p-4">
             <p className="mb-3 text-sm font-semibold text-text-primary">Open actions ({queue.length})</p>
             <div className="space-y-2">
               {queue.map((q) => (
@@ -215,7 +215,7 @@ export function CompanyReflexesPage() {
                     <p className="text-xs text-text-secondary">{new Date(q.created_at).toLocaleString()}</p>
                   </div>
                   <div className="flex shrink-0 gap-1">
-                    <button onClick={() => void handleResolve(q.id, 'acknowledged')} className="focus-ring rounded-lg bg-success-500/15 px-2 py-1 text-xs text-success-500">Done</button>
+                    <button onClick={() => void handleResolve(q.id, 'acknowledged')} className="focus-ring rounded-lg bg-success-subtle px-2 py-1 text-xs text-success">Done</button>
                     <button onClick={() => void handleResolve(q.id, 'dismissed')} className="focus-ring rounded-lg bg-bg-tertiary px-2 py-1 text-xs text-text-secondary">Dismiss</button>
                   </div>
                 </div>
@@ -243,7 +243,7 @@ export function CompanyReflexesPage() {
                     </div>
                     <button
                       onClick={() => void handleToggleActive(r)}
-                      className={`focus-ring shrink-0 rounded-full px-3 py-1 text-xs font-medium ${r.is_active ? 'bg-success-500/15 text-success-500' : 'bg-bg-tertiary text-text-secondary'}`}
+                      className={`focus-ring shrink-0 rounded-full px-3 py-1 text-xs font-medium ${r.is_active ? 'bg-success-subtle text-success' : 'bg-bg-tertiary text-text-secondary'}`}
                     >
                       {r.is_active ? 'Active' : 'Paused'}
                     </button>
@@ -266,13 +266,13 @@ export function CompanyReflexesPage() {
                     <div className="min-w-0 flex-1">
                       <p className="text-text-primary">{e.entity_label ?? e.trigger_event} — {e.steps_fired.length} action{e.steps_fired.length === 1 ? '' : 's'}</p>
                       <p className="text-xs text-text-secondary">{new Date(e.triggered_at).toLocaleString()}</p>
-                      <p className="mt-1 text-[11px] text-text-secondary/70">{e.steps_fired.map((sf) => ACTION_LABELS[sf.action_type]).join(', ')}</p>
+                      <p className="mt-1 text-[11px] text-text-muted">{e.steps_fired.map((sf) => ACTION_LABELS[sf.action_type]).join(', ')}</p>
                     </div>
                     {e.feedback ? (
                       <span className="flex shrink-0 items-center gap-1 text-xs text-text-secondary"><CheckCircle2 size={13} /> {e.feedback === 'good' ? 'Marked good' : 'Marked bad'}</span>
                     ) : (
                       <div className="flex shrink-0 gap-1">
-                        <button onClick={() => void handleFeedback(e.id, 'good')} className="focus-ring rounded-lg p-1.5 text-text-secondary hover:text-success-500" title="This was the right call"><ThumbsUp size={14} /></button>
+                        <button onClick={() => void handleFeedback(e.id, 'good')} className="focus-ring rounded-lg p-1.5 text-text-secondary hover:text-success" title="This was the right call"><ThumbsUp size={14} /></button>
                         <button onClick={() => void handleFeedback(e.id, 'bad')} className="focus-ring rounded-lg p-1.5 text-text-secondary hover:text-error-500" title="This was wrong"><ThumbsDown size={14} /></button>
                       </div>
                     )}

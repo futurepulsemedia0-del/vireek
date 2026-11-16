@@ -23,7 +23,7 @@ import { fetchDeliveries, replayDelivery, DELIVERY_PAGE_SIZE } from '@/lib/webho
 const LABEL = 'Webhook Deliveries';
 
 const STATUS_STYLE: Record<DeliveryStatus, string> = {
-  pending: 'bg-warning-500/10 text-warning-500',
+  pending: 'bg-warning-subtle text-warning',
   delivering: 'bg-accent/10 text-accent',
   delivered: 'bg-success/10 text-success',
   dead: 'bg-danger/10 text-danger',
@@ -145,7 +145,7 @@ export function WebhookDeliveriesPage() {
             {FILTERS.map((f) => {
               const n = f.value === 'all' ? (rows ?? []).length : f.value === 'pending' ? counts.pending + counts.delivering : counts[f.value];
               return (
-                <button key={f.value} type="button" role="radio" aria-checked={filter === f.value} onClick={() => setFilter(f.value)} className={`focus-ring rounded-lg px-3 py-1.5 text-xs font-medium ${filter === f.value ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}>
+                <button key={f.value} type="button" role="radio" aria-checked={filter === f.value} onClick={() => setFilter(f.value)} className={`focus-ring rounded-lg px-3 py-1.5 text-xs font-medium ${filter === f.value ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}>
                   {f.label} <span className="tabular-nums opacity-80">({n})</span>
                 </button>
               );
@@ -184,7 +184,7 @@ export function WebhookDeliveriesPage() {
                           {canReplay(d) ? (
                             confirmId === d.id ? (
                               <span className="inline-flex items-center gap-2">
-                                <button type="button" disabled={replayingId === d.id} onClick={() => void onReplay(d)} className="focus-ring rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50">{replayingId === d.id ? 'Queuing…' : 'Confirm replay'}</button>
+                                <button type="button" disabled={replayingId === d.id} onClick={() => void onReplay(d)} className="focus-ring rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-on-accent disabled:opacity-50">{replayingId === d.id ? 'Queuing…' : 'Confirm replay'}</button>
                                 <button type="button" disabled={replayingId === d.id} onClick={() => setConfirmId(null)} className="focus-ring rounded-lg border border-border px-3 py-1.5 text-xs text-text-secondary">Cancel</button>
                               </span>
                             ) : (

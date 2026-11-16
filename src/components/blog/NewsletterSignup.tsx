@@ -69,7 +69,7 @@ export function NewsletterSignup({ source }: { source: string }) {
                 placeholder="you@yourcompany.com"
                 aria-describedby={status === 'error' ? `${id}-err` : undefined}
                 aria-invalid={status === 'error' ? true : undefined}
-                className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-3 text-base text-text-primary placeholder:text-text-secondary/60"
+                className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-3 text-base text-text-primary placeholder:text-text-placeholder"
               />
             </div>
             <Button type="submit" variant="primary" size="md" disabled={status === 'sending'}>
@@ -87,7 +87,7 @@ export function NewsletterSignup({ source }: { source: string }) {
               <Link to="/privacy" className="font-medium text-accent underline underline-offset-2">See the Privacy Policy.</Link>
             </span>
           </label>
-          {status === 'error' && <p id={`${id}-err`} role="alert" className="text-sm font-medium text-red-600 dark:text-red-400">{message}</p>}
+          {status === 'error' && <p id={`${id}-err`} role="alert" className="text-sm font-medium text-danger">{message}</p>}
         </form>
       )}
     </section>

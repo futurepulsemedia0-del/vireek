@@ -106,7 +106,7 @@ export function SupplierPortalPage() {
             <h1 className="text-xl font-bold text-text-primary">{s.name}</h1>
           </div>
           <div className="flex items-center gap-3">
-            <span className={`rounded-full px-3 py-1 text-xs font-medium capitalize ${approved ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-amber-100 text-amber-800 dark:bg-amber-500/10 dark:text-amber-400'}`}>{s.status}</span>
+            <span className={`rounded-full px-3 py-1 text-xs font-medium capitalize ${approved ? 'bg-success-subtle text-success-strong' : 'bg-warning-subtle text-warning-strong'}`}>{s.status}</span>
             <Button variant="secondary" size="sm" onClick={() => void load()} aria-label="Refresh"><RefreshCw size={14} /></Button>
             <Link to="/dashboard" className="text-sm text-accent hover:underline">Back to Vireek</Link>
           </div>
@@ -115,7 +115,7 @@ export function SupplierPortalPage() {
 
       <main className="mx-auto max-w-7xl px-4 py-6">
         {!approved && (
-          <div className="mb-6 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300" role="status">
+          <div className="mb-6 rounded-2xl border border-warning-subtle-border bg-warning-subtle p-4 text-sm text-warning-strong" role="status">
             {s.status === 'pending' && 'Your application is under review. You can prepare your catalog and draft programs now; programs open to buyers once you are approved.'}
             {s.status === 'rejected' && `Your application was not approved.${s.review_notes ? ` Note: ${s.review_notes}` : ''}`}
             {s.status === 'suspended' && `Your account is suspended and cannot receive new orders.${s.review_notes ? ` Note: ${s.review_notes}` : ''}`}
@@ -327,7 +327,7 @@ function CatalogPanel({ supplierId }: { supplierId: string }) {
             {preview && <Button size="sm" onClick={() => void runImport()} disabled={busy || preview.rows.length === 0}>Import {preview.rows.length} items</Button>}
           </div>
           {preview && preview.errors.length > 0 && (
-            <ul className="mt-2 max-h-32 overflow-auto text-xs text-rose-600">{preview.errors.slice(0, 20).map((e, idx) => <li key={idx}>Line {e.line}: {e.message}</li>)}</ul>
+            <ul className="mt-2 max-h-32 overflow-auto text-xs text-danger">{preview.errors.slice(0, 20).map((e, idx) => <li key={idx}>Line {e.line}: {e.message}</li>)}</ul>
           )}
         </details>
       </div>
@@ -588,7 +588,7 @@ function ProgramEditor({ program, supplierId, isAdmin, onBack }: { program: Prog
                 </tbody>
               </table>
             </div>
-            {issues.length > 0 && <ul className="mt-2 text-xs text-rose-600">{issues.slice(0, 6).map((m) => <li key={m}>{m}</li>)}</ul>}
+            {issues.length > 0 && <ul className="mt-2 text-xs text-danger">{issues.slice(0, 6).map((m) => <li key={m}>{m}</li>)}</ul>}
             <div className="mt-3 flex flex-wrap gap-2">
               <Button variant="secondary" size="sm" onClick={() => { const built = buildScheduleFromDiscounts(sorted, items, {}); setPrices(Object.fromEntries(built.map((l) => [`${l.catalog_item_id}|${l.tier_id}`, (l.unit_price_cents / 100).toFixed(2)]))); }}>Fill from tier discounts</Button>
               <Button variant="secondary" size="sm" disabled={busy} onClick={() => void run(() => replaceScheduleLines(scheduleId, lines), 'Draft saved')}>Save draft</Button>

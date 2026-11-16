@@ -11,12 +11,12 @@ export const ENTRY_TYPE_LABELS: Record<MemoryEntryType, string> = {
   exception: 'Exception',
 };
 export const ENTRY_TYPE_COLORS: Record<MemoryEntryType, string> = {
-  winning_playbook: 'bg-success-500/10 text-success-500',
+  winning_playbook: 'bg-success-subtle text-success',
   failure_pattern: 'bg-danger/10 text-danger',
   tribal_knowledge: 'bg-accent/10 text-accent',
-  best_practice: 'bg-success-500/10 text-success-500',
+  best_practice: 'bg-success-subtle text-success',
   decision: 'bg-accent/10 text-accent',
-  exception: 'bg-warning-500/10 text-warning-500',
+  exception: 'bg-warning-subtle text-warning',
 };
 
 export const STATUS_LABELS: Record<MemoryStatus, string> = {
@@ -26,8 +26,8 @@ export const STATUS_LABELS: Record<MemoryStatus, string> = {
 };
 
 export const STATUS_COLORS: Record<MemoryStatus, string> = {
-  active: 'bg-success-500/10 text-success-500',
-  needs_review: 'bg-warning-500/10 text-warning-500',
+  active: 'bg-success-subtle text-success',
+  needs_review: 'bg-warning-subtle text-warning',
   retired: 'bg-bg-tertiary text-text-secondary',
 };
 
@@ -41,8 +41,8 @@ export function confidenceLabel(score: number): string {
 }
 
 export function confidenceColor(score: number): string {
-  if (score >= 75) return 'text-success-500';
-  if (score >= 45) return 'text-warning-500';
+  if (score >= 75) return 'text-success';
+  if (score >= 45) return 'text-warning';
   return 'text-text-secondary';
 }
 

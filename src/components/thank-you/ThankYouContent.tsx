@@ -41,7 +41,7 @@ const COPY: Record<ConversionSource | 'generic', Copy> = {
 };
 
 const PRIMARY_CLASS =
-  'focus-ring inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-accent px-5 py-3 text-base font-semibold text-white shadow-sm transition-all hover:brightness-110 active:scale-[0.97]';
+  'focus-ring inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-accent px-5 py-3 text-base font-semibold text-on-accent shadow-sm transition-all hover:brightness-110 active:scale-[0.97]';
 const SECONDARY_CLASS =
   'focus-ring inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl border border-border bg-bg-secondary px-5 py-3 text-base font-semibold text-text-primary transition-all hover:border-accent/40 hover:bg-bg-tertiary active:scale-[0.97]';
 

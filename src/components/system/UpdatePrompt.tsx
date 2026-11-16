@@ -35,7 +35,7 @@ export function UpdatePrompt() {
           <button
             type="button"
             onClick={() => applyServiceWorkerUpdate(worker)}
-            className="focus-ring rounded-lg bg-cta px-3 py-1.5 text-xs font-semibold text-white hover:brightness-110"
+            className="focus-ring rounded-lg bg-cta px-3 py-1.5 text-xs font-semibold text-on-cta hover:brightness-110"
           >
             {t('net.update.action')}
           </button>

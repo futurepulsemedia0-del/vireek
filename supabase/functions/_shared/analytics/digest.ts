@@ -39,8 +39,8 @@ export function buildDigest(
   const text = [title, "", ...rows.map(([a, b]) => `${a}: ${b}`), ...(alertLines.length ? ["", "Unusual changes:", ...alertLines.map((l) => `- ${l}`)] : []),
     "", `Open the dashboard: ${link}`, "You receive this because you turned on the digest. Turn it off any time in Analytics settings."].join("\n");
   const html = `<div style="font-family:system-ui,sans-serif;max-width:560px"><h2 style="margin:0 0 12px">${escapeHtml(title)}</h2><table style="border-collapse:collapse;width:100%">${
-    rows.map(([a, b]) => `<tr><td style="padding:6px 0;border-bottom:1px solid #eee">${escapeHtml(a)}</td><td style="padding:6px 0;border-bottom:1px solid #eee;text-align:right"><strong>${escapeHtml(b)}</strong></td></tr>`).join("")}</table>${
-    alertLines.length ? `<h3>Unusual changes</h3><ul>${alertLines.map((l) => `<li>${escapeHtml(l)}</li>`).join("")}</ul>` : ""}<p><a href="${escapeHtml(link)}">Open the dashboard</a></p><p style="color:#666;font-size:12px">You receive this because you turned on the digest. Turn it off any time in Analytics settings.</p></div>`;
+    rows.map(([a, b]) => `<tr><td style="padding:6px 0;border-bottom:1px solid #f0eee6">${escapeHtml(a)}</td><td style="padding:6px 0;border-bottom:1px solid #f0eee6;text-align:right"><strong>${escapeHtml(b)}</strong></td></tr>`).join("")}</table>${
+    alertLines.length ? `<h3>Unusual changes</h3><ul>${alertLines.map((l) => `<li>${escapeHtml(l)}</li>`).join("")}</ul>` : ""}<p><a href="${escapeHtml(link)}">Open the dashboard</a></p><p style="color:#73726C;font-size:12px">You receive this because you turned on the digest. Turn it off any time in Analytics settings.</p></div>`;
   return { subject: title, text, html };
 }
 

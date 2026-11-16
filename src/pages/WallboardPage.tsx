@@ -33,7 +33,7 @@ type NavWithWakeLock = Navigator & { wakeLock?: { request: (type: 'screen') => P
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-950 p-6 text-slate-100">
+    <main className="flex min-h-screen items-center justify-center bg-surface-inverse p-6 text-on-inverse">
       <div className="max-w-md text-center">{children}</div>
     </main>
   );
@@ -195,13 +195,13 @@ export function WallboardPage() {
   // ---- states ----
   if (state === 'loading') {
     return (
-      <main className="min-h-screen bg-slate-950 p-8" aria-busy="true" aria-label="Loading wallboard">
+      <main className="min-h-screen bg-surface-inverse p-8" aria-busy="true" aria-label="Loading wallboard">
         <div className="grid grid-cols-5 gap-4">
           {Array.from({ length: 5 }, (_, i) => (
-            <Skeleton key={i} className="h-28 !bg-slate-800" />
+            <Skeleton key={i} className="h-28 !bg-surface-inverse" />
           ))}
         </div>
-        <Skeleton className="mt-6 h-[60vh] !bg-slate-800" />
+        <Skeleton className="mt-6 h-[60vh] !bg-surface-inverse" />
       </main>
     );
   }
@@ -209,9 +209,9 @@ export function WallboardPage() {
   if (state === 'invalid') {
     return (
       <Shell>
-        <Lock className="mx-auto mb-3 text-slate-400" size={36} />
+        <Lock className="mx-auto mb-3 text-text-muted" size={36} />
         <h1 className="text-2xl font-bold">This display link is no longer available</h1>
-        <p className="mt-2 text-slate-400">It may have been revoked. Ask the account owner for a new link.</p>
+        <p className="mt-2 text-text-muted">It may have been revoked. Ask the account owner for a new link.</p>
       </Shell>
     );
   }
@@ -219,9 +219,9 @@ export function WallboardPage() {
   if (state === 'error' || !snapshot) {
     return (
       <Shell>
-        <WifiOff className="mx-auto mb-3 text-slate-400" size={36} />
+        <WifiOff className="mx-auto mb-3 text-text-muted" size={36} />
         <h1 className="text-2xl font-bold">Can&apos;t reach Vireek</h1>
-        <p className="mt-2 text-slate-400">Check this screen&apos;s internet connection.</p>
+        <p className="mt-2 text-text-muted">Check this screen&apos;s internet connection.</p>
         <Button className="mt-4" onClick={refresh}>
           Try again
         </Button>
@@ -237,39 +237,39 @@ export function WallboardPage() {
 
   return (
     <main
-      className={`flex min-h-screen flex-col bg-slate-950 text-slate-100 ${cursorHidden ? 'cursor-none' : ''}`}
+      className={`flex min-h-screen flex-col bg-surface-inverse text-on-inverse ${cursorHidden ? 'cursor-none' : ''}`}
       style={{ fontSize: 'clamp(15px, 1.15vw, 30px)' }}
       aria-label={`${snapshot.config.name} dispatch wallboard`}
     >
       <header className="flex items-center justify-between gap-[1em] px-[1.5em] pb-[0.6em] pt-[1em]">
         <div className="min-w-0">
           <h1 className="truncate text-[1.9em] font-bold tracking-tight text-white">{snapshot.config.name}</h1>
-          <p className="text-[0.95em] text-slate-400">{PANEL_LABELS[current]}</p>
+          <p className="text-[0.95em] text-text-muted">{PANEL_LABELS[current]}</p>
         </div>
         <div className="flex items-center gap-[1.2em]">
           <span
             role="status"
             className={`inline-flex items-center gap-[0.5em] rounded-full px-[0.9em] py-[0.3em] text-[0.8em] font-semibold ring-1 ${
-              liveOk ? 'bg-emerald-500/15 text-emerald-300 ring-emerald-400/30' : 'bg-amber-500/15 text-amber-300 ring-amber-400/30'
+              liveOk ? 'bg-success-subtle text-success ring-success/30' : 'bg-warning-subtle text-warning ring-warning/30'
             }`}
           >
-            <span className={`h-[0.6em] w-[0.6em] rounded-full ${liveOk ? 'animate-pulse bg-emerald-400' : 'bg-amber-400'}`} />
+            <span className={`h-[0.6em] w-[0.6em] rounded-full ${liveOk ? 'animate-pulse bg-success' : 'bg-warning'}`} />
             {liveOk ? 'LIVE' : stale ? 'OFFLINE' : 'RECONNECTING'}
           </span>
           <div className="text-right">
             <p className="text-[2.2em] font-bold leading-none tabular-nums text-white">{clock.time}</p>
-            <p className="text-[0.85em] text-slate-400">{clock.date}</p>
+            <p className="text-[0.85em] text-text-muted">{clock.date}</p>
           </div>
         </div>
       </header>
 
       {stale && (
-        <div role="alert" className="mx-[1.5em] mb-[0.6em] rounded-[0.7em] border border-amber-400/60 bg-amber-500/15 px-[1em] py-[0.5em] text-[1em] font-semibold text-amber-200">
+        <div role="alert" className="mx-[1.5em] mb-[0.6em] rounded-[0.7em] border border-warning/60 bg-warning-subtle px-[1em] py-[0.5em] text-[1em] font-semibold text-warning">
           Connection lost. Showing data from {formatAge(lastOkAt === null ? null : new Date(lastOkAt).toISOString(), nowMs)}.
         </div>
       )}
       {showBanner && (
-        <div role="alert" className="mx-[1.5em] mb-[0.6em] animate-pulse rounded-[0.7em] border border-red-400/70 bg-red-600/25 px-[1em] py-[0.5em] text-[1.1em] font-bold text-red-100">
+        <div role="alert" className="mx-[1.5em] mb-[0.6em] animate-pulse rounded-[0.7em] border border-danger/70 bg-danger-subtle px-[1em] py-[0.5em] text-[1.1em] font-bold text-danger">
           {snapshot.emergencies.length} open emergenc{snapshot.emergencies.length === 1 ? 'y' : 'ies'} need attention
         </div>
       )}
@@ -282,19 +282,19 @@ export function WallboardPage() {
         {renderPanel(current, snapshot, nowMs)}
       </FadeIn>
 
-      <footer className="flex items-center justify-between gap-[1em] px-[1.5em] pb-[0.8em] text-[0.75em] text-slate-500">
+      <footer className="flex items-center justify-between gap-[1em] px-[1.5em] pb-[0.8em] text-[0.75em] text-text-muted">
         <div className="flex items-center gap-[0.5em]" aria-label="Panels">
           {panels.map((p) => (
-            <span key={p} className={`h-[0.5em] rounded-full transition-all ${p === current ? 'w-[2em] bg-sky-400' : 'w-[0.5em] bg-slate-600'}`} aria-current={p === current ? 'true' : undefined} />
+            <span key={p} className={`h-[0.5em] rounded-full transition-all ${p === current ? 'w-[2em] bg-info' : 'w-[0.5em] bg-text-muted'}`} aria-current={p === current ? 'true' : undefined} />
           ))}
-          {paused && <span className="ml-[0.5em] font-semibold text-amber-300">Paused</span>}
+          {paused && <span className="ml-[0.5em] font-semibold text-warning">Paused</span>}
         </div>
         <div className={`flex items-center gap-[0.6em] transition-opacity ${cursorHidden ? 'opacity-0' : 'opacity-100'}`}>
           <span>← → switch · Space pause · F fullscreen</span>
-          <button type="button" onClick={() => setPaused((p) => !p)} className="rounded p-[0.3em] hover:bg-slate-800" aria-label={paused ? 'Resume rotation' : 'Pause rotation'}>
+          <button type="button" onClick={() => setPaused((p) => !p)} className="rounded p-[0.3em] hover:bg-surface-inverse" aria-label={paused ? 'Resume rotation' : 'Pause rotation'}>
             {paused ? <Play className="h-[1.4em] w-[1.4em]" /> : <Pause className="h-[1.4em] w-[1.4em]" />}
           </button>
-          <button type="button" onClick={toggleFullscreen} className="rounded p-[0.3em] hover:bg-slate-800" aria-label="Toggle fullscreen">
+          <button type="button" onClick={toggleFullscreen} className="rounded p-[0.3em] hover:bg-surface-inverse" aria-label="Toggle fullscreen">
             <Expand className="h-[1.4em] w-[1.4em]" />
           </button>
         </div>

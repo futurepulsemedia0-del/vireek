@@ -206,7 +206,7 @@ export function VoiceResiliencePage() {
           {TABS.map((id) => (
             <button key={id} type="button" role="tab" id={`vr-tab-${id}`} aria-selected={tab === id} aria-controls={`vr-panel-${id}`}
               tabIndex={tab === id ? 0 : -1} onClick={() => setTab(id)} onKeyDown={onTabKey}
-              className={`focus-ring shrink-0 rounded-lg px-4 py-2 text-sm font-medium ${tab === id ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}>
+              className={`focus-ring shrink-0 rounded-lg px-4 py-2 text-sm font-medium ${tab === id ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}>
               {t(`page.tabs.${id}`)}
             </button>
           ))}

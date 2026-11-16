@@ -50,14 +50,14 @@ export function KnowledgeStep({ data, update, onBack, onNext, onSkip, saving }: 
                   value={f.question}
                   onChange={(e) => setRow(i, 'question', e.target.value)}
                   placeholder="Question a caller might ask"
-                  className="focus-ring w-full rounded-lg border border-border bg-bg-secondary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60"
+                  className="focus-ring w-full rounded-lg border border-border bg-bg-secondary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder"
                 />
                 <textarea
                   rows={2}
                   value={f.answer}
                   onChange={(e) => setRow(i, 'answer', e.target.value)}
                   placeholder="How Sarah should answer"
-                  className="focus-ring w-full resize-none rounded-lg border border-border bg-bg-secondary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60"
+                  className="focus-ring w-full resize-none rounded-lg border border-border bg-bg-secondary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder"
                 />
               </div>
               <button

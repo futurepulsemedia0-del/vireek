@@ -104,7 +104,7 @@ function ConsentPanel({ consent, contribution, isOwner, onSaved }: { consent: Co
               : 'Off by default. Nothing leaves your account until the account owner opts in.'}
           </p>
         </div>
-        <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${enabled ? 'bg-success-500/10 text-success-500' : 'bg-bg-tertiary text-text-secondary'}`}>{enabled ? 'Contributing' : 'Not contributing'}</span>
+        <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${enabled ? 'bg-success-subtle text-success' : 'bg-bg-tertiary text-text-secondary'}`}>{enabled ? 'Contributing' : 'Not contributing'}</span>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
@@ -316,7 +316,7 @@ export function EvidenceMarketplacePage() {
               {SAFEGUARDS.map((s) => (
                 <div key={s.title} className="rounded-2xl border border-border bg-bg-secondary p-3">
                   <p className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-text-primary">
-                    <ShieldCheck size={13} className="text-success-500" /> {s.title}
+                    <ShieldCheck size={13} className="text-success" /> {s.title}
                   </p>
                   <p className="text-[11px] text-text-secondary">{s.body}</p>
                 </div>
@@ -369,7 +369,7 @@ export function EvidenceMarketplacePage() {
                         aria-selected={scope === s}
                         disabled={s === 'equipment' && !hasEquipment}
                         onClick={() => setScope(s)}
-                        className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium disabled:opacity-40 ${scope === s ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
+                        className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium disabled:opacity-40 ${scope === s ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
                       >
                         {s === 'cause' ? 'By cause' : 'By equipment'}
                       </button>
@@ -383,7 +383,7 @@ export function EvidenceMarketplacePage() {
                       type="button"
                       aria-pressed={grade === g}
                       onClick={() => setGrade(g)}
-                      className={`focus-ring rounded-full px-3 py-1 text-xs font-medium ${grade === g ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
+                      className={`focus-ring rounded-full px-3 py-1 text-xs font-medium ${grade === g ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
                     >
                       {g === 'all' ? 'All grades' : GRADE_META[g].label}
                     </button>

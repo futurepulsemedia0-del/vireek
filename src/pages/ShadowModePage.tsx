@@ -106,7 +106,7 @@ export function ShadowModePage() {
         {loading && <div aria-busy="true"><SkeletonCard rows={4} /></div>}
 
         {!loading && error && (
-          <div role="alert" className="rounded-xl border border-red-500/40 p-4">
+          <div role="alert" className="rounded-xl border border-danger/40 p-4">
             <p className="text-sm">{error || t('loadFailed')}</p>
             <Button className="mt-3" size="sm" variant="secondary" onClick={() => void load()}>{t('retry')}</Button>
           </div>

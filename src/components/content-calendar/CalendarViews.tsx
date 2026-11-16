@@ -24,7 +24,7 @@ const toneClass: Record<StatusTone, string> = {
   neutral: 'bg-bg-tertiary text-text-secondary',
   info: 'bg-accent/10 text-accent',
   success: 'bg-success/10 text-success',
-  warning: 'bg-warning-500/10 text-warning-500',
+  warning: 'bg-warning-subtle text-warning',
   danger: 'bg-danger/10 text-danger',
 };
 
@@ -78,7 +78,7 @@ export function EntryChip({ entry, now, dnd, onOpen }: EntryProps) {
       onClick={() => onOpen(item)}
       aria-label={`${channel.label}: ${item.title}, ${statusLabel(item.status)}${item.scheduled_at ? `, ${fmtTime(item.scheduled_at)}` : ''}${overdue ? ', past due' : ''}`}
       className={`focus-ring flex w-full min-w-0 items-center gap-1.5 rounded-md border px-1.5 py-1 text-left text-xs transition-colors hover:border-accent/50 ${
-        overdue ? 'border-warning-500/60 bg-warning-500/10' : 'border-border bg-bg-primary'
+        overdue ? 'border-warning/60 bg-warning-subtle' : 'border-border bg-bg-primary'
       } ${dnd.draggingId === item.id ? 'opacity-40' : ''} ${canDrag ? 'cursor-grab active:cursor-grabbing' : ''}`}
     >
       <span className={`h-2 w-2 shrink-0 rounded-full ${channel.dot}`} aria-hidden />
@@ -114,7 +114,7 @@ export function EntryRow({ entry, now, onOpen }: Omit<EntryProps, 'dnd'>) {
       type="button"
       onClick={() => onOpen(item)}
       className={`focus-ring flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-colors hover:border-accent/50 ${
-        overdue ? 'border-warning-500/60 bg-warning-500/10' : 'border-border bg-bg-primary'
+        overdue ? 'border-warning/60 bg-warning-subtle' : 'border-border bg-bg-primary'
       }`}
     >
       <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${channel.dot}`} aria-hidden />
@@ -126,7 +126,7 @@ export function EntryRow({ entry, now, onOpen }: Omit<EntryProps, 'dnd'>) {
           {item.body ? ` · ${item.body}` : ''}
         </span>
       </span>
-      {overdue && <span className="shrink-0 rounded-full bg-warning-500/10 px-2 py-0.5 text-[11px] font-medium text-warning-500">Past due</span>}
+      {overdue && <span className="shrink-0 rounded-full bg-warning-subtle px-2 py-0.5 text-[11px] font-medium text-warning">Past due</span>}
       <StatusBadge status={item.status} />
     </button>
   );
@@ -199,7 +199,7 @@ export function MonthView({ anchor, weekStartsOn, now, byDay, selectedKey, dnd, 
                   aria-pressed={selected}
                   aria-label={`${label}${entries.length ? `, ${entries.length} item${entries.length === 1 ? '' : 's'}` : ''}`}
                   className={`focus-ring flex h-6 min-w-[1.5rem] items-center justify-center rounded-full px-1 text-xs font-medium ${
-                    isToday ? 'bg-accent text-white' : 'text-text-primary hover:bg-bg-tertiary'
+                    isToday ? 'bg-accent text-on-accent' : 'text-text-primary hover:bg-bg-tertiary'
                   }`}
                 >
                   {cell.date.getDate()}
@@ -273,7 +273,7 @@ export function WeekView({ anchor, weekStartsOn, now, byDay, dnd, onCreate, onOp
               {entries.map((e) => (
                 <EntryChip key={e.key} entry={e} now={now} dnd={dnd} onOpen={onOpen} />
               ))}
-              {entries.length === 0 && <p className="px-1 text-xs text-text-secondary/70">Nothing planned</p>}
+              {entries.length === 0 && <p className="px-1 text-xs text-text-muted">Nothing planned</p>}
             </div>
           </section>
         );

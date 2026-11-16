@@ -160,7 +160,7 @@ export function MetricsTab() {
                 >
                   <span className="text-xs font-medium text-text-secondary">{r.label}</span>
                   <span className="mt-1 block text-xl font-bold text-text-primary sm:text-2xl">{fmt(r.id, r.total.value)}</span>
-                  <span className={`mt-1 block text-xs font-medium ${delta === null || delta === 0 ? 'text-text-secondary' : good ? 'text-success-500' : 'text-danger'}`}>
+                  <span className={`mt-1 block text-xs font-medium ${delta === null || delta === 0 ? 'text-text-secondary' : good ? 'text-success' : 'text-danger'}`}>
                     {delta === null ? (compare ? 'No comparison' : `${r.total.n.toLocaleString()} records`) : `${delta > 0 ? '+' : ''}${delta}${r.delta?.kind === 'pts' ? ' pts' : '%'} vs previous`}
                   </span>
                 </button>
@@ -190,7 +190,7 @@ export function MetricsTab() {
                 )}
               </div>
               {current.notes.map((n) => (
-                <p key={n} className="mt-3 rounded-lg bg-warning-500/10 px-3 py-2 text-xs text-warning-500">
+                <p key={n} className="mt-3 rounded-lg bg-warning-subtle px-3 py-2 text-xs text-warning">
                   {n}
                 </p>
               ))}

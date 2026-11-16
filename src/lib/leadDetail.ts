@@ -134,8 +134,8 @@ export const isUuid = (value: string | undefined): value is string => !!value &&
 export type ScoreGrade = 'hot' | 'warm' | 'cold';
 
 export const GRADE_META: Record<ScoreGrade, { label: string; tone: string; hint: string }> = {
-  hot: { label: 'Hot', tone: 'text-success-500', hint: 'High buying intent — contact immediately.' },
-  warm: { label: 'Warm', tone: 'text-warning-500', hint: 'Engaged but not committed — follow up soon.' },
+  hot: { label: 'Hot', tone: 'text-success', hint: 'High buying intent — contact immediately.' },
+  warm: { label: 'Warm', tone: 'text-warning', hint: 'Engaged but not committed — follow up soon.' },
   cold: { label: 'Cold', tone: 'text-text-secondary', hint: 'Low engagement — nurture or deprioritise.' },
 };
 

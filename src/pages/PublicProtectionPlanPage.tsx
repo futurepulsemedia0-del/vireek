@@ -19,9 +19,9 @@ const fmt = (v: string | null) => {
 };
 
 const STATUS_TEXT: Record<PublicCertificate['status'], { label: string; cls: string }> = {
-  active: { label: 'Active', cls: 'bg-success-500/10 text-success-500' },
+  active: { label: 'Active', cls: 'bg-success-subtle text-success' },
   expired: { label: 'Expired', cls: 'bg-bg-tertiary text-text-secondary' },
-  pending_payment: { label: 'Awaiting payment', cls: 'bg-warning-500/10 text-warning-500' },
+  pending_payment: { label: 'Awaiting payment', cls: 'bg-warning-subtle text-warning' },
   cancelled: { label: 'Cancelled', cls: 'bg-danger/10 text-danger' },
 };
 

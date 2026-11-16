@@ -75,10 +75,10 @@ function StatCard({ label, value, tone = 'text-text-primary' }: { label: string;
 }
 
 const STEP_STYLES: Record<StepState, string> = {
-  done: 'bg-success-500 text-white',
-  current: 'bg-accent text-white',
+  done: 'bg-success text-on-success',
+  current: 'bg-accent text-on-accent',
   pending: 'bg-bg-tertiary text-text-secondary',
-  failed: 'bg-danger text-white',
+  failed: 'bg-danger text-on-danger',
 };
 
 function Pipeline({ incident }: { incident: EmergencyIncident }) {
@@ -99,7 +99,7 @@ function Pipeline({ incident }: { incident: EmergencyIncident }) {
 }
 
 const OUTCOME_DOT: Record<IncidentEvent['outcome'], string> = {
-  ok: 'bg-success-500',
+  ok: 'bg-success',
   info: 'bg-accent',
   skipped: 'bg-text-secondary',
   failed: 'bg-danger',
@@ -169,7 +169,7 @@ function IncidentCard({ incident, canAct, onChanged }: { incident: EmergencyInci
   const open_ = isActive(incident.status);
 
   return (
-    <div className={`rounded-2xl border bg-bg-secondary ${needsAttention(incident) ? 'border-warning-500' : 'border-border'}`}>
+    <div className={`rounded-2xl border bg-bg-secondary ${needsAttention(incident) ? 'border-warning' : 'border-border'}`}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -364,7 +364,7 @@ function DeclareForm({ enabled, onCreated }: { enabled: boolean; onCreated: () =
               type="button"
               aria-pressed={hazards.includes(h.id)}
               onClick={() => toggle(h.id)}
-              className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium ${hazards.includes(h.id) ? 'bg-danger text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
+              className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium ${hazards.includes(h.id) ? 'bg-danger text-on-danger' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
             >
               {h.label}
             </button>
@@ -558,7 +558,7 @@ export function EmergencyNetworkPage() {
         </div>
 
         {settings && !settings.enabled && (
-          <p className="mb-4 rounded-xl bg-warning-500/10 px-3 py-2 text-sm text-warning-500" role="status">
+          <p className="mb-4 rounded-xl bg-warning-subtle px-3 py-2 text-sm text-warning" role="status">
             The Emergency Network is switched off, so nothing runs automatically. Turn it on in Settings.
           </p>
         )}
@@ -571,11 +571,11 @@ export function EmergencyNetworkPage() {
               role="tab"
               aria-selected={tab === t.key}
               onClick={() => setTab(t.key)}
-              className={`focus-ring inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${tab === t.key ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
+              className={`focus-ring inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${tab === t.key ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
             >
               <t.icon size={13} aria-hidden="true" />
               {t.label}
-              {t.badge !== undefined && t.badge > 0 && <span className="rounded-full bg-warning-500 px-1.5 py-0.5 text-[10px] text-white">{t.badge}</span>}
+              {t.badge !== undefined && t.badge > 0 && <span className="rounded-full bg-warning px-1.5 py-0.5 text-[10px] text-on-warning">{t.badge}</span>}
             </button>
           ))}
         </div>
@@ -598,7 +598,7 @@ export function EmergencyNetworkPage() {
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                   <StatCard label="Active emergencies" value={stats.active} />
-                  <StatCard label="Need you now" value={stats.needsAttention} tone={stats.needsAttention > 0 ? 'text-warning-500' : 'text-text-primary'} />
+                  <StatCard label="Need you now" value={stats.needsAttention} tone={stats.needsAttention > 0 ? 'text-warning' : 'text-text-primary'} />
                   <StatCard label="With network partners" value={stats.withPartner} />
                   <StatCard label="Response target passed" value={stats.slaBreached} tone={stats.slaBreached > 0 ? 'text-danger' : 'text-text-primary'} />
                 </div>

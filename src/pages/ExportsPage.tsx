@@ -57,7 +57,7 @@ const FORMAT_ICON: Record<ExportFormat, typeof FileText> = {
 const STATUS_STYLE: Record<ExportJobStatus, { label: string; cls: string }> = {
   queued: { label: 'Queued', cls: 'bg-bg-tertiary text-text-secondary' },
   processing: { label: 'Processing', cls: 'bg-accent/10 text-accent' },
-  completed: { label: 'Ready', cls: 'bg-success-500/10 text-success-500' },
+  completed: { label: 'Ready', cls: 'bg-success-subtle text-success' },
   failed: { label: 'Failed', cls: 'bg-danger/10 text-danger' },
   expired: { label: 'Expired', cls: 'bg-bg-tertiary text-text-secondary' },
 };
@@ -226,7 +226,7 @@ export function ExportsPage() {
             type="button"
             disabled={busy}
             onClick={() => handleDownload(job)}
-            className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:brightness-110 disabled:opacity-60"
+            className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-on-accent transition-colors hover:brightness-110 disabled:opacity-60"
           >
             {busy ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />} Download
           </button>
@@ -352,7 +352,7 @@ export function ExportsPage() {
                 maxLength={100}
                 placeholder="Name, phone, email…"
                 onChange={(e) => setSearch(e.target.value)}
-                className="focus-ring mt-1.5 w-full rounded-xl border border-border bg-bg-primary px-3 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60"
+                className="focus-ring mt-1.5 w-full rounded-xl border border-border bg-bg-primary px-3 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder"
               />
             </label>
           </div>
@@ -377,7 +377,7 @@ export function ExportsPage() {
                       aria-checked={active}
                       onClick={() => setFormat(f)}
                       className={`focus-ring flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
-                        active ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'
+                        active ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'
                       }`}
                     >
                       <Icon size={14} /> {FORMAT_LABEL[f]}
@@ -390,7 +390,7 @@ export function ExportsPage() {
               type="button"
               disabled={creating || !!dateError}
               onClick={handleCreate}
-              className="focus-ring flex w-full items-center justify-center gap-2 rounded-xl bg-cta px-5 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110 disabled:opacity-50 sm:w-auto"
+              className="focus-ring flex w-full items-center justify-center gap-2 rounded-xl bg-cta px-5 py-2.5 text-sm font-semibold text-on-cta transition-all hover:brightness-110 disabled:opacity-50 sm:w-auto"
             >
               {creating ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
               {creating ? 'Starting…' : 'Create export'}

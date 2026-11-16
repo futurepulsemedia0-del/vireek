@@ -160,7 +160,7 @@ export function RevenueRecoveredCard({ calls, jobs, businessHours, planId }: Rev
     >
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-start gap-3">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-accent to-cta text-white shadow-glow-accent">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent text-on-accent shadow-glow-accent">
             <Zap size={20} />
           </span>
           <div>
@@ -170,7 +170,7 @@ export function RevenueRecoveredCard({ calls, jobs, businessHours, planId }: Rev
                 type="button"
                 onClick={() => setShowMethodology(true)}
                 aria-label="How this is calculated"
-                className="focus-ring flex h-5 w-5 items-center justify-center rounded-full text-text-secondary/70 hover:text-accent"
+                className="focus-ring flex h-5 w-5 items-center justify-center rounded-full text-text-muted hover:text-accent"
               >
                 <Info size={13} />
               </button>
@@ -182,7 +182,7 @@ export function RevenueRecoveredCard({ calls, jobs, businessHours, planId }: Rev
         </div>
 
         {data.roiMultiple !== null && data.totalRecovered > 0 && (
-          <span className="flex items-center gap-1.5 rounded-full border border-success-500/30 bg-success-500/10 px-3 py-1.5 text-xs font-bold text-success-500">
+          <span className="flex items-center gap-1.5 rounded-full border border-success/30 bg-success-subtle px-3 py-1.5 text-xs font-bold text-success">
             <TrendingUp size={13} />
             {data.roiMultiple.toFixed(1)}× return this month
           </span>
@@ -239,13 +239,13 @@ export function RevenueRecoveredCard({ calls, jobs, businessHours, planId }: Rev
       )}
 
       {data.monthlyCost && data.paybackDay && (
-        <p className="mt-5 rounded-xl bg-success-500/10 px-4 py-2.5 text-xs font-medium text-success-500">
+        <p className="mt-5 rounded-xl bg-success-subtle px-4 py-2.5 text-xs font-medium text-success">
           Vireek paid for itself this month on day {data.paybackDay} — everything since is profit.
         </p>
       )}
 
       {!data.hasConfiguredHours && (
-        <p className="mt-4 text-[11px] text-text-secondary/70">
+        <p className="mt-4 text-[11px] text-text-muted">
           Using default after-hours estimate (before 8am, after 6pm, weekends).{' '}
           <a href="/dashboard/business-profile" className="font-medium text-accent hover:underline">
             Set your real business hours
@@ -256,7 +256,7 @@ export function RevenueRecoveredCard({ calls, jobs, businessHours, planId }: Rev
 
       {showMethodology && (
         <div
-          className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/40 backdrop-blur-sm p-4"
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-overlay/40 backdrop-blur-sm p-4"
           onClick={() => setShowMethodology(false)}
         >
           <motion.div
@@ -282,7 +282,7 @@ export function RevenueRecoveredCard({ calls, jobs, businessHours, planId }: Rev
               <li>We sum the paid invoice amount on those jobs — this is real, collected revenue, not a projection.</li>
               <li>Jobs booked but not yet paid are shown separately as pipeline, never counted in the headline number.</li>
             </ol>
-            <p className="mt-3 text-[11px] text-text-secondary/70">
+            <p className="mt-3 text-[11px] text-text-muted">
               This is deliberately conservative: it only counts calls Vireek actually answered and that turned into
               real, invoiced work — not a hypothetical missed-call estimate.
             </p>

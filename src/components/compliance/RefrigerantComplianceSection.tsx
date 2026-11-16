@@ -174,7 +174,7 @@ export function RefrigerantComplianceSection() {
                     )}
                   </div>
                   <span
-                    className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${leak.exceeds ? 'bg-danger/10 text-danger' : 'bg-success-500/10 text-success-500'}`}
+                    className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${leak.exceeds ? 'bg-danger/10 text-danger' : 'bg-success-subtle text-success'}`}
                   >
                     {leak.exceeds && <AlertTriangle size={11} />}
                     {leak.ratePct === null ? 'n/a' : `${leak.ratePct}% / ${leak.threshold}%`}
@@ -209,7 +209,7 @@ export function RefrigerantComplianceSection() {
               type="button"
               onClick={handleExport}
               disabled={exporting || rangeInvalid}
-              className="focus-ring ml-auto inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"
+              className="focus-ring ml-auto inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-on-accent disabled:opacity-50"
             >
               {exporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}{' '}
               Export CSV

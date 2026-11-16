@@ -55,7 +55,7 @@ const blank = (): Form => ({
   groupBy: [],
   locked: emptyLocked(),
   mode: 'auto',
-  accent: '#2563eb',
+  accent: '#a93b0f',
   rate: '60',
 });
 
@@ -270,7 +270,7 @@ export function EmbedsTab({ data }: { data: DestinationData }) {
       </div>
 
       {secret && (
-        <Card className="space-y-3 border-warning-500/40 p-5">
+        <Card className="space-y-3 border-warning/40 p-5">
           <div className="flex items-start justify-between gap-3">
             <div>
               <h3 className="flex items-center gap-2 text-base font-semibold text-text-primary">

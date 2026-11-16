@@ -46,14 +46,14 @@ import {
 import { fetchAssessmentRecords, fetchRpeSettings, loadResolutionData, saveAssessments, saveRpeSettings } from '@/lib/resolutionProbabilityApi';
 
 const VERDICT_META: Record<Verdict, { label: string; pill: string; text: string; bar: string }> = {
-  dispatch: { label: 'Ready to dispatch', pill: 'bg-success-500/10 text-success-500', text: 'text-success-500', bar: 'bg-success-500' },
-  improve: { label: 'Improve first', pill: 'bg-warning-500/10 text-warning-500', text: 'text-warning-500', bar: 'bg-warning-500' },
+  dispatch: { label: 'Ready to dispatch', pill: 'bg-success-subtle text-success', text: 'text-success', bar: 'bg-success' },
+  improve: { label: 'Improve first', pill: 'bg-warning-subtle text-warning', text: 'text-warning', bar: 'bg-warning' },
   hold: { label: 'Hold dispatch', pill: 'bg-danger/10 text-danger', text: 'text-danger', bar: 'bg-danger' },
 };
 
 const STATUS_STYLE: Record<DimensionStatus, string> = {
-  good: 'bg-success-500/10 text-success-500',
-  watch: 'bg-warning-500/10 text-warning-500',
+  good: 'bg-success-subtle text-success',
+  watch: 'bg-warning-subtle text-warning',
   risk: 'bg-danger/10 text-danger',
   unknown: 'bg-bg-tertiary text-text-secondary',
 };
@@ -311,7 +311,7 @@ export function ResolutionProbabilityPage() {
   }
 
   const rec = selected?.plan.recommendation;
-  const recTone = rec?.action === 'dispatch_now' ? 'border-success-500/30 bg-success-500/5' : rec?.action === 'hold' ? 'border-danger/30 bg-danger/5' : 'border-warning-500/30 bg-warning-500/5';
+  const recTone = rec?.action === 'dispatch_now' ? 'border-success/30 bg-success-subtle' : rec?.action === 'hold' ? 'border-danger/30 bg-danger/5' : 'border-warning/30 bg-warning-subtle';
 
   return (
     <DashboardLayout activeLabel="Resolution Probability">
@@ -355,14 +355,14 @@ export function ResolutionProbabilityPage() {
                       type="button"
                       onClick={() => setFilter(f)}
                       aria-pressed={filter === f}
-                      className={`focus-ring rounded-full px-3 py-1 text-xs font-semibold ${filter === f ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary'}`}
+                      className={`focus-ring rounded-full px-3 py-1 text-xs font-semibold ${filter === f ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary'}`}
                     >
                       {f === 'attention' ? 'Needs attention' : 'All jobs'}
                     </button>
                   ))}
                 </div>
                 {visible.length === 0 ? (
-                  <Card className="!p-5 text-sm text-text-secondary"><CheckCircle2 size={16} className="mb-1 text-success-500" /> Every scheduled job meets your target.</Card>
+                  <Card className="!p-5 text-sm text-text-secondary"><CheckCircle2 size={16} className="mb-1 text-success" /> Every scheduled job meets your target.</Card>
                 ) : (
                   <ul className="space-y-2">
                     {visible.map((r) => (
@@ -402,7 +402,7 @@ export function ResolutionProbabilityPage() {
                   {rec && (
                     <div className={`mt-5 rounded-xl border p-4 ${recTone}`}>
                       <p className="flex items-center gap-2 text-sm font-semibold text-text-primary">
-                        {rec.action === 'dispatch_now' ? <CheckCircle2 size={16} className="text-success-500" /> : <AlertTriangle size={16} className={rec.action === 'hold' ? 'text-danger' : 'text-warning-500'} />}
+                        {rec.action === 'dispatch_now' ? <CheckCircle2 size={16} className="text-success" /> : <AlertTriangle size={16} className={rec.action === 'hold' ? 'text-danger' : 'text-warning'} />}
                         {rec.headline}
                       </p>
                       <p className="mt-1 text-sm text-text-secondary">{rec.reason}</p>
@@ -429,7 +429,7 @@ export function ResolutionProbabilityPage() {
                           <li key={`${l.kind}-${i}`} className="flex flex-wrap items-start gap-3 rounded-xl bg-bg-primary p-3">
                             <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent"><Icon size={16} /></span>
                             <div className="min-w-0 flex-1">
-                              <p className="text-sm font-semibold text-text-primary">{l.title} <span className="ml-1 text-xs font-semibold text-success-500">+{l.upliftPts} pts</span></p>
+                              <p className="text-sm font-semibold text-text-primary">{l.title} <span className="ml-1 text-xs font-semibold text-success">+{l.upliftPts} pts</span></p>
                               <p className="text-xs text-text-secondary">{l.detail}</p>
                               <p className="mt-0.5 text-xs text-text-secondary">{formatDelay(l.delayHours)}{l.blocking ? ' · dispatch waits' : ''} · reaches {l.projectedProbability}%</p>
                             </div>

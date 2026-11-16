@@ -407,7 +407,7 @@ export function OpenVoiceBenchmarkPage() {
           </header>
           <nav aria-label="Benchmark sections" role="tablist" className="flex flex-wrap gap-2 border-b border-border pb-3">
             {TABS.map(([k, l]) => (
-              <button key={k} role="tab" type="button" aria-selected={tab === k} onClick={() => pick(k)} className={`focus-ring rounded-xl px-4 py-2 text-sm font-medium ${tab === k ? 'bg-accent text-white' : 'text-text-secondary hover:bg-bg-tertiary'}`}>{l}</button>
+              <button key={k} role="tab" type="button" aria-selected={tab === k} onClick={() => pick(k)} className={`focus-ring rounded-xl px-4 py-2 text-sm font-medium ${tab === k ? 'bg-accent text-on-accent' : 'text-text-secondary hover:bg-bg-tertiary'}`}>{l}</button>
             ))}
           </nav>
           {failed && <Card className="!p-6"><p className="text-sm text-danger">We couldn&apos;t load the benchmark right now. Please try again shortly.</p></Card>}

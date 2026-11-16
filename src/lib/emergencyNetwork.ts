@@ -125,7 +125,7 @@ export const TIER_LABELS: Record<EmergencyTier, string> = { critical: 'Critical'
 
 export const TIER_COLORS: Record<EmergencyTier, string> = {
   critical: 'bg-danger/10 text-danger',
-  high: 'bg-warning-500/10 text-warning-500',
+  high: 'bg-warning-subtle text-warning',
   standard: 'bg-bg-tertiary text-text-secondary',
 };
 
@@ -147,11 +147,11 @@ export const STATUS_COLORS: Record<IncidentStatus, string> = {
   dispatching: 'bg-accent/10 text-accent',
   assigned: 'bg-accent/10 text-accent',
   network_search: 'bg-accent/10 text-accent',
-  network_pending_approval: 'bg-warning-500/10 text-warning-500',
-  handed_off: 'bg-success-500/10 text-success-500',
-  en_route: 'bg-success-500/10 text-success-500',
-  on_site: 'bg-success-500/10 text-success-500',
-  resolved: 'bg-success-500/10 text-success-500',
+  network_pending_approval: 'bg-warning-subtle text-warning',
+  handed_off: 'bg-success-subtle text-success',
+  en_route: 'bg-success-subtle text-success',
+  on_site: 'bg-success-subtle text-success',
+  resolved: 'bg-success-subtle text-success',
   needs_human: 'bg-danger/10 text-danger',
   cancelled: 'bg-bg-tertiary text-text-secondary',
   closed: 'bg-bg-tertiary text-text-secondary',
@@ -264,9 +264,9 @@ export function formatSla(v: SlaView): string {
 
 export const SLA_COLORS: Record<SlaState, string> = {
   ok: 'text-text-secondary',
-  at_risk: 'text-warning-500',
+  at_risk: 'text-warning',
   breached: 'text-danger',
-  met: 'text-success-500',
+  met: 'text-success',
   missed: 'text-danger',
 };
 

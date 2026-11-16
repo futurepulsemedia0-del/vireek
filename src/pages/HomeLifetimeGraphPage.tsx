@@ -35,17 +35,17 @@ import {
 // ------------------------------------------------------------------ styling
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder transition-colors';
 const labelClass = 'mb-1.5 block text-xs font-medium text-text-secondary';
 const primaryBtn =
-  'focus-ring flex items-center gap-1.5 rounded-xl bg-cta px-3.5 py-2 text-xs font-semibold text-white disabled:opacity-50';
+  'focus-ring flex items-center gap-1.5 rounded-xl bg-cta px-3.5 py-2 text-xs font-semibold text-on-cta disabled:opacity-50';
 const smallBtn =
   'focus-ring flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-text-secondary hover:border-accent/50 hover:text-accent transition-colors';
 
 const SEVERITY_STYLES: Record<RiskSeverity, string> = {
-  critical: 'bg-danger-500/10 text-danger-500',
-  high: 'bg-danger-500/10 text-danger-500',
-  medium: 'bg-warning-500/10 text-warning-500',
+  critical: 'bg-danger-subtle text-danger',
+  high: 'bg-danger-subtle text-danger',
+  medium: 'bg-warning-subtle text-warning',
   low: 'bg-bg-primary text-text-secondary',
 };
 
@@ -96,7 +96,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function Bar({ pct, tone }: { pct: number; tone: 'ok' | 'warn' | 'bad' }) {
-  const color = tone === 'ok' ? 'bg-success-500' : tone === 'warn' ? 'bg-warning-500' : 'bg-danger-500';
+  const color = tone === 'ok' ? 'bg-success' : tone === 'warn' ? 'bg-warning' : 'bg-danger';
   return (
     <div className="h-1.5 w-full overflow-hidden rounded-full bg-bg-primary">
       <div className={`h-full rounded-full ${color}`} style={{ width: `${Math.max(0, Math.min(100, pct))}%` }} />
@@ -419,7 +419,7 @@ function RisksTab({ v }: { v: HomeView }) {
     <ul className="space-y-3">
       {v.risks.map((r) => (
         <li key={r.id} className="flex items-start gap-3 rounded-2xl border border-border bg-bg-secondary p-4">
-          <AlertTriangle size={16} className={r.severity === 'low' ? 'text-text-secondary' : r.severity === 'medium' ? 'text-warning-500' : 'text-danger-500'} />
+          <AlertTriangle size={16} className={r.severity === 'low' ? 'text-text-secondary' : r.severity === 'medium' ? 'text-warning' : 'text-danger'} />
           <div className="min-w-0 flex-1">
             <p className="text-sm font-medium text-text-primary">{r.title}</p>
             <p className="text-xs text-text-secondary">{r.detail}</p>
@@ -562,7 +562,7 @@ function TransferDialog({ g, onClose, act }: { g: HomeLifetimeGraph; onClose: ()
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true" aria-label="Transfer ownership">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/50 p-4" role="dialog" aria-modal="true" aria-label="Transfer ownership">
       <div className="w-full max-w-lg rounded-2xl border border-border bg-bg-secondary p-6">
         <p className="mb-1 text-sm font-semibold text-text-primary">Transfer home ownership</p>
         <p className="mb-4 text-xs text-text-secondary">The home keeps its full history. Equipment moves to the new owner; past jobs and invoices stay with the previous owner’s record.</p>
@@ -677,7 +677,7 @@ export function HomeLifetimeGraphPage() {
         </div>
 
         {!graph.schemaReady && (
-          <div className="rounded-xl border border-warning-500/40 bg-warning-500/10 p-4 text-sm text-warning-500">
+          <div className="rounded-xl border border-warning/40 bg-warning-subtle p-4 text-sm text-warning">
             The Home Lifetime Graph migration has not been applied yet. Run the 20270210000000_home_lifetime_graph migration to enable permits, contractors, future interventions and ownership history.
           </div>
         )}

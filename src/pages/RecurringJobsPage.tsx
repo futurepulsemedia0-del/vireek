@@ -140,7 +140,7 @@ function Switch({
       className={`focus-ring relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${checked ? 'bg-accent' : 'bg-bg-tertiary'}`}
     >
       <span
-        className={`inline-block h-5 w-5 rounded-full bg-white shadow transition-transform ${checked ? 'translate-x-[22px]' : 'translate-x-0.5'}`}
+        className={`inline-block h-5 w-5 rounded-full bg-bg-secondary shadow transition-transform ${checked ? 'translate-x-[22px]' : 'translate-x-0.5'}`}
       />
     </button>
   );
@@ -217,7 +217,7 @@ function Modal({
   useEscapeToClose(!busy, onClose);
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center sm:p-4"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-overlay/50 sm:items-center sm:p-4"
       onMouseDown={(e) => e.target === e.currentTarget && !busy && onClose()}
     >
       <motion.div
@@ -1622,7 +1622,7 @@ export function RecurringJobsPage() {
                 role="tab"
                 aria-selected={tab === key}
                 onClick={() => setTab(key)}
-                className={`focus-ring rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${tab === key ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}
+                className={`focus-ring rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${tab === key ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}
               >
                 {label} <span className="opacity-70">{counts[key]}</span>
               </button>

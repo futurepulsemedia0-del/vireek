@@ -7,14 +7,14 @@ import { KeyValue, Panel, Pill, ProgressBar, type TabProps } from './AgreementUi
 const SEVERITY_ICON = { critical: AlertTriangle, warning: AlertTriangle, info: Info } as const;
 const SEVERITY_TONE: Record<RecommendedAction['severity'], string> = {
   critical: 'text-danger',
-  warning: 'text-warning-500',
+  warning: 'text-warning',
   info: 'text-accent',
 };
 
 function barTone(score: number): string {
-  if (score >= 85) return 'bg-success-500';
+  if (score >= 85) return 'bg-success';
   if (score >= 65) return 'bg-accent';
-  if (score >= 40) return 'bg-warning-500';
+  if (score >= 40) return 'bg-warning';
   return 'bg-danger';
 }
 
@@ -50,7 +50,7 @@ export function OverviewTab({ data, derived, canSeeMoney, goTab }: TabProps) {
         <div className="lg:col-span-2">
           <Panel title="Recommended actions" description="What to do next, most urgent first.">
             {actions.length === 0 ? (
-              <div className="flex items-center gap-2 text-sm text-success-500">
+              <div className="flex items-center gap-2 text-sm text-success">
                 <CheckCircle2 size={16} aria-hidden="true" /> Everything on this agreement is on track.
               </div>
             ) : (

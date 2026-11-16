@@ -67,7 +67,7 @@ export function DirectMailPage() {
           {TABS.map((t) => (
             <button key={t.id} type="button" role="tab" id={`dm-tab-${t.id}`} aria-selected={tab === t.id} aria-controls={`dm-panel-${t.id}`}
               onClick={() => setTab(t.id)}
-              className={`focus-ring shrink-0 rounded-lg px-4 py-2 text-sm font-medium ${tab === t.id ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}>
+              className={`focus-ring shrink-0 rounded-lg px-4 py-2 text-sm font-medium ${tab === t.id ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}>
               {t.label}
             </button>
           ))}

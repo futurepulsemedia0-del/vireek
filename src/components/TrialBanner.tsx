@@ -90,13 +90,13 @@ export function TrialBanner() {
           role="region"
           aria-label="Free trial status"
           className={`relative mb-6 flex flex-col gap-3 rounded-2xl border p-4 shadow-card sm:flex-row sm:items-center sm:justify-between ${
-            urgent ? 'border-warning-500/30 bg-warning-500/10' : 'border-accent/20 bg-accent/10'
+            urgent ? 'border-warning/30 bg-warning-subtle' : 'border-accent/20 bg-accent/10'
           }`}
         >
           <div className="flex items-start gap-3">
             <span
               className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
-                urgent ? 'bg-warning-500/15 text-warning-500' : 'bg-accent/15 text-accent'
+                urgent ? 'bg-warning-subtle text-warning' : 'bg-accent/15 text-accent'
               }`}
             >
               <Hourglass size={18} aria-hidden="true" />
@@ -110,7 +110,7 @@ export function TrialBanner() {
             <button
               type="button"
               onClick={() => navigate(UPGRADE_ROUTE)}
-              className="focus-ring flex items-center gap-2 whitespace-nowrap rounded-xl bg-cta px-4 py-2 text-sm font-semibold text-white shadow-glow-cta transition-all duration-150 ease-out hover:brightness-110 active:brightness-95"
+              className="focus-ring flex items-center gap-2 whitespace-nowrap rounded-xl bg-cta px-4 py-2 text-sm font-semibold text-on-cta shadow-glow-cta transition-all duration-150 ease-out hover:brightness-110 active:brightness-95"
             >
               Choose a plan
               <ArrowRight size={15} aria-hidden="true" />
@@ -119,7 +119,7 @@ export function TrialBanner() {
               type="button"
               onClick={dismiss}
               aria-label="Dismiss trial banner"
-              className="focus-ring flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-text-secondary/70 transition-colors duration-150 hover:bg-bg-tertiary hover:text-text-primary"
+              className="focus-ring flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-text-muted transition-colors duration-150 hover:bg-bg-tertiary hover:text-text-primary"
             >
               <X size={16} />
             </button>

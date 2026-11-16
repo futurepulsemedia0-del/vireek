@@ -50,7 +50,7 @@ export function IpAllowlistEditor({
           type="button"
           disabled={!parsed.ok || saving}
           onClick={() => parsed.ok && onSave(parsed.list)}
-          className="focus-ring rounded-lg bg-cta px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"
+          className="focus-ring rounded-lg bg-cta px-3 py-1.5 text-xs font-semibold text-on-cta disabled:opacity-50"
         >
           {saving ? 'Saving…' : 'Save allowlist'}
         </button>

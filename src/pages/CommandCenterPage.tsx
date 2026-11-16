@@ -24,9 +24,9 @@ import { EmptyState } from '@/components/EmptyState';
 
 const BOARD_STAGES: { key: Job['job_status']; label: string; dotColor: string }[] = [
   { key: 'scheduled', label: 'Scheduled', dotColor: 'bg-accent' },
-  { key: 'en_route', label: 'En Route', dotColor: 'bg-blue-500' },
-  { key: 'in_progress', label: 'In Progress', dotColor: 'bg-warning-500' },
-  { key: 'completed', label: 'Completed', dotColor: 'bg-success-500' },
+  { key: 'en_route', label: 'En Route', dotColor: 'bg-info' },
+  { key: 'in_progress', label: 'In Progress', dotColor: 'bg-warning' },
+  { key: 'completed', label: 'Completed', dotColor: 'bg-success' },
 ];
 
 function startOfToday(): Date {
@@ -72,8 +72,8 @@ interface ActivityItem {
 function ActivityIcon({ type, emergency }: { type: ActivityItem['type']; emergency?: boolean }) {
   if (emergency) return <AlertTriangle size={15} className="text-danger" />;
   if (type === 'call') return <Phone size={15} className="text-accent" />;
-  if (type === 'lead') return <UserPlus size={15} className="text-success-500" />;
-  return <Wrench size={15} className="text-warning-500" />;
+  if (type === 'lead') return <UserPlus size={15} className="text-success" />;
+  return <Wrench size={15} className="text-warning" />;
 }
 
 // ============================================================
@@ -91,7 +91,7 @@ function StatCard({
   value: number;
   tone?: 'default' | 'danger' | 'warning';
 }) {
-  const toneColor = tone === 'danger' ? 'text-danger' : tone === 'warning' ? 'text-warning-500' : 'text-text-primary';
+  const toneColor = tone === 'danger' ? 'text-danger' : tone === 'warning' ? 'text-warning' : 'text-text-primary';
   return (
     <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
       <div className="flex items-center gap-2 text-text-secondary">
@@ -397,7 +397,7 @@ export function CommandCenterPage() {
                   <div className="mb-2 flex items-center gap-1.5 text-xs font-medium text-text-secondary">
                     <span className={`h-1.5 w-1.5 rounded-full ${stage.dotColor}`} />
                     {stage.label}
-                    <span className="text-text-secondary/60">({jobsByStage[stage.key].length})</span>
+                    <span className="text-text-muted">({jobsByStage[stage.key].length})</span>
                   </div>
                   <div className="space-y-2">
                     <AnimatePresence>
@@ -415,7 +415,7 @@ export function CommandCenterPage() {
                           >
                             <p className="truncate text-sm font-medium text-text-primary">{job.customer_name}</p>
                             <p className="mt-0.5 truncate text-xs text-text-secondary">{job.service_type ?? 'Service'}</p>
-                            <div className="mt-1.5 flex items-center justify-between text-xs text-text-secondary/80">
+                            <div className="mt-1.5 flex items-center justify-between text-xs text-text-muted">
                               <span>{formatTime(job.scheduled_datetime)}</span>
                               {tech && <span className="truncate">{tech.member_name ?? tech.member_email}</span>}
                             </div>
@@ -455,7 +455,7 @@ export function CommandCenterPage() {
                       <p className="truncate text-sm text-text-primary">{item.title}</p>
                       {item.subtitle && <p className="truncate text-xs text-text-secondary">{item.subtitle}</p>}
                     </div>
-                    <span className="shrink-0 text-xs text-text-secondary/60">{timeAgo(item.timestamp)}</span>
+                    <span className="shrink-0 text-xs text-text-muted">{timeAgo(item.timestamp)}</span>
                   </motion.div>
                 ))}
               </AnimatePresence>

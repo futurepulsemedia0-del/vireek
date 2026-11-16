@@ -26,7 +26,7 @@ const time = (iso: string) => new Date(iso).toLocaleTimeString([], { hour: 'nume
 function Ticks({ receipt, label }: { receipt: Receipt; label: string }) {
   const icon =
     receipt.state === 'read' ? (
-      <CheckCheck size={14} className="text-sky-200" aria-hidden="true" />
+      <CheckCheck size={14} className="text-info" aria-hidden="true" />
     ) : receipt.state === 'sent' ? (
       <Check size={14} aria-hidden="true" />
     ) : receipt.state === 'failed' ? (
@@ -54,7 +54,7 @@ function BubbleImpl(props: Props) {
     return <p className="my-2 text-center text-xs text-text-secondary">{m.body}</p>;
   }
 
-  const bubbleTone = own ? 'bg-accent text-white' : 'border border-border bg-bg-secondary text-text-primary';
+  const bubbleTone = own ? 'bg-accent text-on-accent' : 'border border-border bg-bg-secondary text-text-primary';
   const radius = own
     ? `rounded-2xl ${endsGroup ? 'rounded-br-md' : ''}`
     : `rounded-2xl ${endsGroup ? 'rounded-bl-md' : ''}`;

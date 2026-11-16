@@ -58,7 +58,7 @@ import {
 const LABEL = 'Call Tracking';
 const inputCls = 'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary disabled:opacity-60';
 const labelCls = 'mb-1 block text-xs font-medium text-text-secondary';
-const btnPrimary = 'focus-ring inline-flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50';
+const btnPrimary = 'focus-ring inline-flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent transition-all hover:brightness-110 disabled:opacity-50';
 const btnGhost = 'focus-ring inline-flex items-center gap-1.5 rounded-xl border border-border px-3 py-2 text-sm text-text-secondary transition-colors hover:text-text-primary disabled:opacity-50';
 const PERIODS = [7, 30, 90] as const;
 
@@ -361,7 +361,7 @@ export function DynamicNumbersPage() {
         </div>
       ) : loadError ? (
         <div role="alert" className="rounded-2xl border border-dashed border-border bg-bg-secondary/50 px-6 py-16 text-center">
-          <AlertTriangle className="mx-auto mb-3 text-warning-500" size={28} />
+          <AlertTriangle className="mx-auto mb-3 text-warning" size={28} />
           <h3 className="text-lg font-semibold text-text-primary">Couldn’t load call tracking</h3>
           <p className="mt-1.5 text-sm text-text-secondary">Check your connection and try again.</p>
           <button type="button" onClick={load} className={`${btnPrimary} mt-4`}><RefreshCw size={14} /> Retry</button>
@@ -369,8 +369,8 @@ export function DynamicNumbersPage() {
       ) : (
         <div className="space-y-6">
           {issues.length > 0 && (
-            <ul className="space-y-1 rounded-xl border border-warning-500/40 bg-warning-500/10 p-3 text-xs text-text-primary" aria-live="polite">
-              {issues.map((i) => <li key={i} className="flex gap-1.5"><AlertTriangle size={13} className="mt-0.5 shrink-0 text-warning-500" />{i}</li>)}
+            <ul className="space-y-1 rounded-xl border border-warning/40 bg-warning-subtle p-3 text-xs text-text-primary" aria-live="polite">
+              {issues.map((i) => <li key={i} className="flex gap-1.5"><AlertTriangle size={13} className="mt-0.5 shrink-0 text-warning" />{i}</li>)}
             </ul>
           )}
 
@@ -653,7 +653,7 @@ export function DynamicNumbersPage() {
               </>
             )}
 
-            <p role="status" className={`mt-4 flex gap-1.5 rounded-xl px-3 py-2 text-xs ${health.level === 'danger' ? 'bg-danger/10 text-danger' : health.level === 'warn' ? 'bg-warning-500/10 text-text-primary' : 'bg-bg-tertiary text-text-secondary'}`}>
+            <p role="status" className={`mt-4 flex gap-1.5 rounded-xl px-3 py-2 text-xs ${health.level === 'danger' ? 'bg-danger/10 text-danger' : health.level === 'warn' ? 'bg-warning-subtle text-text-primary' : 'bg-bg-tertiary text-text-secondary'}`}>
               {(health.level === 'danger' || health.level === 'warn') && <AlertTriangle size={13} className="mt-0.5 shrink-0" />}{health.message}
             </p>
           </Card>

@@ -14,9 +14,9 @@ describe('surface-lib: patterns the audit found must FAIL', () => {
     ['white on a theme surface tint (codemod damage)', 'bg-bg-secondary/10 text-white'],
     ['black on a theme surface (dark = 1:1)', 'bg-bg-secondary text-black'],
     ['faded secondary text', 'bg-bg-tertiary text-text-secondary/40'],
-    ['legacy dark: override on a solid fill (dark 4.12:1)', 'bg-accent text-on-accent dark:text-bg-primary'],
+    ['legacy dark: override on a solid fill (dark 4.12:1)', 'bg-accent text-on-accent dark:text-white'],
     ['faded placeholder (placeholder: variant)', 'bg-bg-primary placeholder:text-text-secondary/60'],
-    ['hover tint with plain family text', 'bg-bg-tertiary text-text-secondary hover:bg-danger/10 hover:text-danger'],
+    ['hover tint with plain family text', 'bg-bg-tertiary text-text-secondary hover:bg-danger/20 hover:text-danger'],
     ['hover fill that kills the label in high-contrast', 'bg-bg-tertiary text-text-secondary hover:bg-border'],
     ['white on warning in dark (banner icon)', 'flex h-12 w-12 items-center justify-center text-white bg-warning'],
   ])('%s', (_n, cls) => {

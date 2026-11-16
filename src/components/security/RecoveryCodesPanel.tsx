@@ -110,8 +110,8 @@ export function RecoveryCodesPanel() {
           </div>
         ) : codes ? (
           <div>
-            <p className="flex items-start gap-2 rounded-xl bg-warning-500/10 p-3 text-sm text-text-primary" role="status">
-              <AlertTriangle size={16} className="mt-0.5 shrink-0 text-warning-500" />
+            <p className="flex items-start gap-2 rounded-xl bg-warning-subtle p-3 text-sm text-text-primary" role="status">
+              <AlertTriangle size={16} className="mt-0.5 shrink-0 text-warning" />
               Save these codes now — we can't show them again. Each one works once.
             </p>
             <ul className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2" aria-label="Recovery codes">

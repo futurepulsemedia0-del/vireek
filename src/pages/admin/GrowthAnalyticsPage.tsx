@@ -59,7 +59,7 @@ export function GrowthAnalyticsPage() {
               tabIndex={tab === id ? 0 : -1}
               onClick={() => setTab(id)}
               onKeyDown={(e) => onKey(e, i)}
-              className={`focus-ring rounded-xl px-3 py-2 text-sm font-semibold ${tab === id ? 'bg-accent text-white' : 'bg-bg-secondary text-text-primary'}`}
+              className={`focus-ring rounded-xl px-3 py-2 text-sm font-semibold ${tab === id ? 'bg-accent text-on-accent' : 'bg-bg-secondary text-text-primary'}`}
             >
               {t(`tabs.${id}`)}
             </button>

@@ -138,7 +138,7 @@ export function SelfEvolvingModelPage() {
               <p className="text-xs text-text-secondary">Observe outcomes → propose a bounded policy nudge → you decide → it applies.</p>
             </div>
           </div>
-          <button onClick={handleRunCycle} disabled={running} className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-4 py-2 text-sm font-medium text-white disabled:opacity-60">
+          <button onClick={handleRunCycle} disabled={running} className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-4 py-2 text-sm font-medium text-on-cta disabled:opacity-60">
             {running ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
             Run evolution cycle
           </button>
@@ -177,7 +177,7 @@ export function SelfEvolvingModelPage() {
             <input className="focus-ring rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary" type="number" placeholder="Target value" value={obsTarget} onChange={(e) => setObsTarget(e.target.value)} />
             <input className="focus-ring rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary" type="number" min={1} placeholder="Sample size" value={obsSamples} onChange={(e) => setObsSamples(e.target.value)} />
           </div>
-          <button onClick={handleLogObservation} disabled={obsSaving} className="focus-ring mt-3 flex items-center gap-2 rounded-xl bg-cta px-4 py-2 text-sm font-medium text-white disabled:opacity-60">
+          <button onClick={handleLogObservation} disabled={obsSaving} className="focus-ring mt-3 flex items-center gap-2 rounded-xl bg-cta px-4 py-2 text-sm font-medium text-on-cta disabled:opacity-60">
             {obsSaving ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />} Log observation
           </button>
           <p className="mt-2 text-[11px] text-text-secondary">Needs at least 5 samples and an 8%+ deviation from target, accumulated over 60 days, before a cycle will propose anything.</p>
@@ -196,7 +196,7 @@ export function SelfEvolvingModelPage() {
                   <div key={pr.id} className="rounded-xl border border-border bg-bg-primary p-3 text-sm">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-start gap-2">
-                        {pr.direction === 'increase' ? <TrendingUp size={16} className="mt-0.5 text-success-500" /> : <TrendingDown size={16} className="mt-0.5 text-warning-500" />}
+                        {pr.direction === 'increase' ? <TrendingUp size={16} className="mt-0.5 text-success" /> : <TrendingDown size={16} className="mt-0.5 text-warning" />}
                         <div>
                           <p className="font-medium text-text-primary">{policy?.label ?? 'Policy'}: {pr.current_value_snapshot} → {pr.proposed_value} {policy?.unit}</p>
                           <p className="mt-1 text-xs text-text-secondary">{pr.rationale}</p>
@@ -204,7 +204,7 @@ export function SelfEvolvingModelPage() {
                         </div>
                       </div>
                       <div className="flex shrink-0 gap-2">
-                        <button onClick={() => handleDecide(pr, 'approved')} className="focus-ring flex items-center gap-1 rounded-lg bg-success-500/15 px-3 py-1.5 text-xs font-medium text-success-500"><Check size={14} /> Approve</button>
+                        <button onClick={() => handleDecide(pr, 'approved')} className="focus-ring flex items-center gap-1 rounded-lg bg-success-subtle px-3 py-1.5 text-xs font-medium text-success"><Check size={14} /> Approve</button>
                         <button onClick={() => handleDecide(pr, 'rejected')} className="focus-ring flex items-center gap-1 rounded-lg bg-error-500/15 px-3 py-1.5 text-xs font-medium text-error-500"><X size={14} /> Reject</button>
                       </div>
                     </div>

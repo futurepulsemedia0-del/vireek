@@ -25,7 +25,7 @@ export function MessageBubble({ message, viewer, mediaUrl, delivery, onOpenPhoto
       {!mine && <span className="mb-0.5 px-1 text-xs font-medium text-text-secondary">{senderLabel}</span>}
       <div
         className={`max-w-[85%] overflow-hidden rounded-2xl text-sm ${
-          mine ? 'rounded-br-md bg-accent text-white' : 'rounded-bl-md border border-border bg-bg-secondary text-text-primary'
+          mine ? 'rounded-br-md bg-accent text-on-accent' : 'rounded-bl-md border border-border bg-bg-secondary text-text-primary'
         } ${delivery === 'sending' ? 'opacity-70' : ''}`}
       >
         {message.kind === 'text' && (

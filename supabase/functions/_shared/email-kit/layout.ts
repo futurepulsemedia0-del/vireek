@@ -19,20 +19,20 @@ export interface Palette {
   onAccent: string; // button label
 }
 
-const LIGHT_BASE = { page: "#f1f5f9", card: "#ffffff", text: "#0f172a", muted: "#475569", border: "#e2e8f0" };
-const DARK_BASE = { page: "#0b1220", card: "#111a2e", text: "#f1f5f9", muted: "#a8b3c7", border: "#24324d" };
+const LIGHT_BASE = { page: "#faf9f5", card: "#ffffff", text: "#1c1b15", muted: "#595852", border: "#e8e6dc" };
+const DARK_BASE = { page: "#141413", card: "#1c1b15", text: "#faf9f5", muted: "#b0aea5", border: "#2f2e28" };
 
 export const LIGHT: Record<Severity, Palette> = {
-  info: { ...LIGHT_BASE, accent: "#1d4ed8", onAccent: "#ffffff" },
-  warning: { ...LIGHT_BASE, accent: "#b45309", onAccent: "#ffffff" },
-  high: { ...LIGHT_BASE, accent: "#c2410c", onAccent: "#ffffff" },
-  critical: { ...LIGHT_BASE, accent: "#b91c1c", onAccent: "#ffffff" },
+  info: { ...LIGHT_BASE, accent: "#0057b3", onAccent: "#ffffff" },
+  warning: { ...LIGHT_BASE, accent: "#a93b0f", onAccent: "#ffffff" },
+  high: { ...LIGHT_BASE, accent: "#a93b0f", onAccent: "#ffffff" },
+  critical: { ...LIGHT_BASE, accent: "#ac0016", onAccent: "#ffffff" },
 };
 export const DARK: Record<Severity, Palette> = {
-  info: { ...DARK_BASE, accent: "#60a5fa", onAccent: "#0b1220" },
-  warning: { ...DARK_BASE, accent: "#fbbf24", onAccent: "#0b1220" },
-  high: { ...DARK_BASE, accent: "#fb923c", onAccent: "#0b1220" },
-  critical: { ...DARK_BASE, accent: "#f87171", onAccent: "#0b1220" },
+  info: { ...DARK_BASE, accent: "#6eacff", onAccent: "#141413" },
+  warning: { ...DARK_BASE, accent: "#ffcc00", onAccent: "#141413" },
+  high: { ...DARK_BASE, accent: "#ff9b7a", onAccent: "#141413" },
+  critical: { ...DARK_BASE, accent: "#ff7e75", onAccent: "#141413" },
 };
 
 const FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";

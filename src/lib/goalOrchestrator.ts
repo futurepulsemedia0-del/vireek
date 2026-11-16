@@ -54,7 +54,7 @@ export const ACTION_TYPE_LABELS: Record<ActionType, string> = {
 export const ACTION_STATUS_COLORS: Record<ActionStatus, string> = {
   open: 'bg-bg-tertiary text-text-secondary',
   in_progress: 'bg-cta/15 text-cta',
-  done: 'bg-success-500/15 text-success-500',
+  done: 'bg-success-subtle text-success',
   blocked: 'bg-error-500/15 text-error-500',
 };
 

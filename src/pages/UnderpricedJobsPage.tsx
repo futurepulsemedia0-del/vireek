@@ -17,7 +17,7 @@ import {
 } from '@/lib/underpricing';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder transition-colors';
 
 export function UnderpricedJobsPage() {
   const { user } = useAuth();
@@ -235,7 +235,7 @@ export function UnderpricedJobsPage() {
                               <p className="text-xs text-text-secondary">
                                 {row.matched_service_name}
                                 {row.match_type !== 'linked' && (
-                                  <span className="ml-1 text-text-secondary/70">({MATCH_TYPE_LABELS[row.match_type]})</span>
+                                  <span className="ml-1 text-text-muted">({MATCH_TYPE_LABELS[row.match_type]})</span>
                                 )}
                               </p>
                             </Link>

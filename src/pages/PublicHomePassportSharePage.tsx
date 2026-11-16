@@ -34,7 +34,7 @@ const PROBLEM_COPY: Record<string, { title: string; body: string }> = {
 
 function Badge({ level }: { level?: VerificationLevel }) {
   if (!level) return null;
-  const tone = level === 'contractor_verified' ? 'text-success-500 border-success-500/40' : level === 'owner_added' ? 'text-warning-500 border-warning-500/40' : 'text-text-secondary border-border';
+  const tone = level === 'contractor_verified' ? 'text-success border-success/40' : level === 'owner_added' ? 'text-warning border-warning/40' : 'text-text-secondary border-border';
   return <span className={`rounded-full border px-2 py-0.5 text-[11px] font-medium ${tone}`}>{VERIFICATION_LABELS[level]}</span>;
 }
 
@@ -138,7 +138,7 @@ function PassportV2({ data }: { data: PayloadV2 }) {
               <li key={i} className="py-2 text-text-primary">
                 {m.equipment}
                 {formatWindow(m.service_window_from, m.service_window_to) && <span className="ml-2 text-text-secondary">service likely {formatWindow(m.service_window_from, m.service_window_to)}</span>}
-                {m.overdue && <span className="ml-2 text-warning-500">overdue</span>}
+                {m.overdue && <span className="ml-2 text-warning">overdue</span>}
               </li>
             ))}
           </ul>
@@ -211,7 +211,7 @@ export function PublicHomePassportSharePage() {
           {valid && !unsafe && (
             <>
               <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
-                <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-success-500">
+                <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-success">
                   <ShieldCheck size={14} aria-hidden="true" /> Verified by Vireek · version {valid.version}
                 </p>
                 <Button variant="secondary" size="sm" onClick={() => window.print()}>
@@ -219,8 +219,8 @@ export function PublicHomePassportSharePage() {
                 </Button>
               </div>
               <PassportV2 data={valid.snapshot} />
-              <div className="rounded-2xl border border-success-500/30 bg-success-500/5 p-5 text-xs text-text-secondary">
-                <p className="font-medium text-success-500">Integrity verified</p>
+              <div className="rounded-2xl border border-success/30 bg-success-subtle p-5 text-xs text-text-secondary">
+                <p className="font-medium text-success">Integrity verified</p>
                 <p className="mt-1">
                   Issued {new Date(valid.issued_at).toLocaleDateString('en-US')} with the property owner’s consent · link valid until {new Date(valid.expires_at).toLocaleDateString('en-US')}.
                   This passport is not a home inspection, appraisal or warranty.

@@ -90,14 +90,14 @@ export function ProjectChangeOrderForm({ mode, project, initial = EMPTY_CHANGE_O
               <Input aria-label={`Line ${i + 1} quantity`} inputMode="decimal" value={l.quantity} onChange={(e) => setLine(i, { quantity: e.target.value })} className={compactInput} />
               <Input aria-label={`Line ${i + 1} unit price in dollars`} inputMode="decimal" placeholder="0.00" value={l.unitPrice} onChange={(e) => setLine(i, { unitPrice: e.target.value })} className={compactInput} />
               <p className="text-right text-sm font-medium tabular-nums text-text-primary">{lineTotal(i)}</p>
-              <button type="button" aria-label={`Remove line ${i + 1}`} onClick={() => removeLine(i)} className="focus-ring justify-self-end rounded-lg p-1.5 text-text-secondary hover:bg-bg-tertiary hover:text-danger-500">
+              <button type="button" aria-label={`Remove line ${i + 1}`} onClick={() => removeLine(i)} className="focus-ring justify-self-end rounded-lg p-1.5 text-text-secondary hover:bg-bg-tertiary hover:text-danger">
                 <Trash2 size={16} aria-hidden="true" />
               </button>
             </div>
-            {touched && errors.lines[i] && <p role="alert" className="text-xs text-danger-500">{errors.lines[i]}</p>}
+            {touched && errors.lines[i] && <p role="alert" className="text-xs text-danger">{errors.lines[i]}</p>}
           </div>
         ))}
-        {touched && errors.form && <p role="alert" className="text-xs text-danger-500">{errors.form}</p>}
+        {touched && errors.form && <p role="alert" className="text-xs text-danger">{errors.form}</p>}
         <Button type="button" size="sm" variant="secondary" onClick={addLine} disabled={v.lines.length >= MAX_CHANGE_ORDER_LINES}><Plus size={14} aria-hidden="true" /> Add line</Button>
         <p className="text-xs text-text-secondary">Use a negative unit price for a credit (for example −450 for a deleted item).</p>
       </fieldset>
@@ -119,7 +119,7 @@ export function ProjectChangeOrderForm({ mode, project, initial = EMPTY_CHANGE_O
             {impact.targetEndAfter && payload.schedule_delta_days !== 0 && (
               <div className="flex justify-between sm:col-span-2"><dt className="text-text-secondary">Target end</dt><dd className="text-text-primary">{formatDate(impact.targetEndBefore)} → {formatDate(impact.targetEndAfter)}</dd></div>
             )}
-            {impact.problem && <p role="alert" className="text-xs text-danger-500 sm:col-span-2">This schedule change would move the target end before the project start. Approval would fail — reduce the days.</p>}
+            {impact.problem && <p role="alert" className="text-xs text-danger sm:col-span-2">This schedule change would move the target end before the project start. Approval would fail — reduce the days.</p>}
           </dl>
         ) : (
           <p className="text-text-secondary">Fix the highlighted fields to see the totals.</p>

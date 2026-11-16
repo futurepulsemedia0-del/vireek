@@ -125,7 +125,7 @@ export function SketchInspector({ doc, selection, readOnly, onChange, onDelete }
         <div className="inline-flex rounded-xl border border-border p-0.5" role="group" aria-label="Opening type">
           {(['door', 'window'] as const).map((k) => (
             <button key={k} type="button" disabled={readOnly} aria-pressed={o.kind === k} onClick={() => onChange(setOpeningKind(doc, o.id, k))}
-              className={`focus-ring min-h-[40px] rounded-lg px-3 text-sm font-semibold capitalize ${o.kind === k ? 'bg-accent text-white' : 'text-text-secondary'}`}>
+              className={`focus-ring min-h-[40px] rounded-lg px-3 text-sm font-semibold capitalize ${o.kind === k ? 'bg-accent text-on-accent' : 'text-text-secondary'}`}>
               {k}
             </button>
           ))}

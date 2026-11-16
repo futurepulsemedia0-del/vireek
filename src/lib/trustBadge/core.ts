@@ -93,10 +93,10 @@ export function hostFromOrigin(origin: string | null | undefined): string {
 /** [background, foreground, border, accent] */
 export type PaletteSet = readonly [string, string, string, string];
 export const PALETTES: Record<BadgePalette, { l: PaletteSet; d: PaletteSet }> = {
-  blue: { l: ['#FFFFFF', '#0F172A', '#CBD5E1', '#1D4ED8'], d: ['#0F172A', '#F8FAFC', '#334155', '#93C5FD'] },
-  green: { l: ['#FFFFFF', '#0F172A', '#CBD5E1', '#047857'], d: ['#0F172A', '#F8FAFC', '#334155', '#6EE7B7'] },
-  slate: { l: ['#F8FAFC', '#1E293B', '#CBD5E1', '#334155'], d: ['#1E293B', '#F1F5F9', '#475569', '#CBD5E1'] },
-  mono: { l: ['#FFFFFF', '#111111', '#111111', '#111111'], d: ['#111111', '#FFFFFF', '#FFFFFF', '#FFFFFF'] },
+  blue: { l: ['#FFFFFF', '#1C1B15', '#DDDCD8', '#0057B3'], d: ['#1C1B15', '#FAF9F5', '#44423D', '#A0C8FF'] },
+  green: { l: ['#FFFFFF', '#1C1B15', '#DDDCD8', '#007C2C'], d: ['#1C1B15', '#FAF9F5', '#44423D', '#8DEB9A'] },
+  slate: { l: ['#FAF9F5', '#2F2E28', '#DDDCD8', '#44423D'], d: ['#2F2E28', '#FAF9F5', '#595852', '#DDDCD8'] },
+  mono: { l: ['#FFFFFF', '#141413', '#141413', '#141413'], d: ['#141413', '#FFFFFF', '#FFFFFF', '#FFFFFF'] },
 };
 
 export function contrastRatio(a: string, b: string): number {

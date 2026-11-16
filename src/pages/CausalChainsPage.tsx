@@ -22,8 +22,8 @@ const METRIC_LABELS: Record<string, string> = {
 };
 
 const CONFIDENCE_STYLES: Record<'low' | 'medium' | 'high', string> = {
-  high: 'bg-success-500/15 text-success-500',
-  medium: 'bg-warning-500/15 text-warning-500',
+  high: 'bg-success-subtle text-success',
+  medium: 'bg-warning-subtle text-warning',
   low: 'bg-bg-tertiary text-text-secondary',
 };
 
@@ -55,7 +55,7 @@ function EdgeBar({ from, to, edge }: { from: string; to: string; edge: { same_we
         </span>
       </div>
       <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-bg-tertiary">
-        <div className={`h-full rounded-full ${positive ? 'bg-danger-500' : 'bg-success-500'}`} style={{ width: `${pct}%` }} />
+        <div className={`h-full rounded-full ${positive ? 'bg-danger' : 'bg-success'}`} style={{ width: `${pct}%` }} />
       </div>
     </div>
   );
@@ -73,7 +73,7 @@ function MiniTrend({ weekly, metric }: { weekly: CausalWeekPoint[]; metric: keyo
     <div>
       <p className="mb-1 text-[10px] uppercase text-text-secondary">{METRIC_LABELS[metric as string] ?? metric}</p>
       <svg viewBox={`0 0 ${chartW} ${chartH}`} className="w-full" style={{ height: chartH }}>
-        <path d={path} fill="none" stroke="rgb(37 99 235)" strokeWidth="2" />
+        <path d={path} fill="none" stroke="rgb(169 59 15)" strokeWidth="2" />
       </svg>
     </div>
   );

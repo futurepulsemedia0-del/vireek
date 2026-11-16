@@ -32,7 +32,7 @@ function money(n: number) {
 
 const CONFIDENCE_STYLES: Record<ConfidenceLevel, string> = {
   high: 'bg-success/10 text-success',
-  medium: 'bg-warning-500/10 text-warning-500',
+  medium: 'bg-warning-subtle text-warning',
   low: 'bg-danger/10 text-danger',
 };
 
@@ -40,7 +40,7 @@ const CAPACITY_STATUS: Record<CapacityStatus, { label: string; tone: string }> =
   no_capacity_data: { label: 'No technicians configured', tone: 'text-text-secondary' },
   underused: { label: 'Under-used', tone: 'text-text-secondary' },
   healthy: { label: 'Healthy', tone: 'text-success' },
-  tight: { label: 'Tight', tone: 'text-warning-500' },
+  tight: { label: 'Tight', tone: 'text-warning' },
   over: { label: 'Over capacity', tone: 'text-danger' },
 };
 
@@ -180,7 +180,7 @@ export function BusinessForecastPage() {
                 type="button"
                 aria-selected={horizon === h}
                 onClick={() => setHorizon(h)}
-                className={`focus-ring rounded-md px-3 py-1.5 text-sm font-semibold ${horizon === h ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}
+                className={`focus-ring rounded-md px-3 py-1.5 text-sm font-semibold ${horizon === h ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}
               >
                 {h} days
               </button>
@@ -232,7 +232,7 @@ export function BusinessForecastPage() {
               </div>
               <div className="space-y-1.5">
                 <StatRow label="Gross margin" value={`${gp.marginPct.toFixed(1)}%`} />
-                <StatRow label="Margin source" value={gp.marginSource === 'actual' ? 'Measured from costed jobs' : 'Default cost ratio'} tone={gp.marginSource === 'actual' ? undefined : 'text-warning-500'} />
+                <StatRow label="Margin source" value={gp.marginSource === 'actual' ? 'Measured from costed jobs' : 'Default cost ratio'} tone={gp.marginSource === 'actual' ? undefined : 'text-warning'} />
               </div>
               <ConfidenceBadge confidence={gp.confidence} />
             </ForecastCard>
@@ -268,7 +268,7 @@ export function BusinessForecastPage() {
                 <StatRow
                   label="Lowest point"
                   value={`${money(cash.minBalance)} · ${cash.minBalanceDate}`}
-                  tone={cash.risk === 'critical' ? 'text-danger' : cash.risk === 'watch' ? 'text-warning-500' : undefined}
+                  tone={cash.risk === 'critical' ? 'text-danger' : cash.risk === 'watch' ? 'text-warning' : undefined}
                 />
               </div>
               <ConfidenceBadge confidence={cash.confidence} />

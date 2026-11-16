@@ -143,11 +143,11 @@ Deno.serve(async (req: Request) => {
       await sendEmail(
         customerEmail,
         `Financing available for your ${amountLabel} job`,
-        `<div style="font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1a1a1a;">
-          <p style="font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #6b7280; margin: 0 0 16px;">Financing available</p>
+        `<div style="font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1c1b15;">
+          <p style="font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #73726c; margin: 0 0 16px;">Financing available</p>
           <h1 style="font-size: 22px; margin: 0 0 16px;">Pay ${amountLabel} over time instead of all at once</h1>
-          <p style="font-size: 14px; color: #4b5563;">Check your rate in about a minute — a soft credit check that won't affect your score.</p>
-          <a href="${offerPageUrl}" style="display: inline-block; margin-top: 16px; padding: 12px 24px; background: #111827; color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 14px;">Check my rate</a>
+          <p style="font-size: 14px; color: #595852;">Check your rate in about a minute — a soft credit check that won't affect your score.</p>
+          <a href="${offerPageUrl}" style="display: inline-block; margin-top: 16px; padding: 12px 24px; background: #1C1B15; color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 14px;">Check my rate</a>
         </div>`,
         `Finance your ${amountLabel} job: ${offerPageUrl}`,
       );

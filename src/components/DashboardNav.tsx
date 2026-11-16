@@ -683,7 +683,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
               type="button"
               aria-expanded={open}
               onClick={() => setOpenPillars((v) => ({ ...v, [pillar]: !open }))}
-              className="focus-ring flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-wider text-text-secondary/60 hover:text-text-secondary"
+              className="focus-ring flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-wider text-text-muted hover:text-text-secondary"
             >
               <span>
                 {t(`nav.pillars.${pillar}`, { defaultValue: meta.label })}
@@ -706,7 +706,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
       <button
         type="button"
         onClick={toggleLabs}
-        className="focus-ring mt-2 rounded-xl px-3 py-2 text-left text-xs text-text-secondary/70 hover:text-text-secondary"
+        className="focus-ring mt-2 rounded-xl px-3 py-2 text-left text-xs text-text-muted hover:text-text-secondary"
       >
         {showLabs ? t('nav.labs.hide', { defaultValue: 'Hide Labs (Beta)' }) : t('nav.labs.show', { defaultValue: 'Show Labs (Beta)' })}
       </button>
@@ -715,7 +715,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
         <button
           type="button"
           onClick={() => setThemeOpen((v) => !v)}
-          className="focus-ring flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-wider text-text-secondary/60 hover:text-text-secondary"
+          className="focus-ring flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-wider text-text-muted hover:text-text-secondary"
         >
           {t('nav.appearance')}
           <ChevronDown size={14} className={`transition-transform ${themeOpen ? 'rotate-180' : ''}`} />
@@ -765,7 +765,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
       <aside className="fixed left-0 top-0 z-30 hidden h-full w-60 flex-col border-r border-border/80 bg-bg-secondary/95 shadow-sm lg:flex print:hidden">
         <div className="flex items-center justify-between gap-2.5 px-5 py-5">
           <Link to="/dashboard" className="flex items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-cta text-white shadow-glow-accent">
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-on-accent shadow-glow-accent">
               <Phone size={16} strokeWidth={2.5} />
             </span>
             <span className="text-lg font-bold tracking-tight text-text-primary">Vireek</span>
@@ -778,7 +778,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
           </div>
         </div>
         <div className="flex-1 overflow-y-auto px-3 py-4">
-          <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-text-secondary/60">
+          <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-text-muted">
             {activeLabel}
           </p>
           {navContent}
@@ -799,7 +799,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
       <header className="sticky top-0 z-40 border-b border-border/80 bg-bg-secondary/85 shadow-sm backdrop-blur-xl lg:hidden print:hidden">
         <div className="flex items-center justify-between px-4 py-3">
           <Link to="/dashboard" className="flex items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-cta text-white shadow-glow-accent">
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-on-accent shadow-glow-accent">
               <Phone size={16} strokeWidth={2.5} />
             </span>
             <span className="text-lg font-bold tracking-tight text-text-primary">Vireek</span>
@@ -831,7 +831,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               onClick={() => setDrawerOpen(false)}
-              className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm lg:hidden"
+              className="fixed inset-0 z-50 bg-overlay/40 backdrop-blur-sm lg:hidden"
             />
             <motion.aside
               initial={{ x: isRtl ? '100%' : '-100%' }}
@@ -842,7 +842,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
             >
               <div className="flex items-center justify-between px-5 py-4">
                 <div className="flex items-center gap-2.5">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-cta text-white shadow-glow-accent">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-on-accent shadow-glow-accent">
                     <Phone size={16} strokeWidth={2.5} />
                   </span>
                   <span className="text-lg font-bold tracking-tight text-text-primary">Vireek</span>

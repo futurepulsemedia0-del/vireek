@@ -10,8 +10,8 @@ import {
 
 const BAND_STYLE: Record<RiskBand, { chip: string; bar: string }> = {
   high: { chip: 'bg-danger/10 text-danger', bar: 'bg-danger' },
-  elevated: { chip: 'bg-warning-500/10 text-warning-500', bar: 'bg-warning-500' },
-  low: { chip: 'bg-success-500/10 text-success-500', bar: 'bg-success-500' },
+  elevated: { chip: 'bg-warning-subtle text-warning', bar: 'bg-warning' },
+  low: { chip: 'bg-success-subtle text-success', bar: 'bg-success' },
   insufficient: { chip: 'bg-bg-tertiary text-text-secondary', bar: 'bg-border' },
 };
 
@@ -89,7 +89,7 @@ export function RetentionTechCard({ score, tech, history, actions, freeze, busyI
               </div>
               {delta !== null && (
                 <p className="mt-1.5 flex items-center gap-1 text-xs text-text-secondary">
-                  {delta > 0 ? <TrendingUp size={12} className="text-danger" /> : delta < 0 ? <TrendingDown size={12} className="text-success-500" /> : null}
+                  {delta > 0 ? <TrendingUp size={12} className="text-danger" /> : delta < 0 ? <TrendingDown size={12} className="text-success" /> : null}
                   {delta > 0 ? t('tech.trendUp', { n: delta }) : delta < 0 ? t('tech.trendDown', { n: Math.abs(delta) }) : t('tech.trendFlat')}
                 </p>
               )}
@@ -175,7 +175,7 @@ export function RetentionTechCard({ score, tech, history, actions, freeze, busyI
               })}
               {decided.map((a) => (
                 <li key={a.id} className="rounded-xl border border-border/70 bg-bg-tertiary/40 p-3">
-                  <p className="flex items-center gap-2 text-sm font-medium text-text-primary"><Check size={14} className="text-success-500" />{actionTitle(a)}</p>
+                  <p className="flex items-center gap-2 text-sm font-medium text-text-primary"><Check size={14} className="text-success" />{actionTitle(a)}</p>
                   <p className="mt-1 text-xs text-text-secondary">
                     {a.outcome
                       ? t(`actions.outcome.${a.outcome}`, { before: a.baseline_score ?? '—', after: a.score_after ?? '—' })

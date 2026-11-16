@@ -144,7 +144,7 @@ export function AiAssistant() {
         data-floating-launcher
         whileHover={{ scale: 1.06 }}
         whileTap={{ scale: 0.94 }}
-        className="fixed bottom-[calc(92px_+_var(--vk-bottom-nav-h,0px))] right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-accent to-cta text-white shadow-glow-accent print:hidden"
+        className="fixed bottom-[calc(92px_+_var(--vk-bottom-nav-h,0px))] right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-accent text-on-accent shadow-glow-accent print:hidden"
       >
         <AnimatePresence mode="wait" initial={false}>
           <motion.span
@@ -186,7 +186,7 @@ export function AiAssistant() {
             aria-label="AI Assistant"
           >
             <div className="flex items-center gap-3 border-b border-border/80 bg-gradient-to-b from-bg-secondary to-bg-secondary/60 px-5 py-4">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-accent to-cta text-white shadow-sm">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent text-on-accent shadow-sm">
                 <MessageCircle size={17} strokeWidth={2.25} />
               </span>
               <div className="min-w-0">
@@ -238,7 +238,7 @@ export function AiAssistant() {
                 aria-label="Send"
                 whileHover={input.trim() && !thinking ? { scale: 1.06 } : undefined}
                 whileTap={input.trim() && !thinking ? { scale: 0.94 } : undefined}
-                className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-accent to-cta text-white transition-opacity disabled:opacity-40"
+                className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent text-on-accent transition-opacity disabled:opacity-40"
               >
                 <Send size={16} />
               </motion.button>

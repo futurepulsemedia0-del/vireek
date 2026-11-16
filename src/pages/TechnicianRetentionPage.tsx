@@ -21,7 +21,7 @@ type BandFilter = RiskBand | 'all';
 const FILTERS: BandFilter[] = ['all', 'high', 'elevated', 'low', 'insufficient'];
 
 function Stat({ label, value, hint, tone }: { label: string; value: string; hint?: string; tone?: 'danger' | 'warning' }) {
-  const color = tone === 'danger' ? 'text-danger' : tone === 'warning' ? 'text-warning-500' : 'text-text-primary';
+  const color = tone === 'danger' ? 'text-danger' : tone === 'warning' ? 'text-warning' : 'text-text-primary';
   return (
     <Card className="!p-4 sm:!p-5">
       <p className="text-xs font-medium text-text-secondary">{label}</p>

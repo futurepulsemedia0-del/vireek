@@ -156,7 +156,7 @@ export function WarrantyRegisterPage() {
               {copied && <p className="mt-1 text-xs text-success">Copied</p>}
 
               {!receipt.duplicate && (
-                <p className={`mt-5 flex items-start justify-center gap-2 text-sm ${receipt.emailSent ? 'text-text-secondary' : 'text-warning-500'}`}>
+                <p className={`mt-5 flex items-start justify-center gap-2 text-sm ${receipt.emailSent ? 'text-text-secondary' : 'text-warning'}`}>
                   {receipt.emailSent ? (
                     <>
                       <ShieldCheck size={16} className="mt-0.5 shrink-0 text-success" />

@@ -44,7 +44,7 @@ export function AnnotatableImage({ imageUrl, existingAnnotations, editable, onAd
           >
             <div className="h-6 w-6 rounded-full border-2 border-danger bg-danger/20" />
             {p.label && (
-              <span className="absolute left-1/2 top-full mt-1 -translate-x-1/2 whitespace-nowrap rounded bg-danger px-1.5 py-0.5 text-[10px] font-medium text-white">
+              <span className="absolute left-1/2 top-full mt-1 -translate-x-1/2 whitespace-nowrap rounded bg-danger px-1.5 py-0.5 text-[10px] font-medium text-on-danger">
                 {p.label}
               </span>
             )}
@@ -66,7 +66,7 @@ export function AnnotatableImage({ imageUrl, existingAnnotations, editable, onAd
             placeholder="e.g. Check this capacitor"
             className="flex-1 rounded-md border border-border bg-bg-primary px-2 py-1 text-sm"
           />
-          <button onClick={confirmLabel} className="rounded-md bg-accent px-3 py-1 text-sm font-medium text-white">Pin</button>
+          <button onClick={confirmLabel} className="rounded-md bg-accent px-3 py-1 text-sm font-medium text-on-accent">Pin</button>
           <button onClick={() => setPendingLabel(null)} className="rounded-md border border-border px-3 py-1 text-sm">Cancel</button>
         </div>
       )}

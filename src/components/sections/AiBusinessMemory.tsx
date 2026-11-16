@@ -231,7 +231,7 @@ export function AiBusinessMemory() {
               >
                 <div className="rounded-2xl border border-border/80 bg-bg-secondary/90 p-4 shadow-card backdrop-blur-sm transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-accent/30 hover:shadow-card-hover dark:bg-bg-secondary/80 dark:shadow-card-dark dark:hover:shadow-card-hover-dark">
                   <div className="flex items-center gap-2.5">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent transition-colors duration-300 group-hover:bg-accent group-hover:text-white">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent transition-colors duration-300 group-hover:bg-accent group-hover:text-on-accent">
                       <Icon size={17} />
                     </span>
                     <h3 className="text-sm font-semibold text-text-primary">{node.title}</h3>

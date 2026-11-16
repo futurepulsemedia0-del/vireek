@@ -108,7 +108,7 @@ export function BusinessConstitutionPage() {
               )
             ))}
           </div>
-          <button onClick={handleAdd} className="focus-ring mt-3 flex items-center gap-2 rounded-xl bg-cta px-4 py-2 text-sm font-medium text-white">
+          <button onClick={handleAdd} className="focus-ring mt-3 flex items-center gap-2 rounded-xl bg-cta px-4 py-2 text-sm font-medium text-on-cta">
             <Plus size={14} /> Add to constitution
           </button>
         </div>
@@ -131,7 +131,7 @@ export function BusinessConstitutionPage() {
         </div>
 
         <div className="rounded-2xl border border-border bg-bg-secondary p-5">
-          <div className="mb-3 flex items-center gap-2"><ShieldAlert size={16} className="text-warning-500" /><p className="text-sm font-semibold text-text-primary">Blocked actions</p></div>
+          <div className="mb-3 flex items-center gap-2"><ShieldAlert size={16} className="text-warning" /><p className="text-sm font-semibold text-text-primary">Blocked actions</p></div>
           {violations.length === 0 ? (
             <p className="text-sm text-text-secondary">Nothing has been blocked yet.</p>
           ) : (
@@ -142,7 +142,7 @@ export function BusinessConstitutionPage() {
                   {!v.overridden ? (
                     <button onClick={() => handleOverride(v.id)} className="focus-ring rounded-lg bg-bg-tertiary px-3 py-1.5 text-xs font-medium text-text-secondary">Override</button>
                   ) : (
-                    <span className="text-xs font-medium text-warning-500">Overridden</span>
+                    <span className="text-xs font-medium text-warning">Overridden</span>
                   )}
                 </div>
               ))}

@@ -5,7 +5,7 @@ import { useToast } from '@/contexts/ToastContext';
 import { formatCents, type Campaign, type DirectMailSettings } from '@/lib/directMail';
 import { fetchVerificationSummary, verificationLabel, verifyCampaignAddresses, verifyUntilDone, type VerificationSummary } from '@/lib/directMailAudience';
 
-const NOTE_TONE = { ok: 'text-success', warn: 'text-warning-500', bad: 'text-danger' } as const;
+const NOTE_TONE = { ok: 'text-success', warn: 'text-warning', bad: 'text-danger' } as const;
 
 /** Per-mailer address-check note for the recipients table. */
 export function VerificationNote({ piece }: { piece: { status: string; verification_status?: string | null; verification_note?: string | null } }) {
@@ -70,7 +70,7 @@ export function PreSendPanel({ campaign, settings, queued, onChanged }: {
         {unit > 0 ? `${queued.toLocaleString()} × ${formatCents(unit)} per mailer. ` : 'Add your expected cost per mailer (Edit) to see an estimate. '}
         This is an estimate: Lob’s real price per piece replaces it in Results after sending.
       </p>
-      {overCap && <p role="alert" className="mt-2 text-xs text-warning-500">The estimate is above your {formatCents(cap)} cap, so sending will pause when the cap is reached.</p>}
+      {overCap && <p role="alert" className="mt-2 text-xs text-warning">The estimate is above your {formatCents(cap)} cap, so sending will pause when the cap is reached.</p>}
 
       <div className="mt-4 border-t border-border pt-4">
         <p className="flex items-center gap-2 text-xs font-semibold text-text-primary"><ShieldCheck size={14} className="text-accent" /> Address check (USPS, through Lob)</p>

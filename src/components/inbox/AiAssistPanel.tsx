@@ -83,8 +83,8 @@ export function AiAssistPanel({ channel, conversationId, onChanged }: Props) {
       </div>
 
       {state.needsHuman && (
-        <div className="flex items-center justify-between gap-3 rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-text-primary">
-          <span className="flex items-center gap-1.5"><AlertTriangle size={13} className="text-amber-500" /> This customer needs a person.</span>
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-warning/40 bg-warning-subtle px-3 py-2 text-xs text-text-primary">
+          <span className="flex items-center gap-1.5"><AlertTriangle size={13} className="text-warning" /> This customer needs a person.</span>
           <button type="button" onClick={() => toggle({ needs_human: false })} className="focus-ring font-semibold text-accent">Mark handled</button>
         </div>
       )}
@@ -102,13 +102,13 @@ export function AiAssistPanel({ channel, conversationId, onChanged }: Props) {
             aria-label="AI draft reply"
             className="focus-ring mt-2 w-full rounded-lg border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary"
           />
-          {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+          {error && <p className="mt-1 text-xs text-danger">{error}</p>}
           <div className="mt-2 flex gap-2">
             <button
               type="button"
               disabled={busy || !text.trim()}
               onClick={() => act('approve')}
-              className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-40"
+              className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-on-accent disabled:opacity-40"
             >
               <Check size={13} /> Approve &amp; send
             </button>

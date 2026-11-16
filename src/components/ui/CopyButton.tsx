@@ -37,7 +37,7 @@ export function CopyButton({ text, label, copiedLabel, variant = 'secondary', si
     >
       <span className="relative inline-flex h-4 w-4 shrink-0" aria-hidden="true">
         <Copy size={16} className={`absolute inset-0 ${swap} ${status === 'idle' ? 'scale-100 opacity-100' : 'scale-50 opacity-0'}`} />
-        <Check size={16} className={`absolute inset-0 text-success-500 ${swap} ${status === 'copied' ? 'scale-100 opacity-100' : 'scale-50 opacity-0'}`} />
+        <Check size={16} className={`absolute inset-0 text-success ${swap} ${status === 'copied' ? 'scale-100 opacity-100' : 'scale-50 opacity-0'}`} />
       </span>
       {/* grid-stacked labels: width = the widest one */}
       <span className="grid">

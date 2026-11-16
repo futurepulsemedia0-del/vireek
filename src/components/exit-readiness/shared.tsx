@@ -7,8 +7,8 @@ export const selectClass =
 
 export function EstimateBanner({ compact = false }: { compact?: boolean }) {
   return (
-    <div role="note" className="flex items-start gap-2 rounded-xl border border-warning-500/30 bg-warning-500/10 px-3 py-2.5 text-xs text-text-secondary">
-      <Info size={14} className="mt-0.5 shrink-0 text-warning-500" aria-hidden="true" />
+    <div role="note" className="flex items-start gap-2 rounded-xl border border-warning/30 bg-warning-subtle px-3 py-2.5 text-xs text-text-secondary">
+      <Info size={14} className="mt-0.5 shrink-0 text-warning" aria-hidden="true" />
       <p>
         <span className="font-semibold text-text-primary">Estimates, not valuations or advice. </span>
         {compact ? 'Based on your records and editable assumptions.' : ESTIMATE_DISCLAIMER}
@@ -18,8 +18,8 @@ export function EstimateBanner({ compact = false }: { compact?: boolean }) {
 }
 
 const STATUS_STYLE: Record<DriverStatus, string> = {
-  strong: 'bg-success-500/10 text-success-500',
-  ok: 'bg-warning-500/10 text-warning-500',
+  strong: 'bg-success-subtle text-success',
+  ok: 'bg-warning-subtle text-warning',
   weak: 'bg-danger/10 text-danger',
   nodata: 'bg-bg-tertiary text-text-secondary',
 };
@@ -32,7 +32,7 @@ export function StatusPill({ status }: { status: DriverStatus }) {
 export function TrendBadge({ trend }: { trend: Trend }) {
   if (trend.direction === 'none') return <span className="text-[11px] text-text-secondary">No prior month</span>;
   const Icon = trend.direction === 'up' ? ArrowUpRight : trend.direction === 'down' ? ArrowDownRight : ArrowRight;
-  const tone = trend.direction === 'up' ? 'text-success-500' : trend.direction === 'down' ? 'text-danger' : 'text-text-secondary';
+  const tone = trend.direction === 'up' ? 'text-success' : trend.direction === 'down' ? 'text-danger' : 'text-text-secondary';
   const sign = (trend.delta ?? 0) > 0 ? '+' : '';
   return (
     <span className={`inline-flex items-center gap-0.5 text-[11px] font-medium ${tone}`}>
@@ -45,7 +45,7 @@ export function TrendBadge({ trend }: { trend: Trend }) {
 
 export function ScoreBar({ score }: { score: number | null }) {
   const pct = score === null ? 0 : Math.round(score);
-  const tone = score === null ? 'bg-bg-tertiary' : score >= 75 ? 'bg-success-500' : score >= 45 ? 'bg-warning-500' : 'bg-danger';
+  const tone = score === null ? 'bg-bg-tertiary' : score >= 75 ? 'bg-success' : score >= 45 ? 'bg-warning' : 'bg-danger';
   return (
     <div
       className="h-2 w-full overflow-hidden rounded-full bg-bg-tertiary"

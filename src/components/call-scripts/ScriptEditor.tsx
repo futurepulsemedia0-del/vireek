@@ -55,10 +55,10 @@ export function ScriptEditor({
     <div className="space-y-5">
       <div
         className={`flex items-start gap-3 rounded-xl border px-4 py-3 text-sm ${
-          liveVersion ? 'border-success-500/30 bg-success-500/10' : 'border-border bg-bg-tertiary'
+          liveVersion ? 'border-success/30 bg-success-subtle' : 'border-border bg-bg-tertiary'
         }`}
       >
-        <Info size={16} className={`mt-0.5 shrink-0 ${liveVersion ? 'text-success-500' : 'text-text-secondary'}`} />
+        <Info size={16} className={`mt-0.5 shrink-0 ${liveVersion ? 'text-success' : 'text-text-secondary'}`} />
         <p className="text-text-primary">
           {liveVersion ? (
             <>

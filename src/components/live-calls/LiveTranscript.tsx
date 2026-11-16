@@ -125,7 +125,7 @@ export function LiveTranscript({ lines, loading, error, onRetry, live }: LiveTra
         <button
           type="button"
           onClick={jumpToLatest}
-          className="focus-ring absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-accent px-3.5 py-2 text-xs font-semibold text-white shadow-lg"
+          className="focus-ring absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-accent px-3.5 py-2 text-xs font-semibold text-on-accent shadow-lg"
         >
           <ArrowDown size={13} />
           {unseen} new {unseen === 1 ? 'message' : 'messages'}

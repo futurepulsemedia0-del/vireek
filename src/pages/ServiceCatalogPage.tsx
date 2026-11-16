@@ -146,7 +146,7 @@ function Switch({
         }`}
       >
         <span
-          className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+          className={`absolute top-0.5 h-5 w-5 rounded-full bg-bg-secondary shadow transition-transform ${
             checked ? 'translate-x-[22px]' : 'translate-x-0.5'
           }`}
         />
@@ -176,7 +176,7 @@ function Segmented<T extends string>({
           aria-checked={value === o.value}
           onClick={() => onChange(o.value)}
           className={`focus-ring min-h-[40px] rounded-lg px-4 text-sm font-medium transition-colors ${
-            value === o.value ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'
+            value === o.value ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'
           }`}
         >
           {o.label}
@@ -221,7 +221,7 @@ function Modal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-end justify-center bg-black/50 backdrop-blur-sm sm:items-center sm:p-4"
+      className="fixed inset-0 z-[100] flex items-end justify-center bg-overlay/50 backdrop-blur-sm sm:items-center sm:p-4"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -536,7 +536,7 @@ function ItemEditor({
                   <>
                     <p className="mt-2 text-sm text-text-primary">{preview.message}</p>
                     {preview.requiresApproval && (
-                      <p className="mt-1 text-xs text-warning-500">
+                      <p className="mt-1 text-xs text-warning">
                         This amount is above your approval threshold, so a person confirms before it is promised.
                       </p>
                     )}
@@ -763,7 +763,7 @@ function ItemRow({
             </span>
             <span className="rounded-full bg-bg-tertiary px-2 py-0.5">{TAX_CLASS_LABELS[item.tax_class]}</span>
             {item.ai_quote_mode !== 'quote' && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-warning-500/10 px-2 py-0.5 text-warning-500">
+              <span className="inline-flex items-center gap-1 rounded-full bg-warning-subtle px-2 py-0.5 text-warning">
                 <Sparkles size={11} aria-hidden="true" />
                 {AI_QUOTE_MODE_BADGES[item.ai_quote_mode]}
               </span>

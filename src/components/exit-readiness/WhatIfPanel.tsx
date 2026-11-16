@@ -74,7 +74,7 @@ export function WhatIfPanel({ base, result, metrics, baseDataQuality, baseOwnerH
           <div><p className="text-xs text-text-secondary">Estimate in this scenario</p><p className="text-xl font-bold text-text-primary">{noEstimate ? '—' : fmtMoney(result.valuation.pointCents)}</p></div>
           <div>
             <p className="text-xs text-text-secondary">Change</p>
-            <p className={`text-xl font-bold ${delta >= 0 ? 'text-success-500' : 'text-danger'}`} aria-live="polite">{noEstimate ? '—' : `${delta >= 0 ? '+' : '−'}${fmtMoney(Math.abs(delta))}`}</p>
+            <p className={`text-xl font-bold ${delta >= 0 ? 'text-success' : 'text-danger'}`} aria-live="polite">{noEstimate ? '—' : `${delta >= 0 ? '+' : '−'}${fmtMoney(Math.abs(delta))}`}</p>
             <p className="text-[11px] text-text-secondary">Readiness {base.readiness.score ?? '—'} → {result.readiness.score ?? '—'} ({scoreDelta >= 0 ? '+' : ''}{Math.round(scoreDelta * 10) / 10} pts) · range {noEstimate ? '—' : `${fmtMoney(result.valuation.lowCents)} to ${fmtMoney(result.valuation.highCents)}`}</p>
           </div>
         </div>

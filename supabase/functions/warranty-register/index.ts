@@ -116,18 +116,18 @@ function buildEmail(input: { name: string; code: string; make: string; model: st
     "If you didn’t register this equipment, you can ignore this email.",
   ].filter((l, i, a) => l !== "" || a[i - 1] !== "").join("\n");
 
-  const html = `<div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;color:#111827;line-height:1.5">
+  const html = `<div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;color:#1C1B15;line-height:1.5">
 <h2 style="margin:0 0 12px">Warranty registration confirmed</h2>
 <p>Hi ${esc(first)}, your registration is complete.</p>
 <table style="width:100%;border-collapse:collapse;margin:16px 0">
-<tr><td style="padding:6px 0;color:#6b7280">Confirmation code</td><td style="padding:6px 0;text-align:right;font-weight:700">${esc(input.code)}</td></tr>
-<tr><td style="padding:6px 0;color:#6b7280">Product</td><td style="padding:6px 0;text-align:right">${esc(product)}</td></tr>
-<tr><td style="padding:6px 0;color:#6b7280">Serial</td><td style="padding:6px 0;text-align:right">${esc(maskSerial(input.serial))}</td></tr>
-<tr><td style="padding:6px 0;color:#6b7280">Purchase date</td><td style="padding:6px 0;text-align:right">${esc(input.purchaseDate)}</td></tr>
+<tr><td style="padding:6px 0;color:#73726c">Confirmation code</td><td style="padding:6px 0;text-align:right;font-weight:700">${esc(input.code)}</td></tr>
+<tr><td style="padding:6px 0;color:#73726c">Product</td><td style="padding:6px 0;text-align:right">${esc(product)}</td></tr>
+<tr><td style="padding:6px 0;color:#73726c">Serial</td><td style="padding:6px 0;text-align:right">${esc(maskSerial(input.serial))}</td></tr>
+<tr><td style="padding:6px 0;color:#73726c">Purchase date</td><td style="padding:6px 0;text-align:right">${esc(input.purchaseDate)}</td></tr>
 </table>
-${input.passportUrl ? `<p><a href="${esc(input.passportUrl)}" style="color:#2563eb">View your equipment passport</a></p>` : ""}
-<p style="color:#4b5563">Keep your proof of purchase (receipt or invoice) — you’ll need it if you make a warranty claim.</p>
-<p style="color:#9ca3af;font-size:12px">If you didn’t register this equipment, you can ignore this email.</p>
+${input.passportUrl ? `<p><a href="${esc(input.passportUrl)}" style="color:#a93b0f">View your equipment passport</a></p>` : ""}
+<p style="color:#595852">Keep your proof of purchase (receipt or invoice) — you’ll need it if you make a warranty claim.</p>
+<p style="color:#a9a8a2;font-size:12px">If you didn’t register this equipment, you can ignore this email.</p>
 </div>`;
   return { subject, html, text };
 }

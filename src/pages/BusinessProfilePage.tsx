@@ -460,7 +460,7 @@ export function BusinessProfilePage() {
   };
 
   const inputClass =
-    'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
+    'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder transition-colors';
 
   return (
     <DashboardLayout activeLabel="Business Profile">
@@ -527,7 +527,7 @@ export function BusinessProfilePage() {
                     maxLength={40}
                     className={inputClass}
                   />
-                  <p className="mt-1.5 text-xs text-text-secondary/60">
+                  <p className="mt-1.5 text-xs text-text-muted">
                     What your assistant calls itself when it answers a call — e.g. "Thanks for calling Bright
                     Plumbing, this is {assistantName.trim() || 'Sarah'}."
                   </p>
@@ -561,7 +561,7 @@ export function BusinessProfilePage() {
                       </button>
                     ))}
                   </div>
-                  <p className="mt-1.5 text-xs text-text-secondary/60">
+                  <p className="mt-1.5 text-xs text-text-muted">
                     The voice callers hear. Voice previews aren't available in this dashboard yet — this selects
                     which voice profile is used on live calls.
                   </p>
@@ -580,7 +580,7 @@ export function BusinessProfilePage() {
                       </option>
                     ))}
                   </select>
-                  <p className="mt-1.5 text-xs text-text-secondary/60">
+                  <p className="mt-1.5 text-xs text-text-muted">
                     {TONE_PRESETS.find((t) => t.key === assistantTone)?.description}
                   </p>
                 </div>
@@ -618,7 +618,7 @@ export function BusinessProfilePage() {
                       Save
                     </button>
                   </div>
-                  <p className="mt-1.5 text-xs text-text-secondary/60">
+                  <p className="mt-1.5 text-xs text-text-muted">
                     The existing business number calls get forwarded from before reaching {assistantName || DEFAULT_ASSISTANT_NAME}.
                   </p>
                 </div>
@@ -634,7 +634,7 @@ export function BusinessProfilePage() {
 
                     {tollFreeStatus !== 'verified' && (
                       <div className="mt-2 flex items-start gap-2 text-xs leading-relaxed text-text-secondary">
-                        <AlertTriangle size={14} className="mt-0.5 shrink-0 text-warning-500" />
+                        <AlertTriangle size={14} className="mt-0.5 shrink-0 text-warning" />
                         <p>
                           This number is toll-free. Carriers filter or block SMS from unverified
                           toll-free numbers, which can stop automated booking confirmations from
@@ -665,7 +665,7 @@ export function BusinessProfilePage() {
                         type="button"
                         onClick={handleStartVerification}
                         disabled={savingNumber}
-                        className="focus-ring mt-3 flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-xs font-semibold text-white transition-all hover:brightness-110 disabled:opacity-50"
+                        className="focus-ring mt-3 flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-xs font-semibold text-on-accent transition-all hover:brightness-110 disabled:opacity-50"
                       >
                         <ShieldCheck size={13} />
                         {tollFreeStatus === 'rejected' ? 'Resubmit for Verification' : 'Start Verification'}
@@ -685,12 +685,12 @@ export function BusinessProfilePage() {
                   <p className="text-sm font-semibold text-text-primary">SMS Carrier Registration (A2P 10DLC)</p>
                   <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
                     a2pCampaignStatus === 'approved'
-                      ? 'bg-success-500/15 text-success-500'
+                      ? 'bg-success-subtle text-success'
                       : a2pCampaignStatus === 'rejected'
                       ? 'bg-danger/10 text-danger'
                       : a2pCampaignStatus === 'pending'
                       ? 'bg-accent/10 text-accent'
-                      : 'bg-warning-500/15 text-warning-500'
+                      : 'bg-warning-subtle text-warning'
                   }`}>
                     {a2pCampaignStatus === 'approved' ? 'Approved' : a2pCampaignStatus === 'rejected' ? 'Rejected' : a2pCampaignStatus === 'pending' ? 'Pending carrier review' : 'Not started'}
                   </span>
@@ -732,7 +732,7 @@ export function BusinessProfilePage() {
                   type="button"
                   onClick={addService}
                   disabled={!newService.trim()}
-                  className="focus-ring flex shrink-0 items-center gap-1.5 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-white transition-all hover:opacity-90 disabled:opacity-40"
+                  className="focus-ring flex shrink-0 items-center gap-1.5 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-on-accent transition-all hover:opacity-90 disabled:opacity-40"
                 >
                   <Plus size={16} /> Add
                 </button>
@@ -758,7 +758,7 @@ export function BusinessProfilePage() {
                 </div>
               )}
               {services.length === 0 && (
-                <p className="mt-3 text-xs text-text-secondary/60">No services added yet.</p>
+                <p className="mt-3 text-xs text-text-muted">No services added yet.</p>
               )}
             </SectionCard>
 
@@ -811,7 +811,7 @@ export function BusinessProfilePage() {
                         </label>
                       </div>
                       {h.closed ? (
-                        <span className="flex-1 text-sm text-text-secondary/60">Closed</span>
+                        <span className="flex-1 text-sm text-text-muted">Closed</span>
                       ) : (
                         <div className="flex items-center gap-2 sm:flex-1">
                           <input
@@ -889,7 +889,7 @@ export function BusinessProfilePage() {
                 <Plus size={16} /> Add Holiday
               </button>
               {holidays.length === 0 && (
-                <p className="mt-3 text-xs text-text-secondary/60">No holidays added yet.</p>
+                <p className="mt-3 text-xs text-text-muted">No holidays added yet.</p>
               )}
             </SectionCard>
 
@@ -998,7 +998,7 @@ export function BusinessProfilePage() {
                 <Plus size={16} /> Add Rule
               </button>
               {escalationRules.length === 0 && (
-                <p className="mt-3 text-xs text-text-secondary/60">
+                <p className="mt-3 text-xs text-text-muted">
                   No routing rules yet — calls follow default handling.
                 </p>
               )}
@@ -1017,7 +1017,7 @@ export function BusinessProfilePage() {
                 rows={3}
                 className={`${inputClass} resize-none`}
               />
-              <p className="mt-2 text-xs text-text-secondary/60">
+              <p className="mt-2 text-xs text-text-muted">
                 Tip: Include your business name and a friendly, professional greeting.
               </p>
             </SectionCard>
@@ -1115,7 +1115,7 @@ export function BusinessProfilePage() {
                     }`}
                   >
                     <span
-                      className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
+                      className={`absolute top-0.5 h-5 w-5 rounded-full bg-bg-secondary shadow-sm transition-transform ${
                         allowSelfReschedule ? 'translate-x-[22px]' : 'translate-x-0.5'
                       }`}
                     />
@@ -1146,7 +1146,7 @@ export function BusinessProfilePage() {
                 type="button"
                 onClick={handleSave}
                 disabled={saving}
-                className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-5 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110 disabled:opacity-50"
+                className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-5 py-2.5 text-sm font-semibold text-on-cta transition-all hover:brightness-110 disabled:opacity-50"
               >
                 {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
                 {saving ? 'Saving…' : 'Save Profile'}

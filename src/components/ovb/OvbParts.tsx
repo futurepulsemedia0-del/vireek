@@ -5,7 +5,7 @@ import { PROVENANCE_BADGE, fmtScore, type TrendPoint } from '@/lib/openVoiceBenc
 const TONE: Record<'accent' | 'success' | 'warn', string> = {
   accent: 'border-accent/40 bg-accent/10 text-accent',
   success: 'border-success/40 bg-success/10 text-success',
-  warn: 'border-warning-500/40 bg-warning-500/10 text-warning-500',
+  warn: 'border-warning/40 bg-warning-subtle text-warning',
 };
 
 export function ProvenanceBadge({ provenance }: { provenance: Provenance }) {
@@ -14,7 +14,7 @@ export function ProvenanceBadge({ provenance }: { provenance: Provenance }) {
 }
 
 export function ScoreBadge({ score, label }: { score: number | null | undefined; label?: string }) {
-  const tone = typeof score !== 'number' ? 'text-text-secondary' : score >= 85 ? 'text-success' : score >= 70 ? 'text-warning-500' : 'text-danger';
+  const tone = typeof score !== 'number' ? 'text-text-secondary' : score >= 85 ? 'text-success' : score >= 70 ? 'text-warning' : 'text-danger';
   return (
     <span className={`font-semibold tabular-nums ${tone}`} aria-label={label ? `${label}: ${fmtScore(score)}` : undefined}>
       {fmtScore(score)}

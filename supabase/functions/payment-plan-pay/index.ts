@@ -11,7 +11,7 @@ import { planBankEligible } from "../_shared/bankPayments/logic.ts";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const page = (title: string, body: string, status = 200) =>
-  new Response(`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title><body style="font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:420px;margin:15vh auto;padding:0 24px;color:#111827"><h1 style="font-size:20px">${title}</h1><p style="color:#4b5563;line-height:1.5">${body}</p></body>`, { status, headers: { "Content-Type": "text/html; charset=utf-8" } });
+  new Response(`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title><body style="font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:420px;margin:15vh auto;padding:0 24px;color:#1C1B15"><h1 style="font-size:20px">${title}</h1><p style="color:#595852;line-height:1.5">${body}</p></body>`, { status, headers: { "Content-Type": "text/html; charset=utf-8" } });
 
 Deno.serve(async (req: Request) => {
   if (req.method !== "GET") return new Response("Method not allowed", { status: 405 });

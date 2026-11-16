@@ -148,7 +148,7 @@ export function SecurityPrivacy() {
                   }}
                 />
 
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent transition-colors duration-300 group-hover:bg-accent group-hover:text-white">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent transition-colors duration-300 group-hover:bg-accent group-hover:text-on-accent">
                   <Icon size={20} />
                 </span>
 

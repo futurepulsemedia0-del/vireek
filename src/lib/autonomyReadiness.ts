@@ -47,10 +47,10 @@ export const AUTONOMY_TIER_LABELS: Record<AutonomyTier, string> = {
 export const AUTONOMY_TIER_ORDER: AutonomyTier[] = ['observe', 'recommend', 'execute', 'autonomous'];
 
 export const AUTONOMY_TIER_COLORS: Record<AutonomyTier, { bg: string; text: string; ring: string }> = {
-  observe: { bg: 'bg-slate-100', text: 'text-slate-600', ring: 'ring-slate-300' },
-  recommend: { bg: 'bg-amber-100', text: 'text-amber-700', ring: 'ring-amber-300' },
-  execute: { bg: 'bg-blue-100', text: 'text-blue-700', ring: 'ring-blue-300' },
-  autonomous: { bg: 'bg-emerald-100', text: 'text-emerald-700', ring: 'ring-emerald-300' },
+  observe: { bg: 'bg-bg-tertiary', text: 'text-text-secondary', ring: 'ring-border-strong' },
+  recommend: { bg: 'bg-warning-subtle', text: 'text-warning-strong', ring: 'ring-warning-subtle-border' },
+  execute: { bg: 'bg-info-subtle', text: 'text-info-strong', ring: 'ring-info-subtle-border' },
+  autonomous: { bg: 'bg-success-subtle', text: 'text-success-strong', ring: 'ring-success-subtle-border' },
 };
 
 export function formatPercent(rate: number): string {

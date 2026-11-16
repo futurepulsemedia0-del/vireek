@@ -218,11 +218,11 @@ export async function processPendingInvoices(admin: SupabaseClient): Promise<Inv
           await sendEmail(
             email,
             `Your ${amountLabel} invoice is ready`,
-            `<div style="font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1a1a1a;">
-              <p style="font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #6b7280; margin: 0 0 16px;">Invoice ready</p>
+            `<div style="font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1c1b15;">
+              <p style="font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #73726c; margin: 0 0 16px;">Invoice ready</p>
               <h1 style="font-size: 22px; margin: 0 0 16px;">${amountLabel} due for ${escapeHtml(description)}</h1>
-              <a href="${session.url}" style="display: inline-block; margin-top: 8px; padding: 12px 24px; background: #111827; color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 14px;">Pay ${amountLabel} now</a>
-              <p style="margin-top: 24px; font-size: 13px; color: #9ca3af;">Secure payment powered by Stripe.</p>
+              <a href="${session.url}" style="display: inline-block; margin-top: 8px; padding: 12px 24px; background: #1C1B15; color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 14px;">Pay ${amountLabel} now</a>
+              <p style="margin-top: 24px; font-size: 13px; color: #a9a8a2;">Secure payment powered by Stripe.</p>
             </div>`,
             `Your ${amountLabel} invoice is ready. Pay securely: ${session.url}`,
           );

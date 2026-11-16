@@ -153,14 +153,14 @@ export function JobBoardOfferPage() {
             </article>
 
             {state === 'won' && (
-              <p className="flex items-start gap-2 rounded-xl border border-success-500/40 bg-success-500/10 p-4 text-sm text-success-500">
+              <p className="flex items-start gap-2 rounded-xl border border-success/40 bg-success-subtle p-4 text-sm text-success">
                 <CheckCircle2 size={16} className="mt-0.5 shrink-0" />
                 You’ve been awarded this job. {offer.company ?? 'The contractor'} will contact you with the customer details.
               </p>
             )}
 
             {state === 'not_yet_open' && (
-              <p className="rounded-xl border border-warning-500/40 bg-warning-500/10 p-4 text-sm text-warning-500">
+              <p className="rounded-xl border border-warning/40 bg-warning-subtle p-4 text-sm text-warning">
                 {formatOpensIn(post.opens_at, serverNow)} — the contractor’s own technicians have a short head start. Come back to this page then.
               </p>
             )}

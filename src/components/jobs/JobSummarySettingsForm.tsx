@@ -19,7 +19,7 @@ const lbl = 'mb-1 block text-xs font-medium text-text-secondary';
 function Toggle({ id, checked, onChange, title, hint }: { id: string; checked: boolean; onChange: (v: boolean) => void; title: string; hint?: string }) {
   return (
     <label htmlFor={id} className="flex cursor-pointer items-start gap-3">
-      <input id={id} type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="mt-1 h-4 w-4 accent-[var(--color-accent,#2563eb)]" />
+      <input id={id} type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="mt-1 h-4 w-4 accent-accent" />
       <span>
         <span className="block text-sm font-medium text-text-primary">{title}</span>
         {hint && <span className="block text-xs text-text-secondary">{hint}</span>}
@@ -60,7 +60,7 @@ export function JobSummarySettingsForm({ ownerId, initial, onSaved }: { ownerId:
           <div className="max-w-xs">
             <label className={lbl} htmlFor="js-window">Review window (minutes)</label>
             <input id="js-window" type="number" min={0} max={2880} className={input} value={s.review_window_minutes} onChange={(e) => set('review_window_minutes', Number(e.target.value))} />
-            {errors.review_window_minutes && <p className="mt-1 text-xs text-danger-500">{errors.review_window_minutes}</p>}
+            {errors.review_window_minutes && <p className="mt-1 text-xs text-danger">{errors.review_window_minutes}</p>}
           </div>
         )}
         <div className="max-w-xs">
@@ -93,7 +93,7 @@ export function JobSummarySettingsForm({ ownerId, initial, onSaved }: { ownerId:
         <div className="max-w-xs">
           <label className={lbl} htmlFor="js-labor">Labor warranty (days)</label>
           <input id="js-labor" type="number" min={1} max={3650} placeholder="e.g. 90" className={input} value={s.labor_warranty_days ?? ''} onChange={(e) => set('labor_warranty_days', e.target.value === '' ? null : Number(e.target.value))} />
-          {errors.labor_warranty_days && <p className="mt-1 text-xs text-danger-500">{errors.labor_warranty_days}</p>}
+          {errors.labor_warranty_days && <p className="mt-1 text-xs text-danger">{errors.labor_warranty_days}</p>}
         </div>
         <div>
           <label className={lbl} htmlFor="js-pw">Parts warranty note</label>
@@ -106,7 +106,7 @@ export function JobSummarySettingsForm({ ownerId, initial, onSaved }: { ownerId:
         <div>
           <label className={lbl} htmlFor="js-ctips">Your own tips (one per line, up to 6) — shown first</label>
           <textarea id="js-ctips" rows={3} className={input} value={s.custom_tips.join('\n')} onChange={(e) => set('custom_tips', e.target.value.split('\n'))} />
-          {errors.custom_tips && <p className="mt-1 text-xs text-danger-500">{errors.custom_tips}</p>}
+          {errors.custom_tips && <p className="mt-1 text-xs text-danger">{errors.custom_tips}</p>}
         </div>
       </section>
 
@@ -116,7 +116,7 @@ export function JobSummarySettingsForm({ ownerId, initial, onSaved }: { ownerId:
           <label className={lbl} htmlFor="js-sms">Text message — variables: {'{{customer_first_name}} {{business_name}} {{service_type}} {{link}}'}</label>
           <textarea id="js-sms" rows={3} className={input} value={s.sms_body} onChange={(e) => set('sms_body', e.target.value)} />
           {errors.sms_body ? (
-            <p className="mt-1 text-xs text-danger-500">{errors.sms_body}</p>
+            <p className="mt-1 text-xs text-danger">{errors.sms_body}</p>
           ) : (
             <p className="mt-1 text-xs text-text-secondary">Preview: {renderSms(s.sms_body, { customer_first_name: 'Jane', business_name: 'Your Business', service_type: 'AC Repair', link: 'https://…/summary/…' })}</p>
           )}
@@ -124,7 +124,7 @@ export function JobSummarySettingsForm({ ownerId, initial, onSaved }: { ownerId:
         <div>
           <label className={lbl} htmlFor="js-subj">Email subject</label>
           <input id="js-subj" className={input} value={s.email_subject} onChange={(e) => set('email_subject', e.target.value)} />
-          {errors.email_subject && <p className="mt-1 text-xs text-danger-500">{errors.email_subject}</p>}
+          {errors.email_subject && <p className="mt-1 text-xs text-danger">{errors.email_subject}</p>}
         </div>
       </section>
 

@@ -87,7 +87,7 @@ export function TelematicsConnectPanel({ connections, onChanged }: Props) {
     <div key={c.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-bg-primary p-4">
       <div>
         <p className="text-sm font-semibold capitalize text-text-primary">{c.provider === 'webhook' ? 'Generic webhook' : c.provider}</p>
-        <p className={`text-xs ${c.status === 'error' ? 'text-danger-500' : 'text-text-secondary'}`}>
+        <p className={`text-xs ${c.status === 'error' ? 'text-danger' : 'text-text-secondary'}`}>
           {c.status === 'error' ? c.last_error ?? 'Connection error' : `Connected · last data ${ageLabel(c.last_sync_at)}`}
         </p>
       </div>
@@ -97,7 +97,7 @@ export function TelematicsConnectPanel({ connections, onChanged }: Props) {
           Auto-start job on GPS arrival
         </label>
         <button type="button" onClick={() => void rotate(c.id)} disabled={busy === `rotate-${c.id}`} className={`${BTN} border border-border text-text-secondary hover:text-text-primary`}>Rotate token</button>
-        <button type="button" onClick={() => disconnect(c.id)} disabled={busy === `dc-${c.id}`} className={`${BTN} border border-border text-danger-500`}><Unplug size={12} className="mr-1 inline" />Disconnect</button>
+        <button type="button" onClick={() => disconnect(c.id)} disabled={busy === `dc-${c.id}`} className={`${BTN} border border-border text-danger`}><Unplug size={12} className="mr-1 inline" />Disconnect</button>
       </div>
     </div>
   );
@@ -105,7 +105,7 @@ export function TelematicsConnectPanel({ connections, onChanged }: Props) {
   return (
     <div className="space-y-6">
       {reveal && (
-        <div role="alert" className="rounded-2xl border border-warning-500/40 bg-warning-500/10 p-4 text-sm">
+        <div role="alert" className="rounded-2xl border border-warning/40 bg-warning-subtle p-4 text-sm">
           <p className="font-semibold text-text-primary">Save this token now — it is shown only once.</p>
           <div className="mt-3 space-y-2">
             {[['Endpoint', reveal.url], ['Token', reveal.token]].map(([k, v]) => (
@@ -117,7 +117,7 @@ export function TelematicsConnectPanel({ connections, onChanged }: Props) {
             ))}
           </div>
           <p className="mt-3 text-xs text-text-secondary">Samsara alert webhooks: use <code>endpoint?t=TOKEN&amp;provider=samsara</code>, then paste Samsara's signing secret below.</p>
-          <button type="button" onClick={() => setReveal(null)} className={`${BTN} mt-3 bg-accent text-white`}>I saved it</button>
+          <button type="button" onClick={() => setReveal(null)} className={`${BTN} mt-3 bg-accent text-on-accent`}>I saved it</button>
         </div>
       )}
 
@@ -129,7 +129,7 @@ export function TelematicsConnectPanel({ connections, onChanged }: Props) {
           <p className="mt-1 text-xs text-text-secondary">Create a read-only API token in Samsara (Settings → API Tokens) with <em>Vehicles</em> and <em>Vehicle Statistics</em> read scopes. We encrypt it at rest and never show it again.</p>
           <div className="mt-3 flex flex-col gap-2 sm:flex-row">
             <input type="password" autoComplete="off" value={apiToken} onChange={(e) => setApiToken(e.target.value)} placeholder="Samsara API token" required minLength={20} className={INPUT} />
-            <button type="submit" disabled={busy === 'samsara'} className={`${BTN} shrink-0 bg-accent text-white`}>{busy === 'samsara' ? 'Connecting…' : 'Connect'}</button>
+            <button type="submit" disabled={busy === 'samsara'} className={`${BTN} shrink-0 bg-accent text-on-accent`}>{busy === 'samsara' ? 'Connecting…' : 'Connect'}</button>
           </div>
         </form>
       )}
@@ -149,7 +149,7 @@ export function TelematicsConnectPanel({ connections, onChanged }: Props) {
         <div className="rounded-2xl border border-border bg-bg-secondary p-5">
           <h3 className="flex items-center gap-2 text-sm font-semibold text-text-primary"><Link2 size={16} className="text-accent" /> Generic webhook (Geotab, custom gateway, Zapier)</h3>
           <p className="mt-1 text-xs text-text-secondary">Push normalized JSON positions, events and faults from any telematics system. Map each device id to a vehicle from the Fleet Economics roster.</p>
-          <button type="button" onClick={() => void createWebhook()} disabled={busy === 'webhook'} className={`${BTN} mt-3 bg-accent text-white`}>{busy === 'webhook' ? 'Creating…' : 'Create webhook endpoint'}</button>
+          <button type="button" onClick={() => void createWebhook()} disabled={busy === 'webhook'} className={`${BTN} mt-3 bg-accent text-on-accent`}>{busy === 'webhook' ? 'Creating…' : 'Create webhook endpoint'}</button>
         </div>
       )}
     </div>

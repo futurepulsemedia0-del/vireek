@@ -68,16 +68,16 @@ interface Drag {
 }
 
 const BAR_TONE: Record<ProjectPhase['status'], string> = {
-  completed: 'bg-success-500',
+  completed: 'bg-success',
   in_progress: 'bg-accent',
-  blocked: 'bg-danger-500',
+  blocked: 'bg-danger',
   not_started: 'bg-accent/40',
 };
 const MARKER_TONE: Record<GanttMarker['tone'], string> = {
-  done: 'bg-success-500',
+  done: 'bg-success',
   pending: 'bg-text-secondary',
-  late: 'bg-danger-500',
-  job: 'bg-warning-500',
+  late: 'bg-danger',
+  job: 'bg-warning',
 };
 
 /** Orthogonal connector between two bars, leaving/entering the sides the link type implies. */
@@ -216,7 +216,7 @@ export function GanttChart(props: GanttChartProps) {
 
   const weekendBg =
     zoom !== 'month' && !cal.workWeekends
-      ? { backgroundImage: `linear-gradient(to right, transparent ${5 * px}px, rgba(128,128,128,0.10) ${5 * px}px)`, backgroundSize: `${7 * px}px 100%` }
+      ? { backgroundImage: `linear-gradient(to right, transparent ${5 * px}px, rgba(141,140,135,0.10) ${5 * px}px)`, backgroundSize: `${7 * px}px 100%` }
       : undefined;
 
   return (
@@ -237,7 +237,7 @@ export function GanttChart(props: GanttChartProps) {
               <span className="flex items-center gap-1.5 truncate text-sm font-medium text-text-primary">
                 {p.locked && <Lock size={12} className="shrink-0 text-text-secondary" aria-label="Locked" />}
                 <span className="truncate">{p.name}</span>
-                {sev && <AlertTriangle size={13} className={`shrink-0 ${sev === 'error' ? 'text-danger-500' : 'text-warning-500'}`} aria-label={sev === 'error' ? 'Has errors' : 'Has warnings'} />}
+                {sev && <AlertTriangle size={13} className={`shrink-0 ${sev === 'error' ? 'text-danger' : 'text-warning'}`} aria-label={sev === 'error' ? 'Has errors' : 'Has warnings'} />}
               </span>
               <span className="truncate text-xs text-text-secondary">
                 {progress.get(p.id) ?? 0}%{crewCounts?.get(p.id) ? ` · ${crewCounts.get(p.id)} crew` : ''}
@@ -273,8 +273,8 @@ export function GanttChart(props: GanttChartProps) {
 
           {/* Today */}
           {todayX >= 0 && todayX <= totalW && (
-            <div className="pointer-events-none absolute z-10 w-0.5 bg-danger-500/70" style={{ left: todayX + px / 2, top: TIER_H, height: HEADER_H - TIER_H + bodyH }} aria-hidden="true">
-              <span className="absolute -left-4 top-0 rounded bg-danger-500 px-1 text-[10px] font-semibold text-white">Today</span>
+            <div className="pointer-events-none absolute z-10 w-0.5 bg-danger/70" style={{ left: todayX + px / 2, top: TIER_H, height: HEADER_H - TIER_H + bodyH }} aria-hidden="true">
+              <span className="absolute -left-4 top-0 rounded bg-danger px-1 text-[10px] font-semibold text-on-danger">Today</span>
             </div>
           )}
 
@@ -283,7 +283,7 @@ export function GanttChart(props: GanttChartProps) {
             <defs>
               {(['n', 'c', 'v'] as const).map((k) => (
                 <marker key={k} id={`${uid}-${k}`} viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto">
-                  <path d="M0,0 L8,4 L0,8 z" className={k === 'v' ? 'fill-danger-500' : k === 'c' ? 'fill-accent' : 'fill-text-secondary'} />
+                  <path d="M0,0 L8,4 L0,8 z" className={k === 'v' ? 'fill-danger' : k === 'c' ? 'fill-accent' : 'fill-text-secondary'} />
                 </marker>
               ))}
             </defs>
@@ -305,7 +305,7 @@ export function GanttChart(props: GanttChartProps) {
                   fill="none"
                   strokeWidth={1.5}
                   markerEnd={`url(#${uid}-${k})`}
-                  className={k === 'v' ? 'stroke-danger-500' : k === 'c' ? 'stroke-accent' : 'stroke-text-secondary/70'}
+                  className={k === 'v' ? 'stroke-danger' : k === 'c' ? 'stroke-accent' : 'stroke-text-secondary/70'}
                 />
               );
             })}
@@ -345,16 +345,16 @@ export function GanttChart(props: GanttChartProps) {
                   onPointerCancel={(e) => finish(e, true)}
                   onKeyDown={(e) => onKey(e, p)}
                   onDoubleClick={() => onOpen?.(p.id)}
-                  className={`focus-ring group absolute z-20 flex items-center overflow-hidden rounded-lg text-xs font-semibold text-white shadow-sm ${BAR_TONE[p.status]} ${isCritical ? 'ring-2 ring-danger-500 ring-offset-1 ring-offset-bg-secondary' : ''} ${selectedId === p.id ? 'outline outline-2 outline-offset-2 outline-accent' : ''} ${moving.has(p.id) ? 'opacity-80' : ''} ${fixed || readOnly ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'} ${drag?.id === p.id ? 'transition-none' : 'transition-[left,width] duration-150'}`}
+                  className={`focus-ring group absolute z-20 flex items-center overflow-hidden rounded-lg text-xs font-semibold text-white shadow-sm ${BAR_TONE[p.status]} ${isCritical ? 'ring-2 ring-danger ring-offset-1 ring-offset-bg-secondary' : ''} ${selectedId === p.id ? 'outline outline-2 outline-offset-2 outline-accent' : ''} ${moving.has(p.id) ? 'opacity-80' : ''} ${fixed || readOnly ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'} ${drag?.id === p.id ? 'transition-none' : 'transition-[left,width] duration-150'}`}
                   style={{ left: g.left, width: Math.max(g.width, 6), top: top + 8, height: ROW_H - 18, touchAction: 'pan-x pan-y' }}
                 >
-                  <div className="absolute inset-y-0 left-0 bg-black/25" style={{ width: `${pct}%` }} aria-hidden="true" />
+                  <div className="absolute inset-y-0 left-0 bg-overlay/25" style={{ width: `${pct}%` }} aria-hidden="true" />
                   <span className="relative truncate px-2">{g.width > 90 ? p.name : ''}</span>
                   {p.locked && <Lock size={11} className="relative mr-1.5 ml-auto shrink-0" aria-hidden="true" />}
                   {!fixed && !readOnly && (
                     <>
-                      <span aria-hidden="true" className="absolute inset-y-0 left-0 w-2 cursor-ew-resize bg-white/0 hover:bg-white/30" onPointerDown={(e) => begin(e, p, 'start')} onPointerMove={track} onPointerUp={(e) => finish(e)} onPointerCancel={(e) => finish(e, true)} />
-                      <span aria-hidden="true" className="absolute inset-y-0 right-0 w-2 cursor-ew-resize bg-white/0 hover:bg-white/30" onPointerDown={(e) => begin(e, p, 'end')} onPointerMove={track} onPointerUp={(e) => finish(e)} onPointerCancel={(e) => finish(e, true)} />
+                      <span aria-hidden="true" className="absolute inset-y-0 left-0 w-2 cursor-ew-resize bg-bg-secondary/0 hover:bg-bg-secondary/30" onPointerDown={(e) => begin(e, p, 'start')} onPointerMove={track} onPointerUp={(e) => finish(e)} onPointerCancel={(e) => finish(e, true)} />
+                      <span aria-hidden="true" className="absolute inset-y-0 right-0 w-2 cursor-ew-resize bg-bg-secondary/0 hover:bg-bg-secondary/30" onPointerDown={(e) => begin(e, p, 'end')} onPointerMove={track} onPointerUp={(e) => finish(e)} onPointerCancel={(e) => finish(e, true)} />
                     </>
                   )}
                 </div>

@@ -34,16 +34,16 @@ export function Stepper({ currentId, completedSteps }: StepperProps) {
               <div
                 className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold transition-all ${
                   active
-                    ? 'bg-accent text-white ring-4 ring-accent/20'
+                    ? 'bg-accent text-on-accent ring-4 ring-accent/20'
                     : done
-                      ? 'bg-success-500 text-white'
+                      ? 'bg-success text-on-success'
                       : 'bg-bg-tertiary text-text-secondary'
                 }`}
               >
                 {done ? <Check size={12} /> : i + 1}
               </div>
               {i < STEPS.length - 1 && (
-                <div className={`h-0.5 w-4 rounded-full transition-colors ${done ? 'bg-success-500' : 'bg-bg-tertiary'}`} />
+                <div className={`h-0.5 w-4 rounded-full transition-colors ${done ? 'bg-success' : 'bg-bg-tertiary'}`} />
               )}
             </div>
           );

@@ -29,8 +29,8 @@ const FILTERS: { key: Filter; label: string }[] = [
 
 function readinessTone(pct: number | null): string {
   if (pct === null) return 'text-text-secondary';
-  if (pct >= 80) return 'text-success-500';
-  if (pct >= 60) return 'text-warning-500';
+  if (pct >= 80) return 'text-success';
+  if (pct >= 60) return 'text-warning';
   return 'text-danger';
 }
 
@@ -113,8 +113,8 @@ export function UnknownsEnginePage() {
           <>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               <StatCard label="Resolve first" value={data.byVerdict.resolve_first} tone={data.byVerdict.resolve_first ? 'text-danger' : undefined} />
-              <StatCard label="Proceed with caution" value={data.byVerdict.proceed_with_caution} tone={data.byVerdict.proceed_with_caution ? 'text-warning-500' : undefined} />
-              <StatCard label="Ready to decide" value={data.byVerdict.clear} tone="text-success-500" />
+              <StatCard label="Proceed with caution" value={data.byVerdict.proceed_with_caution} tone={data.byVerdict.proceed_with_caution ? 'text-warning' : undefined} />
+              <StatCard label="Ready to decide" value={data.byVerdict.clear} tone="text-success" />
               <StatCard label="Average readiness" value={data.avgReadinessPct === null ? '—' : `${data.avgReadinessPct}%`} tone={readinessTone(data.avgReadinessPct)} />
             </div>
 
@@ -139,7 +139,7 @@ export function UnknownsEnginePage() {
                       aria-valuenow={d.openCount}
                       className="mt-1 h-1.5 overflow-hidden rounded-full bg-bg-tertiary"
                     >
-                      <div className={`h-full rounded-full ${d.contradictoryCount ? 'bg-danger' : 'bg-warning-500'}`} style={{ width: `${(d.openCount / maxOpen) * 100}%` }} />
+                      <div className={`h-full rounded-full ${d.contradictoryCount ? 'bg-danger' : 'bg-warning'}`} style={{ width: `${(d.openCount / maxOpen) * 100}%` }} />
                     </div>
                   </li>
                 ))}

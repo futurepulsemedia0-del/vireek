@@ -5,7 +5,7 @@ import type { ChainState, ChainStep } from '@/lib/outcomeNetwork';
 const STATE_STYLE: Record<ChainState, string> = {
   done: 'border-border bg-bg-tertiary text-text-primary',
   pending: 'border-dashed border-border bg-bg-secondary text-text-secondary',
-  good: 'border-success-500/40 bg-success-500/10 text-success-500',
+  good: 'border-success/40 bg-success-subtle text-success',
   bad: 'border-danger/40 bg-danger/10 text-danger',
 };
 

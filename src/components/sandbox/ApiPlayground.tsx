@@ -26,10 +26,10 @@ import {
 function StatusBadge({ result }: { result: PlaygroundResult | null }) {
   if (!result) return null;
   const color = result.ok
-    ? 'bg-success-500/10 text-success-500'
+    ? 'bg-success-subtle text-success'
     : result.status === 0
-      ? 'bg-warning-500/10 text-warning-500'
-      : 'bg-danger-500/10 text-danger-500';
+      ? 'bg-warning-subtle text-warning'
+      : 'bg-danger-subtle text-danger';
   return (
     <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${color}`}>
       {result.status || '—'} {result.statusText}
@@ -168,7 +168,7 @@ export function ApiPlayground() {
                 value={resourceId}
                 onChange={(e) => setResourceId(e.target.value)}
                 placeholder="uuid of the call / lead / job"
-                className="w-full rounded-xl border border-border bg-bg-primary px-3 py-2.5 font-mono text-sm text-text-primary placeholder:text-text-secondary/60 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+                className="w-full rounded-xl border border-border bg-bg-primary px-3 py-2.5 font-mono text-sm text-text-primary placeholder:text-text-placeholder focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
               />
             </div>
           )}
@@ -198,7 +198,7 @@ export function ApiPlayground() {
                 value={apiKey}
                 onChange={(e) => onKeyChange(e.target.value)}
                 placeholder="vrk_live_…"
-                className="w-full rounded-xl border border-border bg-bg-primary px-3 py-2.5 font-mono text-sm text-text-primary placeholder:text-text-secondary/60 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+                className="w-full rounded-xl border border-border bg-bg-primary px-3 py-2.5 font-mono text-sm text-text-primary placeholder:text-text-placeholder focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
               />
               <Button
                 type="button"
@@ -256,7 +256,7 @@ export function ApiPlayground() {
 
           {!result && !loading && (
             <div className="flex flex-1 flex-col items-center justify-center rounded-xl border border-dashed border-border bg-bg-primary/50 px-4 py-12 text-center">
-              <Terminal size={22} className="mb-2 text-text-secondary/70" />
+              <Terminal size={22} className="mb-2 text-graphic-muted" />
               <p className="text-sm text-text-secondary">
                 Choose an endpoint, paste your key, then hit Send.
               </p>
@@ -272,7 +272,7 @@ export function ApiPlayground() {
           {result && !loading && (
             <div className="relative flex-1">
               {result.error && (
-                <div className="mb-3 flex items-start gap-2 rounded-xl border border-danger-500/30 bg-danger-500/5 px-3 py-2.5 text-sm text-danger-500">
+                <div className="mb-3 flex items-start gap-2 rounded-xl border border-danger/30 bg-danger-subtle px-3 py-2.5 text-sm text-danger">
                   <AlertCircle size={16} className="mt-0.5 shrink-0" />
                   <span>{result.error}</span>
                 </div>

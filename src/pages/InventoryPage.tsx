@@ -95,11 +95,11 @@ import {
 } from '@/lib/inventory';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder transition-colors';
 const labelClass = 'mb-1 block text-xs font-medium text-text-secondary';
 const cardClass = 'rounded-2xl border border-border bg-bg-secondary p-4';
 const btnPrimary =
-  'focus-ring flex items-center justify-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50';
+  'focus-ring flex items-center justify-center gap-1.5 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-on-accent transition-opacity hover:opacity-90 disabled:opacity-50';
 const btnGhost =
   'focus-ring flex items-center gap-1.5 rounded-xl border border-dashed border-border px-3 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:border-accent/40 hover:text-accent';
 
@@ -210,7 +210,7 @@ export function InventoryPage() {
                 type="button"
                 onClick={() => setActiveTab(tab.key)}
                 className={`focus-ring flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                  activeTab === tab.key ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
+                  activeTab === tab.key ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
                 }`}
               >
                 <Icon size={13} /> {tab.label}
@@ -318,8 +318,8 @@ function OverviewTab({ parts, locations }: { parts: InventoryPart[]; locations: 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard label="Active parts" value={parts.filter((p) => p.active).length} />
         <StatCard label="Locations" value={locations.filter((l) => l.active).length} />
-        <StatCard label="Low / out of stock" value={alerts.length} tone={alerts.length ? '#ef4444' : undefined} />
-        <StatCard label="Jobs at risk" value={readiness.length} tone={readiness.length ? '#f59e0b' : undefined} />
+        <StatCard label="Low / out of stock" value={alerts.length} tone={alerts.length ? '#ff2d55' : undefined} />
+        <StatCard label="Jobs at risk" value={readiness.length} tone={readiness.length ? '#ffcc00' : undefined} />
       </div>
 
       <div className={cardClass}>
@@ -535,7 +535,7 @@ function SubstitutesPanel({ part, parts, toast }: { part: InventoryPart; parts: 
   return (
     <div className="mt-3 rounded-xl bg-bg-tertiary/50 p-3">
       <p className="mb-2 text-xs font-semibold text-text-secondary">Approved substitutes</p>
-      {subs.length === 0 && <p className="mb-2 text-xs text-text-secondary/70">No substitutes on file yet.</p>}
+      {subs.length === 0 && <p className="mb-2 text-xs text-text-muted">No substitutes on file yet.</p>}
       <div className="mb-2 flex flex-wrap gap-1.5">
         {subs.map((s) => {
           const sp = parts.find((p) => p.id === s.substitute_part_id);
@@ -573,7 +573,7 @@ function SubstitutesPanel({ part, parts, toast }: { part: InventoryPart; parts: 
             setPicking('');
             load();
           }}
-          className="focus-ring shrink-0 rounded-xl bg-accent px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
+          className="focus-ring shrink-0 rounded-xl bg-accent px-3 py-2 text-xs font-semibold text-on-accent disabled:opacity-50"
         >
           Add
         </button>
@@ -781,7 +781,7 @@ function BinsPanel({ location, toast }: { location: InventoryLocation; toast: (m
   return (
     <div className="mt-3 rounded-xl bg-bg-tertiary/50 p-3">
       <p className="mb-2 text-xs font-semibold text-text-secondary">Bin locations</p>
-      {bins.length === 0 && <p className="mb-2 text-xs text-text-secondary/70">No bins set up here yet.</p>}
+      {bins.length === 0 && <p className="mb-2 text-xs text-text-muted">No bins set up here yet.</p>}
       <div className="mb-2 flex flex-wrap gap-1.5">
         {bins.map((b) => (
           <span key={b.id} className="rounded-full bg-bg-secondary px-2 py-1 text-xs text-text-primary" title={b.description ?? ''}>
@@ -793,7 +793,7 @@ function BinsPanel({ location, toast }: { location: InventoryLocation; toast: (m
       <div className="flex gap-2">
         <input className={`${inputClass} max-w-[120px]`} placeholder="Bin code (A1)" value={code} onChange={(e) => setCode(e.target.value)} />
         <input className={inputClass} placeholder="Description (optional)" value={description} onChange={(e) => setDescription(e.target.value)} />
-        <button type="button" onClick={handleAdd} disabled={!code.trim()} className="focus-ring shrink-0 rounded-xl bg-accent px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">
+        <button type="button" onClick={handleAdd} disabled={!code.trim()} className="focus-ring shrink-0 rounded-xl bg-accent px-3 py-2 text-xs font-semibold text-on-accent disabled:opacity-50">
           Add
         </button>
       </div>
@@ -1127,7 +1127,7 @@ function VendorCatalogPanel({ part, vendors, toast }: { part: InventoryPart; ven
   return (
     <div className="mt-3 rounded-xl bg-bg-tertiary/50 p-3">
       <p className="mb-2 text-xs font-semibold text-text-secondary">Vendor catalog for {part.name}</p>
-      {entries.length === 0 && <p className="mb-2 text-xs text-text-secondary/70">No vendors linked to this part yet.</p>}
+      {entries.length === 0 && <p className="mb-2 text-xs text-text-muted">No vendors linked to this part yet.</p>}
       <div className="mb-2 space-y-1.5">
         {entries.map((e) => {
           const v = vendors.find((vv) => vv.id === e.vendor_id);
@@ -1154,7 +1154,7 @@ function VendorCatalogPanel({ part, vendors, toast }: { part: InventoryPart; ven
         <input className={inputClass} placeholder="Vendor SKU" value={form.vendor_sku} onChange={(e) => setForm({ ...form, vendor_sku: e.target.value })} />
         <input type="number" step="0.01" className={inputClass} placeholder="Cost $" value={form.unit_cost} onChange={(e) => setForm({ ...form, unit_cost: e.target.value })} />
         <input type="number" className={inputClass} placeholder="Lead days" value={form.lead_time_days} onChange={(e) => setForm({ ...form, lead_time_days: e.target.value })} />
-        <button type="button" onClick={handleAdd} disabled={!form.vendor_id} className="focus-ring rounded-xl bg-accent px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">
+        <button type="button" onClick={handleAdd} disabled={!form.vendor_id} className="focus-ring rounded-xl bg-accent px-3 py-2 text-xs font-semibold text-on-accent disabled:opacity-50">
           Add
         </button>
       </div>
@@ -1348,7 +1348,7 @@ function POLinesPanel({
             {remaining > 0 && po.status !== 'draft' && po.status !== 'cancelled' && (
               <div className="flex items-center gap-1.5">
                 <input type="number" max={remaining} className={`${inputClass} w-20`} placeholder={`≤${remaining}`} value={receiveQty[l.id] ?? ''} onChange={(e) => setReceiveQty({ ...receiveQty, [l.id]: e.target.value })} />
-                <button type="button" onClick={() => handleReceive(l)} className="rounded-lg bg-accent px-2 py-1 font-semibold text-white">Receive</button>
+                <button type="button" onClick={() => handleReceive(l)} className="rounded-lg bg-accent px-2 py-1 font-semibold text-on-accent">Receive</button>
               </div>
             )}
           </div>
@@ -1364,7 +1364,7 @@ function POLinesPanel({
           </select>
           <input type="number" className={inputClass} placeholder="Qty" value={newLine.quantity} onChange={(e) => setNewLine({ ...newLine, quantity: e.target.value })} />
           <input type="number" step="0.01" className={inputClass} placeholder="Unit cost $" value={newLine.unit_cost} onChange={(e) => setNewLine({ ...newLine, unit_cost: e.target.value })} />
-          <button type="button" onClick={handleAddLine} className="rounded-xl bg-accent px-3 py-2 text-xs font-semibold text-white">Add line</button>
+          <button type="button" onClick={handleAddLine} className="rounded-xl bg-accent px-3 py-2 text-xs font-semibold text-on-accent">Add line</button>
         </div>
       )}
     </div>

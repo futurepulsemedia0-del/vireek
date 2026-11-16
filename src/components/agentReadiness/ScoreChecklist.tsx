@@ -5,9 +5,9 @@ import { SUBSCORE_ORDER, type Check, type CheckStatus, type SubscoreResult } fro
 import { RULES, type RuleId } from '../../../supabase/functions/_shared/agent-readiness/rules';
 
 const ICON: Record<CheckStatus, { Icon: typeof CircleCheck; cls: string }> = {
-  pass: { Icon: CircleCheck, cls: 'text-success-500' },
-  partial: { Icon: CircleMinus, cls: 'text-warning-500' },
-  fail: { Icon: CircleAlert, cls: 'text-danger-500' },
+  pass: { Icon: CircleCheck, cls: 'text-success' },
+  partial: { Icon: CircleMinus, cls: 'text-warning' },
+  fail: { Icon: CircleAlert, cls: 'text-danger' },
   not_measured: { Icon: CircleDashed, cls: 'text-text-secondary' },
 };
 

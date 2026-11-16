@@ -17,7 +17,7 @@ const TRADES = [
 ];
 const INPUT = 'focus-ring min-h-[44px] w-full rounded-xl border border-border bg-bg-primary px-3.5 text-sm text-text-primary';
 const BTN = 'focus-ring inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl px-5 text-sm font-semibold transition-all disabled:opacity-60';
-const PRIMARY = `${BTN} bg-accent text-white hover:brightness-110`;
+const PRIMARY = `${BTN} bg-accent text-on-accent hover:brightness-110`;
 const SECONDARY = `${BTN} border border-border bg-bg-secondary text-text-primary hover:bg-bg-tertiary`;
 
 type Phase = 'setup' | 'call';
@@ -223,7 +223,7 @@ export function FirstCallPage() {
                 <ol className="mt-4 space-y-2" data-testid="fc-stages">
                   {stages.map((s) => (
                     <li key={s.id} className="flex items-center gap-2.5 text-sm" aria-current={s.active ? 'step' : undefined}>
-                      <span className={`flex h-5 w-5 items-center justify-center rounded-full ${s.done ? 'bg-success-500 text-white' : s.active ? 'border-2 border-accent' : 'border border-border'}`}>
+                      <span className={`flex h-5 w-5 items-center justify-center rounded-full ${s.done ? 'bg-success text-on-success' : s.active ? 'border-2 border-accent' : 'border border-border'}`}>
                         {s.done && <Check size={12} aria-hidden="true" />}
                       </span>
                       <span className={s.done ? 'text-text-primary' : 'text-text-secondary'}>{s.label}{s.done ? '' : s.active ? '…' : ''}</span>
@@ -242,8 +242,8 @@ export function FirstCallPage() {
               )}
 
               {booking && (
-                <div className="mt-4 flex items-start gap-3 rounded-xl border border-success-500/30 bg-success-500/10 p-4" data-testid="fc-booking">
-                  <CalendarCheck size={18} aria-hidden="true" className="mt-0.5 text-success-500" />
+                <div className="mt-4 flex items-start gap-3 rounded-xl border border-success/30 bg-success-subtle p-4" data-testid="fc-booking">
+                  <CalendarCheck size={18} aria-hidden="true" className="mt-0.5 text-success" />
                   <div className="text-sm">
                     <p className="font-semibold text-text-primary">Booking captured{booking.service_type ? `: ${booking.service_type}` : ''}</p>
                     <p className="text-text-secondary">{booking.scheduled_datetime ? new Date(booking.scheduled_datetime).toLocaleString() : 'Time to be confirmed'}</p>

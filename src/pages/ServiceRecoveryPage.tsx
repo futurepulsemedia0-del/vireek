@@ -23,7 +23,7 @@ import {
 } from '@/lib/serviceRecovery';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder transition-colors';
 
 type FilterKey = 'open' | 'resolved' | 'all';
 const FILTERS: { key: FilterKey; label: string }[] = [
@@ -107,7 +107,7 @@ function ManualLogForm({ onCancel, onSave }: { onCancel: () => void; onSave: (fo
         <button type="button" onClick={onCancel} className="focus-ring flex items-center gap-1 rounded-xl px-3 py-2 text-sm text-text-secondary hover:text-text-primary">
           <X size={14} /> Cancel
         </button>
-        <button type="button" onClick={handleSave} disabled={saving || !form.customer_name.trim() || !form.signal_excerpt.trim()} className="focus-ring flex items-center gap-1 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50">
+        <button type="button" onClick={handleSave} disabled={saving || !form.customer_name.trim() || !form.signal_excerpt.trim()} className="focus-ring flex items-center gap-1 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent transition-all hover:brightness-110 disabled:opacity-50">
           <Check size={14} /> Log signal
         </button>
       </div>
@@ -169,10 +169,10 @@ function SignalCard({
                 <button type="button" onClick={() => onResolve(signal.id, 'lost')} className="focus-ring flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs text-text-secondary hover:text-danger">
                   <ThumbsDown size={12} /> Mark lost
                 </button>
-                <button type="button" onClick={() => onResolve(signal.id, 'recovered')} className="focus-ring flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs text-text-secondary hover:text-success-500">
+                <button type="button" onClick={() => onResolve(signal.id, 'recovered')} className="focus-ring flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs text-text-secondary hover:text-success">
                   <ThumbsUp size={12} /> Mark recovered
                 </button>
-                <button type="button" onClick={handleSend} disabled={sending || !message.trim()} className="focus-ring flex items-center gap-1 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white hover:brightness-110 disabled:opacity-50">
+                <button type="button" onClick={handleSend} disabled={sending || !message.trim()} className="focus-ring flex items-center gap-1 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent hover:brightness-110 disabled:opacity-50">
                   <Send size={12} /> Send via {signal.recommended_channel === 'sms' ? 'text' : 'email'}
                 </button>
               </div>
@@ -180,7 +180,7 @@ function SignalCard({
           ) : (
             <div className="flex flex-wrap items-center justify-between gap-2">
               <p className="flex items-center gap-1.5 text-xs text-text-secondary">
-                <AlertTriangle size={12} className="text-warning-500" /> Flagged for a personal phone call — no automated send.
+                <AlertTriangle size={12} className="text-warning" /> Flagged for a personal phone call — no automated send.
               </p>
               <div className="flex gap-2">
                 <button type="button" onClick={() => onIgnore(signal.id)} className="focus-ring flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs text-text-secondary hover:text-text-primary">
@@ -189,7 +189,7 @@ function SignalCard({
                 <button type="button" onClick={() => onResolve(signal.id, 'lost')} className="focus-ring flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs text-text-secondary hover:text-danger">
                   <ThumbsDown size={12} /> Mark lost
                 </button>
-                <button type="button" onClick={() => onResolve(signal.id, 'recovered')} className="focus-ring flex items-center gap-1 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white hover:brightness-110">
+                <button type="button" onClick={() => onResolve(signal.id, 'recovered')} className="focus-ring flex items-center gap-1 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent hover:brightness-110">
                   <ThumbsUp size={12} /> Called — mark recovered
                 </button>
               </div>
@@ -355,7 +355,7 @@ export function ServiceRecoveryPage() {
                 <p className="text-xs text-text-secondary">Critical, open</p>
               </div>
               <div className="rounded-2xl border border-border bg-bg-secondary p-4 text-center">
-                <p className="text-xl font-bold text-success-500">{stats.recovered}</p>
+                <p className="text-xl font-bold text-success">{stats.recovered}</p>
                 <p className="text-xs text-text-secondary">Customers recovered</p>
               </div>
               <div className="rounded-2xl border border-border bg-bg-secondary p-4 text-center">
@@ -367,7 +367,7 @@ export function ServiceRecoveryPage() {
             <div className="mb-3 flex items-center justify-between">
               <div className="flex gap-1.5">
                 {FILTERS.map((f) => (
-                  <button key={f.key} type="button" onClick={() => setFilter(f.key)} className={`focus-ring rounded-full px-3 py-1 text-xs font-medium transition-colors ${filter === f.key ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>
+                  <button key={f.key} type="button" onClick={() => setFilter(f.key)} className={`focus-ring rounded-full px-3 py-1 text-xs font-medium transition-colors ${filter === f.key ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>
                     {f.label}
                   </button>
                 ))}

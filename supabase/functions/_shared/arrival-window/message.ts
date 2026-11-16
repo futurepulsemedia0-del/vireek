@@ -83,11 +83,11 @@ export function buildEmail(i: WindowMessageInput): { subject: string; text: stri
     i.link ? `Need another time? ${i.link}` : "",
   ].filter(Boolean).join("\n\n");
 
-  const html = `<div style="font-family:Arial,Helvetica,sans-serif;max-width:480px;margin:0 auto;color:#111">
-<p style="font-size:13px;color:#666;margin:0 0 8px">${escapeHtml(who(i))}</p>
+  const html = `<div style="font-family:Arial,Helvetica,sans-serif;max-width:480px;margin:0 auto;color:#141413">
+<p style="font-size:13px;color:#73726C;margin:0 0 8px">${escapeHtml(who(i))}</p>
 <h2 style="margin:0 0 12px;font-size:20px">${escapeHtml(`${w.day}, ${w.range}`)}</h2>
 <p style="margin:0 0 12px;font-size:15px;line-height:1.5">${escapeHtml(text.split("\n\n")[0])}</p>
-${i.link ? `<p style="margin:16px 0"><a href="${escapeHtml(i.link)}" style="background:#111;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none;font-size:14px">Need another time?</a></p>` : ""}
+${i.link ? `<p style="margin:16px 0"><a href="${escapeHtml(i.link)}" style="background:#141413;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none;font-size:14px">Need another time?</a></p>` : ""}
 </div>`;
 
   return { subject, text, html };

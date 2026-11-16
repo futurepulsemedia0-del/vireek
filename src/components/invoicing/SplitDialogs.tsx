@@ -38,7 +38,7 @@ function SplitModal({ title, description, onClose, wide, children }: { title: st
   useEscapeToClose(true, onClose);
   return (
     <>
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }} onClick={onClose} className="fixed inset-0 z-[110] bg-black/40 backdrop-blur-sm" />
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }} onClick={onClose} className="fixed inset-0 z-[110] bg-overlay/40 backdrop-blur-sm" />
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -215,8 +215,8 @@ export function SplitPlanDialog({
           </p>
         </div>
 
-        {allocation && !allocation.ok && <p className="rounded-xl bg-warning-500/10 px-3 py-2 text-xs text-warning-500">{allocation.error}</p>}
-        {allocation?.ok && <p className="rounded-xl bg-success-500/10 px-3 py-2 text-xs text-success-500">Shares add up to the invoice total.</p>}
+        {allocation && !allocation.ok && <p className="rounded-xl bg-warning-subtle px-3 py-2 text-xs text-warning">{allocation.error}</p>}
+        {allocation?.ok && <p className="rounded-xl bg-success-subtle px-3 py-2 text-xs text-success">Shares add up to the invoice total.</p>}
         {error && <p role="alert" className="text-sm text-danger">{error}</p>}
         <Footer onClose={onClose} submitting={submitting} submitLabel="Save split" />
       </form>

@@ -286,7 +286,7 @@ function SettingsTab({ settings, isOwner, onSaved, onError }: { settings: GuardS
       <Card interactive={false} className="space-y-3 p-4 sm:p-6">
         <div className="flex flex-wrap items-center gap-2">
           <h2 className="text-lg font-semibold text-text-primary">{t('preview.title')}</h2>
-          <span className="rounded-full bg-warning-500/10 px-2 py-0.5 text-xs font-semibold text-warning-500">{t('preview.simulated')}</span>
+          <span className="rounded-full bg-warning-subtle px-2 py-0.5 text-xs font-semibold text-warning">{t('preview.simulated')}</span>
         </div>
         <p className="text-sm text-text-secondary">{t('preview.desc')}</p>
         <Button variant="secondary" onClick={() => void runPreview()} loading={previewing} loadingLabel={t('preview.loading')}>{t('preview.run')}</Button>

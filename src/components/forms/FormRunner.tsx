@@ -35,7 +35,7 @@ function PhotoThumb({ blob, label, onRemove }: { blob: Blob; label: string; onRe
         type="button"
         onClick={onRemove}
         aria-label={`Remove ${label}`}
-        className="focus-ring absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white"
+        className="focus-ring absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-overlay/60 text-white"
       >
         <X size={13} />
       </button>
@@ -322,7 +322,7 @@ function FieldBlock({
           {error}
         </p>
       )}
-      {!error && warning && <p className="text-xs text-warning-500">{warning}</p>}
+      {!error && warning && <p className="text-xs text-warning">{warning}</p>}
     </div>
   );
 }

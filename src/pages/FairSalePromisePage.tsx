@@ -57,7 +57,7 @@ export function FairSalePromisePage() {
           <ol className="mt-4 space-y-3">
             {ITEM_KEYS.map((k) => (
               <li key={k} className="flex gap-3 rounded-2xl border border-border bg-bg-secondary p-4">
-                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-success-500" aria-hidden />
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-success" aria-hidden />
                 <p className="leading-relaxed text-text-primary">{t(`public.items.${k}`)}</p>
               </li>
             ))}

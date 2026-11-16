@@ -96,7 +96,7 @@ function Sheet({ title, onClose, children }: { title: string; onClose: () => voi
   useEscapeToClose(true, onClose);
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center" role="dialog" aria-modal="true" aria-label={title}>
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} aria-hidden="true" />
+      <div className="absolute inset-0 bg-overlay/50" onClick={onClose} aria-hidden="true" />
       <div
         ref={ref}
         className="relative max-h-[92vh] w-full overflow-y-auto rounded-t-2xl border border-border bg-bg-primary p-5 pb-8 shadow-xl sm:max-w-lg sm:rounded-2xl sm:pb-5"
@@ -572,7 +572,7 @@ function ReviewSheet({
                 status === o.value ? 'border-accent bg-accent/5' : 'border-border'
               }`}
             >
-              <input type="radio" name="decision" className="mt-1 h-4 w-4 accent-[var(--color-accent,#2563eb)]" checked={status === o.value} onChange={() => setStatus(o.value)} />
+              <input type="radio" name="decision" className="mt-1 h-4 w-4 accent-accent" checked={status === o.value} onChange={() => setStatus(o.value)} />
               <span>
                 <span className="block font-semibold text-text-primary">{o.label}</span>
                 <span className="block text-xs text-text-secondary">{o.hint}</span>
@@ -674,7 +674,7 @@ function RulesPanel({
         checked={form[key]}
         onChange={(e) => set(key, e.target.checked)}
         disabled={busy}
-        className="h-5 w-5 accent-[var(--color-accent,#2563eb)]"
+        className="h-5 w-5 accent-accent"
       />
       {label}
     </label>

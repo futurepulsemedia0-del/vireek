@@ -20,7 +20,7 @@ import type { LucideIcon } from 'lucide-react';
 // `inputClass` constant reappears anywhere outside this file.
 
 export const fieldBase =
-  'focus-ring w-full rounded-xl border bg-bg-primary px-4 py-3 text-base text-text-primary placeholder:text-text-secondary/60 transition-colors hover:border-accent/40 focus-visible:border-accent read-only:bg-bg-tertiary disabled:cursor-not-allowed disabled:opacity-50';
+  'focus-ring w-full rounded-xl border bg-bg-primary px-4 py-3 text-base text-text-primary placeholder:text-text-placeholder transition-colors hover:border-accent/40 focus-visible:border-accent read-only:bg-bg-tertiary disabled:cursor-not-allowed disabled:opacity-50';
 
 export const fieldBorder = (hasError: boolean) => (hasError ? 'border-danger focus-visible:border-danger' : 'border-border');
 

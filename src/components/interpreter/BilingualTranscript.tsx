@@ -27,7 +27,7 @@ function Row({ t }: { t: InterpreterTurn }) {
         <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-text-secondary">English</p>
         <p className="text-sm text-text-primary">{t.translated ?? <span className="text-text-secondary">Not translated</span>}</p>
         {(flags.length > 0 || t.emergency.length > 0) && (
-          <p className="mt-1 flex flex-wrap items-center gap-1 text-[11px] text-warning-500">
+          <p className="mt-1 flex flex-wrap items-center gap-1 text-[11px] text-warning">
             <AlertTriangle size={11} aria-hidden />
             {[...flags.map((f) => FLAG_TEXT[f]), ...(t.emergency.length && !flags.includes('emergency') ? [FLAG_TEXT.emergency] : [])].join(' · ')}
           </p>

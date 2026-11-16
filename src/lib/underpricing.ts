@@ -48,7 +48,7 @@ export function isUnderpriced(row: UnderpricedJobRow): boolean {
 
 export function severityColor(underpricePct: number | null): string {
   if (underpricePct === null || underpricePct <= 0) return 'bg-bg-tertiary text-text-secondary';
-  if (underpricePct < 10) return 'bg-warning-500/10 text-warning-500';
+  if (underpricePct < 10) return 'bg-warning-subtle text-warning';
   return 'bg-danger/10 text-danger';
 }
 

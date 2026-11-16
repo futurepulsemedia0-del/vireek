@@ -65,13 +65,13 @@ function formatDate(dateStr: string): string {
 
 function scoreColor(score: number): string {
   if (score >= 80) return 'text-success';
-  if (score >= 60) return 'text-warning-500';
+  if (score >= 60) return 'text-warning';
   return 'text-danger';
 }
 
 function scoreBarColor(score: number): string {
-  if (score >= 80) return 'bg-success-500';
-  if (score >= 60) return 'bg-warning-500';
+  if (score >= 80) return 'bg-success';
+  if (score >= 60) return 'bg-warning';
   return 'bg-danger';
 }
 
@@ -272,7 +272,7 @@ export function CoachingReportsPage() {
                 key={p}
                 type="button"
                 onClick={() => setPreset(p)}
-                className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${preset === p ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}
+                className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${preset === p ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}
               >
                 {p === '7d' ? '7 days' : p === '30d' ? '30 days' : '90 days'}
               </button>
@@ -292,7 +292,7 @@ export function CoachingReportsPage() {
             type="button"
             onClick={handleSaveReport}
             disabled={loading || saving || metrics.callsAnalyzed === 0}
-            className="focus-ring flex items-center gap-2 rounded-xl bg-accent px-3.5 py-2 text-sm font-medium text-white transition-colors hover:bg-accent/90 disabled:opacity-50"
+            className="focus-ring flex items-center gap-2 rounded-xl bg-accent px-3.5 py-2 text-sm font-medium text-on-accent transition-colors hover:bg-accent/90 disabled:opacity-50"
           >
             <Save size={15} />
             {saving ? 'Saving…' : 'Save report'}
@@ -397,7 +397,7 @@ export function CoachingReportsPage() {
 
             <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
               <div className="flex items-start gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-warning-500/10 text-warning-500">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-warning-subtle text-warning">
                   <Gift size={18} />
                 </span>
                 <div>

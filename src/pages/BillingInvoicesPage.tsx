@@ -124,7 +124,7 @@ function InvoiceActions({ invoice }: { invoice: SubscriptionInvoice }) {
           href={invoice.hostedUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className={canPay ? `${ACTION_LINK} border-warning-500/40 text-warning-500` : ACTION_LINK}
+          className={canPay ? `${ACTION_LINK} border-warning/40 text-warning` : ACTION_LINK}
           aria-label={`${canPay ? 'Pay' : 'View'} invoice ${label} online`}
         >
           <ExternalLink size={13} aria-hidden="true" /> {canPay ? 'Pay now' : 'View'}
@@ -135,7 +135,7 @@ function InvoiceActions({ invoice }: { invoice: SubscriptionInvoice }) {
 }
 
 function StatTile({ label, value, hint, tone }: { label: string; value: string; hint?: string; tone?: 'warning' | 'success' }) {
-  const valueColor = tone === 'warning' ? 'text-warning-500' : tone === 'success' ? 'text-success-500' : 'text-text-primary';
+  const valueColor = tone === 'warning' ? 'text-warning' : tone === 'success' ? 'text-success' : 'text-text-primary';
   return (
     <div className="rounded-2xl border border-border bg-bg-secondary p-5">
       <p className="text-xs font-medium text-text-secondary">{label}</p>
@@ -166,7 +166,7 @@ function PaymentMethodRow({ card }: { card: SavedCard }) {
           <span className="rounded-full bg-danger/10 px-2.5 py-1 text-xs font-medium text-danger">Expired</span>
         )}
         {expiry === 'expiring' && (
-          <span className="rounded-full bg-warning-500/10 px-2.5 py-1 text-xs font-medium text-warning-500">Expiring soon</span>
+          <span className="rounded-full bg-warning-subtle px-2.5 py-1 text-xs font-medium text-warning">Expiring soon</span>
         )}
       </div>
     </li>
@@ -315,9 +315,9 @@ export function BillingInvoicesPage() {
           {(summary.outstandingCount > 0 || hasDefaultExpired) && (
             <div
               role="alert"
-              className="mb-6 flex flex-col gap-3 rounded-2xl border border-warning-500/30 bg-warning-500/10 p-4 sm:flex-row sm:items-center"
+              className="mb-6 flex flex-col gap-3 rounded-2xl border border-warning/30 bg-warning-subtle p-4 sm:flex-row sm:items-center"
             >
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-warning-500/15 text-warning-500">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-warning-subtle text-warning">
                 <AlertTriangle size={20} aria-hidden="true" />
               </span>
               <p className="flex-1 text-sm font-semibold text-text-primary">

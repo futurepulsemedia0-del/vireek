@@ -55,7 +55,7 @@ export function Pricing() {
                 onClick={() => setBilling(cycle)}
                 className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors ${
                   billing === cycle
-                    ? 'bg-accent text-white shadow-sm'
+                    ? 'bg-accent text-on-accent shadow-sm'
                     : 'text-text-secondary hover:text-text-primary'
                 }`}
               >
@@ -97,7 +97,7 @@ export function Pricing() {
                 }
               >
                 {plan.recommended && (
-                  <span className="animate-glow-slow absolute -top-3 right-6 inline-flex items-center rounded-full bg-accent px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white">
+                  <span className="animate-glow-slow absolute -top-3 right-6 inline-flex items-center rounded-full bg-accent px-3 py-1 text-xs font-semibold uppercase tracking-wide text-on-accent">
                     Most popular
                   </span>
                 )}
@@ -109,7 +109,7 @@ export function Pricing() {
                   </span>
                   <span className="text-text-secondary">/month</span>
                 </div>
-                <p className="mt-1 text-xs font-medium text-text-secondary/70">
+                <p className="mt-1 text-xs font-medium text-text-muted">
                   {billing === 'annual' ? `billed ${formatPrice(price, currency)}/year` : 'billed monthly'}
                 </p>
 
@@ -158,8 +158,8 @@ export function Pricing() {
                     </Button>
                   </Link>
                 )}
-                <p className="mt-2 flex items-center justify-center gap-1.5 text-center text-xs font-medium text-text-secondary/70">
-                  <ShieldCheck size={13} className="shrink-0 text-text-secondary/50" />
+                <p className="mt-2 flex items-center justify-center gap-1.5 text-center text-xs font-medium text-text-muted">
+                  <ShieldCheck size={13} className="shrink-0 text-graphic-muted" />
                   {plan.ctaHint}
                 </p>
               </motion.div>
@@ -192,7 +192,7 @@ export function Pricing() {
           className="mx-auto mt-8 flex max-w-2xl items-center justify-center gap-2 text-center"
         >
           <ShieldCheck size={15} className="shrink-0 text-accent" />
-          <p className="text-xs font-medium leading-relaxed text-text-secondary/70">
+          <p className="text-xs font-medium leading-relaxed text-text-muted">
             No contracts, no hidden fees, cancel anytime. Need more minutes, seats, or locations?
             Compare Free, Starter, Professional, Business and Enterprise on the full pricing page.
           </p>

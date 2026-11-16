@@ -62,7 +62,7 @@ class SectionBoundaryBase extends Component<Props, State> {
     return (
       <div role="alert" className="rounded-2xl border border-border bg-bg-secondary p-5 text-start">
         <div className="flex items-start gap-3">
-          <AlertTriangle size={18} aria-hidden="true" className="mt-0.5 shrink-0 text-warning-500" />
+          <AlertTriangle size={18} aria-hidden="true" className="mt-0.5 shrink-0 text-warning" />
           <div className="min-w-0">
             <h2 className="text-sm font-semibold text-text-primary">{t('net.section.title')}</h2>
             <p className="mt-1 text-sm text-text-secondary">{t('net.section.body')}</p>
@@ -71,7 +71,7 @@ class SectionBoundaryBase extends Component<Props, State> {
               <button
                 type="button"
                 onClick={this.retry}
-                className="focus-ring rounded-lg bg-cta px-3 py-1.5 text-xs font-semibold text-white hover:brightness-110"
+                className="focus-ring rounded-lg bg-cta px-3 py-1.5 text-xs font-semibold text-on-cta hover:brightness-110"
               >
                 {t('net.section.retry')}
               </button>

@@ -40,7 +40,7 @@ interface MergeDialogProps {
 type Side = 'a' | 'b';
 
 function display(value: string | null | undefined) {
-  return isBlank(value) ? <span className="italic text-text-secondary/70">empty</span> : value;
+  return isBlank(value) ? <span className="italic text-text-muted">empty</span> : value;
 }
 
 function ChoiceButton({
@@ -157,7 +157,7 @@ export function MergeDialog({ pair, onClose, onMerged }: MergeDialogProps) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={submitting ? undefined : onClose}
-            className="fixed inset-0 z-[110] bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 z-[110] bg-overlay/40 backdrop-blur-sm"
           />
           <div className="pointer-events-none fixed inset-0 z-[120] flex items-end justify-center sm:items-center sm:p-4">
             <motion.div

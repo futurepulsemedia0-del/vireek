@@ -27,7 +27,7 @@ function TierBadge({ tier }: { tier: AutonomyTier }) {
 
 function ScoreBar({ score, tier }: { score: number; tier: AutonomyTier }) {
   const barColor =
-    tier === 'autonomous' ? 'bg-emerald-500' : tier === 'execute' ? 'bg-blue-500' : tier === 'recommend' ? 'bg-amber-500' : 'bg-slate-400';
+    tier === 'autonomous' ? 'bg-success' : tier === 'execute' ? 'bg-info' : tier === 'recommend' ? 'bg-warning' : 'bg-text-muted';
   return (
     <div className="flex items-center gap-2">
       <div className="h-2 w-24 overflow-hidden rounded-full bg-bg-secondary">
@@ -41,7 +41,7 @@ function ScoreBar({ score, tier }: { score: number; tier: AutonomyTier }) {
 function ReadinessRow({ row }: { row: AgentAutonomyReadiness }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="border-b border-border-primary last:border-b-0">
+    <div className="border-b border-border last:border-b-0">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -65,7 +65,7 @@ function ReadinessRow({ row }: { row: AgentAutonomyReadiness }) {
         {open ? <ChevronUp size={16} className="text-text-secondary" /> : <ChevronDown size={16} className="text-text-secondary" />}
       </button>
       {open && (
-        <div className="grid gap-3 border-t border-border-primary bg-bg-secondary/40 px-4 py-3 sm:grid-cols-2">
+        <div className="grid gap-3 border-t border-border bg-bg-secondary/40 px-4 py-3 sm:grid-cols-2">
           <div>
             <p className="text-xs font-semibold text-text-primary">Last 30 days</p>
             <ul className="mt-1 space-y-0.5 text-xs text-text-secondary">
@@ -83,7 +83,7 @@ function ReadinessRow({ row }: { row: AgentAutonomyReadiness }) {
               {row.tier === 'autonomous' ? 'Holding Autonomous' : 'Blocking next tier'}
             </p>
             {row.blockers.length === 0 ? (
-              <p className="mt-1 flex items-center gap-1 text-xs text-emerald-600">
+              <p className="mt-1 flex items-center gap-1 text-xs text-success">
                 <Zap size={12} /> No blockers — fully qualified.
               </p>
             ) : (
@@ -162,7 +162,7 @@ export function AutonomyReadinessPage() {
           type="button"
           onClick={handleRefresh}
           disabled={refreshing}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-border-primary bg-bg-primary px-3 py-1.5 text-xs font-medium text-text-primary hover:bg-bg-secondary disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-bg-primary px-3 py-1.5 text-xs font-medium text-text-primary hover:bg-bg-secondary disabled:opacity-50"
         >
           <RefreshCw size={13} className={refreshing ? 'animate-spin' : ''} /> Snapshot now
         </button>

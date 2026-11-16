@@ -19,9 +19,9 @@ interface AuditRow {
 }
 
 const VERDICT_STYLES: Record<string, string> = {
-  within_floor: 'bg-success-500/10 text-success-500',
-  blocked: 'bg-danger-500/10 text-danger-500',
-  overridden: 'bg-warning-500/10 text-warning-500',
+  within_floor: 'bg-success-subtle text-success',
+  blocked: 'bg-danger-subtle text-danger',
+  overridden: 'bg-warning-subtle text-warning',
 };
 
 export function MarginGuardrailsPage() {
@@ -90,7 +90,7 @@ export function MarginGuardrailsPage() {
             <input value={costRatio} onChange={(e) => setCostRatio(e.target.value)} type="number" min="0" max="100" step="0.5" className="mt-1 w-full rounded-lg border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary" />
           </label>
           <div className="flex items-end">
-            <button type="button" onClick={saveSettings} disabled={savingSettings} className="focus-ring w-full rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-60">
+            <button type="button" onClick={saveSettings} disabled={savingSettings} className="focus-ring w-full rounded-lg bg-accent px-4 py-2 text-sm font-medium text-on-accent disabled:opacity-60">
               {savingSettings ? 'Saving…' : 'Save settings'}
             </button>
           </div>

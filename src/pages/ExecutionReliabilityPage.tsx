@@ -35,10 +35,10 @@ const ENTITY_LABELS: Record<ExecutionEntityType, string> = {
 };
 
 const TIER_STYLES: Record<ReliabilityTier, string> = {
-  excellent: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/25',
+  excellent: 'bg-success-subtle text-success border-success/25',
   good: 'bg-accent/10 text-accent border-accent/25',
-  at_risk: 'bg-amber-500/10 text-amber-600 border-amber-500/25',
-  critical: 'bg-red-500/10 text-red-600 border-red-500/25',
+  at_risk: 'bg-warning-subtle text-warning border-warning/25',
+  critical: 'bg-danger-subtle text-danger border-danger/25',
 };
 
 const TIER_LABELS: Record<ReliabilityTier, string> = {
@@ -64,7 +64,7 @@ function formatImpact(cents: number): string {
 
 function ScoreRing({ score, tier }: { score: number; tier: ReliabilityTier }) {
   const colorClass =
-    tier === 'excellent' ? 'text-emerald-500' : tier === 'good' ? 'text-accent' : tier === 'at_risk' ? 'text-amber-500' : 'text-red-500';
+    tier === 'excellent' ? 'text-success' : tier === 'good' ? 'text-accent' : tier === 'at_risk' ? 'text-warning' : 'text-danger';
   const circumference = 2 * Math.PI * 26;
   const offset = circumference * (1 - score / 100);
   return (
@@ -118,7 +118,7 @@ function ScoreCard({ row }: { row: ExecutionReliabilityScore }) {
 
       <div className="mt-3 flex items-center justify-between border-t border-border/60 pt-3 text-xs text-text-secondary">
         <span className="flex items-center gap-1">
-          {row.businessImpactCents >= 0 ? <TrendingUp size={12} className="text-emerald-500" /> : <TrendingDown size={12} className="text-red-500" />}
+          {row.businessImpactCents >= 0 ? <TrendingUp size={12} className="text-success" /> : <TrendingDown size={12} className="text-danger" />}
           Business impact: <span className="font-medium text-text-primary">{formatImpact(row.businessImpactCents)}</span>
         </span>
         {row.lastEventAt && <span>Last run {new Date(row.lastEventAt).toLocaleString()}</span>}
@@ -184,8 +184,8 @@ export function ExecutionReliabilityPage() {
         </div>
 
         {criticalCount > 0 && !loading && (
-          <div className="mb-4 flex items-center gap-3 rounded-2xl border border-red-500/25 bg-red-500/5 px-4 py-3">
-            <AlertTriangle size={18} className="shrink-0 text-red-500" />
+          <div className="mb-4 flex items-center gap-3 rounded-2xl border border-danger/25 bg-danger-subtle px-4 py-3">
+            <AlertTriangle size={18} className="shrink-0 text-danger" />
             <p className="text-sm text-text-primary">
               <span className="font-semibold">{criticalCount}</span> {criticalCount === 1 ? 'item is' : 'items are'} in the critical range and need attention.
             </p>
@@ -198,7 +198,7 @@ export function ExecutionReliabilityPage() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border py-12 text-center">
-            <Gauge className="mx-auto mb-2 h-6 w-6 text-text-secondary/50" />
+            <Gauge className="mx-auto mb-2 h-6 w-6 text-graphic-muted" />
             <p className="mx-auto max-w-sm text-sm text-text-secondary">
               No execution events logged for this period yet. Scores appear once agents, workflows, or integrations
               start reporting runs via logExecutionEvent().

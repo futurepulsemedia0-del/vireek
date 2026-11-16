@@ -56,7 +56,7 @@ export function HomeownerShareToggle({ documentId, canManage }: { documentId: st
         onClick={() => void toggle()}
         className={`focus-ring relative h-6 w-11 shrink-0 rounded-full transition disabled:opacity-50 ${state.visible ? 'bg-accent' : 'bg-bg-tertiary'}`}
       >
-        <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${state.visible ? 'left-[22px]' : 'left-0.5'}`} />
+        <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-bg-secondary shadow transition-all ${state.visible ? 'left-[22px]' : 'left-0.5'}`} />
       </button>
     </div>
   );

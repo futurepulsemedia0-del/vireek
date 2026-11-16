@@ -70,7 +70,7 @@ function Switch({ checked, onChange, disabled, label }: { checked: boolean; onCh
       onClick={onChange}
       className={`focus-ring relative h-6 w-11 shrink-0 rounded-full transition-colors disabled:opacity-50 ${checked ? 'bg-accent' : 'bg-bg-tertiary'}`}
     >
-      <span className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${checked ? 'translate-x-5' : ''}`} />
+      <span className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-bg-secondary shadow transition-transform ${checked ? 'translate-x-5' : ''}`} />
     </button>
   );
 }
@@ -106,7 +106,7 @@ function NoticeDialog({ feature, onCancel, onConfirm }: { feature: RegistryFeatu
 
   return (
     <AnimatePresence>
-      <motion.div key="bd" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onCancel} className="fixed inset-0 z-[110] bg-black/40 backdrop-blur-sm" />
+      <motion.div key="bd" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onCancel} className="fixed inset-0 z-[110] bg-overlay/40 backdrop-blur-sm" />
       <motion.div
         key="dlg"
         ref={ref}
@@ -120,7 +120,7 @@ function NoticeDialog({ feature, onCancel, onConfirm }: { feature: RegistryFeatu
         className="fixed left-1/2 top-1/2 z-[120] max-h-[90vh] w-[94vw] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl border border-border bg-bg-secondary p-6 shadow-card-hover dark:shadow-card-hover-dark"
       >
         <div className="flex items-start justify-between gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-warning-500/10 text-warning-500">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-warning-subtle text-warning">
             <ShieldAlert size={20} />
           </span>
           <button type="button" onClick={onCancel} aria-label="Cancel" className="focus-ring rounded-lg p-1 text-text-secondary hover:text-text-primary">
@@ -188,7 +188,7 @@ function FeatureRow({ f, canManage, busy, onToggle, onReview }: {
               <span key={c} className="rounded-full bg-bg-tertiary px-2 py-0.5 text-text-secondary">{CATEGORY_LABELS[c]}</span>
             ))}
             {f.emotion_basis && (
-              <span className={`rounded-full px-2 py-0.5 ${f.emotion_basis === 'voice_audio' ? 'bg-warning-500/10 text-warning-500' : 'bg-bg-tertiary text-text-secondary'}`}>
+              <span className={`rounded-full px-2 py-0.5 ${f.emotion_basis === 'voice_audio' ? 'bg-warning-subtle text-warning' : 'bg-bg-tertiary text-text-secondary'}`}>
                 {EMOTION_BASIS_LABELS[f.emotion_basis]}
               </span>
             )}
@@ -208,7 +208,7 @@ function FeatureRow({ f, canManage, busy, onToggle, onReview }: {
       </div>
 
       {pendingNotice && (
-        <p className="mt-3 rounded-lg bg-warning-500/10 px-3 py-2 text-xs text-warning-500" role="status">
+        <p className="mt-3 rounded-lg bg-warning-subtle px-3 py-2 text-xs text-warning" role="status">
           Notice not acknowledged, so this feature will not run.
         </p>
       )}
@@ -337,8 +337,8 @@ export function AiTransparencyPage() {
           </div>
         </div>
 
-        <div role="note" className="mb-5 flex items-start gap-2.5 rounded-xl border border-warning-500/30 bg-warning-500/10 p-3.5 text-sm text-text-primary">
-          <Scale size={16} className="mt-0.5 shrink-0 text-warning-500" />
+        <div role="note" className="mb-5 flex items-start gap-2.5 rounded-xl border border-warning/30 bg-warning-subtle p-3.5 text-sm text-text-primary">
+          <Scale size={16} className="mt-0.5 shrink-0 text-warning" />
           <p><strong>Rules vary by jurisdiction and need legal review.</strong> {JURISDICTION_DISCLAIMER}</p>
         </div>
 

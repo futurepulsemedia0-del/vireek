@@ -34,14 +34,14 @@ import {
 } from '@/lib/remoteResolutionApi';
 
 const TONE_TEXT: Record<RrTone, string> = {
-  success: 'text-success-500',
-  warning: 'text-warning-500',
+  success: 'text-success',
+  warning: 'text-warning',
   danger: 'text-danger',
   neutral: 'text-text-secondary',
 };
 const TONE_BAR: Record<RrTone, string> = {
-  success: 'bg-success-500',
-  warning: 'bg-warning-500',
+  success: 'bg-success',
+  warning: 'bg-warning',
   danger: 'bg-danger',
   neutral: 'bg-text-secondary',
 };
@@ -196,7 +196,7 @@ export function RemoteResolutionJobPanel({ job }: { job: Job }) {
                 {kase.dispatch_reason && kase.status === 'dispatch_required' && (
                   <p className="text-sm text-text-secondary">Why a technician is needed: {DISPATCH_REASON_LABELS[kase.dispatch_reason]}.</p>
                 )}
-                {kase.status === 'resolved_remotely' && <p className="text-sm text-success-500">Verified. Saved about {formatUsd(kase.avoided_cost_cents)}.</p>}
+                {kase.status === 'resolved_remotely' && <p className="text-sm text-success">Verified. Saved about {formatUsd(kase.avoided_cost_cents)}.</p>}
                 {kase.status === 'resolved_pending' && <p className="text-sm text-text-secondary">Customer says it is fixed. Verifying: {timeLeftLabel(kase.verification_until)}.</p>}
               </div>
 
@@ -207,7 +207,7 @@ export function RemoteResolutionJobPanel({ job }: { job: Job }) {
                   <ul className="mt-2 space-y-1.5">
                     {kase.factors.map((f, i) => (
                       <li key={i} className="text-text-primary">
-                        <span className={f.effect === 'up' ? 'text-success-500' : f.effect === 'down' ? 'text-danger' : 'text-text-secondary'}>
+                        <span className={f.effect === 'up' ? 'text-success' : f.effect === 'down' ? 'text-danger' : 'text-text-secondary'}>
                           {f.effect === 'up' ? '▲' : f.effect === 'down' ? '▼' : '●'}
                         </span>{' '}
                         <span className="font-medium">{f.label}.</span> {f.detail}

@@ -57,7 +57,7 @@ function PlaybookCard({
     <div className={`rounded-2xl border p-5 shadow-card transition-colors dark:shadow-card-dark ${isActive ? 'border-accent bg-accent/5' : 'border-border bg-bg-secondary'}`}>
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${isActive ? 'bg-accent text-white' : 'bg-accent/10 text-accent'}`}>
+          <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${isActive ? 'bg-accent text-on-accent' : 'bg-accent/10 text-accent'}`}>
             <BookMarked size={18} />
           </span>
           <div>
@@ -166,7 +166,7 @@ function PlaybookCard({
         className={`focus-ring mt-4 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors disabled:opacity-50 ${
           isActive
             ? 'border border-border bg-bg-secondary text-text-primary hover:bg-bg-tertiary'
-            : 'bg-accent text-white hover:bg-accent/90'
+            : 'bg-accent text-on-accent hover:bg-accent/90'
         }`}
       >
         <Sparkles size={15} />
@@ -282,7 +282,7 @@ export function PlaybooksPage() {
         <FadeIn>
           {activePlaybook && (
             <div className="mb-6 flex items-start gap-3 rounded-2xl border border-accent/30 bg-accent/5 p-4">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent text-white">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent text-on-accent">
                 <Check size={16} />
               </span>
               <div>

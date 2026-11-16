@@ -117,7 +117,7 @@ function IssueList({ issues }: { issues: RoutingIssue[] }) {
   return (
     <ul className="space-y-1" aria-label="Problems with this step">
       {issues.map((i, idx) => (
-        <li key={idx} className={`text-xs ${i.severity === 'error' ? 'text-danger' : 'text-warning-500'}`}>
+        <li key={idx} className={`text-xs ${i.severity === 'error' ? 'text-danger' : 'text-warning'}`}>
           {i.message}
         </li>
       ))}

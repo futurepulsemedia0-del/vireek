@@ -128,7 +128,7 @@ export const SEVERITY_ORDER: Severity[] = ['critical', 'high', 'medium', 'low', 
 export const SEVERITY_STYLES: Record<Severity, string> = {
   critical: 'bg-danger/15 text-danger',
   high: 'bg-danger/10 text-danger',
-  medium: 'bg-warning-500/15 text-warning-500',
+  medium: 'bg-warning-subtle text-warning',
   low: 'bg-accent/10 text-accent',
   info: 'bg-bg-tertiary text-text-secondary',
 };

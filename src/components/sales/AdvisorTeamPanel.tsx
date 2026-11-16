@@ -57,7 +57,7 @@ export function AdvisorTeamPanel() {
               onClick={() => void toggle(m)}
               className={`focus-ring relative h-8 w-14 shrink-0 rounded-full transition-colors disabled:opacity-50 ${m.is_comfort_advisor ? 'bg-accent' : 'bg-bg-tertiary'}`}
             >
-              <span className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow transition-all ${m.is_comfort_advisor ? 'left-7' : 'left-1'}`} />
+              <span className={`absolute top-1 h-6 w-6 rounded-full bg-bg-secondary shadow transition-all ${m.is_comfort_advisor ? 'left-7' : 'left-1'}`} />
             </button>
           </li>
         ))}

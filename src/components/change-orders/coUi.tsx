@@ -10,9 +10,9 @@ export type Tone = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
 const TONE_CLASS: Record<Tone, string> = {
   neutral: 'bg-bg-tertiary text-text-secondary',
   info: 'bg-accent/10 text-accent',
-  success: 'bg-success-500/10 text-success-500',
-  warning: 'bg-warning-500/15 text-warning-500',
-  danger: 'bg-danger-500/15 text-danger-500',
+  success: 'bg-success-subtle text-success',
+  warning: 'bg-warning-subtle text-warning',
+  danger: 'bg-danger-subtle text-danger',
 };
 
 export const statusTone: Record<DisplayStatus, Tone> = {
@@ -29,7 +29,7 @@ export function Pill({ tone = 'neutral', children }: { tone?: Tone; children: Re
 }
 
 export function Stat({ label, value, hint, tone }: { label: string; value: ReactNode; hint?: ReactNode; tone?: Tone }) {
-  const color = tone === 'danger' ? 'text-danger-500' : tone === 'warning' ? 'text-warning-500' : tone === 'success' ? 'text-success-500' : 'text-text-primary';
+  const color = tone === 'danger' ? 'text-danger' : tone === 'warning' ? 'text-warning' : tone === 'success' ? 'text-success' : 'text-text-primary';
   return (
     <div className={panelClass}>
       <p className="text-xs font-medium uppercase tracking-wide text-text-secondary">{label}</p>

@@ -41,8 +41,8 @@ const FILTERS: Array<{ value: StateFilter; label: string }> = [
 ];
 
 const STATE_DOT: Record<VehicleView['state'], string> = {
-  moving: 'bg-success-500',
-  idling: 'bg-warning-500',
+  moving: 'bg-success',
+  idling: 'bg-warning',
   stopped: 'bg-accent',
   offline: 'bg-text-secondary',
 };

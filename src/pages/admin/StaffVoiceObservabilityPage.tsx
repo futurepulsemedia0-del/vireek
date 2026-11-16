@@ -221,7 +221,7 @@ export function StaffVoiceObservabilityPage() {
 
         {tab === 'inspector' && (
           <section role="tabpanel" id={`${uid}-panel-inspector`} aria-labelledby={`${uid}-tab-inspector`} className="mt-2 space-y-6">
-            <p className="rounded-xl bg-warning-500/10 p-3 text-sm text-text-primary">
+            <p className="rounded-xl bg-warning-subtle p-3 text-sm text-text-primary">
               Every search and every call you open is written to a permanent audit log with your name and the reason below. Do not copy customer data out of this screen.
             </p>
             <div className="grid gap-4 md:grid-cols-3">
@@ -238,7 +238,7 @@ export function StaffVoiceObservabilityPage() {
 
             {results && results.length === 0 && <EmptyState icon={SearchX} variant="no-results" title="No matching calls" description="Try another filter or a wider search." />}
             {results && results.length > 0 && (
-              <ul className="divide-y divide-border-primary rounded-2xl border border-border" aria-label="Matching calls">
+              <ul className="divide-y divide-border rounded-2xl border border-border" aria-label="Matching calls">
                 {results.map((r) => (
                   <li key={r.vapi_call_id}>
                     <button className="focus-ring flex w-full flex-wrap items-center justify-between gap-2 px-4 py-3 text-left hover:bg-bg-secondary" onClick={() => void open(r.vapi_call_id)}>
@@ -257,7 +257,7 @@ export function StaffVoiceObservabilityPage() {
                   <p className="text-xs text-text-secondary">Trace {detail.trace_id} · tenant {detail.tenant_id} · {detail.region ?? 'unknown region'} · ended: {detail.ended_reason ?? 'unknown'} · {fmtMs(detail.duration_ms)}</p>
                   <p className="text-xs text-text-secondary">ASR {detail.providers.asr ?? '—'} · LLM {detail.providers.llm ?? '—'} · TTS {detail.providers.tts ?? '—'} · Telephony {detail.providers.telephony ?? '—'}</p>
                 </header>
-                {detail.flags.length > 0 && <p className="text-sm text-warning-500">Flags: {detail.flags.map((f) => FLAG_LABEL[f] ?? f).join(', ')}</p>}
+                {detail.flags.length > 0 && <p className="text-sm text-warning">Flags: {detail.flags.map((f) => FLAG_LABEL[f] ?? f).join(', ')}</p>}
                 <dl className="grid grid-cols-2 gap-3 text-sm md:grid-cols-4">
                   {([['Turns', detail.timeline.summary?.turnCount], ['Turn p50', fmtMs(detail.timeline.summary?.turnP50)], ['Turn p95', fmtMs(detail.timeline.summary?.turnP95)], ['Turn p99', fmtMs(detail.timeline.summary?.turnP99)],
                      ['Time to first word', fmtMs(detail.timeline.summary?.timeToFirstWordMs)], ['LLM TTFB p95', fmtMs(detail.timeline.summary?.llmTtfbP95)], ['TTS TTFB p95', fmtMs(detail.timeline.summary?.ttsTtfbP95)], ['ASR p95', fmtMs(detail.timeline.summary?.asrP95)],
@@ -309,8 +309,8 @@ export function StaffVoiceObservabilityPage() {
                 {replay && (
                   <div className="text-sm text-text-primary">
                     <p>Would flag now: {replay.wouldFlagNow.join(', ') || 'nothing'}. Flagged then: {replay.flaggedThen.join(', ') || 'nothing'}.</p>
-                    {replay.newlyFlagged.length > 0 && <p className="text-warning-500">Newly flagged: {replay.newlyFlagged.join(', ')}</p>}
-                    {replay.noLongerFlagged.length > 0 && <p className="text-success-500">No longer flagged: {replay.noLongerFlagged.join(', ')}</p>}
+                    {replay.newlyFlagged.length > 0 && <p className="text-warning">Newly flagged: {replay.newlyFlagged.join(', ')}</p>}
+                    {replay.noLongerFlagged.length > 0 && <p className="text-success">No longer flagged: {replay.noLongerFlagged.join(', ')}</p>}
                     <p className="text-xs text-text-secondary">Cannot be replayed from numbers alone: {replay.notReplayable.join(', ')}. {replay.notes.join(' ')}</p>
                   </div>
                 )}

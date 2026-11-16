@@ -13,7 +13,7 @@ import {
 
 const cardClass = 'mb-6 rounded-xl border border-border bg-bg-secondary p-4';
 const btnPrimary =
-  'focus-ring inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-white hover:bg-accent/90 disabled:opacity-50';
+  'focus-ring inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-on-accent hover:bg-accent/90 disabled:opacity-50';
 
 function Toggle({ checked, onChange, label, disabled }: { checked: boolean; onChange: (v: boolean) => void; label: string; disabled?: boolean }) {
   return (
@@ -26,7 +26,7 @@ function Toggle({ checked, onChange, label, disabled }: { checked: boolean; onCh
       onClick={() => onChange(!checked)}
       className={`focus-ring relative h-6 w-11 shrink-0 rounded-full transition-colors disabled:opacity-50 ${checked ? 'bg-accent' : 'bg-bg-tertiary'}`}
     >
-      <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all ${checked ? 'left-[22px]' : 'left-0.5'}`} />
+      <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-bg-secondary transition-all ${checked ? 'left-[22px]' : 'left-0.5'}`} />
     </button>
   );
 }

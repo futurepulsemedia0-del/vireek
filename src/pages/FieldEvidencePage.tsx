@@ -20,9 +20,9 @@ interface QueueRow {
 }
 
 const VERDICT_STYLES: Record<string, string> = {
-  pass: 'bg-success-500/10 text-success-500',
-  needs_attention: 'bg-warning-500/10 text-warning-500',
-  fail: 'bg-danger-500/10 text-danger-500',
+  pass: 'bg-success-subtle text-success',
+  needs_attention: 'bg-warning-subtle text-warning',
+  fail: 'bg-danger-subtle text-danger',
 };
 
 export function FieldEvidencePage() {
@@ -124,7 +124,7 @@ export function FieldEvidencePage() {
             {files.map((f, i) => (
               <span key={`${f.name}-${i}`} className="flex items-center gap-1.5 rounded-lg border border-border bg-bg-primary px-2.5 py-1 text-xs text-text-secondary">
                 {f.name.length > 20 ? `${f.name.slice(0, 20)}…` : f.name}
-                <button type="button" onClick={() => removeFile(i)} className="focus-ring text-text-secondary hover:text-danger-500"><X size={12} /></button>
+                <button type="button" onClick={() => removeFile(i)} className="focus-ring text-text-secondary hover:text-danger"><X size={12} /></button>
               </span>
             ))}
           </div>
@@ -134,7 +134,7 @@ export function FieldEvidencePage() {
           type="button"
           onClick={runVerification}
           disabled={!selectedJobId || files.length === 0 || verifying}
-          className="focus-ring mt-4 flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+          className="focus-ring mt-4 flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-on-accent disabled:opacity-50"
         >
           <ScanEye size={14} /> {verifying ? 'Verifying…' : 'Verify evidence'}
         </button>
@@ -151,17 +151,17 @@ export function FieldEvidencePage() {
 
             {result.safety_flags.length > 0 && (
               <div className="mt-3">
-                <p className="flex items-center gap-1 text-xs font-semibold text-danger-500"><ShieldAlert size={12} /> Safety flags</p>
+                <p className="flex items-center gap-1 text-xs font-semibold text-danger"><ShieldAlert size={12} /> Safety flags</p>
                 <ul className="mt-1 space-y-1">
-                  {result.safety_flags.map((f, i) => <li key={i} className="text-xs text-text-secondary">• {f.hazard} <span className="capitalize text-danger-500">({f.severity})</span></li>)}
+                  {result.safety_flags.map((f, i) => <li key={i} className="text-xs text-text-secondary">• {f.hazard} <span className="capitalize text-danger">({f.severity})</span></li>)}
                 </ul>
               </div>
             )}
             {result.quality_issues.length > 0 && (
               <div className="mt-3">
-                <p className="text-xs font-semibold text-warning-500">Photo quality issues</p>
+                <p className="text-xs font-semibold text-warning">Photo quality issues</p>
                 <ul className="mt-1 space-y-1">
-                  {result.quality_issues.map((q, i) => <li key={i} className="text-xs text-text-secondary">• {q.issue} <span className="capitalize text-warning-500">({q.severity})</span></li>)}
+                  {result.quality_issues.map((q, i) => <li key={i} className="text-xs text-text-secondary">• {q.issue} <span className="capitalize text-warning">({q.severity})</span></li>)}
                 </ul>
               </div>
             )}
@@ -196,7 +196,7 @@ export function FieldEvidencePage() {
                     <span className="text-sm font-semibold text-text-primary">{q.jobs?.customer_name ?? 'Job'}</span>
                   </div>
                   <p className="mt-1.5 text-sm text-text-secondary">{q.ai_summary}</p>
-                  {q.safety_flags.length > 0 && <p className="mt-1 text-xs font-medium text-danger-500">{q.safety_flags.length} safety flag{q.safety_flags.length > 1 ? 's' : ''}</p>}
+                  {q.safety_flags.length > 0 && <p className="mt-1 text-xs font-medium text-danger">{q.safety_flags.length} safety flag{q.safety_flags.length > 1 ? 's' : ''}</p>}
                 </div>
                 <button type="button" onClick={() => markResolved(q.id)} className="focus-ring shrink-0 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-secondary hover:text-text-primary">
                   Mark resolved

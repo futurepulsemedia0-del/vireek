@@ -68,7 +68,7 @@ export function JobsTab({ ownerId, bundle, onChanged }: TabProps) {
               </div>
               <div className="flex items-center gap-2">
                 <Pill tone={jobTone(j.job_status)}>{j.job_status.replace(/_/g, ' ')}</Pill>
-                <button type="button" aria-label={`Unlink job for ${j.customer_name}`} onClick={() => ask({ title: 'Unlink job?', description: 'The job itself is not deleted — it just stops counting toward this project.', label: 'Unlink', onConfirm: () => run(`unlink-${j.link_id}`, () => unlinkJob(ownerId, j.link_id), 'Job unlinked.') })} disabled={busyKey === `unlink-${j.link_id}`} className="focus-ring rounded-lg p-1.5 text-text-secondary hover:bg-bg-tertiary hover:text-danger-500">
+                <button type="button" aria-label={`Unlink job for ${j.customer_name}`} onClick={() => ask({ title: 'Unlink job?', description: 'The job itself is not deleted — it just stops counting toward this project.', label: 'Unlink', onConfirm: () => run(`unlink-${j.link_id}`, () => unlinkJob(ownerId, j.link_id), 'Job unlinked.') })} disabled={busyKey === `unlink-${j.link_id}`} className="focus-ring rounded-lg p-1.5 text-text-secondary hover:bg-bg-tertiary hover:text-danger">
                   <Unlink size={16} aria-hidden="true" />
                 </button>
               </div>

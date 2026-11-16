@@ -70,17 +70,17 @@ const secondaryBtn =
   'focus-ring inline-flex items-center gap-1.5 rounded-xl border border-border px-3 py-2 text-xs font-medium text-text-secondary hover:text-text-primary disabled:opacity-40';
 
 const RISK_TONE: Record<RiskLevel, string> = {
-  low: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400',
-  moderate: 'bg-sky-100 text-sky-800 dark:bg-sky-500/10 dark:text-sky-400',
-  high: 'bg-amber-100 text-amber-800 dark:bg-amber-500/10 dark:text-amber-400',
-  critical: 'bg-rose-100 text-rose-800 dark:bg-rose-500/10 dark:text-rose-400',
+  low: 'bg-success-subtle text-success-strong',
+  moderate: 'bg-info-subtle text-info-strong',
+  high: 'bg-warning-subtle text-warning-strong',
+  critical: 'bg-danger-subtle text-danger-strong',
 };
 
 const SEVERITY_TONE: Record<RecommendationSeverity, string> = {
   critical: RISK_TONE.critical,
   high: RISK_TONE.high,
   medium: RISK_TONE.moderate,
-  low: 'bg-slate-100 text-slate-700 dark:bg-slate-500/10 dark:text-slate-400',
+  low: 'bg-bg-tertiary text-text-primary',
 };
 
 const STATUS_META: Record<OutlookStatus, { label: string; tone: string }> = {
@@ -141,7 +141,7 @@ function Panel({ title, action, children }: { title?: string; action?: ReactNode
 function ScoreBar({ value, invert = false }: { value: number | null; invert?: boolean }) {
   if (value === null) return <span className="text-xs text-text-secondary">—</span>;
   const good = invert ? 100 - value : value;
-  const color = good >= 70 ? 'bg-emerald-500' : good >= 45 ? 'bg-amber-500' : 'bg-rose-500';
+  const color = good >= 70 ? 'bg-success' : good >= 45 ? 'bg-warning' : 'bg-danger';
   return (
     <div className="flex items-center gap-2" role="img" aria-label={`${Math.round(value)} out of 100`}>
       <div className="h-1.5 w-16 overflow-hidden rounded-full bg-bg-tertiary">
@@ -310,7 +310,7 @@ export function SupplierIntelligencePage() {
               </select>
             </label>
             <span className="flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1.5 text-[11px] text-text-secondary">
-              <Radio size={12} className="text-emerald-500" />
+              <Radio size={12} className="text-success" />
               Live{updatedAt ? ` · ${updatedAt.toLocaleTimeString()}` : ''}
             </span>
             <button type="button" className={secondaryBtn} onClick={() => void load(true)} disabled={loading || refreshing}>
@@ -343,7 +343,7 @@ export function SupplierIntelligencePage() {
             {data.warnings.length > 0 && (
               <div
                 role="status"
-                className="mb-4 flex items-start gap-2 rounded-2xl border border-amber-300/60 bg-amber-50 p-3 text-xs text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300"
+                className="mb-4 flex items-start gap-2 rounded-2xl border border-warning-subtle-border/60 bg-warning-subtle p-3 text-xs text-warning-strong"
               >
                 <AlertTriangle size={14} className="mt-0.5 shrink-0" />
                 <span>
@@ -360,21 +360,21 @@ export function SupplierIntelligencePage() {
                 label="On-time delivery"
                 value={pctFmt(result.summary.weightedOnTimeRate)}
                 sub={result.summary.overdueOpenOrders > 0 ? `${result.summary.overdueOpenOrders} open order(s) overdue` : 'No overdue orders'}
-                tone={result.summary.overdueOpenOrders > 0 ? 'text-amber-600 dark:text-amber-400' : undefined}
+                tone={result.summary.overdueOpenOrders > 0 ? 'text-warning' : undefined}
               />
               <StatTile
                 label="At-risk suppliers"
                 value={String(result.summary.atRiskSuppliers)}
                 sub={`Concentration: ${result.summary.concentrationLevel}`}
-                tone={result.summary.atRiskSuppliers > 0 ? 'text-rose-600 dark:text-rose-400' : undefined}
+                tone={result.summary.atRiskSuppliers > 0 ? 'text-danger' : undefined}
               />
               <StatTile
                 label="Sole-source parts"
                 value={String(result.summary.singleSourceParts)}
                 sub={`${result.summary.partsToOrderNow} to order now`}
-                tone={result.summary.partsToOrderNow > 0 ? 'text-rose-600 dark:text-rose-400' : undefined}
+                tone={result.summary.partsToOrderNow > 0 ? 'text-danger' : undefined}
               />
-              <StatTile label="Savings opportunity" value={money(result.summary.savingsOpportunityCents)} sub="Estimated per year" tone="text-emerald-600 dark:text-emerald-400" />
+              <StatTile label="Savings opportunity" value={money(result.summary.savingsOpportunityCents)} sub="Estimated per year" tone="text-success" />
             </div>
 
             <div className="mb-4 flex flex-wrap gap-1.5" role="tablist" aria-label="Supplier Intelligence sections">
@@ -494,7 +494,7 @@ function ActionButton({ id, action, working, done, onRequest }: { id: string; ac
   }
   if (done.has(id)) {
     return (
-      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-success">
         <Check size={13} /> Request created
       </span>
     );
@@ -904,7 +904,7 @@ function CompareView({
                 </td>
                 <td className="py-2 pr-2 tabular-nums">
                   {c.availableQty === null ? '—' : c.availableQty}
-                  {c.coversQuantity === false && <span className="block text-[11px] text-amber-600 dark:text-amber-400">short</span>}
+                  {c.coversQuantity === false && <span className="block text-[11px] text-warning">short</span>}
                 </td>
                 <td className="py-2 pr-2"><ScoreBar value={c.reliability} /></td>
                 <td className="py-2 pr-2"><ScoreBar value={c.partScore} /></td>
@@ -985,8 +985,8 @@ function OutlookTab({
                     <td className="py-2 pr-2">
                       <span className="font-medium text-text-primary">{r.partName}</span>
                       {r.partNumber && <span className="block text-[11px] text-text-secondary">{r.partNumber}</span>}
-                      {r.singleSource && <span className="block text-[11px] text-amber-600 dark:text-amber-400">Single source</span>}
-                      {r.noSupplier && <span className="block text-[11px] text-rose-600 dark:text-rose-400">No supplier on record</span>}
+                      {r.singleSource && <span className="block text-[11px] text-warning">Single source</span>}
+                      {r.noSupplier && <span className="block text-[11px] text-danger">No supplier on record</span>}
                     </td>
                     <td className="py-2 pr-2 tabular-nums">{r.available}</td>
                     <td className="py-2 pr-2 tabular-nums">
@@ -1000,7 +1000,7 @@ function OutlookTab({
                     <td className="py-2 pr-2 tabular-nums">{r.daysOfStock === null ? '—' : daysFmt(r.daysOfStock)}</td>
                     <td className="py-2 pr-2 tabular-nums">
                       {r.inboundQty > 0 ? r.inboundQty : '—'}
-                      {r.inboundLate && <span className="block text-[11px] text-amber-600 dark:text-amber-400">arrives late</span>}
+                      {r.inboundLate && <span className="block text-[11px] text-warning">arrives late</span>}
                     </td>
                     <td className="py-2 pr-2 tabular-nums">{daysFmt(r.leadTimeDays)}</td>
                     <td className="py-2 pr-2 tabular-nums">{r.status === 'order_now' ? 'Today' : fmtDate(r.reorderByDate)}</td>
@@ -1017,7 +1017,7 @@ function OutlookTab({
                     </td>
                     <td className="py-2 pr-2 tabular-nums">
                       {r.priceOutlookPct30 === null ? '—' : (
-                        <span className={r.priceOutlookPct30 >= 3 ? 'text-amber-600 dark:text-amber-400' : r.priceOutlookPct30 <= -3 ? 'text-emerald-600 dark:text-emerald-400' : ''}>
+                        <span className={r.priceOutlookPct30 >= 3 ? 'text-warning' : r.priceOutlookPct30 <= -3 ? 'text-success' : ''}>
                           {r.priceOutlookPct30 > 0 ? '+' : ''}{Math.round(r.priceOutlookPct30)}%/mo
                         </span>
                       )}
@@ -1068,7 +1068,7 @@ function OutlookTab({
 // RISK
 // ============================================================
 
-const SEGMENT_COLORS = ['bg-sky-500', 'bg-emerald-500', 'bg-amber-500', 'bg-violet-500', 'bg-rose-500', 'bg-teal-500'];
+const SEGMENT_COLORS = ['bg-info', 'bg-success', 'bg-warning', 'bg-accent', 'bg-danger', 'bg-success'];
 
 function RiskTab({
   suppliers, hhi, level, partName, onOpenSupplier,
@@ -1098,7 +1098,7 @@ function RiskTab({
               {top.map((s, i) => (
                 <div key={s.key} className={SEGMENT_COLORS[i % SEGMENT_COLORS.length]} style={{ width: `${s.spendShare * 100}%` }} title={`${s.name}: ${pctFmt(s.spendShare)}`} />
               ))}
-              {otherShare > 0.001 && <div className="bg-slate-400" style={{ width: `${otherShare * 100}%` }} />}
+              {otherShare > 0.001 && <div className="bg-text-muted" style={{ width: `${otherShare * 100}%` }} />}
             </div>
             <ul className="mt-3 space-y-1.5 text-xs">
               {top.map((s, i) => (
@@ -1162,7 +1162,7 @@ function RiskTab({
                     <tr key={s.key} className="border-b border-border/60">
                       <td className="py-2 pr-2">
                         <button type="button" onClick={() => onOpenSupplier(s.key)} className="focus-ring flex items-center gap-1.5 rounded text-left font-medium text-text-primary">
-                          {s.risk.level === 'critical' || s.risk.level === 'high' ? <ShieldAlert size={13} className="text-rose-500" /> : null}
+                          {s.risk.level === 'critical' || s.risk.level === 'high' ? <ShieldAlert size={13} className="text-danger" /> : null}
                           {s.name}
                         </button>
                       </td>

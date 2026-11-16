@@ -23,7 +23,7 @@ import {
 } from '@/lib/warrantyClaimRecoveryApi';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder';
 const btn =
   'focus-ring min-h-[36px] rounded-lg px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-50';
 
@@ -126,7 +126,7 @@ export function ClaimWorkflowPanel({ claim, canManage, onChanged }: Props) {
             key={a}
             type="button"
             onClick={() => onAction(a)}
-            className={`${btn} ${a === 'approve' || a === 'record_payment' ? 'bg-accent text-white hover:brightness-110' : 'border border-border text-text-secondary hover:text-text-primary'}`}
+            className={`${btn} ${a === 'approve' || a === 'record_payment' ? 'bg-accent text-on-accent hover:brightness-110' : 'border border-border text-text-secondary hover:text-text-primary'}`}
           >
             {a === 'record_payment' && claim.status === 'credit_received' ? 'Correct payment' : CLAIM_ACTION_LABELS[a]}
           </button>
@@ -149,8 +149,8 @@ export function ClaimWorkflowPanel({ claim, canManage, onChanged }: Props) {
                 {packet.items.map((it) => (
                   <li key={it.key} className="flex items-start gap-2 text-sm">
                     {it.present
-                      ? <CheckCircle2 size={15} className="mt-0.5 shrink-0 text-success-500" />
-                      : <CircleAlert size={15} className={`mt-0.5 shrink-0 ${it.blocking ? 'text-danger' : 'text-warning-500'}`} />}
+                      ? <CheckCircle2 size={15} className="mt-0.5 shrink-0 text-success" />
+                      : <CircleAlert size={15} className={`mt-0.5 shrink-0 ${it.blocking ? 'text-danger' : 'text-warning'}`} />}
                     <span className={it.present ? 'text-text-primary' : 'text-text-secondary'}>
                       {it.label}{!it.present && (it.blocking ? ' — missing (required)' : ' — missing')}
                     </span>
@@ -172,7 +172,7 @@ export function ClaimWorkflowPanel({ claim, canManage, onChanged }: Props) {
                     I reviewed this packet and approve it for submission.
                   </label>
                   <div className="mt-2 flex gap-2">
-                    <button type="button" disabled={busy || !packet.complete || !confirmed} onClick={() => void run(() => approveForSubmission(claim.id), 'Approved — ready to submit')} className={`${btn} bg-accent text-white hover:brightness-110`}>
+                    <button type="button" disabled={busy || !packet.complete || !confirmed} onClick={() => void run(() => approveForSubmission(claim.id), 'Approved — ready to submit')} className={`${btn} bg-accent text-on-accent hover:brightness-110`}>
                       {busy ? 'Approving…' : CLAIM_ACTION_LABELS.approve}
                     </button>
                     <button type="button" onClick={() => void loadPacket()} className={`${btn} flex items-center gap-1 border border-border text-text-secondary`}><RefreshCw size={12} /> Refresh</button>
@@ -194,7 +194,7 @@ export function ClaimWorkflowPanel({ claim, canManage, onChanged }: Props) {
             <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} className="mt-0.5 h-4 w-4 accent-accent" />
             I submitted this claim myself, outside Vireek.
           </label>
-          <button type="button" disabled={busy || !ref.trim() || !confirmed} onClick={() => void run(() => markSubmitted(claim.id, ref.trim()), 'Marked as submitted')} className={`${btn} bg-accent text-white hover:brightness-110`}>
+          <button type="button" disabled={busy || !ref.trim() || !confirmed} onClick={() => void run(() => markSubmitted(claim.id, ref.trim()), 'Marked as submitted')} className={`${btn} bg-accent text-on-accent hover:brightness-110`}>
             {busy ? 'Saving…' : 'Save as submitted'}
           </button>
         </div>
@@ -210,7 +210,7 @@ export function ClaimWorkflowPanel({ claim, canManage, onChanged }: Props) {
               {(Object.keys(CREDIT_METHOD_LABELS) as CreditMethod[]).map((m) => <option key={m} value={m}>{CREDIT_METHOD_LABELS[m]}</option>)}
             </select>
           </div>
-          <button type="button" disabled={busy} onClick={submitPayment} className={`${btn} bg-accent text-white hover:brightness-110`}>
+          <button type="button" disabled={busy} onClick={submitPayment} className={`${btn} bg-accent text-on-accent hover:brightness-110`}>
             {busy ? 'Saving…' : 'Record payment'}
           </button>
         </div>

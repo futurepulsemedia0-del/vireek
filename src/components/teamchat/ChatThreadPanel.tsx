@@ -226,7 +226,7 @@ export function ChatThreadPanel({ channel, me, peopleById, jobHref, onBack, onRe
           <button
             type="button"
             onClick={() => scrollToBottom(true)}
-            className="focus-ring absolute bottom-3 left-1/2 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white shadow-lg"
+            className="focus-ring absolute bottom-3 left-1/2 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-on-accent shadow-lg"
           >
             <ArrowDown size={14} /> {newBelow} new {newBelow === 1 ? 'message' : 'messages'}
           </button>

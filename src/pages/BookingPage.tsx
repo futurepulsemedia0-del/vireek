@@ -176,12 +176,12 @@ const canSubmit = useMemo(
     </button>
   </div>
   <div aria-live="polite" className="mt-1.5 min-h-[1rem] text-xs">
-    {promo?.valid && <p className="flex items-center gap-1 text-success-500"><Tag size={12} aria-hidden /> {promo.code} applied — {promo.label}{promo.estimated_discount_cents ? ` (about $${(promo.estimated_discount_cents / 100).toFixed(2)} off)` : ''}. Final pricing is confirmed on your estimate.</p>}
+    {promo?.valid && <p className="flex items-center gap-1 text-success"><Tag size={12} aria-hidden /> {promo.code} applied — {promo.label}{promo.estimated_discount_cents ? ` (about $${(promo.estimated_discount_cents / 100).toFixed(2)} off)` : ''}. Final pricing is confirmed on your estimate.</p>}
     {promo && !promo.valid && <p className="text-danger">{promoReasonMessage(promo.reason)}</p>}
   </div>
 </div>
               <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Anything we should know? (optional)" rows={2} className="focus-ring w-full resize-none rounded-xl border border-border bg-bg-primary px-3 py-2.5 text-sm text-text-primary" />
-              <button type="button" disabled={!canSubmit || submitting} onClick={handleSubmit} className="focus-ring w-full rounded-xl bg-cta px-4 py-2.5 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50">
+              <button type="button" disabled={!canSubmit || submitting} onClick={handleSubmit} className="focus-ring w-full rounded-xl bg-cta px-4 py-2.5 text-sm font-medium text-on-cta transition-all hover:brightness-110 disabled:opacity-50">
                 {submitting ? 'Booking…' : `Confirm ${formatSlot(selectedSlot)}`}
               </button>
             </div>
@@ -191,7 +191,7 @@ const canSubmit = useMemo(
       )}
       {done && (
         <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="text-center">
-          <CheckCircle2 size={28} className="mx-auto mb-3 text-success-500" />
+          <CheckCircle2 size={28} className="mx-auto mb-3 text-success" />
           <h1 className="text-lg font-semibold text-text-primary">You're booked!</h1>
           <p className="mt-2 text-sm text-text-secondary">{business?.business_name ?? 'The business'} will see you {selectedSlot ? formatSlot(selectedSlot) : ''}.</p>
         </motion.div>

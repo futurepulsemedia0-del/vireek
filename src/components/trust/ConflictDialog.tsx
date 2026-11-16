@@ -56,11 +56,11 @@ export function ConflictDialog({ open, base, mine, theirs, fieldLabel = (f) => f
 
   return (
     <>
-      <div className="fixed inset-0 z-[110] bg-black/40 backdrop-blur-sm" onClick={onCancel} aria-hidden="true" />
+      <div className="fixed inset-0 z-[110] bg-overlay/40 backdrop-blur-sm" onClick={onCancel} aria-hidden="true" />
       <div role="alertdialog" aria-modal="true" aria-labelledby="conflict-title" aria-describedby="conflict-body" ref={ref} tabIndex={-1}
         className="fixed left-1/2 top-1/2 z-[120] max-h-[90vh] w-[94vw] max-w-2xl -translate-x-1/2 -translate-y-1/2 overflow-auto rounded-2xl border border-border bg-bg-secondary p-6 shadow-card-hover dark:shadow-card-hover-dark">
         <div className="flex items-start gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-warning-500/10 text-warning-500"><TriangleAlert size={20} aria-hidden="true" /></span>
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-warning-subtle text-warning"><TriangleAlert size={20} aria-hidden="true" /></span>
           <div>
             <h2 id="conflict-title" className="text-base font-semibold text-text-primary">{t('conflict.title')}</h2>
             <p id="conflict-body" className="mt-1 text-sm text-text-secondary">{t('conflict.body')}</p>
@@ -96,7 +96,7 @@ export function ConflictDialog({ open, base, mine, theirs, fieldLabel = (f) => f
 
         <div className="mt-5 flex justify-end gap-3">
           <button type="button" onClick={onCancel} className="focus-ring rounded-xl border border-border px-4 py-2.5 text-sm font-medium text-text-primary">{t('conflict.cancel')}</button>
-          <button type="button" onClick={apply} disabled={!patch || saving} className="focus-ring rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-white hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50">
+          <button type="button" onClick={apply} disabled={!patch || saving} className="focus-ring rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-on-cta hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50">
             {saving ? t('conflict.saving') : t('conflict.apply')}
           </button>
         </div>

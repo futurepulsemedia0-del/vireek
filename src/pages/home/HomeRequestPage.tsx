@@ -112,7 +112,7 @@ export function HomeRequestPage() {
               onClick={() => setServiceType((cur) => (cur === t ? '' : t))}
               className={cx(
                 'focus-ring min-h-[40px] rounded-full px-4 text-sm font-medium',
-                serviceType === t ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary',
+                serviceType === t ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary',
               )}
             >
               {t}
@@ -144,7 +144,7 @@ export function HomeRequestPage() {
                 type="button"
                 aria-label={`Remove photo ${i + 1}`}
                 onClick={() => setFiles((cur) => cur.filter((_, idx) => idx !== i))}
-                className="focus-ring absolute right-1 top-1 rounded-full bg-black/60 p-1 text-white"
+                className="focus-ring absolute right-1 top-1 rounded-full bg-overlay/60 p-1 text-white"
               >
                 <X size={12} aria-hidden />
               </button>

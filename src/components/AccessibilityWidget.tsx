@@ -62,7 +62,7 @@ function Toggle({ checked, onChange, label, id }: {
       className={`focus-ring relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-200 ease-out ${checked ? 'bg-accent' : 'bg-border hover:bg-border/70'}`}
     >
       <motion.span layout transition={{ type: 'spring', stiffness: 500, damping: 32 }}
-        className="pointer-events-none rounded-full bg-white shadow-sm"
+        className="pointer-events-none rounded-full bg-bg-secondary shadow-sm"
         style={{ height: '18px', width: '18px', marginLeft: checked ? 'auto' : '4px', marginRight: checked ? '4px' : '0' }}
       />
     </button>
@@ -79,12 +79,12 @@ function SettingRow({ icon: Icon, label, description, checked, onChange }: {
   const id = `a11y-${label.replace(/\s+/g, '-').toLowerCase()}`;
   return (
     <div className="group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors duration-150 hover:bg-bg-tertiary/60">
-      <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors duration-200 ${checked ? 'bg-accent/15 text-accent' : 'bg-bg-tertiary text-text-secondary/60'}`}>
+      <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors duration-200 ${checked ? 'bg-accent/15 text-accent' : 'bg-bg-tertiary text-text-muted'}`}>
         <Icon size={15} />
       </span>
       <div className="flex-1 min-w-0">
         <label htmlFor={id} className="block cursor-pointer text-sm font-medium text-text-primary">{label}</label>
-        <p className="truncate text-xs text-text-secondary/70">{description}</p>
+        <p className="truncate text-xs text-text-muted">{description}</p>
       </div>
       <Toggle id={id} checked={checked} onChange={onChange} label={label} />
     </div>
@@ -141,12 +141,12 @@ function ProfileCard({ profile, isActive, onApply }: {
       transition={{ duration: 0.2, ease: EASE }}
       className={`group relative w-full overflow-hidden rounded-xl border p-3.5 text-left transition-colors duration-200 ${isActive ? 'border-accent/50 bg-accent/8' : 'border-border bg-bg-secondary hover:border-accent/30'}`}
     >
-      {isActive && <span className="absolute right-2.5 top-2.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-white"><Check size={10} strokeWidth={3} /></span>}
+      {isActive && <span className="absolute right-2.5 top-2.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-on-accent"><Check size={10} strokeWidth={3} /></span>}
       <span className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors duration-200 ${isActive ? 'bg-accent/15 text-accent' : 'bg-bg-tertiary text-text-secondary group-hover:text-accent'}`}>
         <Icon size={17} />
       </span>
       <h5 className="mt-2.5 text-sm font-semibold leading-tight text-text-primary">{profile.name}</h5>
-      <p className="mt-1 text-xs leading-relaxed text-text-secondary/70">{profile.description}</p>
+      <p className="mt-1 text-xs leading-relaxed text-text-muted">{profile.description}</p>
     </motion.button>
   );
 }
@@ -216,7 +216,7 @@ function LanguageCard({ lang, isActive, onSelect }: { lang: Language; isActive: 
       <span className="text-2xl leading-none">{lang.flag}</span>
       <div className="flex-1 min-w-0">
         <p className="truncate text-sm font-semibold text-text-primary">{lang.nativeName}</p>
-        <p className="truncate text-xs text-text-secondary/70">{lang.name}</p>
+        <p className="truncate text-xs text-text-muted">{lang.name}</p>
       </div>
       {isActive && <Check size={16} className="shrink-0 text-accent" />}
       {lang.direction === 'rtl' && <span className="rounded bg-bg-tertiary px-1.5 py-0.5 text-[0.6rem] font-semibold text-text-secondary">RTL</span>}
@@ -266,7 +266,7 @@ function AIRecommendation() {
         type="button"
         onClick={applyRec}
         whileTap={{ scale: 0.97 }}
-        className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg bg-accent py-2 text-xs font-semibold text-white transition-all hover:brightness-110"
+        className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg bg-accent py-2 text-xs font-semibold text-on-accent transition-all hover:brightness-110"
       >
         <Check size={13} />
         {t('applyRecommendation')}
@@ -365,7 +365,7 @@ function PanelContent({ onClose }: { onClose: () => void }) {
                 >
                   <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10 text-accent"><Icon size={15} /></span>
                   <h5 className="mt-2 text-xs font-semibold leading-tight text-text-primary">{action.label}</h5>
-                  <p className="mt-0.5 text-[0.7rem] leading-relaxed text-text-secondary/60">{action.description}</p>
+                  <p className="mt-0.5 text-[0.7rem] leading-relaxed text-text-muted">{action.description}</p>
                 </motion.button>
               );
             })}
@@ -411,14 +411,14 @@ function PanelContent({ onClose }: { onClose: () => void }) {
     <div className="space-y-4 px-3 py-2">
       {/* Search */}
       <div className="relative">
-        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary/50" />
+        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-graphic-muted" />
         <input
           type="text"
           value={langSearch}
           onChange={(e) => setLangSearch(e.target.value)}
           placeholder={t('searchLanguages')}
           aria-label={t('searchLanguages')}
-          className="w-full rounded-xl border border-border bg-bg-secondary py-2.5 pl-9 pr-3 text-sm text-text-primary placeholder:text-text-secondary/50 focus-ring"
+          className="w-full rounded-xl border border-border bg-bg-secondary py-2.5 pl-9 pr-3 text-sm text-text-primary placeholder:text-text-placeholder focus-ring"
         />
       </div>
 
@@ -443,7 +443,7 @@ function PanelContent({ onClose }: { onClose: () => void }) {
             <LanguageCard key={lang.code} lang={lang} isActive={language === lang.code} onSelect={() => setLanguage(lang.code)} />
           ))}
           {filteredLanguages.length === 0 && (
-            <p className="px-2 py-4 text-center text-xs text-text-secondary/60">No languages found</p>
+            <p className="px-2 py-4 text-center text-xs text-text-muted">No languages found</p>
           )}
         </div>
       </div>
@@ -479,7 +479,7 @@ function PanelContent({ onClose }: { onClose: () => void }) {
               <Icon size={17} />
             </span>
             <h5 className="mt-2.5 text-sm font-semibold leading-tight text-text-primary">{t(profile.nameKey)}</h5>
-            <p className="mt-1 text-xs leading-relaxed text-text-secondary/70">{profile.description}</p>
+            <p className="mt-1 text-xs leading-relaxed text-text-muted">{profile.description}</p>
           </motion.button>
         );
       })}
@@ -531,7 +531,7 @@ function PanelContent({ onClose }: { onClose: () => void }) {
             <option value="deuteranopia">Deuteranopia (green-weak)</option>
             <option value="tritanopia">Tritanopia (blue-weak)</option>
           </select>
-          <p className="mt-1 text-xs text-text-secondary/70">Makes hard-to-tell colors easier to distinguish. It does not restore normal color vision.</p>
+          <p className="mt-1 text-xs text-text-muted">Makes hard-to-tell colors easier to distinguish. It does not restore normal color vision.</p>
         </div>
       </Section>
     </>
@@ -566,7 +566,7 @@ function PanelContent({ onClose }: { onClose: () => void }) {
           <Globe size={14} className="text-accent" />
           <span className="text-xs font-bold uppercase tracking-wider text-text-secondary">{t('language')}</span>
         </div>
-        <p className="text-xs leading-relaxed text-text-secondary/70">
+        <p className="text-xs leading-relaxed text-text-muted">
           {LANGUAGES.find((l) => l.code === language)?.nativeName} — {LANGUAGES.find((l) => l.code === language)?.name}
         </p>
         <button onClick={() => setActiveTab('language')} className="mt-2 flex items-center gap-1 text-xs font-semibold text-accent hover:underline">
@@ -589,7 +589,7 @@ function PanelContent({ onClose }: { onClose: () => void }) {
             </span>
             <div>
               <h3 className="text-base font-bold tracking-tight text-text-primary">{t('accessibilityCenter')}</h3>
-              <p className="text-xs text-text-secondary/70">{t('customizeExperience')}</p>
+              <p className="text-xs text-text-muted">{t('customizeExperience')}</p>
             </div>
           </div>
           <button type="button" onClick={onClose} aria-label={t('close')}
@@ -649,13 +649,13 @@ function PanelContent({ onClose }: { onClose: () => void }) {
                 <button type="button" onClick={() => setShowResetConfirm(false)}
                   className="rounded-lg px-3 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:text-text-primary">Cancel</button>
                 <button type="button" onClick={handleReset}
-                  className="rounded-lg bg-danger px-3 py-1.5 text-xs font-semibold text-white transition-all hover:brightness-110">Reset All</button>
+                  className="rounded-lg bg-danger px-3 py-1.5 text-xs font-semibold text-on-danger transition-all hover:brightness-110">Reset All</button>
               </div>
             </motion.div>
           ) : (
             <motion.div key="default" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-1.5 text-xs text-text-secondary/70">
+              <div className="flex items-center gap-1.5 text-xs text-text-muted">
                 <Check size={13} className="text-success" /> {t('autoSaved')}
               </div>
               <button type="button" onClick={() => setShowResetConfirm(true)}
@@ -689,7 +689,7 @@ function OnboardingTip({ onDismiss }: { onDismiss: () => void }) {
           Customize text size, contrast, motion, language, and more. Your preferences are saved automatically.
         </p>
         <button type="button" onClick={onDismiss}
-          className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg bg-accent py-2 text-xs font-semibold text-white transition-all hover:brightness-110">
+          className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg bg-accent py-2 text-xs font-semibold text-on-accent transition-all hover:brightness-110">
           Got it <ChevronRight size={13} />
         </button>
       </div>
@@ -802,7 +802,7 @@ export function AccessibilityWidget() {
         {isOpen && (
           <>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
-              onClick={() => setIsOpen(false)} className="fixed inset-0 z-[73] bg-slate-950/40 backdrop-blur-sm sm:hidden" />
+              onClick={() => setIsOpen(false)} className="fixed inset-0 z-[73] bg-overlay/40 backdrop-blur-sm sm:hidden" />
             {isDesktop && <motion.div ref={panelRef}
               initial={{ opacity: 0, y: 16, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 16, scale: 0.96 }}
               transition={{ type: 'spring', stiffness: 320, damping: 28 }}

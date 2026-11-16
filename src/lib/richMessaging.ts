@@ -70,7 +70,7 @@ export function mapAccountRow(r: Record<string, unknown>): RichAccount {
 /** Returns a user-facing error, or null when the settings can be saved. Mirrors the DB CHECK constraints. */
 export function validateSettings(s: EditableSettings): string | null {
   if (s.brandColor && !/^#[0-9A-Fa-f]{6}$/.test(s.brandColor))
-    return 'Brand colour must look like #1A2B3C.';
+    return 'Brand colour must look like #2F2E28.';
   if (s.brandLogoUrl) {
     try {
       if (new URL(s.brandLogoUrl).protocol !== 'https:') return 'Logo URL must start with https://';

@@ -191,7 +191,7 @@ function CorrectionCard({
             Predicted duration ×{row.factor.toFixed(2)} ({signedPct(row.factor)}): a {formatDuration(126)} prediction becomes {formatDuration(126 * row.factor)}.
           </p>
         </div>
-        <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium ${proposed ? 'bg-warning-500/10 text-warning-500' : 'bg-success-500/10 text-success-500'}`}>
+        <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium ${proposed ? 'bg-warning-subtle text-warning' : 'bg-success-subtle text-success'}`}>
           {proposed ? 'Awaiting approval' : 'Active'}
         </span>
       </div>
@@ -328,7 +328,7 @@ function DurationMiss({ v, techNames }: { v: DurationVariance; techNames: Map<st
         <div className="flex shrink-0 items-center gap-2">
           <div className="text-right">
             <p className="text-sm font-semibold text-text-primary">
-              {formatDuration(v.issued)} → <span className={over ? 'text-danger' : 'text-success-500'}>{formatDuration(v.actual)}</span>
+              {formatDuration(v.issued)} → <span className={over ? 'text-danger' : 'text-success'}>{formatDuration(v.actual)}</span>
             </p>
             <p className="text-[11px] text-text-secondary">{over && v.primaryCause ? CAUSE_LABELS[v.primaryCause] : over ? 'Ran over' : 'Finished early'}</p>
           </div>
@@ -564,7 +564,7 @@ export function ContinuousImprovementPage() {
                 label="Duration accuracy"
                 value={pct(analysis.duration.hitRate)}
                 hint={`${analysis.duration.n} jobs compared`}
-                valueClass={analysis.duration.hitRate !== null && analysis.duration.hitRate >= 0.75 ? 'text-success-500' : 'text-text-primary'}
+                valueClass={analysis.duration.hitRate !== null && analysis.duration.hitRate >= 0.75 ? 'text-success' : 'text-text-primary'}
               />
               <StatCard
                 label="Prediction bias"
@@ -598,7 +598,7 @@ export function ContinuousImprovementPage() {
                   role="tab"
                   aria-selected={tab === t.key}
                   onClick={() => setTab(t.key)}
-                  className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${tab === t.key ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
+                  className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${tab === t.key ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
                 >
                   {t.label}
                   {t.count !== undefined && t.count > 0 ? ` (${t.count})` : ''}

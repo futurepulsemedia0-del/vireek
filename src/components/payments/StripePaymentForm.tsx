@@ -147,7 +147,7 @@ function PaymentForm({ amountCents, payLabel, returnUrl, createIntent, onSuccess
       <button
         type="submit"
         disabled={!stripe || !elements || !ready || processing}
-        className="focus-ring flex w-full items-center justify-center gap-2 rounded-xl bg-accent py-3.5 text-base font-semibold text-white disabled:opacity-50"
+        className="focus-ring flex w-full items-center justify-center gap-2 rounded-xl bg-accent py-3.5 text-base font-semibold text-on-accent disabled:opacity-50"
       >
         {processing ? <Loader2 className="h-5 w-5 animate-spin" /> : <Lock className="h-4 w-4" />}
         {processing ? 'Processing…' : payLabel}

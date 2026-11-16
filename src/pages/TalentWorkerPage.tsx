@@ -35,7 +35,7 @@ const toInput = (p: TalentProfile | null): ProfileInput => ({
 });
 const EMPTY_CRED: CredentialInput = { kind: 'license', name: '', issuing_authority: '', credential_number: '', region: '', issued_on: '', expires_on: '' };
 const EMPTY_REF: ReferenceInput = { referee_name: '', referee_email: '', referee_phone: '', relationship: 'supervisor', company: '', years_known: '' };
-const toneClass = { good: 'bg-green-500/10 text-green-500', warn: 'bg-amber-500/10 text-amber-500', bad: 'bg-red-500/10 text-red-500', neutral: 'bg-bg-tertiary text-text-secondary' };
+const toneClass = { good: 'bg-success-subtle text-success', warn: 'bg-warning-subtle text-warning', bad: 'bg-danger-subtle text-danger', neutral: 'bg-bg-tertiary text-text-secondary' };
 
 export function TalentWorkerPage() {
   useSEO({ title: 'My Talent Profile — Vireek', description: 'Manage your trade profile, credentials and applications.', canonical: 'https://vireek.com/talent/me' });
@@ -226,7 +226,7 @@ export function TalentWorkerPage() {
                       <span>I agree that when I apply, my profile and credential list are shared with that business, and that references and background checks are handled as described in the <Link className="text-accent underline" to="/privacy">Privacy Policy</Link>.</span>
                     </label>
                   )}
-                  {formError && <p role="alert" className="text-sm text-red-500">{formError}</p>}
+                  {formError && <p role="alert" className="text-sm text-danger">{formError}</p>}
                   <Button onClick={() => void saveProfile()} disabled={saving}>{saving ? 'Saving…' : 'Save profile'}</Button>
                 </section>
               )}
@@ -270,7 +270,7 @@ export function TalentWorkerPage() {
                       <label htmlFor="tc-file" className="mb-1.5 block text-sm font-medium text-text-primary">Photo or PDF of the document (optional, private)</label>
                       <input id="tc-file" type="file" accept="application/pdf,image/*" onChange={(e) => setCredFile(e.target.files?.[0] ?? null)} className="text-sm text-text-secondary" />
                     </div>
-                    {credError && <p role="alert" className="text-sm text-red-500">{credError}</p>}
+                    {credError && <p role="alert" className="text-sm text-danger">{credError}</p>}
                     <Button onClick={() => void addCredential()}>Add credential</Button>
                     <p className="flex items-center gap-2 text-xs text-text-secondary"><ShieldCheck size={14} aria-hidden="true" />Employers verify credentials against the issuer. Editing a credential resets its verification.</p>
                   </div>
@@ -304,7 +304,7 @@ export function TalentWorkerPage() {
                       </div>
                       <Input label="Company" value={ref.company} onChange={(e) => setRef({ ...ref, company: e.target.value })} maxLength={120} />
                     </div>
-                    {refError && <p role="alert" className="text-sm text-red-500">{refError}</p>}
+                    {refError && <p role="alert" className="text-sm text-danger">{refError}</p>}
                     <Button onClick={() => void addRef()}>Add reference</Button>
                     <p className="text-xs text-text-secondary">References answer through a private link. You can’t see their answers; employers you apply to can.</p>
                   </div>

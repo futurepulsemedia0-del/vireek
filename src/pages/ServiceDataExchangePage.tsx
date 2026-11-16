@@ -102,7 +102,7 @@ function ConsentCard({
             <Loader2 size={14} className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 animate-spin text-white" />
           ) : (
             <span
-              className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${on ? 'left-[22px]' : 'left-0.5'}`}
+              className={`absolute top-0.5 h-5 w-5 rounded-full bg-bg-secondary shadow transition-all ${on ? 'left-[22px]' : 'left-0.5'}`}
             />
           )}
         </button>
@@ -145,7 +145,7 @@ function ConfirmModal({
 
   return (
     <div
-      className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[80] flex items-center justify-center bg-overlay/40 p-4 backdrop-blur-sm"
       onClick={onCancel}
     >
       <motion.div
@@ -199,7 +199,7 @@ function ConfirmModal({
             type="button"
             onClick={onConfirm}
             disabled={busy}
-            className="focus-ring flex flex-1 items-center justify-center gap-2 rounded-xl bg-accent py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60"
+            className="focus-ring flex flex-1 items-center justify-center gap-2 rounded-xl bg-accent py-2 text-sm font-semibold text-on-accent hover:opacity-90 disabled:opacity-60"
           >
             {busy && <Loader2 size={14} className="animate-spin" />}
             {next ? 'Share data' : 'Stop sharing'}
@@ -297,7 +297,7 @@ function ProductExplorer({
 
         {!unlocked ? (
           <div className="mt-4 rounded-xl border border-dashed border-border p-6 text-center">
-            <Lock className="mx-auto mb-2 h-5 w-5 text-text-secondary/60" />
+            <Lock className="mx-auto mb-2 h-5 w-5 text-graphic-muted" />
             <p className="text-sm text-text-primary">
               Share {SDE_DOMAIN_INFO[info.domain].label.toLowerCase()} to unlock this.
             </p>
@@ -310,7 +310,7 @@ function ProductExplorer({
               <button
                 type="button"
                 onClick={() => onShare(info.domain)}
-                className="focus-ring mt-3 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
+                className="focus-ring mt-3 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-on-accent hover:opacity-90"
               >
                 Review &amp; share
               </button>
@@ -322,7 +322,7 @@ function ProductExplorer({
           <>
             <div className="mt-3 flex flex-wrap items-center gap-3">
               <div className="relative min-w-[200px] flex-1">
-                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary/60" />
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-graphic-muted" />
                 <input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
@@ -336,7 +336,7 @@ function ProductExplorer({
                   type="checkbox"
                   checked={myTradeOnly}
                   onChange={(e) => setMyTradeOnly(e.target.checked)}
-                  className="h-3.5 w-3.5 accent-[var(--color-accent,#2563eb)]"
+                  className="h-3.5 w-3.5 accent-accent"
                 />
                 My trade only
               </label>
@@ -516,7 +516,7 @@ export function ServiceDataExchangePage() {
             </div>
 
             {!canManage && (
-              <p className="mt-4 rounded-xl border border-warning-500/30 bg-warning-500/10 px-4 py-2 text-xs text-text-primary">
+              <p className="mt-4 rounded-xl border border-warning/30 bg-warning-subtle px-4 py-2 text-xs text-text-primary">
                 Only the account owner can change data-sharing settings. You can still browse any unlocked intelligence.
               </p>
             )}
@@ -567,7 +567,7 @@ export function ServiceDataExchangePage() {
               </section>
             )}
 
-            <div className="mt-6 flex items-start gap-2 text-xs text-text-secondary/70">
+            <div className="mt-6 flex items-start gap-2 text-xs text-text-muted">
               <ShieldCheck size={13} className="mt-0.5 shrink-0" />
               <p>
                 Intelligence refreshes nightly
@@ -591,7 +591,7 @@ export function ServiceDataExchangePage() {
 
       {showHow && (
         <div
-          className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-overlay/40 p-4 backdrop-blur-sm"
           onClick={() => setShowHow(false)}
         >
           <motion.div

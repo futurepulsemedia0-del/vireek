@@ -152,8 +152,8 @@ export function MaintenanceTab({ data, canManage, ownerId, reload }: TabProps) {
     <>
       <div className="mb-5 grid grid-cols-3 gap-3">
         <StatTile label="Active plans" value={counts.active} icon={CalendarClock} />
-        <StatTile label="Overdue" value={counts.overdue} icon={CalendarClock} tone={counts.overdue ? 'text-danger' : 'text-success-500'} />
-        <StatTile label="Due in 30 days" value={counts.soon} icon={CalendarClock} tone={counts.soon ? 'text-warning-500' : 'text-success-500'} />
+        <StatTile label="Overdue" value={counts.overdue} icon={CalendarClock} tone={counts.overdue ? 'text-danger' : 'text-success'} />
+        <StatTile label="Due in 30 days" value={counts.soon} icon={CalendarClock} tone={counts.soon ? 'text-warning' : 'text-success'} />
       </div>
 
       <Panel

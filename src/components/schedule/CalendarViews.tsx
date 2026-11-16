@@ -100,7 +100,7 @@ export function CalendarViewSwitcher({ view, onChange }: { view: CalendarView; o
             aria-keyshortcuts={opt.shortcut}
             title={`${opt.label} view (${opt.shortcut})`}
             className={`focus-ring flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors sm:px-3 ${
-              active ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'
+              active ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'
             }`}
           >
             <Icon size={15} aria-hidden="true" />
@@ -157,7 +157,7 @@ function StatusFilter({ value, onChange }: { value: ReadonlySet<string>; onChang
         <Filter size={14} aria-hidden="true" />
         Status
         {value.size > 0 && (
-          <span className="rounded-full bg-accent px-1.5 text-[11px] font-semibold text-white">{value.size}</span>
+          <span className="rounded-full bg-accent px-1.5 text-[11px] font-semibold text-on-accent">{value.size}</span>
         )}
         <ChevronDown size={14} aria-hidden="true" />
       </button>
@@ -174,7 +174,7 @@ function StatusFilter({ value, onChange }: { value: ReadonlySet<string>; onChang
                 <input type="checkbox" checked={checked} onChange={() => toggle(opt.key)} className="sr-only" />
                 <span
                   aria-hidden="true"
-                  className={`flex h-4 w-4 items-center justify-center rounded border ${checked ? 'border-accent bg-accent text-white' : 'border-border'}`}
+                  className={`flex h-4 w-4 items-center justify-center rounded border ${checked ? 'border-accent bg-accent text-on-accent' : 'border-border'}`}
                 >
                   {checked && <Check size={11} />}
                 </span>
@@ -267,7 +267,7 @@ export function CalendarLegend({ entries, label }: { entries: LegendEntry[]; lab
         <li key={e.key} className="flex items-center gap-1.5">
           <span className={`h-2.5 w-2.5 rounded-full [print-color-adjust:exact] ${e.dot}`} aria-hidden="true" />
           {e.label}
-          <span className="tabular-nums text-text-secondary/70">{e.count}</span>
+          <span className="tabular-nums text-text-muted">{e.count}</span>
         </li>
       ))}
     </ul>
@@ -428,7 +428,7 @@ function MonthGrid({
                           onClick={() => onOpenDay(cell.date)}
                           aria-label={`Open ${longLabel}`}
                           className={`focus-ring flex h-6 min-w-[1.5rem] items-center justify-center rounded-full px-1 text-xs font-semibold tabular-nums ${
-                            cell.isToday ? 'bg-accent text-white' : cell.inMonth ? 'text-text-primary hover:bg-bg-tertiary' : 'text-text-secondary'
+                            cell.isToday ? 'bg-accent text-on-accent' : cell.inMonth ? 'text-text-primary hover:bg-bg-tertiary' : 'text-text-secondary'
                           }`}
                         >
                           {cell.date.getDate()}
@@ -524,7 +524,7 @@ function AgendaRow({
           <span className="block truncate text-sm font-semibold text-text-primary">{job.customer_name}</span>
           {job.service_type && <span className="block truncate text-xs text-text-secondary">{job.service_type}</span>}
           {job.address && (
-            <span className="mt-0.5 flex items-center gap-1 truncate text-xs text-text-secondary/80">
+            <span className="mt-0.5 flex items-center gap-1 truncate text-xs text-text-muted">
               <MapPin size={11} className="shrink-0" aria-hidden="true" /> {job.address}
             </span>
           )}

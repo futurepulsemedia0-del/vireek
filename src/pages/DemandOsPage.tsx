@@ -45,7 +45,7 @@ const inputClass = 'focus-ring w-full rounded-xl border border-border bg-bg-seco
 const btnClass =
   'focus-ring inline-flex items-center gap-1.5 rounded-xl border border-border bg-bg-secondary px-3 py-2 text-xs font-semibold text-text-secondary transition-colors hover:text-text-primary disabled:opacity-50';
 const primaryBtn =
-  'focus-ring inline-flex items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50';
+  'focus-ring inline-flex items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-semibold text-on-accent transition-opacity hover:opacity-90 disabled:opacity-50';
 
 const money = (c: number | null | undefined) => formatCents(c, { compact: true });
 const ratio = (n: number | null) => (n === null ? '—' : `$${n.toFixed(2)}`);
@@ -54,7 +54,7 @@ function Kpi({ label, value, hint, tone }: { label: string; value: string; hint?
   return (
     <Card className="p-5">
       <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary">{label}</p>
-      <p className={`mt-1 text-2xl font-bold ${tone === 'good' ? 'text-success-500' : tone === 'bad' ? 'text-danger' : 'text-text-primary'}`}>{value}</p>
+      <p className={`mt-1 text-2xl font-bold ${tone === 'good' ? 'text-success' : tone === 'bad' ? 'text-danger' : 'text-text-primary'}`}>{value}</p>
       {hint && <p className="mt-0.5 text-xs text-text-secondary">{hint}</p>}
     </Card>
   );
@@ -235,8 +235,8 @@ export function DemandOsPage() {
         <FadeIn>
           <div className="space-y-6">
             {reconnect.length > 0 && (
-              <div role="alert" className="flex items-start gap-3 rounded-2xl border border-warning-500/40 bg-warning-500/10 p-4 text-sm text-text-primary">
-                <AlertTriangle size={18} className="mt-0.5 shrink-0 text-warning-500" />
+              <div role="alert" className="flex items-start gap-3 rounded-2xl border border-warning/40 bg-warning-subtle p-4 text-sm text-text-primary">
+                <AlertTriangle size={18} className="mt-0.5 shrink-0 text-warning" />
                 <span>
                   {reconnect.map((a) => a.display_name ?? a.external_account_id).join(', ')} need to be reconnected. Syncing and budget changes are paused for them until you do.
                 </span>
@@ -273,7 +273,7 @@ export function DemandOsPage() {
                         </span>
                       </span>
                       <span className="flex items-center gap-3">
-                        <span className={`text-xs font-semibold ${a.status === 'active' ? 'text-success-500' : a.status === 'needs_reauth' ? 'text-warning-500' : 'text-danger'}`}>
+                        <span className={`text-xs font-semibold ${a.status === 'active' ? 'text-success' : a.status === 'needs_reauth' ? 'text-warning' : 'text-danger'}`}>
                           {a.status === 'active' ? 'Connected' : a.status === 'needs_reauth' ? 'Reconnect needed' : 'Error'}
                         </span>
                         {isOwner && (
@@ -333,7 +333,7 @@ export function DemandOsPage() {
                             <div className="flex flex-wrap items-start justify-between gap-3">
                               <div className="min-w-0">
                                 <p className="flex items-center gap-2 text-sm font-semibold text-text-primary">
-                                  {up ? <TrendingUp size={16} className="text-success-500" /> : <TrendingDown size={16} className="text-danger" />}
+                                  {up ? <TrendingUp size={16} className="text-success" /> : <TrendingDown size={16} className="text-danger" />}
                                   {c?.name ?? 'Campaign'} <span className="text-xs font-normal text-text-secondary">{c ? PLATFORM_LABEL[c.platform] : ''}</span>
                                 </p>
                                 <p className="mt-1 text-sm text-text-primary">
@@ -341,7 +341,7 @@ export function DemandOsPage() {
                                   {typeof net === 'number' && <span className="ml-2 text-xs text-text-secondary">est. {net >= 0 ? '+' : ''}{money(net)}/day profit</span>}
                                 </p>
                                 <p className="mt-1 text-xs leading-relaxed text-text-secondary">{r.reason}</p>
-                                {!r.applyable && <p className="mt-1 text-xs text-warning-500">Advisory only — this budget can't be changed through the API. Adjust it in the platform.</p>}
+                                {!r.applyable && <p className="mt-1 text-xs text-warning">Advisory only — this budget can't be changed through the API. Adjust it in the platform.</p>}
                               </div>
                               {isOwner && (
                                 <div className="flex gap-2">
@@ -426,7 +426,7 @@ export function DemandOsPage() {
                           <td className="py-2 pr-3 text-right">{money(p.revenue_cents)}</td>
                           <td className="py-2 pr-3 text-right">{money(p.gross_profit_cents)}</td>
                           <td className="py-2 pr-3 text-right">{ratio(p.profitPerDollar)}</td>
-                          <td className={`py-2 text-right font-semibold ${p.netProfitCents >= 0 ? 'text-success-500' : 'text-danger'}`}>{money(p.netProfitCents)}</td>
+                          <td className={`py-2 text-right font-semibold ${p.netProfitCents >= 0 ? 'text-success' : 'text-danger'}`}>{money(p.netProfitCents)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -444,7 +444,7 @@ export function DemandOsPage() {
                         <li key={m.market} className="flex items-center justify-between rounded-xl border border-border/60 bg-bg-tertiary/30 px-4 py-2 text-sm">
                           <span className="text-text-primary">{m.market}</span>
                           <span className="text-text-secondary">
-                            {money(m.portfolio.spendCents)} spend · {m.portfolio.jobsWon} jobs · <strong className={m.portfolio.netProfitCents >= 0 ? 'text-success-500' : 'text-danger'}>{money(m.portfolio.netProfitCents)}</strong> net
+                            {money(m.portfolio.spendCents)} spend · {m.portfolio.jobsWon} jobs · <strong className={m.portfolio.netProfitCents >= 0 ? 'text-success' : 'text-danger'}>{money(m.portfolio.netProfitCents)}</strong> net
                           </span>
                         </li>
                       ))}
@@ -486,7 +486,7 @@ export function DemandOsPage() {
                 <div className="mt-4 flex flex-wrap gap-2" role="radiogroup" aria-label="Automation mode">
                   {(['off', 'recommend', 'autopilot'] as DemandOsMode[]).map((m) => (
                     <button key={m} type="button" role="radio" aria-checked={settings.mode === m} onClick={() => setMode(m)} disabled={!!busy}
-                      className={`rounded-xl border px-4 py-2 text-xs font-semibold transition-colors ${settings.mode === m ? 'border-accent bg-accent text-white' : 'border-border bg-bg-secondary text-text-secondary hover:text-text-primary'}`}>
+                      className={`rounded-xl border px-4 py-2 text-xs font-semibold transition-colors ${settings.mode === m ? 'border-accent bg-accent text-on-accent' : 'border-border bg-bg-secondary text-text-secondary hover:text-text-primary'}`}>
                       {m === 'off' ? 'Off' : m === 'recommend' ? 'Recommend (you approve)' : 'Autopilot'}
                     </button>
                   ))}

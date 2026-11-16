@@ -105,7 +105,7 @@ export function SurveyHost() {
       className="fixed bottom-[calc(16px_+_var(--vk-bottom-nav-h,0px))] right-4 z-40 w-[min(26rem,calc(100vw-2rem))] rounded-2xl border border-border bg-bg-secondary p-5 shadow-card-hover print:hidden">
       {phase === 'thanks' ? (
         <p id={titleId} role="status" className="flex items-center gap-2 text-sm font-semibold text-text-primary">
-          <CheckCircle2 size={18} className="text-success-500" aria-hidden="true" /> Thank you — this goes straight to our team.
+          <CheckCircle2 size={18} className="text-success" aria-hidden="true" /> Thank you — this goes straight to our team.
         </p>
       ) : (
         <>
@@ -116,7 +116,7 @@ export function SurveyHost() {
           <div role="radiogroup" aria-label={scale.question} className="flex gap-1.5">
             {Array.from({ length: scale.max - scale.min + 1 }, (_, i) => scale.min + i).map((n) => (
               <button key={n} type="button" role="radio" aria-checked={score === n} onClick={() => setScore(n)}
-                className={`focus-ring h-10 flex-1 rounded-lg border text-sm font-semibold ${score === n ? 'border-accent bg-accent text-white' : 'border-border text-text-primary hover:bg-bg-tertiary'}`}>{n}</button>
+                className={`focus-ring h-10 flex-1 rounded-lg border text-sm font-semibold ${score === n ? 'border-accent bg-accent text-on-accent' : 'border-border text-text-primary hover:bg-bg-tertiary'}`}>{n}</button>
             ))}
           </div>
           <div className="mt-1 flex justify-between text-xs text-text-secondary"><span>{scale.lo}</span><span>{scale.hi}</span></div>

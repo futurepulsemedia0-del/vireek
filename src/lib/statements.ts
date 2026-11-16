@@ -296,8 +296,8 @@ export function timezoneOptions(current: string): string[] {
 
 export function statusTone(status: string | null): string {
   switch (status) {
-    case 'sent': return 'bg-success-500/10 text-success-500';
-    case 'partial': return 'bg-warning-500/10 text-warning-500';
+    case 'sent': return 'bg-success-subtle text-success';
+    case 'partial': return 'bg-warning-subtle text-warning';
     case 'failed': return 'bg-danger/10 text-danger';
     default: return 'bg-bg-tertiary text-text-secondary';
   }

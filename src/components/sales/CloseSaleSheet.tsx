@@ -146,12 +146,12 @@ export function CloseSaleSheet({ open, onClose, payload, entry, depositCents, te
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-label={sold ? 'Sale closed' : 'Sign and close the sale'}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-overlay/60 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-label={sold ? 'Sale closed' : 'Sign and close the sale'}>
       <div ref={trapRef} className="max-h-[94vh] w-full max-w-xl overflow-y-auto rounded-t-3xl border border-border bg-bg-primary p-5 sm:rounded-3xl sm:p-6">
         <div className="mb-4 flex items-start justify-between gap-3">
           <div>
             <h2 className="flex items-center gap-2 text-lg font-bold text-text-primary">
-              {sold ? <CheckCircle2 className="text-success-500" size={20} aria-hidden="true" /> : <FileSignature size={20} aria-hidden="true" />}
+              {sold ? <CheckCircle2 className="text-success" size={20} aria-hidden="true" /> : <FileSignature size={20} aria-hidden="true" />}
               {sold ? 'Sale closed' : 'Review & sign'}
             </h2>
             <p className="text-sm text-text-secondary">{sold ? `${moneyExact(sp.sold_total_cents ?? entry.totalCents)} · ${entry.option.name}` : summary}</p>
@@ -188,7 +188,7 @@ export function CloseSaleSheet({ open, onClose, payload, entry, depositCents, te
               <section aria-label="Deposit" className="rounded-2xl border border-border bg-bg-secondary p-4">
                 <div className="mb-3 flex items-center justify-between text-sm">
                   <span className="font-semibold text-text-primary">Deposit {moneyExact(sp.deposit_due_cents)}</span>
-                  <span className={dueNow === 0 ? 'font-semibold text-success-500' : 'text-text-secondary'}>
+                  <span className={dueNow === 0 ? 'font-semibold text-success' : 'text-text-secondary'}>
                     {dueNow === 0 ? 'Collected' : `${moneyExact(dueNow)} still due`}
                   </span>
                 </div>

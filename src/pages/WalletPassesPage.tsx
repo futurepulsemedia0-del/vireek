@@ -96,7 +96,7 @@ export function WalletPassesPage() {
             <div role="tablist" aria-label="Pass types" className="flex flex-wrap gap-2">
               {kinds.map((k) => (
                 <button key={k} role="tab" aria-selected={kind === k} onClick={() => setKind(k)}
-                  className={`focus-ring rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors ${kind === k ? 'border-accent bg-accent text-white' : 'border-border text-text-secondary hover:bg-bg-tertiary'}`}>
+                  className={`focus-ring rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors ${kind === k ? 'border-accent bg-accent text-on-accent' : 'border-border text-text-secondary hover:bg-bg-tertiary'}`}>
                   {WALLET_KIND_META[k].label} <span className="opacity-70">{counts[k]}</span>
                 </button>
               ))}

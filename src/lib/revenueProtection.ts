@@ -129,9 +129,9 @@ export const LEAK_LABELS: Record<LeakType, string> = {
 };
 
 export const LEAK_COLORS: Record<LeakType, string> = {
-  quote_not_followed_up: 'bg-warning-500/10 text-warning-500',
+  quote_not_followed_up: 'bg-warning-subtle text-warning',
   warranty_under_claim: 'bg-accent/10 text-accent',
-  membership_renewal_missed: 'bg-warning-500/10 text-warning-500',
+  membership_renewal_missed: 'bg-warning-subtle text-warning',
   unbilled_job: 'bg-danger/10 text-danger',
   part_markup_leakage: 'bg-accent/10 text-accent',
   cancelled_appointment: 'bg-danger/10 text-danger',
@@ -141,7 +141,7 @@ export const LEAK_COLORS: Record<LeakType, string> = {
 export const SEVERITY_STYLES: Record<Severity, { badge: string; card: string }> = {
   critical: { badge: 'bg-danger/10 text-danger', card: 'border-danger/30 bg-danger/[0.03]' },
   high: { badge: 'bg-danger/10 text-danger', card: 'border-danger/20 bg-bg-secondary' },
-  medium: { badge: 'bg-warning-500/10 text-warning-500', card: 'border-border bg-bg-secondary' },
+  medium: { badge: 'bg-warning-subtle text-warning', card: 'border-border bg-bg-secondary' },
   low: { badge: 'bg-bg-tertiary text-text-secondary', card: 'border-border bg-bg-secondary' },
 };
 

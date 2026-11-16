@@ -75,14 +75,14 @@ function PhotoLightbox({
       role="dialog"
       aria-modal="true"
       aria-label={photo.caption || PHOTO_KIND_LABELS[photo.kind]}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/85 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
       <button
         type="button"
         onClick={onClose}
         aria-label="Close"
-        className="focus-ring absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-white"
+        className="focus-ring absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-xl bg-static-white/10 text-white"
       >
         <X size={18} />
       </button>
@@ -96,7 +96,7 @@ function PhotoLightbox({
               e.stopPropagation();
               onNavigate((index - 1 + photos.length) % photos.length);
             }}
-            className="focus-ring absolute left-3 flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-white"
+            className="focus-ring absolute left-3 flex h-11 w-11 items-center justify-center rounded-xl bg-static-white/10 text-white"
           >
             <ChevronLeft size={20} />
           </button>
@@ -107,7 +107,7 @@ function PhotoLightbox({
               e.stopPropagation();
               onNavigate((index + 1) % photos.length);
             }}
-            className="focus-ring absolute right-3 flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-white"
+            className="focus-ring absolute right-3 flex h-11 w-11 items-center justify-center rounded-xl bg-static-white/10 text-white"
           >
             <ChevronRight size={20} />
           </button>
@@ -161,7 +161,7 @@ function PhotoGallery({ photos, onOpen }: { photos: EstimatePhoto[]; onOpen: (i:
               <ZoomIn size={13} />
             </span>
             <span className="block px-3 py-2">
-              <span className="block text-[11px] font-medium uppercase tracking-wide text-text-secondary/80">
+              <span className="block text-[11px] font-medium uppercase tracking-wide text-text-muted">
                 {PHOTO_KIND_LABELS[photo.kind]}
               </span>
               {photo.caption && (
@@ -225,7 +225,7 @@ function OptionCard({
       } ${disabled ? 'cursor-default' : ''}`}
     >
       {option.recommended && (
-        <span className="absolute -top-2.5 left-5 flex items-center gap-1 rounded-full bg-accent px-2.5 py-0.5 text-[11px] font-semibold text-white">
+        <span className="absolute -top-2.5 left-5 flex items-center gap-1 rounded-full bg-accent px-2.5 py-0.5 text-[11px] font-semibold text-on-accent">
           <Sparkles size={10} /> Recommended
         </span>
       )}
@@ -238,7 +238,7 @@ function OptionCard({
         <span
           aria-hidden="true"
           className={`mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors ${
-            selected ? 'border-accent bg-accent text-white' : 'border-border'
+            selected ? 'border-accent bg-accent text-on-accent' : 'border-border'
           }`}
         >
           {selected && <Check size={12} />}
@@ -257,7 +257,7 @@ function OptionCard({
         <ul className="mt-4 space-y-1.5">
           {option.highlights.map((h) => (
             <li key={h} className="flex items-start gap-2 text-sm text-text-secondary">
-              <Check size={13} className="mt-1 shrink-0 text-success-500" />
+              <Check size={13} className="mt-1 shrink-0 text-success" />
               {h}
             </li>
           ))}
@@ -266,7 +266,7 @@ function OptionCard({
 
       {option.warranty_label && (
         <p className="mt-3 flex items-center gap-1.5 text-xs font-medium text-text-primary">
-          <ShieldCheck size={13} className="text-success-500" />
+          <ShieldCheck size={13} className="text-success" />
           {option.warranty_label}
         </p>
       )}
@@ -309,7 +309,7 @@ function OptionCard({
               <div key={i} className="flex items-baseline justify-between gap-3 text-xs">
                 <span className="text-text-secondary">
                   {li.description}
-                  {li.quantity > 1 && <span className="text-text-secondary/70"> × {li.quantity}</span>}
+                  {li.quantity > 1 && <span className="text-text-muted"> × {li.quantity}</span>}
                 </span>
                 <span className="shrink-0 text-text-primary">
                   {formatCents(li.quantity * li.unit_price_cents)}
@@ -482,7 +482,7 @@ export function EstimatePresentation({
                 type="button"
                 disabled={submitting || !selected}
                 onClick={() => onRespond?.('accepted', selected?.id ?? null, activeAddonIds)}
-                className="focus-ring flex-1 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110 disabled:opacity-50 sm:flex-none"
+                className="focus-ring flex-1 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-on-accent transition-all hover:brightness-110 disabled:opacity-50 sm:flex-none"
               >
                 {submitting ? 'Sending…' : 'Approve this option'}
               </button>

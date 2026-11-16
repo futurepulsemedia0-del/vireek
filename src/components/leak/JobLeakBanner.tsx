@@ -54,9 +54,9 @@ export function JobLeakBanner({ jobId, unitIds }: { jobId: string; unitIds: stri
         <Link
           key={c.id}
           to={`/dashboard/refrigerant-leaks?case=${c.id}`}
-          className="focus-ring flex flex-wrap items-center gap-2 rounded-lg bg-warning-500/10 p-3 text-sm text-text-primary"
+          className="focus-ring flex flex-wrap items-center gap-2 rounded-lg bg-warning-subtle p-3 text-sm text-text-primary"
         >
-          <AlertTriangle size={16} className="shrink-0 text-warning-500" aria-hidden="true" />
+          <AlertTriangle size={16} className="shrink-0 text-warning" aria-hidden="true" />
           <span className="min-w-0 flex-1">
             Open leak case on {c.equipment_label ?? 'this unit'}
             {c.next_action && c.next_action_due_at

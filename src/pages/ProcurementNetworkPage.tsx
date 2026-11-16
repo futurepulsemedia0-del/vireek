@@ -204,7 +204,7 @@ export function ProcurementNetworkPage() {
                             <tr key={m.month} className="border-t border-border first:border-0">
                               <td className="py-2 text-text-secondary">{m.month}</td>
                               <td className="py-2 text-right text-text-primary">{formatMoney(m.paidCents)}</td>
-                              <td className={`py-2 text-right font-medium ${m.savingsCents >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>{formatMoney(m.savingsCents)}</td>
+                              <td className={`py-2 text-right font-medium ${m.savingsCents >= 0 ? 'text-success' : 'text-danger'}`}>{formatMoney(m.savingsCents)}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -218,7 +218,7 @@ export function ProcurementNetworkPage() {
                             <tr key={s.supplierId} className="border-t border-border first:border-0">
                               <td className="py-2 text-text-secondary">{supplierNames.get(s.supplierId) ?? 'Supplier'}</td>
                               <td className="py-2 text-right text-text-primary">{formatMoney(s.paidCents)}</td>
-                              <td className={`py-2 text-right font-medium ${s.savingsCents >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>{formatMoney(s.savingsCents)}</td>
+                              <td className={`py-2 text-right font-medium ${s.savingsCents >= 0 ? 'text-success' : 'text-danger'}`}>{formatMoney(s.savingsCents)}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -254,7 +254,7 @@ export function ProcurementNetworkPage() {
                             {p.category ? ` - ${p.category}` : ''}
                           </p>
                         </div>
-                        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${p.status === 'open' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-bg-tertiary text-text-secondary'}`}>
+                        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${p.status === 'open' ? 'bg-success-subtle text-success-strong' : 'bg-bg-tertiary text-text-secondary'}`}>
                           {p.status === 'open' ? `${daysLeft(p.ends_on)}d left` : 'Closed'}
                         </span>
                       </div>
@@ -268,7 +268,7 @@ export function ProcurementNetworkPage() {
                         {p.my_ordered_cents > 0 && <span>You ordered {formatMoney(p.my_ordered_cents)}</span>}
                       </div>
                       <div className="mt-4 flex items-center justify-between">
-                        {!p.eligible ? <span className="text-xs text-amber-600">Not available in your region</span> : <span />}
+                        {!p.eligible ? <span className="text-xs text-warning">Not available in your region</span> : <span />}
                         <Button size="sm" onClick={() => setOpenProgram(p.id)} disabled={!p.eligible && p.status === 'open'}>
                           {p.status === 'open' ? 'View & order' : 'View'}
                         </Button>
@@ -466,14 +466,14 @@ function OrdersTab({ orders, programStatus, onChanged }: { orders: NetworkOrder[
                 {o.tracking ? ` - Tracking: ${o.tracking}` : ''}
               </p>
               {o.status === 'awaiting_approval' && o.po_id && (
-                <p className="mt-1 text-xs text-amber-600">
+                <p className="mt-1 text-xs text-warning">
                   Approve the purchase order in <Link className="underline" to="/dashboard/procurement">Purchase Orders</Link> to send it to the supplier.
                 </p>
               )}
               {o.status === 'awaiting_approval' && !o.po_id && (
-                <p className="mt-1 text-xs text-amber-600">Review the order, then approve it here to send it to the supplier.</p>
+                <p className="mt-1 text-xs text-warning">Review the order, then approve it here to send it to the supplier.</p>
               )}
-              {o.cancel_reason && <p className="mt-1 text-xs text-rose-600">{o.cancel_reason}</p>}
+              {o.cancel_reason && <p className="mt-1 text-xs text-danger">{o.cancel_reason}</p>}
             </div>
             <div className="flex items-center gap-3">
               <span className="font-semibold text-text-primary">{formatMoney(o.subtotal_cents)}</span>
@@ -720,12 +720,12 @@ function ProgramPanel({ programId, onBack, onOrdered }: { programId: string; onB
             <div className="text-sm">
               <p className="text-text-primary">
                 Subtotal <strong>{formatMoney(cart.subtotalCents)}</strong>{' '}
-                <span className="text-emerald-600">({formatMoney(cart.savingsVsListCents)} below list)</span>
+                <span className="text-success">({formatMoney(cart.savingsVsListCents)} below list)</span>
               </p>
               {cart.nextTierExtraSavingCents !== null && cart.nextTierExtraSavingCents > 0 && (
                 <p className="text-xs text-text-secondary">If the pool reaches the next tier you receive up to {formatMoney(cart.nextTierExtraSavingCents)} back as a rebate.</p>
               )}
-              {cart.errors.length > 0 && <p className="text-xs text-rose-600">{cart.errors[0]}</p>}
+              {cart.errors.length > 0 && <p className="text-xs text-danger">{cart.errors[0]}</p>}
             </div>
             <Button onClick={() => void submit()} disabled={busy || cart.lines.length === 0}>
               {busy && <Loader2 size={16} className="animate-spin" />} Create purchase order

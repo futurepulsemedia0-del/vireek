@@ -6,15 +6,15 @@ import type { Briefing, BriefingItem, Severity, Tone } from '@/lib/dailyBriefing
 import { fetchLatestBriefing, refreshBriefing } from '@/lib/dailyBriefingApi';
 
 const TONE_TEXT: Record<Tone, string> = {
-  good: 'text-success-500',
+  good: 'text-success',
   bad: 'text-danger',
-  warn: 'text-amber-600 dark:text-amber-400',
+  warn: 'text-warning',
   neutral: 'text-text-primary',
 };
 const SEVERITY_BADGE: Record<Severity, { label: string; cls: string }> = {
   urgent: { label: 'Needs attention', cls: 'bg-danger/10 text-danger' },
-  attention: { label: 'Worth a look', cls: 'bg-amber-500/10 text-amber-600 dark:text-amber-400' },
-  calm: { label: 'All clear', cls: 'bg-success-500/10 text-success-500' },
+  attention: { label: 'Worth a look', cls: 'bg-warning-subtle text-warning' },
+  calm: { label: 'All clear', cls: 'bg-success-subtle text-success' },
 };
 
 function Item({ item }: { item: BriefingItem }) {
@@ -90,7 +90,7 @@ export function DailyBriefingCard() {
           </span>
           <div>
             <h2 className="text-sm font-semibold text-text-primary">Daily briefing</h2>
-            <p className="text-xs text-text-secondary/70">
+            <p className="text-xs text-text-muted">
               {briefing ? briefing.date : 'Delivered every morning'}
             </p>
           </div>
@@ -129,7 +129,7 @@ export function DailyBriefingCard() {
             type="button"
             onClick={refresh}
             disabled={refreshing}
-            className="rounded-lg bg-accent px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50"
+            className="rounded-lg bg-accent px-3 py-1.5 text-sm font-medium text-on-accent disabled:opacity-50"
           >
             {refreshing ? 'Building…' : 'Build today’s briefing'}
           </button>
@@ -160,7 +160,7 @@ export function DailyBriefingCard() {
           </div>
           {clear.length > 0 && (
             <p className="mt-4 flex items-center gap-1.5 text-xs text-text-secondary">
-              <CheckCircle2 size={13} className="text-success-500" aria-hidden="true" />
+              <CheckCircle2 size={13} className="text-success" aria-hidden="true" />
               All clear: {clear.join(', ')}
             </p>
           )}

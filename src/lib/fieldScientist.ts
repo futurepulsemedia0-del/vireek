@@ -801,7 +801,7 @@ export const STATUS_LABELS: Record<HypothesisStatus, string> = {
 
 export const STATUS_COLORS: Record<HypothesisStatus, string> = {
   proposed: 'bg-accent/10 text-accent', ready: 'bg-accent/10 text-accent',
-  testing: 'bg-warning-500/10 text-warning-500', accepted: 'bg-success-500/10 text-success-500',
+  testing: 'bg-warning-subtle text-warning', accepted: 'bg-success-subtle text-success',
   rejected: 'bg-danger/10 text-danger', inconclusive: 'bg-bg-tertiary text-text-secondary',
   dismissed: 'bg-bg-tertiary text-text-secondary',
 };

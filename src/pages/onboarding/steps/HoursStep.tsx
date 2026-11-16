@@ -37,7 +37,7 @@ export function HoursStep({ data, update, onBack, onNext, onSkip, saving }: Step
                 <button type="button" onClick={() => toggleDay(day)} className="flex items-center gap-3">
                   <span
                     className={`flex h-5 w-5 items-center justify-center rounded-md border transition-all ${
-                      isActive ? 'border-accent bg-accent text-white' : 'border-border bg-bg-secondary'
+                      isActive ? 'border-accent bg-accent text-on-accent' : 'border-border bg-bg-secondary'
                     }`}
                   >
                     {isActive && <Check size={12} />}

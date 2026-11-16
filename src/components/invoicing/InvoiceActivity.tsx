@@ -18,9 +18,9 @@ const ICONS: Record<TimelineKind, LucideIcon> = {
 
 const TONES: Record<TimelineEvent['tone'], string> = {
   neutral: 'bg-bg-tertiary text-text-secondary',
-  success: 'bg-success-500/15 text-success-500',
-  warning: 'bg-warning-500/15 text-warning-500',
-  danger: 'bg-danger-500/15 text-danger-500',
+  success: 'bg-success-subtle text-success',
+  warning: 'bg-warning-subtle text-warning',
+  danger: 'bg-danger-subtle text-danger',
 };
 
 export function InvoiceTimeline({ events }: { events: TimelineEvent[] }) {
@@ -38,7 +38,7 @@ export function InvoiceTimeline({ events }: { events: TimelineEvent[] }) {
               <div className="flex flex-wrap items-baseline justify-between gap-x-3">
                 <p className="text-sm font-medium text-text-primary">{e.title}</p>
                 {e.amountCents !== undefined && (
-                  <p className={`text-sm font-semibold tabular-nums ${e.kind === 'refund' ? 'text-danger-500' : 'text-success-500'}`}>
+                  <p className={`text-sm font-semibold tabular-nums ${e.kind === 'refund' ? 'text-danger' : 'text-success'}`}>
                     {e.kind === 'refund' ? '−' : '+'}{formatCents(e.amountCents)}
                   </p>
                 )}
@@ -66,7 +66,7 @@ function describeDetails(d: InvoiceAuditEntry['details']): string | null {
 export function InvoiceAuditTrail({ entries, error, onRetry }: { entries: InvoiceAuditEntry[] | null; error: boolean; onRetry: () => void }) {
   if (error) {
     return (
-      <div role="alert" className="flex items-start gap-2 rounded-xl bg-danger-500/10 p-3 text-xs text-danger-500">
+      <div role="alert" className="flex items-start gap-2 rounded-xl bg-danger-subtle p-3 text-xs text-danger">
         <AlertTriangle size={14} className="mt-0.5 shrink-0" />
         <span>Couldn’t load the audit trail. <button type="button" onClick={onRetry} className="focus-ring font-semibold underline">Retry</button></span>
       </div>

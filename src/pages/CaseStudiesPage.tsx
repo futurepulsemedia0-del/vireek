@@ -110,7 +110,7 @@ function MetricRow({
 }) {
   return (
     <div className="flex items-center gap-2.5 py-2">
-      <Icon size={16} className={`shrink-0 ${tone === 'before' ? 'text-danger/60' : 'text-success'}`} />
+      <Icon size={16} className={`shrink-0 ${tone === 'before' ? 'text-danger' : 'text-success'}`} />
       <span className="text-sm text-text-secondary">{label}</span>
       <span className={`ml-auto text-sm font-semibold ${tone === 'before' ? 'text-text-secondary' : 'text-text-primary'}`}>
         {value}
@@ -167,7 +167,7 @@ function StoryCard({ study, index }: { study: CaseStudy; index: number }) {
           </p>
 
           <div className="mt-6 flex-1 rounded-2xl bg-bg-tertiary/60 p-5">
-            <Quote size={20} className="text-accent/40" />
+            <Quote size={20} className="text-accent" />
             <p className="mt-2 text-sm italic leading-relaxed text-text-primary sm:text-base">
               &ldquo;{study.quote}&rdquo;
             </p>
@@ -186,7 +186,7 @@ function StoryCard({ study, index }: { study: CaseStudy; index: number }) {
         <div className="overflow-hidden rounded-2xl border border-border">
           <div className="grid grid-cols-2 divide-x divide-border">
             <div className="p-5">
-              <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-wide text-danger/70">Before Vireek</p>
+              <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-wide text-danger">Before Vireek</p>
               <MetricRow icon={PhoneMissed} label="Missed calls" value={study.before.callsMissed} tone="before" />
               <MetricRow icon={Clock} label="Response" value={study.before.responseTime} tone="before" />
               <MetricRow icon={DollarSign} label="Lost" value={study.before.revenueLost} tone="before" />
@@ -256,10 +256,10 @@ export function CaseStudiesPage() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, ease: EASE, delay: 0.1 }}
-              className="mx-auto mt-10 flex max-w-md items-center justify-center gap-3 rounded-2xl border border-success-500/25 bg-success-500/10 px-6 py-5 shadow-card"
+              className="mx-auto mt-10 flex max-w-md items-center justify-center gap-3 rounded-2xl border border-success/25 bg-success-subtle px-6 py-5 shadow-card"
             >
-              <DollarSign className="h-6 w-6 shrink-0 text-success-500" />
-              <span className="text-base font-bold text-success-500 sm:text-lg">
+              <DollarSign className="h-6 w-6 shrink-0 text-success" />
+              <span className="text-base font-bold text-success sm:text-lg">
                 ~${totalRecoveredMonthly.toLocaleString()}/mo recovered across these teams
               </span>
             </motion.div>

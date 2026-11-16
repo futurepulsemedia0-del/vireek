@@ -171,7 +171,7 @@ export function TechnicianDetailPage() {
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="truncate text-xl font-semibold text-text-primary sm:text-2xl">{name}</h1>
               <span className="rounded-full bg-bg-tertiary px-2.5 py-0.5 text-[11px] font-semibold uppercase text-text-secondary">{ROLE_LABEL[member.role] ?? member.role}</span>
-              {member.invite_status === 'pending' && <span className="rounded-full bg-warning-500/15 px-2.5 py-0.5 text-[11px] font-semibold uppercase text-warning-500">Invite pending</span>}
+              {member.invite_status === 'pending' && <span className="rounded-full bg-warning-subtle px-2.5 py-0.5 text-[11px] font-semibold uppercase text-warning">Invite pending</span>}
             </div>
             <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-text-secondary">
               <a href={`mailto:${member.member_email}`} className="focus-ring flex items-center gap-1 break-all rounded hover:text-text-primary"><Mail size={13} /> {member.member_email}</a>

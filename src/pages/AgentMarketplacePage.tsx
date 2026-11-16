@@ -60,14 +60,14 @@ const TABS: { id: Tab; label: string }[] = [
 const RUN_STYLES: Record<string, string> = {
   queued: 'bg-bg-tertiary text-text-secondary',
   running: 'bg-accent/10 text-accent',
-  succeeded: 'bg-success-500/10 text-success-500',
-  partial: 'bg-warning-500/10 text-warning-500',
+  succeeded: 'bg-success-subtle text-success',
+  partial: 'bg-warning-subtle text-warning',
   failed: 'bg-danger/10 text-danger',
   blocked: 'bg-bg-tertiary text-text-secondary',
 };
 const SEVERITY_STYLES: Record<string, string> = {
   info: 'bg-accent/10 text-accent',
-  warning: 'bg-warning-500/10 text-warning-500',
+  warning: 'bg-warning-subtle text-warning',
   critical: 'bg-danger/10 text-danger',
 };
 
@@ -227,7 +227,7 @@ export function AgentMarketplacePage() {
               role="tab"
               aria-selected={tab === t.id}
               onClick={() => setTab(t.id)}
-              className={`focus-ring rounded-xl px-3.5 py-1.5 text-sm font-medium ${tab === t.id ? 'bg-cta text-white' : 'bg-bg-secondary text-text-secondary hover:bg-bg-tertiary'}`}
+              className={`focus-ring rounded-xl px-3.5 py-1.5 text-sm font-medium ${tab === t.id ? 'bg-cta text-on-cta' : 'bg-bg-secondary text-text-secondary hover:bg-bg-tertiary'}`}
             >
               {t.label}{t.id === 'installed' && installs.length > 0 ? ` (${installs.length})` : ''}
             </button>
@@ -235,7 +235,7 @@ export function AgentMarketplacePage() {
         </div>
 
         {!canManage && tab !== 'publish' && (
-          <p className="rounded-xl bg-warning-500/10 p-3 text-xs text-warning-500">You can browse and view activity. Installing or changing agents requires the account owner or a member with security permission.</p>
+          <p className="rounded-xl bg-warning-subtle p-3 text-xs text-warning">You can browse and view activity. Installing or changing agents requires the account owner or a member with security permission.</p>
         )}
 
         {tab === 'catalog' && (
@@ -275,9 +275,9 @@ export function AgentMarketplacePage() {
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-medium text-text-primary">{formatPrice(a)}</span>
                         {installed ? (
-                          <span className="flex items-center gap-1 text-xs font-medium text-success-500"><CheckCircle2 size={13} /> Installed</span>
+                          <span className="flex items-center gap-1 text-xs font-medium text-success"><CheckCircle2 size={13} /> Installed</span>
                         ) : (
-                          <button disabled={!canManage || !v} onClick={() => setDialog({ mode: 'install', agent: a })} className="focus-ring rounded-xl bg-cta px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50">Review & install</button>
+                          <button disabled={!canManage || !v} onClick={() => setDialog({ mode: 'install', agent: a })} className="focus-ring rounded-xl bg-cta px-3 py-1.5 text-xs font-medium text-on-cta disabled:opacity-50">Review & install</button>
                         )}
                       </div>
                     </div>
@@ -305,16 +305,16 @@ export function AgentMarketplacePage() {
                         <p className="text-sm font-semibold text-text-primary">{a?.name ?? 'Agent no longer listed'} {v && <span className="text-xs font-normal text-text-secondary">v{v.version}</span>}</p>
                         <p className="text-xs text-text-secondary">{i.max_runs_per_day} runs/day · cap {formatCents(i.max_monthly_spend_cents)}/mo · spent {formatCents(spent)} this month</p>
                       </div>
-                      <span className={`${pill} ${i.status === 'active' ? 'bg-success-500/10 text-success-500' : 'bg-bg-tertiary text-text-secondary'}`}>{i.status}</span>
+                      <span className={`${pill} ${i.status === 'active' ? 'bg-success-subtle text-success' : 'bg-bg-tertiary text-text-secondary'}`}>{i.status}</span>
                     </div>
                     <div className="mt-2 flex flex-wrap gap-1">
                       {i.granted_scopes.map((s) => <span key={s} className="rounded-full bg-bg-tertiary px-2 py-0.5 text-[10px] text-text-secondary">{scopeLabel.get(s) ?? s}</span>)}
                     </div>
-                    {upgrade && <p className="mt-2 text-xs text-warning-500">A new version is available. Upgrading shows you any new permissions first.</p>}
+                    {upgrade && <p className="mt-2 text-xs text-warning">A new version is available. Upgrading shows you any new permissions first.</p>}
                     {canManage && (
                       <div className="mt-3 flex flex-wrap gap-2">
                         {i.status === 'active' && (
-                          <button disabled={running === i.id} onClick={() => handleRun(i)} className="focus-ring flex items-center gap-1.5 rounded-xl bg-cta px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50">
+                          <button disabled={running === i.id} onClick={() => handleRun(i)} className="focus-ring flex items-center gap-1.5 rounded-xl bg-cta px-3 py-1.5 text-xs font-medium text-on-cta disabled:opacity-50">
                             {running === i.id ? <Loader2 size={12} className="animate-spin" /> : <Zap size={12} />} Run now
                           </button>
                         )}
@@ -412,7 +412,7 @@ export function AgentMarketplacePage() {
               <button onClick={handleVerify} className="focus-ring flex items-center gap-1.5 rounded-xl bg-bg-tertiary px-3 py-1.5 text-xs font-medium text-text-secondary"><ShieldCheck size={12} /> Verify integrity</button>
             </div>
             {chain && (
-              <p role="status" className={`mb-3 flex items-center gap-2 rounded-xl p-3 text-xs ${chain.valid ? 'bg-success-500/10 text-success-500' : 'bg-danger/10 text-danger'}`}>
+              <p role="status" className={`mb-3 flex items-center gap-2 rounded-xl p-3 text-xs ${chain.valid ? 'bg-success-subtle text-success' : 'bg-danger/10 text-danger'}`}>
                 {chain.valid ? <ShieldCheck size={14} /> : <ShieldX size={14} />}
                 {chain.valid ? `Verified: ${chain.checked} entries, hash chain intact.` : `Chain broken at entry #${chain.broken_at}. Contact support.`}
               </p>

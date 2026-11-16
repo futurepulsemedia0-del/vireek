@@ -62,7 +62,7 @@ function DistributionBar({ row }: { row: BenchmarkRow }) {
       )}
       {/* you */}
       <div
-        className="absolute top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-accent shadow"
+        className="absolute top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-on-inverse bg-accent shadow"
         style={{ left: `${pct(row.my_value)}%` }}
         title="You"
       />
@@ -107,7 +107,7 @@ function MetricCard({ row }: { row: BenchmarkRow }) {
           </div>
         ) : (
           <div>
-            <p className="text-sm text-text-secondary/70">Not enough peer data yet</p>
+            <p className="text-sm text-text-muted">Not enough peer data yet</p>
           </div>
         )}
       </div>
@@ -201,7 +201,7 @@ export function BenchmarksPage() {
           </div>
         ) : rows.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border py-12 text-center">
-            <Users className="mx-auto mb-2 h-6 w-6 text-text-secondary/50" />
+            <Users className="mx-auto mb-2 h-6 w-6 text-graphic-muted" />
             <p className="mx-auto max-w-sm text-sm text-text-secondary">
               Not enough of your own activity yet to benchmark. Once you have calls, leads, quotes, or jobs in
               this period, your numbers will show up here.
@@ -239,7 +239,7 @@ export function BenchmarksPage() {
             )}
 
             {!industryScope && comparable.some((r) => r.scope === 'all') && (
-              <p className="mt-4 text-xs text-text-secondary/80">
+              <p className="mt-4 text-xs text-text-muted">
                 Showing the all-industry benchmark for now — once enough businesses in your specific trade join,
                 comparisons will narrow to just your industry.
               </p>
@@ -247,7 +247,7 @@ export function BenchmarksPage() {
           </>
         )}
 
-        <div className="mt-6 flex items-start gap-2 text-xs text-text-secondary/70">
+        <div className="mt-6 flex items-start gap-2 text-xs text-text-muted">
           <ShieldCheck size={13} className="mt-0.5 shrink-0" />
           <p>
             Every comparison here is built from at least five other businesses' numbers averaged together — no
@@ -258,7 +258,7 @@ export function BenchmarksPage() {
 
       {showMethodology && (
         <div
-          className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-overlay/40 p-4 backdrop-blur-sm"
           onClick={() => setShowMethodology(false)}
         >
           <motion.div

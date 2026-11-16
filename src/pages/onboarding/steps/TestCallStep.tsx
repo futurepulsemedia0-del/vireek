@@ -71,7 +71,7 @@ export function TestCallStep({ data, update, onBack, onNext, onSkip, saving }: S
       <div className="flex flex-col items-center rounded-2xl border border-border bg-bg-primary p-8 text-center">
         <span
           className={`flex h-16 w-16 items-center justify-center rounded-full transition-all ${
-            callState === 'active' ? 'animate-pulse bg-success-500/15 text-success-500' : 'bg-accent/10 text-accent'
+            callState === 'active' ? 'animate-pulse bg-success-subtle text-success' : 'bg-accent/10 text-accent'
           }`}
         >
           <Mic size={28} />
@@ -90,7 +90,7 @@ export function TestCallStep({ data, update, onBack, onNext, onSkip, saving }: S
             <button
               type="button"
               onClick={endCall}
-              className="focus-ring flex items-center gap-2 rounded-xl bg-danger px-5 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110"
+              className="focus-ring flex items-center gap-2 rounded-xl bg-danger px-5 py-2.5 text-sm font-semibold text-on-danger transition-all hover:brightness-110"
             >
               <PhoneOff size={16} /> End call
             </button>
@@ -98,7 +98,7 @@ export function TestCallStep({ data, update, onBack, onNext, onSkip, saving }: S
             <button
               type="button"
               onClick={startCall}
-              className="focus-ring flex items-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110"
+              className="focus-ring flex items-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-on-accent transition-all hover:brightness-110"
             >
               <PhoneCall size={16} /> {callState === 'ended' ? 'Call again' : 'Start test call'}
             </button>

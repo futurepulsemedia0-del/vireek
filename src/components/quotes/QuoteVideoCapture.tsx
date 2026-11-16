@@ -145,7 +145,7 @@ export function QuoteVideoCapture({ onCaptured, disabled = false }: Props) {
   return (
     <div className="space-y-3">
       {phase !== 'idle' ? (
-        <div className="overflow-hidden rounded-xl border border-border bg-black">
+        <div className="overflow-hidden rounded-xl border border-border bg-overlay">
           <video ref={previewRef} muted playsInline autoPlay className="aspect-video w-full object-cover" aria-label="Camera preview" />
         </div>
       ) : null}

@@ -6,8 +6,8 @@ import { acceptDisclosure, fetchDisclosure, PayError } from '@/lib/payApi';
 import { describeUnavailable, type DisclosureDoc, type Tone } from '@/lib/pay';
 
 const TONE_CLASS: Record<Tone, string> = {
-  success: 'bg-success-500/15 text-success-500',
-  warning: 'bg-warning-500/15 text-warning-500',
+  success: 'bg-success-subtle text-success',
+  warning: 'bg-warning-subtle text-warning',
   danger: 'bg-danger/15 text-danger',
   neutral: 'bg-bg-tertiary text-text-secondary',
 };
@@ -20,7 +20,7 @@ export function Pill({ tone, children }: { tone: Tone; children: ReactNode }) {
 export function SandboxBanner({ show }: { show: boolean }) {
   if (!show) return null;
   return (
-    <div role="status" className="flex items-start gap-2 rounded-xl border border-warning-500/40 bg-warning-500/10 p-3 text-sm text-warning-500">
+    <div role="status" className="flex items-start gap-2 rounded-xl border border-warning/40 bg-warning-subtle p-3 text-sm text-warning">
       <FlaskConical size={16} className="mt-0.5 shrink-0" />
       <span><strong>Sandbox mode.</strong> Nothing here is real: no money moves, no cards are issued and no credit decisions are made.</span>
     </div>
@@ -66,7 +66,7 @@ export function DisclosureGate({ disclosureKey, onAccepted }: { disclosureKey: s
   return (
     <section aria-label={doc.title} className="rounded-xl border border-border bg-bg-secondary p-4">
       <h3 className="text-sm font-semibold text-text-primary">{doc.title}</h3>
-      {!doc.legal_reviewed && <p className="mt-1 text-xs font-medium text-warning-500">Draft terms — not yet legally reviewed.</p>}
+      {!doc.legal_reviewed && <p className="mt-1 text-xs font-medium text-warning">Draft terms — not yet legally reviewed.</p>}
       <div className="mt-2 max-h-56 overflow-y-auto whitespace-pre-line rounded-lg bg-bg-primary p-3 text-sm leading-relaxed text-text-secondary" tabIndex={0}>{doc.body}</div>
       <label className="mt-3 flex cursor-pointer items-start gap-2 text-sm text-text-primary">
         <input type="checkbox" className="mt-0.5 h-5 w-5" checked={checked} onChange={(e) => setChecked(e.target.checked)} />

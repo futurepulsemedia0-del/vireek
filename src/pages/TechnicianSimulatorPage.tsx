@@ -127,7 +127,7 @@ function Lobby({
                   <span className="text-base font-bold text-text-primary">{a.score ?? '-'}</span>
                   <span
                     className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
-                      a.passed ? 'bg-success-500/10 text-success-500' : 'bg-danger/10 text-danger'
+                      a.passed ? 'bg-success-subtle text-success' : 'bg-danger/10 text-danger'
                     }`}
                   >
                     {a.passed ? 'Passed' : 'Not passed'}
@@ -397,7 +397,7 @@ function Workbench({
               const checked = done || pendingSafety.has(s.id);
               return (
                 <li key={s.id}>
-                  <label className={`flex cursor-pointer items-start gap-2.5 rounded-lg border p-2.5 text-sm ${done ? 'border-success-500/40 bg-success-500/5' : 'border-border'}`}>
+                  <label className={`flex cursor-pointer items-start gap-2.5 rounded-lg border p-2.5 text-sm ${done ? 'border-success/40 bg-success-subtle' : 'border-border'}`}>
                     <input
                       type="checkbox"
                       className="mt-0.5 h-4 w-4 accent-[rgb(var(--accent))]"
@@ -406,7 +406,7 @@ function Workbench({
                       onChange={() => toggleSafety(s.id)}
                     />
                     <span className="text-text-primary">{s.label}</span>
-                    {done && <CheckCircle2 size={15} className="ml-auto flex-shrink-0 text-success-500" />}
+                    {done && <CheckCircle2 size={15} className="ml-auto flex-shrink-0 text-success" />}
                   </label>
                 </li>
               );
@@ -432,7 +432,7 @@ function Workbench({
                   disabled={answered || busy === `f:${q.id}` || expired}
                   onClick={() => askTopic(q.id, q.topic)}
                   className={`focus-ring rounded-full border px-3 py-1.5 text-xs font-medium transition-colors disabled:cursor-default ${
-                    answered ? 'border-success-500/40 bg-success-500/5 text-success-500' : 'border-border text-text-secondary hover:border-accent/40'
+                    answered ? 'border-success/40 bg-success-subtle text-success' : 'border-border text-text-secondary hover:border-accent/40'
                   }`}
                 >
                   {q.topic}
@@ -497,7 +497,7 @@ function Workbench({
                     <p className="text-xs text-text-secondary">{m.tool} - {m.location} - ~{m.minutes} min</p>
                   </div>
                   {m.intrusive && (
-                    <span className="inline-flex flex-shrink-0 items-center gap-1 rounded-full bg-warning-500/10 px-2 py-0.5 text-[11px] font-semibold text-warning-500">
+                    <span className="inline-flex flex-shrink-0 items-center gap-1 rounded-full bg-warning-subtle px-2 py-0.5 text-[11px] font-semibold text-warning">
                       <Zap size={11} /> Live work
                     </span>
                   )}
@@ -607,11 +607,11 @@ function ResultView({ result, onNew }: { result: SimResult; onNew: () => void })
       <Card className="p-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <span className={`flex h-20 w-20 items-center justify-center rounded-2xl text-3xl font-extrabold ${r.passed ? 'bg-success-500/10 text-success-500' : 'bg-danger/10 text-danger'}`}>
+            <span className={`flex h-20 w-20 items-center justify-center rounded-2xl text-3xl font-extrabold ${r.passed ? 'bg-success-subtle text-success' : 'bg-danger/10 text-danger'}`}>
               {r.score}
             </span>
             <div>
-              <p className={`inline-flex items-center gap-1.5 text-lg font-bold ${r.passed ? 'text-success-500' : 'text-danger'}`}>
+              <p className={`inline-flex items-center gap-1.5 text-lg font-bold ${r.passed ? 'text-success' : 'text-danger'}`}>
                 {r.passed ? <CheckCircle2 size={20} /> : <XCircle size={20} />} {r.passed ? 'Passed' : 'Not passed'}
               </p>
               <p className="text-sm text-text-secondary">Pass requires {SIM_PASS_MARK}+, the correct root cause and zero safety violations.</p>
@@ -627,7 +627,7 @@ function ResultView({ result, onNew }: { result: SimResult; onNew: () => void })
         {r.flags.length > 0 && (
           <div className="mt-4 flex flex-wrap gap-2">
             {r.flags.map((f) => (
-              <span key={f} className="inline-flex items-center gap-1 rounded-full bg-warning-500/10 px-2.5 py-1 text-xs font-medium text-warning-500">
+              <span key={f} className="inline-flex items-center gap-1 rounded-full bg-warning-subtle px-2.5 py-1 text-xs font-medium text-warning">
                 <AlertTriangle size={12} /> {FLAG_LABELS[f] ?? f}
               </span>
             ))}
@@ -648,7 +648,7 @@ function ResultView({ result, onNew }: { result: SimResult; onNew: () => void })
                     <span className="font-semibold text-text-primary">{r.breakdown[k]} / {SIM_SCORE_MAX[k]}</span>
                   </div>
                   <div className="mt-1 h-2 overflow-hidden rounded-full bg-bg-tertiary">
-                    <div className={`h-full rounded-full ${pct >= 70 ? 'bg-success-500' : pct >= 40 ? 'bg-warning-500' : 'bg-danger'}`} style={{ width: `${pct}%` }} />
+                    <div className={`h-full rounded-full ${pct >= 70 ? 'bg-success' : pct >= 40 ? 'bg-warning' : 'bg-danger'}`} style={{ width: `${pct}%` }} />
                   </div>
                 </li>
               );
@@ -662,14 +662,14 @@ function ResultView({ result, onNew }: { result: SimResult; onNew: () => void })
           {r.coaching.strengths.length > 0 && (
             <ul className="mt-3 space-y-1.5">
               {r.coaching.strengths.map((s) => (
-                <li key={s} className="flex items-start gap-2 text-sm text-text-primary"><CheckCircle2 size={15} className="mt-0.5 flex-shrink-0 text-success-500" />{s}</li>
+                <li key={s} className="flex items-start gap-2 text-sm text-text-primary"><CheckCircle2 size={15} className="mt-0.5 flex-shrink-0 text-success" />{s}</li>
               ))}
             </ul>
           )}
           {r.coaching.improvements.length > 0 && (
             <ul className="mt-3 space-y-1.5">
               {r.coaching.improvements.map((s) => (
-                <li key={s} className="flex items-start gap-2 text-sm text-text-primary"><AlertTriangle size={15} className="mt-0.5 flex-shrink-0 text-warning-500" />{s}</li>
+                <li key={s} className="flex items-start gap-2 text-sm text-text-primary"><AlertTriangle size={15} className="mt-0.5 flex-shrink-0 text-warning" />{s}</li>
               ))}
             </ul>
           )}
@@ -734,7 +734,7 @@ function RevealList({ title, items, okLabel, missLabel }: { title: string; items
         <ul className="mt-1 space-y-1">
           {items.map((i) => (
             <li key={i.text} className="flex items-start gap-2 text-sm text-text-secondary">
-              {i.ok ? <CheckCircle2 size={15} className="mt-0.5 flex-shrink-0 text-success-500" aria-label={okLabel} /> : <XCircle size={15} className="mt-0.5 flex-shrink-0 text-danger" aria-label={missLabel} />}
+              {i.ok ? <CheckCircle2 size={15} className="mt-0.5 flex-shrink-0 text-success" aria-label={okLabel} /> : <XCircle size={15} className="mt-0.5 flex-shrink-0 text-danger" aria-label={missLabel} />}
               <span>{i.text}</span>
             </li>
           ))}

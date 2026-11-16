@@ -137,18 +137,18 @@ Deno.serve(async (req: Request) => {
     const greetingName = memberName ? memberName.split(" ")[0] : "there";
 
     const html = `
-      <div style="font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1a1a1a;">
-        <p style="font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #6b7280; margin: 0 0 16px;">You've been invited</p>
+      <div style="font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1c1b15;">
+        <p style="font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #73726c; margin: 0 0 16px;">You've been invited</p>
         <h1 style="font-size: 22px; margin: 0 0 16px;">Hi ${escapeHtml(greetingName)}, join ${escapeHtml(companyName)} on Vireek</h1>
-        <p style="font-size: 15px; line-height: 1.6; color: #374151;">
+        <p style="font-size: 15px; line-height: 1.6; color: #44423D;">
           ${escapeHtml(inviterName)} added you as a <strong>${escapeHtml(roleLabel)}</strong> on their Vireek account —
           the AI voice receptionist platform that answers calls, books jobs, and keeps the whole team in sync.
         </p>
         <a href="${inviteUrl}"
-           style="display: inline-block; margin-top: 24px; padding: 12px 24px; background: #111827; color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 14px;">
+           style="display: inline-block; margin-top: 24px; padding: 12px 24px; background: #1C1B15; color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 14px;">
           Accept invite &amp; create your account
         </a>
-        <p style="margin-top: 24px; font-size: 13px; color: #9ca3af;">
+        <p style="margin-top: 24px; font-size: 13px; color: #a9a8a2;">
           Sign up with <strong>${escapeHtml(memberEmail)}</strong> so your account links automatically to ${escapeHtml(companyName)}.
           If you weren't expecting this, you can ignore this email.
         </p>

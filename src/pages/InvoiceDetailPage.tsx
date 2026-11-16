@@ -276,12 +276,12 @@ export function InvoiceDetailPage() {
       </div>
 
       {!hasEmail && !isVoid && ledger.state !== 'paid' && (
-        <p className="flex items-center gap-2 rounded-xl bg-warning-500/10 px-3 py-2 text-xs text-warning-500">
+        <p className="flex items-center gap-2 rounded-xl bg-warning-subtle px-3 py-2 text-xs text-warning">
           <TriangleAlert size={14} className="shrink-0" /> No customer email on file, so this invoice can’t be emailed. You can still copy the link once it’s sent.
         </p>
       )}
       {isVoid && (
-        <p role="status" className="flex items-center gap-2 rounded-xl bg-danger-500/10 px-3 py-2 text-sm text-danger-500">
+        <p role="status" className="flex items-center gap-2 rounded-xl bg-danger-subtle px-3 py-2 text-sm text-danger">
           <Ban size={14} className="shrink-0" /> This invoice is void. It can’t be paid or sent.
         </p>
       )}
@@ -289,9 +289,9 @@ export function InvoiceDetailPage() {
       {/* Summary */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat label="Total" value={formatCents(ledger.totalCents)} />
-        <Stat label="Paid (net of refunds)" value={formatCents(Math.max(0, ledger.netPaidCents))} tone={ledger.netPaidCents > 0 ? 'text-success-500' : ''} />
-        <Stat label="Balance due" value={formatCents(isVoid ? 0 : ledger.balanceCents)} tone={!isVoid && ledger.balanceCents > 0 && status === 'overdue' ? 'text-danger-500' : ''} />
-        <Stat label={status === 'overdue' ? 'Overdue since' : 'Due date'} value={fmtDate(invoice.due_date)} tone={status === 'overdue' ? 'text-danger-500' : ''} />
+        <Stat label="Paid (net of refunds)" value={formatCents(Math.max(0, ledger.netPaidCents))} tone={ledger.netPaidCents > 0 ? 'text-success' : ''} />
+        <Stat label="Balance due" value={formatCents(isVoid ? 0 : ledger.balanceCents)} tone={!isVoid && ledger.balanceCents > 0 && status === 'overdue' ? 'text-danger' : ''} />
+        <Stat label={status === 'overdue' ? 'Overdue since' : 'Due date'} value={fmtDate(invoice.due_date)} tone={status === 'overdue' ? 'text-danger' : ''} />
       </div>
 
       <div className="grid gap-5 lg:grid-cols-[1fr_340px]">
@@ -372,19 +372,19 @@ export function InvoiceDetailPage() {
                           {p.note && <p className="mt-0.5 break-words text-xs text-text-secondary">{p.note}</p>}
                         </div>
                         <div className="text-right">
-                          <p className="text-sm font-semibold tabular-nums text-success-500">{formatCents(p.amount_cents)}</p>
+                          <p className="text-sm font-semibold tabular-nums text-success">{formatCents(p.amount_cents)}</p>
                           {left > 0 && !isVoid && (
                             <button type="button" onClick={() => setDialog({ type: 'refund', paymentId: p.id })} className="focus-ring mt-0.5 rounded text-xs font-medium text-text-secondary underline-offset-2 hover:text-text-primary hover:underline">Refund</button>
                           )}
                         </div>
                       </div>
                       {prefunds.map((r) => (
-                        <div key={r.id} className="mt-2 flex items-start justify-between gap-3 rounded-lg bg-danger-500/5 px-3 py-2">
+                        <div key={r.id} className="mt-2 flex items-start justify-between gap-3 rounded-lg bg-danger-subtle px-3 py-2">
                           <div className="min-w-0">
-                            <p className="text-xs font-medium text-danger-500">Refund · {fmtDate(r.refunded_at)}</p>
+                            <p className="text-xs font-medium text-danger">Refund · {fmtDate(r.refunded_at)}</p>
                             <p className="break-words text-xs text-text-secondary">{r.reason}</p>
                           </div>
-                          <p className="text-sm font-semibold tabular-nums text-danger-500">−{formatCents(r.amount_cents)}</p>
+                          <p className="text-sm font-semibold tabular-nums text-danger">−{formatCents(r.amount_cents)}</p>
                         </div>
                       ))}
                     </li>
@@ -425,10 +425,10 @@ export function InvoiceDetailPage() {
                   <li key={r.id} className="py-2.5">
                     <div className="flex items-center justify-between gap-2">
                       <p className="text-sm font-medium capitalize text-text-primary">{r.kind === 'initial' ? 'Invoice' : r.kind}</p>
-                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${r.status === 'sent' ? 'bg-success-500/15 text-success-500' : 'bg-danger-500/15 text-danger-500'}`}>{r.status}</span>
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${r.status === 'sent' ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'}`}>{r.status}</span>
                     </div>
                     <p className="break-all text-xs text-text-secondary">{r.recipient} · {fmtDateTime(r.created_at)}</p>
-                    {r.error && <p className="mt-0.5 break-words text-xs text-danger-500">{r.error}</p>}
+                    {r.error && <p className="mt-0.5 break-words text-xs text-danger">{r.error}</p>}
                   </li>
                 ))}
               </ul>

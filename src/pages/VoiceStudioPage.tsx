@@ -192,7 +192,7 @@ export function VoiceStudioPage() {
                 <input type="checkbox" checked={phone} onChange={(e) => setPhone(e.target.checked)} /> Phone-line sound (8 kHz)
               </label>
               <button type="button" onClick={onPreview} disabled={busy || !greeting.trim()}
-                className="focus-ring flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-50">
+                className="focus-ring flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent disabled:opacity-50">
                 {busy ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />} Play preview
               </button>
               <button type="button" onClick={onSave} disabled={saving}

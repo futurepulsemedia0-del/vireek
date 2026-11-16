@@ -39,17 +39,17 @@ export const STATUS_LABELS: Record<ImmuneStatus, string> = {
 
 export const STATUS_COLORS: Record<ImmuneStatus, string> = {
   active: 'bg-danger/10 text-danger',
-  acknowledged: 'bg-warning-500/10 text-warning-500',
+  acknowledged: 'bg-warning-subtle text-warning',
   contained: 'bg-accent/10 text-accent',
-  resolved: 'bg-success-500/10 text-success-500',
+  resolved: 'bg-success-subtle text-success',
   dismissed: 'bg-bg-tertiary text-text-secondary',
 };
 
 export const SEVERITY_COLORS: Record<ImmuneSeverity, string> = {
   low: 'bg-bg-tertiary text-text-secondary',
-  medium: 'bg-warning-500/10 text-warning-500',
+  medium: 'bg-warning-subtle text-warning',
   high: 'bg-danger/10 text-danger',
-  critical: 'bg-danger/20 text-danger',
+  critical: 'bg-danger/20 text-danger-strong',
 };
 
 export function severityLabel(score: number): ImmuneSeverity {

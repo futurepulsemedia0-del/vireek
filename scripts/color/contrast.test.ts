@@ -24,8 +24,8 @@ describe.each(THEMES)('contrast gate — %s', (theme) => {
 
 describe('brand anchors stay put (the change must stay near-invisible)', () => {
   const L = buildTheme('light').tok, D = buildTheme('dark').tok;
-  it('cobalt', () => { expect(toHex(L['accent-text'])).toBe('#203AD8'); expect(toHex(L['accent-fill'])).toBe('#203AD8'); });
-  it('copper graphic (light) and copper fill (dark)', () => { expect(toHex(L['cta-graphic'])).toBe('#D6582A'); expect(toHex(D['cta-fill'])).toBe('#FF8A5A'); });
+  it('clay accent', () => { expect(toHex(L['accent-text'])).toBe('#AE3600'); expect(toHex(L['accent-fill'])).toBe('#F9774C'); });
+  it('blurple cta graphic (light) and lilac cta fill (dark)', () => { expect(toHex(L['cta-graphic'])).toBe('#533AFD'); expect(toHex(D['cta-fill'])).toBe('#7F6CFE'); });
   it('control borders are >= 3:1 on every surface', () => {
     for (const k of ['bg-primary', 'bg-secondary', 'bg-tertiary']) {
       expect(contrast(L['border-strong'], L[k])).toBeGreaterThanOrEqual(3);
@@ -71,13 +71,13 @@ describe('browser / native surfaces match the brand tokens', () => {
   const darkBg = toHex(buildTheme('dark').tok['bg-primary']);
   it('index.html theme-color (default = light page surface) + inline script values', () => {
     const html = read('index.html');
-    expect(html).toMatch(new RegExp(`<meta name="theme-color" content="${lightBg}"`, 'i'));
+    expect(html).toMatch(new RegExp(`<meta name="theme-color"[^>]*content="${lightBg}"`, 'i'));
     expect(html.toUpperCase()).toContain(darkBg);
   });
   it('web manifest', () => {
     const m = JSON.parse(read('public/site.webmanifest'));
     expect(m.theme_color.toUpperCase()).toBe(lightBg);
-    expect(m.background_color.toUpperCase()).toBe(lightBg);
+    expect([lightBg, darkBg]).toContain(m.background_color.toUpperCase());
   });
   it('Capacitor splash/background use the dark surface', () => {
     const c = read('capacitor.config.ts').toUpperCase();

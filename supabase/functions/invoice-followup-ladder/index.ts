@@ -114,11 +114,11 @@ Deno.serve(async (req: Request) => {
         const dueLine = c.due_date ? renderTemplate("invoice.email.due", language, { date: formatDate(c.due_date, language) }) : "";
         const link = `${siteUrl}/invoice/${c.invoice_token}`;
         const text = `${greeting}\n\n${lead}\n\n${L("invoice.email.label.invoice")} ${c.invoice_number}\n${L("invoice.email.label.balance")}: ${balanceLabel}\n${dueLine}\n\n${L("invoice.email.viewHere")} ${link}\n\n${L("invoice.email.signoff")}\n${business}`;
-        const html = `<div ${htmlLangAttrs(language)} style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:520px;margin:0 auto;color:#171717;text-align:${textAlignStart(language)}">
+        const html = `<div ${htmlLangAttrs(language)} style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:520px;margin:0 auto;color:#141413;text-align:${textAlignStart(language)}">
 <p>${escapeHtml(greeting)}</p><p>${escapeHtml(lead)}</p>
 <p><strong>${escapeHtml(L("invoice.email.label.invoice"))} ${escapeHtml(c.invoice_number)}</strong><br/>${escapeHtml(L("invoice.email.label.balance"))}: <strong>${escapeHtml(balanceLabel)}</strong>${dueLine ? `<br/>${escapeHtml(dueLine)}` : ""}</p>
-<p style="margin:24px 0"><a href="${link}" style="background:#203ad8;color:#fff;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:600;display:inline-block">${escapeHtml(L("invoice.email.cta"))}</a></p>
-<p style="color:#6e6e78;font-size:13px">${escapeHtml(L("invoice.email.signoff"))}<br/>${escapeHtml(business)}</p></div>`;
+<p style="margin:24px 0"><a href="${link}" style="background:#ae3600;color:#fff;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:600;display:inline-block">${escapeHtml(L("invoice.email.cta"))}</a></p>
+<p style="color:#73726c;font-size:13px">${escapeHtml(L("invoice.email.signoff"))}<br/>${escapeHtml(business)}</p></div>`;
 
         const sentTo: string[] = [];
         for (const addr of recipients) {

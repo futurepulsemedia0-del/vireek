@@ -28,7 +28,7 @@ function Stepper({ step }: { step: Step }) {
     <ol className="mb-6 flex items-center gap-2" aria-label="Import progress">
       {STEPS.map((s, i) => (
         <li key={s.id} className="flex items-center gap-2" aria-current={i === index ? 'step' : undefined}>
-          <span className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${i < index ? 'bg-success text-white' : i === index ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary'}`}>
+          <span className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${i < index ? 'bg-success text-on-success' : i === index ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary'}`}>
             {i < index ? <Check size={14} /> : i + 1}
           </span>
           <span className={`${i === index ? 'inline' : 'hidden sm:inline'} text-sm font-medium ${i === index ? 'text-text-primary' : 'text-text-secondary'}`}>{s.label}</span>
@@ -248,7 +248,7 @@ export function ImportWizard({ accountOwnerId, onFinished }: Props) {
             <legend className="mb-2 text-sm font-semibold text-text-primary">What are you importing?</legend>
             <div className="flex flex-wrap rounded-xl border border-border p-1" role="radiogroup">
               {(['customers', 'jobs', ...LEDGER_IMPORT_TYPES] as ImportType[]).map((t) => (
-                <label key={t} className={`focus-within:ring-2 focus-within:ring-accent/40 cursor-pointer rounded-lg px-4 py-2 text-sm font-semibold ${importType === t ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}>
+                <label key={t} className={`focus-within:ring-2 focus-within:ring-accent/40 cursor-pointer rounded-lg px-4 py-2 text-sm font-semibold ${importType === t ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}>
                   <input type="radio" name="import-type" className="sr-only" checked={importType === t} onChange={() => changeType(t)} />
                   {t === 'customers' ? 'Customers' : t === 'jobs' ? 'Job history' : LEDGER_TYPE_LABELS[t]}
                 </label>
@@ -335,7 +335,7 @@ export function ImportWizard({ accountOwnerId, onFinished }: Props) {
             <p className="text-sm text-text-secondary">We matched what we could{autoKeys.length ? ` (${autoKeys.length} fields)` : ''}. Check each one and change anything that’s off.</p>
           </div>
 
-          {!mappingOk && <p role="alert" className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-3 text-sm text-text-primary">{REQUIRED_ANY[importType].message}</p>}
+          {!mappingOk && <p role="alert" className="rounded-xl border border-warning/30 bg-warning-subtle p-3 text-sm text-text-primary">{REQUIRED_ANY[importType].message}</p>}
 
           <ul className="divide-y divide-border rounded-2xl border border-border">
             {fields.map((f) => (

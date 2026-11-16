@@ -158,8 +158,8 @@ export const SIM_DIFFICULTY_META: Record<SimDifficulty, { label: string; blurb: 
 export const SIM_CERT_META: Record<SimCertLevel, { label: string; className: string }> = {
   none: { label: 'Not certified', className: 'bg-bg-tertiary text-text-secondary' },
   foundation: { label: 'Foundation', className: 'bg-accent/10 text-accent' },
-  professional: { label: 'Professional', className: 'bg-success-500/10 text-success-500' },
-  master: { label: 'Master', className: 'bg-warning-500/10 text-warning-500' },
+  professional: { label: 'Professional', className: 'bg-success-subtle text-success' },
+  master: { label: 'Master', className: 'bg-warning-subtle text-warning' },
 };
 
 export const SIM_DECISION_META: Record<SimDecision, { label: string; hint: string }> = {

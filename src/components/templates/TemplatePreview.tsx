@@ -10,7 +10,7 @@ import {
 
 const VARIABLE_STYLES: Record<'value' | 'fallback' | 'unknown' | 'missing', string> = {
   value: 'bg-accent/15 text-accent',
-  fallback: 'bg-warning-500/15 text-warning-500',
+  fallback: 'bg-warning-subtle text-warning',
   unknown: 'bg-danger/15 text-danger',
   missing: 'bg-danger/15 text-danger',
 };
@@ -94,7 +94,7 @@ export function TemplatePreview({ channel, subject, body }: TemplatePreviewProps
           <span className="h-2 w-2 rounded-full bg-accent" aria-hidden="true" /> Sample value
         </li>
         <li className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-warning-500" aria-hidden="true" /> Fallback used
+          <span className="h-2 w-2 rounded-full bg-warning" aria-hidden="true" /> Fallback used
         </li>
         <li className="flex items-center gap-1.5">
           <span className="h-2 w-2 rounded-full bg-danger" aria-hidden="true" /> Needs attention

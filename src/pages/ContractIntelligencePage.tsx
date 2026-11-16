@@ -73,7 +73,7 @@ async function fetchIn<T>(ids: string[], build: (chunk: string[]) => PromiseLike
   return results.flatMap((r) => (r.data as T[] | null) ?? []);
 }
 
-const TONE_ICON = { ok: 'text-success-500', warn: 'text-warning-500', bad: 'text-danger' } as const;
+const TONE_ICON = { ok: 'text-success', warn: 'text-warning', bad: 'text-danger' } as const;
 
 function attentionRank(r: CoverageResult): number {
   if (r.flags.includes('sla_breached')) return 0;
@@ -90,10 +90,10 @@ function ResponseChip({ r }: { r: CoverageResult }) {
   let cls: string;
   if (status === 'pending') {
     text = `Response deadline: ${formatCountdown(remaining_ms ?? 0)}`;
-    cls = (remaining_ms ?? 0) < 3_600_000 ? 'bg-warning-500/10 text-warning-500' : 'bg-bg-tertiary text-text-secondary';
+    cls = (remaining_ms ?? 0) < 3_600_000 ? 'bg-warning-subtle text-warning' : 'bg-bg-tertiary text-text-secondary';
   } else if (status === 'met') {
     text = 'Responded within SLA';
-    cls = 'bg-success-500/10 text-success-500';
+    cls = 'bg-success-subtle text-success';
   } else {
     const late = (met_at ? new Date(met_at).getTime() : Date.now()) - deadline;
     text = met_at ? `Responded ${formatCountdown(late)} late` : `SLA overdue by ${formatCountdown(late)}`;
@@ -347,8 +347,8 @@ export function ContractIntelligencePage() {
         <>
           <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
             {[
-              { label: 'Contract-covered jobs', value: kpis.covered, icon: CheckCircle2, tone: 'text-success-500' },
-              { label: 'SLA at risk (< 1h)', value: kpis.atRisk, icon: Timer, tone: 'text-warning-500' },
+              { label: 'Contract-covered jobs', value: kpis.covered, icon: CheckCircle2, tone: 'text-success' },
+              { label: 'SLA at risk (< 1h)', value: kpis.atRisk, icon: Timer, tone: 'text-warning' },
               { label: 'SLA breached', value: kpis.breached, icon: AlertTriangle, tone: 'text-danger' },
               { label: 'Contracts verified', value: `${kpis.verified}/${contracts.length}`, icon: ShieldCheck, tone: 'text-accent' },
             ].map((k) => (
@@ -457,7 +457,7 @@ export function ContractIntelligencePage() {
                 {contracts.map((c) => {
                   const p = profiles.get(c.id);
                   const terms = p ? normalizeTerms(p.terms) : null;
-                  const status = !p ? ['Not analysed', 'bg-bg-tertiary text-text-secondary'] : p.review_status === 'verified' ? ['Verified', 'bg-success-500/10 text-success-500'] : ['Draft — needs review', 'bg-warning-500/10 text-warning-500'];
+                  const status = !p ? ['Not analysed', 'bg-bg-tertiary text-text-secondary'] : p.review_status === 'verified' ? ['Verified', 'bg-success-subtle text-success'] : ['Draft — needs review', 'bg-warning-subtle text-warning'];
                   return (
                     <div key={c.id} className="rounded-xl border border-border bg-bg-secondary p-4">
                       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -477,7 +477,7 @@ export function ContractIntelligencePage() {
                             </p>
                           )}
                           {!c.customer_id && (
-                            <p className="mt-1.5 flex items-center gap-1.5 text-xs text-warning-500">
+                            <p className="mt-1.5 flex items-center gap-1.5 text-xs text-warning">
                               <AlertTriangle size={12} /> Link this contract to a customer or its jobs can’t be matched.
                             </p>
                           )}

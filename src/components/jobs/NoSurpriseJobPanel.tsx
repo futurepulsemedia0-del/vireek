@@ -39,8 +39,8 @@ import {
 } from '@/lib/noSurpriseApi';
 
 const TONE_TEXT = {
-  success: 'text-success-500',
-  warning: 'text-warning-500',
+  success: 'text-success',
+  warning: 'text-warning',
   danger: 'text-danger',
   neutral: 'text-text-secondary',
 } as const;
@@ -162,7 +162,7 @@ function Composer({ job, onCancel, onCreated }: { job: Job; onCancel: () => void
     <div className="space-y-4 rounded-xl border border-border bg-bg-primary p-4">
       <div className="flex items-start justify-between gap-2">
         <p className="flex items-center gap-1.5 text-sm font-semibold text-text-primary">
-          <AlertTriangle size={14} className="text-warning-500" /> Additional work may be required
+          <AlertTriangle size={14} className="text-warning" /> Additional work may be required
         </p>
         <button type="button" onClick={onCancel} aria-label="Close" className="focus-ring rounded-md p-1 text-text-secondary hover:text-text-primary">
           <X size={14} />
@@ -352,7 +352,7 @@ function RequestCard({ request, job, onChanged }: { request: NoSurpriseRequest; 
       <p className="text-xs text-text-secondary">Estimate {formatRange(request.cost_low_cents, request.cost_high_cents)} · sent by {request.created_by_name ?? 'staff'}</p>
 
       {status === 'approved' && (
-        <p className="text-xs font-medium text-success-500">
+        <p className="text-xs font-medium text-success">
           Approved{chosen ? ` “${chosen.label}”` : ''} up to {formatUsd(request.approved_cost_high_cents)} · signed {request.signed_name}
         </p>
       )}
@@ -484,7 +484,7 @@ export function NoSurpriseJobPanel({ job }: { job: Job }) {
           No-Surprise
           {cert && <NoSurpriseBadge level={level} variant="compact" />}
           {pendingCount > 0 && (
-            <span className="rounded-full bg-warning-500/10 px-2 py-0.5 text-[11px] font-semibold text-warning-500">{pendingCount} waiting</span>
+            <span className="rounded-full bg-warning-subtle px-2 py-0.5 text-[11px] font-semibold text-warning">{pendingCount} waiting</span>
           )}
         </span>
         <span className="text-xs text-text-secondary">{expanded ? 'Hide' : 'Details'}</span>
@@ -515,7 +515,7 @@ export function NoSurpriseJobPanel({ job }: { job: Job }) {
             <ul className="space-y-1 text-xs">
               {reasons.map((r) => (
                 <li key={r} className="flex items-center gap-2 text-text-primary">
-                  <span className="h-1.5 w-1.5 rounded-full bg-warning-500" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-warning" />
                   {CERT_REASON_LABELS[r]}
                 </li>
               ))}

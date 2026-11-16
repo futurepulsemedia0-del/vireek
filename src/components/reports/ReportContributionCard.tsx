@@ -32,12 +32,12 @@ export function ReportContributionCard() {
       </div>
       <p className="mt-3 text-xs text-text-secondary">You can withdraw at any time; you are then excluded from every future edition. Reports already published are aggregates and are not recalculated. Terms version: {REPORT_TERMS_VERSION}. See the <a className="underline" href="/privacy">Privacy Policy</a> and <a className="underline" href="/dpa">DPA</a>.</p>
       {on ? (
-        <div className="mt-4 flex items-center gap-3"><span className="text-sm font-medium text-green-700">Contributing{state.granted_at ? ` since ${new Date(state.granted_at).toLocaleDateString()}` : ''}</span>
+        <div className="mt-4 flex items-center gap-3"><span className="text-sm font-medium text-success-strong">Contributing{state.granted_at ? ` since ${new Date(state.granted_at).toLocaleDateString()}` : ''}</span>
           <button disabled={busy || !state.can_manage} onClick={() => void change(false)} className="rounded-lg border border-border px-3 py-1.5 text-sm disabled:opacity-50">Withdraw consent</button></div>
       ) : (
         <div className="mt-4">
           <label className="flex items-start gap-2 text-sm text-text-primary"><input type="checkbox" className="mt-1" checked={agree} onChange={(e) => setAgree(e.target.checked)} disabled={!state.can_manage} /> <span>I am authorized to act for this business and agree to contribute anonymized statistics as described above.</span></label>
-          <button disabled={!agree || busy || !state.can_manage} onClick={() => void change(true)} className="mt-3 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-50">Start contributing</button>
+          <button disabled={!agree || busy || !state.can_manage} onClick={() => void change(true)} className="mt-3 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-on-accent disabled:opacity-50">Start contributing</button>
           {!state.can_manage && <p className="mt-2 text-xs text-text-secondary">Only the account owner can change this setting.</p>}
         </div>
       )}

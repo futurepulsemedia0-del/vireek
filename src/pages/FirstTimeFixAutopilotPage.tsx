@@ -55,14 +55,14 @@ import {
 } from '@/lib/firstTimeFixAutopilotApi';
 
 const VERDICT_META: Record<Verdict, { label: string; pill: string; text: string; bar: string }> = {
-  go: { label: 'Ready to dispatch', pill: 'bg-success-500/10 text-success-500', text: 'text-success-500', bar: 'bg-success-500' },
-  review: { label: 'Review first', pill: 'bg-warning-500/10 text-warning-500', text: 'text-warning-500', bar: 'bg-warning-500' },
+  go: { label: 'Ready to dispatch', pill: 'bg-success-subtle text-success', text: 'text-success', bar: 'bg-success' },
+  review: { label: 'Review first', pill: 'bg-warning-subtle text-warning', text: 'text-warning', bar: 'bg-warning' },
   hold: { label: 'Fix before dispatch', pill: 'bg-danger/10 text-danger', text: 'text-danger', bar: 'bg-danger' },
 };
 
 const STATUS_STYLE: Record<FactorStatus, string> = {
-  good: 'bg-success-500/10 text-success-500',
-  watch: 'bg-warning-500/10 text-warning-500',
+  good: 'bg-success-subtle text-success',
+  watch: 'bg-warning-subtle text-warning',
   risk: 'bg-danger/10 text-danger',
   unknown: 'bg-bg-tertiary text-text-secondary',
 };
@@ -291,13 +291,13 @@ export function FirstTimeFixAutopilotPage() {
                       role="tab"
                       aria-selected={filter === f}
                       onClick={() => setFilter(f)}
-                      className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium ${filter === f ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary'}`}
+                      className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium ${filter === f ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary'}`}
                     >
                       {f === 'attention' ? 'Needs attention' : 'All jobs'}
                     </button>
                   ))}
                 </div>
-                {visible.length === 0 && <p className="rounded-xl bg-success-500/10 p-4 text-sm text-success-500">Every upcoming job meets your {settings.threshold}% target.</p>}
+                {visible.length === 0 && <p className="rounded-xl bg-success-subtle p-4 text-sm text-success">Every upcoming job meets your {settings.threshold}% target.</p>}
                 {visible.map((r) => {
                   const m = VERDICT_META[r.shown.verdict];
                   const active = selected?.job.id === r.job.id;
@@ -313,7 +313,7 @@ export function FirstTimeFixAutopilotPage() {
                         <div className="min-w-0">
                           <p className="truncate text-sm font-semibold text-text-primary">{r.job.customer_name}</p>
                           <p className="truncate text-xs text-text-secondary">{r.job.service_type ?? 'Unspecified service'} - {formatTime(r.job.scheduled_datetime)}</p>
-                          <p className="mt-1 truncate text-xs text-text-secondary/80">{r.techName ? `Assigned: ${r.techName}` : 'Unassigned - best available shown'}</p>
+                          <p className="mt-1 truncate text-xs text-text-muted">{r.techName ? `Assigned: ${r.techName}` : 'Unassigned - best available shown'}</p>
                         </div>
                         <div className="shrink-0 text-right">
                           <p className={`text-xl font-bold tabular-nums ${m.text}`}>{r.shown.probability}%</p>
@@ -350,7 +350,7 @@ export function FirstTimeFixAutopilotPage() {
                             <p className="text-sm font-medium text-text-primary">{f.label}</p>
                             <p className="text-xs text-text-secondary">{f.detail}</p>
                           </div>
-                          <span className={`shrink-0 text-sm font-semibold tabular-nums ${f.impactPts < 0 ? 'text-danger' : f.impactPts > 0 ? 'text-success-500' : 'text-text-secondary'}`}>
+                          <span className={`shrink-0 text-sm font-semibold tabular-nums ${f.impactPts < 0 ? 'text-danger' : f.impactPts > 0 ? 'text-success' : 'text-text-secondary'}`}>
                             {f.impactPts > 0 ? '+' : ''}{f.impactPts} pts
                           </span>
                         </li>
@@ -387,10 +387,10 @@ export function FirstTimeFixAutopilotPage() {
                               <li key={`${s.kind}-${i}`} className="flex flex-wrap items-center gap-3 rounded-xl border border-border/70 p-3">
                                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent/10 text-xs font-bold text-accent">{i + 1}</span>
                                 <div className="min-w-0 flex-1">
-                                  <p className="text-sm font-medium text-text-primary">{s.title}{s.blocking && <span className="ml-2 text-[10px] font-semibold uppercase text-warning-500">hold dispatch</span>}</p>
+                                  <p className="text-sm font-medium text-text-primary">{s.title}{s.blocking && <span className="ml-2 text-[10px] font-semibold uppercase text-warning">hold dispatch</span>}</p>
                                   <p className="text-xs text-text-secondary">{s.detail}</p>
                                 </div>
-                                <span className="text-sm font-semibold tabular-nums text-success-500">+{s.upliftPts} pts</span>
+                                <span className="text-sm font-semibold tabular-nums text-success">+{s.upliftPts} pts</span>
                                 {oneClick && canManage && (
                                   <Button type="button" size="sm" variant="secondary" disabled={busy !== null} onClick={() => void applyStep(selected, s)}>
                                     {busy === `step-${s.kind}` ? <Loader2 size={14} className="animate-spin" /> : 'Apply'}
@@ -480,7 +480,7 @@ export function FirstTimeFixAutopilotPage() {
                       step={5}
                       value={settings.threshold}
                       onChange={(e) => void updateSettings({ ...settings, threshold: Number(e.target.value) })}
-                      className="mt-2 w-full accent-[var(--color-accent,#2563eb)]"
+                      className="mt-2 w-full accent-accent"
                     />
                   </label>
                   <label className="text-sm text-text-secondary">

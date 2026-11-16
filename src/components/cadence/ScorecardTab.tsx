@@ -157,12 +157,12 @@ export function ScorecardTab({ canManage, weekStart, canViewFinancials }: TabPro
                         {r.target ? `${r.target.direction === 'higher' ? '≥' : '≤'} ${formatMetric(r.def.key, r.target.target_value)}` : '—'}
                       </span>
                       {dt && (
-                        <span className={`inline-flex items-center gap-0.5 font-medium ${better ? 'text-success-500' : 'text-danger-500'}`}>
+                        <span className={`inline-flex items-center gap-0.5 font-medium ${better ? 'text-success' : 'text-danger'}`}>
                           {r.delta! > 0 ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
                           {dt}
                         </span>
                       )}
-                      {r.redStreak > 1 && <span className="font-medium text-danger-500">{r.redStreak} weeks off target</span>}
+                      {r.redStreak > 1 && <span className="font-medium text-danger">{r.redStreak} weeks off target</span>}
                     </p>
                     <div className="mt-3 flex items-center justify-between gap-2">
                       <Sparkline values={[...trend, r.value]} tone={tone} label={r.def.label} />

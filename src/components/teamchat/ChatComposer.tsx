@@ -140,7 +140,7 @@ export function ChatComposer({ channelId, disabled, onSendText, onSendImage, onS
             type="button"
             onClick={recorder.stop}
             aria-label="Send voice note"
-            className="focus-ring flex h-11 w-11 items-center justify-center rounded-full bg-accent text-white hover:brightness-110"
+            className="focus-ring flex h-11 w-11 items-center justify-center rounded-full bg-accent text-on-accent hover:brightness-110"
           >
             <SendHorizontal size={20} />
           </button>
@@ -190,7 +190,7 @@ export function ChatComposer({ channelId, disabled, onSendText, onSendImage, onS
           enterKeyHint="send"
           placeholder="Message"
           aria-label="Message"
-          className="focus-ring max-h-36 min-h-[44px] flex-1 resize-none rounded-2xl border border-border bg-bg-secondary px-4 py-2.5 text-base text-text-primary placeholder:text-text-secondary/60 focus-visible:border-accent disabled:opacity-50"
+          className="focus-ring max-h-36 min-h-[44px] flex-1 resize-none rounded-2xl border border-border bg-bg-secondary px-4 py-2.5 text-base text-text-primary placeholder:text-text-placeholder focus-visible:border-accent disabled:opacity-50"
         />
 
         {hasText || !voiceSupported ? (
@@ -199,7 +199,7 @@ export function ChatComposer({ channelId, disabled, onSendText, onSendImage, onS
             onClick={submit}
             disabled={disabled || !hasText}
             aria-label="Send message"
-            className="focus-ring flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-accent text-white hover:brightness-110 disabled:opacity-50"
+            className="focus-ring flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-accent text-on-accent hover:brightness-110 disabled:opacity-50"
           >
             <SendHorizontal size={20} />
           </button>
@@ -209,7 +209,7 @@ export function ChatComposer({ channelId, disabled, onSendText, onSendImage, onS
             onClick={() => void recorder.start()}
             disabled={disabled || requesting}
             aria-label="Record voice note"
-            className="focus-ring flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-accent text-white hover:brightness-110 disabled:opacity-50"
+            className="focus-ring flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-accent text-on-accent hover:brightness-110 disabled:opacity-50"
           >
             {requesting ? <Square size={16} /> : <Mic size={20} />}
           </button>

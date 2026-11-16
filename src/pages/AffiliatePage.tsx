@@ -105,7 +105,7 @@ export function AffiliatePage() {
                   See how it works
                 </a>
               </div>
-              <p className="mt-6 flex items-center justify-center gap-1.5 text-xs font-medium text-text-secondary/70">
+              <p className="mt-6 flex items-center justify-center gap-1.5 text-xs font-medium text-text-muted">
                 <ShieldCheck size={13} className="shrink-0" />
                 Free to join. No audience minimum. Commission confirmed when you apply.
               </p>
@@ -223,10 +223,10 @@ export function AffiliatePage() {
                     </li>
                   ))}
                 </ul>
-                <p className="mt-6 text-sm leading-relaxed text-text-secondary/80">
+                <p className="mt-6 text-sm leading-relaxed text-text-muted">
                   Running an agency, consultancy, or want to white-label Vireek for your own
                   clients? That's a different relationship — see the{' '}
-                  <a href="/partners" className="font-semibold text-accent hover:text-accent/80">
+                  <a href="/partners" className="font-semibold text-accent hover:text-accent">
                     Partners program
                   </a>{' '}
                   instead.
@@ -283,7 +283,7 @@ export function AffiliatePage() {
               className="pointer-events-none absolute inset-0"
               style={{
                 backgroundImage:
-                  'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
+                  'radial-gradient(circle at 20% 20%, rgb(var(--static-white) / 0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
               }}
             />
             <div className="relative">

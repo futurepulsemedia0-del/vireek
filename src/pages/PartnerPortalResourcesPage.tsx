@@ -123,7 +123,7 @@ export function PartnerPortalResourcesPage() {
         <h2 className="text-sm font-semibold text-text-primary">Brand assets</h2>
         <p className="mt-2 text-sm leading-relaxed text-text-secondary">
           Logo files and brand guidelines: see the{' '}
-          <a href="/brand" className="font-semibold text-accent hover:text-accent/80">Brand Guidelines page</a>. Use
+          <a href="/brand" className="font-semibold text-accent hover:text-accent">Brand Guidelines page</a>. Use
           the Vireek name and logo as shown there — do not modify the logo or imply an exclusive/official partnership
           beyond what your agreement covers.
         </p>

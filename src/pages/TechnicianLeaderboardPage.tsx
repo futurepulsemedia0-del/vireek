@@ -71,7 +71,7 @@ export function TechnicianLeaderboardPage() {
             <div role="tabpanel" id={`lb-panel-${activeTab}`} aria-labelledby={`lb-tab-${activeTab}`}>
               {activeTab === 'board' && (
                 <>
-                  {!data.enabled && <p role="status" className="mb-3 rounded-xl border border-warning-500/30 bg-warning-500/10 p-3 text-sm text-warning-500">Leaderboards are off for technicians. Only you can see this board.</p>}
+                  {!data.enabled && <p role="status" className="mb-3 rounded-xl border border-warning/30 bg-warning-subtle p-3 text-sm text-warning">Leaderboards are off for technicians. Only you can see this board.</p>}
                   <LeaderboardBoard
                     data={data}
                     period={period}

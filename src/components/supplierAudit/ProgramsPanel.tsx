@@ -91,7 +91,7 @@ export function ProgramsPanel({ data, reload, timeZone }: { data: AuditData; rel
 
   return (
     <div className="space-y-5">
-      <div role="note" className="flex gap-2 rounded-2xl border border-warning-500/30 bg-warning-500/5 p-3 text-xs text-text-primary"><AlertTriangle size={16} className="mt-0.5 shrink-0 text-warning-500" /><span>{DISCLAIMER}</span></div>
+      <div role="note" className="flex gap-2 rounded-2xl border border-warning/30 bg-warning-subtle p-3 text-xs text-text-primary"><AlertTriangle size={16} className="mt-0.5 shrink-0 text-warning" /><span>{DISCLAIMER}</span></div>
       {!form && <button type="button" className={btnPrimary} onClick={() => setForm(blank())}><Plus size={16} /> Add program</button>}
 
       {form && (
@@ -138,7 +138,7 @@ export function ProgramsPanel({ data, reload, timeZone }: { data: AuditData; rel
               <li key={r.id} className="flex flex-wrap items-start justify-between gap-2 py-3 text-sm">
                 <span className="min-w-0"><span className="font-medium text-text-primary">{vname(r.vendor_id)} — {r.name}</span>
                   <span className="mt-1 flex flex-wrap items-center gap-2"><Pill cls="bg-accent/10 text-accent">{PROGRAM_TYPE_LABELS[r.program_type]}</Pill><Pill cls="bg-bg-tertiary text-text-secondary">{r.status}</Pill><Pill cls="bg-bg-tertiary text-text-secondary">enrollment: {r.enrollment_status.replace('_', ' ')}</Pill>
-                    {fr.stale && <Pill cls="bg-warning-500/10 text-warning-500">{r.last_verified_at ? 'Verified >12 months ago' : 'Never verified'}</Pill>}</span>
+                    {fr.stale && <Pill cls="bg-warning-subtle text-warning">{r.last_verified_at ? 'Verified >12 months ago' : 'Never verified'}</Pill>}</span>
                   <span className="mt-1 block text-xs text-text-secondary">{r.period_start ?? '—'} → {r.period_end ?? '—'} · last verified {r.last_verified_at ?? 'never'} · {r.source_url ? <a href={r.source_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-accent underline">source <ExternalLink size={11} /></a> : 'no source URL'}</span></span>
                 <span className="flex gap-2"><button type="button" className={btnGhost} aria-label="Edit program" onClick={() => setForm(fromRow(r))}><Pencil size={14} /></button>
                   <button type="button" className={btnGhost} aria-label="Delete program" onClick={async () => { if (!window.confirm('Delete this program? Findings based on it will be marked as no longer applying on the next run.')) return; try { await deleteProgram(r.id); await reload(); } catch (e) { toast(e instanceof Error ? e.message : 'Delete failed', 'error'); } }}><Trash2 size={14} /></button></span>

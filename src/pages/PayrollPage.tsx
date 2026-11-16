@@ -41,10 +41,10 @@ const PAY_TYPE_LABELS: Record<PayType, string> = {
 };
 
 const RUN_STATUS_COLORS: Record<string, string> = {
-  draft: 'bg-slate-100 text-slate-600',
-  approved: 'bg-blue-100 text-blue-700',
-  paid: 'bg-emerald-100 text-emerald-700',
-  void: 'bg-slate-100 text-slate-400',
+  draft: 'bg-bg-tertiary text-text-secondary',
+  approved: 'bg-info-subtle text-info-strong',
+  paid: 'bg-success-subtle text-success-strong',
+  void: 'bg-bg-tertiary text-text-muted',
 };
 
 function NewEmployeeForm({ onCreated }: { onCreated: () => void }) {
@@ -82,8 +82,8 @@ function NewEmployeeForm({ onCreated }: { onCreated: () => void }) {
 
   return (
     <Card className="mb-6 grid gap-3 p-4 sm:grid-cols-4">
-      <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" className="rounded-lg border border-border-primary bg-bg-primary px-2 py-1.5 text-sm" />
-      <select value={payType} onChange={(e) => setPayType(e.target.value as PayType)} className="rounded-lg border border-border-primary bg-bg-primary px-2 py-1.5 text-sm">
+      <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" className="rounded-lg border border-border bg-bg-primary px-2 py-1.5 text-sm" />
+      <select value={payType} onChange={(e) => setPayType(e.target.value as PayType)} className="rounded-lg border border-border bg-bg-primary px-2 py-1.5 text-sm">
         {Object.entries(PAY_TYPE_LABELS).map(([k, v]) => (
           <option key={k} value={k}>{v}</option>
         ))}
@@ -94,7 +94,7 @@ function NewEmployeeForm({ onCreated }: { onCreated: () => void }) {
         type="number"
         step="0.01"
         placeholder={payType === 'hourly' ? 'Hourly rate $' : payType.includes('commission') && payType !== 'salary_plus_commission' ? 'Commission %' : 'Annual salary $'}
-        className="rounded-lg border border-border-primary bg-bg-primary px-2 py-1.5 text-sm"
+        className="rounded-lg border border-border bg-bg-primary px-2 py-1.5 text-sm"
       />
       <button type="button" onClick={handleSubmit} disabled={saving} className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-500 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50">
         <Plus size={14} /> Add employee
@@ -130,15 +130,15 @@ function NewTimesheetForm({ employees, onCreated }: { employees: Employee[]; onC
 
   return (
     <Card className="mb-6 grid gap-3 p-4 sm:grid-cols-5">
-      <select value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} className="rounded-lg border border-border-primary bg-bg-primary px-2 py-1.5 text-sm">
+      <select value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} className="rounded-lg border border-border bg-bg-primary px-2 py-1.5 text-sm">
         <option value="">Employee</option>
         {employees.map((e) => (
           <option key={e.id} value={e.id}>{e.full_name}</option>
         ))}
       </select>
-      <input value={workDate} onChange={(e) => setWorkDate(e.target.value)} type="date" className="rounded-lg border border-border-primary bg-bg-primary px-2 py-1.5 text-sm" />
-      <input value={regular} onChange={(e) => setRegular(e.target.value)} type="number" step="0.25" placeholder="Regular hrs" className="rounded-lg border border-border-primary bg-bg-primary px-2 py-1.5 text-sm" />
-      <input value={overtime} onChange={(e) => setOvertime(e.target.value)} type="number" step="0.25" placeholder="OT hrs" className="rounded-lg border border-border-primary bg-bg-primary px-2 py-1.5 text-sm" />
+      <input value={workDate} onChange={(e) => setWorkDate(e.target.value)} type="date" className="rounded-lg border border-border bg-bg-primary px-2 py-1.5 text-sm" />
+      <input value={regular} onChange={(e) => setRegular(e.target.value)} type="number" step="0.25" placeholder="Regular hrs" className="rounded-lg border border-border bg-bg-primary px-2 py-1.5 text-sm" />
+      <input value={overtime} onChange={(e) => setOvertime(e.target.value)} type="number" step="0.25" placeholder="OT hrs" className="rounded-lg border border-border bg-bg-primary px-2 py-1.5 text-sm" />
       <button type="button" onClick={handleSubmit} disabled={saving} className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-500 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50">
         <Clock size={14} /> Log hours
       </button>
@@ -161,7 +161,7 @@ function PayRunDetail({ run, employees }: { run: PayRun; employees: Employee[] }
   }, [load]);
 
   return (
-    <div className="border-t border-border-primary bg-bg-secondary/40 px-4 py-3">
+    <div className="border-t border-border bg-bg-secondary/40 px-4 py-3">
       <div className="space-y-1">
         {items.map((i) => (
           <div key={i.id} className="flex justify-between text-xs">
@@ -209,7 +209,7 @@ function PayRunDetail({ run, employees }: { run: PayRun; employees: Employee[] }
               setBusy(false);
             }
           }}
-          className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border-primary px-3 py-1.5 text-xs font-medium text-text-primary hover:bg-bg-secondary disabled:opacity-50"
+          className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-primary hover:bg-bg-secondary disabled:opacity-50"
         >
           <CheckCircle2 size={12} /> Mark disbursed
         </button>
@@ -291,12 +291,12 @@ export function PayrollPage() {
             ledger. Tax withholding is an internal estimate, not a substitute for a licensed payroll provider.
           </p>
         </div>
-        <button type="button" onClick={load} className="inline-flex items-center gap-1.5 rounded-lg border border-border-primary bg-bg-primary px-3 py-1.5 text-xs font-medium text-text-primary hover:bg-bg-secondary">
+        <button type="button" onClick={load} className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-bg-primary px-3 py-1.5 text-xs font-medium text-text-primary hover:bg-bg-secondary">
           <RefreshCw size={13} /> Refresh
         </button>
       </div>
 
-      <div className="mb-6 flex gap-1 border-b border-border-primary">
+      <div className="mb-6 flex gap-1 border-b border-border">
         {TABS.map((t) => (
           <button
             key={t.id}
@@ -317,7 +317,7 @@ export function PayrollPage() {
           ) : (
             <Card className="p-0">
               {employees.map((e) => (
-                <div key={e.id} className="flex items-center justify-between border-b border-border-primary px-4 py-3 text-sm last:border-b-0">
+                <div key={e.id} className="flex items-center justify-between border-b border-border px-4 py-3 text-sm last:border-b-0">
                   <span className="text-text-primary">{e.full_name}</span>
                   <span className="text-xs text-text-secondary">
                     {PAY_TYPE_LABELS[e.pay_type]}
@@ -340,11 +340,11 @@ export function PayrollPage() {
           ) : (
             <Card className="p-0">
               {timesheets.map((t) => (
-                <div key={t.id} className="flex items-center justify-between border-b border-border-primary px-4 py-2 text-sm last:border-b-0">
+                <div key={t.id} className="flex items-center justify-between border-b border-border px-4 py-2 text-sm last:border-b-0">
                   <span className="text-text-primary">{nameFor(t.employee_id)} &middot; {t.work_date}</span>
                   <span className="flex items-center gap-3 text-xs text-text-secondary">
                     {t.regular_hours}h reg / {t.overtime_hours}h OT
-                    <span className={`rounded-full px-2 py-0.5 ${t.status === 'approved' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>{t.status}</span>
+                    <span className={`rounded-full px-2 py-0.5 ${t.status === 'approved' ? 'bg-success-subtle text-success-strong' : 'bg-warning-subtle text-warning-strong'}`}>{t.status}</span>
                     {t.status === 'pending' && (
                       <button type="button" onClick={async () => { await approveTimesheet(t.id); load(); }} className="text-brand-600 hover:underline">
                         Approve
@@ -361,9 +361,9 @@ export function PayrollPage() {
       {tab === 'pay_runs' && (
         <>
           <Card className="mb-6 grid gap-3 p-4 sm:grid-cols-4">
-            <input value={periodStart} onChange={(e) => setPeriodStart(e.target.value)} type="date" className="rounded-lg border border-border-primary bg-bg-primary px-2 py-1.5 text-sm" />
-            <input value={periodEnd} onChange={(e) => setPeriodEnd(e.target.value)} type="date" className="rounded-lg border border-border-primary bg-bg-primary px-2 py-1.5 text-sm" />
-            <input value={payDate} onChange={(e) => setPayDate(e.target.value)} type="date" className="rounded-lg border border-border-primary bg-bg-primary px-2 py-1.5 text-sm" />
+            <input value={periodStart} onChange={(e) => setPeriodStart(e.target.value)} type="date" className="rounded-lg border border-border bg-bg-primary px-2 py-1.5 text-sm" />
+            <input value={periodEnd} onChange={(e) => setPeriodEnd(e.target.value)} type="date" className="rounded-lg border border-border bg-bg-primary px-2 py-1.5 text-sm" />
+            <input value={payDate} onChange={(e) => setPayDate(e.target.value)} type="date" className="rounded-lg border border-border bg-bg-primary px-2 py-1.5 text-sm" />
             <button type="button" onClick={handleCreateRun} disabled={creatingRun} className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-500 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50">
               <Plus size={14} /> Create pay run
             </button>
@@ -374,7 +374,7 @@ export function PayrollPage() {
             <Card className="p-0">
               {payRuns.map((r) => (
                 <div key={r.id}>
-                  <button type="button" onClick={() => setExpandedRun(expandedRun === r.id ? null : r.id)} className="flex w-full items-center justify-between border-b border-border-primary px-4 py-3 text-left last:border-b-0 hover:bg-bg-secondary/50">
+                  <button type="button" onClick={() => setExpandedRun(expandedRun === r.id ? null : r.id)} className="flex w-full items-center justify-between border-b border-border px-4 py-3 text-left last:border-b-0 hover:bg-bg-secondary/50">
                     <span className="text-sm text-text-primary">{r.pay_period_start} &rarr; {r.pay_period_end}</span>
                     <span className="flex items-center gap-3">
                       <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${RUN_STATUS_COLORS[r.status]}`}>{r.status}</span>
@@ -392,7 +392,7 @@ export function PayrollPage() {
       {tab === 'ytd' && (
         <Card className="p-0">
           {ytd.map((row) => (
-            <div key={row.employee_id} className="flex items-center justify-between border-b border-border-primary px-4 py-2 text-sm last:border-b-0">
+            <div key={row.employee_id} className="flex items-center justify-between border-b border-border px-4 py-2 text-sm last:border-b-0">
               <span className="text-text-primary">{row.full_name}</span>
               <span className="text-xs text-text-secondary">
                 gross {formatCents(row.gross_cents)} &middot; commission {formatCents(row.commission_cents)} &middot; tips {formatCents(row.tip_cents)} &middot; tax

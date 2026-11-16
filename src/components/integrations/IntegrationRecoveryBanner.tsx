@@ -29,10 +29,10 @@ export function IntegrationRecoveryBanner({ integrations, onFixClick }: Props) {
   return (
     <div
       role="alert"
-      className="mb-6 rounded-2xl border border-warning-500/40 bg-warning-500/5 px-4 py-4 sm:px-5"
+      className="mb-6 rounded-2xl border border-warning/40 bg-warning-subtle px-4 py-4 sm:px-5"
     >
       <div className="flex items-start gap-3">
-        <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-warning-500/15 text-warning-500">
+        <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-warning-subtle text-warning">
           <AlertTriangle size={18} />
         </span>
         <div className="min-w-0 flex-1">
@@ -55,7 +55,7 @@ export function IntegrationRecoveryBanner({ integrations, onFixClick }: Props) {
                     {' — '}
                     {health.title}
                     {health.detail ? (
-                      <span className="text-text-secondary/80"> · {health.detail}</span>
+                      <span className="text-text-muted"> · {health.detail}</span>
                     ) : null}
                   </span>
                   <button

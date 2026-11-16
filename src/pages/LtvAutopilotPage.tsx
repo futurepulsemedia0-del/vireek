@@ -152,7 +152,7 @@ export function LtvAutopilotPage() {
                 <p className="text-xs text-text-secondary">Customers scored</p>
               </div>
               <div className="rounded-2xl border border-border bg-bg-secondary p-4 text-center">
-                <p className="text-xl font-bold text-success-500">{formatCents(summary.totalLifetimeCents)}</p>
+                <p className="text-xl font-bold text-success">{formatCents(summary.totalLifetimeCents)}</p>
                 <p className="text-xs text-text-secondary">Total lifetime value</p>
               </div>
               <div className="rounded-2xl border border-border bg-bg-secondary p-4 text-center">
@@ -160,7 +160,7 @@ export function LtvAutopilotPage() {
                 <p className="text-xs text-text-secondary">Predicted next 12mo</p>
               </div>
               <div className="rounded-2xl border border-border bg-bg-secondary p-4 text-center">
-                <p className="text-xl font-bold text-warning-500">{summary.pendingCount}</p>
+                <p className="text-xl font-bold text-warning">{summary.pendingCount}</p>
                 <p className="text-xs text-text-secondary">Awaiting action</p>
               </div>
             </div>
@@ -192,7 +192,7 @@ export function LtvAutopilotPage() {
                       {slug && (
                         <div className="mt-1.5 flex items-center gap-1.5 text-xs">
                           {isOn ? (
-                            <span className="inline-flex items-center gap-1 text-success-500"><CheckCircle2 size={12} /> {templateName(slug)} is already on</span>
+                            <span className="inline-flex items-center gap-1 text-success"><CheckCircle2 size={12} /> {templateName(slug)} is already on</span>
                           ) : (
                             <Link to="/dashboard/automation-marketplace" className="inline-flex items-center gap-1 font-semibold text-accent hover:underline">
                               Turn on "{templateName(slug)}" <ArrowRight size={12} />
@@ -248,7 +248,7 @@ export function LtvAutopilotPage() {
                             </p>
                           </div>
                           <div className="flex shrink-0 items-center gap-3">
-                            {trendUp && <TrendingUp size={14} className="text-success-500" />}
+                            {trendUp && <TrendingUp size={14} className="text-success" />}
                             {trendDown && <TrendingDown size={14} className="text-danger" />}
                             <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${SEGMENT_COLORS[p.segment]}`}>
                               {SEGMENT_LABELS[p.segment]}
@@ -289,7 +289,7 @@ export function LtvAutopilotPage() {
                                 <button
                                   onClick={() => handleStatus(p, 'actioned')}
                                   disabled={savingId === p.id}
-                                  className="focus-ring inline-flex items-center gap-1.5 rounded-xl bg-accent px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-accent/90 disabled:opacity-60"
+                                  className="focus-ring inline-flex items-center gap-1.5 rounded-xl bg-accent px-3 py-1.5 text-xs font-semibold text-on-accent transition-colors hover:bg-accent/90 disabled:opacity-60"
                                 >
                                   <CheckCircle2 size={13} /> Mark actioned
                                 </button>

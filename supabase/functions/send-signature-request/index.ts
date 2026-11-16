@@ -111,12 +111,12 @@ Deno.serve(async (req: Request) => {
         const res = await sendEmail(
           signer.email,
           `${businessName} sent you "${title}" to sign`,
-          `<div style="font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1a1a1a;">
-            <p style="font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #6b7280; margin: 0 0 16px;">Signature requested</p>
+          `<div style="font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1c1b15;">
+            <p style="font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #73726c; margin: 0 0 16px;">Signature requested</p>
             <h1 style="font-size: 22px; margin: 0 0 12px;">${escapeHtml(businessName)} sent you a document to sign</h1>
-            <p style="font-size: 14px; color: #4b5563; margin: 0 0 20px;">${escapeHtml(title)}</p>
-            <a href="${signUrl}" style="display: inline-block; margin-top: 8px; padding: 12px 24px; background: #111827; color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 14px;">Review &amp; sign</a>
-            <p style="margin-top: 24px; font-size: 12px; color: #9ca3af;">This link is unique to you — please don't forward it. It expires ${new Date(expiresAt).toLocaleDateString()}.</p>
+            <p style="font-size: 14px; color: #595852; margin: 0 0 20px;">${escapeHtml(title)}</p>
+            <a href="${signUrl}" style="display: inline-block; margin-top: 8px; padding: 12px 24px; background: #1C1B15; color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 14px;">Review &amp; sign</a>
+            <p style="margin-top: 24px; font-size: 12px; color: #a9a8a2;">This link is unique to you — please don't forward it. It expires ${new Date(expiresAt).toLocaleDateString()}.</p>
           </div>`,
           `${businessName} sent you "${title}" to sign: ${signUrl}`
         );

@@ -45,10 +45,10 @@ export default {
       borderRadius: tailwindBorderRadius(),
       
       boxShadow: {
-        sm: '0 1px 2px rgba(15,15,18,0.04)',
-        md: '0 2px 8px rgba(15,15,18,0.06)',
-        card: '0 1px 1px rgb(15 15 18 / 0.03), 0 6px 20px -14px rgb(15 15 18 / 0.22)',
-        'card-hover': '0 10px 32px -16px rgb(15 15 18 / 0.24), 0 4px 12px -8px rgb(var(--accent-primary) / 0.14)',
+        sm: '0 1px 2px rgba(20,20,19,0.04)',
+        md: '0 2px 8px rgba(20,20,19,0.06)',
+        card: '0 1px 1px rgb(20 20 19 / 0.03), 0 6px 20px -14px rgb(20 20 19 / 0.22)',
+        'card-hover': '0 10px 32px -16px rgb(20 20 19 / 0.24), 0 4px 12px -8px rgb(var(--accent-primary) / 0.14)',
         'card-dark': '0 1px 1px rgb(0 0 0 / 0.4), 0 10px 28px -16px rgb(0 0 0 / 0.7)',
         'card-hover-dark': '0 14px 38px -18px rgb(0 0 0 / 0.75), 0 4px 14px -8px rgb(var(--accent-primary) / 0.18)',
         'glow-accent': '0 12px 28px -14px rgb(var(--accent-primary) / 0.4)',

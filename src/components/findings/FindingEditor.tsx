@@ -172,7 +172,7 @@ export function FindingEditor({ item, index, taxPercent, locked, onSave, onDelet
                     <div className="mb-2 flex items-center gap-2">
                       <span className="rounded bg-bg-tertiary px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-text-secondary">{tierLabel(option.tier)}</span>
                       <input value={option.name} disabled={locked} onChange={(e) => updateOption(option.id, { name: e.target.value })} maxLength={80} aria-label={`${tierLabel(option.tier)} option name`} className={`${inputCls} flex-1`} />
-                      <button type="button" disabled={locked} onClick={() => setOptions((prev) => setRecommended(prev, option.recommended ? null : option.id))} aria-pressed={option.recommended} aria-label="Mark as recommended" className={`focus-ring rounded-md p-1.5 ${option.recommended ? 'text-warning-500' : 'text-text-secondary hover:text-text-primary'}`}>
+                      <button type="button" disabled={locked} onClick={() => setOptions((prev) => setRecommended(prev, option.recommended ? null : option.id))} aria-pressed={option.recommended} aria-label="Mark as recommended" className={`focus-ring rounded-md p-1.5 ${option.recommended ? 'text-warning' : 'text-text-secondary hover:text-text-primary'}`}>
                         <Star size={16} fill={option.recommended ? 'currentColor' : 'none'} />
                       </button>
                       {!locked && (
@@ -217,7 +217,7 @@ export function FindingEditor({ item, index, taxPercent, locked, onSave, onDelet
           {error && <p role="alert" className="text-xs text-danger">{error}</p>}
           {!locked && (
             <div className="flex justify-end">
-              <button type="button" onClick={save} disabled={!dirty || saving} className="focus-ring inline-flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50">
+              <button type="button" onClick={save} disabled={!dirty || saving} className="focus-ring inline-flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-sm font-medium text-on-accent disabled:opacity-50">
                 {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} {dirty ? 'Save finding' : 'Saved'}
               </button>
             </div>

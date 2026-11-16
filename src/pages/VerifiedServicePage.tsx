@@ -25,9 +25,9 @@ import {
 const POLL_MS = 30000;
 
 const RING_COLORS: Record<TrustTier, string> = {
-  excellent: 'text-success-500',
+  excellent: 'text-success',
   good: 'text-accent',
-  fair: 'text-warning-500',
+  fair: 'text-warning',
   at_risk: 'text-danger',
   pending: 'text-text-secondary',
 };
@@ -119,7 +119,7 @@ export function VerifiedServicePage() {
                   </p>
                 )}
                 {trusted && (
-                  <p className="mx-auto mt-4 inline-flex items-center gap-1.5 rounded-full bg-success-500/10 px-3 py-1.5 text-xs font-semibold text-success-500">
+                  <p className="mx-auto mt-4 inline-flex items-center gap-1.5 rounded-full bg-success-subtle px-3 py-1.5 text-xs font-semibold text-success">
                     <ShieldCheck size={14} /> Vireek Trusted Service™
                   </p>
                 )}
@@ -133,7 +133,7 @@ export function VerifiedServicePage() {
                     const ok = trust.badges[b.key] === true;
                     return (
                       <li key={b.key} className="flex items-center gap-3 text-sm">
-                        <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${ok ? 'bg-success-500/15 text-success-500' : 'bg-bg-tertiary text-text-secondary/50'}`}>
+                        <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${ok ? 'bg-success-subtle text-success' : 'bg-bg-tertiary text-text-muted'}`}>
                           <Check size={14} />
                         </span>
                         <span className={ok ? 'font-medium text-text-primary' : 'text-text-secondary'}>{ok ? b.label : b.pending}</span>
@@ -152,7 +152,7 @@ export function VerifiedServicePage() {
                         <div className="mb-1 flex items-center justify-between text-xs">
                           <span className="text-text-primary">{SIGNAL_LABELS[d.signal]}</span>
                           <span className="flex items-center gap-1.5 font-medium text-text-primary">
-                            {d.verified && <Check size={12} className="text-success-500" aria-label="Verified" />}
+                            {d.verified && <Check size={12} className="text-success" aria-label="Verified" />}
                             {Math.round(d.score)}
                           </span>
                         </div>

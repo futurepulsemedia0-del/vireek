@@ -47,7 +47,7 @@ type Tab = 'intelligence' | 'explorer';
 
 const CARD = 'rounded-2xl border border-border bg-bg-secondary p-4';
 const FIELD =
-  'w-full rounded-xl border border-border bg-bg-tertiary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60 focus-ring';
+  'w-full rounded-xl border border-border bg-bg-tertiary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder focus-ring';
 
 function errMessage(e: unknown): string {
   if (e instanceof Error) return e.message;

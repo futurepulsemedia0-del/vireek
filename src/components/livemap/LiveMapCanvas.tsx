@@ -18,10 +18,10 @@ import {
 const MAP_STYLE = (import.meta.env.VITE_MAP_STYLE_URL as string | undefined) || 'https://tiles.openfreemap.org/styles/liberty';
 
 const STATE_COLOR: Record<MapVehicleState, string> = {
-  moving: '#16a34a',
-  idling: '#d97706',
-  stopped: '#2563eb',
-  offline: '#94a3b8',
+  moving: '#18a141',
+  idling: '#f9774c',
+  stopped: '#a93b0f',
+  offline: '#a9a8a2',
 };
 
 interface LiveMapCanvasProps {
@@ -43,14 +43,14 @@ const EMPTY = { type: 'FeatureCollection', features: [] } as const;
 function vehicleElement(): HTMLButtonElement {
   const el = document.createElement('button');
   el.type = 'button';
-  el.className = 'flex h-9 w-9 items-center justify-center rounded-full border-2 border-white text-xs font-bold text-white shadow-lg outline-none focus-visible:ring-2 focus-visible:ring-offset-2';
+  el.className = 'flex h-9 w-9 items-center justify-center rounded-full border-2 border-on-inverse text-xs font-bold text-white shadow-lg outline-none focus-visible:ring-2 focus-visible:ring-offset-2';
   el.style.transition = 'transform 0.2s';
   return el;
 }
 
 function jobElement(): HTMLDivElement {
   const el = document.createElement('div');
-  el.className = 'h-4 w-4 rotate-45 border-2 border-white shadow-md';
+  el.className = 'h-4 w-4 rotate-45 border-2 border-on-inverse shadow-md';
   return el;
 }
 
@@ -94,20 +94,20 @@ export function LiveMapCanvas({ views, jobs, trails, geofenceM, nowMs, selectedI
       map.addSource('geofences', { type: 'geojson', data: EMPTY as never });
       map.addSource('routes', { type: 'geojson', data: EMPTY as never });
       map.addSource('trails', { type: 'geojson', data: EMPTY as never });
-      map.addLayer({ id: 'geofence-fill', type: 'fill', source: 'geofences', paint: { 'fill-color': '#2563eb', 'fill-opacity': 0.12 } });
-      map.addLayer({ id: 'geofence-line', type: 'line', source: 'geofences', paint: { 'line-color': '#2563eb', 'line-width': 1.5, 'line-opacity': 0.6 } });
+      map.addLayer({ id: 'geofence-fill', type: 'fill', source: 'geofences', paint: { 'fill-color': '#a93b0f', 'fill-opacity': 0.12 } });
+      map.addLayer({ id: 'geofence-line', type: 'line', source: 'geofences', paint: { 'line-color': '#a93b0f', 'line-width': 1.5, 'line-opacity': 0.6 } });
       map.addLayer({
         id: 'trails',
         type: 'line',
         source: 'trails',
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
-          'line-color': ['case', ['==', ['get', 'selected'], true], '#2563eb', '#94a3b8'],
+          'line-color': ['case', ['==', ['get', 'selected'], true], '#a93b0f', '#a9a8a2'],
           'line-width': ['case', ['==', ['get', 'selected'], true], 4, 2.5],
           'line-opacity': 0.8,
         },
       });
-      map.addLayer({ id: 'routes', type: 'line', source: 'routes', paint: { 'line-color': '#2563eb', 'line-width': 3, 'line-dasharray': [2, 2] } });
+      map.addLayer({ id: 'routes', type: 'line', source: 'routes', paint: { 'line-color': '#a93b0f', 'line-width': 3, 'line-dasharray': [2, 2] } });
       readyRef.current = true;
       // Trigger the data effects below, which only run once ready.
       map.fire('vireek-ready');
@@ -210,8 +210,8 @@ export function LiveMapCanvas({ views, jobs, trails, geofenceM, nowMs, selectedI
         }
         entry.marker.setLngLat([p.lng, p.lat]);
         const late = isLateJob(job, nowMs);
-        entry.el.style.backgroundColor = late ? '#dc2626' : job.job_status === 'scheduled' ? '#f8fafc' : '#2563eb';
-        entry.el.style.borderColor = late ? '#ffffff' : '#2563eb';
+        entry.el.style.backgroundColor = late ? '#d4222a' : job.job_status === 'scheduled' ? '#faf9f5' : '#a93b0f';
+        entry.el.style.borderColor = late ? '#ffffff' : '#a93b0f';
         entry.el.title = `${job.customer_name}${job.service_type ? ` — ${job.service_type}` : ''}${late ? ' (late)' : ''}`;
       }
       for (const [id, entry] of jobMarkers.current) {

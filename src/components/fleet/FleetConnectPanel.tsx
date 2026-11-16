@@ -17,7 +17,7 @@ import {
 } from '@/lib/fleetIntelligence';
 
 const fieldClass =
-  'focus-ring w-full rounded-lg border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60';
+  'focus-ring w-full rounded-lg border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder';
 
 const FUEL_TYPES = ['gasoline', 'diesel', 'hybrid', 'electric', 'propane', 'other'] as const;
 
@@ -184,7 +184,7 @@ export function FleetConnectPanel({
         </div>
 
         {freshToken && (
-          <div className="mb-4 rounded-xl border border-warning-500/40 bg-warning-500/5 p-3">
+          <div className="mb-4 rounded-xl border border-warning/40 bg-warning-subtle p-3">
             <p className="mb-2 text-xs font-semibold text-text-primary">Copy this token now. It will never be shown again.</p>
             <div className="flex items-center gap-2">
               <code className="min-w-0 flex-1 break-all text-xs text-text-primary">{freshToken}</code>
@@ -207,7 +207,7 @@ export function FleetConnectPanel({
                 </p>
               </div>
               <div className="flex items-center gap-1">
-                <span className={`mr-2 rounded-full px-2 py-0.5 text-[10px] font-semibold ${c.status === 'active' ? 'bg-success-500/10 text-success-500' : 'bg-bg-tertiary text-text-secondary'}`}>{c.status}</span>
+                <span className={`mr-2 rounded-full px-2 py-0.5 text-[10px] font-semibold ${c.status === 'active' ? 'bg-success-subtle text-success' : 'bg-bg-tertiary text-text-secondary'}`}>{c.status}</span>
                 <button type="button" onClick={() => toggle(c.id, c.status)} className="focus-ring rounded-lg p-2 text-text-secondary hover:text-accent" aria-label={c.status === 'active' ? 'Pause connection' : 'Resume connection'}>
                   {c.status === 'active' ? <Pause size={14} /> : <Play size={14} />}
                 </button>

@@ -25,13 +25,13 @@ export const ROOT_CAUSE_LABELS: Record<JobAutopsyCategory, string> = {
 };
 
 export const ROOT_CAUSE_COLORS: Record<JobAutopsyCategory, string> = {
-  extra_travel: '#6366f1',
-  misdiagnosis: '#ef4444',
-  missing_part: '#f59e0b',
-  customer_delay: '#06b6d4',
-  technician_rework: '#ec4899',
-  scope_change: '#22c55e',
-  other: '#94a3b8',
+  extra_travel: '#6c6fff',
+  misdiagnosis: '#ff2d55',
+  missing_part: '#ffcc00',
+  customer_delay: '#6eacff',
+  technician_rework: '#ff375f',
+  scope_change: '#34c759',
+  other: '#a9a8a2',
 };
 
 export interface JobAutopsyRootCause {

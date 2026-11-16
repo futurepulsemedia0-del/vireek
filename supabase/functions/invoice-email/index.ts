@@ -153,16 +153,16 @@ const language = await resolveCustomerLanguage(admin, ownerId, { customerId: inv
     const balanceLabel = formatMoney(balance / 100, language);
 
     const text = `${greeting}\n\n${lead}\n\n${L("invoice.email.label.invoice")} ${invoice.invoice_number}\n${L("invoice.email.label.balance")}: ${balanceLabel}\n${dueLine}\n\n${L("invoice.email.viewHere")} ${link}\n\n${L("invoice.email.signoff")}\n${business}`;
-    const html = `<div ${htmlLangAttrs(language)} style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:520px;margin:0 auto;color:#171717;text-align:${textAlignStart(language)}">
+    const html = `<div ${htmlLangAttrs(language)} style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:520px;margin:0 auto;color:#141413;text-align:${textAlignStart(language)}">
 <p>${escapeHtml(greeting)}</p>
 <p>${escapeHtml(lead)}</p>
-<table style="width:100%;border:1px solid #e1e1e8;border-radius:12px;padding:16px;border-collapse:separate">
-<tr><td style="color:#6e6e78;font-size:13px">${escapeHtml(L("invoice.email.label.invoice"))}</td><td style="text-align:${language === "ar" || language === "fa" ? "left" : "right"};font-weight:600">${escapeHtml(invoice.invoice_number)}</td></tr>
-<tr><td style="color:#6e6e78;font-size:13px">${escapeHtml(L("invoice.email.label.balance"))}</td><td style="text-align:${language === "ar" || language === "fa" ? "left" : "right"};font-weight:600">${escapeHtml(balanceLabel)}</td></tr>
-${dueLine ? `<tr><td colspan="2" style="color:#6e6e78;font-size:13px;padding-top:8px">${escapeHtml(dueLine)}</td></tr>` : ""}
+<table style="width:100%;border:1px solid #e8e6dc;border-radius:12px;padding:16px;border-collapse:separate">
+<tr><td style="color:#73726c;font-size:13px">${escapeHtml(L("invoice.email.label.invoice"))}</td><td style="text-align:${language === "ar" || language === "fa" ? "left" : "right"};font-weight:600">${escapeHtml(invoice.invoice_number)}</td></tr>
+<tr><td style="color:#73726c;font-size:13px">${escapeHtml(L("invoice.email.label.balance"))}</td><td style="text-align:${language === "ar" || language === "fa" ? "left" : "right"};font-weight:600">${escapeHtml(balanceLabel)}</td></tr>
+${dueLine ? `<tr><td colspan="2" style="color:#73726c;font-size:13px;padding-top:8px">${escapeHtml(dueLine)}</td></tr>` : ""}
 </table>
-<p style="margin:24px 0"><a href="${link}" style="background:#203ad8;color:#fff;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:600;display:inline-block">${escapeHtml(L("invoice.email.cta"))}</a></p>
-<p style="color:#6e6e78;font-size:13px">${escapeHtml(L("invoice.email.signoff"))}<br/>${escapeHtml(business)}</p></div>`;
+<p style="margin:24px 0"><a href="${link}" style="background:#ae3600;color:#fff;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:600;display:inline-block">${escapeHtml(L("invoice.email.cta"))}</a></p>
+<p style="color:#73726c;font-size:13px">${escapeHtml(L("invoice.email.signoff"))}<br/>${escapeHtml(business)}</p></div>`;
      const results: { to: string; ok: boolean; error?: string }[] = [];
     for (const addr of recipients) {
       const sent = await sendEmail(addr, subject, html, text);

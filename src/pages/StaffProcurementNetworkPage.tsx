@@ -132,7 +132,7 @@ export function StaffProcurementNetworkPage() {
               {detail?.id === s.id && (
                 <>
                   <pre className="mt-2 max-h-64 overflow-auto rounded-xl bg-bg-tertiary p-3 text-xs text-text-primary">{detail.text || 'No lines'}</pre>
-                  {detail.issues.length > 0 && <ul className="mt-1 text-xs text-rose-600">{detail.issues.map((m) => <li key={m}>{m}</li>)}</ul>}
+                  {detail.issues.length > 0 && <ul className="mt-1 text-xs text-danger">{detail.issues.map((m) => <li key={m}>{m}</li>)}</ul>}
                 </>
               )}
             </div>

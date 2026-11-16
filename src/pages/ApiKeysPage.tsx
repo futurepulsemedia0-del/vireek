@@ -49,9 +49,9 @@ function RevealKeyModal({ rawKey, onClose }: { rawKey: string; onClose: () => vo
   };
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-overlay/40 backdrop-blur-sm" />
       <div className="relative w-full max-w-lg rounded-2xl border border-border bg-bg-secondary p-6 shadow-card-hover dark:shadow-card-hover-dark">
-        <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-warning-500/10 text-warning-500">
+        <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-warning-subtle text-warning">
           <KeyRound size={20} />
         </span>
         <h2 className="mt-4 text-lg font-bold text-text-primary">Copy your API key now</h2>
@@ -63,7 +63,7 @@ function RevealKeyModal({ rawKey, onClose }: { rawKey: string; onClose: () => vo
           <button
             type="button"
             onClick={copy}
-            className="focus-ring flex shrink-0 items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:brightness-110"
+            className="focus-ring flex shrink-0 items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-on-accent transition-colors hover:brightness-110"
           >
             {copied ? <Check size={14} /> : <Copy size={14} />}
             {copied ? 'Copied' : 'Copy'}
@@ -72,7 +72,7 @@ function RevealKeyModal({ rawKey, onClose }: { rawKey: string; onClose: () => vo
         <button
           type="button"
           onClick={onClose}
-          className="focus-ring mt-5 w-full rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110"
+          className="focus-ring mt-5 w-full rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-on-cta transition-all hover:brightness-110"
         >
           I've copied it — close
         </button>
@@ -122,7 +122,7 @@ function CreateKeyForm({ onCreate, creating }: { onCreate: (name: string, scopes
           type="button"
           disabled={!name.trim() || scopes.length === 0 || creating}
           onClick={() => onCreate(name.trim(), scopes)}
-          className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110 disabled:opacity-50"
+          className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-on-cta transition-all hover:brightness-110 disabled:opacity-50"
         >
           <Plus size={16} />
           {creating ? 'Creating…' : 'Create key'}
@@ -248,7 +248,7 @@ export function ApiKeysPage() {
                       <span key={s} className="rounded-full bg-accent/10 px-2 py-0.5 text-[0.65rem] font-medium text-accent">{s}</span>
                     ))}
                   </div>
-                  <p className="mt-1.5 text-xs text-text-secondary/70">
+                  <p className="mt-1.5 text-xs text-text-muted">
                     Created {new Date(k.created_at).toLocaleDateString()} · Last used {timeAgo(k.last_used_at)}
                   </p>
                 </div>

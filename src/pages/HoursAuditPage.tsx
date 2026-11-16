@@ -245,7 +245,7 @@ export function HoursAuditPage() {
                 <Stat label="Drive + idle gaps" value={hrs(result.totals.drive + result.totals.idle)} hint={`drive ${hrs(result.totals.drive)} · idle ${hrs(result.totals.idle)}`} />
                 <Stat label="Total leaked (est.)" value={usd(result.totals.leakedCost)} hint={`${hrs(result.totals.leaked)} over ${result.spanDays} days`} />
               </div>
-              {result.warnings.map((w) => <p key={w} className="mt-3 flex items-center gap-2 text-sm text-warning-500"><AlertTriangle size={16} className="shrink-0" />{w}</p>)}
+              {result.warnings.map((w) => <p key={w} className="mt-3 flex items-center gap-2 text-sm text-warning"><AlertTriangle size={16} className="shrink-0" />{w}</p>)}
               <p className="mt-3 flex items-center gap-2 text-xs text-text-secondary"><ShieldCheck size={14} className="shrink-0" />Shown for owners and managers only. Technicians are listed alphabetically — this is an audit of time, not a ranking of people.</p>
             </Card>
 

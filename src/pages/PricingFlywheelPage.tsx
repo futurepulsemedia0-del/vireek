@@ -45,7 +45,7 @@ function StatCard({ label, value, hint }: { label: string; value: string; hint?:
     <div className={CARD}>
       <p className="text-xs text-text-secondary">{label}</p>
       <p className="mt-1 text-2xl font-semibold text-text-primary">{value}</p>
-      {hint && <p className="mt-1 text-[11px] text-text-secondary/70">{hint}</p>}
+      {hint && <p className="mt-1 text-[11px] text-text-muted">{hint}</p>}
     </div>
   );
 }
@@ -157,7 +157,7 @@ function SettingsCard({ settings, canEdit, onSave }: { settings: FlywheelSetting
         onChange={(e) => setDraft({ ...draft, [key]: e.target.value === '' ? NaN : Number(e.target.value) })}
         className="mt-1 w-full rounded-lg border border-border bg-bg-primary px-2 py-1.5 text-sm text-text-primary disabled:opacity-60"
       />
-      <span className="text-[10px] text-text-secondary/70">{hint}</span>
+      <span className="text-[10px] text-text-muted">{hint}</span>
     </label>
   );
 
@@ -376,7 +376,7 @@ export function PricingFlywheelPage() {
                     })}
                 </ul>
               )}
-              <p className="mt-3 text-[11px] text-text-secondary/70">
+              <p className="mt-3 text-[11px] text-text-muted">
                 Observational comparison of the 30 days before and after each change, only with enough costed jobs on both sides. It is
                 evidence, not proof of cause. Every applied change is also recorded in the{' '}
                 <Link to="/dashboard/operations-loop" className="text-accent hover:underline">
@@ -398,7 +398,7 @@ export function PricingFlywheelPage() {
                   <ItemRow key={a.item.id} a={a} />
                 ))}
               </ul>
-              <p className="mt-2 text-[11px] text-text-secondary/70">
+              <p className="mt-2 text-[11px] text-text-muted">
                 Learned only from completed, non-rework jobs with itemized costs, linked to a Price Book item by explicit link or exact
                 name, at the current price. Only flat-price items are learned.
               </p>

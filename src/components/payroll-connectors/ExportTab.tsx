@@ -153,8 +153,8 @@ export function ExportTab({ ownerId, connections, onCreated, onGoToConnections, 
             {preview.data && preview.data.warnings.length > 0 && (
               <ul className="space-y-2" aria-label="Warnings">
                 {preview.data.warnings.map((w) => (
-                  <li key={w.code} className="flex items-start gap-2 rounded-xl border border-warning-500/30 bg-warning-500/10 px-3 py-2 text-sm text-text-primary">
-                    <AlertTriangle size={16} className="mt-0.5 shrink-0 text-warning-500" aria-hidden="true" />
+                  <li key={w.code} className="flex items-start gap-2 rounded-xl border border-warning/30 bg-warning-subtle px-3 py-2 text-sm text-text-primary">
+                    <AlertTriangle size={16} className="mt-0.5 shrink-0 text-warning" aria-hidden="true" />
                     <span className="flex-1">{w.message}</span>
                     {w.code === 'unmapped' && <Button variant="ghost" size="sm" onClick={() => onGoToMapping(provider)}>Map employees</Button>}
                   </li>
@@ -202,7 +202,7 @@ export function ExportTab({ ownerId, connections, onCreated, onGoToConnections, 
                       </thead>
                       <tbody className="divide-y divide-border">
                         {(preview.data?.lines ?? []).map((l) => (
-                          <tr key={l.employee_id} className={l.external_id ? '' : 'bg-warning-500/5'}>
+                          <tr key={l.employee_id} className={l.external_id ? '' : 'bg-warning-subtle'}>
                             <td className="px-4 py-2.5 font-medium text-text-primary">
                               {l.employee_name}
                               {l.flags.map((f) => (

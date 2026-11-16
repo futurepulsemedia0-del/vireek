@@ -141,9 +141,9 @@ export const KIND_LABEL: Record<DsarKind, string> = {
 interface Email { subject: string; html: string; text: string }
 
 function shell(title: string, bodyHtml: string): string {
-  return `<div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:520px;margin:0 auto;padding:24px;color:#0f172a">
+  return `<div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:520px;margin:0 auto;padding:24px;color:#1c1b15">
 <h1 style="font-size:20px;margin:0 0 16px">${escapeHtml(title)}</h1>${bodyHtml}
-<p style="margin-top:32px;font-size:12px;color:#64748b">Vireek &middot; This message was sent because someone submitted a data request using this address. If that wasn't you, ignore it &mdash; nothing will happen.</p></div>`;
+<p style="margin-top:32px;font-size:12px;color:#73726c">Vireek &middot; This message was sent because someone submitted a data request using this address. If that wasn't you, ignore it &mdash; nothing will happen.</p></div>`;
 }
 
 export function buildCodeEmail(params: { name: string; code: string; reference: string }): Email {

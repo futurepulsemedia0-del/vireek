@@ -152,9 +152,9 @@ export function HomePassportDetailPage() {
                     <p className="flex flex-wrap items-center gap-2 font-semibold text-text-primary">
                       {e.title}
                       <span className="rounded-full bg-bg-tertiary px-2 py-0.5 text-[11px] font-semibold text-text-secondary">{EVENT_LABELS[e.event_type] ?? e.event_type}</span>
-                      {e.provenance.verification_level !== 'self_reported' && <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-success-500"><BadgeCheck size={11} aria-hidden="true" />{e.provenance.verification_level.replace(/_/g, ' ')}</span>}
+                      {e.provenance.verification_level !== 'self_reported' && <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-success"><BadgeCheck size={11} aria-hidden="true" />{e.provenance.verification_level.replace(/_/g, ' ')}</span>}
                       {e.visibility === 'restricted' && <span className="text-[11px] font-semibold text-text-secondary">Restricted</span>}
-                      {e.superseded && <span className="text-[11px] font-semibold text-warning-500">Corrected later</span>}
+                      {e.superseded && <span className="text-[11px] font-semibold text-warning">Corrected later</span>}
                     </p>
                     {e.detail && <p className="mt-1 whitespace-pre-wrap break-words text-text-secondary">{e.detail}</p>}
                     <p className="mt-1 text-xs text-text-secondary">{day(e.occurred_at)}{e.contributor_name ? ` · ${e.contributor_name}` : ''} · {e.provenance.source_type.replace(/_/g, ' ')} · confidence {Math.round(e.provenance.confidence * 100)}% · {e.provenance.confirmations} confirm / {e.provenance.disputes} dispute</p>
@@ -191,7 +191,7 @@ export function HomePassportDetailPage() {
             <label htmlFor="ev-detail" className={`${lab} mt-3`}>Details (optional)</label>
             <textarea id="ev-detail" value={evDetail} maxLength={2000} rows={3} onChange={(e) => setEvDetail(e.target.value)} className="focus-ring w-full rounded-lg border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary" />
             <label className="mt-2 flex items-center gap-2 text-sm text-text-primary"><input type="checkbox" checked={evRestricted} onChange={(e) => setEvRestricted(e.target.checked)} />Only my company can see this record</label>
-            <div className="mt-3"><button type="button" className={`${btn} bg-accent text-white`} disabled={busy !== null || !evTitle.trim()} onClick={() => void act('add', async () => { await addPassportEvent({ code, type: evType, title: evTitle, detail: evDetail, restricted: evRestricted }); setEvTitle(''); setEvDetail(''); setEvRestricted(false); }, 'Record added.')}>{busy === 'add' ? 'Adding…' : 'Add record'}</button></div>
+            <div className="mt-3"><button type="button" className={`${btn} bg-accent text-on-accent`} disabled={busy !== null || !evTitle.trim()} onClick={() => void act('add', async () => { await addPassportEvent({ code, type: evType, title: evTitle, detail: evDetail, restricted: evRestricted }); setEvTitle(''); setEvDetail(''); setEvRestricted(false); }, 'Record added.')}>{busy === 'add' ? 'Adding…' : 'Add record'}</button></div>
           </section>
 
           <section className={card} aria-labelledby="hp-grants">
@@ -209,9 +209,9 @@ export function HomePassportDetailPage() {
               <div><label htmlFor="g-u" className={lab}>Uses (1–25)</label><input id="g-u" inputMode="numeric" value={gUses} onChange={(e) => setGUses(e.target.value)} className={field} /></div>
               <div><label htmlFor="g-l" className={lab}>Label (optional)</label><input id="g-l" value={gLabel} maxLength={80} onChange={(e) => setGLabel(e.target.value)} className={field} /></div>
             </div>
-            <div className="mt-3"><button type="button" className={`${btn} bg-accent text-white`} disabled={busy !== null || !grantOk} onClick={() => void act('grant', async () => { const r = await createGrant({ code, scopes: gScopes, ttlHours: hours, maxUses: uses, label: gLabel }); setNewToken(r.token); setGLabel(''); }, 'Access link created.')}>{busy === 'grant' ? 'Creating…' : 'Create access link'}</button></div>
+            <div className="mt-3"><button type="button" className={`${btn} bg-accent text-on-accent`} disabled={busy !== null || !grantOk} onClick={() => void act('grant', async () => { const r = await createGrant({ code, scopes: gScopes, ttlHours: hours, maxUses: uses, label: gLabel }); setNewToken(r.token); setGLabel(''); }, 'Access link created.')}>{busy === 'grant' ? 'Creating…' : 'Create access link'}</button></div>
             {newToken && (
-              <div role="status" className="mt-3 rounded-xl border border-warning-500/40 bg-warning-500/10 p-3 text-sm">
+              <div role="status" className="mt-3 rounded-xl border border-warning/40 bg-warning-subtle p-3 text-sm">
                 <p className="font-semibold text-text-primary">Copy this token now. It is shown only once.</p>
                 <code className="mt-1 block break-all rounded bg-bg-primary p-2 text-xs text-text-primary">{newToken}</code>
                 <button type="button" className={`${btn} mt-2 border border-border text-text-primary`} onClick={() => { void navigator.clipboard?.writeText(newToken).then(() => toast('Copied.', 'success'), () => toast('Could not copy. Select the text instead.', 'error')); }}>Copy</button>

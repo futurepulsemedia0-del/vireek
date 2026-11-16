@@ -11,7 +11,7 @@ const SENTIMENT_TONE: Record<Sentiment, string> = {
   negative: 'bg-danger/10 text-danger',
 };
 const CLASS_TONE: Record<NpsClass, string> = {
-  promoter: 'text-success', passive: 'text-amber-600', detractor: 'text-danger',
+  promoter: 'text-success', passive: 'text-warning', detractor: 'text-danger',
 };
 
 interface Props {
@@ -66,7 +66,7 @@ export function FeedbackCommentFeed({ records, onOpen }: Props) {
               <li key={`${r.source}-${r.feedback_id}`} className="rounded-xl border border-border p-4">
                 <div className="flex flex-wrap items-center gap-2 text-xs">
                   <span className="flex items-center gap-0.5" aria-label={`${r.rating} out of 5 stars`}>
-                    {[1, 2, 3, 4, 5].map((n) => <Star key={n} size={13} className={n <= r.rating ? 'fill-amber-400 text-amber-400' : 'text-border'} />)}
+                    {[1, 2, 3, 4, 5].map((n) => <Star key={n} size={13} className={n <= r.rating ? 'fill-warning text-warning' : 'text-border'} />)}
                   </span>
                   <span className={`font-semibold capitalize ${CLASS_TONE[cls]}`}>{cls}</span>
                   <span className={`rounded-md px-2 py-0.5 font-semibold capitalize ${SENTIMENT_TONE[s.label]}`} title={s.signals.length ? `Signals: ${s.signals.join(', ')}` : 'Based on the star rating'}>{s.label}</span>

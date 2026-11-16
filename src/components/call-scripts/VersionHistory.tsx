@@ -50,7 +50,7 @@ export function VersionHistory({ script, versions, publishingId, onEditFrom, onP
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-sm font-semibold text-text-primary">Version {v.version_number}</span>
-                    {isLive && <span className="rounded-full bg-success-500/10 px-2 py-0.5 text-xs font-medium text-success-500">Live</span>}
+                    {isLive && <span className="rounded-full bg-success-subtle px-2 py-0.5 text-xs font-medium text-success">Live</span>}
                     {isChallenger && <span className="rounded-full bg-accent/10 px-2 py-0.5 text-xs font-medium text-accent">Challenger</span>}
                     <span className="text-xs text-text-secondary">{formatWhen(v.created_at)}</span>
                   </div>
@@ -87,7 +87,7 @@ export function VersionHistory({ script, versions, publishingId, onEditFrom, onP
                       key={i}
                       className={`whitespace-pre-wrap px-2 py-0.5 ${
                         line.type === 'add'
-                          ? 'bg-success-500/10 text-success-500'
+                          ? 'bg-success-subtle text-success'
                           : line.type === 'del'
                             ? 'bg-danger/10 text-danger'
                             : 'text-text-secondary'

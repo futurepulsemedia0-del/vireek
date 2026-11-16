@@ -68,7 +68,7 @@ export function InterpreterSettingsCard() {
             <label key={l} className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm">
               <input type="checkbox" checked={s.enabled_languages.includes(l)} onChange={() => toggleLang(l)} />
               <span>{interpLabel(l)}</span>
-              <span className="ml-auto rounded-full bg-warning-500/10 px-2 py-0.5 text-[10px] font-semibold text-warning-500">Beta</span>
+              <span className="ml-auto rounded-full bg-warning-subtle px-2 py-0.5 text-[10px] font-semibold text-warning">Beta</span>
             </label>
           ))}
         </div>

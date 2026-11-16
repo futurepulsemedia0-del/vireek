@@ -61,7 +61,7 @@ export function AcademyCertificatePage() {
             <button
               type="button"
               onClick={() => window.print()}
-              className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110"
+              className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent transition-all hover:brightness-110"
             >
               <Printer size={16} /> Print / save as PDF
             </button>

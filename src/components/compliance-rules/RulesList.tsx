@@ -12,8 +12,8 @@ import {
 } from '@/lib/complianceRules';
 
 const TIMELINE_STYLE: Record<Timeline, string> = {
-  active: 'bg-success-500/10 text-success-500',
-  upcoming: 'bg-warning-500/10 text-warning-500',
+  active: 'bg-success-subtle text-success',
+  upcoming: 'bg-warning-subtle text-warning',
   expired: 'bg-bg-tertiary text-text-secondary',
   inactive: 'bg-bg-tertiary text-text-secondary',
 };

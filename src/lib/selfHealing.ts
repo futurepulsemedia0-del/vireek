@@ -70,10 +70,10 @@ export const RISK_TIER_LABELS: Record<RiskTier, string> = {
 };
 
 export const RISK_TIER_COLORS: Record<RiskTier, string> = {
-  low: 'bg-success-500/10 text-success-500',
-  medium: 'bg-warning-500/10 text-warning-500',
+  low: 'bg-success-subtle text-success',
+  medium: 'bg-warning-subtle text-warning',
   high: 'bg-danger/10 text-danger',
-  critical: 'bg-danger/20 text-danger',
+  critical: 'bg-danger/20 text-danger-strong',
 };
 
 export const ACTION_TYPE_LABELS: Record<ActionType, string> = {
@@ -100,8 +100,8 @@ export const OUTCOME_LABELS: Record<IncidentOutcome, string> = {
 };
 
 export const OUTCOME_COLORS: Record<IncidentOutcome, string> = {
-  recovered: 'bg-success-500/10 text-success-500',
-  partial: 'bg-warning-500/10 text-warning-500',
+  recovered: 'bg-success-subtle text-success',
+  partial: 'bg-warning-subtle text-warning',
   failed: 'bg-danger/10 text-danger',
 };
 

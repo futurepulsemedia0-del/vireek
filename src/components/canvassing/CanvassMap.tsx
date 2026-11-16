@@ -66,7 +66,7 @@ export default function CanvassMap({ doors, selectedId, fitSignal, pickMode, pic
       map.addSource('doors', { type: 'geojson', data: latest.current.geojson as never, cluster: true, clusterRadius: 44, clusterMaxZoom: 15 });
       map.addLayer({
         id: 'door-clusters', type: 'circle', source: 'doors', filter: ['has', 'point_count'],
-        paint: { 'circle-color': '#2563eb', 'circle-opacity': 0.85, 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 2, 'circle-radius': ['step', ['get', 'point_count'], 16, 25, 20, 100, 26] },
+        paint: { 'circle-color': '#a93b0f', 'circle-opacity': 0.85, 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 2, 'circle-radius': ['step', ['get', 'point_count'], 16, 25, 20, 100, 26] },
       } as never);
       map.addLayer({
         id: 'door-cluster-count', type: 'symbol', source: 'doors', filter: ['has', 'point_count'],
@@ -83,7 +83,7 @@ export default function CanvassMap({ doors, selectedId, fitSignal, pickMode, pic
       } as never);
       map.addLayer({
         id: 'door-selected', type: 'circle', source: 'doors', filter: ['==', ['get', 'id'], latest.current.selectedId ?? ''],
-        paint: { 'circle-color': 'rgba(0,0,0,0)', 'circle-radius': 15, 'circle-stroke-color': '#111827', 'circle-stroke-width': 3 },
+        paint: { 'circle-color': 'rgba(0,0,0,0)', 'circle-radius': 15, 'circle-stroke-color': '#1C1B15', 'circle-stroke-width': 3 },
       } as never);
       readyRef.current = true;
       fitTo(map, latest.current.points);
@@ -169,7 +169,7 @@ export default function CanvassMap({ doors, selectedId, fitSignal, pickMode, pic
     pickMarkerRef.current?.remove();
     pickMarkerRef.current = null;
     if (pickedPoint) {
-      pickMarkerRef.current = new maplibregl.Marker({ color: '#111827' }).setLngLat([pickedPoint.lng, pickedPoint.lat]).addTo(map);
+      pickMarkerRef.current = new maplibregl.Marker({ color: '#1C1B15' }).setLngLat([pickedPoint.lng, pickedPoint.lat]).addTo(map);
     }
   }, [pickedPoint]);
 

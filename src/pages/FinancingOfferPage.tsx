@@ -141,13 +141,13 @@ function OfferView({ offer, phase, returned }: { offer: Extract<PublicFinancingR
   const monthly = hasTerms ? estimateMonthlyPaymentCents(amountCents, offer.apr_bps, offer.term_months) : null;
   const good = phase === 'approved' || phase === 'confirmed';
   const Icon = good ? CheckCircle2 : phase === 'declined' ? XCircle : phase === 'in_review' || phase === 'preparing' ? Clock : CreditCard;
-  const iconTone = good ? 'text-success-500' : phase === 'declined' ? 'text-danger' : 'text-accent';
+  const iconTone = good ? 'text-success' : phase === 'declined' ? 'text-danger' : 'text-accent';
   const business = offer.business_name ?? 'Your service provider';
 
   return (
     <div className="space-y-4">
       {returned === 'success' && (
-        <p role="status" className="rounded-xl bg-success-500/10 px-4 py-3 text-sm text-success-500">
+        <p role="status" className="rounded-xl bg-success-subtle px-4 py-3 text-sm text-success">
           Thanks for completing your application. This page shows your latest status.
         </p>
       )}
@@ -211,7 +211,7 @@ function OfferView({ offer, phase, returned }: { offer: Extract<PublicFinancingR
             {PUBLIC_FINANCING_STEPS.map((label, i) => {
               const state = steps[i];
               const tone =
-                state === 'done' ? 'bg-success-500/15 text-success-500' : state === 'failed' ? 'bg-danger/15 text-danger' : state === 'current' ? 'bg-accent/15 text-accent' : 'bg-bg-tertiary text-text-secondary/60';
+                state === 'done' ? 'bg-success-subtle text-success' : state === 'failed' ? 'bg-danger/15 text-danger' : state === 'current' ? 'bg-accent/15 text-accent' : 'bg-bg-tertiary text-text-muted';
               return (
                 <li key={label} className="flex items-center gap-3 text-sm" aria-current={state === 'current' ? 'step' : undefined}>
                   <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${tone}`}>
@@ -231,7 +231,7 @@ function OfferView({ offer, phase, returned }: { offer: Extract<PublicFinancingR
       <p className="px-2 text-center text-xs leading-relaxed text-text-secondary">
         Financing is offered by an independent lending partner and is subject to credit approval. {business} and Vireek don't make credit decisions or hold your loan. Any monthly payment shown is an estimate; your loan agreement has the final terms.
       </p>
-      <p className="text-center text-xs text-text-secondary/70">Last updated {new Date(offer.updated_at).toLocaleString()}</p>
+      <p className="text-center text-xs text-text-muted">Last updated {new Date(offer.updated_at).toLocaleString()}</p>
     </div>
   );
 }

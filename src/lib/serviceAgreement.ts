@@ -223,10 +223,10 @@ export const COVERAGE_LEVEL_LABELS: Record<CoverageLevel, string> = {
 };
 export const COVERAGE_LEVEL_OPTIONS = Object.keys(COVERAGE_LEVEL_LABELS) as CoverageLevel[];
 export const COVERAGE_LEVEL_STYLES: Record<CoverageLevel, string> = {
-  full: 'bg-success-500/10 text-success-500',
+  full: 'bg-success-subtle text-success',
   labor_only: 'bg-accent/10 text-accent',
   parts_only: 'bg-accent/10 text-accent',
-  inspection_only: 'bg-warning-500/10 text-warning-500',
+  inspection_only: 'bg-warning-subtle text-warning',
   excluded: 'bg-danger/10 text-danger',
 };
 
@@ -280,11 +280,11 @@ export const CLAIM_STATUS_LABELS: Record<ClaimStatus, string> = {
 };
 export const CLAIM_STATUS_OPTIONS = Object.keys(CLAIM_STATUS_LABELS) as ClaimStatus[];
 export const CLAIM_STATUS_STYLES: Record<ClaimStatus, string> = {
-  open: 'bg-warning-500/10 text-warning-500',
+  open: 'bg-warning-subtle text-warning',
   under_review: 'bg-accent/10 text-accent',
-  approved: 'bg-success-500/10 text-success-500',
+  approved: 'bg-success-subtle text-success',
   denied: 'bg-bg-tertiary text-text-secondary',
-  settled: 'bg-success-500/10 text-success-500',
+  settled: 'bg-success-subtle text-success',
   closed: 'bg-bg-tertiary text-text-secondary',
 };
 
@@ -312,9 +312,9 @@ export const HEALTH_LABELS: Record<HealthGrade, string> = {
   critical: 'Critical',
 };
 export const HEALTH_STYLES: Record<HealthGrade, string> = {
-  healthy: 'bg-success-500/10 text-success-500',
+  healthy: 'bg-success-subtle text-success',
   watch: 'bg-accent/10 text-accent',
-  at_risk: 'bg-warning-500/10 text-warning-500',
+  at_risk: 'bg-warning-subtle text-warning',
   critical: 'bg-danger/10 text-danger',
 };
 
@@ -328,8 +328,8 @@ export const PM_STATUS_LABELS = {
 export type PmStatus = keyof typeof PM_STATUS_LABELS;
 export const PM_STATUS_STYLES: Record<PmStatus, string> = {
   overdue: 'bg-danger/10 text-danger',
-  due_soon: 'bg-warning-500/10 text-warning-500',
-  scheduled: 'bg-success-500/10 text-success-500',
+  due_soon: 'bg-warning-subtle text-warning',
+  scheduled: 'bg-success-subtle text-success',
   paused: 'bg-bg-tertiary text-text-secondary',
   unscheduled: 'bg-bg-tertiary text-text-secondary',
 };

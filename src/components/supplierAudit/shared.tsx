@@ -2,9 +2,9 @@ import type { ReactNode } from 'react';
 import type { ConfidenceBand, DeadlineRisk, FindingStatus, FindingType } from '@/lib/supplierAudit/types';
 
 export const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder transition-colors';
 export const btnPrimary =
-  'focus-ring inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50';
+  'focus-ring inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-on-accent transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50';
 export const btnGhost =
   'focus-ring inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm font-medium text-text-primary transition-colors hover:bg-bg-tertiary disabled:cursor-not-allowed disabled:opacity-50';
 
@@ -27,13 +27,13 @@ export const PROGRAM_TYPE_LABELS: Record<string, string> = {
 };
 const RISK: Record<DeadlineRisk, { label: string; cls: string }> = {
   none: { label: 'No deadline', cls: 'bg-bg-tertiary text-text-secondary' },
-  ok: { label: 'On track', cls: 'bg-success-500/10 text-success-500' },
-  soon: { label: 'Due within 30 days', cls: 'bg-warning-500/10 text-warning-500' },
+  ok: { label: 'On track', cls: 'bg-success-subtle text-success' },
+  soon: { label: 'Due within 30 days', cls: 'bg-warning-subtle text-warning' },
   critical: { label: 'Due within 7 days', cls: 'bg-danger/10 text-danger' },
   expired: { label: 'Deadline passed', cls: 'bg-danger/10 text-danger' },
 };
 const BAND: Record<ConfidenceBand, string> = {
-  high: 'bg-success-500/10 text-success-500', medium: 'bg-warning-500/10 text-warning-500', low: 'bg-danger/10 text-danger',
+  high: 'bg-success-subtle text-success', medium: 'bg-warning-subtle text-warning', low: 'bg-danger/10 text-danger',
 };
 
 export function Pill({ cls, children }: { cls: string; children: ReactNode }) {

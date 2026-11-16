@@ -57,9 +57,9 @@ export const STATUS_LABELS: Record<GiftCardStatus, string> = {
 };
 
 export const STATUS_STYLES: Record<GiftCardStatus, string> = {
-  active: 'bg-success-500/10 text-success-500',
+  active: 'bg-success-subtle text-success',
   depleted: 'bg-bg-tertiary text-text-secondary',
-  expired: 'bg-warning-500/10 text-warning-500',
+  expired: 'bg-warning-subtle text-warning',
   voided: 'bg-danger/10 text-danger',
 };
 

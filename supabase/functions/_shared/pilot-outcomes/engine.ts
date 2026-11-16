@@ -271,8 +271,8 @@ export function renderPilotEmail(opts: {
     "Only money with a logged preceding action is counted. Items marked estimate are not DB totals.", url].join("\n");
   const html = `<div style="font-family:Arial,sans-serif;max-width:560px"><h2>Pilot results</h2><p>${esc(opts.companyName)} · ${esc(opts.periodLabel)}</p>` +
     `<table style="border-collapse:collapse;width:100%">${rows.map(([k, v]) =>
-      `<tr><td style="padding:6px 0;border-bottom:1px solid #eee">${esc(k)}</td><td style="padding:6px 0;border-bottom:1px solid #eee;text-align:right"><b>${esc(v)}</b></td></tr>`).join("")}</table>` +
-    `<p style="color:#666;font-size:12px">Only money with a logged preceding action is counted. Items marked “estimate” are not database totals.</p>` +
+      `<tr><td style="padding:6px 0;border-bottom:1px solid #f0eee6">${esc(k)}</td><td style="padding:6px 0;border-bottom:1px solid #f0eee6;text-align:right"><b>${esc(v)}</b></td></tr>`).join("")}</table>` +
+    `<p style="color:#73726C;font-size:12px">Only money with a logged preceding action is counted. Items marked “estimate” are not database totals.</p>` +
     `<p><a href="${esc(url)}">Open Pilot Results</a></p></div>`;
   return { subject, html, text };
 }

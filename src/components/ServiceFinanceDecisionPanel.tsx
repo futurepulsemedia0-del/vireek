@@ -22,13 +22,13 @@ const percent = (n: number) => `${Math.round(n * 100)}%`;
 
 const TIMING_STYLES: Record<FinanceTiming, string> = {
   now: 'bg-accent/10 text-accent',
-  plan: 'bg-warning-500/10 text-warning-500',
-  monitor: 'bg-success-500/10 text-success-500',
+  plan: 'bg-warning-subtle text-warning',
+  monitor: 'bg-success-subtle text-success',
 };
 
 const RISK_STYLES: Record<FinanceRisk, string> = {
-  low: 'bg-success-500/10 text-success-500',
-  medium: 'bg-warning-500/10 text-warning-500',
+  low: 'bg-success-subtle text-success',
+  medium: 'bg-warning-subtle text-warning',
   high: 'bg-danger/10 text-danger',
 };
 
@@ -159,7 +159,7 @@ function UnitCard({ unit, years }: { unit: UnitFinanceDecision; years: number })
       {unit.flags.length > 0 && (
         <ul className="mt-2 space-y-1">
           {unit.flags.map((flag) => (
-            <li key={flag} className="flex items-start gap-1 text-[11px] text-warning-500">
+            <li key={flag} className="flex items-start gap-1 text-[11px] text-warning">
               <Info size={11} className="mt-0.5 shrink-0" aria-hidden="true" />
               <span>{flag}</span>
             </li>
@@ -212,7 +212,7 @@ export function ServiceFinanceDecisionPanel({ twin }: { twin: PropertyTwin }) {
             </p>
           </div>
         </div>
-        <span className="rounded-full bg-border/50 px-2.5 py-0.5 text-[11px] text-text-secondary">{FINANCE_CONFIDENCE_LABELS[plan.confidence]}</span>
+        <span className="rounded-full bg-bg-tertiary px-2.5 py-0.5 text-[11px] text-text-secondary">{FINANCE_CONFIDENCE_LABELS[plan.confidence]}</span>
       </div>
 
       <fieldset className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">

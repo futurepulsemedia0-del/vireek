@@ -29,8 +29,8 @@ const SELECT_CLASS =
 
 function Warning({ children }: { children: ReactNode }) {
   return (
-    <div role="status" className="flex items-start gap-2 rounded-xl border border-warning-500/30 bg-warning-500/10 p-3 text-sm text-text-primary">
-      <AlertTriangle size={16} className="mt-0.5 shrink-0 text-warning-500" aria-hidden="true" />
+    <div role="status" className="flex items-start gap-2 rounded-xl border border-warning/30 bg-warning-subtle p-3 text-sm text-text-primary">
+      <AlertTriangle size={16} className="mt-0.5 shrink-0 text-warning" aria-hidden="true" />
       <p>{children}</p>
     </div>
   );

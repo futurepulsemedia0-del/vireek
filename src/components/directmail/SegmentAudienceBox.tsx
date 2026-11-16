@@ -97,7 +97,7 @@ export function SegmentAudienceBox({ campaignId, ownerId, onDone }: { campaignId
           <p className="font-medium text-text-primary">
             {preview.recipients.length.toLocaleString()} ready to mail · {preview.matched.toLocaleString()} in audience · {preview.noAddress.toLocaleString()} without an address · {preview.errors.length.toLocaleString()} unreadable · {preview.duplicates.toLocaleString()} duplicate{preview.duplicates === 1 ? '' : 's'}
           </p>
-          {preview.truncated && <p className="mt-2 text-warning-500">This audience is very large, so only the first part was read. Narrow it in Audiences for a complete list.</p>}
+          {preview.truncated && <p className="mt-2 text-warning">This audience is very large, so only the first part was read. Narrow it in Audiences for a complete list.</p>}
           {tooMany && <p className="mt-2 text-danger">A campaign holds at most {MAX_CAMPAIGN_RECIPIENTS.toLocaleString()} recipients. Narrow the audience first.</p>}
           {preview.errors.length > 0 && (
             <ul className="mt-2 max-h-28 space-y-1 overflow-y-auto text-text-secondary">

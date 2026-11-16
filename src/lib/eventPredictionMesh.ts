@@ -72,9 +72,9 @@ export const LEVEL_LABELS: Record<MeshLevel, string> = {
 };
 
 export const LEVEL_COLORS: Record<MeshLevel, string> = {
-  low: 'bg-success-500/10 text-success-500',
+  low: 'bg-success-subtle text-success',
   elevated: 'bg-accent/10 text-accent',
-  high: 'bg-warning-500/10 text-warning-500',
+  high: 'bg-warning-subtle text-warning',
   critical: 'bg-danger/10 text-danger',
 };
 

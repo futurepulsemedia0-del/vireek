@@ -218,11 +218,11 @@ export const VERDICT_LABELS: Record<Verdict, string> = {
 };
 
 export const VERDICT_COLORS: Record<Verdict, string> = {
-  dispatch: 'bg-success-500/10 text-success-500',
+  dispatch: 'bg-success-subtle text-success',
   remote_first: 'bg-accent/10 text-accent',
   hold: 'bg-danger/10 text-danger',
-  emergency: 'bg-danger text-white',
-  eliminated: 'bg-success-500/10 text-success-500',
+  emergency: 'bg-danger text-on-danger',
+  eliminated: 'bg-success-subtle text-success',
 };
 
 export const GATE_STATUS_LABELS: Record<GateStatus, string> = {

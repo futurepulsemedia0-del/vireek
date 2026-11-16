@@ -149,7 +149,7 @@ function ReportView({ data }: { data: Extract<PublicReportResult, { ok: true }>[
           <ul className="divide-y divide-border/70">
             {report.checklist.map((item, i) => (
               <li key={`${item.label}-${i}`} className="flex items-start gap-3 py-2.5">
-                {item.done ? <CheckCircle2 size={18} className="mt-0.5 shrink-0 text-success" aria-label="Completed" /> : <Circle size={18} className="mt-0.5 shrink-0 text-warning-500" aria-label="Not completed" />}
+                {item.done ? <CheckCircle2 size={18} className="mt-0.5 shrink-0 text-success" aria-label="Completed" /> : <Circle size={18} className="mt-0.5 shrink-0 text-warning" aria-label="Not completed" />}
                 <span className="min-w-0 flex-1 break-words text-sm text-text-primary">{item.label}</span>
               </li>
             ))}

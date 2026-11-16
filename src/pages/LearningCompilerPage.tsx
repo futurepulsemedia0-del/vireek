@@ -32,15 +32,15 @@ import {
 type Tab = 'proposed' | 'active' | 'history';
 
 const SEVERITY_STYLES: Record<PolicySeverity, string> = {
-  avoid: 'bg-red-500/10 text-red-600 border-red-500/25',
-  caution: 'bg-amber-500/10 text-amber-600 border-amber-500/25',
-  info: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/25',
+  avoid: 'bg-danger-subtle text-danger border-danger/25',
+  caution: 'bg-warning-subtle text-warning border-warning/25',
+  info: 'bg-success-subtle text-success border-success/25',
 };
 
 const VERDICT_STYLES: Record<EvaluationVerdict, string> = {
-  effective: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/25',
-  harmful: 'bg-red-500/10 text-red-600 border-red-500/25',
-  inconclusive: 'bg-amber-500/10 text-amber-600 border-amber-500/25',
+  effective: 'bg-success-subtle text-success border-success/25',
+  harmful: 'bg-danger-subtle text-danger border-danger/25',
+  inconclusive: 'bg-warning-subtle text-warning border-warning/25',
   insufficient_data: 'bg-bg-tertiary text-text-secondary border-border',
   not_applicable: 'bg-bg-tertiary text-text-secondary border-border',
 };
@@ -100,7 +100,7 @@ function PolicyCard({
       <p className="mt-3 text-sm text-text-primary">{policy.rationale}</p>
 
       <div className="mt-3 space-y-2">
-        <RateBar label="With this condition" rate={e.rate} detail={`${e.failures}/${e.samples}`} tone={policy.severity === 'info' ? 'bg-emerald-500' : 'bg-red-500'} />
+        <RateBar label="With this condition" rate={e.rate} detail={`${e.failures}/${e.samples}`} tone={policy.severity === 'info' ? 'bg-success' : 'bg-danger'} />
         <RateBar label="Same job type otherwise" rate={e.complementRate} detail={`${e.complementFailures}/${e.complementSamples}`} tone="bg-text-secondary/50" />
       </div>
 
@@ -166,7 +166,7 @@ function PolicyCard({
             />
             {policy.status === 'proposed' ? (
               <>
-                <button type="button" disabled={busy} onClick={() => onDecide(policy.id, 'approve', canEnforce ? enforcement : 'advise', note)} className="focus-ring flex items-center gap-1 rounded-xl bg-accent px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">
+                <button type="button" disabled={busy} onClick={() => onDecide(policy.id, 'approve', canEnforce ? enforcement : 'advise', note)} className="focus-ring flex items-center gap-1 rounded-xl bg-accent px-3 py-2 text-xs font-semibold text-on-accent disabled:opacity-40">
                   <Check size={13} /> Approve
                 </button>
                 <button type="button" disabled={busy} onClick={() => onDecide(policy.id, 'reject', 'advise', note)} className="focus-ring flex items-center gap-1 rounded-xl border border-border px-3 py-2 text-xs font-medium text-text-secondary disabled:opacity-40">
@@ -299,7 +299,7 @@ export function LearningCompilerPage() {
               <button type="button" onClick={handleEvaluate} disabled={evaluating || grouped.active.length === 0} className="focus-ring flex items-center gap-1.5 rounded-xl border border-border px-3 py-2 text-xs font-medium text-text-secondary hover:text-accent disabled:opacity-40">
                 <RefreshCw size={13} className={evaluating ? 'animate-spin' : ''} /> Evaluate active
               </button>
-              <button type="button" onClick={handleRun} disabled={running} className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3.5 py-2 text-xs font-semibold text-white disabled:opacity-50">
+              <button type="button" onClick={handleRun} disabled={running} className="focus-ring flex items-center gap-1.5 rounded-xl bg-accent px-3.5 py-2 text-xs font-semibold text-on-accent disabled:opacity-50">
                 <Play size={13} /> {running ? 'Compiling…' : 'Compile now'}
               </button>
             </div>
@@ -338,7 +338,7 @@ export function LearningCompilerPage() {
           <div className="space-y-2">{[0, 1].map((i) => <div key={i} className="h-48 animate-pulse rounded-2xl bg-bg-tertiary" />)}</div>
         ) : visible.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border py-12 text-center">
-            <ShieldAlert className="mx-auto mb-2 h-6 w-6 text-text-secondary/50" />
+            <ShieldAlert className="mx-auto mb-2 h-6 w-6 text-graphic-muted" />
             <p className="mx-auto max-w-sm text-sm text-text-secondary">
               {tab === 'proposed'
                 ? 'Nothing awaiting review. Compile after more completed jobs have recorded outcomes — a pattern needs enough evidence before it is proposed.'

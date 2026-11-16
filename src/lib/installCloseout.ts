@@ -255,8 +255,8 @@ export const RISK_LABELS: Record<RiskLevel, string> = {
 export const RISK_BADGE: Record<RiskLevel, string> = {
   overdue: 'bg-danger/10 text-danger',
   critical: 'bg-danger/10 text-danger',
-  high: 'bg-warning-500/10 text-warning-500',
-  medium: 'bg-warning-500/10 text-warning-500',
+  high: 'bg-warning-subtle text-warning',
+  medium: 'bg-warning-subtle text-warning',
   low: 'bg-bg-secondary text-text-secondary',
   none: 'bg-bg-secondary text-text-secondary',
   resolved: 'bg-success/10 text-success',

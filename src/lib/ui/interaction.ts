@@ -59,7 +59,7 @@ export const disabledLook =
 
 export const SURFACES: Record<SurfaceKind, SurfaceRecipe> = {
   solid: {
-    rest: 'bg-accent text-white shadow-sm dark:text-bg-primary',
+    rest: 'bg-accent text-on-accent shadow-sm',
     hover: 'hover:brightness-110',
     active: 'active:brightness-90 active:shadow-none',
     selected: 'data-[selected=true]:brightness-90',

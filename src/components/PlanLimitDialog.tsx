@@ -31,7 +31,7 @@ export function PlanLimitDialog({ error, onClose }: Props) {
 
   return (
     <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+      <div className="absolute inset-0 bg-overlay/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
       <div role="alertdialog" aria-modal="true" aria-labelledby={titleId} className="relative w-full max-w-md rounded-2xl border border-border bg-bg-secondary p-6 shadow-card-hover dark:shadow-card-hover-dark">
         <div className="mb-3 flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/10 text-accent"><Lock size={18} aria-hidden="true" /></span>
@@ -44,7 +44,7 @@ export function PlanLimitDialog({ error, onClose }: Props) {
             ref={primaryRef}
             type="button"
             onClick={() => { onClose(); navigate(UPGRADE_ROUTE); }}
-            className="focus-ring rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
+            className="focus-ring rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-on-accent hover:opacity-90"
           >
             {error.upgradeTo ? `Upgrade to ${PLAN_LABELS[error.upgradeTo]}` : 'View plans'}
           </button>

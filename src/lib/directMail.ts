@@ -139,7 +139,7 @@ export const EMPTY_DRAFT: CampaignDraft = {
   offer: '',
   cta: 'Scan to book online',
   phone: '',
-  accent_color: '#0F62FE',
+  accent_color: '#0071E3',
   est_unit_cost: '',
   budget_cap: '',
 };
@@ -265,7 +265,7 @@ export function validateDraft(d: CampaignDraft): DraftErrors {
   else if (d.offer.length > 160) e.offer = 'Max 160 characters.';
   if (d.cta.length > 60) e.cta = 'Max 60 characters.';
   if (d.phone.length > 32) e.phone = 'Max 32 characters.';
-  if (!/^#[0-9a-fA-F]{6}$/.test(d.accent_color)) e.accent_color = 'Use a 6-digit hex color like #0F62FE.';
+  if (!/^#[0-9a-fA-F]{6}$/.test(d.accent_color)) e.accent_color = 'Use a 6-digit hex color like #0071E3.';
   const unit = dollarsToCents(d.est_unit_cost);
   if (unit === null || unit > 10000) e.est_unit_cost = 'Enter the expected cost per mailer (e.g. 0.85).';
   if (d.budget_cap.trim()) {

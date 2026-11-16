@@ -78,7 +78,7 @@ export function ServiceRecoveryIntelligence() {
 
       {rows.length === 0 ? (
         <div className="mt-6 flex items-center gap-2 text-sm text-text-secondary">
-          <ShieldCheck size={16} className="shrink-0 text-success-500" />
+          <ShieldCheck size={16} className="shrink-0 text-success" />
           Nothing at risk right now — every open signal has been handled.
         </div>
       ) : (

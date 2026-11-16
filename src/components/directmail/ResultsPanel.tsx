@@ -97,7 +97,7 @@ export function ResultsPanel() {
         <div role="group" aria-label="Date range" className="flex gap-1 rounded-xl border border-border bg-bg-secondary p-1">
           {RANGES.map((r) => (
             <button key={r.days} type="button" aria-pressed={days === r.days} onClick={() => setDays(r.days)}
-              className={`focus-ring rounded-lg px-3 py-1.5 text-xs font-medium ${days === r.days ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}>{r.label}</button>
+              className={`focus-ring rounded-lg px-3 py-1.5 text-xs font-medium ${days === r.days ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}>{r.label}</button>
           ))}
         </div>
       </div>
@@ -116,7 +116,7 @@ export function ResultsPanel() {
             <Stat label="Booked jobs" value={total.booked_jobs.toLocaleString()} hint={`${total.completed_jobs} completed`} />
             <Stat label="Cost per booked job" value={formatCents(m.costPerBookedJob)} hint={`Total spend ${formatCents(total.cost_cents)}`} />
           </div>
-          {estimated && <p className="text-xs text-warning-500">Some costs are your per-mailer estimate because the print provider did not return a price.</p>}
+          {estimated && <p className="text-xs text-warning">Some costs are your per-mailer estimate because the print provider did not return a price.</p>}
 
           <div className="overflow-x-auto rounded-2xl border border-border bg-bg-secondary">
             <table className="w-full min-w-[820px] text-left text-xs">

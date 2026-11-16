@@ -54,7 +54,7 @@ const inputClass =
   'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary transition-colors';
 const cardClass = 'mb-6 rounded-xl border border-border bg-bg-secondary p-4';
 const btnPrimary =
-  'focus-ring inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-white hover:bg-accent/90 disabled:opacity-50';
+  'focus-ring inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-on-accent hover:bg-accent/90 disabled:opacity-50';
 const btnGhost =
   'focus-ring inline-flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-medium text-text-primary hover:bg-bg-tertiary disabled:opacity-50';
 
@@ -68,7 +68,7 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
       onClick={() => onChange(!checked)}
       className={`focus-ring relative h-6 w-11 shrink-0 rounded-full transition-colors ${checked ? 'bg-accent' : 'bg-bg-tertiary'}`}
     >
-      <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all ${checked ? 'left-[22px]' : 'left-0.5'}`} />
+      <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-bg-secondary transition-all ${checked ? 'left-[22px]' : 'left-0.5'}`} />
     </button>
   );
 }
@@ -388,9 +388,9 @@ export function NotificationRoutingPage() {
                           <li key={i} className="flex flex-wrap items-center justify-between gap-2">
                             <span>{CHANNEL_LABELS[d.channel]} → <strong>{d.recipient}</strong> <span className="text-xs text-text-secondary">({d.rule})</span></span>
                             {d.skip_reason ? (
-                              <span className="rounded-full bg-warning-500/10 px-2 py-0.5 text-xs text-warning-500">{skipReasonLabel(d.skip_reason)}</span>
+                              <span className="rounded-full bg-warning-subtle px-2 py-0.5 text-xs text-warning">{skipReasonLabel(d.skip_reason)}</span>
                             ) : (
-                              <span className="rounded-full bg-success-500/10 px-2 py-0.5 text-xs text-success-500">Will send</span>
+                              <span className="rounded-full bg-success-subtle px-2 py-0.5 text-xs text-success">Will send</span>
                             )}
                           </li>
                         ))}
@@ -463,7 +463,7 @@ export function NotificationRoutingPage() {
 
       {/* Rule editor */}
       {draft && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-label={draft.id ? 'Edit rule' : 'New rule'}>
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-overlay/50 p-0 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-label={draft.id ? 'Edit rule' : 'New rule'}>
           <div className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-t-2xl border border-border bg-bg-secondary p-5 sm:rounded-2xl">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-base font-semibold text-text-primary">{draft.id ? 'Edit rule' : 'New rule'}</h2>
@@ -526,7 +526,7 @@ export function NotificationRoutingPage() {
                     <Chip key={c} active={draft.channels.includes(c)} onClick={() => setDraft({ ...draft, channels: toggleIn(draft.channels, c) })}>{CHANNEL_LABELS[c]}</Chip>
                   ))}
                 </div>
-                {draft.channels.includes('slack') && !settings?.slack_configured && <p className="mt-1 text-xs text-warning-500">Slack isn’t connected yet — connect it under “Channels &amp; fallback”.</p>}
+                {draft.channels.includes('slack') && !settings?.slack_configured && <p className="mt-1 text-xs text-warning">Slack isn’t connected yet — connect it under “Channels &amp; fallback”.</p>}
                 {showErrors && <FieldError message={errors.channels} />}
               </div>
 
@@ -570,8 +570,8 @@ export function NotificationRoutingPage() {
                       <option value="">Choose a schedule…</option>
                       {schedules.map((s) => <option key={s.id} value={s.id}>{s.name} ({s.tierCount} tier{s.tierCount === 1 ? '' : 's'})</option>)}
                     </select>
-                    {schedules.length === 0 && <p className="mt-1 text-xs text-warning-500">No schedule yet — create one on the On-Call Rotation page first.</p>}
-                    {draft.escalate_if_unacked && selectedSchedule && selectedSchedule.tierCount === 0 && <p className="mt-1 text-xs text-warning-500">This schedule has no escalation tiers, so nothing would escalate. Add tiers on the On-Call page.</p>}
+                    {schedules.length === 0 && <p className="mt-1 text-xs text-warning">No schedule yet — create one on the On-Call Rotation page first.</p>}
+                    {draft.escalate_if_unacked && selectedSchedule && selectedSchedule.tierCount === 0 && <p className="mt-1 text-xs text-warning">This schedule has no escalation tiers, so nothing would escalate. Add tiers on the On-Call page.</p>}
                     {showErrors && <FieldError message={errors.schedule} />}
                   </>
                 )}

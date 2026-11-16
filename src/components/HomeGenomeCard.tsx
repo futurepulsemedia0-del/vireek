@@ -64,37 +64,37 @@ const formatDate = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateStr
 const TIMELINE_PREVIEW = 8;
 
 const EOL_PILL: Record<EndOfLifeState, string> = {
-  none: 'bg-success-500/10 text-success-500',
-  approaching: 'bg-warning-500/10 text-warning-500',
+  none: 'bg-success-subtle text-success',
+  approaching: 'bg-warning-subtle text-warning',
   imminent: 'bg-danger/10 text-danger',
   past: 'bg-danger/10 text-danger',
 };
 const EOL_FILL: Record<EndOfLifeState, string> = {
-  none: 'bg-success-500',
-  approaching: 'bg-warning-500',
+  none: 'bg-success',
+  approaching: 'bg-warning',
   imminent: 'bg-danger',
   past: 'bg-danger',
 };
 const EOL_RANK: Record<EndOfLifeState, number> = { past: 0, imminent: 1, approaching: 2, none: 3 };
 const STATUS_RANK = { abnormal: 0, watch: 1, normal: 2 } as const;
 const LAYER_STYLE: Record<LayerState, string> = {
-  recorded: 'border-success-500/30 bg-success-500/5 text-text-primary',
-  partial: 'border-warning-500/30 bg-warning-500/5 text-text-primary',
+  recorded: 'border-success/30 bg-success-subtle text-text-primary',
+  partial: 'border-warning/30 bg-warning-subtle text-text-primary',
   empty: 'border-border bg-bg-primary text-text-secondary',
 };
 const KIND_ICON: Record<GenomeEventKind, { icon: LucideIcon; className: string }> = {
   construction: { icon: Building2, className: 'text-text-secondary' },
-  install: { icon: PackagePlus, className: 'text-success-500' },
+  install: { icon: PackagePlus, className: 'text-success' },
   maintenance: { icon: Wrench, className: 'text-text-secondary' },
   inspection: { icon: ClipboardCheck, className: 'text-text-secondary' },
-  repair: { icon: Hammer, className: 'text-warning-500' },
+  repair: { icon: Hammer, className: 'text-warning' },
   failure: { icon: TriangleAlert, className: 'text-danger' },
   replacement: { icon: RefreshCw, className: 'text-accent' },
   upgrade: { icon: TrendingUp, className: 'text-accent' },
   warranty: { icon: ShieldCheck, className: 'text-text-secondary' },
-  alert: { icon: BellRing, className: 'text-warning-500' },
+  alert: { icon: BellRing, className: 'text-warning' },
 };
-const TONE_CLASS = { neutral: 'border-border bg-bg-secondary text-text-primary', warn: 'border-warning-500/30 bg-warning-500/10 text-warning-500', bad: 'border-danger/30 bg-danger/10 text-danger' } as const;
+const TONE_CLASS = { neutral: 'border-border bg-bg-secondary text-text-primary', warn: 'border-warning/30 bg-warning-subtle text-warning', bad: 'border-danger/30 bg-danger/10 text-danger' } as const;
 const SOURCE_LABEL = { site: 'Property record', equipment: 'Equipment record', job: 'Completed job', alert: 'Predictive alert', energy: 'Energy readings', manual: 'Recorded by hand' } as const;
 
 const selectClass =
@@ -137,8 +137,8 @@ function StatusPill({ system }: { system: GenomeSystem }) {
     return <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${EOL_PILL[system.endOfLife]}`}>{END_OF_LIFE_LABELS[system.endOfLife]}</span>;
   }
   if (system.status === 'abnormal') return <span className="shrink-0 rounded-full bg-danger/10 px-2.5 py-0.5 text-xs font-medium text-danger">Abnormal behaviour</span>;
-  if (system.status === 'watch') return <span className="shrink-0 rounded-full bg-warning-500/10 px-2.5 py-0.5 text-xs font-medium text-warning-500">Early warning</span>;
-  return <span className="shrink-0 rounded-full bg-success-500/10 px-2.5 py-0.5 text-xs font-medium text-success-500">Healthy</span>;
+  if (system.status === 'watch') return <span className="shrink-0 rounded-full bg-warning-subtle px-2.5 py-0.5 text-xs font-medium text-warning">Early warning</span>;
+  return <span className="shrink-0 rounded-full bg-success-subtle px-2.5 py-0.5 text-xs font-medium text-success">Healthy</span>;
 }
 
 /** Calendar age as a solid bar; the extra ageing the behaviour implies as a lighter extension. Spans only: it sits inside a button. */
@@ -151,9 +151,9 @@ function LifecycleMeter({ system }: { system: GenomeSystem }) {
   const description = `${system.label} lifecycle: ${percent(system.lifeUsed)} of expected life used${extra > 0 ? `, behaving like ${percent(system.behaviorLifeUsed)}` : ''}`;
   return (
     <span className="block">
-      <span className="flex h-1.5 w-full overflow-hidden rounded-full bg-border/50" role="img" aria-label={description}>
+      <span className="flex h-1.5 w-full overflow-hidden rounded-full bg-bg-tertiary" role="img" aria-label={description}>
         <span className={`block h-full ${EOL_FILL[system.endOfLife]}`} style={{ width: `${Math.max(2, base)}%` }} />
-        {extra > 0 && <span className="block h-full bg-warning-500/40" style={{ width: `${extra}%` }} />}
+        {extra > 0 && <span className="block h-full bg-warning/40" style={{ width: `${extra}%` }} />}
       </span>
       <span className="mt-1 block text-[11px] text-text-secondary">
         {PHASE_LABELS[system.phase]} · {system.ageYears?.toFixed(1)} of {system.lifespanYears} years
@@ -194,7 +194,7 @@ function Timeline({ events, expanded, onToggle, onRemove }: { events: GenomeEven
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-medium text-text-primary">
                   {e.title}
-                  {e.component && (e.kind === 'failure' || e.kind === 'repair') && <span className="ml-1.5 rounded bg-border/60 px-1.5 py-0.5 text-[10px] font-medium text-text-secondary">{e.component}</span>}
+                  {e.component && (e.kind === 'failure' || e.kind === 'repair') && <span className="ml-1.5 rounded bg-bg-tertiary px-1.5 py-0.5 text-[10px] font-medium text-text-secondary">{e.component}</span>}
                 </p>
                 <p className="text-[11px] text-text-secondary">
                   <span className="tabular-nums">{formatDate(e.date)}</span> · {EVENT_KIND_LABELS[e.kind]} · {SOURCE_LABEL[e.source]}
@@ -245,7 +245,7 @@ function SystemDetails({ system, expanded, onToggleTimeline, onRemove }: { syste
             {system.signals.map((s) => (
               <li key={s.key} className="rounded-lg border border-border bg-bg-secondary px-3 py-2">
                 <p className="flex items-center gap-1.5 text-xs font-medium text-text-primary">
-                  <span className={`inline-block h-1.5 w-1.5 rounded-full ${s.severity === 'high' ? 'bg-danger' : 'bg-warning-500'}`} aria-hidden />
+                  <span className={`inline-block h-1.5 w-1.5 rounded-full ${s.severity === 'high' ? 'bg-danger' : 'bg-warning'}`} aria-hidden />
                   {s.title}
                   <span className="sr-only">{s.severity === 'high' ? ' (strong signal)' : ' (early signal)'}</span>
                 </p>
@@ -482,7 +482,7 @@ export function HomeGenomeCard({ twin }: { twin: PropertyTwin }) {
             >
               <span className="flex flex-wrap items-center justify-between gap-2">
                 <span className="text-sm font-medium text-text-primary">{i.title}</span>
-                <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${i.severity === 'high' ? 'bg-danger/10 text-danger' : 'bg-warning-500/10 text-warning-500'}`}>
+                <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${i.severity === 'high' ? 'bg-danger/10 text-danger' : 'bg-warning-subtle text-warning'}`}>
                   {i.severity === 'high' ? 'Act soon' : 'Plan ahead'}
                 </span>
               </span>
@@ -538,7 +538,7 @@ export function HomeGenomeCard({ twin }: { twin: PropertyTwin }) {
           </ul>
         )}
         <p className="mt-2 flex items-center gap-1.5 text-[10px] text-text-secondary">
-          <span className="inline-block h-1.5 w-4 rounded-full bg-warning-500/40" aria-hidden />
+          <span className="inline-block h-1.5 w-4 rounded-full bg-warning/40" aria-hidden />
           Lighter extension = extra ageing implied by repeated problems, overdue service, open alerts or rising energy use
         </p>
       </div>

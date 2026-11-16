@@ -155,7 +155,7 @@ export function AddDoorsDialog({ open, isManager, territories, defaultTerritoryI
               <div role="tablist" aria-label="How to add doors" className="flex gap-1 rounded-xl border border-border bg-bg-primary p-1">
                 {(['single', 'csv'] as Mode[]).map((m) => (
                   <button key={m} type="button" role="tab" aria-selected={mode === m} onClick={() => { setMode(m); setFormError(null); }}
-                    className={`focus-ring flex-1 rounded-lg px-3 py-2 text-sm font-medium ${mode === m ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}>
+                    className={`focus-ring flex-1 rounded-lg px-3 py-2 text-sm font-medium ${mode === m ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}>
                     {m === 'single' ? 'One door' : 'Import list'}
                   </button>
                 ))}

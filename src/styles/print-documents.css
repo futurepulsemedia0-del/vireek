@@ -45,7 +45,7 @@
   tr { break-inside: avoid; page-break-inside: avoid; }
   .print-doc table { width: 100% !important; border-collapse: collapse; }
   .print-doc th,
-  .print-doc td { border-bottom: 0.5pt solid #999 !important; padding: 4pt 6pt; }
+  .print-doc td { border-bottom: 0.5pt solid #8D8C87 !important; padding: 4pt 6pt; }
   .print-doc td.tabular, .print-doc .tabular { font-variant-numeric: tabular-nums; }
 
   /* Wide dashboards/tables must not be clipped by scroll containers. */

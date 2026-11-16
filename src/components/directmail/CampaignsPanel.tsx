@@ -19,7 +19,7 @@ import { PreSendPanel, VerificationNote } from '@/components/directmail/PreSendP
 import { SegmentAudienceBox } from '@/components/directmail/SegmentAudienceBox';
 
 const TONE: Record<Tone, string> = {
-  ok: 'bg-success/10 text-success', warn: 'bg-warning-500/10 text-warning-500', bad: 'bg-danger/10 text-danger',
+  ok: 'bg-success/10 text-success', warn: 'bg-warning-subtle text-warning', bad: 'bg-danger/10 text-danger',
   muted: 'bg-bg-tertiary text-text-secondary', info: 'bg-accent/10 text-accent',
 };
 const selectCls = 'focus-ring mt-1 block w-full rounded-xl border border-border bg-bg-primary px-4 py-3 text-base text-text-primary';
@@ -237,7 +237,7 @@ function CampaignDetail({ campaign, ownerId, settings, landings, onBack, onChang
           </div>
           <Pill tone={CAMPAIGN_STATUS[campaign.status].tone}>{CAMPAIGN_STATUS[campaign.status].label}</Pill>
         </div>
-        {settings.api_mode === 'test' && <p className="mt-3 text-xs text-warning-500">Test mode: sending creates proofs only — nothing is printed, mailed or charged.</p>}
+        {settings.api_mode === 'test' && <p className="mt-3 text-xs text-warning">Test mode: sending creates proofs only — nothing is printed, mailed or charged.</p>}
         {blockers.length > 0 && campaign.status !== 'completed' && campaign.status !== 'cancelled' && (
           <ul className="mt-3 list-disc space-y-1 pl-5 text-xs text-text-secondary">{blockers.map((b) => <li key={b}>{b}</li>)}</ul>
         )}

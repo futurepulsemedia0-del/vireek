@@ -81,7 +81,7 @@ export function ProfilePanel({ profile, onSaved, onDeleted, canDelete }: { profi
           {BREAKDOWN_KEYS.map((k) => <label key={k} className="flex min-h-[40px] items-center gap-2 text-sm capitalize text-text-primary"><input type="checkbox" checked={rules.requiredBreakdown.includes(k)} onChange={() => toggleKey(k)} /> {k}</label>)}
         </div>
       </fieldset>
-      {problems.length > 0 && <ul role="alert" className="list-disc pl-5 text-sm text-red-500">{problems.map((p) => <li key={p}>{p}</li>)}</ul>}
+      {problems.length > 0 && <ul role="alert" className="list-disc pl-5 text-sm text-danger">{problems.map((p) => <li key={p}>{p}</li>)}</ul>}
       <div className="flex flex-wrap gap-3">
         <Button onClick={() => void save()} disabled={busy || problems.length > 0}>{busy ? 'Saving…' : 'Save rules'}</Button>
         <Button variant="secondary" onClick={() => { setRules(SERVICECHANNEL_DEFAULTS); setPriorities(SERVICECHANNEL_DEFAULTS.emergencyPriorities.join(', ')); }} disabled={busy}>Reset to ServiceChannel defaults</Button>

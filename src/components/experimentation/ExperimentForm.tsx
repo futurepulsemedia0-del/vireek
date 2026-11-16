@@ -343,7 +343,7 @@ export function ExperimentForm({ jobs, technicians, onSubmit, onCancel }: Props)
         {planner && (
           <div
             className={`mt-5 flex gap-3 rounded-xl p-4 text-sm ${
-              feasible === null ? 'bg-bg-tertiary text-text-secondary' : feasible ? 'bg-success-500/10 text-success-500' : 'bg-warning-500/10 text-warning-500'
+              feasible === null ? 'bg-bg-tertiary text-text-secondary' : feasible ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning'
             }`}
             role="status"
           >

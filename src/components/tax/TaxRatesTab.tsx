@@ -98,7 +98,7 @@ export function TaxRatesTab() {
         <div className="mt-3 flex flex-wrap gap-1.5">
           {STATES.map(([code, name]) => (
             <button key={code} type="button" title={name} aria-pressed={settings.collectInStates.includes(code)} onClick={() => toggleState(code)}
-              className={`focus-ring rounded-md px-2 py-1 text-xs font-medium ${settings.collectInStates.includes(code) ? 'bg-accent text-white' : 'border border-border text-text-secondary hover:text-text-primary'}`}>
+              className={`focus-ring rounded-md px-2 py-1 text-xs font-medium ${settings.collectInStates.includes(code) ? 'bg-accent text-on-accent' : 'border border-border text-text-secondary hover:text-text-primary'}`}>
               {code}
             </button>
           ))}
@@ -123,7 +123,7 @@ export function TaxRatesTab() {
             <button type="button" onClick={() => fileRef.current?.click()} className="focus-ring inline-flex items-center gap-1 rounded-lg border border-border px-3 py-2 text-xs font-medium text-text-primary">
               <Upload size={12} /> Import CSV
             </button>
-            <button type="button" onClick={() => setForm({ ...EMPTY, state: stateFilter })} className="focus-ring inline-flex items-center gap-1 rounded-lg bg-accent px-3 py-2 text-xs font-medium text-white">
+            <button type="button" onClick={() => setForm({ ...EMPTY, state: stateFilter })} className="focus-ring inline-flex items-center gap-1 rounded-lg bg-accent px-3 py-2 text-xs font-medium text-on-accent">
               <Plus size={12} /> Add rate
             </button>
           </div>
@@ -147,7 +147,7 @@ export function TaxRatesTab() {
             <input aria-label="City" placeholder="City (optional)" className={`${inputClass} sm:col-span-2`} value={form.city ?? ''} onChange={(e) => setForm({ ...form, city: e.target.value })} />
             <input aria-label="ZIP" placeholder="ZIP (optional)" maxLength={5} className={`${inputClass} sm:col-span-1`} value={form.postal_code ?? ''} onChange={(e) => setForm({ ...form, postal_code: e.target.value })} />
             <div className="flex gap-2 sm:col-span-1">
-              <button type="button" disabled={saving || !normalizeState(form.state)} onClick={submit} className="focus-ring flex-1 rounded-lg bg-accent px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">Save</button>
+              <button type="button" disabled={saving || !normalizeState(form.state)} onClick={submit} className="focus-ring flex-1 rounded-lg bg-accent px-3 py-2 text-xs font-semibold text-on-accent disabled:opacity-50">Save</button>
               <button type="button" onClick={() => setForm(null)} className="focus-ring rounded-lg px-2 text-xs text-text-secondary">Cancel</button>
             </div>
           </div>

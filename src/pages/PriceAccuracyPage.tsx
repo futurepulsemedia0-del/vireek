@@ -35,13 +35,13 @@ function StatusBadge({ status }: { status: Call['price_accuracy_status'] }) {
   }
   if (status === 'unverified') {
     return (
-      <span className="flex items-center gap-1.5 rounded-full bg-warning-500/10 px-2.5 py-1 text-xs font-medium text-warning-500">
+      <span className="flex items-center gap-1.5 rounded-full bg-warning-subtle px-2.5 py-1 text-xs font-medium text-warning">
         <HelpCircle size={12} /> Unverified
       </span>
     );
   }
   return (
-    <span className="flex items-center gap-1.5 rounded-full bg-success-500/10 px-2.5 py-1 text-xs font-medium text-success">
+    <span className="flex items-center gap-1.5 rounded-full bg-success-subtle px-2.5 py-1 text-xs font-medium text-success">
       <CheckCircle2 size={12} /> Verified
     </span>
   );

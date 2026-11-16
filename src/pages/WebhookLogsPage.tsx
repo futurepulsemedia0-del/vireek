@@ -21,8 +21,8 @@ function StatusPill({ status }: { status: WebhookLog['status'] }) {
     <span
       className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
         isSuccess
-          ? 'bg-success-500/10 text-success-500'
-          : 'bg-danger-500/10 text-danger-500'
+          ? 'bg-success-subtle text-success'
+          : 'bg-danger-subtle text-danger'
       }`}
     >
       {isSuccess ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
@@ -62,7 +62,7 @@ function LogRow({ log, direction }: { log: WebhookLog; direction: Direction }) {
       ) : (
         <td className="px-4 py-3 text-xs text-text-secondary">{log.request_id ?? '—'}</td>
       )}
-      <td className="max-w-[280px] truncate px-4 py-3 text-xs text-danger-500" title={log.error_message ?? ''}>
+      <td className="max-w-[280px] truncate px-4 py-3 text-xs text-danger" title={log.error_message ?? ''}>
         {log.error_message ?? '—'}
       </td>
     </motion.tr>
@@ -83,7 +83,7 @@ function LogsTable({ logs, direction, loading }: { logs: WebhookLog[]; direction
   if (logs.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-2 px-6 py-16 text-center">
-        <Webhook size={28} className="text-text-secondary/40" />
+        <Webhook size={28} className="text-graphic-muted" />
         <p className="text-sm font-medium text-text-primary">No {direction} webhook activity yet</p>
         <p className="max-w-xs text-xs text-text-secondary">
           {direction === 'outgoing'
@@ -98,7 +98,7 @@ function LogsTable({ logs, direction, loading }: { logs: WebhookLog[]; direction
     <div className="overflow-x-auto">
       <table className="w-full text-left">
         <thead>
-          <tr className="border-b border-border text-xs font-semibold uppercase tracking-wider text-text-secondary/60">
+          <tr className="border-b border-border text-xs font-semibold uppercase tracking-wider text-text-muted">
             <th className="whitespace-nowrap px-4 py-2.5">Time</th>
             <th className="px-4 py-2.5">Event</th>
             <th className="px-4 py-2.5">Status</th>
@@ -228,7 +228,7 @@ export function WebhookLogsPage() {
         <LogsTable logs={activeLogs} direction={activeTab} loading={loading} />
       </div>
 
-      <p className="mt-4 text-xs text-text-secondary/60">
+      <p className="mt-4 text-xs text-text-muted">
         {activeTab === 'outgoing'
           ? 'Outgoing deliveries fire for new calls, leads, and jobs when a webhook URL is connected under Integrations.'
           : 'Incoming events are received from your voice assistant provider (Vapi) for every call.'}

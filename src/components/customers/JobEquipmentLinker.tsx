@@ -102,7 +102,7 @@ export function JobEquipmentLinker({ jobId, userId, equipmentOptions, linkedEqui
               <button
                 type="button"
                 onClick={() => handleUnlink(link.equipment_id)}
-                className="focus-ring rounded-full text-accent/70 hover:text-danger"
+                className="focus-ring rounded-full text-accent hover:text-danger"
                 aria-label={`Unlink ${link.label}`}
               >
                 <X size={11} />
@@ -137,7 +137,7 @@ export function JobEquipmentLinker({ jobId, userId, equipmentOptions, linkedEqui
             type="button"
             onClick={handleLink}
             disabled={saving || linkableOptions.length === 0}
-            className="focus-ring rounded-lg bg-accent px-2.5 py-1 text-[11px] font-semibold text-white disabled:opacity-60"
+            className="focus-ring rounded-lg bg-accent px-2.5 py-1 text-[11px] font-semibold text-on-accent disabled:opacity-60"
           >
             {saving ? 'Linking…' : 'Link'}
           </button>

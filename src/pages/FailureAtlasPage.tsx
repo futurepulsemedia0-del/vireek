@@ -36,11 +36,11 @@ import {
 } from '@/lib/failureAtlas';
 
 const FIELD =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/70';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder';
 
 const BAND_STYLES: Record<RiskBand, string> = {
-  past_typical: 'bg-red-500/10 text-red-600 border-red-500/25',
-  in_window: 'bg-amber-500/10 text-amber-600 border-amber-500/25',
+  past_typical: 'bg-danger-subtle text-danger border-danger/25',
+  in_window: 'bg-warning-subtle text-warning border-warning/25',
   approaching: 'bg-accent/10 text-accent border-accent/25',
   early: 'bg-bg-tertiary text-text-secondary border-border',
   unknown: 'bg-bg-tertiary text-text-secondary border-border',
@@ -104,7 +104,7 @@ function ContributionCard({
             className={`focus-ring relative h-7 w-12 shrink-0 rounded-full transition-colors disabled:opacity-50 ${on ? 'bg-accent' : 'bg-bg-tertiary border border-border'}`}
           >
             <span
-              className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all ${on ? 'left-[22px]' : 'left-0.5'}`}
+              className={`absolute top-0.5 h-6 w-6 rounded-full bg-bg-secondary shadow transition-all ${on ? 'left-[22px]' : 'left-0.5'}`}
             />
           </button>
         ) : (
@@ -313,7 +313,7 @@ export function FailureAtlasPage() {
               type="button"
               aria-selected={tab === key}
               onClick={() => setTab(key)}
-              className={`focus-ring rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${tab === key ? 'bg-accent text-white' : 'border border-border bg-bg-secondary text-text-secondary hover:text-text-primary'}`}
+              className={`focus-ring rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${tab === key ? 'bg-accent text-on-accent' : 'border border-border bg-bg-secondary text-text-secondary hover:text-text-primary'}`}
             >
               {label}
             </button>

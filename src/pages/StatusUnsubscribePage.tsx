@@ -66,7 +66,7 @@ export function StatusUnsubscribePage() {
           )}
           {state === 'done' && (
             <>
-              <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-success-500/10 text-success-500">
+              <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-success-subtle text-success">
                 <CheckCircle2 size={28} />
               </span>
               <h1 className="mt-5 text-xl font-bold tracking-tight text-text-primary">You&rsquo;re unsubscribed</h1>

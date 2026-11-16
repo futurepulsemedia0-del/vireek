@@ -83,7 +83,7 @@ export function PublicPhotoEvidencePage() {
         {result && result.found && result.state === 'active' && (
           <>
             <Card interactive={false} className="p-4">
-              <p className={`flex items-center gap-2 text-sm font-semibold ${result.chain_valid ? 'text-success-500' : 'text-danger'}`} role={result.chain_valid ? 'status' : 'alert'}>
+              <p className={`flex items-center gap-2 text-sm font-semibold ${result.chain_valid ? 'text-success' : 'text-danger'}`} role={result.chain_valid ? 'status' : 'alert'}>
                 {result.chain_valid ? <ShieldCheck size={18} aria-hidden="true" /> : <AlertCircle size={18} aria-hidden="true" />}
                 {result.chain_valid ? t('public.chainOk') : t('public.chainBroken')}
               </p>

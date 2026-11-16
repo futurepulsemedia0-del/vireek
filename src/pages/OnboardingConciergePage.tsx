@@ -151,7 +151,7 @@ export function OnboardingConciergePage() {
 
       <div className="mb-6 flex items-center justify-between">
         <span className="flex items-center gap-2.5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-white">
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-on-accent">
             <Phone size={16} strokeWidth={2.5} />
           </span>
           <span className="text-lg font-bold tracking-tight text-accent">Vireek</span>
@@ -183,7 +183,7 @@ export function OnboardingConciergePage() {
                 <div
                   className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
                     m.role === 'user'
-                      ? 'bg-accent text-white'
+                      ? 'bg-accent text-on-accent'
                       : 'border border-border bg-bg-primary text-text-primary'
                   }`}
                 >
@@ -207,13 +207,13 @@ export function OnboardingConciergePage() {
                 placeholder="Tell me about your business…"
                 rows={1}
                 disabled={sending}
-                className="focus-ring flex-1 resize-none rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 disabled:opacity-60"
+                className="focus-ring flex-1 resize-none rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder disabled:opacity-60"
               />
               <button
                 type="button"
                 onClick={handleSend}
                 disabled={sending || !input.trim()}
-                className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent text-white transition-all hover:brightness-110 disabled:opacity-50"
+                className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent text-on-accent transition-all hover:brightness-110 disabled:opacity-50"
                 aria-label="Send"
               >
                 {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
@@ -248,9 +248,9 @@ export function OnboardingConciergePage() {
             {progress.items.map((item) => (
               <li key={item.key} className="flex items-center gap-2 text-sm">
                 {item.done ? (
-                  <CheckCircle2 size={16} className="shrink-0 text-success-500" />
+                  <CheckCircle2 size={16} className="shrink-0 text-success" />
                 ) : (
-                  <Circle size={16} className="shrink-0 text-text-secondary/40" />
+                  <Circle size={16} className="shrink-0 text-graphic-muted" />
                 )}
                 <span className={item.done ? 'text-text-primary' : 'text-text-secondary'}>{item.label}</span>
               </li>
@@ -261,7 +261,7 @@ export function OnboardingConciergePage() {
             type="button"
             onClick={handleFinish}
             disabled={finishing || !ready}
-            className="focus-ring flex items-center justify-center gap-1.5 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110 disabled:opacity-50"
+            className="focus-ring flex items-center justify-center gap-1.5 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent transition-all hover:brightness-110 disabled:opacity-50"
           >
             {finishing ? <Loader2 size={15} className="animate-spin" /> : <ArrowRight size={15} />}
             Finish setup

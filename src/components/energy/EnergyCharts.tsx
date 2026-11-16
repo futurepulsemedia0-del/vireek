@@ -83,7 +83,7 @@ export function UsageChart({ fuel }: { fuel: FuelSummary }) {
             fill="none"
             strokeWidth={2}
             strokeDasharray="5 3"
-            className="stroke-warning-500"
+            className="stroke-warning"
           />
         )}
         {fuel.months.map((m, i) => (
@@ -109,7 +109,7 @@ export function UsageChart({ fuel }: { fuel: FuelSummary }) {
         </span>
         <span className="inline-flex items-center gap-1">
           <span
-            className="h-0 w-4 border-t-2 border-dashed border-warning-500"
+            className="h-0 w-4 border-t-2 border-dashed border-warning"
             aria-hidden="true"
           />{' '}
           Weather model
@@ -121,9 +121,9 @@ export function UsageChart({ fuel }: { fuel: FuelSummary }) {
 
 const SCENARIO_STROKE: Record<ForecastScenario['key'], string> = {
   baseline: 'stroke-accent',
-  hot_summer: 'stroke-danger-500',
-  cold_winter: 'stroke-warning-500',
-  upgraded: 'stroke-success-500',
+  hot_summer: 'stroke-danger',
+  cold_winter: 'stroke-warning',
+  upgraded: 'stroke-success',
 };
 
 /** Next-12-month electric demand by scenario, with the 80% band around the baseline. */

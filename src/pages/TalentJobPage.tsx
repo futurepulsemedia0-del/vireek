@@ -128,7 +128,7 @@ export function TalentJobPage() {
                       <Input label="Expected hourly rate (optional)" value={rate} onChange={(e) => setRate(e.target.value)} placeholder="38.50" inputMode="decimal" />
                       <Input label="Availability (optional)" value={avail} onChange={(e) => setAvail(e.target.value)} maxLength={500} placeholder="Can start in 2 weeks" />
                     </div>
-                    {applyError && <p role="alert" className="flex items-center gap-2 text-sm text-red-500"><TriangleAlert size={14} aria-hidden="true" />{applyError}</p>}
+                    {applyError && <p role="alert" className="flex items-center gap-2 text-sm text-danger"><TriangleAlert size={14} aria-hidden="true" />{applyError}</p>}
                     <Button onClick={() => void submit()} disabled={busy}>{busy ? 'Sending…' : 'Submit application'}</Button>
                   </div>
                 )}

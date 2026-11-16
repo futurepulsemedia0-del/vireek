@@ -124,7 +124,7 @@ export function PartnerPortalCertificationPage() {
                   {done ? (
                     <CheckCircle2 size={20} className="mt-0.5 shrink-0 text-success" />
                   ) : (
-                    <Circle size={20} className="mt-0.5 shrink-0 text-text-secondary/50" />
+                    <Circle size={20} className="mt-0.5 shrink-0 text-graphic-muted" />
                   )}
                   <div>
                     <p className="text-sm font-semibold text-text-primary">

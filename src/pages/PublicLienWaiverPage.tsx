@@ -16,7 +16,7 @@ import { NOT_LEGAL_ADVICE, formatUsd, lienWaiverError, longDate, type PublicLien
 type State = { kind: 'loading' } | { kind: 'missing' } | { kind: 'ready'; w: PublicLienWaiver };
 
 function Notice({ icon: Icon, title, body, tone }: { icon: typeof CheckCircle2; title: string; body: string; tone: 'success' | 'neutral' | 'warning' | 'danger' }) {
-  const color = tone === 'success' ? 'text-success-500' : tone === 'danger' ? 'text-danger-500' : tone === 'warning' ? 'text-warning-500' : 'text-text-secondary';
+  const color = tone === 'success' ? 'text-success' : tone === 'danger' ? 'text-danger' : tone === 'warning' ? 'text-warning' : 'text-text-secondary';
   return (
     <div role="status" className="rounded-2xl border border-border bg-bg-secondary p-6 text-center">
       <Icon size={32} className={`mx-auto ${color}`} aria-hidden="true" />
@@ -59,7 +59,7 @@ function SignForm({ w, token, onDone }: { w: PublicLienWaiver; token: string; on
       <div role="group" aria-label="Your decision" className="grid grid-cols-2 gap-2">
         {(['sign', 'decline'] as const).map((m) => (
           <button key={m} type="button" aria-pressed={mode === m} onClick={() => { setMode(m); setError(''); }}
-            className={`focus-ring min-h-[44px] rounded-xl px-4 text-sm font-semibold transition-colors ${mode === m ? (m === 'sign' ? 'bg-accent text-white' : 'bg-danger-500 text-white') : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>
+            className={`focus-ring min-h-[44px] rounded-xl px-4 text-sm font-semibold transition-colors ${mode === m ? (m === 'sign' ? 'bg-accent text-on-accent' : 'bg-danger text-on-danger') : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>
             {m === 'sign' ? 'Sign' : 'Decline'}
           </button>
         ))}
@@ -81,7 +81,7 @@ function SignForm({ w, token, onDone }: { w: PublicLienWaiver; token: string; on
         </>
       )}
 
-      {error && <p role="alert" className="text-sm text-danger-500">{error}</p>}
+      {error && <p role="alert" className="text-sm text-danger">{error}</p>}
       <Button type="submit" disabled={busy} className="w-full">
         {busy && <Loader2 size={16} className="animate-spin" aria-hidden="true" />}
         {mode === 'sign' ? 'Sign waiver' : 'Decline'}
@@ -144,8 +144,8 @@ export function PublicLienWaiverPage() {
               {w.status === 'expired' && <Notice icon={Clock3} tone="warning" title="This signing link has expired" body="Please contact the business and ask them to send it again." />}
 
               {w.requiresNotary && (
-                <div role="note" className="flex items-start gap-3 rounded-2xl border border-warning-500/40 bg-warning-500/10 p-4 text-sm text-text-primary">
-                  <ShieldAlert size={18} className="mt-0.5 shrink-0 text-warning-500" aria-hidden="true" />
+                <div role="note" className="flex items-start gap-3 rounded-2xl border border-warning/40 bg-warning-subtle p-4 text-sm text-text-primary">
+                  <ShieldAlert size={18} className="mt-0.5 shrink-0 text-warning" aria-hidden="true" />
                   <p>This form may need to be notarized to be effective in {w.stateCode}. An electronic signature alone may not satisfy that requirement — ask the business how to complete it.</p>
                 </div>
               )}

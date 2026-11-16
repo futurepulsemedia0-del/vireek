@@ -100,7 +100,7 @@ export function PhonePaymentsPage() {
               <>
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   {chain && (chain.valid
-                    ? <span className="flex items-center gap-1.5 text-sm font-medium text-success-500"><ShieldCheck size={16} />Chain verified ({chain.events} events)</span>
+                    ? <span className="flex items-center gap-1.5 text-sm font-medium text-success"><ShieldCheck size={16} />Chain verified ({chain.events} events)</span>
                     : <span role="alert" className="flex items-center gap-1.5 text-sm font-medium text-danger"><ShieldAlert size={16} />Tampering detected at event {chain.firstBadSeq}</span>)}
                   <Button type="button" variant="secondary" size="sm" onClick={exportCsv} disabled={events.length === 0}><Download size={15} />Export CSV</Button>
                 </div>

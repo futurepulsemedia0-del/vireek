@@ -192,9 +192,9 @@ export function evidenceLevel(priorN: number): EvidenceLevel {
 
 export const EVIDENCE_META: Record<EvidenceLevel, { label: string; className: string }> = {
   cold: { label: 'Cold start - model only', className: 'text-text-secondary' },
-  learning: { label: 'Learning', className: 'text-warning-500' },
+  learning: { label: 'Learning', className: 'text-warning' },
   reliable: { label: 'Reliable', className: 'text-accent' },
-  proven: { label: 'Proven', className: 'text-success-500' },
+  proven: { label: 'Proven', className: 'text-success' },
 };
 
 /** null when there is nothing to score yet - never show a fake 0%. */
@@ -240,8 +240,8 @@ export const LOOP_STAGES: LoopStage[] = [
 ];
 
 export const VERIFICATION_STATUS_META: Record<string, { label: string; className: string }> = {
-  pending: { label: 'Verifying', className: 'bg-warning-500/10 text-warning-500' },
-  verified: { label: 'Verified', className: 'bg-success-500/10 text-success-500' },
+  pending: { label: 'Verifying', className: 'bg-warning-subtle text-warning' },
+  verified: { label: 'Verified', className: 'bg-success-subtle text-success' },
   refuted: { label: 'Callback', className: 'bg-danger/10 text-danger' },
   inconclusive: { label: 'Inconclusive', className: 'bg-bg-primary text-text-secondary' },
 };

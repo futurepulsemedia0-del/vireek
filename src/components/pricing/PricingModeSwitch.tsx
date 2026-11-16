@@ -37,7 +37,7 @@ export function PricingModeSwitch({ children }: { children: ReactNode }) {
             <button
               key={tab.id} role="tab" type="button" id={`pricing-tab-${tab.id}`} aria-selected={mode === tab.id} aria-controls={`pricing-panel-${tab.id}`}
               onClick={() => setMode(tab.id)}
-              className={`focus-ring rounded-lg px-5 py-2 text-sm font-semibold ${mode === tab.id ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}
+              className={`focus-ring rounded-lg px-5 py-2 text-sm font-semibold ${mode === tab.id ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}
             >
               {tab.label}
             </button>

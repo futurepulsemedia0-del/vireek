@@ -32,7 +32,7 @@ import {
 } from '@/lib/businessScientist';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder';
 
 function MeasurementForm({ study, onDone }: { study: BusinessScientistStudy; onDone: () => void }) {
   const { toast } = useToast();
@@ -78,7 +78,7 @@ function MeasurementForm({ study, onDone }: { study: BusinessScientistStudy; onD
         type="button"
         disabled={!valid || saving}
         onClick={() => void handleSubmit()}
-        className="focus-ring mt-2 flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white disabled:opacity-40"
+        className="focus-ring mt-2 flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent disabled:opacity-40"
       >
         {saving ? <Loader2 size={13} className="animate-spin" /> : <CheckCircle2 size={13} />} Score result
       </button>
@@ -166,7 +166,7 @@ function StudyCard({ study, settings, onChanged }: { study: BusinessScientistStu
                 {study.simulation.magnitude_low_pct}%–{study.simulation.magnitude_high_pct}% on {study.predicted_metric}
                 {study.simulation.dollars_expected !== null && ` (≈ ${formatDollars(study.simulation.dollars_low)} to ${formatDollars(study.simulation.dollars_high)})`}
               </p>
-              <p className="mt-0.5 text-[10px] text-text-secondary/70">{study.simulation.method}</p>
+              <p className="mt-0.5 text-[10px] text-text-muted">{study.simulation.method}</p>
             </div>
           )}
 
@@ -180,7 +180,7 @@ function StudyCard({ study, settings, onChanged }: { study: BusinessScientistStu
                 type="button"
                 disabled={busy}
                 onClick={() => void handleStart()}
-                className="focus-ring mt-2 flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white disabled:opacity-40"
+                className="focus-ring mt-2 flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent disabled:opacity-40"
               >
                 {busy ? <Loader2 size={13} className="animate-spin" /> : <Play size={13} />} Start experiment
               </button>
@@ -223,7 +223,7 @@ function StudyCard({ study, settings, onChanged }: { study: BusinessScientistStu
                 type="button"
                 disabled={busy}
                 onClick={() => void handleRollout()}
-                className="focus-ring flex items-center gap-1.5 rounded-lg bg-success-500 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-40"
+                className="focus-ring flex items-center gap-1.5 rounded-lg bg-success px-3 py-1.5 text-xs font-medium text-on-success disabled:opacity-40"
               >
                 <CheckCircle2 size={13} /> Confirm rollout
               </button>
@@ -231,7 +231,7 @@ function StudyCard({ study, settings, onChanged }: { study: BusinessScientistStu
           )}
 
           {study.stage === 'rolled_out' && (
-            <p className="flex items-center gap-1.5 text-success-500"><CheckCircle2 size={13} /> Rolled out: {study.rollout_action}</p>
+            <p className="flex items-center gap-1.5 text-success"><CheckCircle2 size={13} /> Rolled out: {study.rollout_action}</p>
           )}
           {study.stage === 'abandoned' && (
             <p className="flex items-center gap-1.5 text-danger"><XCircle size={13} /> Abandoned</p>
@@ -309,7 +309,7 @@ export function BusinessScientistPage() {
             type="button"
             disabled={running}
             onClick={() => void handleRunCycle()}
-            className="focus-ring flex shrink-0 items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-medium text-white disabled:opacity-40"
+            className="focus-ring flex shrink-0 items-center gap-1.5 rounded-xl bg-accent px-3 py-2 text-xs font-medium text-on-accent disabled:opacity-40"
           >
             {running ? <Loader2 size={13} className="animate-spin" /> : <RefreshCcw size={13} />} Run research cycle
           </button>
@@ -321,7 +321,7 @@ export function BusinessScientistPage() {
           </div>
         ) : studies.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border py-10 text-center">
-            <Beaker className="mx-auto mb-2 h-6 w-6 text-text-secondary/50" />
+            <Beaker className="mx-auto mb-2 h-6 w-6 text-graphic-muted" />
             <p className="mx-auto max-w-sm text-sm text-text-secondary">
               No studies yet. Run a research cycle to turn your unactioned Decision Engine recommendations into testable hypotheses.
             </p>

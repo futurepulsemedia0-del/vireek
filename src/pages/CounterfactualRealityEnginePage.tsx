@@ -39,8 +39,8 @@ const METRIC_LABELS: Record<RealityMetric, string> = {
 };
 
 const CONFIDENCE_STYLES: Record<'low' | 'medium' | 'high', string> = {
-  high: 'bg-success-500/15 text-success-500',
-  medium: 'bg-warning-500/15 text-warning-500',
+  high: 'bg-success-subtle text-success',
+  medium: 'bg-warning-subtle text-warning',
   low: 'bg-bg-tertiary text-text-secondary',
 };
 
@@ -86,12 +86,12 @@ function RealityPathChart({ result }: { result: RealityPathResult }) {
         ))}
         {decisionIdx >= 0 && (
           <line x1={xScale(decisionIdx)} y1={padding.top} x2={xScale(decisionIdx)} y2={padding.top + plotH}
-            stroke="rgb(217 119 6)" strokeWidth="1.5" strokeDasharray="3 3" />
+            stroke="rgb(249 119 76)" strokeWidth="1.5" strokeDasharray="3 3" />
         )}
         <path d={cfPath} fill="none" stroke="rgb(var(--text-secondary))" strokeWidth="2" strokeDasharray="5 4" />
-        <path d={actualPath} fill="none" stroke="rgb(37 99 235)" strokeWidth="2.5" />
+        <path d={actualPath} fill="none" stroke="rgb(169 59 15)" strokeWidth="2.5" />
         {weekly.map((w, i) => (
-          <circle key={i} cx={xScale(i)} cy={yScale(w.actual)} r="2.5" fill="rgb(37 99 235)" />
+          <circle key={i} cx={xScale(i)} cy={yScale(w.actual)} r="2.5" fill="rgb(169 59 15)" />
         ))}
         {weekly.length > 0 && (
           <>
@@ -107,7 +107,7 @@ function RealityPathChart({ result }: { result: RealityPathResult }) {
       <div className="mt-2 flex flex-wrap items-center gap-4 text-xs text-text-secondary">
         <span className="flex items-center gap-1.5"><span className="inline-block h-0.5 w-4 rounded bg-cta" /> Actual path</span>
         <span className="flex items-center gap-1.5"><span className="inline-block h-0.5 w-4 rounded border-t-2 border-dashed border-text-secondary" /> Counterfactual (pre-decision trend)</span>
-        <span className="flex items-center gap-1.5"><span className="inline-block h-3 w-0.5 bg-warning-500" /> Decision point</span>
+        <span className="flex items-center gap-1.5"><span className="inline-block h-3 w-0.5 bg-warning" /> Decision point</span>
       </div>
     </div>
   );
@@ -175,7 +175,7 @@ function DecisionForm({ onClose, onCreated }: { onClose: () => void; onCreated: 
         </label>
       </div>
       <button disabled={saving} onClick={submit}
-        className="focus-ring mt-4 flex items-center gap-1.5 rounded-lg bg-cta px-4 py-2 text-xs font-semibold text-white disabled:opacity-50">
+        className="focus-ring mt-4 flex items-center gap-1.5 rounded-lg bg-cta px-4 py-2 text-xs font-semibold text-on-cta disabled:opacity-50">
         {saving ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />} Log decision
       </button>
     </div>
@@ -309,9 +309,9 @@ export function CounterfactualRealityEnginePage() {
                     </div>
                     <div className="rounded-xl border border-border bg-bg-primary p-3">
                       <p className="flex items-center gap-1 text-[10px] uppercase text-text-secondary">
-                        {result.cumulative_impact >= 0 ? <TrendingUp size={11} className="text-success-500" /> : <TrendingDown size={11} className="text-danger-500" />} Impact
+                        {result.cumulative_impact >= 0 ? <TrendingUp size={11} className="text-success" /> : <TrendingDown size={11} className="text-danger" />} Impact
                       </p>
-                      <p className={`mt-1 text-sm font-semibold ${result.cumulative_impact >= 0 ? 'text-success-500' : 'text-danger-500'}`}>
+                      <p className={`mt-1 text-sm font-semibold ${result.cumulative_impact >= 0 ? 'text-success' : 'text-danger'}`}>
                         {result.cumulative_impact >= 0 ? '+' : ''}{formatMetricValue(result.metric, result.cumulative_impact)}
                       </p>
                     </div>

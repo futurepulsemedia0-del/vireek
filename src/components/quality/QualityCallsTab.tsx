@@ -72,7 +72,7 @@ export function QualityCallsTab({ reviews, findings, rereviewing, onRereview, on
                     <span className="block truncate text-sm font-semibold text-text-primary">{r.caller_name || r.caller_phone || 'Unknown caller'}</span>
                     <span className="block truncate text-xs text-text-secondary">{fmtDate(r.call_at)} · {r.scenario ? scenarioLabel(r.scenario) : 'Call'}{r.is_emergency ? ' · Emergency' : ''}</span>
                   </span>
-                  {r.feedback_rating !== null && <span className="hidden items-center gap-1 text-xs text-text-secondary sm:flex"><Star size={14} className="fill-warning-500 text-warning-500" />{r.feedback_rating}</span>}
+                  {r.feedback_rating !== null && <span className="hidden items-center gap-1 text-xs text-text-secondary sm:flex"><Star size={14} className="fill-warning text-warning" />{r.feedback_rating}</span>}
                   {r.open_findings > 0 && <span className="rounded-full bg-danger/10 px-2 py-0.5 text-xs font-semibold text-danger">{r.open_findings} issue{r.open_findings === 1 ? '' : 's'}</span>}
                   <ChevronDown size={18} className={`shrink-0 text-text-secondary transition-transform ${open ? 'rotate-180' : ''}`} />
                 </button>
@@ -81,7 +81,7 @@ export function QualityCallsTab({ reviews, findings, rereviewing, onRereview, on
                   <div className="space-y-4 border-t border-border p-4">
                     {r.summary && <p className="text-sm text-text-primary">{r.summary}</p>}
                     {r.ai_status !== 'ok' && (
-                      <p className="rounded-lg bg-warning-500/10 px-3 py-2 text-xs text-warning-500">
+                      <p className="rounded-lg bg-warning-subtle px-3 py-2 text-xs text-warning">
                         {r.ai_status === 'failed' ? 'The AI accuracy check failed for this call, so accuracy is not scored. Re-review to retry.' : 'Accuracy was not checked (the transcript has no clear speaker labels).'}
                       </p>
                     )}

@@ -218,7 +218,7 @@ export function PressPage() {
                 <dl className="divide-y divide-border">
                   {QUICK_FACTS.map(({ label, value }) => (
                     <div key={label} className="flex flex-col gap-1 py-3 first:pt-0 last:pb-0">
-                      <dt className="text-xs font-semibold uppercase tracking-wider text-text-secondary/70">
+                      <dt className="text-xs font-semibold uppercase tracking-wider text-text-muted">
                         {label}
                       </dt>
                       <dd className="text-sm font-medium text-text-primary">{value}</dd>
@@ -264,7 +264,7 @@ export function PressPage() {
                     </span>
                     <h3 className="mt-5 text-base font-semibold text-text-primary">{title}</h3>
                     <p className="mt-2 flex-1 text-sm leading-relaxed text-text-secondary">{description}</p>
-                    <p className="mt-3 text-xs font-medium text-text-secondary/70">{meta}</p>
+                    <p className="mt-3 text-xs font-medium text-text-muted">{meta}</p>
                     <a href={href} download className="mt-5">
                       <Button variant="secondary" size="sm" className="w-full">
                         <Download size={15} />
@@ -447,7 +447,7 @@ export function PressPage() {
               className="pointer-events-none absolute inset-0"
               style={{
                 backgroundImage:
-                  'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
+                  'radial-gradient(circle at 20% 20%, rgb(var(--static-white) / 0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
               }}
             />
             <div className="relative">

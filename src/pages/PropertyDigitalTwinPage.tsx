@@ -43,9 +43,9 @@ import {
 } from '@/lib/propertyTwin';
 
 const RISK_STYLES: Record<string, string> = {
-  high: 'bg-danger-500/10 text-danger-500',
-  medium: 'bg-warning-500/10 text-warning-500',
-  low: 'bg-success-500/10 text-success-500',
+  high: 'bg-danger-subtle text-danger',
+  medium: 'bg-warning-subtle text-warning',
+  low: 'bg-success-subtle text-success',
 };
 
 function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
@@ -165,10 +165,10 @@ export function PropertyDigitalTwinPage() {
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <span className="font-medium text-text-primary">{[item.make, item.model].filter(Boolean).join(' ') || item.equipment_type}</span>
                       <div className="flex flex-wrap gap-1.5">
-                        {recurring && <span className="rounded-full bg-danger-500/10 px-2 py-0.5 text-xs font-medium text-danger-500">Recurring failures ({counts.get(item.id)} visits)</span>}
-                        {overdue && <span className="rounded-full bg-warning-500/10 px-2 py-0.5 text-xs font-medium text-warning-500">Overdue for service</span>}
-                        {eol && <span className="rounded-full bg-warning-500/10 px-2 py-0.5 text-xs font-medium text-warning-500">Nearing end of life</span>}
-                        {!recurring && !overdue && !eol && <span className="flex items-center gap-1 rounded-full bg-success-500/10 px-2 py-0.5 text-xs font-medium text-success-500"><CheckCircle2 size={11} /> Healthy</span>}
+                        {recurring && <span className="rounded-full bg-danger-subtle px-2 py-0.5 text-xs font-medium text-danger">Recurring failures ({counts.get(item.id)} visits)</span>}
+                        {overdue && <span className="rounded-full bg-warning-subtle px-2 py-0.5 text-xs font-medium text-warning">Overdue for service</span>}
+                        {eol && <span className="rounded-full bg-warning-subtle px-2 py-0.5 text-xs font-medium text-warning">Nearing end of life</span>}
+                        {!recurring && !overdue && !eol && <span className="flex items-center gap-1 rounded-full bg-success-subtle px-2 py-0.5 text-xs font-medium text-success"><CheckCircle2 size={11} /> Healthy</span>}
                       </div>
                     </div>
                     <p className="mt-1 text-xs text-text-secondary">
@@ -204,7 +204,7 @@ export function PropertyDigitalTwinPage() {
         </div>
 
         {maintenanceAlerts.length === 0 && equipment.some((e) => isOverdueForService(e) || isNearingEndOfLife(e)) && (
-          <div className="flex items-center gap-2 rounded-2xl border border-warning-500/30 bg-warning-500/5 p-4 text-sm text-warning-500">
+          <div className="flex items-center gap-2 rounded-2xl border border-warning/30 bg-warning-subtle p-4 text-sm text-warning">
             <AlertTriangle size={16} /> Some equipment above is overdue or aging, but has no predictive alert yet — check the Equipment Lifecycle page.
           </div>
         )}

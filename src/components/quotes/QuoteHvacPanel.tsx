@@ -256,7 +256,7 @@ export function QuoteHvacPanel({ quoteId, quoteStatus }: Props) {
             onClick={() => setTab(t.key)}
             onKeyDown={(e) => onTabKey(e, idx)}
             className={`focus-ring min-h-[44px] shrink-0 rounded-xl px-4 text-sm font-semibold ${
-              tab === t.key ? 'bg-accent text-white' : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'
+              tab === t.key ? 'bg-accent text-on-accent' : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'
             }`}
           >
             {t.label}

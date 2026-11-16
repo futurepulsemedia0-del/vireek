@@ -73,7 +73,7 @@ export function TelemetryPrepPanel({ job }: { job: Job }) {
                     const ok = part.part_id !== null && part.in_stock !== null && part.in_stock >= part.qty;
                     return (
                       <li key={part.label} className="flex items-center gap-1.5 text-xs text-text-secondary">
-                        {ok ? <PackageCheck size={12} className="text-success-500" /> : <PackageX size={12} className="text-warning-500" />}
+                        {ok ? <PackageCheck size={12} className="text-success" /> : <PackageX size={12} className="text-warning" />}
                         {part.qty}× {part.part_name ?? part.label}
                       </li>
                     );

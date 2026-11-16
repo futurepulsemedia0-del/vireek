@@ -38,7 +38,7 @@ import {
 } from '@/lib/siteHierarchy';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder transition-colors';
 
 const labelClass = 'mb-1.5 block text-xs font-medium text-text-secondary';
 
@@ -314,7 +314,7 @@ export function CustomerSitesPage() {
               <button
                 type="button"
                 onClick={handleAddSite}
-                className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white hover:bg-accent/90"
+                className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent hover:bg-accent/90"
               >
                 <Check size={13} /> Save site
               </button>
@@ -324,7 +324,7 @@ export function CustomerSitesPage() {
 
         {sites.length === 0 && !showAddSite && (
           <div className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-text-secondary">
-            <Building2 className="mx-auto mb-2 text-text-secondary/50" size={28} />
+            <Building2 className="mx-auto mb-2 text-graphic-muted" size={28} />
             No sites yet. For a multi-location commercial account, add each physical address as a site, then break it down into
             buildings, floors and rooms.
           </div>
@@ -340,7 +340,7 @@ export function CustomerSitesPage() {
                   <div>
                     <div className="flex items-center gap-1.5 text-sm font-medium text-text-primary">
                       {site.name}
-                      {site.is_primary && <Star size={12} className="fill-warning-500 text-warning-500" />}
+                      {site.is_primary && <Star size={12} className="fill-warning text-warning" />}
                     </div>
                     <div className="text-xs text-text-secondary">
                       {SITE_TYPE_LABELS[site.site_type]}
@@ -502,7 +502,7 @@ export function CustomerSitesPage() {
                                           <button
                                             type="button"
                                             onClick={() => handleAddRoom(floor.id)}
-                                            className="focus-ring rounded-lg p-2 text-success-500 hover:bg-success-500/10"
+                                            className="focus-ring rounded-lg p-2 text-success hover:bg-success-subtle"
                                           >
                                             <Check size={14} />
                                           </button>
@@ -678,7 +678,7 @@ function InlineAddRow({
           if (e.key === 'Escape') onCancel();
         }}
       />
-      <button type="button" onClick={onSave} className="focus-ring rounded-lg p-2 text-success-500 hover:bg-success-500/10">
+      <button type="button" onClick={onSave} className="focus-ring rounded-lg p-2 text-success hover:bg-success-subtle">
         <Check size={14} />
       </button>
       <button type="button" onClick={onCancel} className="focus-ring rounded-lg p-2 text-text-secondary hover:bg-bg-tertiary">

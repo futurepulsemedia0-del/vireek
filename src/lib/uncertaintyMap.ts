@@ -105,7 +105,7 @@ export const DOMAIN_ORDER: UncertaintyDomain[] = [
 
 export const SEVERITY_COLORS: Record<UncertaintySeverity, string> = {
   low: 'bg-bg-tertiary text-text-secondary',
-  medium: 'bg-warning-500/15 text-warning-500',
+  medium: 'bg-warning-subtle text-warning',
   high: 'bg-danger/15 text-danger',
 };
 

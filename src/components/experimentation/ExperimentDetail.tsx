@@ -124,7 +124,7 @@ export function ExperimentDetail({ experiment: e, jobs, assignments, decisions =
         </div>
         <ol className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs" aria-label="Experiment stages">
           {STEPS.map((s, i) => (
-            <li key={s} aria-current={i === current ? 'step' : undefined} className={i < current ? 'text-success-500' : i === current ? 'font-semibold text-accent' : 'text-text-secondary'}>
+            <li key={s} aria-current={i === current ? 'step' : undefined} className={i < current ? 'text-success' : i === current ? 'font-semibold text-accent' : 'text-text-secondary'}>
               {i + 1}. {s}
             </li>
           ))}
@@ -237,7 +237,7 @@ export function ExperimentDetail({ experiment: e, jobs, assignments, decisions =
           {canManage && analysis && (
             <Card className="!p-5">
               <p className="text-sm font-semibold text-text-primary">Conclude and record the learning</p>
-              {analysis.verdict === 'collecting' && <p className="mt-1 text-sm text-warning-500">Evidence is still being collected. Concluding now is recorded as an early decision.</p>}
+              {analysis.verdict === 'collecting' && <p className="mt-1 text-sm text-warning">Evidence is still being collected. Concluding now is recorded as an early decision.</p>}
               <fieldset className="mt-3 space-y-2">
                 <legend className="sr-only">Decision</legend>
                 {(Object.keys(DECISION_LABELS) as Decision[]).map((d) => (

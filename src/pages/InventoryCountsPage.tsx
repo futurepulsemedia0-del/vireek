@@ -134,7 +134,7 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
       onClick={onClick}
       aria-pressed={active}
       className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-        active ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
+        active ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
       }`}
     >
       {children}
@@ -1371,7 +1371,7 @@ function CountingSheet({
             </Button>
           )}
         </form>
-        <video ref={videoRef} muted playsInline className={scanning && !isNative() ? 'mt-3 aspect-video w-full rounded-xl bg-black object-cover' : 'hidden'} />
+        <video ref={videoRef} muted playsInline className={scanning && !isNative() ? 'mt-3 aspect-video w-full rounded-xl bg-overlay object-cover' : 'hidden'} />
         <div aria-live="polite" className="mt-2 min-h-[1.25rem] text-sm">
           {scanError && (
             <p role="alert" className="flex items-start gap-1.5 text-danger">

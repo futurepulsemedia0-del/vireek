@@ -253,7 +253,7 @@ export function ServiceIntelligenceLoopPage() {
       {/* Privacy + sharing */}
       <section className={CARD} aria-labelledby="loop-privacy">
         <div className="flex flex-wrap items-start gap-4">
-          <ShieldCheck size={20} className="mt-0.5 text-success-500" aria-hidden="true" />
+          <ShieldCheck size={20} className="mt-0.5 text-success" aria-hidden="true" />
           <div className="min-w-0 flex-1">
             <h2 id="loop-privacy" className="text-sm font-semibold text-text-primary">Network learning &amp; privacy</h2>
             <p className="mt-1 text-xs text-text-secondary">
@@ -269,7 +269,7 @@ export function ServiceIntelligenceLoopPage() {
             role="switch"
             aria-checked={metrics.sharing}
             className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium disabled:opacity-50 ${
-              metrics.sharing ? 'bg-accent text-white' : 'border border-border text-text-primary'
+              metrics.sharing ? 'bg-accent text-on-accent' : 'border border-border text-text-primary'
             }`}
           >
             <Sparkles size={14} aria-hidden="true" />

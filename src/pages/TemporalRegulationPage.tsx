@@ -58,9 +58,9 @@ const TABS: { key: TabKey; label: string }[] = [
 ];
 
 const inputCls =
-  'focus-ring w-full rounded-lg border border-border bg-bg-secondary px-2.5 py-1.5 text-sm text-text-primary placeholder:text-text-secondary/60';
+  'focus-ring w-full rounded-lg border border-border bg-bg-secondary px-2.5 py-1.5 text-sm text-text-primary placeholder:text-text-placeholder';
 const btnPrimary =
-  'focus-ring inline-flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white hover:opacity-90 disabled:opacity-50';
+  'focus-ring inline-flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent hover:opacity-90 disabled:opacity-50';
 const btnGhost =
   'focus-ring inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-primary hover:bg-bg-tertiary disabled:opacity-50';
 const card = 'rounded-2xl border border-border bg-bg-secondary p-4';
@@ -401,11 +401,11 @@ function NodeRow({
                         {v.retracted_at ? (
                           <span className="rounded-full bg-danger/10 px-2 py-0.5 text-[11px] font-medium text-danger">Retracted</span>
                         ) : v.verification_status === 'verified' ? (
-                          <span className="flex items-center gap-1 rounded-full bg-success-500/10 px-2 py-0.5 text-[11px] font-medium text-success-500">
+                          <span className="flex items-center gap-1 rounded-full bg-success-subtle px-2 py-0.5 text-[11px] font-medium text-success">
                             <BadgeCheck size={11} /> Verified
                           </span>
                         ) : (
-                          <span className="rounded-full bg-warning-500/10 px-2 py-0.5 text-[11px] font-medium text-warning-500">Unverified</span>
+                          <span className="rounded-full bg-warning-subtle px-2 py-0.5 text-[11px] font-medium text-warning">Unverified</span>
                         )}
                         <span className="font-mono text-[11px] text-text-secondary" title="Content fingerprint (SHA-256)">
                           #{shortHash(v.content_hash, 8)}
@@ -973,7 +973,7 @@ export function TemporalRegulationPage() {
                   <>
                     <div className="grid grid-cols-3 gap-3">
                       <div className="rounded-2xl border border-border bg-bg-secondary p-4 text-center">
-                        <p className="text-xl font-bold text-success-500">{result.counts.in_force}</p>
+                        <p className="text-xl font-bold text-success">{result.counts.in_force}</p>
                         <p className="text-xs text-text-secondary">In force</p>
                       </div>
                       <div className="rounded-2xl border border-border bg-bg-secondary p-4 text-center">
@@ -981,7 +981,7 @@ export function TemporalRegulationPage() {
                         <p className="text-xs text-text-secondary">Repealed / expired</p>
                       </div>
                       <div className="rounded-2xl border border-border bg-bg-secondary p-4 text-center">
-                        <p className="text-xl font-bold text-warning-500">{result.counts.unverified}</p>
+                        <p className="text-xl font-bold text-warning">{result.counts.unverified}</p>
                         <p className="text-xs text-text-secondary">In force, unverified</p>
                       </div>
                     </div>

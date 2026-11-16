@@ -11,7 +11,7 @@ import type { SupportDiagnostics } from './useSupportDiagnostics';
 
 const SEVERITY_ICON: Record<Severity, { Icon: typeof Info; tone: string; label: string }> = {
   critical: { Icon: AlertTriangle, tone: 'text-danger', label: 'Critical' },
-  warning: { Icon: AlertTriangle, tone: 'text-warning-500', label: 'Needs attention' },
+  warning: { Icon: AlertTriangle, tone: 'text-warning', label: 'Needs attention' },
   info: { Icon: Info, tone: 'text-accent', label: 'Info' },
 };
 
@@ -109,7 +109,7 @@ export function FixPanel({ d, onTalkToTeam }: Props) {
                           </Button>
                         )}
                         {state && state !== 'running' && (
-                          <p role="status" className={`flex items-start gap-1.5 text-xs ${state.status === 'failed' || state.status === 'blocked' ? 'text-danger' : 'text-success-500'}`}>
+                          <p role="status" className={`flex items-start gap-1.5 text-xs ${state.status === 'failed' || state.status === 'blocked' ? 'text-danger' : 'text-success'}`}>
                             {state.status === 'verified' || state.status === 'accepted' ? <CheckCircle2 size={14} className="mt-0.5 shrink-0" aria-hidden="true" /> : <AlertTriangle size={14} className="mt-0.5 shrink-0" aria-hidden="true" />}
                             <span>{state.message}</span>
                           </p>

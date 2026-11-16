@@ -87,16 +87,16 @@ export function SupplierAuditPage() {
         {loading ? <Skeleton rows={4} /> : data && summary && (
           <>
             <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
-              <div className="rounded-2xl border border-border bg-bg-secondary p-4"><p className="text-xs font-medium text-text-secondary">Estimated owed <Pill cls="bg-warning-500/10 text-warning-500">estimate</Pill></p>
+              <div className="rounded-2xl border border-border bg-bg-secondary p-4"><p className="text-xs font-medium text-text-secondary">Estimated owed <Pill cls="bg-warning-subtle text-warning">estimate</Pill></p>
                 <p className="mt-1 text-2xl font-bold text-text-primary">{formatMoney(summary.estimatedLikelyCents, cur)}</p><p className="text-xs text-text-secondary">range {formatMoney(summary.estimatedLowCents, cur)} – {formatMoney(summary.estimatedHighCents, cur)} · {summary.openCount} open</p></div>
-              <div className="rounded-2xl border border-success-500/30 bg-success-500/5 p-4"><p className="text-xs font-medium text-text-secondary">Confirmed recovered <Pill cls="bg-success-500/10 text-success-500">measured</Pill></p>
-                <p className="mt-1 text-2xl font-bold text-success-500">{formatMoney(summary.recoveredCents, cur)}</p><p className="text-xs text-text-secondary">only counts confirmed receipts</p></div>
+              <div className="rounded-2xl border border-success/30 bg-success-subtle p-4"><p className="text-xs font-medium text-text-secondary">Confirmed recovered <Pill cls="bg-success-subtle text-success">measured</Pill></p>
+                <p className="mt-1 text-2xl font-bold text-success">{formatMoney(summary.recoveredCents, cur)}</p><p className="text-xs text-text-secondary">only counts confirmed receipts</p></div>
               <div className="rounded-2xl border border-border bg-bg-secondary p-4"><p className="text-xs font-medium text-text-secondary">Opportunities <span className="font-normal">(not money owed)</span></p>
                 <p className="mt-1 text-2xl font-bold text-text-primary">{formatMoney(summary.opportunityCents, cur)}</p><p className="text-xs text-text-secondary">accruing rebates &amp; tier upgrades</p></div>
               <div className="rounded-2xl border border-border bg-bg-secondary p-4"><p className="text-xs font-medium text-text-secondary">Deadlines within 30 days</p>
                 <p className={`mt-1 text-2xl font-bold ${atRisk ? 'text-danger' : 'text-text-primary'}`}>{atRisk}</p><p className="text-xs text-text-secondary">{pendingReview} statement line(s) awaiting review</p></div>
             </div>
-            {mixedCurrency && <p className="mb-4 text-xs text-warning-500">Findings exist in more than one currency; totals above mix them — filter by vendor for exact figures.</p>}
+            {mixedCurrency && <p className="mb-4 text-xs text-warning">Findings exist in more than one currency; totals above mix them — filter by vendor for exact figures.</p>}
 
             <nav className="mb-5 flex gap-1 overflow-x-auto border-b border-border" aria-label="Supplier audit sections">
               {TABS.map((t) => <button key={t.key} type="button" onClick={() => setTab(t.key)} aria-current={tab === t.key ? 'page' : undefined} className={`whitespace-nowrap border-b-2 px-3 py-2 text-sm font-medium ${tab === t.key ? 'border-accent text-accent' : 'border-transparent text-text-secondary hover:text-text-primary'}`}>{t.label}{t.key === 'statements' && pendingReview ? ` (${pendingReview})` : ''}</button>)}
@@ -119,7 +119,7 @@ export function SupplierAuditPage() {
                       <span className="min-w-0"><span className="mb-1 flex flex-wrap items-center gap-2"><Pill cls="bg-accent/10 text-accent">{TYPE_LABELS[f.finding_type]}</Pill><Pill cls="bg-bg-tertiary text-text-secondary">{STATUS_LABELS[f.status]}</Pill>{f.is_opportunity && <Pill cls="bg-bg-tertiary text-text-secondary">opportunity</Pill>}</span>
                         <span className="block truncate text-sm font-semibold text-text-primary">{f.title}</span>
                         <span className="mt-1 flex flex-wrap items-center gap-2"><span className="text-xs text-text-secondary">{vendorName(f.vendor_id)}</span><BandPill band={f.confidence_band} value={f.confidence} /><RiskPill risk={f.deadline_risk} /></span></span>
-                      <span className="text-left sm:text-right"><span className="block text-lg font-bold text-text-primary">{formatMoney(f.likely_cents, f.currency)}</span><span className="block text-xs text-text-secondary">{formatMoney(f.low_cents, f.currency)} – {formatMoney(f.high_cents, f.currency)} · estimate</span>{f.recovered_cents > 0 && <span className="block text-xs font-medium text-success-500">{formatMoney(f.recovered_cents, f.currency)} confirmed</span>}</span>
+                      <span className="text-left sm:text-right"><span className="block text-lg font-bold text-text-primary">{formatMoney(f.likely_cents, f.currency)}</span><span className="block text-xs text-text-secondary">{formatMoney(f.low_cents, f.currency)} – {formatMoney(f.high_cents, f.currency)} · estimate</span>{f.recovered_cents > 0 && <span className="block text-xs font-medium text-success">{formatMoney(f.recovered_cents, f.currency)} confirmed</span>}</span>
                     </button></li>))}</ul>)}
                 <p className="text-xs text-text-secondary">{DISCLAIMER}</p>
               </div>)}

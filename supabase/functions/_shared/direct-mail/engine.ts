@@ -152,9 +152,9 @@ export const escapeHtml = (s: unknown) =>
 export const isHexColor = (c: string) => /^#[0-9a-fA-F]{6}$/.test(c);
 
 export function readableTextColor(hex: string): string {
-  const h = isHexColor(hex) ? hex : "#0F62FE";
+  const h = isHexColor(hex) ? hex : "#0071E3";
   const [r, g, b] = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
-  return 0.299 * r + 0.587 * g + 0.114 * b > 150 ? "#111111" : "#FFFFFF";
+  return 0.299 * r + 0.587 * g + 0.114 * b > 150 ? "#141413" : "#FFFFFF";
 }
 
 export interface ArtworkInput {
@@ -174,7 +174,7 @@ const fontCss = "font-family:Helvetica,Arial,sans-serif;";
 
 export function buildFrontHtml(i: ArtworkInput): string {
   const g = GEOMETRY[i.size];
-  const accent = isHexColor(i.accent) ? i.accent : "#0F62FE";
+  const accent = isHexColor(i.accent) ? i.accent : "#0071E3";
   const ink = readableTextColor(accent);
   const big = i.size === "4x6" ? 0.42 : 0.62;
   return `<html><head><meta charset="utf-8"><style>
@@ -194,7 +194,7 @@ ${i.phone ? `<div class="phone">${escapeHtml(i.phone)}</div>` : ""}
 
 export function buildBackHtml(i: ArtworkInput): string {
   const g = GEOMETRY[i.size];
-  const accent = isHexColor(i.accent) ? i.accent : "#0F62FE";
+  const accent = isHexColor(i.accent) ? i.accent : "#0071E3";
   const qrIn = i.size === "4x6" ? 1.15 : 1.5;
   const leftW = g.widthIn - g.addressW - 0.9;
   return `<html><head><meta charset="utf-8"><style>
@@ -202,10 +202,10 @@ export function buildBackHtml(i: ArtworkInput): string {
 .left{position:absolute;left:0.4in;top:0.4in;width:${leftW}in}
 .brand{font-size:${i.size === "4x6" ? 0.15 : 0.2}in;font-weight:800;color:${accent};text-transform:uppercase;letter-spacing:.06em}
 .cta{margin:.1in 0 .14in;font-size:${i.size === "4x6" ? 0.2 : 0.28}in;line-height:1.2;font-weight:700}
-.qr{width:${qrIn}in;height:${qrIn}in;padding:.08in;background:#fff;border:1px solid #ddd}
+.qr{width:${qrIn}in;height:${qrIn}in;padding:.08in;background:#fff;border:1px solid #dddcd8}
 .qr svg{width:100%;height:100%;display:block}
-.code{margin-top:.08in;font-size:${i.size === "4x6" ? 0.13 : 0.17}in;color:#333}
-.code b{font-size:${i.size === "4x6" ? 0.17 : 0.22}in;letter-spacing:.05em;color:#111}
+.code{margin-top:.08in;font-size:${i.size === "4x6" ? 0.13 : 0.17}in;color:#2F2E28}
+.code b{font-size:${i.size === "4x6" ? 0.17 : 0.22}in;letter-spacing:.05em;color:#141413}
 .ph{margin-top:.06in;font-size:${i.size === "4x6" ? 0.14 : 0.19}in;font-weight:700}
 </style></head><body><div class="left">
 <div class="brand">${escapeHtml(i.brand)}</div>

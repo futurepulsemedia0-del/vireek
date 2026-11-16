@@ -19,7 +19,7 @@ import { uploadPhoto } from '@/lib/galleryApi';
 
 const MAX_BATCH = 30;
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder';
 const labelClass = 'mb-1 block text-xs font-medium text-text-secondary';
 
 type Status = 'queued' | 'uploading' | 'done' | 'error';
@@ -144,7 +144,7 @@ export function PhotoUploadModal({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => !busy && onClose()}
-            className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 z-[100] bg-overlay/40 backdrop-blur-sm"
           />
           <motion.div
             ref={dialogRef}
@@ -214,7 +214,7 @@ export function PhotoUploadModal({
               {notice && (
                 <p
                   role="alert"
-                  className="rounded-xl bg-warning-500/10 px-3 py-2 text-xs font-medium text-warning-500"
+                  className="rounded-xl bg-warning-subtle px-3 py-2 text-xs font-medium text-warning"
                 >
                   {notice}
                 </p>
@@ -228,7 +228,7 @@ export function PhotoUploadModal({
                   {entries.map((e) => (
                     <li key={e.key} className="flex items-center gap-2 px-1.5 py-1 text-xs">
                       {e.status === 'done' ? (
-                        <CheckCircle2 size={14} className="shrink-0 text-success-500" />
+                        <CheckCircle2 size={14} className="shrink-0 text-success" />
                       ) : e.status === 'error' ? (
                         <AlertCircle size={14} className="shrink-0 text-danger" />
                       ) : e.status === 'uploading' ? (
@@ -321,7 +321,7 @@ export function PhotoUploadModal({
                   type="button"
                   onClick={() => void start()}
                   disabled={busy || pending.length === 0}
-                  className="focus-ring flex-1 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="focus-ring flex-1 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {busy
                     ? 'Uploading…'

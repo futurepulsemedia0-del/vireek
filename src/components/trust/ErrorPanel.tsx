@@ -93,7 +93,7 @@ export function ErrorPanel({ error, onRetry, onSignIn, onRefresh, onFixFields, v
             type="button"
             onClick={primary.run}
             disabled={primary.disabled}
-            className="focus-ring inline-flex items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+            className="focus-ring inline-flex items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-on-cta transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <RefreshCw size={15} aria-hidden="true" />
             {primary.label}

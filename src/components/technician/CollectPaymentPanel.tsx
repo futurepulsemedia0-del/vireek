@@ -56,13 +56,13 @@ export function CollectPaymentPanel({ jobId, invoiceAmount, customerPhone }: Pro
       <h2 className="mb-1 flex items-center gap-1.5 text-sm font-semibold text-text-primary"><CreditCard className="h-4 w-4" /> Collect payment · ${invoiceAmount.toFixed(2)}</h2>
       <p className="mb-3 text-xs text-text-secondary">The customer can add a tip when they pay. Tips go to you through payroll.</p>
       {!link ? (
-        <button type="button" onClick={prepare} disabled={busy} className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent py-2.5 text-sm font-semibold text-white disabled:opacity-50">
+        <button type="button" onClick={prepare} disabled={busy} className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent py-2.5 text-sm font-semibold text-on-accent disabled:opacity-50">
           {busy && <Loader2 className="h-4 w-4 animate-spin" />} Get payment link
         </button>
       ) : (
         <div className="space-y-3">
-          {qr && <img src={qr} alt="Scan to pay" width={240} height={240} className="mx-auto rounded-lg bg-white p-2" />}
-          <a href={link} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 rounded-lg bg-accent py-2.5 text-sm font-semibold text-white">
+          {qr && <img src={qr} alt="Scan to pay" width={240} height={240} className="mx-auto rounded-lg bg-bg-secondary p-2" />}
+          <a href={link} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 rounded-lg bg-accent py-2.5 text-sm font-semibold text-on-accent">
             <ExternalLink className="h-4 w-4" /> Hand device to customer
           </a>
           <button type="button" onClick={textLink} disabled={busy || !customerPhone} className="flex w-full items-center justify-center gap-2 rounded-lg border border-border py-2.5 text-sm font-medium text-text-primary disabled:opacity-50">

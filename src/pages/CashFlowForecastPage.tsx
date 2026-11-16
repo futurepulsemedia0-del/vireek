@@ -136,7 +136,7 @@ export function CashFlowForecastPage() {
           <button onClick={() => setShowSettings((s) => !s)} className="focus-ring flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-semibold text-text-primary hover:bg-bg-secondary">
             <SettingsIcon size={16} /> Assumptions
           </button>
-          <button onClick={handleRun} disabled={running} className="focus-ring flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60">
+          <button onClick={handleRun} disabled={running} className="focus-ring flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-on-accent hover:opacity-90 disabled:opacity-60">
             <RefreshCw size={16} className={running ? 'animate-spin' : ''} /> Run Forecast
           </button>
         </div>
@@ -172,7 +172,7 @@ export function CashFlowForecastPage() {
                 <p className="text-sm text-text-primary">
                   Projected cash goes negative ({money(worstWeek.projected_balance_committed)}) in the week of {worstWeek.week_start}. Review the pending decisions/collections below.
                 </p>
-                <button onClick={() => navigate('/dashboard/cash-flow-war-room')} className="focus-ring mt-2 rounded-lg bg-danger px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90">
+                <button onClick={() => navigate('/dashboard/cash-flow-war-room')} className="focus-ring mt-2 rounded-lg bg-danger px-3 py-1.5 text-xs font-semibold text-on-danger hover:opacity-90">
                   Open Cash Flow War Room →
                 </button>
               </div>
@@ -190,7 +190,7 @@ export function CashFlowForecastPage() {
           {snapshot.narrative.length > 0 && (
             <div className="space-y-2">
               {snapshot.narrative.map((f, i) => (
-                <div key={i} className={`rounded-xl border-l-4 p-3 text-sm ${f.severity === 'critical' ? 'border-l-danger bg-danger/10' : f.severity === 'warning' ? 'border-l-amber-500 bg-amber-500/10' : 'border-l-blue-500 bg-blue-500/10'}`}>
+                <div key={i} className={`rounded-xl border-l-4 p-3 text-sm ${f.severity === 'critical' ? 'border-l-danger bg-danger/10' : f.severity === 'warning' ? 'border-l-amber-500 bg-warning-subtle' : 'border-l-blue-500 bg-info-subtle'}`}>
                   {f.message}
                 </div>
               ))}
@@ -216,7 +216,7 @@ export function CashFlowForecastPage() {
                     <td className="p-3">{money(w.committed_inflow)}</td>
                     <td className="p-3">{money(w.fixed_outflow)}</td>
                     <td className="p-3">{money(w.variable_outflow)}</td>
-                    <td className={`p-3 font-medium ${w.net_committed < 0 ? 'text-danger' : 'text-emerald-500'}`}>{money(w.net_committed)}</td>
+                    <td className={`p-3 font-medium ${w.net_committed < 0 ? 'text-danger' : 'text-success'}`}>{money(w.net_committed)}</td>
                     <td className={`p-3 font-semibold ${w.projected_balance_committed < 0 ? 'text-danger' : 'text-text-primary'}`}>{money(w.projected_balance_committed)}</td>
                   </tr>
                 ))}
@@ -247,7 +247,7 @@ export function CashFlowForecastPage() {
             <option value="monthly">Monthly</option>
           </select>
           <input type="date" value={newExpense.next_due_date} onChange={(e) => setNewExpense((s) => ({ ...s, next_due_date: e.target.value }))} className="rounded-lg border border-border bg-bg-primary px-3 py-2 text-sm" />
-          <button onClick={handleAddExpense} className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:opacity-90">
+          <button onClick={handleAddExpense} className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-on-accent hover:opacity-90">
             <Plus size={16} /> Add
           </button>
         </div>

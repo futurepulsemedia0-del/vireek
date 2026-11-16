@@ -78,7 +78,7 @@ export function ComplianceRulesTab({ rules, onSave, onToggle, onDelete }: Props)
       </ul>
 
       {editing && (
-        <div role="dialog" aria-modal="true" aria-label={editing.id ? 'Edit rule' : 'Add rule'} className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4 sm:items-center">
+        <div role="dialog" aria-modal="true" aria-label={editing.id ? 'Edit rule' : 'Add rule'} className="fixed inset-0 z-50 flex items-end justify-center bg-overlay/50 p-4 sm:items-center">
           <div className="max-h-[90vh] w-full max-w-lg space-y-3 overflow-y-auto rounded-2xl border border-border bg-bg-secondary p-5 shadow-card">
             <h3 className="text-lg font-semibold text-text-primary">{editing.id ? 'Edit rule' : 'Add rule'}</h3>
             <label className="block text-xs font-medium text-text-secondary">Name

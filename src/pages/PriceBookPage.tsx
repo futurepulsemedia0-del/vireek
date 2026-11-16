@@ -23,7 +23,7 @@ import {
 } from '@/lib/priceBook';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder transition-colors';
 
 interface ServiceTitanFormState {
   client_id: string;
@@ -169,7 +169,7 @@ function CrmConnections({
                 <button
                   type="button"
                   onClick={() => setShowStForm((v) => !v)}
-                  className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white transition-all hover:brightness-110"
+                  className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent transition-all hover:brightness-110"
                 >
                   <Link2 size={12} /> Connect
                 </button>
@@ -178,7 +178,7 @@ function CrmConnections({
                   type="button"
                   onClick={handleConnectJobber}
                   disabled={connectingJobber}
-                  className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white transition-all hover:brightness-110 disabled:opacity-50"
+                  className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent transition-all hover:brightness-110 disabled:opacity-50"
                 >
                   <Link2 size={12} /> Connect
                 </button>
@@ -186,7 +186,7 @@ function CrmConnections({
                 <button
                   type="button"
                   onClick={() => setShowHcpForm((v) => !v)}
-                  className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white transition-all hover:brightness-110"
+                  className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent transition-all hover:brightness-110"
                 >
                   <Link2 size={12} /> Connect
                 </button>
@@ -216,7 +216,7 @@ function CrmConnections({
               type="button"
               onClick={handleConnectHousecallPro}
               disabled={connectingHcp}
-              className="focus-ring rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50"
+              className="focus-ring rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent transition-all hover:brightness-110 disabled:opacity-50"
             >
               {connectingHcp ? 'Connecting…' : 'Connect Housecall Pro'}
             </button>
@@ -237,7 +237,7 @@ function CrmConnections({
             <input type="text" value={stForm.business_unit_id} onChange={(e) => setStForm((f) => ({ ...f, business_unit_id: e.target.value }))} placeholder="Business Unit ID" className={inputClass} />
             <input type="text" value={stForm.job_type_id} onChange={(e) => setStForm((f) => ({ ...f, job_type_id: e.target.value }))} placeholder="Job Type ID" className={inputClass} />
           </div>
-          <p className="mt-2 text-[11px] text-text-secondary/70">
+          <p className="mt-2 text-[11px] text-text-muted">
             Business Unit ID and Job Type ID come from Settings → Business Units / Job Types inside ServiceTitan — they decide which crew queue and job category new bookings land in.
           </p>
           <div className="mt-3 flex justify-end gap-2">
@@ -248,7 +248,7 @@ function CrmConnections({
               type="button"
               onClick={handleConnectServiceTitan}
               disabled={connectingSt}
-              className="focus-ring rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50"
+              className="focus-ring rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent transition-all hover:brightness-110 disabled:opacity-50"
             >
               {connectingSt ? 'Connecting…' : 'Connect ServiceTitan'}
             </button>
@@ -343,7 +343,7 @@ function PriceItemForm({
           type="button"
           onClick={handleSave}
           disabled={saving || !canSave}
-          className="focus-ring flex items-center gap-1 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50"
+          className="focus-ring flex items-center gap-1 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent transition-all hover:brightness-110 disabled:opacity-50"
         >
           <Check size={14} /> Save item
         </button>
@@ -503,7 +503,7 @@ export function PriceBookPage() {
                     type="button"
                     onClick={() => setCategoryFilter(c)}
                     className={`focus-ring rounded-full px-3 py-1 text-xs font-medium capitalize transition-colors ${
-                      categoryFilter === c ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
+                      categoryFilter === c ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'
                     }`}
                   >
                     {c}
@@ -555,7 +555,7 @@ export function PriceBookPage() {
                             )}
                           </p>
                           {item.category && <p className="mt-0.5 text-xs text-text-secondary">{item.category}</p>}
-                          {item.keywords.length > 0 && <p className="mt-1 text-xs text-text-secondary/70">Matches: {item.keywords.join(', ')}</p>}
+                          {item.keywords.length > 0 && <p className="mt-1 text-xs text-text-muted">Matches: {item.keywords.join(', ')}</p>}
                         </div>
                         <div className="flex shrink-0 items-center gap-1">
                           <button

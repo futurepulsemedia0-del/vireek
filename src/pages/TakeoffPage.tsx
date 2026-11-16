@@ -33,8 +33,8 @@ import {
 const STATUS_CLASS: Record<TakeoffProject['status'], string> = {
   draft: 'bg-bg-tertiary text-text-secondary',
   analyzing: 'bg-accent/10 text-accent',
-  review: 'bg-warning-500/10 text-warning-500',
-  converted: 'bg-success-500/10 text-success-500',
+  review: 'bg-warning-subtle text-warning',
+  converted: 'bg-success-subtle text-success',
   failed: 'bg-danger/10 text-danger',
 };
 

@@ -114,7 +114,7 @@ export function CausalRoiAttributionPage() {
                 ) : (
                   <>
                     <div className="flex items-baseline gap-2">
-                      <span className={`text-xl font-bold ${isGood(row.causal_total, meta.good) ? 'text-success-500' : 'text-danger-500'}`}>
+                      <span className={`text-xl font-bold ${isGood(row.causal_total, meta.good) ? 'text-success' : 'text-danger'}`}>
                         {formatValue(row.causal_total, row.unit)}
                       </span>
                       <span className="text-[10px] uppercase text-text-secondary">causal</span>
@@ -179,7 +179,7 @@ export function CausalRoiAttributionPage() {
                     <tr key={`${row.action_type}-${row.kpi_category}`} className="border-b border-border/50">
                       <td className="py-2 pr-4 text-text-primary">{row.action_type}</td>
                       <td className="py-2 pr-4 text-text-secondary">{KPI_META[row.kpi_category].label}</td>
-                      <td className={`py-2 pr-4 font-semibold ${isGood(row.avg_causal_estimate, KPI_META[row.kpi_category].good) ? 'text-success-500' : 'text-danger-500'}`}>
+                      <td className={`py-2 pr-4 font-semibold ${isGood(row.avg_causal_estimate, KPI_META[row.kpi_category].good) ? 'text-success' : 'text-danger'}`}>
                         {formatValue(row.avg_causal_estimate, row.unit)}
                       </td>
                       <td className="py-2 pr-4 text-text-secondary">{formatValue(row.avg_correlation_estimate, row.unit)}</td>

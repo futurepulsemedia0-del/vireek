@@ -16,8 +16,8 @@ import {
 import { fetchSiteYearBuilt, saveSiteYearBuilt } from '@/lib/lifetimeServicePlanApi';
 
 const RISK_STYLES: Record<PlanRisk, string> = {
-  low: 'bg-success-500/10 text-success-500',
-  medium: 'bg-warning-500/10 text-warning-500',
+  low: 'bg-success-subtle text-success',
+  medium: 'bg-warning-subtle text-warning',
   high: 'bg-danger/10 text-danger',
 };
 
@@ -30,7 +30,7 @@ const CONFIDENCE_COPY: Record<PlanConfidence, string> = {
 const percent = (value: number) => `${Math.round(value * 100)}%`;
 
 const inputClass =
-  'focus-ring w-28 rounded-xl border border-border bg-bg-primary px-3 py-1.5 text-sm tabular-nums text-text-primary placeholder:text-text-secondary/60';
+  'focus-ring w-28 rounded-xl border border-border bg-bg-primary px-3 py-1.5 text-sm tabular-nums text-text-primary placeholder:text-text-placeholder';
 
 type YearStatus = 'loading' | 'ready' | 'unavailable';
 
@@ -112,12 +112,12 @@ export function LifetimeServicePlanCard({ twin }: { twin: PropertyTwin }) {
         type="button"
         onClick={() => void save()}
         disabled={!dirty || !draftValid || saving || status !== 'ready'}
-        className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-xs font-medium text-white hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-50"
+        className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-xs font-medium text-on-accent hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {saving && <Loader2 size={12} className="animate-spin" />}
         Save
       </button>
-      <p id="lsp-year-built-hint" className={`basis-full text-[11px] ${draftValid ? 'text-text-secondary' : 'text-danger-500'}`}>
+      <p id="lsp-year-built-hint" className={`basis-full text-[11px] ${draftValid ? 'text-text-secondary' : 'text-danger'}`}>
         {draftValid
           ? status === 'unavailable'
             ? 'Year built is not available yet for this workspace — the plan uses equipment records only.'
@@ -190,7 +190,7 @@ export function LifetimeServicePlanCard({ twin }: { twin: PropertyTwin }) {
               <span className="tabular-nums">{percent(s.risk5y)} chance of a failure within 5 years</span>
               <span className="rounded bg-border/50 px-1.5 py-0.5">{BASIS_LABELS[s.basis]}</span>
               {s.serviceGainYears >= 0.3 && (
-                <span className="text-success-500">Staying on schedule adds ~{s.serviceGainYears.toFixed(1)} yr</span>
+                <span className="text-success">Staying on schedule adds ~{s.serviceGainYears.toFixed(1)} yr</span>
               )}
             </p>
           </li>
@@ -244,7 +244,7 @@ export function LifetimeServicePlanCard({ twin }: { twin: PropertyTwin }) {
             <li key={y.year} className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1">
               <span className="text-[10px] tabular-nums text-text-secondary">{formatBudgetUsd(y.total)}</span>
               <div className="flex w-full flex-1 flex-col justify-end overflow-hidden rounded-md bg-border/40">
-                <div className="w-full bg-warning-500/70" style={{ height: `${(y.replacements / peak) * 100}%` }} title={`Replacements: ${formatBudgetUsd(y.replacements)}`} />
+                <div className="w-full bg-warning/70" style={{ height: `${(y.replacements / peak) * 100}%` }} title={`Replacements: ${formatBudgetUsd(y.replacements)}`} />
                 <div className="w-full bg-accent/70" style={{ height: `${((y.inspections + y.maintenance) / peak) * 100}%` }} title={`Inspections & maintenance: ${formatBudgetUsd(y.inspections + y.maintenance)}`} />
               </div>
               <span className="text-[10px] text-text-secondary">Yr {y.year}</span>
@@ -253,7 +253,7 @@ export function LifetimeServicePlanCard({ twin }: { twin: PropertyTwin }) {
         </ul>
         <p className="mt-2 flex items-center gap-3 text-[10px] text-text-secondary">
           <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-accent/70" aria-hidden />Inspections &amp; maintenance</span>
-          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-warning-500/70" aria-hidden />Replacements</span>
+          <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-warning/70" aria-hidden />Replacements</span>
         </p>
 
         {yearsWithEvents.length > 0 && (

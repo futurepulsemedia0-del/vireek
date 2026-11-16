@@ -271,7 +271,7 @@ export function PayAppsTab({ ownerId, bundle, today }: TabProps) {
       </div>
 
       {alsoUsesBillingSteps && (
-        <div role="note" className="flex items-start gap-2 rounded-xl border border-warning-500/40 bg-warning-500/10 p-3 text-sm text-warning-500">
+        <div role="note" className="flex items-start gap-2 rounded-xl border border-warning/40 bg-warning-subtle p-3 text-sm text-warning">
           <AlertTriangle size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
           <span>This project already has invoices from the progress-billing schedule on the Billing tab. Pay applications do not include those amounts — use one method per project to avoid billing the same work twice.</span>
         </div>
@@ -327,7 +327,7 @@ export function PayAppsTab({ ownerId, bundle, today }: TabProps) {
         />
 
         {sov.length > 0 && (
-          <p className={`mb-3 flex items-start gap-2 text-sm ${contractMatches ? 'text-success-500' : 'text-warning-500'}`} role={contractMatches ? undefined : 'alert'}>
+          <p className={`mb-3 flex items-start gap-2 text-sm ${contractMatches ? 'text-success' : 'text-warning'}`} role={contractMatches ? undefined : 'alert'}>
             {contractMatches ? <CheckCircle2 size={16} className="mt-0.5 shrink-0" aria-hidden="true" /> : <AlertTriangle size={16} className="mt-0.5 shrink-0" aria-hidden="true" />}
             {contractMatches
               ? `Original schedule of values equals the contract value (${formatMoney(project.contract_value_cents)}).`
@@ -377,7 +377,7 @@ export function PayAppsTab({ ownerId, bundle, today }: TabProps) {
                             type="button"
                             aria-label={`Delete item ${s.item_no}`}
                             onClick={() => ask({ title: 'Delete this line?', description: `“${s.description}” will be removed from the schedule of values and from any open draft.`, label: 'Delete line', onConfirm: () => run(`sov-del-${s.id}`, () => deleteSovLine(ownerId, s.id), 'Line deleted.') })}
-                            className="focus-ring rounded-lg p-1.5 text-text-secondary hover:bg-bg-tertiary hover:text-danger-500"
+                            className="focus-ring rounded-lg p-1.5 text-text-secondary hover:bg-bg-tertiary hover:text-danger"
                           >
                             <Trash2 size={16} aria-hidden="true" />
                           </button>
@@ -400,7 +400,7 @@ export function PayAppsTab({ ownerId, bundle, today }: TabProps) {
             <Input aria-label="Change order number (optional)" placeholder="Change order # (optional)" value={coRef} onChange={(e) => setCoRef(e.target.value)} className="py-2 text-sm" maxLength={40} />
             <Button type="submit" size="sm" disabled={busyKey === 'sov-add' || !addValid}><Plus size={14} aria-hidden="true" /> Add</Button>
           </div>
-          {amount !== '' && amountCents === null && <p role="alert" className="text-xs text-danger-500">Enter a dollar amount, e.g. 12500 or 12,500.00.</p>}
+          {amount !== '' && amountCents === null && <p role="alert" className="text-xs text-danger">Enter a dollar amount, e.g. 12500 or 12,500.00.</p>}
         </form>
       </section>
       {dialog}

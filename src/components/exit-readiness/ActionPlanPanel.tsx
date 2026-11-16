@@ -19,7 +19,7 @@ function ImpactText({ a }: { a: PlanAction }) {
   if (!a.impact) return <span className="text-xs text-text-secondary">Value impact not quantified (real, but outside the model)</span>;
   const sign = a.impact.pointCents >= 0 ? '+' : '−';
   return (
-    <span className="text-sm font-semibold text-success-500">
+    <span className="text-sm font-semibold text-success">
       {sign}{fmtMoney(Math.abs(a.impact.pointCents))} est.
       <span className="ml-1 text-[11px] font-normal text-text-secondary">(range {fmtMoney(a.impact.lowCents)} to {fmtMoney(a.impact.highCents)})</span>
     </span>

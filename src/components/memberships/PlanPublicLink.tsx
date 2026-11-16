@@ -81,7 +81,7 @@ export function PlanPublicLink({ plan }: PlanPublicLinkProps) {
         )}
       </div>
       {enabled && link && <p className="mt-1 break-all px-2 text-xs text-text-secondary">{link}</p>}
-      {enabled && !plan.active && <p className="mt-1 px-2 text-xs text-warning-500">Activate this plan or the link will show as unavailable.</p>}
+      {enabled && !plan.active && <p className="mt-1 px-2 text-xs text-warning">Activate this plan or the link will show as unavailable.</p>}
       {tooCheap && <p className="mt-1 px-2 text-xs text-text-secondary">Online signup needs a price of at least $0.50.</p>}
     </div>
   );

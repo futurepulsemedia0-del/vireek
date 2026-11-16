@@ -20,7 +20,7 @@ const ACTION_ICONS: Record<ActionType, React.ComponentType<{ size?: number; clas
 };
 
 const STATUS_STYLE: Record<string, { icon: typeof Check; className: string }> = {
-  success: { icon: Check, className: 'text-success-500' },
+  success: { icon: Check, className: 'text-success' },
   skipped: { icon: MinusCircle, className: 'text-text-secondary' },
   failed: { icon: X, className: 'text-danger' },
   pending: { icon: Clock, className: 'text-text-secondary' },
@@ -40,7 +40,7 @@ function PhaseStep({
       <div className="flex flex-col items-center">
         <span
           className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border ${
-            done ? 'border-accent bg-accent text-white' : active ? 'border-accent text-accent' : 'border-border text-text-secondary'
+            done ? 'border-accent bg-accent text-on-accent' : active ? 'border-accent text-accent' : 'border-border text-text-secondary'
           }`}
         >
           <Icon size={14} />
@@ -118,7 +118,7 @@ export function SelfHealingTimeline({ incident, actions }: { incident: SelfHeali
       <div className="flex gap-3">
         <span
           className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border ${
-            hasVerified ? 'border-accent bg-accent text-white' : 'border-border text-text-secondary'
+            hasVerified ? 'border-accent bg-accent text-on-accent' : 'border-border text-text-secondary'
           }`}
         >
           <ShieldCheck size={14} />

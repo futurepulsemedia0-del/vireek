@@ -3,7 +3,7 @@ import { X } from 'lucide-react';
 import { useEscapeToClose, useFocusTrap } from '@/lib/a11y/focusTrap';
 
 export const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors disabled:opacity-60';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3.5 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder transition-colors disabled:opacity-60';
 
 export const cardClass = 'rounded-2xl border border-border bg-bg-secondary p-4 sm:p-5';
 
@@ -33,7 +33,7 @@ export function Modal({
 
   return (
     <div className="fixed inset-0 z-[110] flex items-end justify-center sm:items-center sm:p-4">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+      <div className="absolute inset-0 bg-overlay/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
       <div
         ref={ref}
         tabIndex={-1}
@@ -91,7 +91,7 @@ export function Pill({ className, children }: { className: string; children: Rea
 }
 
 export function Kpi({ label, value, sub, tone = 'default' }: { label: string; value: string; sub?: string; tone?: 'default' | 'good' | 'warn' | 'bad' }) {
-  const color = tone === 'good' ? 'text-success-500' : tone === 'warn' ? 'text-warning-500' : tone === 'bad' ? 'text-danger' : 'text-text-primary';
+  const color = tone === 'good' ? 'text-success' : tone === 'warn' ? 'text-warning' : tone === 'bad' ? 'text-danger' : 'text-text-primary';
   return (
     <div className="rounded-2xl border border-border bg-bg-secondary p-4">
       <p className="text-xs text-text-secondary">{label}</p>

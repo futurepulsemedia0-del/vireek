@@ -139,11 +139,11 @@ export function ServiceGuaranteePublicPage() {
                   {data.business_name ?? 'Your service provider'}
                   {data.service_type ? ` · ${data.service_type}` : ''}
                 </p>
-                <ShieldCheck size={36} className={`mx-auto mt-4 ${data.status === 'verified' || data.status === 'expired' || data.status === 'recovered' ? 'text-success-500' : data.status === 'claim_open' ? 'text-danger' : 'text-accent'}`} aria-hidden />
+                <ShieldCheck size={36} className={`mx-auto mt-4 ${data.status === 'verified' || data.status === 'expired' || data.status === 'recovered' ? 'text-success' : data.status === 'claim_open' ? 'text-danger' : 'text-accent'}`} aria-hidden />
                 <h1 className="mt-3 text-lg font-semibold text-text-primary">{HEADLINES[data.status].title}</h1>
                 <p className="mx-auto mt-2 max-w-xs text-sm leading-relaxed text-text-secondary">{HEADLINES[data.status].body}</p>
                 {(data.status === 'verified' || data.status === 'expired') && data.evidence_level !== 'none' && (
-                  <p className="mx-auto mt-4 inline-flex items-center gap-1.5 rounded-full bg-success-500/10 px-3 py-1.5 text-xs font-semibold text-success-500">
+                  <p className="mx-auto mt-4 inline-flex items-center gap-1.5 rounded-full bg-success-subtle px-3 py-1.5 text-xs font-semibold text-success">
                     <Check size={14} aria-hidden /> {EVIDENCE_LABELS[data.evidence_level]}
                   </p>
                 )}
@@ -171,7 +171,7 @@ export function ServiceGuaranteePublicPage() {
               )}
 
               {message && (
-                <p role="status" className={`rounded-xl px-4 py-3 text-sm ${message.tone === 'ok' ? 'bg-success-500/10 text-success-500' : 'bg-danger/10 text-danger'}`}>
+                <p role="status" className={`rounded-xl px-4 py-3 text-sm ${message.tone === 'ok' ? 'bg-success-subtle text-success' : 'bg-danger/10 text-danger'}`}>
                   {message.text}
                 </p>
               )}
@@ -184,7 +184,7 @@ export function ServiceGuaranteePublicPage() {
                     const failed = c.status === 'failed';
                     return (
                       <li key={c.stage} className="flex items-center gap-3 text-sm">
-                        <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${passed ? 'bg-success-500/15 text-success-500' : failed ? 'bg-danger/15 text-danger' : 'bg-bg-tertiary text-text-secondary/60'}`}>
+                        <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${passed ? 'bg-success-subtle text-success' : failed ? 'bg-danger/15 text-danger' : 'bg-bg-tertiary text-text-muted'}`}>
                           {passed ? <Check size={14} aria-hidden /> : failed ? <AlertCircle size={14} aria-hidden /> : <Clock size={14} aria-hidden />}
                         </span>
                         <span className={passed ? 'font-medium text-text-primary' : 'text-text-secondary'}>

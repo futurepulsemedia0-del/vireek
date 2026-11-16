@@ -64,7 +64,7 @@ export function TagMemberPanel({ token, tagId, passportCode, equipmentId, equipm
             <select aria-label="Service type" value={type} onChange={(e) => setType(e.target.value)} className={field}>
               {QUICK.map((q) => <option key={q}>{q}</option>)}
             </select>
-            <button type="button" onClick={createJob} disabled={busy} className="focus-ring shrink-0 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50">
+            <button type="button" onClick={createJob} disabled={busy} className="focus-ring shrink-0 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent hover:opacity-90 disabled:opacity-50">
               {busy ? 'Creating…' : 'Create job now'}
             </button>
           </div>

@@ -160,7 +160,7 @@ export function FieldFormsCard({ jobId }: { jobId: string }) {
             onChange={(v) => setValues((prev) => ({ ...prev, [field.id]: v }))}
           />
         ))}
-        <button type="button" disabled={busy} onClick={() => void submit()} className="w-full rounded-md bg-accent py-2 text-sm font-semibold text-white disabled:opacity-50">
+        <button type="button" disabled={busy} onClick={() => void submit()} className="w-full rounded-md bg-accent py-2 text-sm font-semibold text-on-accent disabled:opacity-50">
           {busy ? 'Saving…' : 'Save form'}
         </button>
       </div>

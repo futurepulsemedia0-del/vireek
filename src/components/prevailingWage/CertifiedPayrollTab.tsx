@@ -283,7 +283,7 @@ export function CertifiedPayrollTab({ canEdit, jobs, assignments, ruleSets, load
                   <li key={`e${i}`} className="flex items-start gap-2 text-sm text-danger"><AlertTriangle size={16} className="mt-0.5 shrink-0" aria-hidden="true" />{w.message}</li>
                 ))}
                 {others.map((w, i) => (
-                  <li key={`w${i}`} className={`flex items-start gap-2 text-sm ${w.severity === 'warning' ? 'text-warning-500' : 'text-text-secondary'}`}>
+                  <li key={`w${i}`} className={`flex items-start gap-2 text-sm ${w.severity === 'warning' ? 'text-warning' : 'text-text-secondary'}`}>
                     {w.severity === 'warning' ? <AlertTriangle size={16} className="mt-0.5 shrink-0" aria-hidden="true" /> : <Info size={16} className="mt-0.5 shrink-0" aria-hidden="true" />}
                     {w.message}
                   </li>

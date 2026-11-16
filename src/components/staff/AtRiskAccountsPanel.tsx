@@ -118,7 +118,7 @@ export function AtRiskAccountsPanel({ accounts, onOpen }: AtRiskAccountsPanelPro
         <Kpi label="Accounts scored" value={String(rows.length - counts.churned)} hint={`${counts.churned} churned excluded`} />
       </div>
       {unmeasured > 0 && (
-        <p role="status" className="rounded-xl bg-warning-500/10 p-3 text-xs text-text-primary">
+        <p role="status" className="rounded-xl bg-warning-subtle p-3 text-xs text-text-primary">
           {unmeasured} tracked feature{unmeasured === 1 ? ' is' : 's are'} not measurable on this database and {unmeasured === 1 ? 'is' : 'are'} left out of every adoption score.
         </p>
       )}

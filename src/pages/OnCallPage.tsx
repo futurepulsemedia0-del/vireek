@@ -176,7 +176,7 @@ export function OnCallPage() {
                 <option key={t.id} value={t.id}>{t.member_name ?? t.member_email}</option>
               ))}
             </select>
-            <button onClick={addMember} className="shrink-0 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-white hover:bg-accent/90"><Plus size={16} /></button>
+            <button onClick={addMember} className="shrink-0 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-on-accent hover:bg-accent/90"><Plus size={16} /></button>
           </div>
         </div>
 
@@ -203,7 +203,7 @@ export function OnCallPage() {
             <select value={newTier.notify_via} onChange={(e) => setNewTier((f) => ({ ...f, notify_via: e.target.value as typeof newTier.notify_via }))} className={inputClass}>
               {Object.entries(NOTIFY_VIA_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
             </select>
-            <button onClick={addTier} className="rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-white hover:bg-accent/90">Add tier</button>
+            <button onClick={addTier} className="rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-on-accent hover:bg-accent/90">Add tier</button>
           </div>
         </div>
 

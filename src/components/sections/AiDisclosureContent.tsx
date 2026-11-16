@@ -93,7 +93,7 @@ function SectionHeading({ id, number, title }: { id: string; number: string; tit
         <h2 className="flex items-baseline gap-3 text-2xl font-bold tracking-tight text-text-primary md:text-3xl">
           <span className="text-accent">{number}.</span>
           {title}
-          <span className="ml-1 text-base font-normal text-text-secondary/0 transition-colors group-hover:text-text-secondary/60">
+          <span className="ml-1 text-base font-normal text-text-secondary/0 transition-colors group-hover:text-text-muted">
             #
           </span>
         </h2>
@@ -148,7 +148,7 @@ export function AiDisclosureContent() {
                         : 'border-transparent text-text-secondary hover:text-text-primary'
                     }`}
                   >
-                    <span className="mr-1.5 text-text-secondary/50">{s.number}.</span>
+                    <span className="mr-1.5 text-text-muted">{s.number}.</span>
                     {s.title}
                   </a>
                 ))}
@@ -188,7 +188,7 @@ export function AiDisclosureContent() {
                           : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'
                       }`}
                     >
-                      <span className="mr-1.5 text-text-secondary/50">{s.number}.</span>
+                      <span className="mr-1.5 text-text-muted">{s.number}.</span>
                       {s.title}
                     </a>
                   ))}

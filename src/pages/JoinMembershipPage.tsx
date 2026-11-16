@@ -150,7 +150,7 @@ function PlanView({ plan, planSlug, checkout }: { plan: PublicMembershipPlan; pl
   if (checkout === 'success') {
     return (
       <Card className="text-center">
-        <CheckCircle2 size={36} className="mx-auto text-success-500" aria-hidden />
+        <CheckCircle2 size={36} className="mx-auto text-success" aria-hidden />
         <h1 className="mt-3 text-lg font-semibold text-text-primary">Welcome to {plan.name}</h1>
         <p className="mx-auto mt-2 max-w-xs text-sm leading-relaxed text-text-secondary">
           Your payment went through and your membership is being activated. If you don't hear from {business} soon, please contact them directly.
@@ -188,7 +188,7 @@ function PlanView({ plan, planSlug, checkout }: { plan: PublicMembershipPlan; pl
           <ul className="mt-5 space-y-2 text-left">
             {plan.benefits.map((benefit, i) => (
               <li key={i} className="flex items-start gap-2.5 text-sm text-text-primary">
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-success-500/15 text-success-500">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-success-subtle text-success">
                   <Check size={12} aria-hidden />
                 </span>
                 <span className="break-words">{benefit}</span>

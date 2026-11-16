@@ -310,7 +310,7 @@ export function CloseoutBoardPage() {
       </div>
 
       {openJob && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-black/40" role="dialog" aria-modal="true" onClick={() => setOpenJob(null)}>
+        <div className="fixed inset-0 z-50 flex justify-end bg-overlay/40" role="dialog" aria-modal="true" onClick={() => setOpenJob(null)}>
           <div className="h-full w-full max-w-xl overflow-y-auto bg-bg-primary p-4 shadow-xl" onClick={(e) => e.stopPropagation()}>
             <div className="mb-3 flex justify-end">
               <button type="button" aria-label="Close" className="focus-ring rounded-md p-1 text-text-secondary" onClick={() => { setOpenJob(null); void load(); }}>
@@ -323,7 +323,7 @@ export function CloseoutBoardPage() {
       )}
 
       {editing && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="dialog" aria-modal="true">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/40 p-4" role="dialog" aria-modal="true">
           <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-bg-primary p-5 shadow-xl">
             <h2 className="mb-3 text-lg font-semibold text-text-primary">
               {editing.id ? t('closeout.editRule', { defaultValue: 'Edit rule' }) : t('closeout.newRule', { defaultValue: 'New rule' })}
@@ -360,7 +360,7 @@ export function CloseoutBoardPage() {
 }
 
 function Stat({ label, value, tone }: { label: string; value: string; tone: 'ok' | 'warn' | 'bad' }) {
-  const color = tone === 'bad' ? 'text-danger' : tone === 'warn' ? 'text-warning-500' : 'text-text-primary';
+  const color = tone === 'bad' ? 'text-danger' : tone === 'warn' ? 'text-warning' : 'text-text-primary';
   return (
     <div className="rounded-xl border border-border bg-bg-secondary p-3">
       <p className="text-xs text-text-secondary">{label}</p>
@@ -390,7 +390,7 @@ function BoardCard({ row, risk, onOpen }: { row: BoardRow; risk: RiskLevel; onOp
         <p className="mt-1 text-xs text-text-secondary">≈ {formatCents(row.estimated_value_cents)} (estimate)</p>
       )}
       {row.missing_evidence.length > 0 && row.status !== 'done' && row.status !== 'waived' && (
-        <p className="mt-1 flex items-center gap-1 text-xs text-warning-500">
+        <p className="mt-1 flex items-center gap-1 text-xs text-warning">
           <AlertTriangle size={12} /> {row.missing_evidence.length} missing: {row.missing_evidence.slice(0, 2).map(evidenceLabel).join(', ')}
           {row.missing_evidence.length > 2 ? '…' : ''}
         </p>
@@ -437,7 +437,7 @@ function RulesTab({
                   <span className="text-sm font-semibold text-text-primary">{r.name}</span>
                   <span className="rounded-full bg-bg-tertiary px-2 py-0.5 text-[11px] text-text-secondary">{STEP_LABELS[r.step_kind]}</span>
                   {!r.is_active && <span className="rounded-full bg-bg-tertiary px-2 py-0.5 text-[11px] text-text-secondary">inactive</span>}
-                  <span className={`rounded-full px-2 py-0.5 text-[11px] ${fresh === 'fresh' ? 'bg-success/15 text-success' : 'bg-warning-500/15 text-warning-500'}`}>
+                  <span className={`rounded-full px-2 py-0.5 text-[11px] ${fresh === 'fresh' ? 'bg-success/15 text-success' : 'bg-warning-subtle text-warning'}`}>
                     {fresh === 'unverified' ? 'never verified' : fresh === 'stale' ? `stale · ${r.last_verified_at}` : `verified ${r.last_verified_at}`}
                   </span>
                   {canEdit && (

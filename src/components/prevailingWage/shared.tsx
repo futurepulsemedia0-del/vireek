@@ -30,8 +30,8 @@ export function Select({ label, helperText, children, className = '', ...props }
 
 export function LegalBanner({ compact = false }: { compact?: boolean }) {
   return (
-    <div role="note" className="flex items-start gap-3 rounded-2xl border border-warning-500/30 bg-warning-500/10 p-4">
-      <Scale size={18} className="mt-0.5 shrink-0 text-warning-500" aria-hidden="true" />
+    <div role="note" className="flex items-start gap-3 rounded-2xl border border-warning/30 bg-warning-subtle p-4">
+      <Scale size={18} className="mt-0.5 shrink-0 text-warning" aria-hidden="true" />
       <div className="text-sm text-text-primary">
         <p className="font-semibold">Legal review required</p>
         {!compact && <p className="mt-0.5 text-text-secondary">{LEGAL_REVIEW_NOTICE}</p>}
@@ -43,8 +43,8 @@ export function LegalBanner({ compact = false }: { compact?: boolean }) {
 
 const REVIEW_STYLE: Record<LegalReviewStatus, { label: string; cls: string; icon: ReactNode }> = {
   unreviewed: { label: 'Not reviewed', cls: 'bg-danger/10 text-danger', icon: <AlertTriangle size={12} aria-hidden="true" /> },
-  in_review: { label: 'In review', cls: 'bg-warning-500/10 text-warning-500', icon: <Clock size={12} aria-hidden="true" /> },
-  approved: { label: 'Legally reviewed', cls: 'bg-success-500/10 text-success-500', icon: <CheckCircle2 size={12} aria-hidden="true" /> },
+  in_review: { label: 'In review', cls: 'bg-warning-subtle text-warning', icon: <Clock size={12} aria-hidden="true" /> },
+  approved: { label: 'Legally reviewed', cls: 'bg-success-subtle text-success', icon: <CheckCircle2 size={12} aria-hidden="true" /> },
 };
 
 export function ReviewBadge({ status }: { status: LegalReviewStatus }) {
@@ -60,8 +60,8 @@ export function ReviewBadge({ status }: { status: LegalReviewStatus }) {
 export function Pill({ children, tone = 'neutral' }: { children: ReactNode; tone?: 'neutral' | 'good' | 'warn' | 'bad' | 'accent' }) {
   const cls = {
     neutral: 'bg-bg-tertiary text-text-secondary',
-    good: 'bg-success-500/10 text-success-500',
-    warn: 'bg-warning-500/10 text-warning-500',
+    good: 'bg-success-subtle text-success',
+    warn: 'bg-warning-subtle text-warning',
     bad: 'bg-danger/10 text-danger',
     accent: 'bg-accent/10 text-accent',
   }[tone];

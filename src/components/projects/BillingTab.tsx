@@ -106,7 +106,7 @@ export function BillingTab({ ownerId, bundle, today, onChanged }: TabProps) {
                       </Button>
                     )}
                     {(!b.invoice_id || !inv) && (
-                      <button type="button" aria-label={`Delete ${b.label}`} onClick={() => ask({ title: 'Delete billing step?', description: `“${b.label}” (${formatPercent(b.percent_of_contract, 1)}) will be removed from the schedule.`, label: 'Delete step', onConfirm: () => run(`del-${b.id}`, () => deleteBillingStep(ownerId, b.id), 'Billing step deleted.') })} className="focus-ring rounded-lg p-1.5 text-text-secondary hover:bg-bg-tertiary hover:text-danger-500">
+                      <button type="button" aria-label={`Delete ${b.label}`} onClick={() => ask({ title: 'Delete billing step?', description: `“${b.label}” (${formatPercent(b.percent_of_contract, 1)}) will be removed from the schedule.`, label: 'Delete step', onConfirm: () => run(`del-${b.id}`, () => deleteBillingStep(ownerId, b.id), 'Billing step deleted.') })} className="focus-ring rounded-lg p-1.5 text-text-secondary hover:bg-bg-tertiary hover:text-danger">
                         <Trash2 size={16} aria-hidden="true" />
                       </button>
                     )}
@@ -130,7 +130,7 @@ export function BillingTab({ ownerId, bundle, today, onChanged }: TabProps) {
           </select>
           <Button type="submit" size="sm" disabled={busyKey === 'add' || !label.trim() || !percentValid}><Plus size={14} aria-hidden="true" /> Add</Button>
         </div>
-        {percent !== '' && !percentValid && <p role="alert" className="text-xs text-danger-500">Enter a percentage between 0 and {formatPercent(remaining, 1)}.</p>}
+        {percent !== '' && !percentValid && <p role="alert" className="text-xs text-danger">Enter a percentage between 0 and {formatPercent(remaining, 1)}.</p>}
       </form>
 
       {project.retainage_percent > 0 && (

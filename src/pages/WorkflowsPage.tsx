@@ -76,12 +76,12 @@ function StepTypePill({ type }: { type: string }) {
 }
 
 function StepStatusIcon({ status }: { status: string }) {
-  if (status === 'succeeded') return <CheckCircle2 size={16} className="text-success-500" />;
+  if (status === 'succeeded') return <CheckCircle2 size={16} className="text-success" />;
   if (status === 'failed') return <XCircle size={16} className="text-danger" />;
-  if (status === 'running') return <Loader2 size={16} className="animate-spin text-accent-500" />;
-  if (status === 'awaiting_approval') return <Clock size={16} className="text-warning-500" />;
+  if (status === 'running') return <Loader2 size={16} className="animate-spin text-accent" />;
+  if (status === 'awaiting_approval') return <Clock size={16} className="text-warning" />;
   if (status === 'skipped') return <X size={16} className="text-text-secondary" />;
-  return <Clock size={16} className="text-text-secondary/60" />;
+  return <Clock size={16} className="text-graphic-muted" />;
 }
 
 // ============================================================
@@ -115,7 +115,7 @@ function CatalogTab({ installedSlugs, onInstall }: { installedSlugs: Set<string>
         return (
           <div key={playbook.slug} className="flex flex-col rounded-2xl border border-border bg-bg-secondary p-5">
             <div className="flex items-start gap-3">
-              <div className="rounded-xl bg-accent-500/10 p-2.5 text-accent-500"><Icon size={20} /></div>
+              <div className="rounded-xl bg-accent-subtle p-2.5 text-accent"><Icon size={20} /></div>
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-medium uppercase tracking-wide text-text-secondary">{playbook.category}</p>
                 <h3 className="mt-0.5 font-semibold text-text-primary">{playbook.name}</h3>
@@ -131,7 +131,7 @@ function CatalogTab({ installedSlugs, onInstall }: { installedSlugs: Set<string>
               disabled={installed || installing === playbook.slug}
               onClick={() => handleInstall(playbook.slug)}
               className={`focus-ring mt-4 flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
-                installed ? 'cursor-default bg-success-500/10 text-success-500' : 'bg-accent-500 text-white hover:bg-accent-600'
+                installed ? 'cursor-default bg-success-subtle text-success' : 'bg-accent text-on-accent hover:bg-accent'
               }`}
             >
               {installing === playbook.slug ? <Loader2 size={16} className="animate-spin" /> : installed ? <CheckCircle2 size={16} /> : <Sparkles size={16} />}
@@ -174,7 +174,7 @@ function InstalledTab({ definitions, onChanged }: { definitions: WorkflowDefinit
             <p className="text-xs text-text-secondary">Trigger: {TRIGGER_EVENT_LABELS[def.trigger_event]} &middot; v{def.active_version ?? '—'}</p>
           </div>
           <div className="flex items-center gap-2">
-            <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${def.status === 'active' ? 'bg-success-500/10 text-success-500' : 'bg-bg-tertiary text-text-secondary'}`}>
+            <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${def.status === 'active' ? 'bg-success-subtle text-success' : 'bg-bg-tertiary text-text-secondary'}`}>
               {def.status}
             </span>
             <button
@@ -239,7 +239,7 @@ function RunRow({ run, onCancelled }: { run: WorkflowRun; onCancelled: () => voi
         <div className="border-t border-border p-4">
           {loadingSteps && <Loader2 size={16} className="animate-spin text-text-secondary" />}
           {recovery?.status === 'recovered' && (
-            <div className="mb-3 rounded-lg bg-success-500/10 px-3 py-2 text-xs font-medium text-success-500">
+            <div className="mb-3 rounded-lg bg-success-subtle px-3 py-2 text-xs font-medium text-success">
               💰 This run recovered {formatCents(recovery.recovered_amount_cents ?? 0)} in revenue — see it on the Revenue Recovery Ledger.
             </div>
           )}
@@ -304,7 +304,7 @@ function ApprovalsTab({ approvals, onChanged }: { approvals: WorkflowApproval[];
           </div>
           <div className="flex items-center gap-2">
             <button type="button" disabled={busyId === a.id} onClick={() => decide(a, 'reject')} className="focus-ring rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-primary hover:bg-bg-tertiary">Reject</button>
-            <button type="button" disabled={busyId === a.id} onClick={() => decide(a, 'approve')} className="focus-ring rounded-lg bg-accent-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-accent-600">Approve</button>
+            <button type="button" disabled={busyId === a.id} onClick={() => decide(a, 'approve')} className="focus-ring rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent hover:bg-accent">Approve</button>
           </div>
         </div>
       ))}
@@ -371,7 +371,7 @@ export function WorkflowsPage() {
               }`}
             >
               {t.label}
-              {t.key === 'approvals' && approvals.length > 0 && <span className="ml-1.5 rounded-full bg-warning-500/20 px-1.5 py-0.5 text-xs text-warning-500">{approvals.length}</span>}
+              {t.key === 'approvals' && approvals.length > 0 && <span className="ml-1.5 rounded-full bg-warning-subtle px-1.5 py-0.5 text-xs text-warning">{approvals.length}</span>}
             </button>
           ))}
         </div>

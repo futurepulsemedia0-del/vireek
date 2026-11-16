@@ -46,8 +46,8 @@ export function FairSalePage() {
           <h1 className="text-2xl font-bold tracking-tight text-text-primary md:text-3xl">{t('dash.title')}</h1>
           <p className="mt-1 text-sm text-text-secondary">{t('dash.intro')}</p>
         </div>
-        <p role="note" className="flex gap-2 rounded-xl border border-warning-500/40 bg-warning-500/10 p-3 text-sm text-text-primary">
-          <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-warning-500" aria-hidden /><span>{t('dash.legalNote')}</span>
+        <p role="note" className="flex gap-2 rounded-xl border border-warning/40 bg-warning-subtle p-3 text-sm text-text-primary">
+          <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-warning" aria-hidden /><span>{t('dash.legalNote')}</span>
         </p>
         {!allowed ? (
           <EmptyState icon={Lock} variant="no-permission" title={t('dash.noAccess')} description={t('dash.noAccessHint')} />

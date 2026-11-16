@@ -96,7 +96,7 @@ export function MetricTile({ label, formula, metric, format, interval }: { label
         {interval && metric.value !== null ? ` · ${t('common.ci95', { low: format(interval.low), high: format(interval.high) })}` : ''}
       </p>
       {metric.status === 'low_sample' && (
-        <p role="note" className="rounded-lg bg-warning-500/10 px-2 py-1 text-xs text-text-primary">
+        <p role="note" className="rounded-lg bg-warning-subtle px-2 py-1 text-xs text-text-primary">
           {t('common.lowSample', { min: 30 })}
         </p>
       )}
@@ -143,7 +143,7 @@ export const Td = ({ children }: { children: ReactNode }) => <td className="px-3
 
 export function Notice({ children }: { children: ReactNode }) {
   return (
-    <p role="note" className="rounded-xl bg-warning-500/10 p-3 text-xs text-text-primary">
+    <p role="note" className="rounded-xl bg-warning-subtle p-3 text-xs text-text-primary">
       {children}
     </p>
   );

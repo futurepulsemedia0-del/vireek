@@ -132,8 +132,8 @@ function ApplicationForm({ slug, roleTitle }: { slug: string; roleTitle: string 
 
   if (done) {
     return (
-      <div role="status" className="rounded-2xl border border-success-500/30 bg-success-500/5 p-8 text-center">
-        <CheckCircle2 size={32} className="mx-auto text-success-500" aria-hidden="true" />
+      <div role="status" className="rounded-2xl border border-success/30 bg-success-subtle p-8 text-center">
+        <CheckCircle2 size={32} className="mx-auto text-success" aria-hidden="true" />
         <h3 className="mt-4 text-xl font-bold text-text-primary">Application received</h3>
         <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-text-secondary">
           Thanks for applying for {roleTitle}. We read every application ourselves and will reply by email.
@@ -416,7 +416,7 @@ export function CareerPostingPage() {
                   <Fact icon={Clock}>{EMPLOYMENT_TYPE_LABELS[posting.employment_type]}</Fact>
                   {salary && <Fact icon={Wallet}>{salary}</Fact>}
                 </div>
-                <p className="mt-2 text-xs text-text-secondary/80">
+                <p className="mt-2 text-xs text-text-muted">
                   {postedAgo(posting.published_at ?? posting.created_at)}
                 </p>
                 <a href="#apply" className="mt-6 inline-block">

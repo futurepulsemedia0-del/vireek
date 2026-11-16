@@ -28,7 +28,7 @@ const TABS: { key: PlanTab; label: string }[] = [
 ];
 
 function Kpi({ label, value, hint, tone }: { label: string; value: string; hint?: string; tone?: 'danger' | 'success' | 'warning' }) {
-  const color = tone === 'danger' ? 'text-danger' : tone === 'success' ? 'text-success' : tone === 'warning' ? 'text-warning-500' : 'text-text-primary';
+  const color = tone === 'danger' ? 'text-danger' : tone === 'success' ? 'text-success' : tone === 'warning' ? 'text-warning' : 'text-text-primary';
   return (
     <div className="rounded-2xl border border-border bg-bg-secondary p-4">
       <p className="text-[10px] font-medium uppercase tracking-wide text-text-secondary">{label}</p>
@@ -58,7 +58,7 @@ function NextDue({ plan }: { plan: PlanRow }) {
   const next = planProgress(plan.payment_plan_installments ?? []).next;
   if (!next || plan.status === 'canceled' || plan.status === 'completed') return <span className="text-text-secondary">—</span>;
   const d = dueLabel(next);
-  return <span className={`text-xs font-semibold ${d.tone === 'danger' ? 'text-danger' : d.tone === 'warning' ? 'text-warning-500' : 'text-text-secondary'}`}>{d.label}</span>;
+  return <span className={`text-xs font-semibold ${d.tone === 'danger' ? 'text-danger' : d.tone === 'warning' ? 'text-warning' : 'text-text-secondary'}`}>{d.label}</span>;
 }
 
 export function PaymentPlansPage() {
@@ -139,7 +139,7 @@ export function PaymentPlansPage() {
           <EmptyState icon={CalendarClock} title="No payment plans yet" description="Offer a deposit plus installments on your next big job — customers approve once and we handle the rest." action={{ label: 'Create your first plan', onClick: () => setCreating(true) }} />
         ) : (
           <>
-            {!stripeReady && <p role="status" className="rounded-xl border border-warning-500/30 bg-warning-500/10 p-3 text-sm text-warning-500">Your Stripe account isn't fully verified, so new plans can't be sent and existing charges will fail. <button type="button" onClick={() => navigate('/dashboard/payments')} className="focus-ring rounded font-semibold underline">Finish setup</button></p>}
+            {!stripeReady && <p role="status" className="rounded-xl border border-warning/30 bg-warning-subtle p-3 text-sm text-warning">Your Stripe account isn't fully verified, so new plans can't be sent and existing charges will fail. <button type="button" onClick={() => navigate('/dashboard/payments')} className="focus-ring rounded font-semibold underline">Finish setup</button></p>}
             {stats && (stats.failed_charges > 0 || stats.overdue_count > 0) && (
               <div role="alert" className="flex items-start gap-3 rounded-2xl border border-danger/30 bg-danger/10 p-4 text-sm text-danger">
                 <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0" />
@@ -169,7 +169,7 @@ export function PaymentPlansPage() {
                   <span className="sr-only">Search plans</span>
                   <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
                   <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search customer"
-                    className="focus-ring w-full rounded-xl border border-border bg-bg-primary py-2 pl-9 pr-3 text-sm text-text-primary placeholder:text-text-secondary/60 focus-visible:border-accent" />
+                    className="focus-ring w-full rounded-xl border border-border bg-bg-primary py-2 pl-9 pr-3 text-sm text-text-primary placeholder:text-text-placeholder focus-visible:border-accent" />
                 </label>
               </div>
 

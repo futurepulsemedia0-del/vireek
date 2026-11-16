@@ -121,7 +121,7 @@ function Switch({ checked, onChange, label }: { checked: boolean; onChange: (v: 
       onClick={() => onChange(!checked)}
       className={`focus-ring relative h-6 w-11 shrink-0 rounded-full transition-colors ${checked ? 'bg-accent' : 'bg-bg-tertiary'}`}
     >
-      <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${checked ? 'translate-x-[22px]' : 'translate-x-0.5'}`} />
+      <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-bg-secondary shadow-sm transition-transform ${checked ? 'translate-x-[22px]' : 'translate-x-0.5'}`} />
     </button>
   );
 }
@@ -129,7 +129,7 @@ function Switch({ checked, onChange, label }: { checked: boolean; onChange: (v: 
 function Callout({ tone, children }: { tone: 'danger' | 'warning' | 'info'; children: ReactNode }) {
   const styles = {
     danger: 'border-danger/40 bg-danger/10 text-danger',
-    warning: 'border-warning-500/40 bg-warning-500/10 text-warning-500',
+    warning: 'border-warning/40 bg-warning-subtle text-warning',
     info: 'border-border bg-bg-primary text-text-secondary',
   }[tone];
   return (

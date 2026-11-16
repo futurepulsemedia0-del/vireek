@@ -64,7 +64,7 @@ function HighlightPill({ item }: { item: HighlightItem }) {
       </span>
       <span className="flex flex-col leading-tight">
         <span className="text-[13.5px] font-semibold text-text-primary sm:text-sm">{item.title}</span>
-        <span className="text-[11.5px] font-medium text-text-secondary/80 sm:text-xs">{item.detail}</span>
+        <span className="text-[11.5px] font-medium text-text-muted sm:text-xs">{item.detail}</span>
       </span>
     </div>
   );
@@ -241,7 +241,7 @@ export function HighlightBanner() {
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: hasInteracted ? 0 : 1, y: 0 }}
           transition={{ duration: 0.4, delay: hasInteracted ? 0 : 1.1, ease: EASE }}
-          className="pointer-events-none absolute -bottom-7 left-1/2 hidden -translate-x-1/2 items-center gap-1.5 text-[11px] font-medium text-text-secondary/60 sm:flex"
+          className="pointer-events-none absolute -bottom-7 left-1/2 hidden -translate-x-1/2 items-center gap-1.5 text-[11px] font-medium text-text-muted sm:flex"
         >
           <Hand size={13} strokeWidth={2.25} aria-hidden="true" />
           Drag to explore

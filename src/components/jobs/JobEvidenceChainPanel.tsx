@@ -49,15 +49,15 @@ import {
 // ============================================================
 
 const TONE_BOX = {
-  success: 'border-success-500/30 bg-success-500/5',
-  warning: 'border-warning-500/30 bg-warning-500/5',
+  success: 'border-success/30 bg-success-subtle',
+  warning: 'border-warning/30 bg-warning-subtle',
   danger: 'border-danger/30 bg-danger/5',
   neutral: 'border-border bg-bg-primary',
 } as const;
 
 const TONE_TEXT = {
-  success: 'text-success-500',
-  warning: 'text-warning-500',
+  success: 'text-success',
+  warning: 'text-warning',
   danger: 'text-danger',
   neutral: 'text-text-secondary',
 } as const;
@@ -200,7 +200,7 @@ function EntryCard({
         <span className="rounded-full border border-border px-2 py-0.5">{STAGE_META[entry.stage].label}</span>
         <span>{KIND_LABELS[entry.kind]}</span>
         <span className="flex items-center gap-1">
-          <ActorIcon size={11} className={automatic ? 'text-success-500' : ''} />
+          <ActorIcon size={11} className={automatic ? 'text-success' : ''} />
           {entry.actor_name ?? entry.actor_type}
         </span>
         <span className="ml-auto">{formatTime(entry.recorded_at)}</span>
@@ -245,8 +245,8 @@ function EntryCard({
             <MapPin size={10} /> GPS
           </span>
         )}
-        {corrected && <span className="text-warning-500">Corrects #{corrected.seq}</span>}
-        {superseded && <span className="text-warning-500">Superseded</span>}
+        {corrected && <span className="text-warning">Corrects #{corrected.seq}</span>}
+        {superseded && <span className="text-warning">Superseded</span>}
         {!superseded && entry.actor_type !== 'system' && entry.actor_type !== 'customer' && entry.actor_type !== 'ai' && (
           <button
             type="button"
@@ -636,7 +636,7 @@ function EntryForm({
       )}
 
       {(needsDiagnosis || needsEvidence) && (
-        <p className="flex items-start gap-1.5 rounded-lg bg-warning-500/10 px-2.5 py-1.5 text-[11px] text-warning-500">
+        <p className="flex items-start gap-1.5 rounded-lg bg-warning-subtle px-2.5 py-1.5 text-[11px] text-warning">
           <ShieldAlert size={12} className="mt-0.5 shrink-0" />
           Not yet linked to {needsDiagnosis && needsEvidence ? 'a diagnosis and evidence' : needsDiagnosis ? 'a diagnosis' : 'evidence'} — the chain will flag this as unsupported.
         </p>
@@ -695,7 +695,7 @@ function EntryForm({
           type="button"
           onClick={submit}
           disabled={submitting}
-          className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-xs font-medium text-white hover:opacity-90 disabled:opacity-50"
+          className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-xs font-medium text-on-accent hover:opacity-90 disabled:opacity-50"
         >
           {submitting && <Loader2 size={12} className="animate-spin" />}
           {submitting ? 'Sealing…' : correcting ? 'Seal correction' : 'Seal into chain'}
@@ -841,9 +841,9 @@ export function JobEvidenceChainPanel({ job, defaultExpanded = false }: { job: J
                 title={STAGE_META[s.stage].question}
                 className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${
                   s.status === 'complete'
-                    ? 'border-success-500/40 bg-success-500/10 text-success-500'
+                    ? 'border-success/40 bg-success-subtle text-success'
                     : s.status === 'missing'
-                      ? 'border-warning-500/40 bg-warning-500/10 text-warning-500'
+                      ? 'border-warning/40 bg-warning-subtle text-warning'
                       : 'border-border text-text-secondary line-through opacity-60'
                 }`}
               >
@@ -857,7 +857,7 @@ export function JobEvidenceChainPanel({ job, defaultExpanded = false }: { job: J
             <ul className="space-y-1 text-xs">
               {blocking.map((g) => (
                 <li key={g.key} className="flex items-center gap-2 font-medium text-text-primary">
-                  <span className="h-1.5 w-1.5 rounded-full bg-warning-500" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-warning" />
                   {GAP_LABELS[g.key] ?? g.key}
                 </li>
               ))}
@@ -887,7 +887,7 @@ export function JobEvidenceChainPanel({ job, defaultExpanded = false }: { job: J
               <button
                 type="button"
                 onClick={() => openForm(null)}
-                className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white hover:opacity-90"
+                className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent hover:opacity-90"
               >
                 <Plus size={13} /> Add evidence
               </button>

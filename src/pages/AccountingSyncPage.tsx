@@ -55,23 +55,23 @@ import {
 } from '@/lib/accounting';
 
 const ACTION_STYLE: Record<LogAction, string> = {
-  created: 'bg-success-500/10 text-success-500',
+  created: 'bg-success-subtle text-success',
   updated: 'bg-accent/10 text-accent',
   linked: 'bg-accent/10 text-accent',
-  voided: 'bg-warning-500/10 text-warning-500',
-  conflict: 'bg-warning-500/10 text-warning-500',
+  voided: 'bg-warning-subtle text-warning',
+  conflict: 'bg-warning-subtle text-warning',
   skipped: 'bg-bg-tertiary text-text-secondary',
   error: 'bg-error-500/10 text-error-500',
 };
 const RUN_STYLE: Record<AcctRun['status'], string> = {
   running: 'bg-accent/10 text-accent',
-  success: 'bg-success-500/10 text-success-500',
-  partial: 'bg-warning-500/10 text-warning-500',
+  success: 'bg-success-subtle text-success',
+  partial: 'bg-warning-subtle text-warning',
   failed: 'bg-error-500/10 text-error-500',
 };
 const selectCls = 'rounded-lg border border-border bg-bg-primary px-2.5 py-1.5 text-sm text-text-primary focus:border-accent focus:outline-none';
 const inputCls = 'w-full rounded-lg border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none';
-const btnPrimary = 'inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50';
+const btnPrimary = 'inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-on-accent disabled:cursor-not-allowed disabled:opacity-50';
 
 function Badge({ cls, children }: { cls: string; children: React.ReactNode }) {
   return <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${cls}`}>{children}</span>;
@@ -166,7 +166,7 @@ function ConnectPanel({ provider, onConnected }: { provider: AcctProvider; onCon
             </button>
           )}
         </div>
-        {certError ? <p className="text-sm text-warning-500">{certError}</p> : cert ? <pre className="max-h-40 overflow-auto rounded-lg border border-border bg-bg-primary p-3 text-xs text-text-secondary">{cert.certificate}</pre> : <div className="h-20 animate-pulse rounded-lg bg-bg-tertiary" aria-busy="true" />}
+        {certError ? <p className="text-sm text-warning">{certError}</p> : cert ? <pre className="max-h-40 overflow-auto rounded-lg border border-border bg-bg-primary p-3 text-xs text-text-secondary">{cert.certificate}</pre> : <div className="h-20 animate-pulse rounded-lg bg-bg-tertiary" aria-busy="true" />}
       </div>
       <div className="grid gap-4 sm:grid-cols-3">
         <label className="flex flex-col gap-1.5 text-sm"><span className="font-medium text-text-primary">Account ID</span>
@@ -259,7 +259,7 @@ function MappingPanel({ conn, onSaved }: { conn: AcctConnection; onSaved: () => 
             <div key={entity} className="p-4">
               <div className="flex flex-wrap items-center gap-3">
                 <label className="flex min-w-[9rem] items-center gap-2.5">
-                  <input type="checkbox" checked={es.enabled} onChange={(e) => patch(entity, { enabled: e.target.checked })} className="h-4 w-4 accent-[var(--color-accent,#2563eb)]" aria-label={`Sync ${em.label}`} />
+                  <input type="checkbox" checked={es.enabled} onChange={(e) => patch(entity, { enabled: e.target.checked })} className="h-4 w-4 accent-accent" aria-label={`Sync ${em.label}`} />
                   <span className="font-medium text-text-primary">{em.label}</span>
                 </label>
                 <span className="hidden text-xs text-text-secondary lg:inline">{em.vireekLabel} ↔ {meta.label}</span>
@@ -304,7 +304,7 @@ function MappingPanel({ conn, onSaved }: { conn: AcctConnection; onSaved: () => 
       <div className="rounded-2xl border border-border bg-bg-secondary p-4">
         <h3 className="font-medium text-text-primary">Defaults for records Vireek creates in {meta.label}</h3>
         <p className="mb-3 mt-1 text-xs text-text-secondary">{meta.label} needs these to accept new items, invoices and payments. Nothing is sent for a record whose default is missing; it is listed in the log instead.</p>
-        {optError && <p className="mb-3 text-sm text-warning-500">Could not load your {meta.label} lists: {optError}</p>}
+        {optError && <p className="mb-3 text-sm text-warning">Could not load your {meta.label} lists: {optError}</p>}
         <div className="grid gap-4 sm:grid-cols-2">
           {pick(meta.words.incomeAccount, 'incomeAccountId', accounts.filter((a) => a.classification === 'revenue'), 'Used for new items and invoice lines.')}
           {pick(meta.words.depositAccount, 'depositAccountId', accounts.filter((a) => a.classification === 'asset'), 'Required to send payments. Used when the payment’s account is not linked.')}
@@ -365,11 +365,11 @@ function ConflictsPanel({ conn, refreshKey, onChanged }: { conn: AcctConnection;
   return (
     <section className="space-y-3" aria-labelledby="acct-conflicts">
       <h2 id="acct-conflicts" className="flex items-center gap-2 text-lg font-semibold text-text-primary">
-        <AlertTriangle size={18} className="text-warning-500" /> Needs your decision ({rows.length})
+        <AlertTriangle size={18} className="text-warning" /> Needs your decision ({rows.length})
       </h2>
       <ul className="space-y-3">
         {rows.map((c) => (
-          <li key={c.link_id} className="rounded-2xl border border-warning-500/40 bg-warning-500/5 p-4">
+          <li key={c.link_id} className="rounded-2xl border border-warning/40 bg-warning-subtle p-4">
             <p className="text-sm font-medium text-text-primary">{ENTITY_META[c.entity].label.replace(/s$/, '')}</p>
             {c.reason && <p className="mt-1 text-sm text-text-secondary">{c.reason}</p>}
             {c.fields.length > 0 && (
@@ -629,11 +629,11 @@ function ProviderSync({ provider }: { provider: AcctProvider }) {
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="truncate text-base font-semibold text-text-primary">{conn.company_name ?? `Organisation ${conn.tenant_id}`}</p>
-                    {needsReconnect ? <Badge cls="bg-error-500/10 text-error-500"><AlertTriangle size={12} /> Needs reconnect</Badge> : running ? <Badge cls="bg-accent/10 text-accent"><Loader2 size={12} className="animate-spin" /> Syncing</Badge> : <Badge cls="bg-success-500/10 text-success-500"><CheckCircle2 size={12} /> Connected</Badge>}
-                    {/_SB\d*$|_RP$/i.test(conn.tenant_id) && <Badge cls="bg-warning-500/10 text-warning-500">Sandbox</Badge>}
+                    {needsReconnect ? <Badge cls="bg-error-500/10 text-error-500"><AlertTriangle size={12} /> Needs reconnect</Badge> : running ? <Badge cls="bg-accent/10 text-accent"><Loader2 size={12} className="animate-spin" /> Syncing</Badge> : <Badge cls="bg-success-subtle text-success"><CheckCircle2 size={12} /> Connected</Badge>}
+                    {/_SB\d*$|_RP$/i.test(conn.tenant_id) && <Badge cls="bg-warning-subtle text-warning">Sandbox</Badge>}
                   </div>
                   <p className="mt-1 text-sm text-text-secondary">Last synced {timeAgo(conn.last_synced_at)}{conn.last_error ? ` · ${conn.last_error}` : ''}</p>
-                  {daysLeft !== null && daysLeft <= 14 && !needsReconnect && <p className="mt-1 text-sm text-warning-500">{meta.label} access expires in {Math.max(daysLeft, 0)} days unless a sync runs. Run a sync to renew it.</p>}
+                  {daysLeft !== null && daysLeft <= 14 && !needsReconnect && <p className="mt-1 text-sm text-warning">{meta.label} access expires in {Math.max(daysLeft, 0)} days unless a sync runs. Run a sync to renew it.</p>}
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {needsReconnect && provider !== 'netsuite' ? (

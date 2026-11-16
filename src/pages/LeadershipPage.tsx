@@ -39,7 +39,7 @@ function Initials({ name }: { name: string }) {
     .join('')
     .toUpperCase();
   return (
-    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-accent to-cta text-2xl font-bold text-white">
+    <div className="flex h-full w-full items-center justify-center bg-accent text-2xl font-bold text-on-accent">
       {initials || '?'}
     </div>
   );

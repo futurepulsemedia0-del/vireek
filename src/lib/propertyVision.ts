@@ -129,18 +129,18 @@ const MAX_EDGE_PX = 2048;
 // ============================================================
 
 export const SEVERITY_STYLES: Record<PvSeverity, string> = {
-  emergency: 'bg-danger-500/15 text-danger-500',
-  high: 'bg-danger-500/10 text-danger-500',
-  medium: 'bg-warning-500/10 text-warning-500',
+  emergency: 'bg-danger-subtle text-danger',
+  high: 'bg-danger-subtle text-danger',
+  medium: 'bg-warning-subtle text-warning',
   low: 'bg-accent/10 text-accent',
   info: 'bg-bg-tertiary text-text-secondary',
 };
 
 export const CONDITION_STYLES: Record<PvCondition, string> = {
-  good: 'bg-success-500/10 text-success-500',
+  good: 'bg-success-subtle text-success',
   fair: 'bg-accent/10 text-accent',
-  poor: 'bg-warning-500/10 text-warning-500',
-  critical: 'bg-danger-500/10 text-danger-500',
+  poor: 'bg-warning-subtle text-warning',
+  critical: 'bg-danger-subtle text-danger',
   unknown: 'bg-bg-tertiary text-text-secondary',
 };
 

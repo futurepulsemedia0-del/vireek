@@ -222,7 +222,7 @@ export function CommandPalette() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
             onClick={() => setOpen(false)}
-            className="fixed inset-0 z-[130] bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 z-[130] bg-overlay/40 backdrop-blur-sm"
           />
           <motion.div
             initial={{ opacity: 0, y: -12, scale: 0.98 }}
@@ -248,7 +248,7 @@ export function CommandPalette() {
                   }
                 }}
                 placeholder="Jump to a page, or search calls, leads, jobs…"
-                className="flex-1 bg-transparent text-sm text-text-primary outline-none placeholder:text-text-secondary/60"
+                className="flex-1 bg-transparent text-sm text-text-primary outline-none placeholder:text-text-placeholder"
               />
               <kbd className="rounded border border-border px-1.5 py-0.5 text-[10px] font-medium text-text-secondary">
                 Esc
@@ -258,7 +258,7 @@ export function CommandPalette() {
             <div className="max-h-[50vh] overflow-y-auto py-2">
               {results.length > 0 && (
                 <>
-                  <p className="px-4 py-1 text-[11px] font-semibold uppercase tracking-wider text-text-secondary/60">
+                  <p className="px-4 py-1 text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                     Search results
                   </p>
                   {results.map((r, i) => (
@@ -279,12 +279,12 @@ export function CommandPalette() {
                 <button type="button" onClick={startOperator} className="focus-ring flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-bg-tertiary">
                   <Sparkles size={16} className="text-accent" />
                   <span className="flex-1 truncate text-sm text-text-primary">Ask Operator: “{operatorText}”</span>
-                  <CornerDownLeft size={13} className="text-text-secondary/40" />
+                  <CornerDownLeft size={13} className="text-graphic-muted" />
                 </button>
               )}
               {searching && <p className="px-4 py-2 text-xs text-text-secondary">Searching…</p>}
 
-              <p className="px-4 py-1 text-[11px] font-semibold uppercase tracking-wider text-text-secondary/60">
+              <p className="px-4 py-1 text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                 Pages
               </p>
               {filteredPages.map((p) => (
@@ -296,7 +296,7 @@ export function CommandPalette() {
                 >
                   <p.icon size={16} className="text-text-secondary" />
                   <span className="flex-1 truncate text-sm text-text-primary">{p.label}</span>
-                  <CornerDownLeft size={13} className="text-text-secondary/40" />
+                  <CornerDownLeft size={13} className="text-graphic-muted" />
                 </button>
               ))}
               {filteredPages.length === 0 && results.length === 0 && !searching && (

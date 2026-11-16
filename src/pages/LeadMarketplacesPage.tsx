@@ -43,7 +43,7 @@ function getRange(preset: RangePreset) {
 }
 
 function statusClasses(status: string): string {
-  if (status === 'sent' || status === 'lead_created') return 'bg-success-500/10 text-success-500';
+  if (status === 'sent' || status === 'lead_created') return 'bg-success-subtle text-success';
   if (status === 'failed' || status === 'parse_failed' || status === 'error') return 'bg-danger/10 text-danger';
   return 'bg-bg-tertiary text-text-secondary';
 }
@@ -124,7 +124,7 @@ function SourceCard({
 
   const checkbox = (id: string, checked: boolean, set: (v: boolean) => void, text: string) => (
     <label htmlFor={id} className="flex items-center gap-2 text-sm text-text-primary">
-      <input id={id} type="checkbox" checked={checked} onChange={(e) => set(e.target.checked)} className="h-4 w-4 accent-[var(--accent,#2563eb)]" />
+      <input id={id} type="checkbox" checked={checked} onChange={(e) => set(e.target.checked)} className="h-4 w-4 accent-accent" />
       {text}
     </label>
   );
@@ -277,7 +277,7 @@ export function LeadMarketplacesPage() {
         <div className="flex items-center gap-2">
           <div className="flex rounded-xl border border-border bg-bg-secondary p-1">
             {(['30d', '90d', '365d'] as RangePreset[]).map((p) => (
-              <button key={p} type="button" onClick={() => setPreset(p)} className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${preset === p ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}>
+              <button key={p} type="button" onClick={() => setPreset(p)} className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${preset === p ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}>
                 {p === '30d' ? '30 days' : p === '90d' ? '90 days' : '1 year'}
               </button>
             ))}
@@ -365,7 +365,7 @@ export function LeadMarketplacesPage() {
             <section className="mt-10">
               <h2 className="text-lg font-bold text-text-primary">Recent activity</h2>
               {failedParses > 0 && (
-                <p className="mb-3 text-sm text-warning-500">
+                <p className="mb-3 text-sm text-warning">
                   {failedParses} recent notification{failedParses > 1 ? 's' : ''} could not be parsed. The email still reached your inbox; the raw sample is stored for tuning (see the setup guide).
                 </p>
               )}

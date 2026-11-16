@@ -61,7 +61,7 @@ import {
 } from '@/lib/technicianIdentity';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder';
 
 function errMsg(e: unknown, fallback: string): string {
   if (e && typeof e === 'object' && 'message' in e && typeof (e as { message: unknown }).message === 'string') {
@@ -176,7 +176,7 @@ function InsuranceManager({
 
   return (
     <div className="mt-4 border-t border-border/60 pt-4">
-      <p className="text-[11px] font-semibold uppercase tracking-wide text-text-secondary/70">Manage policies</p>
+      <p className="text-[11px] font-semibold uppercase tracking-wide text-text-muted">Manage policies</p>
       {loading ? (
         <p className="mt-2 text-xs text-text-secondary">Loading…</p>
       ) : (
@@ -197,7 +197,7 @@ function InsuranceManager({
                     type="button"
                     onClick={() => void toggleVerified(r)}
                     className={`focus-ring rounded-lg px-2.5 py-1 text-xs font-medium ${
-                      r.verified_at ? 'bg-success-500/10 text-success-500' : 'bg-warning-500/10 text-warning-500'
+                      r.verified_at ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning'
                     }`}
                   >
                     {r.verified_at ? 'Verified' : 'Mark verified'}
@@ -239,7 +239,7 @@ function InsuranceManager({
         type="button"
         onClick={() => void add()}
         disabled={saving}
-        className="focus-ring mt-3 inline-flex items-center gap-1.5 rounded-xl bg-accent px-3.5 py-2 text-sm font-medium text-white disabled:opacity-60"
+        className="focus-ring mt-3 inline-flex items-center gap-1.5 rounded-xl bg-accent px-3.5 py-2 text-sm font-medium text-on-accent disabled:opacity-60"
       >
         <Plus size={14} /> {saving ? 'Saving…' : 'Add policy'}
       </button>
@@ -325,15 +325,15 @@ function SharePanel({ technicianId, windowDays }: { technicianId: string; window
           type="button"
           onClick={() => void issue()}
           disabled={issuing}
-          className="focus-ring inline-flex items-center justify-center gap-1.5 rounded-xl bg-accent px-3.5 py-2 text-sm font-medium text-white disabled:opacity-60"
+          className="focus-ring inline-flex items-center justify-center gap-1.5 rounded-xl bg-accent px-3.5 py-2 text-sm font-medium text-on-accent disabled:opacity-60"
         >
           <Link2 size={14} /> {issuing ? 'Issuing…' : 'Issue link'}
         </button>
       </div>
 
       {issued && (
-        <div className="mt-3 rounded-xl border border-success-500/30 bg-success-500/5 p-3">
-          <p className="text-xs font-medium text-success-500">Link created — copy it now. For security it cannot be shown again.</p>
+        <div className="mt-3 rounded-xl border border-success/30 bg-success-subtle p-3">
+          <p className="text-xs font-medium text-success">Link created — copy it now. For security it cannot be shown again.</p>
           <div className="mt-2 flex items-center gap-2">
             <input readOnly value={passportUrl(issued.token)} className={`${inputClass} font-mono text-xs`} onFocus={(e) => e.currentTarget.select()} aria-label="Passport link" />
             <button type="button" onClick={() => void copy(passportUrl(issued.token))} className="focus-ring rounded-xl border border-border p-2 text-text-secondary hover:text-text-primary" aria-label="Copy link">
@@ -356,7 +356,7 @@ function SharePanel({ technicianId, windowDays }: { technicianId: string; window
               <div className="flex items-center gap-2">
                 <span
                   className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${
-                    state === 'active' ? 'bg-success-500/10 text-success-500' : 'bg-bg-tertiary text-text-secondary'
+                    state === 'active' ? 'bg-success-subtle text-success' : 'bg-bg-tertiary text-text-secondary'
                   }`}
                 >
                   {state}
@@ -414,7 +414,7 @@ function PassportDetail({
               {d.index === null ? ' — at least 3 completed jobs are needed before an index is shown.' : '.'}
             </p>
             {provisional && d.index !== null && (
-              <p className="mt-1.5 text-xs font-medium text-warning-500">
+              <p className="mt-1.5 text-xs font-medium text-warning">
                 Provisional: fewer than 10 jobs in this window, so {tier.label} is a soft rating.
               </p>
             )}
@@ -429,7 +429,7 @@ function PassportDetail({
           <MetricTile
             label="Reservice rate"
             value={formatRate(m.callback_rate)}
-            valueClass={m.callback_rate === null ? 'text-text-secondary' : m.callback_rate <= 5 ? 'text-success-500' : m.callback_rate <= 15 ? 'text-warning-500' : 'text-danger'}
+            valueClass={m.callback_rate === null ? 'text-text-secondary' : m.callback_rate <= 5 ? 'text-success' : m.callback_rate <= 15 ? 'text-warning' : 'text-danger'}
           />
           <MetricTile
             label="Customer satisfaction"
@@ -459,7 +459,7 @@ function PassportDetail({
           <MetricTile
             label="Open complaints"
             value={String(d.internal.unresolved_complaints)}
-            valueClass={d.internal.unresolved_complaints > 0 ? 'text-danger' : 'text-success-500'}
+            valueClass={d.internal.unresolved_complaints > 0 ? 'text-danger' : 'text-success'}
             hint="Internal only — never shared"
           />
         </div>
@@ -500,7 +500,7 @@ function PassportDetail({
         <SectionTitle icon={FlaskConical}>Training &amp; profile</SectionTitle>
         <div className="mt-4 grid grid-cols-1 gap-5 md:grid-cols-2">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-text-secondary/70">Training (not real jobs)</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-text-muted">Training (not real jobs)</p>
             <p className="mt-1.5 text-sm text-text-primary">
               {d.training.lessons_completed} lessons completed
               {d.training.apprenticeship_target_level ? ` · targeting level ${d.training.apprenticeship_target_level}` : ''}
@@ -512,19 +512,19 @@ function PassportDetail({
           </div>
           <div className="space-y-3">
             <div>
-              <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-text-secondary/70">
+              <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-text-muted">
                 <Languages size={12} /> Languages
               </p>
               <p className="mt-1 text-sm text-text-primary">{d.languages.length ? d.languages.join(', ') : '—'}</p>
             </div>
             <div>
-              <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-text-secondary/70">
+              <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-text-muted">
                 <MapPin size={12} /> Regions
               </p>
               <p className="mt-1 text-sm text-text-primary">{d.regions.length ? d.regions.join(', ') : '—'}</p>
             </div>
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-text-secondary/70">Declared skills (self-reported, unverified)</p>
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-text-muted">Declared skills (self-reported, unverified)</p>
               <div className="mt-1.5 flex flex-wrap gap-1.5">
                 {d.declared_skills.length === 0 && <span className="text-sm text-text-secondary">—</span>}
                 {d.declared_skills.map((s) => (

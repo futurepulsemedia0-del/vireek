@@ -138,7 +138,7 @@ export function ServiceAgreementDetailPage() {
             </Pill>
           </div>
 
-          {error && <p className="mb-4 rounded-lg border border-warning-500/30 bg-warning-500/10 p-3 text-sm text-warning-500" role="alert">{error}</p>}
+          {error && <p className="mb-4 rounded-lg border border-warning/30 bg-warning-subtle p-3 text-sm text-warning" role="alert">{error}</p>}
 
           <div className="mb-5 flex gap-1 overflow-x-auto border-b border-border pb-px" role="tablist" aria-label="Agreement sections">
             {TABS.map((t) => (

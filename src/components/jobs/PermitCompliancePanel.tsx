@@ -110,7 +110,7 @@ function ItemRow({
             maxLength={60}
             aria-label={`Permit number for ${item.title}`}
             placeholder="Permit #"
-            className="focus-ring w-28 rounded-lg border border-border bg-bg-secondary px-2 py-1 text-xs text-text-primary placeholder:text-text-secondary/60"
+            className="focus-ring w-28 rounded-lg border border-border bg-bg-secondary px-2 py-1 text-xs text-text-primary placeholder:text-text-placeholder"
           />
         )}
         <input
@@ -120,7 +120,7 @@ function ItemRow({
           maxLength={500}
           aria-label={`Note for ${item.title}`}
           placeholder="Note (optional)"
-          className="focus-ring min-w-[8rem] flex-1 rounded-lg border border-border bg-bg-secondary px-2 py-1 text-xs text-text-primary placeholder:text-text-secondary/60"
+          className="focus-ring min-w-[8rem] flex-1 rounded-lg border border-border bg-bg-secondary px-2 py-1 text-xs text-text-primary placeholder:text-text-placeholder"
         />
         {saving && <Loader2 size={13} className="animate-spin text-text-secondary" />}
       </div>
@@ -243,7 +243,7 @@ export function PermitCompliancePanel({ job }: { job: CompliancePanelJob }) {
           <button
             type="button"
             onClick={() => run()}
-            className="focus-ring flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white hover:opacity-90"
+            className="focus-ring flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent hover:opacity-90"
           >
             <ShieldCheck size={13} /> Run compliance check
           </button>
@@ -295,12 +295,12 @@ export function PermitCompliancePanel({ job }: { job: CompliancePanelJob }) {
           </span>
         )}
         {c.warnings > 0 && (
-          <span className="rounded-full bg-warning-500/10 px-2 py-0.5 text-xs font-medium text-warning-500">
+          <span className="rounded-full bg-warning-subtle px-2 py-0.5 text-xs font-medium text-warning">
             {c.warnings} important
           </span>
         )}
         {c.blockers === 0 && c.warnings === 0 && (
-          <span className="rounded-full bg-success-500/10 px-2 py-0.5 text-xs font-medium text-success-500">
+          <span className="rounded-full bg-success-subtle px-2 py-0.5 text-xs font-medium text-success">
             Nothing blocking
           </span>
         )}
@@ -314,8 +314,8 @@ export function PermitCompliancePanel({ job }: { job: CompliancePanelJob }) {
       {expanded && (
         <div className="mt-3 space-y-4 border-t border-border/60 pt-3">
           {lowConfidenceLocation && (
-            <div className="rounded-lg border border-warning-500/30 bg-warning-500/5 p-3">
-              <p className="text-xs text-warning-500">
+            <div className="rounded-lg border border-warning/30 bg-warning-subtle p-3">
+              <p className="text-xs text-warning">
                 <Info size={12} className="mr-1 inline" />
                 We couldn't confirm the state from this job's address, so state-specific rules may
                 be missing. Enter the job location (e.g. "Austin, TX 78701") to re-run.
@@ -327,7 +327,7 @@ export function PermitCompliancePanel({ job }: { job: CompliancePanelJob }) {
                   maxLength={160}
                   aria-label="Job location override"
                   placeholder="City, ST 12345"
-                  className="focus-ring min-w-0 flex-1 rounded-lg border border-border bg-bg-secondary px-2 py-1 text-xs text-text-primary placeholder:text-text-secondary/60"
+                  className="focus-ring min-w-0 flex-1 rounded-lg border border-border bg-bg-secondary px-2 py-1 text-xs text-text-primary placeholder:text-text-placeholder"
                 />
                 <button
                   type="button"
@@ -335,7 +335,7 @@ export function PermitCompliancePanel({ job }: { job: CompliancePanelJob }) {
                   onClick={() =>
                     run({ force: true, jurisdictionOverride: jurisdictionInput.trim() })
                   }
-                  className="focus-ring rounded-lg bg-accent px-3 py-1 text-xs font-medium text-white hover:opacity-90 disabled:opacity-50"
+                  className="focus-ring rounded-lg bg-accent px-3 py-1 text-xs font-medium text-on-accent hover:opacity-90 disabled:opacity-50"
                 >
                   Re-run
                 </button>

@@ -40,7 +40,7 @@ export function ReviewTab({ canDecide }: { canDecide: boolean }) {
   return (
     <div className="mt-4 space-y-3">
       <p className="text-sm text-text-secondary">{t('review.intro')}</p>
-      {error && <p role="alert" className="text-sm text-danger-500">{error}</p>}
+      {error && <p role="alert" className="text-sm text-danger">{error}</p>}
       {rows.length === 0 && !error && <p className="rounded-2xl border border-border bg-bg-secondary p-5 text-sm text-text-secondary">{t('review.empty')}</p>}
       {rows.map((r) => {
         const open = r.status === 'open';
@@ -54,12 +54,12 @@ export function ReviewTab({ canDecide }: { canDecide: boolean }) {
               </span>
             </div>
             <p className="mt-1 text-sm text-text-secondary">{r.reason}</p>
-            {r.blocking && open && <p className="mt-1 text-xs font-medium text-warning-500">{t('review.blocking')}</p>}
+            {r.blocking && open && <p className="mt-1 text-xs font-medium text-warning">{t('review.blocking')}</p>}
             {!open && r.decision_notes && (
               <p className="mt-2 text-sm text-text-primary">
                 {r.decision_notes}
                 {r.decided_by_email ? <span className="text-text-secondary"> — {r.decided_by_email}</span> : null}
-                {r.self_review ? <span className="text-warning-500"> ({t('review.selfReview')})</span> : null}
+                {r.self_review ? <span className="text-warning"> ({t('review.selfReview')})</span> : null}
               </p>
             )}
             {open && canDecide && (

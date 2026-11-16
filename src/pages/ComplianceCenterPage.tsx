@@ -10,7 +10,7 @@ import { supabase, TeamMember, TechnicianCredential, ComplianceRequirement } fro
 import { computeCredentialStatus, CREDENTIAL_STATUS_LABELS, CREDENTIAL_STATUS_COLORS } from '@/lib/complianceGate';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder transition-colors';
 
 type Tab = 'credentials' | 'requirements';
 
@@ -92,7 +92,7 @@ function CredentialForm({
         <button type="button" onClick={onCancel} className="focus-ring flex items-center gap-1 rounded-xl px-3 py-2 text-sm text-text-secondary hover:text-text-primary">
           <X size={14} /> Cancel
         </button>
-        <button type="button" onClick={handleSave} disabled={saving || !form.technician_id || !form.credential_type.trim()} className="focus-ring flex items-center gap-1 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50">
+        <button type="button" onClick={handleSave} disabled={saving || !form.technician_id || !form.credential_type.trim()} className="focus-ring flex items-center gap-1 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent transition-all hover:brightness-110 disabled:opacity-50">
           <Check size={14} /> Save credential
         </button>
       </div>
@@ -149,7 +149,7 @@ function RequirementForm({
         <button type="button" onClick={onCancel} className="focus-ring flex items-center gap-1 rounded-xl px-3 py-2 text-sm text-text-secondary hover:text-text-primary">
           <X size={14} /> Cancel
         </button>
-        <button type="button" onClick={handleSave} disabled={saving || !form.service_type.trim() || !form.credential_type.trim()} className="focus-ring flex items-center gap-1 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50">
+        <button type="button" onClick={handleSave} disabled={saving || !form.service_type.trim() || !form.credential_type.trim()} className="focus-ring flex items-center gap-1 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent transition-all hover:brightness-110 disabled:opacity-50">
           <Check size={14} /> Save rule
         </button>
       </div>
@@ -295,7 +295,7 @@ export function ComplianceCenterPage() {
                 <p className="text-xs text-text-secondary">Expired / revoked</p>
               </div>
               <div className="rounded-2xl border border-border bg-bg-secondary p-4 text-center">
-                <p className="text-xl font-bold text-warning-500">{stats.expiringSoonCount}</p>
+                <p className="text-xl font-bold text-warning">{stats.expiringSoonCount}</p>
                 <p className="text-xs text-text-secondary">Expiring within 30d</p>
               </div>
               <div className="rounded-2xl border border-border bg-bg-secondary p-4 text-center">
@@ -307,7 +307,7 @@ export function ComplianceCenterPage() {
             <div className="mb-4 flex items-center justify-between">
               <div className="flex gap-1.5">
                 {(['credentials', 'requirements'] as Tab[]).map((t) => (
-                  <button key={t} type="button" onClick={() => { setTab(t); setAdding(false); setEditingId(null); }} className={`focus-ring rounded-full px-3 py-1 text-xs font-medium transition-colors ${tab === t ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>
+                  <button key={t} type="button" onClick={() => { setTab(t); setAdding(false); setEditingId(null); }} className={`focus-ring rounded-full px-3 py-1 text-xs font-medium transition-colors ${tab === t ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>
                     {t === 'credentials' ? 'Technician credentials' : 'Dispatch requirements'}
                   </button>
                 ))}

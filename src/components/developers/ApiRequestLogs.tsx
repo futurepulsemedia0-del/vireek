@@ -17,9 +17,9 @@ import {
 } from '@/lib/apiRequestLogs';
 
 const TONE_CLASS = {
-  success: 'bg-success-500/10 text-success-500',
-  warning: 'bg-warning-500/10 text-warning-500',
-  danger: 'bg-danger-500/10 text-danger-500',
+  success: 'bg-success-subtle text-success',
+  warning: 'bg-warning-subtle text-warning',
+  danger: 'bg-danger-subtle text-danger',
 } as const;
 
 function StatusPill({ status }: { status: number }) {
@@ -185,7 +185,7 @@ function LogsViewer() {
                 aria-pressed={filter === f.id}
                 onClick={() => setFilter(f.id)}
                 className={`focus-ring rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
-                  filter === f.id ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'
+                  filter === f.id ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'
                 }`}
               >
                 {f.label}
@@ -209,7 +209,7 @@ function LogsViewer() {
       )}
 
       {logsError && (
-        <div role="alert" className="flex items-start gap-2 rounded-xl border border-danger-500/30 bg-danger-500/5 px-3 py-2.5 text-sm text-danger-500">
+        <div role="alert" className="flex items-start gap-2 rounded-xl border border-danger/30 bg-danger-subtle px-3 py-2.5 text-sm text-danger">
           <AlertCircle size={16} className="mt-0.5 shrink-0" />
           <span>{logsError}</span>
         </div>
@@ -272,7 +272,7 @@ function LogsViewer() {
                   <span className="mr-1.5 font-semibold text-accent">{r.method}</span>
                   {r.path}
                 </p>
-                {r.error && <p className="mt-1 text-xs text-danger-500">{r.error}</p>}
+                {r.error && <p className="mt-1 text-xs text-danger">{r.error}</p>}
                 <p className="mt-1 text-[11px] text-text-secondary">{formatLogTime(r.created_at)}</p>
               </li>
             ))}

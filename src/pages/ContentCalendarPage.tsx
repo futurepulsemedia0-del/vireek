@@ -622,7 +622,7 @@ function Kpi({
   return (
     <Card className="!p-4 hover:translate-y-0">
       <p className="text-xs font-medium text-text-secondary">{label}</p>
-      <p className={`mt-1 text-2xl font-bold tabular-nums ${tone === 'warning' ? 'text-warning-500' : 'text-text-primary'}`}>{value}</p>
+      <p className={`mt-1 text-2xl font-bold tabular-nums ${tone === 'warning' ? 'text-warning' : 'text-text-primary'}`}>{value}</p>
       {action && (
         <button type="button" onClick={action.onClick} className="focus-ring mt-1 rounded text-xs font-medium text-accent hover:underline">
           {action.label}

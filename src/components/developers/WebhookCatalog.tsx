@@ -48,8 +48,8 @@ export function WebhookCatalog() {
                   <span
                     className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
                       w.stability === 'beta'
-                        ? 'bg-warning-500/10 text-warning-500'
-                        : 'bg-success-500/10 text-success-500'
+                        ? 'bg-warning-subtle text-warning'
+                        : 'bg-success-subtle text-success'
                     }`}
                   >
                     {w.stability === 'beta' ? 'Beta' : 'Stable'}

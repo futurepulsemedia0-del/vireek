@@ -53,8 +53,8 @@ const STATUS_TABS: Array<{ value: FeedbackStatusFilter; label: string }> = [
 const STATUS_STYLE: Record<RoadmapStatus, string> = {
   under_review: 'bg-bg-tertiary text-text-secondary',
   planned: 'bg-accent/10 text-accent',
-  in_progress: 'bg-warning-500/10 text-warning-500',
-  shipped: 'bg-success-500/10 text-success-500',
+  in_progress: 'bg-warning-subtle text-warning',
+  shipped: 'bg-success-subtle text-success',
   declined: 'bg-danger/10 text-danger',
 };
 
@@ -294,7 +294,7 @@ export function FeedbackPage() {
               status === t.value ? 'bg-bg-secondary text-text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'
             }`}
           >
-            {t.label} <span className="text-text-secondary/70">{counts[t.value]}</span>
+            {t.label} <span className="text-text-muted">{counts[t.value]}</span>
           </button>
         ))}
       </div>
@@ -409,7 +409,7 @@ export function FeedbackPage() {
                       </span>
                     </p>
                   )}
-                  <p className="mt-2 text-xs text-text-secondary/70">
+                  <p className="mt-2 text-xs text-text-muted">
                     {ROADMAP_CATEGORY_META[item.category]?.label ?? 'General'} · {formatDate(item.created_at)}
                   </p>
                 </div>

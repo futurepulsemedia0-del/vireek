@@ -36,8 +36,8 @@ const ROLE_DEFAULTS: Record<Role, Record<PermissionDef['key'], boolean>> = {
 
 const ROLE_TAGS: Record<string, { label: string; color: string }> = {
   owner: { label: 'Owner', color: 'bg-accent/10 text-accent' },
-  admin: { label: 'Admin', color: 'bg-blue-500/10 text-blue-500' },
-  technician: { label: 'Technician', color: 'bg-warning-500/10 text-warning-500' },
+  admin: { label: 'Admin', color: 'bg-info-subtle text-info' },
+  technician: { label: 'Technician', color: 'bg-warning-subtle text-warning' },
   member: { label: 'Member', color: 'bg-bg-tertiary text-text-secondary' },
 };
 
@@ -108,11 +108,11 @@ function InviteModal({
   };
 
   const inputClass =
-    'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60';
+    'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder';
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-overlay/30 backdrop-blur-sm" onClick={onClose} />
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -196,7 +196,7 @@ function InviteModal({
                   >
                     <span
                       className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-colors ${
-                        checked ? 'border-accent bg-accent text-white' : 'border-border bg-bg-tertiary'
+                        checked ? 'border-accent bg-accent text-on-accent' : 'border-border bg-bg-tertiary'
                       }`}
                     >
                       {checked && <Check size={13} />}
@@ -206,7 +206,7 @@ function InviteModal({
                       <p className={`text-sm font-medium ${checked ? 'text-text-primary' : 'text-text-secondary'}`}>
                         {perm.label}
                       </p>
-                      <p className="text-xs text-text-secondary/70">{perm.description}</p>
+                      <p className="text-xs text-text-muted">{perm.description}</p>
                     </div>
                   </button>
                 );
@@ -218,7 +218,7 @@ function InviteModal({
             <button
               type="submit"
               disabled={submitting || !email.trim()}
-              className="focus-ring flex flex-1 items-center justify-center gap-2 rounded-xl bg-cta px-4 py-3 text-sm font-semibold text-white transition-all hover:brightness-110 disabled:opacity-50"
+              className="focus-ring flex flex-1 items-center justify-center gap-2 rounded-xl bg-cta px-4 py-3 text-sm font-semibold text-on-cta transition-all hover:brightness-110 disabled:opacity-50"
             >
               {submitting ? <Loader2 size={16} className="animate-spin" /> : <Mail size={16} />}
               {submitting ? 'Sending…' : 'Send Invitation'}
@@ -301,7 +301,7 @@ function EditModal({
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-overlay/30 backdrop-blur-sm" onClick={onClose} />
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -361,7 +361,7 @@ function EditModal({
                   >
                     <span
                       className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-colors ${
-                        checked ? 'border-accent bg-accent text-white' : 'border-border bg-bg-tertiary'
+                        checked ? 'border-accent bg-accent text-on-accent' : 'border-border bg-bg-tertiary'
                       }`}
                     >
                       {checked && <Check size={13} />}
@@ -371,7 +371,7 @@ function EditModal({
                       <p className={`text-sm font-medium ${checked ? 'text-text-primary' : 'text-text-secondary'}`}>
                         {perm.label}
                       </p>
-                      <p className="text-xs text-text-secondary/70">{perm.description}</p>
+                      <p className="text-xs text-text-muted">{perm.description}</p>
                     </div>
                   </button>
                 );
@@ -390,7 +390,7 @@ function EditModal({
                   value={skills}
                   onChange={(e) => setSkills(e.target.value)}
                   placeholder="e.g. HVAC, Plumbing & Drain"
-                  className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60"
+                  className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder"
                 />
               </div>
               <div>
@@ -402,7 +402,7 @@ function EditModal({
                   value={languages}
                   onChange={(e) => setLanguages(e.target.value)}
                   placeholder="e.g. English, Spanish"
-                  className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60"
+                  className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder"
                 />
               </div>
               <div>
@@ -412,7 +412,7 @@ function EditModal({
                   value={serviceArea}
                   onChange={(e) => setServiceArea(e.target.value)}
                   placeholder="e.g. North Dallas"
-                  className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60"
+                  className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder"
                 />
               </div>
               <div>
@@ -425,7 +425,7 @@ function EditModal({
                   value={memberPhone}
                   onChange={(e) => setMemberPhone(e.target.value)}
                   placeholder="+1 (555) 123-4567"
-                  className="focus-ring mt-2 w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60"
+                  className="focus-ring mt-2 w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder"
                 />
               </div>
                             <div>
@@ -442,7 +442,7 @@ function EditModal({
                     value={hourlyCostRate}
                     onChange={(e) => setHourlyCostRate(e.target.value)}
                     placeholder="0.00 / hr"
-                    className="focus-ring w-full rounded-xl border border-border bg-bg-primary py-2.5 pl-7 pr-3 text-sm text-text-primary placeholder:text-text-secondary/60"
+                    className="focus-ring w-full rounded-xl border border-border bg-bg-primary py-2.5 pl-7 pr-3 text-sm text-text-primary placeholder:text-text-placeholder"
                   />
                 </div>
               </div>
@@ -469,7 +469,7 @@ function EditModal({
                   }`}
                 >
                   <span
-                    className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
+                    className={`absolute top-0.5 h-5 w-5 rounded-full bg-bg-secondary shadow-sm transition-transform ${
                       dispatchEnabled ? 'translate-x-[22px]' : 'translate-x-0.5'
                     }`}
                   />
@@ -482,7 +482,7 @@ function EditModal({
               type="button"
               onClick={handleSave}
               disabled={saving}
-              className="focus-ring flex flex-1 items-center justify-center gap-2 rounded-xl bg-cta px-4 py-3 text-sm font-semibold text-white transition-all hover:brightness-110 disabled:opacity-50"
+              className="focus-ring flex flex-1 items-center justify-center gap-2 rounded-xl bg-cta px-4 py-3 text-sm font-semibold text-on-cta transition-all hover:brightness-110 disabled:opacity-50"
             >
               {saving ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
               {saving ? 'Saving…' : 'Save Changes'}
@@ -543,19 +543,19 @@ function MyPermissionsCard() {
           <div
             key={perm.key}
             className={`flex items-center gap-2.5 rounded-xl border p-3 ${
-              granted ? 'border-success-500/20 bg-success-500/5' : 'border-border bg-bg-primary'
+              granted ? 'border-success/20 bg-success-subtle' : 'border-border bg-bg-primary'
             }`}
           >
             {granted ? (
-              <Check size={16} className="shrink-0 text-success-500" />
+              <Check size={16} className="shrink-0 text-success" />
             ) : (
-              <Lock size={16} className="shrink-0 text-text-secondary/50" />
+              <Lock size={16} className="shrink-0 text-graphic-muted" />
             )}
             <div>
               <p className={`text-sm font-medium ${granted ? 'text-text-primary' : 'text-text-secondary'}`}>
                 {perm.label}
               </p>
-              <p className="text-xs text-text-secondary/70">{perm.description}</p>
+              <p className="text-xs text-text-muted">{perm.description}</p>
             </div>
           </div>
         ))}
@@ -671,7 +671,7 @@ export function TeamPage() {
           <button
             type="button"
             onClick={() => setShowInvite(true)}
-            className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110"
+            className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-on-cta transition-all hover:brightness-110"
           >
             <Plus size={16} /> Invite Team Member
           </button>
@@ -716,7 +716,7 @@ export function TeamPage() {
             <button
               type="button"
               onClick={() => setShowInvite(true)}
-              className="focus-ring mt-4 flex items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-white transition-all hover:brightness-110"
+              className="focus-ring mt-4 flex items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-on-cta transition-all hover:brightness-110"
             >
               <Plus size={16} /> Invite your first team member
             </button>
@@ -739,7 +739,7 @@ export function TeamPage() {
               <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${ROLE_TAGS.owner.color}`}>
                 {ROLE_TAGS.owner.label}
               </span>
-              <span className="inline-flex rounded-full bg-success-500/10 px-2.5 py-1 text-xs font-medium text-success-500">
+              <span className="inline-flex rounded-full bg-success-subtle px-2.5 py-1 text-xs font-medium text-success">
                 Active
               </span>
             </div>
@@ -769,8 +769,8 @@ export function TeamPage() {
               <span
                 className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
                   member.invite_status === 'active'
-                    ? 'bg-success-500/10 text-success-500'
-                    : 'bg-warning-500/10 text-warning-500'
+                    ? 'bg-success-subtle text-success'
+                    : 'bg-warning-subtle text-warning'
                 }`}
               >
                 {member.invite_status === 'active' ? 'Active' : 'Pending'}

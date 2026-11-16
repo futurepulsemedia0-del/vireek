@@ -27,7 +27,7 @@ import {
 } from '@/lib/warrantyClaimRecovery';
 
 const inputClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-secondary/60 transition-colors';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-2.5 text-sm text-text-primary placeholder:text-text-placeholder transition-colors';
 
 type FilterKey = 'open' | 'closed' | 'all';
 
@@ -209,7 +209,7 @@ function ClaimForm({
         <button type="button" onClick={onCancel} className="focus-ring flex items-center gap-1 rounded-xl px-3 py-2 text-sm text-text-secondary hover:text-text-primary">
           <X size={14} /> Cancel
         </button>
-        <button type="button" onClick={handleSave} disabled={saving || !form.customer_name.trim()} className="focus-ring flex items-center gap-1 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-50">
+        <button type="button" onClick={handleSave} disabled={saving || !form.customer_name.trim()} className="focus-ring flex items-center gap-1 rounded-xl bg-accent px-4 py-2 text-sm font-medium text-on-accent transition-all hover:brightness-110 disabled:opacity-50">
           <Check size={14} /> Save claim
         </button>
       </div>
@@ -385,7 +385,7 @@ export function WarrantyClaimRecoveryPage() {
                 <p className="text-xs text-text-secondary">Claimed, in progress</p>
               </div>
               <div className="rounded-2xl border border-border bg-bg-secondary p-4 text-center">
-                <p className="text-xl font-bold text-success-500">{formatCents(stats.recoveredCents)}</p>
+                <p className="text-xl font-bold text-success">{formatCents(stats.recoveredCents)}</p>
                 <p className="text-xs text-text-secondary">Credit recovered</p>
               </div>
               <div className="rounded-2xl border border-border bg-bg-secondary p-4 text-center">
@@ -409,7 +409,7 @@ export function WarrantyClaimRecoveryPage() {
                           {job.warranty_expires_at ? ` · warranty until ${job.warranty_expires_at}` : ''}
                         </p>
                       </div>
-                      <button type="button" onClick={() => startClaimFromJob(job)} className="focus-ring flex items-center gap-1 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white hover:brightness-110">
+                      <button type="button" onClick={() => startClaimFromJob(job)} className="focus-ring flex items-center gap-1 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent hover:brightness-110">
                         <Plus size={12} /> Start claim
                       </button>
                     </div>
@@ -421,7 +421,7 @@ export function WarrantyClaimRecoveryPage() {
             <div className="mb-3 flex items-center justify-between">
               <div className="flex gap-1.5">
                 {FILTERS.map((f) => (
-                  <button key={f.key} type="button" onClick={() => setFilter(f.key)} className={`focus-ring rounded-full px-3 py-1 text-xs font-medium transition-colors ${filter === f.key ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>
+                  <button key={f.key} type="button" onClick={() => setFilter(f.key)} className={`focus-ring rounded-full px-3 py-1 text-xs font-medium transition-colors ${filter === f.key ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>
                     {f.label}
                   </button>
                 ))}

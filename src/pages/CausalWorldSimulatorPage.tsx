@@ -23,7 +23,7 @@ type ScenarioWithData = CausalScenario & {
 function ImpactBadge({ pct }: { pct: number }) {
   const positive = pct > 0;
   const Icon = positive ? TrendingUp : pct < 0 ? TrendingDown : Sparkles;
-  const color = positive ? 'text-emerald-500 bg-emerald-500/10' : pct < 0 ? 'text-danger bg-danger/10' : 'text-text-secondary bg-bg-primary';
+  const color = positive ? 'text-success bg-success-subtle' : pct < 0 ? 'text-danger bg-danger/10' : 'text-text-secondary bg-bg-primary';
   return (
     <span className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${color}`}>
       <Icon size={13} /> {positive ? '+' : ''}{pct}%
@@ -111,7 +111,7 @@ function ScenarioCard({ item, onMarkImplemented, index }: { item: ScenarioWithDa
             <ul className="space-y-1.5">
               {sim.causal_factors.map((f, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm">
-                  <span className={`mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full ${f.direction === 'positive' ? 'bg-emerald-500' : f.direction === 'negative' ? 'bg-danger' : 'bg-text-secondary'}`} />
+                  <span className={`mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full ${f.direction === 'positive' ? 'bg-success' : f.direction === 'negative' ? 'bg-danger' : 'bg-text-secondary'}`} />
                   <span><strong className="text-text-primary">{f.factor}:</strong> <span className="text-text-secondary">{f.explanation}</span></span>
                 </li>
               ))}
@@ -119,8 +119,8 @@ function ScenarioCard({ item, onMarkImplemented, index }: { item: ScenarioWithDa
           )}
 
           {sim.risk_factors.length > 0 && (
-            <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-text-secondary">
-              <p className="mb-1 flex items-center gap-1 font-semibold text-amber-500"><AlertTriangle size={13} /> Risks</p>
+            <div className="rounded-lg border border-warning/30 bg-warning-subtle p-3 text-xs text-text-secondary">
+              <p className="mb-1 flex items-center gap-1 font-semibold text-warning"><AlertTriangle size={13} /> Risks</p>
               <ul className="list-inside list-disc space-y-0.5">{sim.risk_factors.map((r, i) => <li key={i}>{r}</li>)}</ul>
             </div>
           )}
@@ -233,7 +233,7 @@ export function CausalWorldSimulatorPage() {
             <p className="text-sm text-text-secondary">"If I do this, what happens — and what would happen if I didn't?" Grounded in your data and real outcomes from similar businesses.</p>
           </div>
         </div>
-        <button onClick={() => setShowForm((s) => !s)} className="focus-ring flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:opacity-90">
+        <button onClick={() => setShowForm((s) => !s)} className="focus-ring flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-on-accent hover:opacity-90">
           {showForm ? <XIcon size={16} /> : <Plus size={16} />} {showForm ? 'Cancel' : 'New scenario'}
         </button>
       </div>
@@ -256,7 +256,7 @@ export function CausalWorldSimulatorPage() {
                 <label className="mb-1 block text-sm font-medium text-text-primary">Describe the decision</label>
                 <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} placeholder="What exactly are you considering, and why?" className="focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary" />
               </div>
-              <button onClick={handleRun} disabled={running} className="focus-ring flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60">
+              <button onClick={handleRun} disabled={running} className="focus-ring flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-on-accent hover:opacity-90 disabled:opacity-60">
                 {running ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />} Run simulation
               </button>
             </div>

@@ -73,7 +73,7 @@ export function OfflinePage() {
         className="w-full max-w-md text-center"
       >
         <span
-          className={`mx-auto flex h-16 w-16 items-center justify-center rounded-2xl ${isOnline ? 'bg-success-500/10 text-success-500' : 'bg-accent/10 text-accent'}`}
+          className={`mx-auto flex h-16 w-16 items-center justify-center rounded-2xl ${isOnline ? 'bg-success-subtle text-success' : 'bg-accent/10 text-accent'}`}
           aria-hidden="true"
         >
           {isOnline ? <Wifi size={28} /> : <WifiOff size={28} />}
@@ -100,7 +100,7 @@ export function OfflinePage() {
             <div className="rounded-xl bg-bg-primary p-3">
               <dt className="text-[11px] text-text-secondary">Need review</dt>
               <dd
-                className={`mt-1 text-xl font-bold ${sync.conflicts > 0 ? 'text-warning-500' : 'text-text-primary'}`}
+                className={`mt-1 text-xl font-bold ${sync.conflicts > 0 ? 'text-warning' : 'text-text-primary'}`}
               >
                 {sync.conflicts}
               </dd>
@@ -151,7 +151,7 @@ export function OfflinePage() {
           )}
         </div>
         {stillOffline && !isOnline && (
-          <p role="alert" className="mt-3 text-sm font-medium text-warning-500">
+          <p role="alert" className="mt-3 text-sm font-medium text-warning">
             Still offline. We’ll keep checking automatically.
           </p>
         )}

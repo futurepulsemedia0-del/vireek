@@ -33,7 +33,7 @@ export function UsageChart({ points, hours }: { points: UsagePoint[]; hours: num
               <rect x={b.x} y={0} width={b.width} height={H} fill="transparent" />
               {b.okH > 0 && <rect x={b.x} y={okY} width={b.width} height={b.okH} rx={1} className="fill-accent" fillOpacity={0.85} />}
               {b.errH > 0 && <rect x={b.x} y={errY} width={b.width} height={b.errH} className="fill-danger" />}
-              {b.rlH > 0 && <rect x={b.x} y={rlY} width={b.width} height={b.rlH} className="fill-warning-500" />}
+              {b.rlH > 0 && <rect x={b.x} y={rlY} width={b.width} height={b.rlH} className="fill-warning" />}
               {p.requests > 0 && b.okH + b.errH + b.rlH < 1.5 && <rect x={b.x} y={H - 1.5} width={b.width} height={1.5} className="fill-accent" />}
             </g>
           );
@@ -47,7 +47,7 @@ export function UsageChart({ points, hours }: { points: UsagePoint[]; hours: num
       <figcaption className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-text-secondary">
         <span className="flex items-center gap-1.5"><i className="inline-block h-2 w-2 rounded-sm bg-accent" /> Successful</span>
         <span className="flex items-center gap-1.5"><i className="inline-block h-2 w-2 rounded-sm bg-danger" /> Errors</span>
-        <span className="flex items-center gap-1.5"><i className="inline-block h-2 w-2 rounded-sm bg-warning-500" /> Rate limited</span>
+        <span className="flex items-center gap-1.5"><i className="inline-block h-2 w-2 rounded-sm bg-warning" /> Rate limited</span>
       </figcaption>
     </figure>
   );

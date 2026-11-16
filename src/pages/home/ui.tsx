@@ -37,7 +37,7 @@ export function PrimaryButton({ busy, children, className, disabled, ...rest }: 
       {...rest}
       disabled={disabled || busy}
       className={cx(
-        'focus-ring inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-accent-hover disabled:opacity-60',
+        'focus-ring inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent transition hover:bg-accent-hover disabled:opacity-60',
         className,
       )}
     >
@@ -66,8 +66,8 @@ export function SecondaryButton({ busy, children, className, disabled, ...rest }
 
 export function Badge({ tone, children }: { tone: 'good' | 'warn' | 'bad' | 'neutral' | 'accent'; children: ReactNode }) {
   const tones = {
-    good: 'bg-success-500/10 text-success',
-    warn: 'bg-warning-500/10 text-warning-500',
+    good: 'bg-success-subtle text-success',
+    warn: 'bg-warning-subtle text-warning',
     bad: 'bg-danger/10 text-danger',
     neutral: 'bg-bg-tertiary text-text-secondary',
     accent: 'bg-accent/10 text-accent',

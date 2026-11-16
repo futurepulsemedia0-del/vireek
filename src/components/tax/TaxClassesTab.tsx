@@ -35,7 +35,7 @@ function ClassCard({ cls, onChanged }: { cls: TaxClassDetail; onChanged: () => v
 
       <div className="mt-3 flex flex-wrap gap-1.5">
         {Object.entries(cls.stateRules).sort().map(([code, t]) => (
-          <span key={code} className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] ${t ? 'bg-success-500/10 text-success-500' : 'bg-bg-tertiary text-text-secondary'}`}>
+          <span key={code} className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] ${t ? 'bg-success-subtle text-success' : 'bg-bg-tertiary text-text-secondary'}`}>
             {code}: {t ? 'taxable' : 'not taxable'}
             <button type="button" aria-label={`Remove ${code} rule`} onClick={() => void run(() => setTaxClassStateRule(cls.id, code, null))}><X size={10} /></button>
           </span>
@@ -86,7 +86,7 @@ export function TaxClassesTab() {
         <input aria-label="Class name" placeholder="Name (e.g. Disposal fee)" className={inputClass} value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value, code: draft.code || e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '').slice(0, 40) })} />
         <input aria-label="Class code" placeholder="code" className={inputClass} value={draft.code} onChange={(e) => setDraft({ ...draft, code: e.target.value })} />
         <label className="flex items-center gap-1.5 text-xs text-text-secondary"><input type="checkbox" checked={draft.defaultTaxable} onChange={(e) => setDraft({ ...draft, defaultTaxable: e.target.checked })} /> Taxable by default</label>
-        <button type="button" disabled={!draft.name.trim() || !draft.code.trim()} onClick={add} className="focus-ring inline-flex items-center gap-1 rounded-lg bg-accent px-3 py-2 text-xs font-medium text-white disabled:opacity-50"><Plus size={12} /> Add class</button>
+        <button type="button" disabled={!draft.name.trim() || !draft.code.trim()} onClick={add} className="focus-ring inline-flex items-center gap-1 rounded-lg bg-accent px-3 py-2 text-xs font-medium text-on-accent disabled:opacity-50"><Plus size={12} /> Add class</button>
       </div>
     </div>
   );

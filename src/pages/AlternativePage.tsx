@@ -16,11 +16,11 @@ function FeatureIcon({ value, highlight }: { value: FeatureValue; highlight?: bo
   const label = value === 'yes' ? 'Yes' : value === 'partial' ? 'Partial' : 'No';
   const icon =
     value === 'yes' ? (
-      <Check size={18} className={`shrink-0 ${highlight ? 'text-accent' : 'text-success-500'}`} strokeWidth={2.5} aria-hidden />
+      <Check size={18} className={`shrink-0 ${highlight ? 'text-accent' : 'text-success'}`} strokeWidth={2.5} aria-hidden />
     ) : value === 'partial' ? (
-      <Minus size={18} className="shrink-0 text-text-secondary/40" strokeWidth={2.5} aria-hidden />
+      <Minus size={18} className="shrink-0 text-graphic-muted" strokeWidth={2.5} aria-hidden />
     ) : (
-      <X size={18} className="shrink-0 text-danger/50" strokeWidth={2.5} aria-hidden />
+      <X size={18} className="shrink-0 text-danger" strokeWidth={2.5} aria-hidden />
     );
   return (
     <>
@@ -117,7 +117,7 @@ export function AlternativePage() {
               <p className="flex items-center gap-2 text-sm font-semibold text-text-secondary"><ThumbsUp className="h-4 w-4" aria-hidden /> Stay with {name} if</p>
               <ul className="mt-4 space-y-3">
                 {alt.stayIf.map((t) => (
-                  <li key={t} className="flex gap-2.5 text-sm leading-relaxed text-text-secondary"><Check size={16} className="mt-0.5 shrink-0 text-text-secondary/60" aria-hidden />{t}</li>
+                  <li key={t} className="flex gap-2.5 text-sm leading-relaxed text-text-secondary"><Check size={16} className="mt-0.5 shrink-0 text-graphic-muted" aria-hidden />{t}</li>
                 ))}
               </ul>
             </Reveal>
@@ -175,7 +175,7 @@ export function AlternativePage() {
                   ))}
                 </div>
               </Reveal>
-              <p className="mx-auto mt-4 max-w-2xl text-center text-xs text-text-secondary/70">
+              <p className="mx-auto mt-4 max-w-2xl text-center text-xs text-text-muted">
                 Reflects each product’s core, publicly described focus as of this writing. Features change, so see {name}’s own site for its current list.
               </p>
             </div>
@@ -255,7 +255,7 @@ export function AlternativePage() {
 
         <section className="px-6 py-16 md:py-20">
           <Reveal className="bg-noise relative mx-auto flex max-w-6xl flex-col items-center overflow-hidden rounded-3xl bg-gradient-to-br from-accent-800 via-accent-700 to-cta-800 px-6 py-16 text-center shadow-glow-accent md:px-16 md:py-24">
-            <div aria-hidden="true" className="pointer-events-none absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)' }} />
+            <div aria-hidden="true" className="pointer-events-none absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 20% 20%, rgb(var(--static-white) / 0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)' }} />
             <div className="relative">
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-white/80"><Sparkles className="mr-1.5 inline h-4 w-4" aria-hidden />See it on your own calls</p>
               <h2 className="mt-4 text-balance text-3xl font-bold leading-[1.15] tracking-tight text-white md:text-5xl">Stop losing jobs to voicemail</h2>

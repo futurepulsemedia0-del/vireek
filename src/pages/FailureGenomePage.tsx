@@ -155,7 +155,7 @@ function UnitCard({
                     type="button"
                     onClick={() => remove(ev.id)}
                     aria-label="Delete failure event"
-                    className="focus-ring rounded-lg p-1.5 text-text-secondary hover:text-danger-500"
+                    className="focus-ring rounded-lg p-1.5 text-text-secondary hover:text-danger"
                   >
                     <Trash2 size={14} aria-hidden="true" />
                   </button>

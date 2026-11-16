@@ -44,8 +44,8 @@ export { formatUsd } from '@/lib/quoteTruth';
 // ---------------------------------------------------------------------------
 
 export const STATUS_META: Record<EligibilityStatus, { label: string; tone: string }> = {
-  eligible: { label: 'Eligible', tone: 'bg-success-500/10 text-success-500' },
-  conditional: { label: 'Verify first', tone: 'bg-warning-500/10 text-warning-500' },
+  eligible: { label: 'Eligible', tone: 'bg-success-subtle text-success' },
+  conditional: { label: 'Verify first', tone: 'bg-warning-subtle text-warning' },
   ineligible: { label: 'Not eligible', tone: 'bg-bg-tertiary text-text-secondary' },
 };
 

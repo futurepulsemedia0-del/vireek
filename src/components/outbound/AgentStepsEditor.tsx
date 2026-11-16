@@ -185,7 +185,7 @@ export function AgentStepsEditor({ userId, campaignType, firstStepHint }: AgentS
                       type="button"
                       onClick={() => updateStep(index, { channel: 'sms' })}
                       className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${
-                        step.channel === 'sms' ? 'bg-accent text-white' : 'bg-bg-secondary text-text-secondary'
+                        step.channel === 'sms' ? 'bg-accent text-on-accent' : 'bg-bg-secondary text-text-secondary'
                       }`}
                     >
                       <MessageSquare size={13} /> Text
@@ -194,7 +194,7 @@ export function AgentStepsEditor({ userId, campaignType, firstStepHint }: AgentS
                       type="button"
                       onClick={() => updateStep(index, { channel: 'call' })}
                       className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${
-                        step.channel === 'call' ? 'bg-accent text-white' : 'bg-bg-secondary text-text-secondary'
+                        step.channel === 'call' ? 'bg-accent text-on-accent' : 'bg-bg-secondary text-text-secondary'
                       }`}
                     >
                       <Phone size={13} /> Call
@@ -233,7 +233,7 @@ export function AgentStepsEditor({ userId, campaignType, firstStepHint }: AgentS
                     placeholder="Hi {{customer_name}}, following up on your quote from {{business_name}}…"
                     className="w-full rounded-lg border border-border bg-bg-secondary px-3 py-2 text-xs text-text-primary focus-ring"
                   />
-                  <p className="mt-1 text-[11px] text-text-secondary/70">Available: {SMS_TOKEN_HINT}</p>
+                  <p className="mt-1 text-[11px] text-text-muted">Available: {SMS_TOKEN_HINT}</p>
                 </div>
               ) : (
                 <div className="mt-3">
@@ -244,7 +244,7 @@ export function AgentStepsEditor({ userId, campaignType, firstStepHint }: AgentS
                     placeholder="Optional — extra instruction for Sarah on this call, e.g. mention the financing offer"
                     className="w-full rounded-lg border border-border bg-bg-secondary px-3 py-2 text-xs text-text-primary focus-ring"
                   />
-                  <p className="mt-1 text-[11px] text-text-secondary/70">
+                  <p className="mt-1 text-[11px] text-text-muted">
                     Only reaches the live call if your Vapi assistant prompt reads the follow-up context variable —
                     see Business Profile → Assistant configuration.
                   </p>
@@ -267,7 +267,7 @@ export function AgentStepsEditor({ userId, campaignType, firstStepHint }: AgentS
               type="button"
               onClick={handleSave}
               disabled={saving}
-              className="focus-ring rounded-lg bg-accent px-4 py-1.5 text-xs font-semibold text-white disabled:opacity-60"
+              className="focus-ring rounded-lg bg-accent px-4 py-1.5 text-xs font-semibold text-on-accent disabled:opacity-60"
             >
               {saving ? 'Saving…' : 'Save sequence'}
             </button>

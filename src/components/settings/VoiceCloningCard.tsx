@@ -146,15 +146,15 @@ export function VoiceCloningCard() {
       </label>
       <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-bg-primary px-4 py-3">
         <div className="flex items-center gap-2">
-          {status === 'ready' && <CheckCircle2 size={16} className="text-success-500" />}
+          {status === 'ready' && <CheckCircle2 size={16} className="text-success" />}
           {status === 'processing' && <Loader2 size={16} className="animate-spin text-accent" />}
           {status === 'failed' && <AlertCircle size={16} className="text-danger" />}
           <div>
             <p className="text-sm font-medium text-text-primary">{STATUS_LABELS[status]}</p>
-            {status === 'ready' && voiceId && <p className="text-xs text-text-secondary/70">Voice ID: {voiceId}</p>}
+            {status === 'ready' && voiceId && <p className="text-xs text-text-muted">Voice ID: {voiceId}</p>}
             {status === 'failed' && errorMsg && <p className="text-xs text-danger">{errorMsg}</p>}
             {status === 'ready' && consentAt && (
-              <p className="text-xs text-text-secondary/70">Consent recorded {new Date(consentAt).toLocaleDateString()}</p>
+              <p className="text-xs text-text-muted">Consent recorded {new Date(consentAt).toLocaleDateString()}</p>
             )}
             {status !== 'none' && (
               <div className="mt-2 flex items-center gap-2">

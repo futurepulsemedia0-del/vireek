@@ -114,7 +114,7 @@ function Section({ title, action, children }: { title: string; action?: ReactNod
 }
 
 function Stat({ label, value, sub, tone }: { label: string; value: string; sub?: string; tone?: 'danger' | 'warning' }) {
-  const color = tone === 'danger' ? 'text-danger' : tone === 'warning' ? 'text-warning-500' : 'text-text-primary';
+  const color = tone === 'danger' ? 'text-danger' : tone === 'warning' ? 'text-warning' : 'text-text-primary';
   return (
     <div className="rounded-xl border border-border bg-bg-primary p-3">
       <p className="text-xs text-text-secondary">{label}</p>
@@ -192,8 +192,8 @@ function DocLink({ url }: { url: string | null }) {
 
 const CONTRACT_STATE_UI: Record<ContractState, { label: string; cls: string }> = {
   draft: { label: 'Draft', cls: 'bg-bg-tertiary text-text-secondary' },
-  active: { label: 'Active', cls: 'bg-success-500/10 text-success-500' },
-  expiring: { label: 'Renewal window', cls: 'bg-warning-500/10 text-warning-500' },
+  active: { label: 'Active', cls: 'bg-success-subtle text-success' },
+  expiring: { label: 'Renewal window', cls: 'bg-warning-subtle text-warning' },
   lapsed: { label: 'Past end date', cls: 'bg-danger/10 text-danger' },
   expired: { label: 'Expired', cls: 'bg-bg-tertiary text-text-secondary' },
   terminated: { label: 'Terminated', cls: 'bg-bg-tertiary text-text-secondary' },
@@ -201,15 +201,15 @@ const CONTRACT_STATE_UI: Record<ContractState, { label: string; cls: string }> =
 
 const DOC_STATE_UI: Record<DocumentState, { label: string; cls: string }> = {
   expired: { label: 'Expired', cls: 'bg-danger/10 text-danger' },
-  expiring: { label: 'Expiring soon', cls: 'bg-warning-500/10 text-warning-500' },
-  valid: { label: 'Valid', cls: 'bg-success-500/10 text-success-500' },
+  expiring: { label: 'Expiring soon', cls: 'bg-warning-subtle text-warning' },
+  valid: { label: 'Valid', cls: 'bg-success-subtle text-success' },
   no_expiry: { label: 'No expiry', cls: 'bg-bg-tertiary text-text-secondary' },
   rejected: { label: 'Rejected', cls: 'bg-danger/10 text-danger' },
 };
 
 const REQUIRED_STATE_UI: Record<RequiredDocState, { label: string; cls: string }> = {
-  ok: { label: 'Verified', cls: 'bg-success-500/10 text-success-500' },
-  pending: { label: 'Awaiting verification', cls: 'bg-warning-500/10 text-warning-500' },
+  ok: { label: 'Verified', cls: 'bg-success-subtle text-success' },
+  pending: { label: 'Awaiting verification', cls: 'bg-warning-subtle text-warning' },
   expired: { label: 'Expired', cls: 'bg-danger/10 text-danger' },
   missing: { label: 'Missing', cls: 'bg-danger/10 text-danger' },
 };
@@ -441,7 +441,7 @@ function OverviewTab({
                       a.severity === 'critical'
                         ? 'bg-danger/10 text-danger'
                         : a.severity === 'warning'
-                          ? 'bg-warning-500/10 text-warning-500'
+                          ? 'bg-warning-subtle text-warning'
                           : 'bg-bg-tertiary text-text-secondary'
                     }
                   >
@@ -489,7 +489,7 @@ function OverviewTab({
             <div className="flex items-center justify-between gap-2">
               <span className="text-text-secondary">
                 Last reviewed {r.last_reviewed_at ? formatDay(r.last_reviewed_at) : 'never'}
-                <span className={`ml-1 text-xs ${review < 0 ? 'text-warning-500' : 'text-text-secondary'}`}>
+                <span className={`ml-1 text-xs ${review < 0 ? 'text-warning' : 'text-text-secondary'}`}>
                   ({review < 0 ? `${Math.abs(review)} days overdue` : `next in ${review} days`})
                 </span>
               </span>
@@ -788,7 +788,7 @@ function OrdersTab({
                   </span>
                   <span className="flex items-center gap-2 text-sm">
                     <span className="text-text-primary">{formatCents(b.amount_cents)}</span>
-                    <Pill className={b.status === 'paid' ? 'bg-success-500/10 text-success-500' : overdue ? 'bg-danger/10 text-danger' : 'bg-bg-tertiary text-text-secondary'}>
+                    <Pill className={b.status === 'paid' ? 'bg-success-subtle text-success' : overdue ? 'bg-danger/10 text-danger' : 'bg-bg-tertiary text-text-secondary'}>
                       {b.status === 'unpaid' && overdue ? 'overdue' : b.status}
                     </Pill>
                   </span>
@@ -830,7 +830,7 @@ function PricingTab({
         ) : (
           <>
             {savings > 0 && (
-              <p className="mb-3 rounded-xl bg-warning-500/10 px-3 py-2 text-sm text-warning-500">
+              <p className="mb-3 rounded-xl bg-warning-subtle px-3 py-2 text-sm text-warning">
                 Potential savings of {formatCents(savings)} on the latest orders if the cheaper vendors were used.
               </p>
             )}
@@ -849,7 +849,7 @@ function PricingTab({
                   <span className="flex items-center gap-2 text-sm">
                     <span className="font-medium text-text-primary">{formatCents(p.latestCents)}</span>
                     {p.changePct !== null && p.trend !== 'flat' && (
-                      <Pill className={p.trend === 'up' ? 'bg-danger/10 text-danger' : 'bg-success-500/10 text-success-500'}>
+                      <Pill className={p.trend === 'up' ? 'bg-danger/10 text-danger' : 'bg-success-subtle text-success'}>
                         {p.trend === 'up' ? '▲' : '▼'} {formatPct(Math.abs(p.changePct), 1)}
                       </Pill>
                     )}
@@ -900,11 +900,11 @@ function PricingTab({
                   <span className="flex items-center gap-2 text-sm">
                     <span className="font-medium text-text-primary">{formatCents(c.unit_cost_cents)}</span>
                     {premium !== null ? (
-                      <Pill className="bg-warning-500/10 text-warning-500" title="Compared with the cheapest vendor for this part in your catalog">
+                      <Pill className="bg-warning-subtle text-warning" title="Compared with the cheapest vendor for this part in your catalog">
                         {formatPct(premium)} above best
                       </Pill>
                     ) : (
-                      <Pill className="bg-success-500/10 text-success-500">Best price</Pill>
+                      <Pill className="bg-success-subtle text-success">Best price</Pill>
                     )}
                   </span>
                 </li>
@@ -1107,8 +1107,8 @@ function ComplianceTab({ insight, onChanged }: { insight: VendorInsight; onChang
                     <span className="block text-sm font-semibold text-text-primary">
                       {DOC_TYPE_LABELS[d.doc_type]}
                       {d.title ? ` — ${d.title}` : ''} <Pill className={ui.cls}>{ui.label}</Pill>
-                      {d.status === 'pending' && <Pill className="ml-1 bg-warning-500/10 text-warning-500">Unverified</Pill>}
-                      {d.status === 'verified' && <Pill className="ml-1 bg-success-500/10 text-success-500">Verified</Pill>}
+                      {d.status === 'pending' && <Pill className="ml-1 bg-warning-subtle text-warning">Unverified</Pill>}
+                      {d.status === 'verified' && <Pill className="ml-1 bg-success-subtle text-success">Verified</Pill>}
                     </span>
                     <span className="block text-xs text-text-secondary">
                       {d.expires_on ? `Expires ${formatDay(d.expires_on)}` : 'No expiry date'}
@@ -1179,7 +1179,7 @@ function ComplianceTab({ insight, onChanged }: { insight: VendorInsight; onChang
 
 const SEVERITY_CLASS: Record<1 | 2 | 3, string> = {
   1: 'bg-bg-tertiary text-text-secondary',
-  2: 'bg-warning-500/10 text-warning-500',
+  2: 'bg-warning-subtle text-warning',
   3: 'bg-danger/10 text-danger',
 };
 
@@ -1231,7 +1231,7 @@ function IncidentsTab({ vendorId, orders, onChanged }: { vendorId: string; order
               <span className="min-w-0">
                 <span className="block text-sm font-semibold text-text-primary">
                   {INCIDENT_TYPE_LABELS[i.incident_type]} <Pill className={SEVERITY_CLASS[i.severity]}>{SEVERITY_LABELS[i.severity]}</Pill>
-                  {i.status === 'resolved' && <Pill className="ml-1 bg-success-500/10 text-success-500">Resolved</Pill>}
+                  {i.status === 'resolved' && <Pill className="ml-1 bg-success-subtle text-success">Resolved</Pill>}
                 </span>
                 <span className="block text-sm text-text-primary">{i.summary}</span>
                 <span className="block text-xs text-text-secondary">

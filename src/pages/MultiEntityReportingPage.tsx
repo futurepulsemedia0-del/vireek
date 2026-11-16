@@ -280,7 +280,7 @@ export function MultiEntityReportingPage() {
               <button
                 key={t.id} type="button" role="tab" aria-selected={tab === t.id} id={`mer-tab-${t.id}`} aria-controls={`mer-panel-${t.id}`}
                 onClick={() => setTab(t.id)}
-                className={`focus-ring shrink-0 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors ${tab === t.id ? 'bg-accent text-white' : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'}`}
+                className={`focus-ring shrink-0 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors ${tab === t.id ? 'bg-accent text-on-accent' : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'}`}
               >
                 {t.label}
               </button>
@@ -335,7 +335,7 @@ export function MultiEntityReportingPage() {
                       </div>
 
                       {partial && (
-                        <p className="rounded-xl border border-warning-500/30 bg-warning-500/10 px-4 py-3 text-sm text-text-primary">
+                        <p className="rounded-xl border border-warning/30 bg-warning-subtle px-4 py-3 text-sm text-text-primary">
                           Partial consolidation: intercompany is only eliminated between entities that are both selected.
                         </p>
                       )}

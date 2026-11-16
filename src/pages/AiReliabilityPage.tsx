@@ -128,7 +128,7 @@ function SelectField({ label, value, onChange, children }: { label: string; valu
 
 function ConfidenceBar({ value }: { value: number | null }) {
   if (value === null) return <span className="text-xs text-text-secondary">No confidence score</span>;
-  const tone = value >= 85 ? 'bg-success-500' : value >= 65 ? 'bg-warning-500' : 'bg-danger';
+  const tone = value >= 85 ? 'bg-success' : value >= 65 ? 'bg-warning' : 'bg-danger';
   return (
     <div className="flex items-center gap-2" aria-label={`Confidence ${Math.round(value)}%`}>
       <div className="h-1.5 w-24 overflow-hidden rounded-full bg-bg-tertiary">
@@ -219,7 +219,7 @@ function CalibrationChart({ bins }: { bins: CalibrationBin[] }) {
                 <span className="ml-2 font-normal text-text-secondary">{b.count} decision{b.count === 1 ? '' : 's'}</span>
               </span>
               {gap !== null && Math.abs(gap) >= 5 && (
-                <Badge className={gap > 0 ? 'bg-warning-500/10 text-warning-500' : 'bg-bg-tertiary text-text-secondary'}>
+                <Badge className={gap > 0 ? 'bg-warning-subtle text-warning' : 'bg-bg-tertiary text-text-secondary'}>
                   {gap > 0 ? `Over-confident by ${gap} pts` : `Under-confident by ${Math.abs(gap)} pts`}
                 </Badge>
               )}
@@ -456,7 +456,7 @@ function DecisionCard({ record, canManage, onChanged, defaultOpen = false }: { r
             {record.review_status !== 'not_required' && <Badge className="bg-bg-tertiary text-text-secondary">{REVIEW_LABELS[record.review_status]}</Badge>}
             <Badge className={OUTCOME_COLORS[record.outcome]}>{OUTCOME_LABELS[record.outcome]}</Badge>
             {record.ai_was_wrong === true && <Badge className="bg-danger/10 text-danger">AI was wrong</Badge>}
-            {needsAttribution(record) && <Badge className="bg-warning-500/10 text-warning-500">Needs attribution</Badge>}
+            {needsAttribution(record) && <Badge className="bg-warning-subtle text-warning">Needs attribution</Badge>}
           </div>
           <p className="truncate text-sm font-semibold text-text-primary">{record.title}</p>
           <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1">
@@ -628,7 +628,7 @@ function IntegrityCard() {
         </Button>
       </div>
       {result && (
-        <p className={`mt-3 text-sm font-medium ${result.verified ? 'text-success-500' : 'text-danger'}`} role="status">
+        <p className={`mt-3 text-sm font-medium ${result.verified ? 'text-success' : 'text-danger'}`} role="status">
           {result.verified
             ? `Verified — ${result.checked} record${result.checked === 1 ? '' : 's'} intact.`
             : `Chain broken at seal #${result.broken_at_position}: ${result.reason}.`}
@@ -695,11 +695,11 @@ function Overview({ metrics, onOpenReview }: { metrics: AiReliabilityMetrics; on
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <StatCard label="AI decisions" value={t.total} hint={`Last ${metrics.window_days} days`} />
         <StatCard label="Auto-approved" value={formatRate(autoShare)} hint="Within policy, no human needed" />
-        <StatCard label="Success rate" value={formatRate(successRate)} hint={`${t.outcomes_recorded} outcomes recorded`} valueClass={successRate !== null && successRate < 0.75 ? 'text-warning-500' : 'text-text-primary'} />
+        <StatCard label="Success rate" value={formatRate(successRate)} hint={`${t.outcomes_recorded} outcomes recorded`} valueClass={successRate !== null && successRate < 0.75 ? 'text-warning' : 'text-text-primary'} />
         <StatCard label="Avg confidence" value={formatPct(t.avg_confidence)} />
         <button type="button" onClick={onOpenReview} className="focus-ring rounded-2xl border border-border bg-bg-secondary p-3 text-left">
           <p className="text-[11px] text-text-secondary">Awaiting review</p>
-          <p className={`text-lg font-semibold ${t.pending_reviews > 0 ? 'text-warning-500' : 'text-text-primary'}`}>{t.pending_reviews}</p>
+          <p className={`text-lg font-semibold ${t.pending_reviews > 0 ? 'text-warning' : 'text-text-primary'}`}>{t.pending_reviews}</p>
           <p className="mt-0.5 text-[11px] text-text-secondary">Open review queue</p>
         </button>
         <StatCard label="Human disagreement" value={formatRate(overrideRate)} hint="Rejected or overridden" />
@@ -833,7 +833,7 @@ function DecisionList({ forcedView, canManage, onChanged }: { forcedView?: Decis
               role="tab"
               aria-selected={view === f.key}
               onClick={() => setView(f.key)}
-              className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${view === f.key ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
+              className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${view === f.key ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
             >
               {f.label}
             </button>
@@ -876,7 +876,7 @@ function DecisionList({ forcedView, canManage, onChanged }: { forcedView?: Decis
 // ============================================================
 
 function TypeToggle({ label, selected, onToggle, tone }: { label: string; selected: boolean; onToggle: () => void; tone: 'warning' | 'danger' }) {
-  const on = tone === 'danger' ? 'bg-danger text-white' : 'bg-warning-500 text-white';
+  const on = tone === 'danger' ? 'bg-danger text-on-danger' : 'bg-warning text-on-warning';
   return (
     <button
       type="button"
@@ -1283,10 +1283,10 @@ export function AiReliabilityPage() {
                 role="tab"
                 aria-selected={tab === t.key}
                 onClick={() => setTab(t.key)}
-                className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${tab === t.key ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
+                className={`focus-ring rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${tab === t.key ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}
               >
                 {t.label}
-                {t.badge !== undefined && t.badge > 0 && <span className="ml-1.5 rounded-full bg-warning-500 px-1.5 py-0.5 text-[10px] text-white">{t.badge}</span>}
+                {t.badge !== undefined && t.badge > 0 && <span className="ml-1.5 rounded-full bg-warning px-1.5 py-0.5 text-[10px] text-on-warning">{t.badge}</span>}
               </button>
             ))}
           </div>

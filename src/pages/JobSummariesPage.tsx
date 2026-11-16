@@ -130,7 +130,7 @@ export function JobSummariesPage() {
                       </span>
                       <span className="mt-0.5 block truncate text-xs text-text-secondary">{r.service_type ?? 'Service visit'}</span>
                       {r.status === 'scheduled' && <span className="mt-1 block text-xs text-accent">{scheduledCountdown(r.scheduled_send_at)}</span>}
-                      {r.status === 'draft' && r.warnings.length > 0 && <span className="mt-1 block truncate text-xs text-warning-500">{describeWarnings(r.warnings)[0]}</span>}
+                      {r.status === 'draft' && r.warnings.length > 0 && <span className="mt-1 block truncate text-xs text-warning">{describeWarnings(r.warnings)[0]}</span>}
                     </button>
                   </li>
                 ))}

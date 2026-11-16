@@ -390,7 +390,7 @@ export function SiteSketchEditorPage() {
             type="button"
             onClick={() => void save()}
             disabled={saving || !dirty}
-            className="focus-ring inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-accent px-4 text-sm font-semibold text-white disabled:opacity-50"
+            className="focus-ring inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-accent px-4 text-sm font-semibold text-on-accent disabled:opacity-50"
           >
             <Save size={16} aria-hidden="true" /> {saving ? 'Saving…' : 'Save'}
           </button>
@@ -400,10 +400,10 @@ export function SiteSketchEditorPage() {
         </p>
 
         {recovered && (
-          <div role="alert" className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-warning-500/40 bg-warning-500/10 p-3 text-sm text-text-primary">
+          <div role="alert" className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-warning/40 bg-warning-subtle p-3 text-sm text-text-primary">
             <span>We found unsaved edits from this device.</span>
             <span className="flex gap-2">
-              <button type="button" className="focus-ring min-h-[40px] rounded-xl bg-accent px-3 font-semibold text-white" onClick={() => {
+              <button type="button" className="focus-ring min-h-[40px] rounded-xl bg-accent px-3 font-semibold text-on-accent" onClick={() => {
                 const d = recovered;
                 setSketchId(d.sketchId);
                 setTitle(d.title);
@@ -423,7 +423,7 @@ export function SiteSketchEditorPage() {
             <span>This sketch was changed on another device. Loading the latest version replaces your unsaved edits.</span>
             <span className="flex gap-2">
               <button type="button" className="focus-ring min-h-[40px] rounded-xl border border-border px-3 font-semibold" onClick={() => void save(true)}>Save as copy</button>
-              <button type="button" className="focus-ring min-h-[40px] rounded-xl bg-accent px-3 font-semibold text-white" onClick={() => { clearDraft(storeKey); loadedFor.current = null; void loadSketch(); }}>Load latest</button>
+              <button type="button" className="focus-ring min-h-[40px] rounded-xl bg-accent px-3 font-semibold text-on-accent" onClick={() => { clearDraft(storeKey); loadedFor.current = null; void loadSketch(); }}>Load latest</button>
             </span>
           </div>
         )}
@@ -435,7 +435,7 @@ export function SiteSketchEditorPage() {
               type="button"
               aria-pressed={tool === t.key}
               onClick={() => setTool(t.key)}
-              className={`focus-ring flex min-h-[52px] min-w-[60px] flex-col items-center justify-center gap-0.5 rounded-xl px-2 text-[11px] font-semibold ${tool === t.key ? 'bg-accent text-white' : 'border border-border bg-bg-secondary text-text-primary'}`}
+              className={`focus-ring flex min-h-[52px] min-w-[60px] flex-col items-center justify-center gap-0.5 rounded-xl px-2 text-[11px] font-semibold ${tool === t.key ? 'bg-accent text-on-accent' : 'border border-border bg-bg-secondary text-text-primary'}`}
             >
               <t.icon size={18} aria-hidden="true" />
               {t.label}
@@ -468,7 +468,7 @@ export function SiteSketchEditorPage() {
           <button type="button" className={toggle(false)} onClick={() => setFitSignal((n) => n + 1)}><Maximize2 size={14} className="mr-1 inline" aria-hidden="true" />Fit</button>
           <div className="ml-auto inline-flex rounded-xl border border-border p-0.5" role="group" aria-label="Units">
             {(['imperial', 'metric'] as const).map((u) => (
-              <button key={u} type="button" aria-pressed={unit === u} onClick={() => changeUnit(u)} className={`focus-ring min-h-[36px] rounded-lg px-3 text-sm font-semibold ${unit === u ? 'bg-accent text-white' : 'text-text-secondary'}`}>
+              <button key={u} type="button" aria-pressed={unit === u} onClick={() => changeUnit(u)} className={`focus-ring min-h-[36px] rounded-lg px-3 text-sm font-semibold ${unit === u ? 'bg-accent text-on-accent' : 'text-text-secondary'}`}>
                 {u === 'imperial' ? 'ft / in' : 'm / mm'}
               </button>
             ))}

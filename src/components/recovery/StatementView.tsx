@@ -12,16 +12,16 @@ import {
 } from '@/lib/moneyRecovered';
 
 const STATE_STYLE: Record<StatementRow['state'], { label: string; className: string }> = {
-  credited: { label: 'Recovered', className: 'bg-success-500/10 text-success-500' },
-  in_progress: { label: 'In progress', className: 'bg-warning-500/10 text-warning-500' },
+  credited: { label: 'Recovered', className: 'bg-success-subtle text-success' },
+  in_progress: { label: 'In progress', className: 'bg-warning-subtle text-warning' },
   not_claimed: { label: 'Not claimed', className: 'bg-bg-tertiary text-text-secondary' },
 };
 
 function Stat({ label, value, note, tone }: { label: string; value: string; note: string; tone?: 'good' }) {
   return (
-    <div className={`rounded-2xl border p-4 ${tone === 'good' ? 'border-success-500/25 bg-success-500/[0.05]' : 'border-border bg-bg-secondary'}`}>
+    <div className={`rounded-2xl border p-4 ${tone === 'good' ? 'border-success/25 bg-success-subtle' : 'border-border bg-bg-secondary'}`}>
       <p className="text-xs font-medium uppercase tracking-wide text-text-secondary">{label}</p>
-      <p className={`mt-1 text-2xl font-bold ${tone === 'good' ? 'text-success-500' : 'text-text-primary'}`}>{value}</p>
+      <p className={`mt-1 text-2xl font-bold ${tone === 'good' ? 'text-success' : 'text-text-primary'}`}>{value}</p>
       <p className="mt-0.5 text-xs text-text-secondary">{note}</p>
     </div>
   );
@@ -36,9 +36,9 @@ export function StatementView({ statement: s }: { statement: Statement }) {
     <div className="space-y-6">
       <div>
         <p className="text-sm text-text-secondary">
-          {s.period.label} <span className="text-text-secondary/70">({s.period.timezone})</span>
+          {s.period.label} <span className="text-text-muted">({s.period.timezone})</span>
         </p>
-        <p className="mt-1 text-4xl font-extrabold text-success-500" aria-label={`Recovered ${formatMoney(s.creditedCents, cur)}`}>
+        <p className="mt-1 text-4xl font-extrabold text-success" aria-label={`Recovered ${formatMoney(s.creditedCents, cur)}`}>
           {formatMoney(s.creditedCents, cur)}
         </p>
         <p className="mt-1 text-sm text-text-secondary">

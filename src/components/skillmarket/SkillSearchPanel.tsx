@@ -34,9 +34,9 @@ const selectClass =
   'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-3 text-base text-text-primary transition-colors focus-visible:border-accent';
 
 const toneClass = {
-  success: 'bg-success-500/10 text-success-500',
+  success: 'bg-success-subtle text-success',
   accent: 'bg-accent/10 text-accent',
-  warning: 'bg-warning-500/10 text-warning-500',
+  warning: 'bg-warning-subtle text-warning',
 } as const;
 
 interface OpenJob {
@@ -474,13 +474,13 @@ export function SkillSearchPanel({ onOfferSent }: { onOfferSent: () => void }) {
                 <ul className="flex flex-wrap gap-2 text-sm text-text-primary">
                   {c.matched_skills.map((m) => (
                     <li key={m.label} className="flex items-center gap-1.5 rounded-full border border-border bg-bg-primary px-3 py-1">
-                      <BadgeCheck size={14} className="text-success-500" />
+                      <BadgeCheck size={14} className="text-success" />
                       {m.label} · L{m.level} · {m.confidence}% · {m.jobs} jobs
                     </li>
                   ))}
                   {c.valid_insurance && (
                     <li className="flex items-center gap-1.5 rounded-full border border-border bg-bg-primary px-3 py-1">
-                      <ShieldCheck size={14} className="text-success-500" /> Insured
+                      <ShieldCheck size={14} className="text-success" /> Insured
                     </li>
                   )}
                 </ul>

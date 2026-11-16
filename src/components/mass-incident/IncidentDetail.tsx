@@ -34,7 +34,7 @@ interface Props {
 export function StatusBadge({ status }: { status: IncidentRow['status'] }) {
   const { t } = useTranslation(MASS_INCIDENT_NS);
   const tone =
-    status === 'active' ? 'border-warning-500/40 bg-warning-500/10 text-text-primary'
+    status === 'active' ? 'border-warning/40 bg-warning-subtle text-text-primary'
     : status === 'resolved' || status === 'dismissed' ? 'border-border bg-bg-tertiary text-text-secondary'
     : 'border-accent/30 bg-accent/10 text-text-primary';
   return <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${tone}`}>{t(`status_${status}`)}</span>;
@@ -184,7 +184,7 @@ export function IncidentDetail({ incident, contacts, contactsLoading, canManage,
         )}
 
         {truckRollCandidates > 0 && (
-          <p role="status" className="rounded-xl border border-warning-500/30 bg-warning-500/5 px-3 py-2 text-sm text-text-primary">{t('truckRollNote', { count: truckRollCandidates })}</p>
+          <p role="status" className="rounded-xl border border-warning/30 bg-warning-subtle px-3 py-2 text-sm text-text-primary">{t('truckRollNote', { count: truckRollCandidates })}</p>
         )}
 
         {canManage && (

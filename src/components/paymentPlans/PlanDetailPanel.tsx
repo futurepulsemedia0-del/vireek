@@ -65,7 +65,7 @@ export function PlanDetailPanel({ plan, ownerId, onClose, onChanged }: { plan: P
     : `Charge failed${error ? `: ${error}` : ''}. We notified the customer.`;
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/50 backdrop-blur-sm" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+    <div className="fixed inset-0 z-50 flex justify-end bg-overlay/50 backdrop-blur-sm" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div ref={ref} role="dialog" aria-modal="true" aria-label={`Payment plan for ${plan.customer_name}`} className="flex h-full w-full flex-col overflow-hidden bg-bg-primary shadow-2xl sm:max-w-2xl sm:border-l sm:border-border">
         <header className="flex items-start justify-between gap-3 border-b border-border px-4 py-4 sm:px-6">
           <div className="min-w-0">
@@ -85,7 +85,7 @@ export function PlanDetailPanel({ plan, ownerId, onClose, onChanged }: { plan: P
           </section>
 
           {awaiting && (
-            <section className="space-y-3 rounded-2xl border border-warning-500/30 bg-warning-500/10 p-4 text-sm">
+            <section className="space-y-3 rounded-2xl border border-warning/30 bg-warning-subtle p-4 text-sm">
               <p className="text-text-primary">{plan.status === 'draft' ? 'This plan has not been sent yet.' : 'Waiting for the customer to approve.'} Nothing is charged until they do.</p>
               <div className="flex flex-wrap gap-2">
                 <Button size="sm" disabled={busy !== null} onClick={() => void run('send', async () => { await sendPlan(plan.id); }, 'Approval link sent')}>
@@ -108,7 +108,7 @@ export function PlanDetailPanel({ plan, ownerId, onClose, onChanged }: { plan: P
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-text-primary">{i.kind === 'deposit' ? 'Deposit' : `Installment ${i.seq}`} · {formatMoney(installmentDue(i), plan.currency)}</p>
-                        <p className="text-xs text-text-secondary">{i.kind === 'deposit' ? 'Due at approval' : i.due_date}{i.late_fee_cents > 0 && <span className="text-warning-500"> · incl. {formatMoney(i.late_fee_cents, plan.currency)} late fee</span>}</p>
+                        <p className="text-xs text-text-secondary">{i.kind === 'deposit' ? 'Due at approval' : i.due_date}{i.late_fee_cents > 0 && <span className="text-warning"> · incl. {formatMoney(i.late_fee_cents, plan.currency)} late fee</span>}</p>
                       </div>
                       <div className="flex shrink-0 flex-col items-end gap-1">
                         <span className={`inline-flex rounded-full border px-2 py-0.5 text-[11px] font-semibold ${TONE_CLASS[i.status === 'paid' ? 'success' : meta.tone === 'neutral' ? due.tone : meta.tone]}`}>{i.status === 'scheduled' || i.status === 'paid' ? due.label : meta.label}</span>

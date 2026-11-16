@@ -18,14 +18,14 @@ import { LOW_CONFIDENCE, VOICE_LANGS, type VoiceExtraction, type VoiceLang } fro
 
 type TFn = (key: string, opts?: Record<string, unknown>) => string;
 const inputCls = 'w-full min-h-[48px] rounded-md border border-border bg-bg-primary px-3 py-2 text-base text-text-primary';
-const btnPrimary = 'min-h-[56px] w-full rounded-lg bg-accent px-4 py-3 text-base font-semibold text-white disabled:opacity-50';
+const btnPrimary = 'min-h-[56px] w-full rounded-lg bg-accent px-4 py-3 text-base font-semibold text-on-accent disabled:opacity-50';
 const btnGhost = 'min-h-[48px] rounded-md border border-border px-4 py-2 text-base font-medium text-text-primary disabled:opacity-50';
 
 function ConfidenceBadge({ value, t }: { value: number; t: TFn }) {
   const low = value < LOW_CONFIDENCE;
   const Icon = low ? AlertTriangle : CheckCircle2;
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold ${low ? 'bg-warning-500/10 text-warning-500' : 'bg-success-500/10 text-success-500'}`}
+    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold ${low ? 'bg-warning-subtle text-warning' : 'bg-success-subtle text-success'}`}
       title={t('confidence', { pct: Math.round(value * 100) })}>
       <Icon className="h-3.5 w-3.5" aria-hidden="true" />
       {low ? t('check') : t('confident')} · {Math.round(value * 100)}%
@@ -60,7 +60,7 @@ function DraftCard({ draft, jobId, t, onDone, onApproved }: { draft: VoiceDraft;
         <h3 className="text-base font-semibold text-text-primary">{t('draftTitle')}</h3>
         <span className="rounded-full bg-bg-tertiary px-2 py-1 text-xs font-medium text-text-secondary">{t('aiBadge')}</span>
       </header>
-      {draft.needs_review && <p className="text-sm font-medium text-warning-500" role="note">{t('needsReview')}</p>}
+      {draft.needs_review && <p className="text-sm font-medium text-warning" role="note">{t('needsReview')}</p>}
 
       <label className="block text-sm text-text-secondary">{t('summary')}
         <textarea className={`${inputCls} mt-1`} rows={2} value={ex.summary} onChange={(e) => setEx({ ...ex, summary: e.target.value.slice(0, 1200) })} />
@@ -207,7 +207,7 @@ export function VoiceLogPanel({ jobId }: { jobId: string }) {
       </label>
 
       <button type="button" onClick={recording ? () => void stop() : () => void start()} aria-pressed={recording}
-        className={`flex min-h-[88px] w-full items-center justify-center gap-3 rounded-xl px-4 py-4 text-lg font-bold text-white ${recording ? 'bg-danger' : 'bg-accent'}`}>
+        className={`flex min-h-[88px] w-full items-center justify-center gap-3 rounded-xl px-4 py-4 text-lg font-bold ${recording ? 'bg-danger text-on-danger' : 'bg-accent text-on-accent'}`}>
         {recording ? <Square className="h-7 w-7" aria-hidden="true" /> : <Mic className="h-7 w-7" aria-hidden="true" />}
         <span>{recording ? tt('tapToStop') : tt('tapToSpeak')}</span>
       </button>

@@ -126,7 +126,7 @@ export function HomeBusinessesPage() {
           <div className="min-w-0">
             <p className="truncate font-semibold text-text-primary">{b.business_name}</p>
             {b.status === 'active' && <p className="text-xs text-text-secondary">{scopeSummary(b.scopes)}</p>}
-            {b.status === 'active' && !b.live && <p className="text-xs text-warning-500">This provider has paused its customer portal.</p>}
+            {b.status === 'active' && !b.live && <p className="text-xs text-warning">This provider has paused its customer portal.</p>}
           </div>
           <Badge tone={b.status === 'active' ? 'good' : b.status === 'pending' ? 'accent' : 'neutral'}>
             {b.status === 'active' ? 'Connected' : b.status === 'pending' ? 'Waiting for you' : 'Revoked'}

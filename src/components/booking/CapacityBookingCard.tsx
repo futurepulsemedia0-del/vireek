@@ -22,7 +22,7 @@ const numValue = (n: number) => (Number.isNaN(n) ? '' : String(n));
 const parseNum = (v: string) => (v.trim() === '' ? NaN : Number(v));
 
 const STATUS_STYLE: Record<string, string> = {
-  low: 'bg-success-500/10 text-success-500',
+  low: 'bg-success-subtle text-success',
   optimal: 'bg-accent/10 text-accent',
   full: 'bg-danger/10 text-danger',
   no_capacity: 'bg-bg-tertiary text-text-secondary',
@@ -32,7 +32,7 @@ function Switch({ checked, onChange, label }: { checked: boolean; onChange: (v: 
   return (
     <button type="button" role="switch" aria-checked={checked} aria-label={label} onClick={() => onChange(!checked)}
       className={`focus-ring relative h-6 w-11 shrink-0 rounded-full transition-colors ${checked ? 'bg-accent' : 'bg-bg-tertiary'}`}>
-      <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${checked ? 'translate-x-[22px]' : 'translate-x-0.5'}`} />
+      <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-bg-secondary shadow-sm transition-transform ${checked ? 'translate-x-[22px]' : 'translate-x-0.5'}`} />
     </button>
   );
 }
@@ -187,7 +187,7 @@ export function CapacityBookingCard({ services = [] }: { services?: string[] }) 
                         <ul className="space-y-1.5">
                           {list.map((s) => (
                             <li key={s.start} className="flex gap-2 text-xs">
-                              <span className={`w-16 shrink-0 font-medium ${s.offered ? 'text-success-500' : 'text-text-secondary'}`}>{fmt(s.start, preview.timezone)}</span>
+                              <span className={`w-16 shrink-0 font-medium ${s.offered ? 'text-success' : 'text-text-secondary'}`}>{fmt(s.start, preview.timezone)}</span>
                               <span className="text-text-secondary">{s.offered ? <><strong className="text-text-primary">Offered</strong>{s.overbooked ? ' (overbooked)' : ''} — {s.explanation}</> : <><strong className="text-text-primary">Hidden</strong> — {s.explanation}</>}</span>
                             </li>
                           ))}

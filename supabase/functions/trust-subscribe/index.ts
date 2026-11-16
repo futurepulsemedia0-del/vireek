@@ -68,7 +68,7 @@ Deno.serve(async (req: Request) => {
       await sendEmail(
         email,
         "Confirm your Vireek sub-processor notices",
-        `<p>Confirm your subscription to Vireek sub-processor change notices.</p><p><a href="${escapeHtml(link)}">Confirm subscription</a></p><p style="color:#667085;font-size:12px">If you didn't request this, ignore this email.</p>`,
+        `<p>Confirm your subscription to Vireek sub-processor change notices.</p><p><a href="${escapeHtml(link)}">Confirm subscription</a></p><p style="color:#73726C;font-size:12px">If you didn't request this, ignore this email.</p>`,
         `Confirm your subscription to Vireek sub-processor change notices: ${link}\n\nIf you didn't request this, ignore this email.`,
       );
     }

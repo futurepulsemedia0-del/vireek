@@ -27,8 +27,8 @@ interface TimeOffCalendarProps {
 function cellLook(u: Unavailability | null): { style: string; letter: string } {
   if (!u) return { style: 'text-transparent hover:bg-accent/10 hover:text-accent', letter: '+' };
   if (u.cause === 'blackout') return { style: 'bg-danger/15 text-danger', letter: 'B' };
-  if (u.cause === 'time_off') return { style: 'bg-warning-500/25 text-warning-500', letter: u.kind ? KIND_LETTERS[u.kind] : 'O' };
-  return { style: 'bg-bg-tertiary text-text-secondary/60', letter: '–' };
+  if (u.cause === 'time_off') return { style: 'bg-warning-subtle text-warning', letter: u.kind ? KIND_LETTERS[u.kind] : 'O' };
+  return { style: 'bg-bg-tertiary text-text-muted', letter: '–' };
 }
 
 export function TimeOffCalendar({ days, technicians, data, jobs, capacity, today, onCellClick }: TimeOffCalendarProps) {
@@ -122,14 +122,14 @@ export function TimeOffCalendar({ days, technicians, data, jobs, capacity, today
 
       <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-[11px] text-text-secondary" aria-label="Calendar legend">
         <li className="flex items-center gap-1.5">
-          <span className="flex h-4 w-4 items-center justify-center rounded bg-warning-500/25 text-[10px] font-bold text-warning-500">P</span> Time off
+          <span className="flex h-4 w-4 items-center justify-center rounded bg-warning-subtle text-[10px] font-bold text-warning">P</span> Time off
           (P PTO, S sick, T training, D personal, O other)
         </li>
         <li className="flex items-center gap-1.5">
           <span className="flex h-4 w-4 items-center justify-center rounded bg-danger/15 text-[10px] font-bold text-danger">B</span> Company blackout
         </li>
         <li className="flex items-center gap-1.5">
-          <span className="flex h-4 w-4 items-center justify-center rounded bg-bg-tertiary text-[10px] font-bold text-text-secondary/60">–</span> Not scheduled
+          <span className="flex h-4 w-4 items-center justify-center rounded bg-bg-tertiary text-[10px] font-bold text-text-muted">–</span> Not scheduled
         </li>
         <li className="flex items-center gap-1.5">
           <span className="h-4 w-4 rounded ring-2 ring-inset ring-danger" aria-hidden="true" /> Assigned jobs to reassign

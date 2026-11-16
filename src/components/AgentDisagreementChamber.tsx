@@ -9,15 +9,15 @@ import {
 
 const STANCE_LABEL: Record<Stance, string> = { support: 'Supports', conditional: 'Conditional', oppose: 'Opposes' };
 const STANCE_STYLE: Record<Stance, string> = {
-  support: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200',
-  conditional: 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-200',
-  oppose: 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-200',
+  support: 'bg-success-subtle text-success-strong',
+  conditional: 'bg-warning-subtle text-warning-strong',
+  oppose: 'bg-danger-subtle text-danger-strong',
 };
 const ACTION_LABEL: Record<CeoDecision['action'], string> = { launch: 'Launch', launch_capped: 'Launch capped', defer: 'Defer' };
 const ACTION_STYLE: Record<CeoDecision['action'], string> = {
-  launch: 'bg-emerald-600 text-white',
-  launch_capped: 'bg-amber-500 text-slate-900',
-  defer: 'bg-slate-700 text-white dark:bg-slate-300 dark:text-slate-900',
+  launch: 'bg-success text-on-success',
+  launch_capped: 'bg-warning text-on-warning',
+  defer: 'bg-surface-inverse text-white',
 };
 
 const dollars = (cents: number) => `$${Math.round(cents / 100).toLocaleString('en-US')}`;
@@ -25,16 +25,16 @@ const errorText = (e: unknown) => (e as { message?: string } | null)?.message ??
 
 function PositionCard({ p }: { p: AgentPosition }) {
   return (
-    <article className="rounded-lg border border-slate-200 p-4 dark:border-slate-700">
+    <article className="rounded-lg border border-border p-4">
       <div className="flex items-center justify-between gap-2">
         <h3 className="font-semibold">{p.agentName}</h3>
         <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STANCE_STYLE[p.stance]}`}>{STANCE_LABEL[p.stance]}</span>
       </div>
-      <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Optimises: {p.objective}</p>
+      <p className="mt-1 text-xs text-text-muted">Optimises: {p.objective}</p>
       <p className="mt-2 text-sm">
         <span className="font-medium">Proposal:</span> {p.proposal}
       </p>
-      <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{p.reason}</p>
+      <p className="mt-1 text-sm text-text-secondary">{p.reason}</p>
     </article>
   );
 }
@@ -102,9 +102,9 @@ export default function AgentDisagreementChamber({ ownerId }: Props) {
   const c = result?.case;
 
   return (
-    <section aria-labelledby="chamber-title" className="rounded-xl border border-slate-200 p-5 dark:border-slate-700">
+    <section aria-labelledby="chamber-title" className="rounded-xl border border-border p-5">
       <h2 id="chamber-title" className="text-lg font-semibold">Agent Disagreement Chamber</h2>
-      <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+      <p className="mt-1 text-sm text-text-secondary">
         Every agent’s position is shown, including the ones that disagree. The CEO agent recommends; you decide.
       </p>
 
@@ -112,36 +112,36 @@ export default function AgentDisagreementChamber({ ownerId }: Props) {
         <label className="text-sm sm:col-span-2">
           Campaign name
           <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Spring tune-up"
-            className="mt-1 w-full rounded border border-slate-300 px-2 py-1 dark:border-slate-600 dark:bg-slate-900" />
+            className="mt-1 w-full rounded border border-border-strong px-2 py-1 dark:bg-surface-inverse" />
         </label>
         <label className="text-sm">
           Contacts reached
           <input type="number" min={0} value={audience} onChange={(e) => setAudience(e.target.value)}
-            className="mt-1 w-full rounded border border-slate-300 px-2 py-1 dark:border-slate-600 dark:bg-slate-900" />
+            className="mt-1 w-full rounded border border-border-strong px-2 py-1 dark:bg-surface-inverse" />
         </label>
         <label className="text-sm">
           Booking rate (%)
           <input type="number" min={0} max={100} value={conversion} placeholder="from history"
             onChange={(e) => setConversion(e.target.value)}
-            className="mt-1 w-full rounded border border-slate-300 px-2 py-1 dark:border-slate-600 dark:bg-slate-900" />
+            className="mt-1 w-full rounded border border-border-strong px-2 py-1 dark:bg-surface-inverse" />
         </label>
       </div>
       <button type="button" onClick={() => void convene()} disabled={busy}
-        className="mt-3 rounded-md bg-slate-900 px-3 py-1.5 text-sm text-white disabled:opacity-50 dark:bg-slate-100 dark:text-slate-900">
+        className="mt-3 rounded-md bg-surface-inverse px-3 py-1.5 text-sm text-white disabled:opacity-50">
         Convene the chamber
       </button>
 
-      {error && <p role="alert" className="mt-3 text-sm text-red-600 dark:text-red-400">{error}</p>}
+      {error && <p role="alert" className="mt-3 text-sm text-danger">{error}</p>}
 
       {c && result && (
         <div className="mt-6 space-y-5">
-          <div className="rounded-lg border border-slate-200 p-4 dark:border-slate-700">
+          <div className="rounded-lg border border-border p-4">
             <div className="flex flex-wrap items-center gap-3">
               <span className={`rounded-full px-2.5 py-0.5 text-sm font-medium ${ACTION_STYLE[c.ceo.action]}`}>
                 {ACTION_LABEL[c.ceo.action]}
               </span>
               <h3 className="font-semibold">CEO Agent: {c.ceo.headline}</h3>
-              <span className="text-xs text-slate-500">Confidence: {c.ceo.confidence}</span>
+              <span className="text-xs text-text-muted">Confidence: {c.ceo.confidence}</span>
             </div>
             <ul className="mt-3 list-disc space-y-1 pl-5 text-sm">
               {c.ceo.reasons.map((r) => <li key={r}>{r}</li>)}
@@ -156,7 +156,7 @@ export default function AgentDisagreementChamber({ ownerId }: Props) {
             <div>
               <h3 className="text-sm font-semibold">Conflicts</h3>
               <ul className="mt-2 space-y-2 text-sm">
-                {c.conflicts.map((x) => <li key={x.description} className="text-slate-700 dark:text-slate-300">{x.description}</li>)}
+                {c.conflicts.map((x) => <li key={x.description} className="text-text-primary">{x.description}</li>)}
               </ul>
             </div>
           )}
@@ -165,7 +165,7 @@ export default function AgentDisagreementChamber({ ownerId }: Props) {
             <h3 className="text-sm font-semibold">Trade-off</h3>
             <table className="mt-2 w-full text-sm">
               <thead>
-                <tr className="text-left text-slate-500">
+                <tr className="text-left text-text-muted">
                   <th className="py-1 font-normal">Option</th>
                   <th className="py-1 font-normal">Bookings</th>
                   <th className="py-1 font-normal">Revenue</th>
@@ -173,13 +173,13 @@ export default function AgentDisagreementChamber({ ownerId }: Props) {
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-t border-slate-200 dark:border-slate-700">
+                <tr className="border-t border-border">
                   <td className="py-1">Full launch</td>
                   <td>{c.tradeoff.fullBookings}</td>
                   <td>{dollars(c.tradeoff.fullRevenueCents)}</td>
                   <td>{c.tradeoff.hoursNeeded}h needed / {c.tradeoff.hoursUsable}h usable</td>
                 </tr>
-                <tr className="border-t border-slate-200 dark:border-slate-700">
+                <tr className="border-t border-border">
                   <td className="py-1">Capacity-capped</td>
                   <td>{c.tradeoff.cappedBookings}</td>
                   <td>{dollars(c.tradeoff.cappedRevenueCents)}</td>
@@ -188,25 +188,25 @@ export default function AgentDisagreementChamber({ ownerId }: Props) {
               </tbody>
             </table>
             {c.tradeoff.marginCents !== null && (
-              <p className="mt-2 text-xs text-slate-500">Expected gross margin on the full launch: {dollars(c.tradeoff.marginCents)}.</p>
+              <p className="mt-2 text-xs text-text-muted">Expected gross margin on the full launch: {dollars(c.tradeoff.marginCents)}.</p>
             )}
           </div>
 
-          <div className="rounded-lg border border-slate-200 p-4 dark:border-slate-700">
+          <div className="rounded-lg border border-border p-4">
             <p className="text-sm font-medium">Your decision</p>
             <div className="mt-2 flex flex-wrap gap-2">
               <button type="button" onClick={() => void decide('accepted')}
-                className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm text-white">
+                className="rounded-md bg-success px-3 py-1.5 text-sm text-on-success">
                 Accept CEO recommendation
               </button>
             </div>
             <label className="mt-3 block text-sm">
               Or override with a reason
               <textarea value={note} onChange={(e) => setNote(e.target.value)} maxLength={500} rows={2}
-                className="mt-1 w-full rounded border border-slate-300 px-2 py-1 dark:border-slate-600 dark:bg-slate-900" />
+                className="mt-1 w-full rounded border border-border-strong px-2 py-1 dark:bg-surface-inverse" />
             </label>
             <button type="button" onClick={() => void decide('overridden')}
-              className="mt-2 rounded-md border border-slate-300 px-3 py-1.5 text-sm dark:border-slate-600">
+              className="mt-2 rounded-md border border-border-strong px-3 py-1.5 text-sm">
               Record override
             </button>
           </div>
@@ -218,7 +218,7 @@ export default function AgentDisagreementChamber({ ownerId }: Props) {
           <h3 className="text-sm font-semibold">Recent cases</h3>
           <ul className="mt-2 space-y-1 text-sm">
             {history.map((h) => (
-              <li key={h.id} className="flex flex-wrap justify-between gap-2 text-slate-600 dark:text-slate-400">
+              <li key={h.id} className="flex flex-wrap justify-between gap-2 text-text-secondary">
                 <span>{h.title}</span>
                 <span>
                   {ACTION_LABEL[h.ceo.action as CeoDecision['action']] ?? h.ceo.action}

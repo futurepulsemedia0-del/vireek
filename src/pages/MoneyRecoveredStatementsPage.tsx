@@ -42,8 +42,8 @@ import type { Baseline } from '../../supabase/functions/_shared/money-recovered/
 
 const STATUS_STYLE: Record<StatementRecord['status'], string> = {
   ready: 'bg-accent/10 text-accent',
-  sent: 'bg-success-500/10 text-success-500',
-  partial: 'bg-warning-500/10 text-warning-500',
+  sent: 'bg-success-subtle text-success',
+  partial: 'bg-warning-subtle text-warning',
   failed: 'bg-danger/10 text-danger',
 };
 

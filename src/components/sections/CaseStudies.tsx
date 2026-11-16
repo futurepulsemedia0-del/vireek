@@ -59,7 +59,7 @@ function MetricRow({ icon: Icon, label, value, tone }: {
 }) {
   return (
     <div className="flex items-center gap-2.5 py-2">
-      <Icon size={15} className={`shrink-0 ${tone === 'before' ? 'text-danger/60' : 'text-success'}`} />
+      <Icon size={15} className={`shrink-0 ${tone === 'before' ? 'text-danger' : 'text-success'}`} />
       <span className="text-xs text-text-secondary">{label}</span>
       <span className={`ml-auto text-xs font-semibold ${tone === 'before' ? 'text-text-secondary' : 'text-text-primary'}`}>
         {value}
@@ -117,7 +117,7 @@ export function CaseStudies() {
               {/* Before / After metrics */}
               <div className="grid grid-cols-2 divide-x divide-border">
                 <div className="p-4">
-                  <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-wide text-danger/70">Before</p>
+                  <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-wide text-danger">Before</p>
                   <MetricRow icon={PhoneMissed} label="Missed calls" value={study.before.callsMissed} tone="before" />
                   <MetricRow icon={Clock} label="Response" value={study.before.responseTime} tone="before" />
                   <MetricRow icon={DollarSign} label="Lost" value={study.before.revenueLost} tone="before" />
@@ -132,7 +132,7 @@ export function CaseStudies() {
 
               {/* Quote */}
               <div className="flex flex-1 flex-col p-5">
-                <Quote size={20} className="text-accent/30" />
+                <Quote size={20} className="text-accent" />
                 <p className="mt-2 flex-1 text-xs leading-relaxed text-text-primary sm:text-sm">
                   &ldquo;{study.quote}&rdquo;
                 </p>
@@ -150,7 +150,7 @@ export function CaseStudies() {
           whileInView={{ opacity: 1 }}
           viewport={viewport}
           transition={{ duration: 0.5, delay: 0.2, ease: EASE }}
-          className="mt-6 text-center text-xs text-text-secondary/60 sm:mt-8"
+          className="mt-6 text-center text-xs text-text-muted sm:mt-8"
         >
           These are early-access partner stories. Want to be featured here? Join our founding contractor program.
         </motion.p>

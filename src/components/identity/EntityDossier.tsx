@@ -13,13 +13,13 @@ import {
   type ChainStatus, type EntityType, type IdentityDossier, type LifecycleState,
 } from '@/lib/universalIdentity';
 
-const FIELD = 'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/70';
+const FIELD = 'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder';
 const TABS = ['overview', 'relationships', 'provenance', 'history', 'access'] as const;
 type Tab = (typeof TABS)[number];
 type Registry = Awaited<ReturnType<typeof fetchRelationshipRegistry>>;
 
 const TONE: Record<string, string> = {
-  ok: 'bg-success-500/10 text-success-500', warn: 'bg-amber-500/10 text-amber-500', bad: 'bg-danger/10 text-danger', muted: 'bg-bg-tertiary text-text-secondary',
+  ok: 'bg-success-subtle text-success', warn: 'bg-warning-subtle text-warning', bad: 'bg-danger/10 text-danger', muted: 'bg-bg-tertiary text-text-secondary',
 };
 
 export function EntityDossier({
@@ -280,7 +280,7 @@ export function EntityDossier({
           <div className="flex flex-wrap items-center gap-2">
             <Button size="sm" variant="secondary" onClick={() => void verify()}>Verify tamper-evident chain</Button>
             {chain && (chain.valid
-              ? <span className="flex items-center gap-1 text-xs text-success-500"><ShieldCheck size={14} aria-hidden="true" /> Intact · {chain.events} events verified</span>
+              ? <span className="flex items-center gap-1 text-xs text-success"><ShieldCheck size={14} aria-hidden="true" /> Intact · {chain.events} events verified</span>
               : <span role="alert" className="flex items-center gap-1 text-xs text-danger"><ShieldAlert size={14} aria-hidden="true" /> Chain broken at event #{chain.broken_at_seq ?? '?'}</span>)}
           </div>
           <ol className="space-y-1.5">
@@ -292,7 +292,7 @@ export function EntityDossier({
                 </div>
                 {ev.reason && <p className="text-xs text-text-secondary">Reason: {ev.reason}</p>}
                 {ev.diff_keys.length > 0 && <p className="text-xs text-text-secondary">Changed: {ev.diff_keys.join(', ')}</p>}
-                <p className="mt-0.5 truncate font-mono text-[10px] text-text-secondary/70" title={ev.event_hash}>{ev.event_hash.slice(0, 24)}…</p>
+                <p className="mt-0.5 truncate font-mono text-[10px] text-text-muted" title={ev.event_hash}>{ev.event_hash.slice(0, 24)}…</p>
               </li>
             ))}
           </ol>

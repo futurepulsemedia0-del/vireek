@@ -88,7 +88,7 @@ export function ReviewSubmitPage() {
                   >
                     <Star
                       size={32}
-                      className={(hoverRating || rating) >= n ? 'fill-warning-500 text-warning-500' : 'text-text-secondary'}
+                      className={(hoverRating || rating) >= n ? 'fill-warning text-warning' : 'text-text-secondary'}
                     />
                   </button>
                 ))}
@@ -121,7 +121,7 @@ export function ReviewSubmitPage() {
                 type="button"
                 disabled={rating === 0 || submitting}
                 onClick={handleSubmit}
-                className="focus-ring mt-5 w-full rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent/90 disabled:opacity-50"
+                className="focus-ring mt-5 w-full rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-on-accent transition-colors hover:bg-accent/90 disabled:opacity-50"
               >
                 {submitting ? 'Submitting…' : 'Submit'}
               </button>
@@ -141,7 +141,7 @@ export function ReviewSubmitPage() {
                     href={result.googleUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="focus-ring mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent/90"
+                    className="focus-ring mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-on-accent transition-colors hover:bg-accent/90"
                   >
                     Leave a public review <ExternalLink size={14} />
                   </a>

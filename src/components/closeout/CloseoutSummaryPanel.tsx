@@ -58,7 +58,7 @@ export function CloseoutSummaryPanel({ today }: { today: string }) {
 }
 
 function Stat({ label, value, tone, estimate }: { label: string; value: string; tone?: 'ok' | 'warn' | 'bad'; estimate?: boolean }) {
-  const color = tone === 'ok' ? 'text-success' : tone === 'bad' ? 'text-danger' : tone === 'warn' ? 'text-warning-500' : 'text-text-primary';
+  const color = tone === 'ok' ? 'text-success' : tone === 'bad' ? 'text-danger' : tone === 'warn' ? 'text-warning' : 'text-text-primary';
   return (
     <Card className="!p-4">
       <p className="text-xs text-text-secondary">{label}{estimate ? ' (estimate)' : ''}</p>

@@ -85,7 +85,7 @@ export function TechnicianPayPage() {
       </header>
       <main className="mx-auto max-w-lg space-y-4 px-4 py-4">
         <SandboxBanner show={sandbox} />
-        {message && <p role={message.tone === 'error' ? 'alert' : 'status'} className={`rounded-xl p-3 text-sm ${message.tone === 'error' ? 'bg-danger/10 text-danger' : 'bg-success-500/10 text-success-500'}`}>{message.text}</p>}
+        {message && <p role={message.tone === 'error' ? 'alert' : 'status'} className={`rounded-xl p-3 text-sm ${message.tone === 'error' ? 'bg-danger/10 text-danger' : 'bg-success-subtle text-success'}`}>{message.text}</p>}
         {(!ewa || !instant) && <SkeletonCardList count={2} rows={3} />}
 
         {bothDown && (
@@ -175,7 +175,7 @@ export function TechnicianPayPage() {
           </section>
         )}
         {history.some((t) => t.status === 'needs_review') && (
-          <p className="flex items-start gap-2 text-xs text-warning-500"><AlertTriangle size={14} className="mt-0.5 shrink-0" /> A transfer is under review. Do not request it again — your employer has been flagged to confirm it.</p>
+          <p className="flex items-start gap-2 text-xs text-warning"><AlertTriangle size={14} className="mt-0.5 shrink-0" /> A transfer is under review. Do not request it again — your employer has been flagged to confirm it.</p>
         )}
       </main>
     </div>

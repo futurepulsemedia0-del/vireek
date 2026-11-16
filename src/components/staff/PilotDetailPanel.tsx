@@ -131,7 +131,7 @@ export function PilotDetailPanel({ pilot, onChanged }: Props) {
                         </div>
                       </td>
                       <td className="px-3 py-2 text-end tabular-nums">{formatMoney(w.recovered_cents)}</td>
-                      <td className={`ps-3 py-2 text-end tabular-nums ${w.flagged_calls > 0 ? 'font-medium text-warning-500' : ''}`}>{w.flagged_calls}</td>
+                      <td className={`ps-3 py-2 text-end tabular-nums ${w.flagged_calls > 0 ? 'font-medium text-warning' : ''}`}>{w.flagged_calls}</td>
                     </tr>
                   ))}
                 </tbody>

@@ -28,10 +28,10 @@ const KEY_ICONS: Record<IdentityKeyType, typeof Phone> = { phone: Phone, email: 
 
 const NODE_STYLE: Record<GraphNode['kind'], { fill: string; stroke: string }> = {
   self: { fill: 'rgb(var(--accent-primary) / 0.18)', stroke: 'rgb(var(--accent-primary))' },
-  member: { fill: 'rgba(148,163,184,0.14)', stroke: 'rgba(148,163,184,0.9)' },
-  phone: { fill: 'rgba(34,197,94,0.12)', stroke: 'rgba(34,197,94,0.8)' },
-  email: { fill: 'rgba(168,85,247,0.12)', stroke: 'rgba(168,85,247,0.8)' },
-  address: { fill: 'rgba(245,158,11,0.12)', stroke: 'rgba(245,158,11,0.8)' },
+  member: { fill: 'rgba(169,168,162,0.14)', stroke: 'rgba(169,168,162,0.9)' },
+  phone: { fill: 'rgba(52,199,89,0.12)', stroke: 'rgba(52,199,89,0.8)' },
+  email: { fill: 'rgba(126,107,253,0.12)', stroke: 'rgba(126,107,253,0.8)' },
+  address: { fill: 'rgba(255,204,0,0.12)', stroke: 'rgba(255,204,0,0.8)' },
 };
 
 function errorText(e: unknown): string {
@@ -124,7 +124,7 @@ export function CustomerIdentityPanel({ customerId, customerName }: Props) {
       ) : profile && graph ? (
         <div className="mt-5 space-y-6">
           {profile.candidates.length > 0 && (
-            <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-sm" role="status">
+            <div className="rounded-xl border border-warning/40 bg-warning-subtle p-3 text-sm" role="status">
               <p className="font-medium text-text-primary">
                 {profile.candidates.length === 1 ? 'This customer may be a duplicate' : `${profile.candidates.length} possible duplicates`}
               </p>
@@ -201,7 +201,7 @@ export function CustomerIdentityPanel({ customerId, customerName }: Props) {
                             </p>
                           </div>
                           {m.status === 'confirmed' ? (
-                            <span className="flex shrink-0 items-center gap-1 text-xs font-semibold text-emerald-500">
+                            <span className="flex shrink-0 items-center gap-1 text-xs font-semibold text-success">
                               <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" /> Confirmed
                             </span>
                           ) : null}
@@ -246,7 +246,7 @@ export function CustomerIdentityPanel({ customerId, customerName }: Props) {
                     <line
                       key={`${e.from}-${e.to}`}
                       x1={from.x} y1={from.y} x2={to.x} y2={to.y}
-                      stroke="rgba(148,163,184,0.7)"
+                      stroke="rgba(169,168,162,0.7)"
                       strokeWidth={e.confidence >= 90 ? 2 : 1.25}
                       strokeDasharray={e.dashed ? '4 4' : undefined}
                     />

@@ -114,7 +114,7 @@ function Sheet({ title, onClose, children }: { title: string; onClose: () => voi
   useEscapeToClose(true, onClose);
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center" role="dialog" aria-modal="true" aria-label={title}>
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} aria-hidden="true" />
+      <div className="absolute inset-0 bg-overlay/50" onClick={onClose} aria-hidden="true" />
       <div
         ref={ref}
         className="relative max-h-[92vh] w-full overflow-y-auto rounded-t-2xl border border-border bg-bg-primary p-5 pb-8 shadow-xl sm:max-w-lg sm:rounded-2xl sm:pb-5"
@@ -813,7 +813,7 @@ function ScanSheet({ onClose, onCode }: { onClose: () => void; onCode: (code: st
 
   return (
     <Sheet title="Scan a tool tag" onClose={onClose}>
-      <video ref={videoRef} muted playsInline className={isNative() ? 'hidden' : 'aspect-video w-full rounded-xl bg-black object-cover'} />
+      <video ref={videoRef} muted playsInline className={isNative() ? 'hidden' : 'aspect-video w-full rounded-xl bg-overlay object-cover'} />
       <p className="mt-3 text-sm text-text-secondary" role={err ? 'alert' : undefined}>
         {err ?? 'Point the camera at the barcode or tag number on the tool.'}
       </p>
@@ -1205,7 +1205,7 @@ function SettingsSheet({ settings, toast, onClose, onDone }: SheetProps & { sett
           helperText="Counted from the due time."
         />
         <label className="flex items-center gap-3 text-sm text-text-primary">
-          <input type="checkbox" checked={alertsOn} onChange={(e) => setAlertsOn(e.target.checked)} disabled={busy} className="h-5 w-5 accent-[var(--color-accent,#2563eb)]" />
+          <input type="checkbox" checked={alertsOn} onChange={(e) => setAlertsOn(e.target.checked)} disabled={busy} className="h-5 w-5 accent-accent" />
           Send overdue and possibly-lost notifications
         </label>
         {error && (

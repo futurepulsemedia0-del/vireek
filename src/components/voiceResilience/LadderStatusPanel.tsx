@@ -4,8 +4,8 @@ import { Card } from '@/components/ui/Card';
 import { LEVELS, OUTCOME_KEY, effectiveLevelFor, levelTone, type Level, type TFn, type Tone, type VoiceStatus } from '@/lib/voiceResilience';
 
 const TONE_CLASS: Record<Tone, string> = {
-  ok: 'border-success-500/30 bg-success-500/10 text-success-500',
-  warn: 'border-warning-500/30 bg-warning-500/10 text-warning-500',
+  ok: 'border-success/30 bg-success-subtle text-success',
+  warn: 'border-warning/30 bg-warning-subtle text-warning',
   critical: 'border-danger/30 bg-danger/10 text-danger',
 };
 const TONE_ICON = { ok: CheckCircle2, warn: AlertTriangle, critical: ShieldAlert } as const;
@@ -55,7 +55,7 @@ export function LadderStatusPanel({ t, status, now, refreshing = false, onRefres
           <p className="mt-2 text-sm text-text-secondary">{t(`status.levels.${level}.desc`)}</p>
         </div>
         {pinned && status.org?.forced_until && (
-          <p className="rounded-xl border border-warning-500/30 bg-warning-500/10 px-3 py-2 text-sm text-text-primary">
+          <p className="rounded-xl border border-warning/30 bg-warning-subtle px-3 py-2 text-sm text-text-primary">
             {t('status.forcedNote', { level, until: formatDate(status.org.forced_until) })}
           </p>
         )}
@@ -73,7 +73,7 @@ export function LadderStatusPanel({ t, status, now, refreshing = false, onRefres
                 <span className="min-w-0">
                   <span className="flex flex-wrap items-center gap-2 text-sm font-medium text-text-primary">
                     {t(`status.levels.${l}.name`)}
-                    {current && <span className="rounded-full bg-accent px-2 py-0.5 text-xs font-semibold text-white">{t('status.current')}</span>}
+                    {current && <span className="rounded-full bg-accent px-2 py-0.5 text-xs font-semibold text-on-accent">{t('status.current')}</span>}
                   </span>
                   <span className="block text-sm text-text-secondary">{t(`status.levels.${l}.desc`)}</span>
                 </span>

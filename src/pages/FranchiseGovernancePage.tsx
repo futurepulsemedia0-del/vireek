@@ -111,7 +111,7 @@ export function FranchiseGovernancePage() {
         <div className="flex flex-wrap gap-2">
           {TABS.map(({ id, label, icon: Icon }) => (
             <button key={id} onClick={() => setTab(id)}
-              className={`focus-ring flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium ${tab === id ? 'bg-cta text-white' : 'bg-bg-tertiary text-text-secondary'}`}>
+              className={`focus-ring flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium ${tab === id ? 'bg-cta text-on-cta' : 'bg-bg-tertiary text-text-secondary'}`}>
               <Icon size={14} /> {label}
             </button>
           ))}
@@ -134,7 +134,7 @@ export function FranchiseGovernancePage() {
                   await createPricePolicy(groupId, { service_name: newService, category: null, pricing_model: 'flat', price_cents: Math.round(Number(newPrice) * 100), price_max_cents: null, unit_label: null, enforcement: newEnforcement });
                   setNewService(''); setNewPrice(''); toast('Policy created.', 'success'); void load();
                 }}
-                className="focus-ring flex items-center justify-center gap-1 rounded-xl bg-cta px-3 py-2 text-sm font-medium text-white"
+                className="focus-ring flex items-center justify-center gap-1 rounded-xl bg-cta px-3 py-2 text-sm font-medium text-on-cta"
               ><Plus size={14} /> Add</button>
             </div>
             <div className="space-y-2">
@@ -164,7 +164,7 @@ export function FranchiseGovernancePage() {
                   await upsertTerritory(groupId, territoryLocation, territoryZips.split(',').map((z) => z.trim()).filter(Boolean), true);
                   toast('Territory saved.', 'success'); setTerritoryZips('');
                 } catch (e) { toast(e instanceof Error ? e.message : 'Could not save territory.', 'error'); }
-              }} className="focus-ring rounded-xl bg-cta px-3 py-2 text-sm font-medium text-white">Save</button>
+              }} className="focus-ring rounded-xl bg-cta px-3 py-2 text-sm font-medium text-on-cta">Save</button>
             </div>
           </div>
         )}
@@ -184,7 +184,7 @@ export function FranchiseGovernancePage() {
                 if (!reqTitle) return;
                 await createRequirement(groupId, { requirement_type: reqType, title: reqTitle, description: null, is_required: true });
                 setReqTitle(''); toast('Requirement created.', 'success'); void load();
-              }} className="focus-ring flex items-center justify-center gap-1 rounded-xl bg-cta px-3 py-2 text-sm font-medium text-white"><Plus size={14} /> Add</button>
+              }} className="focus-ring flex items-center justify-center gap-1 rounded-xl bg-cta px-3 py-2 text-sm font-medium text-on-cta"><Plus size={14} /> Add</button>
             </div>
             <p className="mb-2 text-xs font-semibold uppercase text-text-secondary">Compliance by branch</p>
             <div className="space-y-2">
@@ -223,14 +223,14 @@ export function FranchiseGovernancePage() {
                 const result = await generateAndNotifyRoyalty(groupId, start.toISOString().slice(0, 10), end.toISOString().slice(0, 10));
                 toast(`Issued ${result.issued} statement(s), notified ${result.notified}.`, 'success'); void load();
               } catch { toast('Could not generate statements.', 'error'); }
-            }} className="focus-ring mb-4 rounded-xl bg-cta px-4 py-2 text-sm font-medium text-white">Generate this month & notify</button>
+            }} className="focus-ring mb-4 rounded-xl bg-cta px-4 py-2 text-sm font-medium text-on-cta">Generate this month & notify</button>
             <div className="space-y-2">
               {royalty.map((r) => (
                 <div key={r.id} className="flex items-center justify-between rounded-xl border border-border bg-bg-primary p-3 text-sm">
                   <span>{r.period_start} → {r.period_end}: ${(r.royalty_amount_cents / 100).toFixed(2)} <span className="text-xs text-text-secondary">({r.status})</span></span>
                   {r.status === 'issued' && (
                     <button onClick={async () => { await markRoyaltyStatus(r.id, 'paid'); toast('Marked paid.', 'success'); void load(); }}
-                      className="focus-ring rounded-lg bg-success-500/15 px-3 py-1.5 text-xs font-medium text-success-500">Mark paid</button>
+                      className="focus-ring rounded-lg bg-success-subtle px-3 py-1.5 text-xs font-medium text-success">Mark paid</button>
                   )}
                 </div>
               ))}
@@ -250,7 +250,7 @@ export function FranchiseGovernancePage() {
                 if (!vendorName) return;
                 await createApprovedVendor(groupId, { name: vendorName, category: null, is_mandatory: vendorMandatory, active: true });
                 setVendorName(''); toast('Vendor added.', 'success'); void load();
-              }} className="focus-ring flex items-center justify-center gap-1 rounded-xl bg-cta px-3 py-2 text-sm font-medium text-white"><Plus size={14} /> Add</button>
+              }} className="focus-ring flex items-center justify-center gap-1 rounded-xl bg-cta px-3 py-2 text-sm font-medium text-on-cta"><Plus size={14} /> Add</button>
             </div>
             <div className="space-y-2">
               {vendors.map((v) => (

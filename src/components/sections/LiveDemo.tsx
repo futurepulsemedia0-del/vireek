@@ -117,7 +117,7 @@ export function LiveDemo() {
             transition={{ duration: 0.5, ease: EASE }}
             className="focus-ring group flex flex-col items-start justify-center rounded-2xl border border-border bg-bg-secondary p-6 shadow-card transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-glow-accent dark:shadow-card-dark sm:p-8"
           >
-            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent/10 text-accent transition-colors group-hover:bg-accent group-hover:text-white sm:h-14 sm:w-14">
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent/10 text-accent transition-colors group-hover:bg-accent group-hover:text-on-accent sm:h-14 sm:w-14">
               <Phone size={20} className="sm:size-6" />
             </span>
             <span className="mt-5 text-xs font-medium uppercase tracking-[0.15em] text-text-secondary sm:mt-6 sm:text-sm sm:tracking-[0.18em]">
@@ -142,7 +142,7 @@ export function LiveDemo() {
             <div className="flex h-[440px] flex-col overflow-hidden rounded-[26px] bg-bg-tertiary sm:h-[520px]">
               <div className="relative flex items-center gap-2.5 overflow-hidden border-b border-border bg-bg-secondary px-4 py-3.5 sm:px-5 sm:py-4">
                 <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/60 to-transparent" />
-                <span className="relative flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-cta text-white shadow-sm sm:h-8 sm:w-8">
+                <span className="relative flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent text-on-accent shadow-sm sm:h-8 sm:w-8">
                   <Sparkles size={13} strokeWidth={2.25} className="sm:size-[15px]" />
                 </span>
                 <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-text-secondary sm:text-sm sm:tracking-[0.18em]">
@@ -199,7 +199,7 @@ export function LiveDemo() {
                   placeholder="Type what you'd say to a receptionist…"
                   maxLength={400}
                   disabled={loading}
-                  className="focus-ring flex-1 rounded-xl border border-border bg-bg-primary px-3.5 py-3 text-sm text-text-primary placeholder:text-text-secondary/60 transition-shadow focus:shadow-glow-accent sm:px-4 sm:py-2.5"
+                  className="focus-ring flex-1 rounded-xl border border-border bg-bg-primary px-3.5 py-3 text-sm text-text-primary placeholder:text-text-placeholder transition-shadow focus:shadow-glow-accent sm:px-4 sm:py-2.5"
                 />
                 <motion.button
                   type="submit"
@@ -207,7 +207,7 @@ export function LiveDemo() {
                   aria-label="Send message"
                   whileHover={!loading && input.trim() ? { scale: 1.06 } : undefined}
                   whileTap={!loading && input.trim() ? { scale: 0.94 } : undefined}
-                  className="focus-ring flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-accent to-cta text-white transition-opacity disabled:opacity-40"
+                  className="focus-ring flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent text-on-accent transition-opacity disabled:opacity-40"
                 >
                   <Send size={16} />
                 </motion.button>

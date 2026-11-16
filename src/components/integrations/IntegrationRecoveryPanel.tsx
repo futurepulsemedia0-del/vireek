@@ -28,17 +28,17 @@ export function IntegrationRecoveryPanel({
   const when = formatFailedAt(health.failure?.failed_at ?? undefined);
 
   return (
-    <div className="mt-3 rounded-xl border border-danger-500/30 bg-danger-500/5 px-3 py-3">
+    <div className="mt-3 rounded-xl border border-danger/30 bg-danger-subtle px-3 py-3">
       <div className="flex items-start gap-2.5">
-        <AlertCircle size={16} className="mt-0.5 shrink-0 text-danger-500" />
+        <AlertCircle size={16} className="mt-0.5 shrink-0 text-danger" />
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-text-primary">{health.title}</p>
           <p className="mt-0.5 text-xs leading-relaxed text-text-secondary">{health.detail}</p>
           {when && (
-            <p className="mt-1 text-[11px] text-text-secondary/70">Detected {when}</p>
+            <p className="mt-1 text-[11px] text-text-muted">Detected {when}</p>
           )}
           {health.failure?.error_code && health.failure.error_code !== 'unknown' && (
-            <p className="mt-1 font-mono text-[10px] text-text-secondary/60">
+            <p className="mt-1 font-mono text-[10px] text-text-muted">
               code: {health.failure.error_code}
               {health.failure.provider_status != null
                 ? ` · provider: ${health.failure.provider_status}`
@@ -49,7 +49,7 @@ export function IntegrationRecoveryPanel({
             type="button"
             onClick={onRecover}
             disabled={recovering}
-            className="focus-ring mt-3 inline-flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+            className="focus-ring mt-3 inline-flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-semibold text-on-accent transition hover:opacity-90 disabled:opacity-50"
           >
             {recovering ? (
               <Loader2 size={12} className="animate-spin" />

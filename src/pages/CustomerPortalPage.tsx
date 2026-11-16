@@ -44,9 +44,9 @@ type Tab = 'jobs' | 'quotes' | 'equipment' | 'referral' | 'request' | 'profile';
 function JobStatusBadge({ status }: { status: PortalBundle['jobs'][number]['job_status'] }) {
   const colors: Record<typeof status, string> = {
     scheduled: 'bg-accent/10 text-accent',
-    en_route: 'bg-warning-500/10 text-warning-500',
-    in_progress: 'bg-warning-500/10 text-warning-500',
-    completed: 'bg-success-500/10 text-success',
+    en_route: 'bg-warning-subtle text-warning',
+    in_progress: 'bg-warning-subtle text-warning',
+    completed: 'bg-success-subtle text-success',
     cancelled: 'bg-bg-tertiary text-text-secondary',
   };
   return (
@@ -60,7 +60,7 @@ function QuoteStatusBadge({ status }: { status: PortalBundle['quotes'][number]['
   const colors: Record<typeof status, string> = {
     draft: 'bg-bg-tertiary text-text-secondary',
     sent: 'bg-accent/10 text-accent',
-    accepted: 'bg-success-500/10 text-success',
+    accepted: 'bg-success-subtle text-success',
     declined: 'bg-bg-tertiary text-text-secondary',
     expired: 'bg-danger/10 text-danger',
   };
@@ -222,12 +222,12 @@ export function CustomerPortalPage() {
                   <p className="text-sm font-semibold text-danger">Something is wrong?</p>
                   <p className="text-xs text-text-secondary">Report an emergency and get immediate safety steps</p>
                 </div>
-                <span className="rounded-full bg-danger px-3 py-1.5 text-xs font-semibold text-white">Start now</span>
+                <span className="rounded-full bg-danger px-3 py-1.5 text-xs font-semibold text-on-danger">Start now</span>
               </a>
 
               {bundle.membership && (
                 <div className="mb-6 flex items-center gap-3 rounded-2xl border border-accent/30 bg-accent/5 p-4">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent text-white">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent text-on-accent">
                     <Award size={18} />
                   </span>
                   <div>
@@ -248,7 +248,7 @@ export function CustomerPortalPage() {
                     key={t.key}
                     type="button"
                     onClick={() => setTab(t.key)}
-                    className={`focus-ring flex shrink-0 items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-medium transition-colors ${tab === t.key ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}
+                    className={`focus-ring flex shrink-0 items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-medium transition-colors ${tab === t.key ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}
                   >
                     <t.icon size={13} />
                     {t.label}
@@ -262,7 +262,7 @@ export function CustomerPortalPage() {
                   {bundle.booking_slug && (
                     <a
                       href={getBookingLink(bundle.booking_slug)}
-                      className="focus-ring flex items-center justify-center gap-2 rounded-2xl bg-accent px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-accent/90"
+                      className="focus-ring flex items-center justify-center gap-2 rounded-2xl bg-accent px-4 py-3 text-sm font-medium text-on-accent transition-colors hover:bg-accent/90"
                     >
                       <CalendarClock size={15} /> Book new service
                     </a>
@@ -298,7 +298,7 @@ export function CustomerPortalPage() {
                                 {j.invoice_status === 'sent' && j.payment_link_url && (
                                   <a
                                     href={j.payment_link_url}
-                                    className="focus-ring inline-flex items-center gap-1.5 rounded-lg bg-accent px-2.5 py-1.5 text-xs font-medium text-white transition-colors hover:bg-accent/90"
+                                    className="focus-ring inline-flex items-center gap-1.5 rounded-lg bg-accent px-2.5 py-1.5 text-xs font-medium text-on-accent transition-colors hover:bg-accent/90"
                                   >
                                     <CreditCard size={12} /> Pay now
                                   </a>
@@ -393,8 +393,8 @@ export function CustomerPortalPage() {
                           warranty.tone === 'expired'
                             ? 'bg-danger/10 text-danger'
                             : warranty.tone === 'warn'
-                              ? 'bg-warning-500/10 text-warning-500'
-                              : 'bg-success-500/10 text-success';
+                              ? 'bg-warning-subtle text-warning'
+                              : 'bg-success-subtle text-success';
                         return (
                           <div key={eq.id} className="rounded-xl border border-border/60 p-3.5">
                             <div className="flex items-start justify-between gap-2">
@@ -438,7 +438,7 @@ export function CustomerPortalPage() {
                         <button
                           type="button"
                           onClick={() => navigator.clipboard.writeText(getReferralLink(bundle.referral!.code))}
-                          className="focus-ring shrink-0 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-accent/90"
+                          className="focus-ring shrink-0 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent transition-colors hover:bg-accent/90"
                         >
                           Copy
                         </button>
@@ -457,7 +457,7 @@ export function CustomerPortalPage() {
                   <h2 className="text-sm font-semibold text-text-primary">Request Service</h2>
                   <p className="mt-1 text-xs text-text-secondary">We'll reach out to get this scheduled.</p>
                   {reqDone ? (
-                    <div className="mt-5 flex items-center gap-3 rounded-xl border border-success-500/30 bg-success/5 p-4">
+                    <div className="mt-5 flex items-center gap-3 rounded-xl border border-success/30 bg-success/5 p-4">
                       <CheckCircle2 size={20} className="shrink-0 text-success" />
                       <p className="text-sm text-text-primary">Thanks — your request has been sent. We'll be in touch soon.</p>
                     </div>
@@ -492,7 +492,7 @@ export function CustomerPortalPage() {
                       <button
                         type="submit"
                         disabled={reqSubmitting}
-                        className="focus-ring flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent/90 disabled:opacity-50"
+                        className="focus-ring flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-on-accent transition-colors hover:bg-accent/90 disabled:opacity-50"
                       >
                         <Send size={15} />
                         {reqSubmitting ? 'Sending…' : 'Send request'}
@@ -541,7 +541,7 @@ export function CustomerPortalPage() {
                     <button
                       type="submit"
                       disabled={profileSaving}
-                      className="focus-ring flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent/90 disabled:opacity-50"
+                      className="focus-ring flex w-full items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-medium text-on-accent transition-colors hover:bg-accent/90 disabled:opacity-50"
                     >
                       {profileSaving ? 'Saving…' : 'Save changes'}
                     </button>

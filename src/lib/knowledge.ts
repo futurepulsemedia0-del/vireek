@@ -106,8 +106,8 @@ export const AUDIENCE_HELP: Record<KnowledgeAudience, string> = {
 
 export const STATUS_COLORS: Record<KnowledgeStatus, string> = {
   draft: 'bg-bg-tertiary text-text-secondary',
-  published: 'bg-success-500/10 text-success-500',
-  archived: 'bg-bg-tertiary text-text-secondary/70',
+  published: 'bg-success-subtle text-success',
+  archived: 'bg-bg-tertiary text-text-muted',
 };
 
 export const SOURCE_LABELS: Record<KnowledgeSource, string> = {

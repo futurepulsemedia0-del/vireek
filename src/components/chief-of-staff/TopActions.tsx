@@ -247,7 +247,7 @@ function RecommendationCard({ rec, canAct, onChanged }: { rec: Recommendation; c
 function TrustLine({ ok, label }: { ok: boolean; label: string }) {
   return (
     <li className="flex items-center gap-1.5">
-      <ShieldCheck size={12} aria-hidden="true" className={ok ? 'text-success-500' : 'text-text-secondary/50'} />
+      <ShieldCheck size={12} aria-hidden="true" className={ok ? 'text-success' : 'text-graphic-muted'} />
       <span className={ok ? '' : 'line-through opacity-70'}>{label}</span>
     </li>
   );

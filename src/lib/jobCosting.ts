@@ -58,12 +58,12 @@ export const COST_CATEGORY_LABELS: Record<CostCategory, string> = {
 
 /** Used for the category dot in cost-entry rows and the breakdown chart bars. */
 export const COST_CATEGORY_COLORS: Record<CostCategory, string> = {
-  labor: '#6366f1',
-  material: '#22c55e',
-  equipment: '#f59e0b',
-  subcontractor: '#ec4899',
-  permit: '#06b6d4',
-  other: '#94a3b8',
+  labor: '#6c6fff',
+  material: '#34c759',
+  equipment: '#ffcc00',
+  subcontractor: '#ff375f',
+  permit: '#6eacff',
+  other: '#a9a8a2',
 };
 
 export { formatCents };
@@ -84,8 +84,8 @@ export function marginTier(marginPct: number | null): MarginTier {
 const MARGIN_TIER_CLASS: Record<MarginTier, string> = {
   unknown: 'bg-bg-tertiary text-text-secondary',
   loss: 'bg-danger/10 text-danger',
-  thin: 'bg-warning-500/10 text-warning-500',
-  healthy: 'bg-success-500/10 text-success-500',
+  thin: 'bg-warning-subtle text-warning',
+  healthy: 'bg-success-subtle text-success',
 };
 
 export function marginBadgeColor(marginPct: number | null): string {
@@ -336,8 +336,8 @@ export const VENDOR_BILL_STATUS_LABELS: Record<VendorBillStatus, string> = {
 };
 
 export const VENDOR_BILL_STATUS_CLASS: Record<VendorBillStatus, string> = {
-  unpaid: 'bg-warning-500/10 text-warning-500',
-  paid: 'bg-success-500/10 text-success-500',
+  unpaid: 'bg-warning-subtle text-warning',
+  paid: 'bg-success-subtle text-success',
   overdue: 'bg-danger/10 text-danger',
 };
 

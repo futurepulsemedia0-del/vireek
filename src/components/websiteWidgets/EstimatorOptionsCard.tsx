@@ -86,7 +86,7 @@ export function EstimatorOptionsCard({ options, catalog, catalogLoading, catalog
               const live = isPublishable(c);
               const problem = catalog === null ? null : !c ? 'Deleted from your price book' : !c.active ? 'Inactive in your price book' : c.price_cents <= 0 ? 'Priced at $0' : null;
               return (
-                <li key={ref.id} className={`rounded-xl border p-3 ${problem ? 'border-warning-500/50 bg-warning-500/5' : 'border-border bg-bg-primary'}`}>
+                <li key={ref.id} className={`rounded-xl border p-3 ${problem ? 'border-warning/50 bg-warning-subtle' : 'border-border bg-bg-primary'}`}>
                   <div className="flex items-start gap-2">
                     <div className="min-w-0 flex-1 space-y-2">
                       <div className="flex flex-wrap items-baseline justify-between gap-x-3">
@@ -101,7 +101,7 @@ export function EstimatorOptionsCard({ options, catalog, catalogLoading, catalog
                         aria-label={`Public name for ${c ? c.service_name : 'service'}`}
                         className={fieldCls}
                       />
-                      {problem && <p className="flex items-center gap-1.5 text-xs text-text-primary"><AlertTriangle size={12} className="shrink-0 text-warning-500" /> {problem} — hidden from visitors.</p>}
+                      {problem && <p className="flex items-center gap-1.5 text-xs text-text-primary"><AlertTriangle size={12} className="shrink-0 text-warning" /> {problem} — hidden from visitors.</p>}
                     </div>
                     <div className="flex shrink-0 flex-col gap-1">
                       <button type="button" onClick={() => move(index, -1)} disabled={index === 0} aria-label="Move up" className="focus-ring rounded-lg border border-border p-1.5 text-text-secondary hover:text-text-primary disabled:opacity-30"><ArrowUp size={13} /></button>

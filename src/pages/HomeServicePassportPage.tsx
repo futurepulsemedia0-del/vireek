@@ -63,7 +63,7 @@ const EMPTY_PERMIT = {
 function transferState(t: PassportTransfer): { label: string; className: string } {
   if (t.revoked_at) return { label: 'Revoked', className: 'bg-danger/10 text-danger' };
   if (new Date(t.expires_at).getTime() <= Date.now()) return { label: 'Expired', className: 'bg-bg-primary text-text-secondary' };
-  return { label: 'Active', className: 'bg-success-500/10 text-success-500' };
+  return { label: 'Active', className: 'bg-success-subtle text-success' };
 }
 
 export function HomeServicePassportPage() {
@@ -341,7 +341,7 @@ export function HomeServicePassportPage() {
         <FadeIn>
           <div className="space-y-6">
             {preview.summary.record_completeness_pct < 60 && preview.summary.active_equipment > 0 && (
-              <div className="rounded-xl border border-warning-500/30 bg-warning-500/5 p-4 text-sm text-text-secondary" role="status">
+              <div className="rounded-xl border border-warning/30 bg-warning-subtle p-4 text-sm text-text-secondary" role="status">
                 Only {preview.summary.record_completeness_pct}% of this home&apos;s equipment has make, install date and last service
                 recorded. Complete those on the customer&apos;s equipment list to make the passport — and its cost estimates — more
                 trustworthy.
@@ -410,8 +410,8 @@ export function HomeServicePassportPage() {
               </div>
 
               {issuedUrl && (
-                <div className="mt-4 rounded-xl border border-success-500/30 bg-success-500/5 p-4" role="status">
-                  <p className="text-sm font-medium text-success-500">Link created — copy it now</p>
+                <div className="mt-4 rounded-xl border border-success/30 bg-success-subtle p-4" role="status">
+                  <p className="text-sm font-medium text-success">Link created — copy it now</p>
                   <p className="mt-0.5 text-xs text-text-secondary">For security, the full link is shown only once.</p>
                   <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center">
                     <code className="min-w-0 flex-1 break-all rounded-lg bg-bg-primary px-3 py-2 text-xs text-text-primary">{issuedUrl}</code>

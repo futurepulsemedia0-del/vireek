@@ -59,7 +59,7 @@ function LinkRowView({ link, info, location, busy, run }: { link: ListingLink; i
       </p>
 
       {link.state === 'drift' && link.drift_fields.length > 0 && (
-        <p className="mt-1 text-xs text-warning-500">Doesn't match: {link.drift_fields.map((f) => DRIFT_FIELD_LABEL[f]).join(', ')}</p>
+        <p className="mt-1 text-xs text-warning">Doesn't match: {link.drift_fields.map((f) => DRIFT_FIELD_LABEL[f]).join(', ')}</p>
       )}
       {link.state === 'blocked' && link.blocked_reason && <p className="mt-1 text-xs text-text-secondary">{link.blocked_reason}</p>}
       {link.last_error && (link.state === 'error' || link.state === 'needs_reauth') && (
@@ -202,7 +202,7 @@ function LocationCard({ row, data, busy, run }: { row: LocationRowModel; data: L
       </div>
 
       {row.blocking.length > 0 && (
-        <div className="rounded-xl bg-warning-500/10 p-3" role="alert">
+        <div className="rounded-xl bg-warning-subtle p-3" role="alert">
           <p className="text-sm font-medium text-text-primary">Finish these details before this location can sync:</p>
           <ul className="mt-1 list-disc space-y-0.5 pl-5 text-xs text-text-secondary">
             {row.blocking.map((i) => <li key={i.code}>{i.message}</li>)}

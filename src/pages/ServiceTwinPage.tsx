@@ -17,7 +17,7 @@ import {
 } from '@/lib/serviceTwin';
 
 function StatTile({ label, value, tone }: { label: string; value: string; tone?: 'danger' | 'warning' }) {
-  const color = tone === 'danger' ? 'text-danger' : tone === 'warning' ? 'text-warning-500' : 'text-text-primary';
+  const color = tone === 'danger' ? 'text-danger' : tone === 'warning' ? 'text-warning' : 'text-text-primary';
   return (
     <div className="rounded-xl border border-border bg-bg-secondary px-4 py-3">
       <p className="text-[11px] uppercase text-text-secondary">{label}</p>
@@ -116,7 +116,7 @@ export function ServiceTwinPage() {
                       return (
                         <li key={iv.kind} className="rounded-lg border border-border bg-bg-primary p-3">
                           <p className="flex items-start gap-1.5 text-xs font-semibold text-text-primary">
-                            <AlertTriangle size={12} className={`mt-0.5 shrink-0 ${iv.severity === 'critical' ? 'text-danger' : 'text-warning-500'}`} />
+                            <AlertTriangle size={12} className={`mt-0.5 shrink-0 ${iv.severity === 'critical' ? 'text-danger' : 'text-warning'}`} />
                             {INTERVENTION_LABELS[iv.kind]} — {iv.headline}
                           </p>
                           <p className="mt-1 text-xs text-text-secondary">{iv.action}</p>

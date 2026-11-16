@@ -11,7 +11,7 @@ export type Tone = 'good' | 'bad' | 'warn' | 'neutral' | 'info';
 const TONES: Record<Tone, string> = {
   good: 'bg-success/15 text-success',
   bad: 'bg-danger/10 text-danger',
-  warn: 'bg-warning-500/15 text-warning-500',
+  warn: 'bg-warning-subtle text-warning',
   neutral: 'bg-bg-tertiary text-text-secondary',
   info: 'bg-accent/10 text-accent',
 };

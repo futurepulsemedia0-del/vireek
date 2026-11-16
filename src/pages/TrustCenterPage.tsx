@@ -285,8 +285,8 @@ export function TrustCenterPage() {
                   </div>
                   {i < DATA_FLOW.length - 1 && (
                     <>
-                      <ChevronDown className="h-5 w-5 shrink-0 text-text-secondary/50 sm:hidden" />
-                      <ArrowRight className="hidden h-5 w-5 shrink-0 text-text-secondary/50 sm:block" />
+                      <ChevronDown className="h-5 w-5 shrink-0 text-graphic-muted sm:hidden" />
+                      <ArrowRight className="hidden h-5 w-5 shrink-0 text-graphic-muted sm:block" />
                     </>
                   )}
                 </div>
@@ -294,7 +294,7 @@ export function TrustCenterPage() {
             </div>
 
             <div className="mt-8 rounded-2xl border border-dashed border-border bg-bg-secondary/50 p-5 sm:mt-10 sm:p-6">
-              <p className="text-center text-xs font-semibold uppercase tracking-wide text-text-secondary/70">
+              <p className="text-center text-xs font-semibold uppercase tracking-wide text-text-muted">
                 Only if you connect them from your dashboard
               </p>
               <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
@@ -303,7 +303,7 @@ export function TrustCenterPage() {
                     key={b.name}
                     className="rounded-full border border-border bg-bg-secondary px-3 py-1.5 text-xs font-medium text-text-secondary"
                   >
-                    {b.name} <span className="text-text-secondary/60">— {b.purpose}</span>
+                    {b.name} <span className="text-text-muted">— {b.purpose}</span>
                   </span>
                 ))}
               </div>

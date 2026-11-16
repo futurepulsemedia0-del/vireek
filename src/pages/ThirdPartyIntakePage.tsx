@@ -216,7 +216,7 @@ export function ThirdPartyIntakePage() {
                 aria-selected={tab === t}
                 onClick={() => setTab(t)}
                 className={`focus-ring min-h-[40px] rounded-xl px-4 text-sm font-medium transition-colors ${
-                  tab === t ? 'bg-accent text-white' : 'border border-border bg-bg-secondary text-text-secondary hover:text-text-primary'
+                  tab === t ? 'bg-accent text-on-accent' : 'border border-border bg-bg-secondary text-text-secondary hover:text-text-primary'
                 }`}
               >
                 {t === 'requests' ? 'Requests' : 'Partners'}
@@ -276,7 +276,7 @@ export function ThirdPartyIntakePage() {
                         aria-pressed={filter === f.key}
                         onClick={() => setFilter(f.key)}
                         className={`focus-ring min-h-[40px] shrink-0 rounded-full px-4 text-sm font-medium transition-colors ${
-                          filter === f.key ? 'bg-accent text-white' : 'border border-border bg-bg-secondary text-text-secondary hover:text-text-primary'
+                          filter === f.key ? 'bg-accent text-on-accent' : 'border border-border bg-bg-secondary text-text-secondary hover:text-text-primary'
                         }`}
                       >
                         {f.label}

@@ -37,8 +37,8 @@ const DIMENSIONS = Object.keys(DIMENSION_LABELS) as RoadmapDimension[];
 const STATUSES: MilestoneStatus[] = ['not_started', 'in_progress', 'done', 'at_risk', 'blocked'];
 
 function scoreTone(score: number): string {
-  if (score >= 80) return 'text-success-500';
-  if (score >= 50) return 'text-warning-500';
+  if (score >= 80) return 'text-success';
+  if (score >= 50) return 'text-warning';
   return 'text-danger';
 }
 
@@ -197,7 +197,7 @@ export function BusinessEvolutionRoadmapPage() {
                 type="button"
                 onClick={() => void handleCreateGoal()}
                 disabled={savingGoal || !goalTitle.trim()}
-                className="focus-ring rounded-xl bg-cta px-4 py-2 text-sm font-medium text-white disabled:opacity-40"
+                className="focus-ring rounded-xl bg-cta px-4 py-2 text-sm font-medium text-on-cta disabled:opacity-40"
               >
                 {savingGoal ? 'Building roadmap…' : 'Build my roadmap'}
               </button>
@@ -224,7 +224,7 @@ export function BusinessEvolutionRoadmapPage() {
                   key={q}
                   type="button"
                   onClick={() => setQuarter(q)}
-                  className={`focus-ring rounded-xl px-4 py-2 text-sm font-medium ${quarter === q ? 'bg-cta text-white' : 'border border-border text-text-secondary hover:text-text-primary'}`}
+                  className={`focus-ring rounded-xl px-4 py-2 text-sm font-medium ${quarter === q ? 'bg-cta text-on-cta' : 'border border-border text-text-secondary hover:text-text-primary'}`}
                 >
                   Q{q}
                 </button>
@@ -252,7 +252,7 @@ export function BusinessEvolutionRoadmapPage() {
                               <div className="min-w-0 flex-1">
                                 <p className="text-sm text-text-primary">{m.title}</p>
                                 {m.description && <p className="mt-0.5 text-xs text-text-secondary">{m.description}</p>}
-                                {m.success_metric && <p className="mt-1 text-[11px] text-text-secondary/70">Success: {m.success_metric}</p>}
+                                {m.success_metric && <p className="mt-1 text-[11px] text-text-muted">Success: {m.success_metric}</p>}
                               </div>
                               <button onClick={() => void handleDelete(m.id)} className="focus-ring shrink-0 rounded-lg p-1.5 text-text-secondary hover:text-error-500" title="Remove">
                                 <Trash2 size={13} />

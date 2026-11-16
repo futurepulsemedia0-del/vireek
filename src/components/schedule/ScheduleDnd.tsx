@@ -309,7 +309,7 @@ export function DropZone({
         ? state === 'blocked'
           ? 'border-danger bg-danger/5 ring-2 ring-danger/40'
           : state === 'warn'
-            ? 'border-warning-500 bg-warning-500/5 ring-2 ring-warning-500/40'
+            ? 'border-warning bg-warning-subtle ring-2 ring-warning/40'
             : 'border-accent bg-accent/5 ring-2 ring-accent/40'
         : state === 'blocked'
           ? 'opacity-60'
@@ -324,7 +324,7 @@ export function DropZone({
         <p
           aria-hidden="true"
           className={`pointer-events-none absolute inset-x-2 bottom-2 z-10 rounded-lg px-2 py-1 text-[11px] font-medium shadow-card ${
-            check && !check.ok ? 'bg-danger text-white' : 'bg-warning-500 text-white'
+            check && !check.ok ? 'bg-danger text-on-danger' : 'bg-warning text-on-warning'
           }`}
         >
           {hint}
@@ -443,7 +443,7 @@ function MoveJobMenu({ jobId, label, options }: { jobId: string; label: string; 
                     >
                       <span>{o.label}{same ? ' (current)' : ''}</span>
                       {blockedReason && <span className="text-[10px] text-danger">{blockedReason}</span>}
-                      {warning && <span className="text-[10px] text-warning-500">{warning}</span>}
+                      {warning && <span className="text-[10px] text-warning">{warning}</span>}
                     </button>
                   );
                 })}

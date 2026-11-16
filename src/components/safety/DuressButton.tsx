@@ -83,7 +83,7 @@ export function DuressButton({ sessionId, onRaised }: Props) {
           <p className="text-sm font-semibold text-text-primary">Send a silent duress alert to your team?</p>
           <div className="mt-2 flex gap-2">
             <button type="button" onClick={() => setConfirming(false)} className="focus-ring min-h-[48px] flex-1 rounded-lg border border-border px-3 text-sm font-semibold text-text-primary">Cancel</button>
-            <button type="button" onClick={() => void send()} className="focus-ring min-h-[48px] flex-1 rounded-lg bg-danger px-3 text-sm font-semibold text-white">Send alert</button>
+            <button type="button" onClick={() => void send()} className="focus-ring min-h-[48px] flex-1 rounded-lg bg-danger px-3 text-sm font-semibold text-on-danger">Send alert</button>
           </div>
         </div>
       ) : (
@@ -100,7 +100,7 @@ export function DuressButton({ sessionId, onRaised }: Props) {
             if (fired.current) { fired.current = false; return; } // the hold already sent it
             setConfirming(true);
           }}
-          className={`focus-ring relative flex min-h-[56px] w-full touch-none select-none items-center justify-center gap-2 overflow-hidden rounded-xl border-2 border-danger px-4 text-sm font-bold text-danger ${holding ? 'bg-danger/20' : 'bg-danger/5'}`}
+          className={`focus-ring relative flex min-h-[56px] w-full touch-none select-none items-center justify-center gap-2 overflow-hidden rounded-xl border-2 border-danger px-4 text-sm font-bold text-danger-strong ${holding ? 'bg-danger/20' : 'bg-danger/5'}`}
         >
           {holding && <span aria-hidden="true" className="absolute inset-y-0 start-0 bg-danger/30" style={{ animation: `duress-fill ${HOLD_MS}ms linear forwards` }} />}
           <ShieldAlert size={18} aria-hidden="true" className="relative" />

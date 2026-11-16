@@ -38,9 +38,9 @@ function Tile({ label, value, hint, tone }: { label: string; value: string; hint
 }
 
 const GRADE_TONE: Record<string, string> = {
-  A: 'text-success-500',
-  B: 'text-success-500',
-  C: 'text-warning-500',
+  A: 'text-success',
+  B: 'text-success',
+  C: 'text-warning',
   D: 'text-danger',
   F: 'text-danger',
 };
@@ -80,7 +80,7 @@ export function HomePassportView({ data }: { data: HomePassportPayload }) {
             label="Need attention"
             value={String(summary.needs_attention)}
             hint={`${summary.on_watch} on watch`}
-            tone={summary.needs_attention > 0 ? 'text-danger' : 'text-success-500'}
+            tone={summary.needs_attention > 0 ? 'text-danger' : 'text-success'}
           />
           <Tile
             label="Active warranties"
@@ -283,11 +283,11 @@ export function HomePassportView({ data }: { data: HomePassportPayload }) {
                 </div>
                 <div className="flex items-center gap-2 text-xs text-text-secondary">
                   {v.evidence_verified && (
-                    <span className="inline-flex items-center gap-1 text-success-500">
+                    <span className="inline-flex items-center gap-1 text-success">
                       <BadgeCheck size={13} aria-hidden="true" /> Evidence verified
                     </span>
                   )}
-                  {v.was_rework && <span className="text-warning-500">Return visit</span>}
+                  {v.was_rework && <span className="text-warning">Return visit</span>}
                   <span>{formatPassportDate(v.date)}</span>
                 </div>
               </li>

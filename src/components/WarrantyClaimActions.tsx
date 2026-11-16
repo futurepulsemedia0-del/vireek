@@ -85,7 +85,7 @@ export function WarrantyClaimActions({ claim, onChanged }: Props) {
         )}
       </div>
       {missing && missing.length > 0 && (
-        <p className="text-right text-warning-500">Missing: {missing.map(missingLabel).join(', ')}</p>
+        <p className="text-right text-warning">Missing: {missing.map(missingLabel).join(', ')}</p>
       )}
       {target && (
         <div className="w-full space-y-1.5 rounded-xl border border-border p-2">

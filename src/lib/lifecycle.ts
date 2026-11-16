@@ -233,10 +233,10 @@ export function toggleTouch(list: TouchType[], t: TouchType): TouchType[] {
 }
 
 export const TOUCH_DOT: Record<TouchType, string> = {
-  birthday: 'bg-pink-500',
-  home_purchase_anniversary: 'bg-emerald-500',
-  equipment_install_anniversary: 'bg-sky-500',
-  first_service_anniversary: 'bg-amber-500',
+  birthday: 'bg-accent',
+  home_purchase_anniversary: 'bg-success',
+  equipment_install_anniversary: 'bg-info',
+  first_service_anniversary: 'bg-warning',
 };
 
 // ---------------------------------------------------------------------------

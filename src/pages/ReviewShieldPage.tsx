@@ -110,10 +110,10 @@ function ReviewShieldPage() {
         <p className="mt-1 text-[11px] text-text-secondary">{draft.length} / {REPLY_MAX_CHARS} characters recommended</p>
         <div role="status" aria-live="polite" className="mt-2 text-sm">
           {lint === null ? null : lint.ok ? (
-            <p className="font-semibold text-success-500">Nothing blocks this reply. Read it once more as the reviewer would.</p>
+            <p className="font-semibold text-success">Nothing blocks this reply. Read it once more as the reviewer would.</p>
           ) : (
-            <div className="rounded-xl border border-warning-500/40 bg-warning-500/10 p-3">
-              <p className="font-semibold text-warning-500">Fix before posting</p>
+            <div className="rounded-xl border border-warning/40 bg-warning-subtle p-3">
+              <p className="font-semibold text-warning">Fix before posting</p>
               <ul className="mt-1 list-disc ps-5 text-text-primary">{lint.issues.map((i) => <li key={i}>{REPLY_ISSUE[i]}</li>)}</ul>
             </div>
           )}

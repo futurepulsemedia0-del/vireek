@@ -89,7 +89,7 @@ function DeadlineCard({ country, sub }: { country: string; sub: string }) {
           {out && (
             <p className="mt-4 text-sm text-text-primary" aria-live="polite">
               Respond by <strong>{out.dueOn}</strong> <span className="text-text-secondary">({out.basis}{out.extended ? ', extended' : ''})</span>
-              {left !== null && <span className={left < 0 ? 'ml-2 font-medium text-danger' : left <= 5 ? 'ml-2 font-medium text-warning-500' : 'ml-2 text-text-secondary'}>{left < 0 ? `${-left} days overdue` : left === 0 ? 'due today' : `${left} days left`}</span>}
+              {left !== null && <span className={left < 0 ? 'ml-2 font-medium text-danger' : left <= 5 ? 'ml-2 font-medium text-warning' : 'ml-2 text-text-secondary'}>{left < 0 ? `${-left} days overdue` : left === 0 ? 'due today' : `${left} days left`}</span>}
             </p>
           )}
         </>

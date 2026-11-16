@@ -175,7 +175,7 @@ export function PhotoProvenancePanel({ jobId, originalPathFor }: { jobId: string
             <Button size="xs" onClick={() => void makeLink()}><Link2 size={14} aria-hidden="true" />{t('share.create')}</Button>
           </div>
           {newLink && (
-            <div role="status" className="rounded-md border border-success-500/30 bg-success-500/5 p-2 text-xs text-text-primary">
+            <div role="status" className="rounded-md border border-success/30 bg-success-subtle p-2 text-xs text-text-primary">
               <p>{t('share.created')}</p>
               <p className="mt-1 break-all font-mono">{newLink}</p>
               <Button size="xs" variant="secondary" className="mt-1" onClick={() => void copy(newLink, t('share.copied'))}><Copy size={14} aria-hidden="true" />{t('share.copy')}</Button>
@@ -219,7 +219,7 @@ export function PhotoProvenancePanel({ jobId, originalPathFor }: { jobId: string
                 className="focus-ring ms-2 w-24 rounded-md border border-border bg-bg-primary px-2 py-1 text-text-primary" />
             </label>
           </div>
-          <p className="text-xs text-warning-500">{t('settings.counsel')}</p>
+          <p className="text-xs text-warning">{t('settings.counsel')}</p>
           <Button size="xs" onClick={() => void savePhotoSettings(form).then((s) => { setSettings(s); toast(t('settings.saved'), 'success'); }).catch(() => toast(t('panel.error'), 'error'))}>{t('settings.save')}</Button>
         </div>
       )}

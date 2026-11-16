@@ -110,7 +110,7 @@ export function ModalShell({
   useEscapeToClose(true, onClose);
   return (
     <div
-      className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[90] flex items-center justify-center bg-overlay/40 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
       <div

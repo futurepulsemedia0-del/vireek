@@ -13,7 +13,7 @@ export interface SwipeAction {
   /** Screen-reader label that says WHICH row it acts on, e.g. "Navigate to Jane Smith". */
   a11yLabel?: string;
   icon?: ReactNode;
-  /** Tailwind classes for the revealed background, e.g. "bg-success-500 text-white". */
+  /** Tailwind classes for the revealed background, e.g. "bg-success text-on-success". */
   className: string;
   onCommit: () => void | Promise<void>;
   /** When set, a toast with Undo is offered after the action. */

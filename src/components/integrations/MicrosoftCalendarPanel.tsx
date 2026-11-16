@@ -32,8 +32,8 @@ interface MicrosoftCalendarPanelProps {
 }
 
 const TONE_CLASS: Record<ConnectionTone, string> = {
-  ok: 'bg-success-500/10 text-success-500',
-  warn: 'bg-warning-500/10 text-warning-500',
+  ok: 'bg-success-subtle text-success',
+  warn: 'bg-warning-subtle text-warning',
   error: 'bg-danger/10 text-danger',
 };
 

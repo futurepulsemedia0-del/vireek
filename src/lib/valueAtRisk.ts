@@ -102,8 +102,8 @@ export const DIMENSION_LABELS: Record<DimensionKey, string> = {
 
 export const DIMENSION_COLORS: Record<DimensionKey, string> = {
   revenue: 'bg-cta/10 text-cta',
-  margin: 'bg-warning-500/10 text-warning-500',
-  cash: 'bg-success-500/10 text-success-500',
+  margin: 'bg-warning-subtle text-warning',
+  cash: 'bg-success-subtle text-success',
   customer_ltv: 'bg-accent/10 text-accent',
   reputation: 'bg-danger/10 text-danger',
   capacity: 'bg-bg-tertiary text-text-secondary',

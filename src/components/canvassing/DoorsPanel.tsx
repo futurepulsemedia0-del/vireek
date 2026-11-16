@@ -115,7 +115,7 @@ export function DoorsPanel({ isManager, territories, doors, truncated, activeDoo
         <div className="relative min-w-[10rem] flex-1">
           <Search size={16} aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary" />
           <input type="search" aria-label="Search doors" placeholder="Search address or name" value={filters.query} onChange={(e) => patchFilters({ query: e.target.value })}
-            className="focus-ring w-full rounded-xl border border-border bg-bg-primary py-2 pl-9 pr-3 text-sm text-text-primary placeholder:text-text-secondary/60 focus-visible:border-accent" />
+            className="focus-ring w-full rounded-xl border border-border bg-bg-primary py-2 pl-9 pr-3 text-sm text-text-primary placeholder:text-text-placeholder focus-visible:border-accent" />
         </div>
         <select aria-label="Filter by territory" value={filters.territory} onChange={(e) => patchFilters({ territory: e.target.value })} className={compactSelectCls}>
           <option value="all">All territories</option>
@@ -146,7 +146,7 @@ export function DoorsPanel({ isManager, territories, doors, truncated, activeDoo
       <div role="tablist" aria-label="Map or list" className="flex gap-1 rounded-xl border border-border bg-bg-secondary p-1 lg:hidden">
         {(['map', 'list'] as const).map((v) => (
           <button key={v} type="button" role="tab" aria-selected={view === v} onClick={() => setView(v)}
-            className={`focus-ring flex-1 rounded-lg px-3 py-2 text-sm font-medium ${view === v ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'}`}>
+            className={`focus-ring flex-1 rounded-lg px-3 py-2 text-sm font-medium ${view === v ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'}`}>
             {v === 'map' ? 'Map' : `List (${filtered.length.toLocaleString()})`}
           </button>
         ))}

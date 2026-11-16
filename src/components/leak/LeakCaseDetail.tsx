@@ -221,7 +221,7 @@ export function LeakCaseDetail({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex justify-end bg-black/40"
+      className="fixed inset-0 z-50 flex justify-end bg-overlay/40"
       role="presentation"
       onMouseDown={(e) => e.target === e.currentTarget && onClose()}
     >
@@ -282,7 +282,7 @@ export function LeakCaseDetail({
             </div>
           )}
           {c.status === 'closed' && c.close_reason && (
-            <p className="flex items-center gap-2 rounded-xl bg-success-500/10 p-3 text-sm text-success-500">
+            <p className="flex items-center gap-2 rounded-xl bg-success-subtle p-3 text-sm text-success">
               <CheckCircle2 size={16} aria-hidden="true" /> Closed {fmtDay(c.closed_at)} —{' '}
               {CLOSE_REASON_LABELS[c.close_reason]}
             </p>
@@ -367,7 +367,7 @@ export function LeakCaseDetail({
                           {TEST_KIND_LABELS[t.kind]}
                         </span>
                         <span
-                          className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${t.result === 'pass' ? 'bg-success-500/10 text-success-500' : 'bg-danger/10 text-danger'}`}
+                          className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${t.result === 'pass' ? 'bg-success-subtle text-success' : 'bg-danger/10 text-danger'}`}
                         >
                           {t.result === 'pass' ? 'PASS' : 'FAIL'}
                         </span>
@@ -710,7 +710,7 @@ function SignTestForm({
             {(['pass', 'fail'] as const).map((r) => (
               <label
                 key={r}
-                className={`flex min-h-[40px] flex-1 cursor-pointer items-center justify-center gap-1 rounded-lg border px-3 text-sm font-medium ${result === r ? (r === 'pass' ? 'border-success-500 bg-success-500/10 text-success-500' : 'border-danger bg-danger/10 text-danger') : 'border-border text-text-secondary'}`}
+                className={`flex min-h-[40px] flex-1 cursor-pointer items-center justify-center gap-1 rounded-lg border px-3 text-sm font-medium ${result === r ? (r === 'pass' ? 'border-success bg-success-subtle text-success' : 'border-danger bg-danger/10 text-danger') : 'border-border text-text-secondary'}`}
               >
                 <input
                   type="radio"
@@ -768,7 +768,7 @@ function SignTestForm({
       )}
       {cert?.ok &&
         cert.warnings.map((w) => (
-          <p key={w} className="text-xs text-warning-500">
+          <p key={w} className="text-xs text-warning">
             {w}
           </p>
         ))}
@@ -807,7 +807,7 @@ function InspectionRow({
   const [open, setOpen] = useState(false);
   const tone =
     i.status === 'completed'
-      ? 'text-success-500'
+      ? 'text-success'
       : i.status === 'failed'
         ? 'text-danger'
         : i.status === 'scheduled'

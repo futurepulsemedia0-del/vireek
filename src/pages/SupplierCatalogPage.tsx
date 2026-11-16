@@ -250,7 +250,7 @@ function ImportCard({ vendorId, onImported, toast }: { vendorId: string; onImpor
             <p role="alert" className="text-sm text-danger">Match the required column{missingRequired.length > 1 ? 's' : ''}: {missingRequired.map((f) => f.label).join(', ')}.</p>
           )}
           {built.issues.length > 0 && (
-            <details className="text-sm text-warning-500">
+            <details className="text-sm text-warning">
               <summary className="cursor-pointer">{built.issues.length} row{built.issues.length === 1 ? '' : 's'} will be skipped</summary>
               <ul className="mt-1 max-h-40 list-disc overflow-y-auto pl-5 text-text-secondary">
                 {built.issues.slice(0, 50).map((i) => <li key={i.row}>Row {i.row}: {i.message}</li>)}

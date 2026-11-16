@@ -97,12 +97,12 @@ export function ReplyEditor({
         </p>
       )}
       {draftMeta?.flags.map((f) => (
-        <p key={f} role="status" className="flex items-start gap-1.5 text-xs text-warning-500">
+        <p key={f} role="status" className="flex items-start gap-1.5 text-xs text-warning">
           <AlertTriangle size={13} className="mt-0.5 shrink-0" aria-hidden="true" /> Check: {f}
         </p>
       ))}
       {warnings.map((w) => (
-        <p key={w} role="status" className="flex items-start gap-1.5 text-xs text-warning-500">
+        <p key={w} role="status" className="flex items-start gap-1.5 text-xs text-warning">
           <AlertTriangle size={13} className="mt-0.5 shrink-0" aria-hidden="true" /> {REPLY_WARNING_LABEL[w]}
         </p>
       ))}

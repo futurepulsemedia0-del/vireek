@@ -573,12 +573,12 @@ export function SketchCanvas(props: Props) {
       {draft.length > 0 && !readOnly && (
         <div className="absolute inset-x-0 bottom-3 flex justify-center gap-2">
           {tool === 'room' && (
-            <button type="button" onClick={finishDraft} disabled={draft.length < 3} className="focus-ring rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white shadow-lg disabled:opacity-50">
+            <button type="button" onClick={finishDraft} disabled={draft.length < 3} className="focus-ring rounded-full bg-accent px-4 py-2 text-sm font-semibold text-on-accent shadow-lg disabled:opacity-50">
               Close room
             </button>
           )}
           {tool === 'wall' && (
-            <button type="button" onClick={cancelDraft} className="focus-ring rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white shadow-lg">
+            <button type="button" onClick={cancelDraft} className="focus-ring rounded-full bg-accent px-4 py-2 text-sm font-semibold text-on-accent shadow-lg">
               Finish walls
             </button>
           )}

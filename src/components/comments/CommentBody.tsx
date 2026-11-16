@@ -21,7 +21,7 @@ export function CommentBody({ body, mentions, currentUserId }: Props) {
           <span
             key={i}
             data-mention={seg.userId}
-            className={`rounded-md px-1 py-0.5 font-medium ${me ? 'bg-warning-500/15 text-warning-500' : 'bg-accent/10 text-accent'}`}
+            className={`rounded-md px-1 py-0.5 font-medium ${me ? 'bg-warning-subtle text-warning' : 'bg-accent/10 text-accent'}`}
           >
             @{seg.name}
             {me && <span className="sr-only"> (you)</span>}

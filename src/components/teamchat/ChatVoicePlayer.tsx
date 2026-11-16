@@ -40,7 +40,7 @@ export function ChatVoicePlayer({ url, durationMs, own }: { url: string | null; 
         disabled={!url}
         aria-label={playing ? 'Pause voice note' : 'Play voice note'}
         className={`focus-ring flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full ${
-          own ? 'bg-white/20 hover:bg-white/30' : 'bg-accent/10 text-accent hover:bg-accent/20'
+          own ? 'bg-bg-secondary/20 hover:bg-bg-secondary/30' : 'bg-accent/10 text-accent hover:bg-accent/20'
         } disabled:opacity-50`}
       >
         {playing ? <Pause size={18} /> : <Play size={18} className="translate-x-px" />}

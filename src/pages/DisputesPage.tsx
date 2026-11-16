@@ -38,7 +38,7 @@ const TABS: { key: DisputeTab; label: string }[] = [
 ];
 
 function Kpi({ label, value, hint, tone }: { label: string; value: string; hint?: string; tone?: 'danger' | 'success' | 'warning' }) {
-  const color = tone === 'danger' ? 'text-danger' : tone === 'success' ? 'text-success' : tone === 'warning' ? 'text-warning-500' : 'text-text-primary';
+  const color = tone === 'danger' ? 'text-danger' : tone === 'success' ? 'text-success' : tone === 'warning' ? 'text-warning' : 'text-text-primary';
   return (
     <div className="rounded-2xl border border-border bg-bg-secondary p-4">
       <p className="text-[10px] font-medium uppercase tracking-wide text-text-secondary">{label}</p>
@@ -70,7 +70,7 @@ function StatusPill({ status }: { status: string }) {
 function DeadlineCell({ row }: { row: StripeDisputeRow }) {
   if (!isNeedsResponse(row.status)) return <span className="text-text-secondary">—</span>;
   const d = deadlineState(row.evidence_due_by);
-  return <span className={`text-xs font-semibold ${d.tone === 'danger' ? 'text-danger' : d.tone === 'warning' ? 'text-warning-500' : 'text-text-secondary'}`}>{d.label}</span>;
+  return <span className={`text-xs font-semibold ${d.tone === 'danger' ? 'text-danger' : d.tone === 'warning' ? 'text-warning' : 'text-text-secondary'}`}>{d.label}</span>;
 }
 
 export function DisputesPage() {
@@ -169,7 +169,7 @@ export function DisputesPage() {
                   <Kpi label="Dispute rate" value={stats.dispute_rate_pct === null ? '—' : `${stats.dispute_rate_pct}%`} hint={`of ${stats.paid_payments} paid payments, last ${stats.window_days}d`} />
                 </div>
                 {stats.lost_unanswered > 0 && (
-                  <p className="rounded-xl border border-warning-500/30 bg-warning-500/10 p-3 text-xs text-warning-500">
+                  <p className="rounded-xl border border-warning/30 bg-warning-subtle p-3 text-xs text-warning">
                     {stats.lost_unanswered} dispute{stats.lost_unanswered === 1 ? ' was' : 's were'} lost without any evidence submitted. Responding to every dispute is the single biggest lever on your win rate.
                   </p>
                 )}
@@ -209,7 +209,7 @@ export function DisputesPage() {
                   <span className="sr-only">Search disputes</span>
                   <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary" />
                   <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search customer or ID"
-                    className="focus-ring w-full rounded-xl border border-border bg-bg-primary py-2 pl-9 pr-3 text-sm text-text-primary placeholder:text-text-secondary/60 focus-visible:border-accent" />
+                    className="focus-ring w-full rounded-xl border border-border bg-bg-primary py-2 pl-9 pr-3 text-sm text-text-primary placeholder:text-text-placeholder focus-visible:border-accent" />
                 </label>
               </div>
 

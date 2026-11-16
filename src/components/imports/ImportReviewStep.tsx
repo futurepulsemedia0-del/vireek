@@ -135,8 +135,8 @@ export function ImportReviewStep({ importType, validation, validating, error, de
           </div>
 
           {!validation.can_import && (
-            <div role="alert" className="flex items-start gap-2 rounded-xl border border-amber-500/30 bg-amber-500/5 p-3 text-sm text-text-primary">
-              <AlertTriangle size={18} className="mt-0.5 shrink-0 text-amber-600" /> {validation.blocking_reason}
+            <div role="alert" className="flex items-start gap-2 rounded-xl border border-warning/30 bg-warning-subtle p-3 text-sm text-text-primary">
+              <AlertTriangle size={18} className="mt-0.5 shrink-0 text-warning" /> {validation.blocking_reason}
             </div>
           )}
           {validation.can_import && s.error > 0 && (
@@ -168,7 +168,7 @@ export function ImportReviewStep({ importType, validation, validating, error, de
                   {r.issues.length > 0 && (
                     <ul className="mt-2 space-y-1">
                       {r.issues.map((i, idx) => (
-                        <li key={idx} className={`flex items-start gap-1.5 text-xs ${i.severity === 'error' ? 'text-danger' : i.severity === 'warning' ? 'text-amber-600' : 'text-text-secondary'}`}>
+                        <li key={idx} className={`flex items-start gap-1.5 text-xs ${i.severity === 'error' ? 'text-danger' : i.severity === 'warning' ? 'text-warning' : 'text-text-secondary'}`}>
                           {i.severity === 'info' ? <Info size={13} className="mt-0.5 shrink-0" /> : <AlertTriangle size={13} className="mt-0.5 shrink-0" />} {i.message}
                         </li>
                       ))}

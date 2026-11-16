@@ -70,7 +70,7 @@ export function VoicePlatformPage() {
         <ul className="mt-3 divide-y divide-border rounded-xl border border-border text-sm">
           {listPacks().map((p) => (
             <li key={p.id} className="px-3 py-2">
-              <p className="font-medium text-text-primary">{p.label}{p.id === verticalId && <span className="ms-2 text-xs font-semibold text-success-500">In use</span>}</p>
+              <p className="font-medium text-text-primary">{p.label}{p.id === verticalId && <span className="ms-2 text-xs font-semibold text-success">In use</span>}</p>
               <p className="text-xs text-text-secondary">{p.description}</p>
             </li>
           ))}

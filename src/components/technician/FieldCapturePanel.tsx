@@ -366,18 +366,18 @@ export function FieldCapturePanel({ jobId, customerName }: { jobId: string; cust
         </ActionButton>
       </div>
 
-      <video ref={videoRef} muted playsInline className={scanning ? 'w-full rounded-lg bg-black' : 'hidden'} />
+      <video ref={videoRef} muted playsInline className={scanning ? 'w-full rounded-lg bg-overlay' : 'hidden'} />
 
       <div className="flex gap-2">
         <input value={manualCode} onChange={(e) => setManualCode(e.target.value)} placeholder="Type a serial / part number" className={field} />
-        <button type="button" onClick={() => void addManualCode()} className="rounded-md bg-accent px-3 text-sm font-medium text-white">Add</button>
+        <button type="button" onClick={() => void addManualCode()} className="rounded-md bg-accent px-3 text-sm font-medium text-on-accent">Add</button>
       </div>
 
       {signing && (
         <div className="space-y-2 rounded-lg border border-border bg-bg-primary p-3">
           <input value={signerName} onChange={(e) => setSignerName(e.target.value)} placeholder="Customer name" className={field} />
           <SignaturePad defaultName={customerName} onChange={setSignature} />
-          <button type="button" disabled={!signature || !signerName.trim()} onClick={() => void saveSignature()} className="w-full rounded-md bg-accent py-2 text-sm font-semibold text-white disabled:opacity-50">
+          <button type="button" disabled={!signature || !signerName.trim()} onClick={() => void saveSignature()} className="w-full rounded-md bg-accent py-2 text-sm font-semibold text-on-accent disabled:opacity-50">
             Save signature
           </button>
         </div>
@@ -395,7 +395,7 @@ export function FieldCapturePanel({ jobId, customerName }: { jobId: string; cust
           {form.follow_up_needed && (
             <input value={form.follow_up_note} onChange={(e) => setForm({ ...form, follow_up_note: e.target.value })} placeholder="What is needed?" className={field} />
           )}
-          <button type="button" onClick={() => void saveForm()} className="w-full rounded-md bg-accent py-2 text-sm font-semibold text-white">Save form</button>
+          <button type="button" onClick={() => void saveForm()} className="w-full rounded-md bg-accent py-2 text-sm font-semibold text-on-accent">Save form</button>
         </div>
       </details>
 

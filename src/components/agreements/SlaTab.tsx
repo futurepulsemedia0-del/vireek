@@ -33,8 +33,8 @@ export function SlaTab({ data, canSeeMoney }: TabProps) {
   return (
     <>
       <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatTile label="Breaches (90 days)" value={recent.length} icon={Gauge} tone={recent.length ? 'text-warning-500' : 'text-success-500'} />
-        <StatTile label="Unresolved" value={unresolved.length} icon={Timer} tone={unresolved.length ? 'text-danger' : 'text-success-500'} />
+        <StatTile label="Breaches (90 days)" value={recent.length} icon={Gauge} tone={recent.length ? 'text-warning' : 'text-success'} />
+        <StatTile label="Unresolved" value={unresolved.length} icon={Timer} tone={unresolved.length ? 'text-danger' : 'text-success'} />
         {canSeeMoney && <StatTile label="Penalties incurred" value={formatMoney(totalPenalty)} icon={Wallet} tone="text-danger" />}
         <StatTile label="Terms" value={data.termsReview === 'verified' ? 'Verified' : data.termsReview === 'draft' ? 'Draft' : 'Basic'} icon={ShieldCheck} tone="text-accent" />
       </div>
@@ -84,7 +84,7 @@ export function SlaTab({ data, canSeeMoney }: TabProps) {
                   </p>
                 </div>
                 <Pill className={BREACH_SEVERITY_COLORS[b.severity as BreachSeverity]}>{BREACH_SEVERITY_LABELS[b.severity as BreachSeverity]}</Pill>
-                <Pill className={b.resolved ? 'bg-success-500/10 text-success-500' : 'bg-warning-500/10 text-warning-500'}>{b.resolved ? 'Resolved' : 'Open'}</Pill>
+                <Pill className={b.resolved ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning'}>{b.resolved ? 'Resolved' : 'Open'}</Pill>
               </li>
             ))}
           </ul>

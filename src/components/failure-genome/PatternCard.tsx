@@ -19,7 +19,7 @@ function Evidence({ title, items }: { title: string; items: TagShare[] }) {
       <div className="flex flex-wrap gap-1.5">
         {items.map((t) => (
           <span key={t.tag} className="rounded-full bg-bg-tertiary px-2.5 py-0.5 text-xs text-text-secondary">
-            {humanize(t.tag)} <span className="text-text-secondary/60">{pct(t.share)}</span>
+            {humanize(t.tag)} <span className="text-text-muted">{pct(t.share)}</span>
           </span>
         ))}
       </div>

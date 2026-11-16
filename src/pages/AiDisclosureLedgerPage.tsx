@@ -23,8 +23,8 @@ import {
 const STALE_CHECK_MS = 6 * 60 * 60 * 1000;
 
 const TONE: Record<'good' | 'warn' | 'bad' | 'neutral', string> = {
-  good: 'bg-success-500/10 text-success-500',
-  warn: 'bg-warning-500/10 text-warning-500',
+  good: 'bg-success-subtle text-success',
+  warn: 'bg-warning-subtle text-warning',
   bad: 'bg-danger/10 text-danger',
   neutral: 'bg-bg-tertiary text-text-secondary',
 };
@@ -372,7 +372,7 @@ export function AiDisclosureLedgerPage() {
                 <label htmlFor="ledger-search" className="sr-only">Search by call ID</label>
                 <input
                   id="ledger-search" type="search" value={search} placeholder="Search call ID" onChange={(e) => { setSearch(e.target.value); setPage(0); }}
-                  className="focus-ring min-h-[40px] w-44 rounded-xl border border-border bg-bg-primary px-3 text-sm text-text-primary placeholder:text-text-secondary/60"
+                  className="focus-ring min-h-[40px] w-44 rounded-xl border border-border bg-bg-primary px-3 text-sm text-text-primary placeholder:text-text-placeholder"
                 />
               </div>
             </div>

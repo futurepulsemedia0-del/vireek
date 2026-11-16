@@ -119,7 +119,7 @@ export function JobWorkflowBoard({
                       </li>
                     );
                   })}
-                  {jobs.length === 0 && <li className="py-3 text-center text-xs text-text-secondary/60">Drop a job here</li>}
+                  {jobs.length === 0 && <li className="py-3 text-center text-xs text-text-muted">Drop a job here</li>}
                 </ul>
               </div>
             );

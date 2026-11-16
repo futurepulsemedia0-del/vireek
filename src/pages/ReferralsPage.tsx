@@ -186,7 +186,7 @@ function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center sm:p-4"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-overlay/50 sm:items-center sm:p-4"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) guardedClose();
       }}
@@ -237,7 +237,7 @@ function CopyButton({ text }: { text: string }) {
 
   return (
     <button type="button" onClick={() => void copy()} className={shareLinkClass}>
-      {copied ? <Check size={14} className="text-success-500" /> : <Copy size={14} />}
+      {copied ? <Check size={14} className="text-success" /> : <Copy size={14} />}
       {copied ? 'Copied' : 'Copy link'}
     </button>
   );
@@ -336,7 +336,7 @@ function LeaderboardTab({ allTimeRows, onNewLink }: { allTimeRows: LeaderboardRo
                   <div className="flex items-center gap-3">
                     <span
                       className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-                        podium ? 'bg-warning-500/15 text-warning-500' : 'bg-bg-tertiary text-text-secondary'
+                        podium ? 'bg-warning-subtle text-warning' : 'bg-bg-tertiary text-text-secondary'
                       }`}
                       aria-label={`Rank ${row.rank}`}
                     >
@@ -800,7 +800,7 @@ function RulesTab({
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <h3 className="break-words text-sm font-semibold text-text-primary">{r.name}</h3>
-                    <Pill className={r.is_active ? 'bg-success-500/10 text-success-500' : 'bg-bg-tertiary text-text-secondary'}>
+                    <Pill className={r.is_active ? 'bg-success-subtle text-success' : 'bg-bg-tertiary text-text-secondary'}>
                       {r.is_active ? 'Active' : 'Paused'}
                     </Pill>
                   </div>
@@ -991,7 +991,7 @@ function PayoutsTab({
               aria-pressed={filter === t.key}
               onClick={() => setFilter(t.key)}
               className={`focus-ring shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-                filter === t.key ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'
+                filter === t.key ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'
               }`}
             >
               {t.label} <span className="opacity-70">{counts[t.key]}</span>
@@ -1067,7 +1067,7 @@ function PayoutsTab({
                         <Pill
                           className={
                             c.status === 'rewarded'
-                              ? 'bg-success-500/10 text-success-500'
+                              ? 'bg-success-subtle text-success'
                               : c.status === 'converted'
                                 ? 'bg-accent/10 text-accent'
                                 : 'bg-bg-tertiary text-text-secondary'
@@ -1316,10 +1316,10 @@ export function ReferralsPage() {
               {activeRules === 0 && (
                 <div
                   role="status"
-                  className="mt-4 flex flex-col gap-3 rounded-2xl border border-warning-500/30 bg-warning-500/5 p-4 sm:flex-row sm:items-center sm:justify-between"
+                  className="mt-4 flex flex-col gap-3 rounded-2xl border border-warning/30 bg-warning-subtle p-4 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <p className="flex items-start gap-2 text-sm text-text-primary">
-                    <TriangleAlert size={16} className="mt-0.5 shrink-0 text-warning-500" aria-hidden="true" />
+                    <TriangleAlert size={16} className="mt-0.5 shrink-0 text-warning" aria-hidden="true" />
                     No active reward rule. Referrals will convert, but earn nothing until you add one.
                   </p>
                   <Button variant="secondary" size="sm" onClick={() => setTab('rules')}>
@@ -1343,7 +1343,7 @@ export function ReferralsPage() {
                     aria-controls="ref-panel"
                     onClick={() => setTab(key)}
                     className={`focus-ring flex shrink-0 items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-medium transition-colors ${
-                      tab === key ? 'bg-accent text-white' : 'text-text-secondary hover:text-text-primary'
+                      tab === key ? 'bg-accent text-on-accent' : 'text-text-secondary hover:text-text-primary'
                     }`}
                   >
                     <Icon size={14} aria-hidden="true" />

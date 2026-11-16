@@ -55,7 +55,7 @@ export function NetworkStatusStrip() {
         aria-live="polite"
         className="pointer-events-auto flex max-w-md items-start gap-3 rounded-xl border border-border bg-bg-secondary px-4 py-3 text-sm text-text-primary shadow-card dark:shadow-card-dark"
       >
-        <Icon size={16} aria-hidden="true" className={`mt-0.5 shrink-0 text-warning-500 ${spin}`} />
+        <Icon size={16} aria-hidden="true" className={`mt-0.5 shrink-0 text-warning ${spin}`} />
         <div className="min-w-0">
           <p className="font-semibold">{text.title}</p>
           {text.body ? <p className="text-text-secondary">{text.body}</p> : null}

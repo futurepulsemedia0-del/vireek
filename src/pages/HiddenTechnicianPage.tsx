@@ -147,7 +147,7 @@ export function HiddenTechnicianPage() {
       </div>
 
       {demo && <p role="status" className="mb-4 rounded-xl border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-text-primary">{t('demoBanner')}</p>}
-      {error && <p role="alert" className="mb-4 rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-text-primary">{error}</p>}
+      {error && <p role="alert" className="mb-4 rounded-xl border border-danger/40 bg-danger-subtle px-4 py-3 text-sm text-text-primary">{error}</p>}
       {notice && <p role="status" aria-live="polite" className="mb-4 rounded-xl border border-border bg-bg-secondary px-4 py-3 text-sm text-text-primary">{notice}</p>}
 
       {!snap && busy && <SkeletonCard rows={5} />}

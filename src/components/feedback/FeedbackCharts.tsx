@@ -2,7 +2,7 @@ import { ArrowDownRight, ArrowUpRight, Minus } from 'lucide-react';
 import type { Summary, TrendPoint } from '@/lib/feedbackAnalytics';
 
 export const npsTone = (nps: number | null) =>
-  nps === null ? 'text-text-secondary' : nps >= 50 ? 'text-success' : nps >= 0 ? 'text-amber-600' : 'text-danger';
+  nps === null ? 'text-text-secondary' : nps >= 50 ? 'text-success' : nps >= 0 ? 'text-warning' : 'text-danger';
 
 export function DeltaBadge({ delta }: { delta: number | null }) {
   if (delta === null) return <span className="text-xs text-text-secondary" title="Needs at least 5 responses in both periods">—</span>;
@@ -28,12 +28,12 @@ export function DistributionBar({ summary }: { summary: Summary }) {
         aria-label={`${summary.promoters} promoters, ${summary.passives} passives, ${summary.detractors} detractors`}
       >
         <div className="bg-success" style={{ width: `${pct(summary.promoters)}%` }} />
-        <div className="bg-amber-400" style={{ width: `${pct(summary.passives)}%` }} />
+        <div className="bg-warning" style={{ width: `${pct(summary.passives)}%` }} />
         <div className="bg-danger" style={{ width: `${pct(summary.detractors)}%` }} />
       </div>
       <div className="mt-1.5 flex justify-between text-[11px] tabular-nums text-text-secondary">
         <span><span className="text-success">●</span> {Math.round(pct(summary.promoters))}% promoters</span>
-        <span><span className="text-amber-500">●</span> {Math.round(pct(summary.passives))}% passive</span>
+        <span><span className="text-warning">●</span> {Math.round(pct(summary.passives))}% passive</span>
         <span><span className="text-danger">●</span> {Math.round(pct(summary.detractors))}% detractors</span>
       </div>
     </div>

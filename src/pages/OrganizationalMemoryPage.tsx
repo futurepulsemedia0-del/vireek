@@ -197,7 +197,7 @@ export function OrganizationalMemoryPage() {
               className="focus-ring w-full rounded-lg border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary" />
             <div className="flex justify-end gap-2">
               <button onClick={() => setShowForm(false)} className="focus-ring rounded-lg px-3 py-1.5 text-xs font-medium text-text-secondary">Cancel</button>
-              <button disabled={saving} onClick={submitEntry} className="focus-ring flex items-center gap-1 rounded-lg bg-cta px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50">
+              <button disabled={saving} onClick={submitEntry} className="focus-ring flex items-center gap-1 rounded-lg bg-cta px-3 py-1.5 text-xs font-medium text-on-cta disabled:opacity-50">
                 {saving && <Loader2 size={12} className="animate-spin" />} Save
               </button>
             </div>
@@ -267,7 +267,7 @@ export function OrganizationalMemoryPage() {
                       {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
                     </select>
                     <button disabled={busyId === item.id} onClick={() => remove(item.id)}
-                      className="focus-ring rounded-lg p-1 text-text-secondary hover:text-danger-500 disabled:opacity-50">
+                      className="focus-ring rounded-lg p-1 text-text-secondary hover:text-danger disabled:opacity-50">
                       <Trash2 size={12} />
                     </button>
                   </div>

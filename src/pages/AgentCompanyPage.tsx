@@ -29,14 +29,14 @@ import {
 const PRIORITY_STYLES: Record<AgentTaskPriority, string> = {
   low: 'bg-bg-tertiary text-text-secondary',
   normal: 'bg-accent/10 text-accent',
-  high: 'bg-warning-500/10 text-warning-500',
+  high: 'bg-warning-subtle text-warning',
   urgent: 'bg-danger/10 text-danger',
 };
 
 const STATUS_STYLES: Record<string, string> = {
   open: 'bg-accent/10 text-accent',
-  claimed: 'bg-warning-500/10 text-warning-500',
-  completed: 'bg-success-500/10 text-success-500',
+  claimed: 'bg-warning-subtle text-warning',
+  completed: 'bg-success-subtle text-success',
   failed: 'bg-danger/10 text-danger',
   cancelled: 'bg-bg-tertiary text-text-secondary',
 };
@@ -144,7 +144,7 @@ export function AgentCompanyPage() {
                   <p className="text-[10px] text-text-secondary">actions / 30d</p>
                 </div>
                 <div>
-                  <p className={`text-lg font-semibold ${r.pendingApprovals > 0 ? 'text-warning-500' : 'text-text-primary'}`}>{r.pendingApprovals}</p>
+                  <p className={`text-lg font-semibold ${r.pendingApprovals > 0 ? 'text-warning' : 'text-text-primary'}`}>{r.pendingApprovals}</p>
                   <p className="text-[10px] text-text-secondary">await approval</p>
                 </div>
                 <div>
@@ -160,7 +160,7 @@ export function AgentCompanyPage() {
         <div className="rounded-2xl border border-border bg-bg-secondary p-5">
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-2"><ListTodo size={16} className="text-cta" /><p className="text-sm font-semibold text-text-primary">Shared task board</p></div>
-            <button onClick={() => setShowForm((s) => !s)} className="focus-ring flex items-center gap-1.5 rounded-xl bg-cta px-3 py-1.5 text-xs font-medium text-white">
+            <button onClick={() => setShowForm((s) => !s)} className="focus-ring flex items-center gap-1.5 rounded-xl bg-cta px-3 py-1.5 text-xs font-medium text-on-cta">
               {showForm ? <X size={12} /> : <Plus size={12} />} {showForm ? 'Cancel' : 'Hand off a task'}
             </button>
           </div>
@@ -178,7 +178,7 @@ export function AgentCompanyPage() {
               </select>
               <input className="focus-ring rounded-xl border border-border bg-bg-secondary px-3 py-2 text-sm text-text-primary sm:col-span-2" placeholder="Task type (e.g. review_pricing_conflict)" value={taskType} onChange={(e) => setTaskType(e.target.value)} />
               <textarea className="focus-ring rounded-xl border border-border bg-bg-secondary px-3 py-2 text-sm text-text-primary sm:col-span-2" rows={2} placeholder="Why (optional)" value={reasoning} onChange={(e) => setReasoning(e.target.value)} />
-              <button disabled={submitting} onClick={handleCreateTask} className="focus-ring flex w-fit items-center gap-1.5 rounded-xl bg-cta px-4 py-2 text-sm font-medium text-white disabled:opacity-50 sm:col-span-2">
+              <button disabled={submitting} onClick={handleCreateTask} className="focus-ring flex w-fit items-center gap-1.5 rounded-xl bg-cta px-4 py-2 text-sm font-medium text-on-cta disabled:opacity-50 sm:col-span-2">
                 {submitting ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />} Post task
               </button>
             </div>

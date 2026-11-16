@@ -52,7 +52,7 @@ import {
 } from '@/lib/verificationNetwork';
 
 const selectClass =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary/60';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary px-3 py-2 text-sm text-text-primary placeholder:text-text-placeholder';
 
 function errMsg(e: unknown, fallback: string): string {
   if (
@@ -166,7 +166,7 @@ function SubjectRow({
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="text-sm font-medium text-text-primary">
-            <span className="mr-2 text-[11px] font-semibold uppercase tracking-wide text-text-secondary/70">
+            <span className="mr-2 text-[11px] font-semibold uppercase tracking-wide text-text-muted">
               {KIND_LABELS[kind]}
             </span>
             {title}
@@ -211,7 +211,7 @@ function SubjectRow({
             type="button"
             onClick={() => void run()}
             disabled={busy || check?.status === 'pending'}
-            className="focus-ring inline-flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white hover:brightness-110 disabled:opacity-50"
+            className="focus-ring inline-flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent hover:brightness-110 disabled:opacity-50"
           >
             <RefreshCw size={12} className={busy ? 'animate-spin' : ''} />
             {check ? 'Re-verify now' : 'Verify now'}
@@ -266,7 +266,7 @@ function SubjectRow({
             type="button"
             onClick={() => void resolve()}
             disabled={busy}
-            className="focus-ring justify-self-start rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white hover:brightness-110 disabled:opacity-50"
+            className="focus-ring justify-self-start rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent hover:brightness-110 disabled:opacity-50"
           >
             Save result
           </button>
@@ -390,7 +390,7 @@ function TechnicianDetail({
 
       <div className="rounded-xl border border-border/60 p-3">
         <p className="text-sm font-medium text-text-primary">
-          <span className="mr-2 text-[11px] font-semibold uppercase tracking-wide text-text-secondary/70">
+          <span className="mr-2 text-[11px] font-semibold uppercase tracking-wide text-text-muted">
             {KIND_LABELS.background}
           </span>
           Background check
@@ -406,7 +406,7 @@ function TechnicianDetail({
             <button
               type="button"
               onClick={() => void giveConsent()}
-              className="focus-ring rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white hover:brightness-110"
+              className="focus-ring rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent hover:brightness-110"
             >
               I consent to a background check
             </button>
@@ -561,12 +561,12 @@ export function VerificationNetworkPage() {
         <FadeIn>
           <div className="mb-6 grid gap-4 sm:grid-cols-4">
             <Card className="!p-5">
-              <ShieldCheck size={16} className="text-success-500" />
+              <ShieldCheck size={16} className="text-success" />
               <p className="mt-2 text-2xl font-bold text-text-primary">{counts.verified}</p>
               <p className="text-xs text-text-secondary">Fully verified</p>
             </Card>
             <Card className="!p-5">
-              <FileCheck2 size={16} className="text-warning-500" />
+              <FileCheck2 size={16} className="text-warning" />
               <p className="mt-2 text-2xl font-bold text-text-primary">{counts.open}</p>
               <p className="text-xs text-text-secondary">Verification incomplete</p>
             </Card>
@@ -646,7 +646,7 @@ export function VerificationNetworkPage() {
                     {selected.blockers.map((b, i) => (
                       <li
                         key={`${b.code}-${i}`}
-                        className="rounded-full bg-warning-500/10 px-2.5 py-1 text-xs text-warning-500"
+                        className="rounded-full bg-warning-subtle px-2.5 py-1 text-xs text-warning"
                       >
                         {blockerText(b)}
                       </li>

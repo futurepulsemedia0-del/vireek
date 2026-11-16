@@ -138,7 +138,7 @@ function PendingStep({
         />
       </div>
 
-      <p className="mt-6 max-w-[320px] text-xs leading-relaxed text-text-secondary/70">
+      <p className="mt-6 max-w-[320px] text-xs leading-relaxed text-text-muted">
         Can’t find it? Check your spam or promotions folder. The code and the link both work — use whichever is easier.
       </p>
 

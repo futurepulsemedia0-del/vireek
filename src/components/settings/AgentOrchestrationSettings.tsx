@@ -57,14 +57,14 @@ export function AgentOrchestrationSettings() {
   };
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-sm">
       <div className="flex items-start gap-3">
-        <div className="rounded-lg bg-indigo-50 p-2">
-          <Users2 className="h-5 w-5 text-indigo-600" />
+        <div className="rounded-lg bg-accent-subtle p-2">
+          <Users2 className="h-5 w-5 text-accent" />
         </div>
         <div className="flex-1">
-          <h3 className="text-base font-semibold text-slate-900">AI Agent Orchestration</h3>
-          <p className="mt-1 text-sm text-slate-500">
+          <h3 className="text-base font-semibold text-text-primary">AI Agent Orchestration</h3>
+          <p className="mt-1 text-sm text-text-muted">
             Split your AI receptionist into specialized agents — a router, a scheduler, an
             emergency triage agent, a pricing/info agent, and an account/history agent — that
             hand off to each other mid-call instead of one assistant handling everything.
@@ -77,9 +77,9 @@ export function AgentOrchestrationSettings() {
               type="checkbox"
               checked={enabled}
               onChange={(e) => handleToggle(e.target.checked)}
-              className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+              className="h-4 w-4 rounded border-border-strong text-accent focus:ring-accent"
             />
-            <span className="text-sm font-medium text-slate-700">
+            <span className="text-sm font-medium text-text-primary">
               Use specialized agents (Router / Scheduler / Emergency / Pricing / Account)
             </span>
           </label>
@@ -88,7 +88,7 @@ export function AgentOrchestrationSettings() {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="mt-4 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+              className="mt-4 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-on-accent hover:bg-accent-hover disabled:opacity-50"
             >
               {saving ? 'Saving…' : 'Save changes'}
             </button>

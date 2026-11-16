@@ -28,7 +28,7 @@ export function IntakeFields({ questions, answers, errors, onChange }: IntakeFie
           <div key={q.id}>
             <label htmlFor={q.type === 'yesno' ? undefined : id} id={`${id}-label`} className="mb-1.5 block text-xs font-medium text-text-secondary">
               {q.label}
-              {q.required ? <span className="ml-0.5 text-danger" aria-hidden="true">*</span> : <span className="ml-1 text-text-secondary/70">(optional)</span>}
+              {q.required ? <span className="ml-0.5 text-danger" aria-hidden="true">*</span> : <span className="ml-1 text-text-muted">(optional)</span>}
             </label>
 
             {q.type === 'text' && (

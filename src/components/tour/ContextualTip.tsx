@@ -61,7 +61,7 @@ export function ContextualTip({ id, children, placement = 'bottom', className = 
         aria-expanded={open}
         aria-controls={open ? popoverId : undefined}
         aria-label={tt('tour.ui.tipLabel', 'Tip: {{title}}', { title })}
-        className="focus-ring absolute -end-1.5 -top-1.5 z-10 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-white before:absolute before:-inset-2 before:content-['']"
+        className="focus-ring absolute -end-1.5 -top-1.5 z-10 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-on-accent before:absolute before:-inset-2 before:content-['']"
       >
         <span aria-hidden="true" className="absolute inline-flex h-full w-full rounded-full bg-accent opacity-60 motion-safe:animate-ping" />
         <Lightbulb size={9} aria-hidden="true" className="relative" />

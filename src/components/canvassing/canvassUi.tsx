@@ -14,7 +14,7 @@ export const compactSelectCls =
 export function StatusBadge({ status, className = '' }: { status: DoorStatus; className?: string }) {
   return (
     <span className={`inline-flex items-center gap-1.5 text-xs font-medium text-text-primary ${className}`}>
-      <span aria-hidden="true" className="h-2.5 w-2.5 shrink-0 rounded-full border border-white/70 shadow-sm" style={{ backgroundColor: statusColor(status) }} />
+      <span aria-hidden="true" className="h-2.5 w-2.5 shrink-0 rounded-full border border-on-inverse/70 shadow-sm" style={{ backgroundColor: statusColor(status) }} />
       {statusLabel(status)}
     </span>
   );
@@ -48,7 +48,7 @@ export function Sheet({ open, title, description, onClose, children, footer }: S
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
             onClick={onClose}
-            className="fixed inset-0 z-[110] bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 z-[110] bg-overlay/40 backdrop-blur-sm"
           />
           <motion.div
             key="panel"

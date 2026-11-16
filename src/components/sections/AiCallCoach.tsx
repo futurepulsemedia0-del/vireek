@@ -385,7 +385,7 @@ export function AiCallCoach() {
                   {!hasRun ? (
                     <button
                       onClick={runSimulation}
-                      className="focus-ring mt-2 inline-flex w-fit items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-150 hover:brightness-110 active:scale-[0.97]"
+                      className="focus-ring mt-2 inline-flex w-fit items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-on-cta shadow-sm transition-all duration-150 hover:brightness-110 active:scale-[0.97]"
                     >
                       <PlayCircle size={16} />
                       Run Simulation

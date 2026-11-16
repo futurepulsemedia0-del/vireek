@@ -92,7 +92,7 @@ export function SocialProof() {
           whileInView={{ opacity: 1 }}
           viewport={viewport}
           transition={{ duration: 0.5, ease: EASE }}
-          className="mt-6 text-sm text-text-secondary/70"
+          className="mt-6 text-sm text-text-muted"
         >
           Source: industry research on home services call handling, 2026.
         </motion.p>
@@ -127,7 +127,7 @@ export function SocialProof() {
               transition={{ duration: 0.5, ease: EASE }}
               className="flex h-full flex-col rounded-2xl border border-border bg-bg-secondary p-6 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:border-accent/25 dark:shadow-card-dark"
             >
-              <Quote size={24} className="text-accent/30" />
+              <Quote size={24} className="text-accent" />
               <p className="mt-3 flex-1 text-sm leading-relaxed text-text-primary">
                 &ldquo;{t.quote}&rdquo;
               </p>
@@ -158,7 +158,7 @@ export function SocialProof() {
         >
           <Link
             to="/testimonials"
-            className="focus-ring inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-accent transition-colors hover:text-accent/80"
+            className="focus-ring inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-accent transition-colors hover:text-accent"
           >
             Read more contractor stories <ArrowRight className="h-3.5 w-3.5" />
           </Link>

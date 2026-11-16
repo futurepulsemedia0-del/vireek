@@ -12,8 +12,8 @@ interface Props {
 }
 
 const PALETTE = {
-  light: { panel: '#FFFFFF', surface: '#F3F4F6', text: '#111827', muted: '#6B7280', border: '#E5E7EB' },
-  dark: { panel: '#111827', surface: '#1F2937', text: '#F9FAFB', muted: '#9CA3AF', border: '#374151' },
+  light: { panel: '#FFFFFF', surface: '#FAF9F5', text: '#1C1B15', muted: '#73726C', border: '#E8E6DC' },
+  dark: { panel: '#1C1B15', surface: '#2F2E28', text: '#FAF9F5', muted: '#A9A8A2', border: '#44423D' },
 } as const;
 
 /**
@@ -22,7 +22,7 @@ const PALETTE = {
  */
 export function ChatWidgetPreview({ settings, state, theme, businessName }: Props) {
   const c = PALETTE[theme];
-  const brand = /^#[0-9a-fA-F]{6}$/.test(settings.brand_color) ? settings.brand_color : '#3448E8';
+  const brand = /^#[0-9a-fA-F]{6}$/.test(settings.brand_color) ? settings.brand_color : '#A93B0F';
   const onBrand = readableTextColor(brand);
   const online = state === 'online';
   const hidden = !online && settings.offline_behavior === 'hide';
@@ -55,7 +55,7 @@ export function ChatWidgetPreview({ settings, state, theme, businessName }: Prop
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold">{settings.title || 'Chat with us'}</p>
                 <p className="flex items-center gap-1.5 text-[11px] opacity-90">
-                  <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: online ? '#22C55E' : '#9CA3AF' }} />
+                  <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: online ? '#34C759' : '#A9A8A2' }} />
                   {online ? businessName || 'We typically reply in minutes' : 'Offline'}
                 </p>
               </div>

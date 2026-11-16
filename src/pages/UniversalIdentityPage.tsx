@@ -27,7 +27,7 @@ import {
 } from '@/lib/universalIdentity';
 
 const FIELD =
-  'focus-ring w-full rounded-xl border border-border bg-bg-primary py-2 pl-9 pr-3 text-sm text-text-primary placeholder:text-text-secondary/70';
+  'focus-ring w-full rounded-xl border border-border bg-bg-primary py-2 pl-9 pr-3 text-sm text-text-primary placeholder:text-text-placeholder';
 const PAGE_SIZE = 25;
 
 function StatTile({ label, value, hint }: { label: string; value: string; hint?: string }) {

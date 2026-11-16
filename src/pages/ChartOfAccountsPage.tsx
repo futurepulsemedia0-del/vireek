@@ -30,9 +30,9 @@ const TABS: { id: Tab; label: string }[] = [
 ];
 
 const TYPE_BADGE: Record<AccountType, string> = {
-  asset: 'bg-blue-500/10 text-blue-600 dark:text-blue-300',
-  liability: 'bg-warning-500/10 text-warning-500',
-  equity: 'bg-purple-500/10 text-purple-600 dark:text-purple-300',
+  asset: 'bg-info-subtle text-info',
+  liability: 'bg-warning-subtle text-warning',
+  equity: 'bg-accent-subtle text-accent',
   revenue: 'bg-success/10 text-success',
   expense: 'bg-danger/10 text-danger',
 };
@@ -132,7 +132,7 @@ function AccountEditor({
 
   return (
     <>
-      <div className="fixed inset-0 z-[110] bg-black/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+      <div className="fixed inset-0 z-[110] bg-overlay/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
       <div
         ref={dialogRef}
         tabIndex={-1}
@@ -233,7 +233,7 @@ function ReasonDialog({
   const valid = reason.trim().length >= 5;
   return (
     <>
-      <div className="fixed inset-0 z-[110] bg-black/40 backdrop-blur-sm" onClick={onCancel} aria-hidden="true" />
+      <div className="fixed inset-0 z-[110] bg-overlay/40 backdrop-blur-sm" onClick={onCancel} aria-hidden="true" />
       <div
         ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="coa-reason-title"
         className="fixed left-1/2 top-1/2 z-[120] w-[92vw] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border bg-bg-secondary p-6 shadow-card-hover"
@@ -455,10 +455,10 @@ export function ChartOfAccountsPage() {
               <button
                 key={t.id} type="button" role="tab" aria-selected={tab === t.id} id={`coa-tab-${t.id}`} aria-controls={`coa-panel-${t.id}`}
                 onClick={() => setTab(t.id)}
-                className={`focus-ring shrink-0 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors ${tab === t.id ? 'bg-accent text-white' : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'}`}
+                className={`focus-ring shrink-0 whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors ${tab === t.id ? 'bg-accent text-on-accent' : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'}`}
               >
                 {t.label}
-                {t.id === 'services' && unmapped > 0 && <span className="ml-1.5 rounded-full bg-warning-500/20 px-1.5 text-[11px] font-semibold text-warning-500">{unmapped}</span>}
+                {t.id === 'services' && unmapped > 0 && <span className="ml-1.5 rounded-full bg-warning-subtle px-1.5 text-[11px] font-semibold text-warning">{unmapped}</span>}
               </button>
             ))}
           </div>
@@ -642,7 +642,7 @@ export function ChartOfAccountsPage() {
                                       <p className="mt-0.5 flex flex-wrap gap-x-3 text-xs text-text-secondary">
                                         {s.in_price_book && <span>In price book</span>}
                                         <span>{s.job_count} job{s.job_count === 1 ? '' : 's'}</span>
-                                        {!s.mapping_id && <span className="font-medium text-warning-500">Unmapped</span>}
+                                        {!s.mapping_id && <span className="font-medium text-warning">Unmapped</span>}
                                       </p>
                                     </div>
                                     <select

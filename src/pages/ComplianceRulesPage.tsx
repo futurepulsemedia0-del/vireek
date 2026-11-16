@@ -86,8 +86,8 @@ export function ComplianceRulesPage() {
           </p>
         </div>
 
-        <p role="note" className="flex gap-2 rounded-xl border border-warning-500/40 bg-warning-500/10 p-3 text-sm text-text-primary">
-          <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-warning-500" aria-hidden />
+        <p role="note" className="flex gap-2 rounded-xl border border-warning/40 bg-warning-subtle p-3 text-sm text-text-primary">
+          <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-warning" aria-hidden />
           <span><strong>Rules require legal review.</strong> {LEGAL_DISCLAIMER}</span>
         </p>
 

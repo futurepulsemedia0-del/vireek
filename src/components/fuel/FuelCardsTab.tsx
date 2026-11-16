@@ -88,7 +88,7 @@ export function FuelCardsTab({ cards, vehicles, technicians, unknownLast4, onCha
       </div>
 
       {unknownLast4.length > 0 && (
-        <div role="status" className="rounded-xl border border-warning-500/30 bg-warning-500/10 px-4 py-3 text-sm text-text-primary">
+        <div role="status" className="rounded-xl border border-warning/30 bg-warning-subtle px-4 py-3 text-sm text-text-primary">
           <p className="font-medium">Unregistered cards found in your transactions</p>
           <div className="mt-2 flex flex-wrap gap-2">
             {unknownLast4.map((l4) => (

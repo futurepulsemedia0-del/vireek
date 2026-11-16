@@ -106,7 +106,7 @@ export function NextBestActionsPage() {
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-2">
                   {a.cta_href && (
-                    <Link to={a.cta_href} className="focus-ring flex items-center gap-1 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white">
+                    <Link to={a.cta_href} className="focus-ring flex items-center gap-1 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent">
                       Open <ArrowRight size={12} />
                     </Link>
                   )}
@@ -119,10 +119,10 @@ export function NextBestActionsPage() {
                       sourceRef={a.id}
                       impactCents={parseAmountLabel(a.amount_label)}
                     />
-                    <button type="button" onClick={() => resolve(a.id, 'done')} title="Mark done" className="focus-ring rounded-lg border border-border p-1.5 text-text-secondary hover:text-success-500">
+                    <button type="button" onClick={() => resolve(a.id, 'done')} title="Mark done" className="focus-ring rounded-lg border border-border p-1.5 text-text-secondary hover:text-success">
                       <CheckCircle size={14} />
                     </button>
-                    <button type="button" onClick={() => resolve(a.id, 'dismissed')} title="Dismiss" className="focus-ring rounded-lg border border-border p-1.5 text-text-secondary hover:text-danger-500">
+                    <button type="button" onClick={() => resolve(a.id, 'dismissed')} title="Dismiss" className="focus-ring rounded-lg border border-border p-1.5 text-text-secondary hover:text-danger">
                       <X size={14} />
                     </button>
                   </div>

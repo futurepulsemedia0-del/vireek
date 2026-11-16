@@ -23,7 +23,7 @@ import {
 type State = { kind: 'loading' } | { kind: 'missing' } | { kind: 'ready'; co: PublicChangeOrder };
 
 function Notice({ icon: Icon, title, body, tone }: { icon: typeof CheckCircle2; title: string; body: string; tone: 'success' | 'neutral' | 'warning' | 'danger' }) {
-  const color = tone === 'success' ? 'text-success-500' : tone === 'danger' ? 'text-danger-500' : tone === 'warning' ? 'text-warning-500' : 'text-text-secondary';
+  const color = tone === 'success' ? 'text-success' : tone === 'danger' ? 'text-danger' : tone === 'warning' ? 'text-warning' : 'text-text-secondary';
   return (
     <div role="status" className="rounded-2xl border border-border bg-bg-secondary p-6 text-center">
       <Icon size={32} className={`mx-auto ${color}`} aria-hidden="true" />
@@ -65,7 +65,7 @@ function ResponseForm({ co, token, onDone }: { co: PublicChangeOrder; token: str
       <div role="group" aria-label="Your decision" className="grid grid-cols-2 gap-2">
         {(['approve', 'decline'] as const).map((m) => (
           <button key={m} type="button" aria-pressed={mode === m} onClick={() => { setMode(m); setError(''); }}
-            className={`focus-ring min-h-[44px] rounded-xl px-4 text-sm font-semibold transition-colors ${mode === m ? (m === 'approve' ? 'bg-accent text-white' : 'bg-danger-500 text-white') : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>
+            className={`focus-ring min-h-[44px] rounded-xl px-4 text-sm font-semibold transition-colors ${mode === m ? (m === 'approve' ? 'bg-accent text-on-accent' : 'bg-danger text-on-danger') : 'bg-bg-tertiary text-text-secondary hover:text-text-primary'}`}>
             {m === 'approve' ? 'Approve' : 'Decline'}
           </button>
         ))}
@@ -87,7 +87,7 @@ function ResponseForm({ co, token, onDone }: { co: PublicChangeOrder; token: str
         </>
       )}
 
-      {error && <p role="alert" className="text-sm text-danger-500">{error}</p>}
+      {error && <p role="alert" className="text-sm text-danger">{error}</p>}
       <Button type="submit" disabled={busy} className="w-full">
         {busy && <Loader2 size={16} className="animate-spin" aria-hidden="true" />}
         {mode === 'approve' ? 'Approve and sign' : 'Decline change order'}

@@ -57,10 +57,10 @@ export const STATUS_LABELS: Record<TemplateStatus, string> = {
 
 export const STATUS_STYLES: Record<TemplateStatus, string> = {
   draft: 'bg-bg-tertiary text-text-secondary',
-  pending_review: 'bg-warning-500/15 text-warning-500',
+  pending_review: 'bg-warning-subtle text-warning',
   approved: 'bg-success/15 text-success',
   rejected: 'bg-danger/15 text-danger',
-  archived: 'bg-bg-tertiary text-text-secondary/70',
+  archived: 'bg-bg-tertiary text-text-muted',
 };
 
 export const ACTION_LABELS: Record<ReviewAction, string> = {

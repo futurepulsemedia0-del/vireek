@@ -84,7 +84,7 @@ function PublicVideoItem({ token, video, customerName, quoteOpen, onUrlExpired }
         controlsList="nodownload"
         disablePictureInPicture
         aria-label={`${video.title}${video.duration_seconds ? ` (${formatDuration(video.duration_seconds)})` : ''}`}
-        className="mt-3 aspect-video w-full rounded-xl bg-black"
+        className="mt-3 aspect-video w-full rounded-xl bg-overlay"
         onContextMenu={(e) => e.preventDefault()}
         onPlay={() => {
           if (viewedRef.current) return;
@@ -102,7 +102,7 @@ function PublicVideoItem({ token, video, customerName, quoteOpen, onUrlExpired }
       />
 
       {acknowledged ? (
-        <p className="mt-3 flex items-center gap-2 text-sm font-medium text-success-500">
+        <p className="mt-3 flex items-center gap-2 text-sm font-medium text-success">
           <CheckCircle2 size={16} aria-hidden="true" /> Thanks — your confirmation was sent.
         </p>
       ) : watched && quoteOpen ? (

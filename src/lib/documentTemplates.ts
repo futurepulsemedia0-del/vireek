@@ -234,7 +234,7 @@ export function defaultDesign(docType: DocType): DocumentDesign {
   return {
     version: 1,
     page: { size: 'a4', margin: 48 },
-    theme: { primary: '#AE3600', accent: '#533AFD', text: '#171717', muted: '#6E6E78', font: 'helvetica', baseSize: 10 },
+    theme: { primary: '#AE3600', accent: '#533AFD', text: '#141413', muted: '#73726C', font: 'helvetica', baseSize: 10 },
     header: {
       showLogo: true,
       logoAlign: 'left',
@@ -276,18 +276,18 @@ export function applyPreset(docType: DocType, preset: PresetId): DocumentDesign 
   const d = defaultDesign(docType);
   switch (preset) {
     case 'modern':
-      d.theme = { ...d.theme, primary: '#0F172A', accent: '#0EA5E9' };
+      d.theme = { ...d.theme, primary: '#1C1B15', accent: '#3D8EF6' };
       d.header.accentBar = 'band';
       d.table.zebra = true;
       d.page.margin = 44;
       break;
     case 'minimal':
-      d.theme = { ...d.theme, primary: '#111827', accent: '#6B7280', baseSize: 9.5 };
+      d.theme = { ...d.theme, primary: '#1C1B15', accent: '#73726C', baseSize: 9.5 };
       d.header.accentBar = 'none';
       d.table.headerStyle = 'underline';
       break;
     case 'executive':
-      d.theme = { ...d.theme, primary: '#1F2937', accent: '#9A3412', font: 'times', baseSize: 10.5 };
+      d.theme = { ...d.theme, primary: '#2F2E28', accent: '#A93B0F', font: 'times', baseSize: 10.5 };
       d.header.accentBar = 'none';
       d.table.headerStyle = 'underline';
       d.page.margin = 54;

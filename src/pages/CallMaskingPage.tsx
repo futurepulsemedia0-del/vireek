@@ -39,7 +39,7 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
   const ref = useFocusTrap(true);
   useEscapeToClose(true, onClose);
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4" role="presentation" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-overlay/50 p-0 sm:items-center sm:p-4" role="presentation" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <div ref={ref as React.RefObject<HTMLDivElement>} role="dialog" aria-modal="true" aria-label={title}
         className="max-h-[92vh] w-full overflow-y-auto rounded-t-2xl border border-border bg-bg-secondary p-5 sm:max-w-md sm:rounded-2xl">
         <div className="mb-4 flex items-center justify-between">
@@ -96,7 +96,7 @@ function NewSessionDialog({ technicians, onClose, onCreated }: { technicians: Te
             ))}
           </select>
           {techMissingPhone && (
-            <p className="mt-1.5 text-xs text-warning-500">This technician has no mobile number yet. Add it under “Technician phones”.</p>
+            <p className="mt-1.5 text-xs text-warning">This technician has no mobile number yet. Add it under “Technician phones”.</p>
           )}
         </div>
         <Input label="Customer name" value={customerName} onChange={(e) => setCustomerName(e.target.value)} maxLength={120} autoComplete="off" />
@@ -134,7 +134,7 @@ function SessionCard({ s, canAct, onClose, onExtend, onCall, calling }: {
           <p className="text-xs text-text-secondary">Technician: {s.technician_name || 'Unnamed'} · {formatPhone(s.technician_e164)}</p>
           <p className="text-xs text-text-secondary">Customer: {formatPhone(s.customer_e164)}</p>
         </div>
-        <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${live ? 'bg-success-500/10 text-success-500' : 'bg-bg-tertiary text-text-secondary'}`}>
+        <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${live ? 'bg-success-subtle text-success' : 'bg-bg-tertiary text-text-secondary'}`}>
           {live ? timeLeftLabel(s.expires_at) : status === 'closed' ? closeReasonLabel(s.close_reason) : 'Expired'}
         </span>
       </div>

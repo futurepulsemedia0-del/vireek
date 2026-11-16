@@ -232,13 +232,13 @@ export function CustomerContactsPanel({ customerId, customerName, customerEmail 
                   className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${
                     c.covered
                       ? 'border-border bg-bg-primary text-text-primary'
-                      : 'border-dashed border-amber-500/50 bg-amber-500/10 text-text-secondary'
+                      : 'border-dashed border-warning/50 bg-warning-subtle text-text-secondary'
                   }`}
                 >
                   {c.covered ? (
                     <Check className="h-3.5 w-3.5 text-accent" aria-hidden="true" />
                   ) : (
-                    <TriangleAlert className="h-3.5 w-3.5 text-amber-500" aria-hidden="true" />
+                    <TriangleAlert className="h-3.5 w-3.5 text-warning" aria-hidden="true" />
                   )}
                   {ROLE_META[c.role].label}
                   <span className="text-text-secondary">{c.covered ? c.count : 'none yet'}</span>
@@ -401,7 +401,7 @@ export function CustomerContactsPanel({ customerId, customerName, customerEmail 
                       >
                         <span
                           className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
-                            on ? 'border-accent bg-accent text-white' : 'border-border'
+                            on ? 'border-accent bg-accent text-on-accent' : 'border-border'
                           }`}
                           aria-hidden="true"
                         >
@@ -523,7 +523,7 @@ export function CustomerContactsPanel({ customerId, customerName, customerEmail 
                     <dt className="shrink-0 text-text-secondary sm:w-48">{row.label}</dt>
                     <dd className="min-w-0 text-text-primary">
                       {row.recipients.length === 0 ? (
-                        <span className="text-amber-600 dark:text-amber-400">No one reachable</span>
+                        <span className="text-warning">No one reachable</span>
                       ) : (
                         row.recipients.map((r, i) => (
                           <span key={`${r.contactId ?? 'customer'}-${i}`}>

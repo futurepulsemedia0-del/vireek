@@ -47,7 +47,7 @@ export function AuditPanel({ saved, rules, timezone }: { saved: WorkOrder[]; rul
             <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="focus-ring mt-1 block w-full rounded-xl border border-border bg-bg-primary px-3 py-3 text-base text-text-primary" /></label>
           <label className="block text-xs font-medium text-text-secondary">Received to
             <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="focus-ring mt-1 block w-full rounded-xl border border-border bg-bg-primary px-3 py-3 text-base text-text-primary" /></label>
-          <label className="focus-ring inline-flex min-h-[48px] cursor-pointer items-center justify-center rounded-xl bg-accent px-5 text-base font-semibold text-white">
+          <label className="focus-ring inline-flex min-h-[48px] cursor-pointer items-center justify-center rounded-xl bg-accent px-5 text-base font-semibold text-on-accent">
             {busy ? 'Reading…' : 'Upload CSV'}
             <input type="file" accept=".csv,text/csv" className="sr-only" onChange={(e) => { void onFile(e.target.files?.[0]); e.target.value = ''; }} />
           </label>
@@ -56,10 +56,10 @@ export function AuditPanel({ saved, rules, timezone }: { saved: WorkOrder[]; rul
           <label className="flex items-center gap-2"><input type="radio" checked={source === 'saved'} onChange={() => setSource('saved')} /> Saved orders ({saved.length})</label>
           <label className={`flex items-center gap-2 ${file ? '' : 'opacity-50'}`}><input type="radio" disabled={!file} checked={source === 'file'} onChange={() => setSource('file')} /> Uploaded file{file ? ` (${file.name})` : ''}</label>
         </div>
-        {from > to && <p role="alert" className="mt-2 text-sm text-red-500">The start date must be on or before the end date.</p>}
-        {readError && <p role="alert" className="mt-2 text-sm text-red-500">{readError}</p>}
-        {source === 'file' && file && file.result.missingRequired.length > 0 && <p role="alert" className="mt-2 text-sm text-red-500">Could not find the required column(s): {file.result.missingRequired.join(', ')}. Use the Import tab to map columns.</p>}
-        {source === 'file' && file && file.result.errors.length > 0 && <p className="mt-2 text-sm text-amber-500">{file.result.errors.length} row(s) were skipped (first: row {file.result.errors[0].row}, {file.result.errors[0].message}).</p>}
+        {from > to && <p role="alert" className="mt-2 text-sm text-danger">The start date must be on or before the end date.</p>}
+        {readError && <p role="alert" className="mt-2 text-sm text-danger">{readError}</p>}
+        {source === 'file' && file && file.result.missingRequired.length > 0 && <p role="alert" className="mt-2 text-sm text-danger">Could not find the required column(s): {file.result.missingRequired.join(', ')}. Use the Import tab to map columns.</p>}
+        {source === 'file' && file && file.result.errors.length > 0 && <p className="mt-2 text-sm text-warning">{file.result.errors.length} row(s) were skipped (first: row {file.result.errors[0].row}, {file.result.errors[0].message}).</p>}
       </section>
 
       {!audit || !t ? null : orders.length === 0 ? (

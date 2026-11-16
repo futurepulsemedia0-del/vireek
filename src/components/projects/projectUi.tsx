@@ -30,9 +30,9 @@ type Tone = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
 const TONE_CLASS: Record<Tone, string> = {
   neutral: 'bg-bg-tertiary text-text-secondary',
   info: 'bg-accent/10 text-accent',
-  success: 'bg-success-500/10 text-success-500',
-  warning: 'bg-warning-500/15 text-warning-500',
-  danger: 'bg-danger-500/15 text-danger-500',
+  success: 'bg-success-subtle text-success',
+  warning: 'bg-warning-subtle text-warning',
+  danger: 'bg-danger-subtle text-danger',
 };
 
 export const projectStatusTone: Record<ProjectStatus, Tone> = { planning: 'neutral', active: 'info', on_hold: 'warning', completed: 'success', cancelled: 'danger' };
@@ -48,7 +48,7 @@ export function Pill({ tone = 'neutral', children }: { tone?: Tone; children: Re
 
 export function ProgressBar({ value, label, tone = 'info' }: { value: number; label: string; tone?: Tone }) {
   const pct = clamp(Math.round(value), 0, 100);
-  const bar = tone === 'success' ? 'bg-success-500' : tone === 'warning' ? 'bg-warning-500' : tone === 'danger' ? 'bg-danger-500' : 'bg-accent';
+  const bar = tone === 'success' ? 'bg-success' : tone === 'warning' ? 'bg-warning' : tone === 'danger' ? 'bg-danger' : 'bg-accent';
   return (
     <div
       role="progressbar"
@@ -67,7 +67,7 @@ export function Stat({ label, value, hint, tone }: { label: string; value: React
   return (
     <div className={panelClass}>
       <p className="text-xs font-medium uppercase tracking-wide text-text-secondary">{label}</p>
-      <p className={`mt-1.5 text-2xl font-bold tabular-nums ${tone === 'danger' ? 'text-danger-500' : tone === 'warning' ? 'text-warning-500' : tone === 'success' ? 'text-success-500' : 'text-text-primary'}`}>{value}</p>
+      <p className={`mt-1.5 text-2xl font-bold tabular-nums ${tone === 'danger' ? 'text-danger' : tone === 'warning' ? 'text-warning' : tone === 'success' ? 'text-success' : 'text-text-primary'}`}>{value}</p>
       {hint && <p className="mt-1 text-xs text-text-secondary">{hint}</p>}
     </div>
   );

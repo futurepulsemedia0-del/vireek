@@ -139,14 +139,14 @@ const COLUMNS: ColumnDef[] = [
 function Cell({ value, highlight }: { value: CellValue; highlight?: boolean }) {
   if (value === 'yes') {
     return (
-      <span className={`mx-auto flex h-7 w-7 items-center justify-center rounded-full ${highlight ? 'bg-accent/15 text-accent' : 'bg-success-500/15 text-success-500'}`}>
+      <span className={`mx-auto flex h-7 w-7 items-center justify-center rounded-full ${highlight ? 'bg-accent/15 text-accent' : 'bg-success-subtle text-success'}`}>
         <Check size={15} strokeWidth={2.75} />
       </span>
     );
   }
   if (value === 'partial') {
     return (
-      <span className="mx-auto flex h-7 w-7 items-center justify-center rounded-full bg-warning-500/15 text-warning-500">
+      <span className="mx-auto flex h-7 w-7 items-center justify-center rounded-full bg-warning-subtle text-warning">
         <Minus size={15} strokeWidth={2.75} />
       </span>
     );
@@ -159,7 +159,7 @@ function Cell({ value, highlight }: { value: CellValue; highlight?: boolean }) {
     );
   }
   // na — not a comparable claim / not publicly verified
-  return <span className="mx-auto block text-center text-sm text-text-secondary/30">&mdash;</span>;
+  return <span className="mx-auto block text-center text-sm text-text-muted">&mdash;</span>;
 }
 
 // ============================================================
@@ -258,7 +258,7 @@ export function FeatureMatrixPage() {
                       {COLUMNS.map((col) => (
                         <th key={col.key} className={`px-3 py-5 text-center ${col.highlight ? 'bg-accent/5' : ''}`}>
                           {col.highlight ? (
-                            <div className="mx-auto flex w-fit items-center gap-1.5 rounded-full bg-gradient-to-r from-accent to-cta px-3 py-1.5 text-xs font-bold text-white shadow-glow-accent">
+                            <div className="mx-auto flex w-fit items-center gap-1.5 rounded-full bg-accent px-3 py-1.5 text-xs font-bold text-on-accent shadow-glow-accent">
                               <col.icon size={12} />
                               {col.label}
                             </div>
@@ -352,7 +352,7 @@ export function FeatureMatrixPage() {
               </span>
             </div>
 
-            <p className="mx-auto mt-6 max-w-2xl text-center text-xs text-text-secondary/70">
+            <p className="mx-auto mt-6 max-w-2xl text-center text-xs text-text-muted">
               This matrix reflects each product&rsquo;s core, publicly described focus as of this
               writing. Feature sets and pricing change &mdash; see each competitor&rsquo;s own site for
               their current, complete details, and read our full{' '}
@@ -423,7 +423,7 @@ export function FeatureMatrixPage() {
               className="pointer-events-none absolute inset-0"
               style={{
                 backgroundImage:
-                  'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
+                  'radial-gradient(circle at 20% 20%, rgb(var(--static-white) / 0.14), transparent 45%), radial-gradient(circle at 85% 80%, rgb(var(--accent-secondary) / 0.20), transparent 45%)',
               }}
             />
             <div className="relative">

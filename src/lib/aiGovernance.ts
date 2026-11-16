@@ -265,8 +265,8 @@ export const GOVERNANCE_LABELS: Record<AiGovernanceAction, string> = {
 };
 
 export const GOVERNANCE_COLORS: Record<AiGovernanceAction, string> = {
-  auto_approved: 'bg-success-500/10 text-success-500',
-  review_required: 'bg-warning-500/10 text-warning-500',
+  auto_approved: 'bg-success-subtle text-success',
+  review_required: 'bg-warning-subtle text-warning',
   blocked: 'bg-danger/10 text-danger',
 };
 
@@ -288,8 +288,8 @@ export const OUTCOME_LABELS: Record<AiOutcome, string> = {
 
 export const OUTCOME_COLORS: Record<AiOutcome, string> = {
   pending: 'bg-bg-tertiary text-text-secondary',
-  successful: 'bg-success-500/10 text-success-500',
-  partial: 'bg-warning-500/10 text-warning-500',
+  successful: 'bg-success-subtle text-success',
+  partial: 'bg-warning-subtle text-warning',
   failed: 'bg-danger/10 text-danger',
   no_effect: 'bg-bg-tertiary text-text-secondary',
 };
@@ -346,8 +346,8 @@ export function policyLabel(policy: string): string {
 }
 
 export const POLICY_RESULT_COLORS: Record<AiPolicyResultKind, string> = {
-  pass: 'bg-success-500/10 text-success-500',
-  flag: 'bg-warning-500/10 text-warning-500',
+  pass: 'bg-success-subtle text-success',
+  flag: 'bg-warning-subtle text-warning',
   block: 'bg-danger/10 text-danger',
   skip: 'bg-bg-tertiary text-text-secondary',
 };
@@ -443,9 +443,9 @@ export const GRADE_LABELS: Record<ReliabilityGrade, string> = {
 };
 
 export const GRADE_COLORS: Record<ReliabilityGrade, string> = {
-  excellent: 'text-success-500',
-  good: 'text-success-500',
-  fair: 'text-warning-500',
+  excellent: 'text-success',
+  good: 'text-success',
+  fair: 'text-warning',
   at_risk: 'text-danger',
 };
 

@@ -47,7 +47,7 @@ export function PwaInstallBanner() {
         <button
           type="button"
           onClick={onPrimary}
-          className="focus-ring mt-3 inline-flex min-h-12 touch-manipulation items-center justify-center rounded-xl bg-accent px-5 text-sm font-semibold text-white transition active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100"
+          className="focus-ring mt-3 inline-flex min-h-12 touch-manipulation items-center justify-center rounded-xl bg-accent px-5 text-sm font-semibold text-on-accent transition active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100"
         >
           {canPrompt
             ? t('pwa.install.cta', { defaultValue: 'Install' })

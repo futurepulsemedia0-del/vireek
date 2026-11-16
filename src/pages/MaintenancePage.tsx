@@ -38,8 +38,8 @@ const REMOTE_POLL_MS = 60_000;
 const PHASE_META: Record<MaintenancePhase, { label: string; chip: string; dot: string }> = {
   none: {
     label: 'No maintenance scheduled',
-    chip: 'border-success-500/25 bg-success-500/10 text-success-500',
-    dot: 'bg-success-500',
+    chip: 'border-success/25 bg-success-subtle text-success',
+    dot: 'bg-success',
   },
   upcoming: {
     label: 'Upcoming maintenance',
@@ -53,8 +53,8 @@ const PHASE_META: Record<MaintenancePhase, { label: string; chip: string; dot: s
   },
   completed: {
     label: 'Maintenance complete',
-    chip: 'border-success-500/25 bg-success-500/10 text-success-500',
-    dot: 'bg-success-500',
+    chip: 'border-success/25 bg-success-subtle text-success',
+    dot: 'bg-success',
   },
 };
 

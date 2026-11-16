@@ -20,7 +20,7 @@ import {
 
 const STATUS: Record<Connection['status'], { label: string; cls: string }> = {
   active: { label: 'Connected', cls: 'bg-success/10 text-success' },
-  needs_reauth: { label: 'Reconnect needed', cls: 'bg-warning-500/10 text-warning-500' },
+  needs_reauth: { label: 'Reconnect needed', cls: 'bg-warning-subtle text-warning' },
   error: { label: 'Sync error', cls: 'bg-danger/10 text-danger' },
 };
 

@@ -17,7 +17,7 @@ export function PartsEtaBadge({ check }: Props) {
       : check.status === 'tight'
         ? 'Parts arrive on the appointment day'
         : 'Parts needed — no delivery date';
-  const tone = check.status === 'conflict' ? 'bg-danger/10 text-danger' : 'bg-warning-500/10 text-warning-500';
+  const tone = check.status === 'conflict' ? 'bg-danger/10 text-danger' : 'bg-warning-subtle text-warning';
 
   return (
     <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${tone}`} title={text}>
