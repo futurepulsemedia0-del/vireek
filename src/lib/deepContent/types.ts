@@ -23,4 +23,6 @@ export interface DeepContentData {
   intro: string;
   sections: DeepSection[];
   faqs?: DeepFaq[];
+  /** Internal links shown beside the content; hrefs must be registered public routes. */
+  related?: Array<{ label: string; href: string }>;
 }
