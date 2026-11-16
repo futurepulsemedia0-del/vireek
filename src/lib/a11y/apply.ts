@@ -1,7 +1,16 @@
 import { correctionMatrix, toFeColorMatrix } from './colorBlind';
-import { DEFAULT_SETTINGS, type AccessibilitySettings, type ColorBlindMode } from './settings';
+import { DEFAULT_SETTINGS, type AccessibilitySettings, type ColorBlindMode, type ColorChoice } from './settings';
 
 const near = (a: number, b: number): boolean => Math.abs(a - b) < 1e-6;
+
+/** Keyboard focus ring colors: [ring, halo]. The halo is the contrasting outer glow, so the ring stays visible on any background. */
+export const FOCUS_COLORS: Record<ColorChoice, { ring: string; halo: string }> = {
+  default: { ring: 'rgb(var(--accent-primary))', halo: 'rgb(var(--accent-primary) / 0.2)' },
+  black: { ring: '#000000', halo: '#ffffff' },
+  white: { ring: '#ffffff', halo: '#000000' },
+  yellow: { ring: '#ffd400', halo: '#000000' },
+  blue: { ring: '#0050ff', halo: '#ffffff' },
+};
 
 /** Single source of truth for html classes (mirrored by public/a11y-boot.js; parity-tested). */
 const CLASS_RULES: ReadonlyArray<readonly [string, (s: AccessibilitySettings) => boolean]> = [
@@ -24,6 +33,12 @@ const CLASS_RULES: ReadonlyArray<readonly [string, (s: AccessibilitySettings) =>
   ['a11y-lh', (s) => !near(s.lineHeight, DEFAULT_SETTINGS.lineHeight)],
   ['a11y-ls', (s) => s.letterSpacing > 0],
   ['a11y-ws', (s) => s.wordSpacing > 0],
+  ['a11y-unstick', (s) => s.unstickHeaders],
+  ['a11y-custom-focus', (s) => s.focusColor !== 'default' || !near(s.focusWidth, DEFAULT_SETTINGS.focusWidth)],
+  ['a11y-cursor-black', (s) => s.cursorColor === 'black'],
+  ['a11y-cursor-white', (s) => s.cursorColor === 'white'],
+  ['a11y-cursor-yellow', (s) => s.cursorColor === 'yellow'],
+  ['a11y-cursor-blue', (s) => s.cursorColor === 'blue'],
 ];
 
 export const MANAGED_CLASSES: readonly string[] = CLASS_RULES.map(([c]) => c);
@@ -51,6 +66,9 @@ export function computeRenderState(s: AccessibilitySettings): RenderState {
       '--a11y-letter-spacing': `${s.letterSpacing}em`,
       '--a11y-word-spacing': `${s.wordSpacing}em`,
       '--a11y-filter': f.length ? f.join(' ') : 'none',
+      '--a11y-focus-width': `${s.focusWidth}px`,
+      '--a11y-focus-color': FOCUS_COLORS[s.focusColor].ring,
+      '--a11y-focus-halo': FOCUS_COLORS[s.focusColor].halo,
     },
     classes: CLASS_RULES.filter(([, test]) => test(s)).map(([c]) => c),
   };
