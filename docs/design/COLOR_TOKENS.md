@@ -6,852 +6,888 @@
 
 | Pair | Before | After | Requirement |
 |---|---|---|---|
-| Light — copper as TEXT on bg-primary |  3.87:1 ❌ |  5.22:1 ✅ | ≥ 4.5 |
-| Light — white text on copper FILL |  3.97:1 ❌ |  4.81:1 ✅ | ≥ 4.5 |
-| Light — copper graphic on bg-tertiary |  3.61:1 ✅ |  3.61:1 ✅ | ≥ 3 |
-| Light — success text on bg-tertiary |  4.27:1 ❌ |  4.84:1 ✅ | ≥ 4.5 |
-| Light — text-secondary on bg-tertiary |  5.10:1 ✅ |  6.62:1 ✅ | ≥ 4.5 |
-| Light — control border vs bg-secondary |  1.26:1 ❌ |  3.52:1 ✅ | ≥ 3 (1.4.11) |
-| Dark — white text on accent fill |  3.35:1 ❌ |  4.80:1 ✅ | ≥ 4.5 |
-| Dark — control border vs bg-secondary |  1.24:1 ❌ |  3.75:1 ✅ | ≥ 3 (1.4.11) |
+| Light — copper as TEXT on bg-primary |  3.87:1 ❌ |  6.79:1 ✅ | ≥ 4.5 |
+| Light — white text on copper FILL |  3.97:1 ❌ |  6.19:1 ✅ | ≥ 4.5 |
+| Light — copper graphic on bg-tertiary |  3.61:1 ✅ |  5.33:1 ✅ | ≥ 3 |
+| Light — success text on bg-tertiary |  4.27:1 ❌ |  5.26:1 ✅ | ≥ 4.5 |
+| Light — text-secondary on bg-tertiary |  5.10:1 ✅ |  6.25:1 ✅ | ≥ 4.5 |
+| Light — control border vs bg-secondary |  1.26:1 ❌ |  3.74:1 ✅ | ≥ 3 (1.4.11) |
+| Dark — white text on accent fill |  3.35:1 ❌ |  6.82:1 ✅ | ≥ 4.5 |
+| Dark — control border vs bg-secondary |  1.24:1 ❌ |  3.96:1 ✅ | ≥ 3 (1.4.11) |
 
 ## Tokens (RGB hex per theme)
 
 | Token | Light | Dark | Light-HC | Dark-HC |
 |---|---|---|---|---|
-| `bg-primary` | `#FDFCFA` | `#090A0D` | `#FFFFFF` | `#000000` |
-| `bg-secondary` | `#FFFFFF` | `#101115` | `#FFFFFF` | `#000000` |
-| `bg-tertiary` | `#F6F4F0` | `#17181D` | `#F0F0F0` | `#141414` |
-| `surface-overlay` | `#FFFFFF` | `#1F2026` | `#FFFFFF` | `#0C0C0C` |
-| `text-primary` | `#17171A` | `#F2F1EE` | `#000000` | `#FFFFFF` |
-| `text-secondary` | `#56565E` | `#9A9AA3` | `#494952` | `#9F9FA8` |
-| `text-muted` | `#6D6D75` | `#888991` | `#505058` | `#9F9FA7` |
-| `text-placeholder` | `#6E6E76` | `#878890` | `#505058` | `#9F9FA7` |
-| `graphic-muted` | `#85868C` | `#707076` | `#6D6D74` | `#7D7D83` |
-| `text-inverse` | `#FDFCFA` | `#090A0D` | `#FDFCFA` | `#090A0D` |
-| `border-default` | `#E7E5E0` | `#24252C` | `#65666C` | `#7D7D83` |
-| `border-strong` | `#8C8882` | `#716F68` | `#706D67` | `#817D77` |
-| `surface-inverse` | `#17171A` | `#1F2026` | `#17171A` | `#1F2026` |
-| `on-inverse` | `#F3F2EF` | `#F3F2EF` | `#F3F2EF` | `#F3F2EF` |
-| `on-inverse-muted` | `#A4A4AC` | `#A4A4AC` | `#A4A4AC` | `#A9AAB2` |
-| `border-inverse` | `#67686E` | `#6E6E74` | `#67686E` | `#6E6E74` |
-| `accent-fill` | `#203AD8` | `#5566E1` | `#203AD8` | `#3E4BC3` |
-| `on-accent` | `#FFFFFF` | `#FFFFFF` | `#FFFFFF` | `#FFFFFF` |
-| `accent-text` | `#203AD8` | `#7087FF` | `#2039D7` | `#97ACFF` |
-| `accent-graphic` | `#203AD8` | `#6C82FF` | `#203AD8` | `#6C82FF` |
-| `accent-subtle` | `#EEF3FF` | `#1E243B` | `#EEF3FF` | `#1E243B` |
-| `accent-subtle-border` | `#C6D7FF` | `#2F3967` | `#C6D7FF` | `#2F3967` |
-| `accent-strong` | `#203AD8` | `#97ACFF` | `#1517BD` | `#C2D0FF` |
-| `accent-hover` | `#192ACA` | `#4A5AD3` | `#192ACA` | `#353EB5` |
-| `accent-active` | `#1515BC` | `#404DC5` | `#1515BC` | `#2D31A8` |
-| `cta-fill` | `#C64918` | `#FF8A5A` | `#A13300` | `#FF8A5A` |
-| `on-cta` | `#FFFFFF` | `#17171A` | `#FFFFFF` | `#000000` |
-| `cta-text` | `#BD410A` | `#FF8A5A` | `#932E00` | `#FF9164` |
-| `cta-graphic` | `#D6582A` | `#FF8A5A` | `#C04410` | `#FF8A5A` |
-| `cta-subtle` | `#FFF0EB` | `#371D13` | `#FFF0EB` | `#371D13` |
-| `cta-subtle-border` | `#FCCBBB` | `#5F2D18` | `#FCCBBB` | `#5F2D18` |
-| `cta-strong` | `#962E00` | `#FF9164` | `#6F2000` | `#FFC2A9` |
-| `cta-hover` | `#B83C00` | `#FFA07A` | `#8F2C00` | `#FFA07A` |
-| `cta-active` | `#A63500` | `#FFB496` | `#7E2500` | `#FFB496` |
-| `success-fill` | `#138257` | `#4AC78C` | `#006642` | `#4AC78C` |
-| `on-success` | `#FFFFFF` | `#17171A` | `#FFFFFF` | `#000000` |
-| `success-text` | `#007B50` | `#4AC78C` | `#005D3B` | `#4AC78C` |
-| `success-graphic` | `#168458` | `#4AC78C` | `#067D52` | `#4AC78C` |
-| `success-subtle` | `#E3FAED` | `#0F2C1D` | `#E3FAED` | `#0F2C1D` |
-| `success-subtle-border` | `#B6E4CA` | `#04492E` | `#B6E4CA` | `#04492E` |
-| `success-strong` | `#005F3D` | `#4AC78C` | `#00462C` | `#70EAAC` |
-| `success-hover` | `#00764C` | `#59D498` | `#005939` | `#59D498` |
-| `success-active` | `#006943` | `#67E1A5` | `#004D30` | `#67E1A5` |
-| `danger-fill` | `#C83030` | `#F06464` | `#B2121D` | `#F46867` |
-| `on-danger` | `#FFFFFF` | `#17171A` | `#FFFFFF` | `#000000` |
-| `danger-text` | `#C82F30` | `#F06464` | `#A60014` | `#FF8E8A` |
-| `danger-graphic` | `#C83030` | `#F06464` | `#C83030` | `#F06464` |
-| `danger-subtle` | `#FFEFED` | `#381C1B` | `#FFEFED` | `#381C1B` |
-| `danger-subtle-border` | `#FDC9C3` | `#602A29` | `#FDC9C3` | `#602A29` |
-| `danger-strong` | `#A80014` | `#FF8E8A` | `#7D000C` | `#FFC0BB` |
-| `danger-hover` | `#BA1F24` | `#FE7170` | `#A20013` | `#FF918D` |
-| `danger-active` | `#AC0417` | `#FF8985` | `#8E000F` | `#FFA6A2` |
-| `warning-fill` | `#F59E0B` | `#EBAA46` | `#F59E0B` | `#EBAA46` |
-| `on-warning` | `#17171A` | `#17171A` | `#000000` | `#000000` |
-| `warning-text` | `#9D5B0D` | `#EBAA46` | `#7A4300` | `#EBAA46` |
-| `warning-graphic` | `#BC7700` | `#EBAA46` | `#9A6100` | `#EBAA46` |
-| `warning-subtle` | `#FFF1E5` | `#322209` | `#FFF1E5` | `#322209` |
-| `warning-subtle-border` | `#F5CFB0` | `#543600` | `#F5CFB0` | `#543600` |
-| `warning-strong` | `#7C4500` | `#EBAA46` | `#5C3100` | `#FFC777` |
-| `warning-hover` | `#FFAD3C` | `#F9B754` | `#FFAD3C` | `#F9B754` |
-| `warning-active` | `#FFBF73` | `#FFC676` | `#FFBF73` | `#FFC676` |
-| `info-fill` | `#0078B7` | `#38BDF8` | `#005E8F` | `#38BDF8` |
-| `on-info` | `#FFFFFF` | `#17171A` | `#FFFFFF` | `#000000` |
-| `info-text` | `#0071AB` | `#38BDF8` | `#005583` | `#38BDF8` |
-| `info-graphic` | `#0284C7` | `#38BDF8` | `#0073AF` | `#38BDF8` |
-| `info-subtle` | `#E9F5FF` | `#0A2937` | `#E9F5FF` | `#0A2937` |
-| `info-subtle-border` | `#B5DDFC` | `#00435E` | `#B5DDFC` | `#00435E` |
-| `info-strong` | `#005786` | `#38BDF8` | `#003F64` | `#97DBFF` |
-| `info-hover` | `#006CA5` | `#5BC9FF` | `#00527F` | `#5BC9FF` |
-| `info-active` | `#006093` | `#82D4FF` | `#00476F` | `#82D4FF` |
-| `brand-from` | `#203AD8` | `#5566E1` | `#203AD8` | `#3E4BC3` |
-| `brand-to` | `#C64918` | `#BE501B` | `#A13300` | `#9D3800` |
-| `on-brand` | `#FFFFFF` | `#FFFFFF` | `#FFFFFF` | `#FFFFFF` |
-| `accent-primary` | `#203AD8` | `#7087FF` | `#2039D7` | `#97ACFF` |
-| `accent-secondary` | `#D6582A` | `#FF8A5A` | `#C04410` | `#FF8A5A` |
-| `success` | `#007B50` | `#4AC78C` | `#005D3B` | `#4AC78C` |
-| `danger` | `#C82F30` | `#F06464` | `#A60014` | `#FF8E8A` |
-| `warning` | `#9D5B0D` | `#EBAA46` | `#7A4300` | `#EBAA46` |
-| `accent` | `#203AD8` | `#6C82FF` | `#203AD8` | `#6C82FF` |
-| `border` | `#E7E5E0` | `#24252C` | `#65666C` | `#7D7D83` |
-| `success-500` | `#168458` | `#4AC78C` | `#067D52` | `#4AC78C` |
-| `focus-ring` | `#203AD8` | `#7087FF` | `#2039D7` | `#97ACFF` |
-| `selection-bg` | `#C6D7FF` | `#2F3967` | `#C6D7FF` | `#2F3967` |
-| `selection-fg` | `#17171A` | `#F2F1EE` | `#000000` | `#FFFFFF` |
-| `disabled-bg` | `#EDEBE7` | `#211F1C` | `#EDEBE7` | `#211F1C` |
-| `disabled-fg` | `#94928D` | `#65635E` | `#94928D` | `#65635E` |
-| `text-disabled` | `#94928D` | `#65635E` | `#94928D` | `#65635E` |
-| `overlay` | `#090A0D` | `#000000` | `#090A0D` | `#000000` |
+| `bg-primary` | `#FAF9F5` | `#141413` | `#FFFFFF` | `#000000` |
+| `bg-secondary` | `#FFFFFF` | `#1C1C1A` | `#FFFFFF` | `#000000` |
+| `bg-tertiary` | `#F0EEE6` | `#242422` | `#F0F0F0` | `#141414` |
+| `surface-overlay` | `#FFFFFF` | `#2D2D2A` | `#FFFFFF` | `#0C0C0C` |
+| `text-primary` | `#141413` | `#FAF9F5` | `#000000` | `#FFFFFF` |
+| `text-secondary` | `#585750` | `#B0AEA5` | `#4D4B45` | `#B0AEA5` |
+| `text-muted` | `#6C6A65` | `#97968F` | `#52504B` | `#A1A099` |
+| `text-placeholder` | `#6C6B63` | `#97958D` | `#525149` | `#A1A097` |
+| `graphic-muted` | `#84827C` | `#7E7C76` | `#6F6D67` | `#7F7E77` |
+| `text-inverse` | `#FAF9F5` | `#141413` | `#FAF9F5` | `#141413` |
+| `border-default` | `#E8E6DC` | `#2E2E2C` | `#6A6862` | `#84837C` |
+| `border-strong` | `#86847E` | `#7B7A73` | `#6F6D67` | `#7F7E77` |
+| `surface-inverse` | `#141413` | `#272724` | `#141413` | `#272724` |
+| `on-inverse` | `#FAF9F5` | `#FAF9F5` | `#FAF9F5` | `#FAF9F5` |
+| `on-inverse-muted` | `#B0AEA5` | `#B0AEA5` | `#B0AEA5` | `#B4B2A8` |
+| `border-inverse` | `#676660` | `#76746E` | `#676660` | `#76746E` |
+| `accent-fill` | `#F9774C` | `#F9774C` | `#F9774C` | `#F9774C` |
+| `on-accent` | `#141413` | `#141413` | `#000000` | `#000000` |
+| `accent-text` | `#AE3600` | `#FF916C` | `#812600` | `#FFA486` |
+| `accent-graphic` | `#D95A2E` | `#F9774C` | `#C14311` | `#F9774C` |
+| `accent-subtle` | `#FFF0EB` | `#381D14` | `#FFF0EB` | `#381D14` |
+| `accent-subtle-border` | `#FCCBBB` | `#602C1B` | `#FCCBBB` | `#602C1B` |
+| `accent-strong` | `#962E00` | `#FF916C` | `#701F00` | `#FFC2AD` |
+| `accent-hover` | `#FF8A64` | `#FF8A64` | `#FF8E69` | `#FF8E69` |
+| `accent-active` | `#FFA081` | `#FFA081` | `#FFA486` | `#FFA486` |
+| `cta-fill` | `#533AFD` | `#7F6CFE` | `#4D2DF3` | `#8F86FF` |
+| `on-cta` | `#FFFFFF` | `#141413` | `#FFFFFF` | `#000000` |
+| `cta-text` | `#4C2BF2` | `#A19CFF` | `#3800C2` | `#AEACFF` |
+| `cta-graphic` | `#533AFD` | `#7E6BFD` | `#533AFD` | `#7E6BFD` |
+| `cta-subtle` | `#F0F3FF` | `#23223A` | `#F0F3FF` | `#23223A` |
+| `cta-subtle-border` | `#CDD5FF` | `#393665` | `#CDD5FF` | `#393665` |
+| `cta-strong` | `#4921EB` | `#A8A6FF` | `#3600BD` | `#CBCCFF` |
+| `cta-hover` | `#4B27EF` | `#8A7EFF` | `#4515E5` | `#A7A3FF` |
+| `cta-active` | `#4308E0` | `#968FFF` | `#3D00D0` | `#B4B3FF` |
+| `success-fill` | `#34C759` | `#30D158` | `#34C759` | `#30D158` |
+| `on-success` | `#141413` | `#141413` | `#000000` | `#000000` |
+| `success-text` | `#007228` | `#30D158` | `#00531B` | `#41DD63` |
+| `success-graphic` | `#009638` | `#30D158` | `#007F2E` | `#30D158` |
+| `success-subtle` | `#E7F9E8` | `#152B18` | `#E7F9E8` | `#152B18` |
+| `success-subtle-border` | `#BEE3C1` | `#1B4823` | `#BEE3C1` | `#1B4823` |
+| `success-strong` | `#006020` | `#30D158` | `#004615` | `#57EF75` |
+| `success-hover` | `#46D466` | `#43DE65` | `#46D466` | `#43DE65` |
+| `success-active` | `#56E272` | `#54EC72` | `#56E272` | `#54EC72` |
+| `danger-fill` | `#E40B24` | `#E01A2B` | `#B50018` | `#B5001B` |
+| `on-danger` | `#FFFFFF` | `#FFFFFF` | `#FFFFFF` | `#FFFFFF` |
+| `danger-text` | `#B80034` | `#FF7E89` | `#850023` | `#FF959D` |
+| `danger-graphic` | `#F83036` | `#FF4245` | `#DC0020` | `#FF4245` |
+| `danger-subtle` | `#FFEFEF` | `#381C1E` | `#FFEFEF` | `#381C1E` |
+| `danger-subtle-border` | `#FDC8C9` | `#60292E` | `#FDC8C9` | `#60292E` |
+| `danger-strong` | `#A7002E` | `#FF8D95` | `#7C0020` | `#FFC0C2` |
+| `danger-hover` | `#D1001D` | `#CF0020` | `#A10014` | `#A10016` |
+| `danger-active` | `#BC0019` | `#BB001C` | `#8E0010` | `#8E0012` |
+| `warning-fill` | `#FFCC00` | `#FFD600` | `#FFCC00` | `#FFD600` |
+| `on-warning` | `#141413` | `#141413` | `#000000` | `#000000` |
+| `warning-text` | `#7E6400` | `#FFD600` | `#5E4A00` | `#FFD600` |
+| `warning-graphic` | `#9F7E00` | `#FFD600` | `#876A00` | `#FFD600` |
+| `warning-subtle` | `#FBF3DD` | `#2C2508` | `#FBF3DD` | `#2C2508` |
+| `warning-subtle-border` | `#E7D7AB` | `#4A3C00` | `#E7D7AB` | `#4A3C00` |
+| `warning-strong` | `#664F00` | `#FFD600` | `#4B3900` | `#FFD600` |
+| `warning-hover` | `#FFDC7B` | `#FFE686` | `#FFDC7B` | `#FFE686` |
+| `warning-active` | `#FFECB7` | `#FFF4C9` | `#FFECB7` | `#FFF4C9` |
+| `info-fill` | `#006FE1` | `#1F92FF` | `#0056B2` | `#3098FF` |
+| `on-info` | `#FFFFFF` | `#141413` | `#FFFFFF` | `#000000` |
+| `info-text` | `#0058B3` | `#64AEFF` | `#003E84` | `#7EBBFF` |
+| `info-graphic` | `#0071E3` | `#1F92FF` | `#006BD8` | `#1F92FF` |
+| `info-subtle` | `#ECF4FF` | `#14263B` | `#ECF4FF` | `#14263B` |
+| `info-subtle-border` | `#BEDAFF` | `#1A3E66` | `#BEDAFF` | `#1A3E66` |
+| `info-strong` | `#0050A6` | `#70B4FF` | `#003A7B` | `#B0D4FF` |
+| `info-hover` | `#0064CB` | `#47A0FF` | `#004C9D` | `#6AB0FF` |
+| `info-active` | `#0059B7` | `#64AEFF` | `#00418A` | `#83BDFF` |
+| `brand-from` | `#C64919` | `#F9774C` | `#A23200` | `#F9774C` |
+| `brand-to` | `#533AFD` | `#7F6CFE` | `#4D2DF3` | `#8F86FF` |
+| `on-brand` | `#FFFFFF` | `#141413` | `#FFFFFF` | `#000000` |
+| `accent-primary` | `#AE3600` | `#FF916C` | `#812600` | `#FFA486` |
+| `accent-secondary` | `#533AFD` | `#7E6BFD` | `#533AFD` | `#7E6BFD` |
+| `success` | `#007228` | `#30D158` | `#00531B` | `#41DD63` |
+| `danger` | `#B80034` | `#FF7E89` | `#850023` | `#FF959D` |
+| `warning` | `#7E6400` | `#FFD600` | `#5E4A00` | `#FFD600` |
+| `accent` | `#D95A2E` | `#F9774C` | `#C14311` | `#F9774C` |
+| `border` | `#E8E6DC` | `#2E2E2C` | `#6A6862` | `#84837C` |
+| `success-500` | `#009638` | `#30D158` | `#007F2E` | `#30D158` |
+| `focus-ring` | `#AE3600` | `#FF916C` | `#812600` | `#FFA486` |
+| `selection-bg` | `#FCCBBB` | `#602C1B` | `#FCCBBB` | `#602C1B` |
+| `selection-fg` | `#141413` | `#FAF9F5` | `#000000` | `#FFFFFF` |
+| `disabled-bg` | `#ECEBE7` | `#201F1C` | `#ECEBE7` | `#201F1C` |
+| `disabled-fg` | `#93928D` | `#64635E` | `#93928D` | `#64635E` |
+| `text-disabled` | `#93928D` | `#64635E` | `#93928D` | `#64635E` |
+| `overlay` | `#141413` | `#000000` | `#141413` | `#000000` |
 | `static-white` | `#FFFFFF` | `#FFFFFF` | `#FFFFFF` | `#FFFFFF` |
 | `static-black` | `#000000` | `#000000` | `#000000` | `#000000` |
-| `glass-bg` | `#FFFFFF` | `#101115` | `#FFFFFF` | `#000000` |
-| `viz-1` | `#5671D8` | `#707AFF` | `#5671D8` | `#707AFF` |
-| `viz-2` | `#54529F` | `#3CC4E1` | `#54529F` | `#3CC4E1` |
-| `viz-3` | `#3D0094` | `#64F0F4` | `#3D0094` | `#64F0F4` |
-| `viz-4` | `#630055` | `#B1C88F` | `#630055` | `#B1C88F` |
-| `viz-5` | `#8F3C62` | `#EDDB49` | `#8F3C62` | `#EDDB49` |
-| `viz-6` | `#B4596F` | `#D09B00` | `#B4596F` | `#D09B00` |
-| `viz-7` | `#554704` | `#DC5C66` | `#554704` | `#DC5C66` |
-| `viz-8` | `#766A00` | `#A46EB5` | `#766A00` | `#A46EB5` |
-| `viz-seq-1` | `#ECF2FF` | `#152764` | `#ECF2FF` | `#152764` |
-| `viz-seq-2` | `#C9D9FF` | `#1B3291` | `#C9D9FF` | `#1B3291` |
-| `viz-seq-3` | `#A5C0FF` | `#2340BB` | `#A5C0FF` | `#2340BB` |
-| `viz-seq-4` | `#83A5FF` | `#2F52DD` | `#83A5FF` | `#2F52DD` |
-| `viz-seq-5` | `#6189FF` | `#3F68F8` | `#6189FF` | `#3F68F8` |
-| `viz-seq-6` | `#456EF4` | `#5983FF` | `#456EF4` | `#5983FF` |
-| `viz-seq-7` | `#395BCA` | `#789DFF` | `#395BCA` | `#789DFF` |
-| `viz-seq-8` | `#304A9A` | `#98B6FF` | `#304A9A` | `#98B6FF` |
-| `viz-seq-9` | `#2A3A68` | `#B8CDFF` | `#2A3A68` | `#B8CDFF` |
-| `viz-div-1` | `#3B5BBA` | `#97B5FF` | `#3B5BBA` | `#97B5FF` |
-| `viz-div-2` | `#6481CB` | `#728FDA` | `#6481CB` | `#728FDA` |
-| `viz-div-3` | `#90A5D9` | `#5A6D9E` | `#90A5D9` | `#5A6D9E` |
-| `viz-div-4` | `#BDCAE6` | `#434D65` | `#BDCAE6` | `#434D65` |
-| `viz-div-5` | `#F0EEEB` | `#2F2E2B` | `#F0EEEB` | `#2F2E2B` |
-| `viz-div-6` | `#D7C8AB` | `#584B32` | `#D7C8AB` | `#584B32` |
-| `viz-div-7` | `#BDA36B` | `#846B34` | `#BDA36B` | `#846B34` |
-| `viz-div-8` | `#A47D1A` | `#B38C2F` | `#A47D1A` | `#B38C2F` |
-| `viz-div-9` | `#7E5D00` | `#E4AE1A` | `#7E5D00` | `#E4AE1A` |
+| `glass-bg` | `#FFFFFF` | `#1C1C1A` | `#FFFFFF` | `#000000` |
+| `aurora-1` | `#F9774C` | `#F9774C` | `#F9774C` | `#F9774C` |
+| `aurora-2` | `#F77F9E` | `#F77F9E` | `#F77F9E` | `#F77F9E` |
+| `aurora-3` | `#BABAFE` | `#BABAFE` | `#BABAFE` | `#BABAFE` |
+| `aurora-4` | `#533AFD` | `#533AFD` | `#533AFD` | `#533AFD` |
+| `viz-1` | `#D8592C` | `#F9774C` | `#D8592C` | `#F9774C` |
+| `viz-2` | `#5553DA` | `#6C71F7` | `#5553DA` | `#6C71F7` |
+| `viz-3` | `#4D86E7` | `#AFF85B` | `#4D86E7` | `#AFF85B` |
+| `viz-4` | `#671D9D` | `#FA83F8` | `#671D9D` | `#FA83F8` |
+| `viz-5` | `#AE64A0` | `#B0667E` | `#AE64A0` | `#B0667E` |
+| `viz-6` | `#7E4000` | `#B3CE8F` | `#7E4000` | `#B3CE8F` |
+| `viz-7` | `#204263` | `#FFBEF1` | `#204263` | `#FFBEF1` |
+| `viz-8` | `#61615F` | `#A09E95` | `#61615F` | `#A09E95` |
+| `viz-seq-1` | `#EAF3FF` | `#0D2D56` | `#EAF3FF` | `#0D2D56` |
+| `viz-seq-2` | `#C1DBFF` | `#073E7C` | `#C1DBFF` | `#073E7C` |
+| `viz-seq-3` | `#98C4FF` | `#064FA0` | `#98C4FF` | `#064FA0` |
+| `viz-seq-4` | `#6CABFF` | `#1462BE` | `#6CABFF` | `#1462BE` |
+| `viz-seq-5` | `#4792F4` | `#2B77D7` | `#4792F4` | `#2B77D7` |
+| `viz-seq-6` | `#357BD5` | `#488EE9` | `#357BD5` | `#488EE9` |
+| `viz-seq-7` | `#2C66B0` | `#69A4F4` | `#2C66B0` | `#69A4F4` |
+| `viz-seq-8` | `#295187` | `#8DBAF8` | `#295187` | `#8DBAF8` |
+| `viz-seq-9` | `#273E5D` | `#B4D0F6` | `#273E5D` | `#B4D0F6` |
+| `viz-div-1` | `#1861B9` | `#87BAFF` | `#1861B9` | `#87BAFF` |
+| `viz-div-2` | `#5385C9` | `#6194D9` | `#5385C9` | `#6194D9` |
+| `viz-div-3` | `#85A8D8` | `#4F709D` | `#85A8D8` | `#4F709D` |
+| `viz-div-4` | `#B8CBE6` | `#3E4E64` | `#B8CBE6` | `#3E4E64` |
+| `viz-div-5` | `#F2EDEC` | `#302D2C` | `#F2EDEC` | `#302D2C` |
+| `viz-div-6` | `#E3C1B6` | `#62453C` | `#E3C1B6` | `#62453C` |
+| `viz-div-7` | `#D39581` | `#975E4C` | `#D39581` | `#975E4C` |
+| `viz-div-8` | `#BF694D` | `#CF775B` | `#BF694D` | `#CF775B` |
+| `viz-div-9` | `#A8390A` | `#FF9877` | `#A8390A` | `#FF9877` |
 
 ## Every declared pair (CI-enforced)
 
-### light — 176 pairs, min ratio 2.61
+### light — 184 pairs, min ratio 2.61
 
 | Foreground | Background | Ratio | Min | Use |
 |---|---|---|---|---|
-| `text-primary` | `bg-primary` | 17.45 | 7 | body text (AAA) |
-| `text-secondary` | `bg-primary` | 7.09 | 4.5 | secondary text |
-| `text-muted` | `bg-primary` | 5.00 | 4.5 | muted text |
-| `text-placeholder` | `bg-primary` | 4.93 | 4.5 | placeholder text (informational) |
-| `graphic-muted` | `bg-primary` | 3.54 | 3 | neutral icon / glyph (1.4.11) |
-| `border-strong` | `bg-primary` | 3.44 | 3 | control border (1.4.11) |
-| `focus-ring` | `bg-primary` | 7.70 | 3 | focus indicator (2.4.11) |
-| `accent-text` | `bg-primary` | 7.70 | 4.5 | accent text |
-| `accent-graphic` | `bg-primary` | 7.70 | 3 | accent icon / graphic |
-| `cta-text` | `bg-primary` | 5.22 | 4.5 | cta text |
-| `cta-graphic` | `bg-primary` | 3.87 | 3 | cta icon / graphic |
-| `success-text` | `bg-primary` | 5.19 | 4.5 | success text |
-| `success-graphic` | `bg-primary` | 4.58 | 3 | success icon / graphic |
-| `danger-text` | `bg-primary` | 5.24 | 4.5 | danger text |
-| `danger-graphic` | `bg-primary` | 5.22 | 3 | danger icon / graphic |
-| `warning-text` | `bg-primary` | 5.20 | 4.5 | warning text |
-| `warning-graphic` | `bg-primary` | 3.55 | 3 | warning icon / graphic |
-| `info-text` | `bg-primary` | 5.18 | 4.5 | info text |
-| `info-graphic` | `bg-primary` | 3.99 | 3 | info icon / graphic |
-| `viz-1` | `bg-primary` | 4.31 | 3 | chart series 1 |
-| `viz-2` | `bg-primary` | 6.64 | 3 | chart series 2 |
-| `viz-3` | `bg-primary` | 12.60 | 3 | chart series 3 |
-| `viz-4` | `bg-primary` | 12.33 | 3 | chart series 4 |
-| `viz-5` | `bg-primary` | 6.85 | 3 | chart series 5 |
-| `viz-6` | `bg-primary` | 4.45 | 3 | chart series 6 |
-| `viz-7` | `bg-primary` | 8.95 | 3 | chart series 7 |
-| `viz-8` | `bg-primary` | 5.34 | 3 | chart series 8 |
-| `text-primary` | `bg-secondary` | 17.89 | 7 | body text (AAA) |
-| `text-secondary` | `bg-secondary` | 7.27 | 4.5 | secondary text |
-| `text-muted` | `bg-secondary` | 5.13 | 4.5 | muted text |
-| `text-placeholder` | `bg-secondary` | 5.05 | 4.5 | placeholder text (informational) |
-| `graphic-muted` | `bg-secondary` | 3.63 | 3 | neutral icon / glyph (1.4.11) |
-| `border-strong` | `bg-secondary` | 3.52 | 3 | control border (1.4.11) |
-| `focus-ring` | `bg-secondary` | 7.90 | 3 | focus indicator (2.4.11) |
-| `accent-text` | `bg-secondary` | 7.90 | 4.5 | accent text |
-| `accent-graphic` | `bg-secondary` | 7.90 | 3 | accent icon / graphic |
-| `cta-text` | `bg-secondary` | 5.35 | 4.5 | cta text |
-| `cta-graphic` | `bg-secondary` | 3.97 | 3 | cta icon / graphic |
-| `success-text` | `bg-secondary` | 5.32 | 4.5 | success text |
-| `success-graphic` | `bg-secondary` | 4.69 | 3 | success icon / graphic |
-| `danger-text` | `bg-secondary` | 5.38 | 4.5 | danger text |
-| `danger-graphic` | `bg-secondary` | 5.36 | 3 | danger icon / graphic |
-| `warning-text` | `bg-secondary` | 5.34 | 4.5 | warning text |
-| `warning-graphic` | `bg-secondary` | 3.64 | 3 | warning icon / graphic |
-| `info-text` | `bg-secondary` | 5.32 | 4.5 | info text |
-| `info-graphic` | `bg-secondary` | 4.10 | 3 | info icon / graphic |
-| `viz-1` | `bg-secondary` | 4.42 | 3 | chart series 1 |
-| `viz-2` | `bg-secondary` | 6.81 | 3 | chart series 2 |
-| `viz-3` | `bg-secondary` | 12.91 | 3 | chart series 3 |
-| `viz-4` | `bg-secondary` | 12.64 | 3 | chart series 4 |
-| `viz-5` | `bg-secondary` | 7.02 | 3 | chart series 5 |
-| `viz-6` | `bg-secondary` | 4.57 | 3 | chart series 6 |
-| `viz-7` | `bg-secondary` | 9.17 | 3 | chart series 7 |
-| `viz-8` | `bg-secondary` | 5.48 | 3 | chart series 8 |
-| `text-primary` | `bg-tertiary` | 16.29 | 7 | body text (AAA) |
-| `text-secondary` | `bg-tertiary` | 6.62 | 4.5 | secondary text |
-| `text-muted` | `bg-tertiary` | 4.67 | 4.5 | muted text |
-| `text-placeholder` | `bg-tertiary` | 4.60 | 4.5 | placeholder text (informational) |
-| `graphic-muted` | `bg-tertiary` | 3.30 | 3 | neutral icon / glyph (1.4.11) |
-| `border-strong` | `bg-tertiary` | 3.21 | 3 | control border (1.4.11) |
-| `focus-ring` | `bg-tertiary` | 7.19 | 3 | focus indicator (2.4.11) |
-| `accent-text` | `bg-tertiary` | 7.19 | 4.5 | accent text |
-| `accent-graphic` | `bg-tertiary` | 7.19 | 3 | accent icon / graphic |
-| `cta-text` | `bg-tertiary` | 4.87 | 4.5 | cta text |
-| `cta-graphic` | `bg-tertiary` | 3.61 | 3 | cta icon / graphic |
-| `success-text` | `bg-tertiary` | 4.84 | 4.5 | success text |
-| `success-graphic` | `bg-tertiary` | 4.27 | 3 | success icon / graphic |
-| `danger-text` | `bg-tertiary` | 4.90 | 4.5 | danger text |
-| `danger-graphic` | `bg-tertiary` | 4.88 | 3 | danger icon / graphic |
-| `warning-text` | `bg-tertiary` | 4.86 | 4.5 | warning text |
+| `text-primary` | `bg-primary` | 17.50 | 7 | body text (AAA) |
+| `text-secondary` | `bg-primary` | 6.89 | 4.5 | secondary text |
+| `text-muted` | `bg-primary` | 5.13 | 4.5 | muted text |
+| `text-placeholder` | `bg-primary` | 5.08 | 4.5 | placeholder text (informational) |
+| `graphic-muted` | `bg-primary` | 3.65 | 3 | neutral icon / glyph (1.4.11) |
+| `border-strong` | `bg-primary` | 3.55 | 3 | control border (1.4.11) |
+| `focus-ring` | `bg-primary` | 5.99 | 3 | focus indicator (2.4.11) |
+| `accent-text` | `bg-primary` | 5.99 | 4.5 | accent text |
+| `accent-graphic` | `bg-primary` | 3.66 | 3 | accent icon / graphic |
+| `cta-text` | `bg-primary` | 6.79 | 4.5 | cta text |
+| `cta-graphic` | `bg-primary` | 5.88 | 3 | cta icon / graphic |
+| `success-text` | `bg-primary` | 5.80 | 4.5 | success text |
+| `success-graphic` | `bg-primary` | 3.68 | 3 | success icon / graphic |
+| `danger-text` | `bg-primary` | 6.46 | 4.5 | danger text |
+| `danger-graphic` | `bg-primary` | 3.65 | 3 | danger icon / graphic |
+| `warning-text` | `bg-primary` | 5.37 | 4.5 | warning text |
+| `warning-graphic` | `bg-primary` | 3.65 | 3 | warning icon / graphic |
+| `info-text` | `bg-primary` | 6.54 | 4.5 | info text |
+| `info-graphic` | `bg-primary` | 4.46 | 3 | info icon / graphic |
+| `viz-1` | `bg-primary` | 3.70 | 3 | chart series 1 |
+| `viz-2` | `bg-primary` | 5.48 | 3 | chart series 2 |
+| `viz-3` | `bg-primary` | 3.39 | 3 | chart series 3 |
+| `viz-4` | `bg-primary` | 8.90 | 3 | chart series 4 |
+| `viz-5` | `bg-primary` | 3.89 | 3 | chart series 5 |
+| `viz-6` | `bg-primary` | 7.61 | 3 | chart series 6 |
+| `viz-7` | `bg-primary` | 9.86 | 3 | chart series 7 |
+| `viz-8` | `bg-primary` | 5.89 | 3 | chart series 8 |
+| `text-primary` | `bg-secondary` | 18.43 | 7 | body text (AAA) |
+| `text-secondary` | `bg-secondary` | 7.26 | 4.5 | secondary text |
+| `text-muted` | `bg-secondary` | 5.40 | 4.5 | muted text |
+| `text-placeholder` | `bg-secondary` | 5.36 | 4.5 | placeholder text (informational) |
+| `graphic-muted` | `bg-secondary` | 3.84 | 3 | neutral icon / glyph (1.4.11) |
+| `border-strong` | `bg-secondary` | 3.74 | 3 | control border (1.4.11) |
+| `focus-ring` | `bg-secondary` | 6.31 | 3 | focus indicator (2.4.11) |
+| `accent-text` | `bg-secondary` | 6.31 | 4.5 | accent text |
+| `accent-graphic` | `bg-secondary` | 3.85 | 3 | accent icon / graphic |
+| `cta-text` | `bg-secondary` | 7.15 | 4.5 | cta text |
+| `cta-graphic` | `bg-secondary` | 6.19 | 3 | cta icon / graphic |
+| `success-text` | `bg-secondary` | 6.11 | 4.5 | success text |
+| `success-graphic` | `bg-secondary` | 3.87 | 3 | success icon / graphic |
+| `danger-text` | `bg-secondary` | 6.80 | 4.5 | danger text |
+| `danger-graphic` | `bg-secondary` | 3.84 | 3 | danger icon / graphic |
+| `warning-text` | `bg-secondary` | 5.66 | 4.5 | warning text |
+| `warning-graphic` | `bg-secondary` | 3.85 | 3 | warning icon / graphic |
+| `info-text` | `bg-secondary` | 6.89 | 4.5 | info text |
+| `info-graphic` | `bg-secondary` | 4.70 | 3 | info icon / graphic |
+| `viz-1` | `bg-secondary` | 3.90 | 3 | chart series 1 |
+| `viz-2` | `bg-secondary` | 5.78 | 3 | chart series 2 |
+| `viz-3` | `bg-secondary` | 3.57 | 3 | chart series 3 |
+| `viz-4` | `bg-secondary` | 9.38 | 3 | chart series 4 |
+| `viz-5` | `bg-secondary` | 4.09 | 3 | chart series 5 |
+| `viz-6` | `bg-secondary` | 8.01 | 3 | chart series 6 |
+| `viz-7` | `bg-secondary` | 10.39 | 3 | chart series 7 |
+| `viz-8` | `bg-secondary` | 6.21 | 3 | chart series 8 |
+| `text-primary` | `bg-tertiary` | 15.87 | 7 | body text (AAA) |
+| `text-secondary` | `bg-tertiary` | 6.25 | 4.5 | secondary text |
+| `text-muted` | `bg-tertiary` | 4.65 | 4.5 | muted text |
+| `text-placeholder` | `bg-tertiary` | 4.61 | 4.5 | placeholder text (informational) |
+| `graphic-muted` | `bg-tertiary` | 3.31 | 3 | neutral icon / glyph (1.4.11) |
+| `border-strong` | `bg-tertiary` | 3.22 | 3 | control border (1.4.11) |
+| `focus-ring` | `bg-tertiary` | 5.43 | 3 | focus indicator (2.4.11) |
+| `accent-text` | `bg-tertiary` | 5.43 | 4.5 | accent text |
+| `accent-graphic` | `bg-tertiary` | 3.32 | 3 | accent icon / graphic |
+| `cta-text` | `bg-tertiary` | 6.16 | 4.5 | cta text |
+| `cta-graphic` | `bg-tertiary` | 5.33 | 3 | cta icon / graphic |
+| `success-text` | `bg-tertiary` | 5.26 | 4.5 | success text |
+| `success-graphic` | `bg-tertiary` | 3.34 | 3 | success icon / graphic |
+| `danger-text` | `bg-tertiary` | 5.85 | 4.5 | danger text |
+| `danger-graphic` | `bg-tertiary` | 3.31 | 3 | danger icon / graphic |
+| `warning-text` | `bg-tertiary` | 4.87 | 4.5 | warning text |
 | `warning-graphic` | `bg-tertiary` | 3.31 | 3 | warning icon / graphic |
-| `info-text` | `bg-tertiary` | 4.84 | 4.5 | info text |
-| `info-graphic` | `bg-tertiary` | 3.73 | 3 | info icon / graphic |
-| `viz-1` | `bg-tertiary` | 4.03 | 3 | chart series 1 |
-| `viz-2` | `bg-tertiary` | 6.20 | 3 | chart series 2 |
-| `viz-3` | `bg-tertiary` | 11.76 | 3 | chart series 3 |
-| `viz-4` | `bg-tertiary` | 11.50 | 3 | chart series 4 |
-| `viz-5` | `bg-tertiary` | 6.39 | 3 | chart series 5 |
-| `viz-6` | `bg-tertiary` | 4.16 | 3 | chart series 6 |
-| `viz-7` | `bg-tertiary` | 8.35 | 3 | chart series 7 |
-| `viz-8` | `bg-tertiary` | 4.99 | 3 | chart series 8 |
-| `text-primary` | `surface-overlay` | 17.89 | 7 | body text (AAA) |
-| `text-secondary` | `surface-overlay` | 7.27 | 4.5 | secondary text |
-| `text-muted` | `surface-overlay` | 5.13 | 4.5 | muted text |
-| `text-placeholder` | `surface-overlay` | 5.05 | 4.5 | placeholder text (informational) |
-| `graphic-muted` | `surface-overlay` | 3.63 | 3 | neutral icon / glyph (1.4.11) |
-| `border-strong` | `surface-overlay` | 3.52 | 3 | control border (1.4.11) |
-| `focus-ring` | `surface-overlay` | 7.90 | 3 | focus indicator (2.4.11) |
-| `accent-text` | `surface-overlay` | 7.90 | 4.5 | accent text |
-| `accent-graphic` | `surface-overlay` | 7.90 | 3 | accent icon / graphic |
-| `cta-text` | `surface-overlay` | 5.35 | 4.5 | cta text |
-| `cta-graphic` | `surface-overlay` | 3.97 | 3 | cta icon / graphic |
-| `success-text` | `surface-overlay` | 5.32 | 4.5 | success text |
-| `success-graphic` | `surface-overlay` | 4.69 | 3 | success icon / graphic |
-| `danger-text` | `surface-overlay` | 5.38 | 4.5 | danger text |
-| `danger-graphic` | `surface-overlay` | 5.36 | 3 | danger icon / graphic |
-| `warning-text` | `surface-overlay` | 5.34 | 4.5 | warning text |
-| `warning-graphic` | `surface-overlay` | 3.64 | 3 | warning icon / graphic |
-| `info-text` | `surface-overlay` | 5.32 | 4.5 | info text |
-| `info-graphic` | `surface-overlay` | 4.10 | 3 | info icon / graphic |
-| `viz-1` | `surface-overlay` | 4.42 | 3 | chart series 1 |
-| `viz-2` | `surface-overlay` | 6.81 | 3 | chart series 2 |
-| `viz-3` | `surface-overlay` | 12.91 | 3 | chart series 3 |
-| `viz-4` | `surface-overlay` | 12.64 | 3 | chart series 4 |
-| `viz-5` | `surface-overlay` | 7.02 | 3 | chart series 5 |
-| `viz-6` | `surface-overlay` | 4.57 | 3 | chart series 6 |
-| `viz-7` | `surface-overlay` | 9.17 | 3 | chart series 7 |
-| `viz-8` | `surface-overlay` | 5.48 | 3 | chart series 8 |
+| `info-text` | `bg-tertiary` | 5.93 | 4.5 | info text |
+| `info-graphic` | `bg-tertiary` | 4.04 | 3 | info icon / graphic |
+| `viz-1` | `bg-tertiary` | 3.36 | 3 | chart series 1 |
+| `viz-2` | `bg-tertiary` | 4.97 | 3 | chart series 2 |
+| `viz-3` | `bg-tertiary` | 3.07 | 3 | chart series 3 |
+| `viz-4` | `bg-tertiary` | 8.07 | 3 | chart series 4 |
+| `viz-5` | `bg-tertiary` | 3.52 | 3 | chart series 5 |
+| `viz-6` | `bg-tertiary` | 6.90 | 3 | chart series 6 |
+| `viz-7` | `bg-tertiary` | 8.95 | 3 | chart series 7 |
+| `viz-8` | `bg-tertiary` | 5.34 | 3 | chart series 8 |
+| `text-primary` | `surface-overlay` | 18.43 | 7 | body text (AAA) |
+| `text-secondary` | `surface-overlay` | 7.26 | 4.5 | secondary text |
+| `text-muted` | `surface-overlay` | 5.40 | 4.5 | muted text |
+| `text-placeholder` | `surface-overlay` | 5.36 | 4.5 | placeholder text (informational) |
+| `graphic-muted` | `surface-overlay` | 3.84 | 3 | neutral icon / glyph (1.4.11) |
+| `border-strong` | `surface-overlay` | 3.74 | 3 | control border (1.4.11) |
+| `focus-ring` | `surface-overlay` | 6.31 | 3 | focus indicator (2.4.11) |
+| `accent-text` | `surface-overlay` | 6.31 | 4.5 | accent text |
+| `accent-graphic` | `surface-overlay` | 3.85 | 3 | accent icon / graphic |
+| `cta-text` | `surface-overlay` | 7.15 | 4.5 | cta text |
+| `cta-graphic` | `surface-overlay` | 6.19 | 3 | cta icon / graphic |
+| `success-text` | `surface-overlay` | 6.11 | 4.5 | success text |
+| `success-graphic` | `surface-overlay` | 3.87 | 3 | success icon / graphic |
+| `danger-text` | `surface-overlay` | 6.80 | 4.5 | danger text |
+| `danger-graphic` | `surface-overlay` | 3.84 | 3 | danger icon / graphic |
+| `warning-text` | `surface-overlay` | 5.66 | 4.5 | warning text |
+| `warning-graphic` | `surface-overlay` | 3.85 | 3 | warning icon / graphic |
+| `info-text` | `surface-overlay` | 6.89 | 4.5 | info text |
+| `info-graphic` | `surface-overlay` | 4.70 | 3 | info icon / graphic |
+| `viz-1` | `surface-overlay` | 3.90 | 3 | chart series 1 |
+| `viz-2` | `surface-overlay` | 5.78 | 3 | chart series 2 |
+| `viz-3` | `surface-overlay` | 3.57 | 3 | chart series 3 |
+| `viz-4` | `surface-overlay` | 9.38 | 3 | chart series 4 |
+| `viz-5` | `surface-overlay` | 4.09 | 3 | chart series 5 |
+| `viz-6` | `surface-overlay` | 8.01 | 3 | chart series 6 |
+| `viz-7` | `surface-overlay` | 10.39 | 3 | chart series 7 |
+| `viz-8` | `surface-overlay` | 6.21 | 3 | chart series 8 |
 | `text-disabled` | `disabled-bg` | 2.61 | 1 | EXEMPT: inactive component (WCAG 1.4.3) — no AA claim, never for readable content |
-| `text-inverse` | `text-primary` | 17.45 | 7 | text on ink panel |
-| `on-inverse` | `surface-inverse` | 15.98 | 7 | text on inverse panel |
-| `on-inverse-muted` | `surface-inverse` | 7.23 | 4.5 | muted text on inverse panel |
-| `border-inverse` | `surface-inverse` | 3.22 | 3 | border on inverse panel |
-| `text-primary` | `selection-bg` | 12.41 | 7 | selected text |
-| `on-accent` | `accent-fill` | 7.90 | 4.5 | text on accent fill |
-| `on-accent` | `accent-hover` | 9.44 | 4.5 | text on accent hover |
-| `on-accent` | `accent-active` | 11.26 | 4.5 | text on accent active |
-| `accent-strong` | `accent-subtle` | 7.11 | 7 | accent text on its tint (AAA) |
-| `accent-text` | `accent-subtle` | 7.11 | 4.5 | accent text on its tint |
-| `text-primary` | `accent-subtle` | 16.10 | 7 | body text on accent tint |
+| `text-inverse` | `text-primary` | 17.50 | 7 | text on ink panel |
+| `on-inverse` | `surface-inverse` | 17.50 | 7 | text on inverse panel |
+| `on-inverse-muted` | `surface-inverse` | 8.29 | 4.5 | muted text on inverse panel |
+| `border-inverse` | `surface-inverse` | 3.20 | 3 | border on inverse panel |
+| `text-primary` | `selection-bg` | 12.64 | 7 | selected text |
+| `on-accent` | `accent-fill` | 6.82 | 4.5 | text on accent fill |
+| `on-accent` | `accent-hover` | 7.96 | 4.5 | text on accent hover |
+| `on-accent` | `accent-active` | 9.30 | 4.5 | text on accent active |
+| `accent-strong` | `accent-subtle` | 7.04 | 7 | accent text on its tint (AAA) |
+| `accent-text` | `accent-subtle` | 5.68 | 4.5 | accent text on its tint |
+| `text-primary` | `accent-subtle` | 16.60 | 7 | body text on accent tint |
 | `text-secondary` | `accent-subtle` | 6.54 | 4.5 | secondary text on accent tint |
-| `on-cta` | `cta-fill` | 4.81 | 4.5 | text on cta fill |
-| `on-cta` | `cta-hover` | 5.70 | 4.5 | text on cta hover |
-| `on-cta` | `cta-active` | 6.71 | 4.5 | text on cta active |
-| `cta-strong` | `cta-subtle` | 7.04 | 7 | cta text on its tint (AAA) |
-| `cta-text` | `cta-subtle` | 4.82 | 4.5 | cta text on its tint |
-| `text-primary` | `cta-subtle` | 16.11 | 7 | body text on cta tint |
+| `on-cta` | `cta-fill` | 6.19 | 4.5 | text on cta fill |
+| `on-cta` | `cta-hover` | 7.41 | 4.5 | text on cta hover |
+| `on-cta` | `cta-active` | 8.94 | 4.5 | text on cta active |
+| `cta-strong` | `cta-subtle` | 7.02 | 7 | cta text on its tint (AAA) |
+| `cta-text` | `cta-subtle` | 6.46 | 4.5 | cta text on its tint |
+| `text-primary` | `cta-subtle` | 16.65 | 7 | body text on cta tint |
 | `text-secondary` | `cta-subtle` | 6.55 | 4.5 | secondary text on cta tint |
-| `on-success` | `success-fill` | 4.82 | 4.5 | text on success fill |
-| `on-success` | `success-hover` | 5.68 | 4.5 | text on success hover |
-| `on-success` | `success-active` | 6.77 | 4.5 | text on success active |
+| `on-success` | `success-fill` | 8.30 | 4.5 | text on success fill |
+| `on-success` | `success-hover` | 9.54 | 4.5 | text on success hover |
+| `on-success` | `success-active` | 10.99 | 4.5 | text on success active |
 | `success-strong` | `success-subtle` | 7.09 | 7 | success text on its tint (AAA) |
-| `success-text` | `success-subtle` | 4.85 | 4.5 | success text on its tint |
-| `text-primary` | `success-subtle` | 16.32 | 7 | body text on success tint |
-| `text-secondary` | `success-subtle` | 6.63 | 4.5 | secondary text on success tint |
-| `on-danger` | `danger-fill` | 5.36 | 4.5 | text on danger fill |
-| `on-danger` | `danger-hover` | 6.35 | 4.5 | text on danger hover |
-| `on-danger` | `danger-active` | 7.54 | 4.5 | text on danger active |
-| `danger-strong` | `danger-subtle` | 7.04 | 7 | danger text on its tint (AAA) |
-| `danger-text` | `danger-subtle` | 4.82 | 4.5 | danger text on its tint |
-| `text-primary` | `danger-subtle` | 16.03 | 7 | body text on danger tint |
-| `text-secondary` | `danger-subtle` | 6.52 | 4.5 | secondary text on danger tint |
-| `on-warning` | `warning-fill` | 8.33 | 4.5 | text on warning fill |
-| `on-warning` | `warning-hover` | 9.62 | 4.5 | text on warning hover |
-| `on-warning` | `warning-active` | 11.03 | 4.5 | text on warning active |
-| `warning-strong` | `warning-subtle` | 7.00 | 7 | warning text on its tint (AAA) |
-| `warning-text` | `warning-subtle` | 4.82 | 4.5 | warning text on its tint |
-| `text-primary` | `warning-subtle` | 16.16 | 7 | body text on warning tint |
-| `text-secondary` | `warning-subtle` | 6.57 | 4.5 | secondary text on warning tint |
-| `on-info` | `info-fill` | 4.81 | 4.5 | text on info fill |
-| `on-info` | `info-hover` | 5.69 | 4.5 | text on info hover |
-| `on-info` | `info-active` | 6.79 | 4.5 | text on info active |
-| `info-strong` | `info-subtle` | 7.01 | 7 | info text on its tint (AAA) |
-| `info-text` | `info-subtle` | 4.80 | 4.5 | info text on its tint |
-| `text-primary` | `info-subtle` | 16.16 | 7 | body text on info tint |
-| `text-secondary` | `info-subtle` | 6.57 | 4.5 | secondary text on info tint |
-| `on-brand` | `brand-from` | 7.90 | 4.5 | text on brand gradient (start) |
-| `on-brand` | `brand-to` | 4.81 | 4.5 | text on brand gradient (end) |
-| `brand-from` | `bg-primary` | 7.70 | 3 | brand gradient start vs page (1.4.11) |
-| `brand-to` | `bg-primary` | 4.69 | 3 | brand gradient end vs page (1.4.11) |
-| `brand-from` | `bg-secondary` | 7.90 | 3 | brand gradient start vs page (1.4.11) |
-| `brand-to` | `bg-secondary` | 4.81 | 3 | brand gradient end vs page (1.4.11) |
-| `brand-from` | `bg-tertiary` | 7.19 | 3 | brand gradient start vs page (1.4.11) |
-| `brand-to` | `bg-tertiary` | 4.38 | 3 | brand gradient end vs page (1.4.11) |
-| `brand-from` | `surface-overlay` | 7.90 | 3 | brand gradient start vs page (1.4.11) |
-| `brand-to` | `surface-overlay` | 4.81 | 3 | brand gradient end vs page (1.4.11) |
-| `text-primary` | `glass over #FFFFFF` | 17.89 | 7 | glass surface |
-| `text-secondary` | `glass over #FFFFFF` | 7.27 | 4.5 | glass surface |
-| `text-primary` | `glass over #000000` | 11.14 | 7 | glass surface |
-| `text-secondary` | `glass over #000000` | 4.53 | 4.5 | glass surface |
-| `text-primary` | `mesh(accent-graphic@0.14)` | 13.80 | 7 | text over brand gradient |
-| `text-secondary` | `mesh(accent-graphic@0.14)` | 5.61 | 4.5 | text over brand gradient |
-| `accent-text` | `mesh(accent-graphic@0.14)` | 6.09 | 4.5 | text over brand gradient |
-| `text-primary` | `mesh(cta-graphic@0.1)` | 15.47 | 7 | text over brand gradient |
-| `text-secondary` | `mesh(cta-graphic@0.1)` | 6.29 | 4.5 | text over brand gradient |
-| `accent-text` | `mesh(cta-graphic@0.1)` | 6.83 | 4.5 | text over brand gradient |
+| `success-text` | `success-subtle` | 5.56 | 4.5 | success text on its tint |
+| `text-primary` | `success-subtle` | 16.78 | 7 | body text on success tint |
+| `text-secondary` | `success-subtle` | 6.60 | 4.5 | secondary text on success tint |
+| `on-danger` | `danger-fill` | 4.80 | 4.5 | text on danger fill |
+| `on-danger` | `danger-hover` | 5.63 | 4.5 | text on danger hover |
+| `on-danger` | `danger-active` | 6.66 | 4.5 | text on danger active |
+| `danger-strong` | `danger-subtle` | 7.03 | 7 | danger text on its tint (AAA) |
+| `danger-text` | `danger-subtle` | 6.10 | 4.5 | danger text on its tint |
+| `text-primary` | `danger-subtle` | 16.54 | 7 | body text on danger tint |
+| `text-secondary` | `danger-subtle` | 6.51 | 4.5 | secondary text on danger tint |
+| `on-warning` | `warning-fill` | 12.19 | 4.5 | text on warning fill |
+| `on-warning` | `warning-hover` | 13.85 | 4.5 | text on warning hover |
+| `on-warning` | `warning-active` | 15.74 | 4.5 | text on warning active |
+| `warning-strong` | `warning-subtle` | 7.07 | 7 | warning text on its tint (AAA) |
+| `warning-text` | `warning-subtle` | 5.11 | 4.5 | warning text on its tint |
+| `text-primary` | `warning-subtle` | 16.65 | 7 | body text on warning tint |
+| `text-secondary` | `warning-subtle` | 6.55 | 4.5 | secondary text on warning tint |
+| `on-info` | `info-fill` | 4.82 | 4.5 | text on info fill |
+| `on-info` | `info-hover` | 5.70 | 4.5 | text on info hover |
+| `on-info` | `info-active` | 6.75 | 4.5 | text on info active |
+| `info-strong` | `info-subtle` | 7.02 | 7 | info text on its tint (AAA) |
+| `info-text` | `info-subtle` | 6.22 | 4.5 | info text on its tint |
+| `text-primary` | `info-subtle` | 16.64 | 7 | body text on info tint |
+| `text-secondary` | `info-subtle` | 6.55 | 4.5 | secondary text on info tint |
+| `on-brand` | `brand-from` | 4.81 | 4.5 | text on brand gradient (start) |
+| `on-brand` | `brand-to` | 6.19 | 4.5 | text on brand gradient (end) |
+| `brand-from` | `bg-primary` | 4.56 | 3 | brand gradient start vs page (1.4.11) |
+| `brand-to` | `bg-primary` | 5.88 | 3 | brand gradient end vs page (1.4.11) |
+| `brand-from` | `bg-secondary` | 4.81 | 3 | brand gradient start vs page (1.4.11) |
+| `brand-to` | `bg-secondary` | 6.19 | 3 | brand gradient end vs page (1.4.11) |
+| `brand-from` | `bg-tertiary` | 4.14 | 3 | brand gradient start vs page (1.4.11) |
+| `brand-to` | `bg-tertiary` | 5.33 | 3 | brand gradient end vs page (1.4.11) |
+| `brand-from` | `surface-overlay` | 4.81 | 3 | brand gradient start vs page (1.4.11) |
+| `brand-to` | `surface-overlay` | 6.19 | 3 | brand gradient end vs page (1.4.11) |
+| `text-primary` | `glass over #FFFFFF` | 18.43 | 7 | glass surface |
+| `text-secondary` | `glass over #FFFFFF` | 7.26 | 4.5 | glass surface |
+| `text-primary` | `glass over #000000` | 11.48 | 7 | glass surface |
+| `text-secondary` | `glass over #000000` | 4.52 | 4.5 | glass surface |
+| `text-primary` | `mesh(accent-graphic@0.18)` | 14.05 | 7 | text over brand gradient |
+| `text-secondary` | `mesh(accent-graphic@0.18)` | 5.53 | 4.5 | text over brand gradient |
+| `accent-text` | `mesh(accent-graphic@0.18)` | 4.81 | 4.5 | text over brand gradient |
+| `text-primary` | `mesh(cta-graphic@0.12)` | 14.55 | 7 | text over brand gradient |
+| `text-secondary` | `mesh(cta-graphic@0.12)` | 5.73 | 4.5 | text over brand gradient |
+| `accent-text` | `mesh(cta-graphic@0.12)` | 4.98 | 4.5 | text over brand gradient |
+| `text-primary` | `aurora(aurora-1@0.22)` | 14.23 | 7 | text over aurora wash |
+| `text-secondary` | `aurora(aurora-1@0.22)` | 5.60 | 4.5 | text over aurora wash |
+| `text-primary` | `aurora(aurora-2@0.16)` | 15.30 | 7 | text over aurora wash |
+| `text-secondary` | `aurora(aurora-2@0.16)` | 6.02 | 4.5 | text over aurora wash |
+| `text-primary` | `aurora(aurora-3@0.24)` | 15.49 | 7 | text over aurora wash |
+| `text-secondary` | `aurora(aurora-3@0.24)` | 6.10 | 4.5 | text over aurora wash |
+| `text-primary` | `aurora(aurora-4@0.1)` | 15.02 | 7 | text over aurora wash |
+| `text-secondary` | `aurora(aurora-4@0.1)` | 5.91 | 4.5 | text over aurora wash |
 
-### dark — 176 pairs, min ratio 2.74
+### dark — 184 pairs, min ratio 2.74
 
 | Foreground | Background | Ratio | Min | Use |
 |---|---|---|---|---|
-| `text-primary` | `bg-primary` | 17.53 | 7 | body text (AAA) |
-| `text-secondary` | `bg-primary` | 7.09 | 4.5 | secondary text |
-| `text-muted` | `bg-primary` | 5.69 | 4.5 | muted text |
-| `text-placeholder` | `bg-primary` | 5.61 | 4.5 | placeholder text (informational) |
-| `graphic-muted` | `bg-primary` | 4.02 | 3 | neutral icon / glyph (1.4.11) |
-| `border-strong` | `bg-primary` | 3.94 | 3 | control border (1.4.11) |
-| `focus-ring` | `bg-primary` | 6.22 | 3 | focus indicator (2.4.11) |
-| `accent-text` | `bg-primary` | 6.22 | 4.5 | accent text |
-| `accent-graphic` | `bg-primary` | 5.91 | 3 | accent icon / graphic |
-| `cta-text` | `bg-primary` | 8.52 | 4.5 | cta text |
-| `cta-graphic` | `bg-primary` | 8.52 | 3 | cta icon / graphic |
-| `success-text` | `bg-primary` | 9.27 | 4.5 | success text |
-| `success-graphic` | `bg-primary` | 9.27 | 3 | success icon / graphic |
-| `danger-text` | `bg-primary` | 6.33 | 4.5 | danger text |
-| `danger-graphic` | `bg-primary` | 6.33 | 3 | danger icon / graphic |
-| `warning-text` | `bg-primary` | 9.78 | 4.5 | warning text |
-| `warning-graphic` | `bg-primary` | 9.78 | 3 | warning icon / graphic |
-| `info-text` | `bg-primary` | 9.24 | 4.5 | info text |
-| `info-graphic` | `bg-primary` | 9.24 | 3 | info icon / graphic |
-| `viz-1` | `bg-primary` | 5.58 | 3 | chart series 1 |
-| `viz-2` | `bg-primary` | 9.59 | 3 | chart series 2 |
-| `viz-3` | `bg-primary` | 14.43 | 3 | chart series 3 |
-| `viz-4` | `bg-primary` | 10.87 | 3 | chart series 4 |
-| `viz-5` | `bg-primary` | 13.98 | 3 | chart series 5 |
-| `viz-6` | `bg-primary` | 7.89 | 3 | chart series 6 |
-| `viz-7` | `bg-primary` | 5.44 | 3 | chart series 7 |
-| `viz-8` | `bg-primary` | 5.16 | 3 | chart series 8 |
-| `text-primary` | `bg-secondary` | 16.70 | 7 | body text (AAA) |
-| `text-secondary` | `bg-secondary` | 6.76 | 4.5 | secondary text |
-| `text-muted` | `bg-secondary` | 5.42 | 4.5 | muted text |
-| `text-placeholder` | `bg-secondary` | 5.35 | 4.5 | placeholder text (informational) |
-| `graphic-muted` | `bg-secondary` | 3.83 | 3 | neutral icon / glyph (1.4.11) |
-| `border-strong` | `bg-secondary` | 3.75 | 3 | control border (1.4.11) |
-| `focus-ring` | `bg-secondary` | 5.93 | 3 | focus indicator (2.4.11) |
-| `accent-text` | `bg-secondary` | 5.93 | 4.5 | accent text |
-| `accent-graphic` | `bg-secondary` | 5.64 | 3 | accent icon / graphic |
-| `cta-text` | `bg-secondary` | 8.12 | 4.5 | cta text |
-| `cta-graphic` | `bg-secondary` | 8.12 | 3 | cta icon / graphic |
-| `success-text` | `bg-secondary` | 8.84 | 4.5 | success text |
-| `success-graphic` | `bg-secondary` | 8.84 | 3 | success icon / graphic |
-| `danger-text` | `bg-secondary` | 6.03 | 4.5 | danger text |
-| `danger-graphic` | `bg-secondary` | 6.03 | 3 | danger icon / graphic |
-| `warning-text` | `bg-secondary` | 9.32 | 4.5 | warning text |
-| `warning-graphic` | `bg-secondary` | 9.32 | 3 | warning icon / graphic |
-| `info-text` | `bg-secondary` | 8.81 | 4.5 | info text |
-| `info-graphic` | `bg-secondary` | 8.81 | 3 | info icon / graphic |
-| `viz-1` | `bg-secondary` | 5.32 | 3 | chart series 1 |
-| `viz-2` | `bg-secondary` | 9.14 | 3 | chart series 2 |
-| `viz-3` | `bg-secondary` | 13.76 | 3 | chart series 3 |
-| `viz-4` | `bg-secondary` | 10.36 | 3 | chart series 4 |
-| `viz-5` | `bg-secondary` | 13.32 | 3 | chart series 5 |
-| `viz-6` | `bg-secondary` | 7.52 | 3 | chart series 6 |
-| `viz-7` | `bg-secondary` | 5.18 | 3 | chart series 7 |
-| `viz-8` | `bg-secondary` | 4.92 | 3 | chart series 8 |
-| `text-primary` | `bg-tertiary` | 15.69 | 7 | body text (AAA) |
-| `text-secondary` | `bg-tertiary` | 6.35 | 4.5 | secondary text |
-| `text-muted` | `bg-tertiary` | 5.09 | 4.5 | muted text |
-| `text-placeholder` | `bg-tertiary` | 5.03 | 4.5 | placeholder text (informational) |
-| `graphic-muted` | `bg-tertiary` | 3.60 | 3 | neutral icon / glyph (1.4.11) |
-| `border-strong` | `bg-tertiary` | 3.52 | 3 | control border (1.4.11) |
-| `focus-ring` | `bg-tertiary` | 5.57 | 3 | focus indicator (2.4.11) |
-| `accent-text` | `bg-tertiary` | 5.57 | 4.5 | accent text |
-| `accent-graphic` | `bg-tertiary` | 5.30 | 3 | accent icon / graphic |
-| `cta-text` | `bg-tertiary` | 7.63 | 4.5 | cta text |
-| `cta-graphic` | `bg-tertiary` | 7.63 | 3 | cta icon / graphic |
-| `success-text` | `bg-tertiary` | 8.30 | 4.5 | success text |
-| `success-graphic` | `bg-tertiary` | 8.30 | 3 | success icon / graphic |
-| `danger-text` | `bg-tertiary` | 5.66 | 4.5 | danger text |
-| `danger-graphic` | `bg-tertiary` | 5.66 | 3 | danger icon / graphic |
-| `warning-text` | `bg-tertiary` | 8.75 | 4.5 | warning text |
-| `warning-graphic` | `bg-tertiary` | 8.75 | 3 | warning icon / graphic |
-| `info-text` | `bg-tertiary` | 8.27 | 4.5 | info text |
-| `info-graphic` | `bg-tertiary` | 8.27 | 3 | info icon / graphic |
-| `viz-1` | `bg-tertiary` | 4.99 | 3 | chart series 1 |
-| `viz-2` | `bg-tertiary` | 8.59 | 3 | chart series 2 |
-| `viz-3` | `bg-tertiary` | 12.92 | 3 | chart series 3 |
-| `viz-4` | `bg-tertiary` | 9.73 | 3 | chart series 4 |
-| `viz-5` | `bg-tertiary` | 12.52 | 3 | chart series 5 |
-| `viz-6` | `bg-tertiary` | 7.06 | 3 | chart series 6 |
-| `viz-7` | `bg-tertiary` | 4.87 | 3 | chart series 7 |
-| `viz-8` | `bg-tertiary` | 4.62 | 3 | chart series 8 |
-| `text-primary` | `surface-overlay` | 14.38 | 7 | body text (AAA) |
-| `text-secondary` | `surface-overlay` | 5.82 | 4.5 | secondary text |
-| `text-muted` | `surface-overlay` | 4.67 | 4.5 | muted text |
-| `text-placeholder` | `surface-overlay` | 4.61 | 4.5 | placeholder text (informational) |
-| `graphic-muted` | `surface-overlay` | 3.30 | 3 | neutral icon / glyph (1.4.11) |
-| `border-strong` | `surface-overlay` | 3.23 | 3 | control border (1.4.11) |
-| `focus-ring` | `surface-overlay` | 5.10 | 3 | focus indicator (2.4.11) |
-| `accent-text` | `surface-overlay` | 5.10 | 4.5 | accent text |
-| `accent-graphic` | `surface-overlay` | 4.85 | 3 | accent icon / graphic |
-| `cta-text` | `surface-overlay` | 6.99 | 4.5 | cta text |
-| `cta-graphic` | `surface-overlay` | 6.99 | 3 | cta icon / graphic |
-| `success-text` | `surface-overlay` | 7.61 | 4.5 | success text |
-| `success-graphic` | `surface-overlay` | 7.61 | 3 | success icon / graphic |
-| `danger-text` | `surface-overlay` | 5.19 | 4.5 | danger text |
-| `danger-graphic` | `surface-overlay` | 5.19 | 3 | danger icon / graphic |
-| `warning-text` | `surface-overlay` | 8.02 | 4.5 | warning text |
-| `warning-graphic` | `surface-overlay` | 8.02 | 3 | warning icon / graphic |
-| `info-text` | `surface-overlay` | 7.58 | 4.5 | info text |
-| `info-graphic` | `surface-overlay` | 7.58 | 3 | info icon / graphic |
-| `viz-1` | `surface-overlay` | 4.58 | 3 | chart series 1 |
-| `viz-2` | `surface-overlay` | 7.87 | 3 | chart series 2 |
-| `viz-3` | `surface-overlay` | 11.84 | 3 | chart series 3 |
-| `viz-4` | `surface-overlay` | 8.92 | 3 | chart series 4 |
-| `viz-5` | `surface-overlay` | 11.47 | 3 | chart series 5 |
-| `viz-6` | `surface-overlay` | 6.47 | 3 | chart series 6 |
-| `viz-7` | `surface-overlay` | 4.46 | 3 | chart series 7 |
-| `viz-8` | `surface-overlay` | 4.24 | 3 | chart series 8 |
+| `text-primary` | `bg-primary` | 17.50 | 7 | body text (AAA) |
+| `text-secondary` | `bg-primary` | 8.29 | 4.5 | secondary text |
+| `text-muted` | `bg-primary` | 6.21 | 4.5 | muted text |
+| `text-placeholder` | `bg-primary` | 6.14 | 4.5 | placeholder text (informational) |
+| `graphic-muted` | `bg-primary` | 4.42 | 3 | neutral icon / glyph (1.4.11) |
+| `border-strong` | `bg-primary` | 4.28 | 3 | control border (1.4.11) |
+| `focus-ring` | `bg-primary` | 8.36 | 3 | focus indicator (2.4.11) |
+| `accent-text` | `bg-primary` | 8.36 | 4.5 | accent text |
+| `accent-graphic` | `bg-primary` | 6.82 | 3 | accent icon / graphic |
+| `cta-text` | `bg-primary` | 7.65 | 4.5 | cta text |
+| `cta-graphic` | `bg-primary` | 4.75 | 3 | cta icon / graphic |
+| `success-text` | `bg-primary` | 9.12 | 4.5 | success text |
+| `success-graphic` | `bg-primary` | 9.12 | 3 | success icon / graphic |
+| `danger-text` | `bg-primary` | 7.55 | 4.5 | danger text |
+| `danger-graphic` | `bg-primary` | 5.37 | 3 | danger icon / graphic |
+| `warning-text` | `bg-primary` | 13.05 | 4.5 | warning text |
+| `warning-graphic` | `bg-primary` | 13.05 | 3 | warning icon / graphic |
+| `info-text` | `bg-primary` | 7.94 | 4.5 | info text |
+| `info-graphic` | `bg-primary` | 5.81 | 3 | info icon / graphic |
+| `viz-1` | `bg-primary` | 6.82 | 3 | chart series 1 |
+| `viz-2` | `bg-primary` | 4.69 | 3 | chart series 2 |
+| `viz-3` | `bg-primary` | 14.40 | 3 | chart series 3 |
+| `viz-4` | `bg-primary` | 8.49 | 3 | chart series 4 |
+| `viz-5` | `bg-primary` | 4.43 | 3 | chart series 5 |
+| `viz-6` | `bg-primary` | 10.66 | 3 | chart series 6 |
+| `viz-7` | `bg-primary` | 12.19 | 3 | chart series 7 |
+| `viz-8` | `bg-primary` | 6.86 | 3 | chart series 8 |
+| `text-primary` | `bg-secondary` | 16.20 | 7 | body text (AAA) |
+| `text-secondary` | `bg-secondary` | 7.68 | 4.5 | secondary text |
+| `text-muted` | `bg-secondary` | 5.75 | 4.5 | muted text |
+| `text-placeholder` | `bg-secondary` | 5.69 | 4.5 | placeholder text (informational) |
+| `graphic-muted` | `bg-secondary` | 4.09 | 3 | neutral icon / glyph (1.4.11) |
+| `border-strong` | `bg-secondary` | 3.96 | 3 | control border (1.4.11) |
+| `focus-ring` | `bg-secondary` | 7.74 | 3 | focus indicator (2.4.11) |
+| `accent-text` | `bg-secondary` | 7.74 | 4.5 | accent text |
+| `accent-graphic` | `bg-secondary` | 6.32 | 3 | accent icon / graphic |
+| `cta-text` | `bg-secondary` | 7.08 | 4.5 | cta text |
+| `cta-graphic` | `bg-secondary` | 4.40 | 3 | cta icon / graphic |
+| `success-text` | `bg-secondary` | 8.44 | 4.5 | success text |
+| `success-graphic` | `bg-secondary` | 8.44 | 3 | success icon / graphic |
+| `danger-text` | `bg-secondary` | 6.99 | 4.5 | danger text |
+| `danger-graphic` | `bg-secondary` | 4.97 | 3 | danger icon / graphic |
+| `warning-text` | `bg-secondary` | 12.09 | 4.5 | warning text |
+| `warning-graphic` | `bg-secondary` | 12.09 | 3 | warning icon / graphic |
+| `info-text` | `bg-secondary` | 7.35 | 4.5 | info text |
+| `info-graphic` | `bg-secondary` | 5.38 | 3 | info icon / graphic |
+| `viz-1` | `bg-secondary` | 6.32 | 3 | chart series 1 |
+| `viz-2` | `bg-secondary` | 4.34 | 3 | chart series 2 |
+| `viz-3` | `bg-secondary` | 13.33 | 3 | chart series 3 |
+| `viz-4` | `bg-secondary` | 7.86 | 3 | chart series 4 |
+| `viz-5` | `bg-secondary` | 4.10 | 3 | chart series 5 |
+| `viz-6` | `bg-secondary` | 9.87 | 3 | chart series 6 |
+| `viz-7` | `bg-secondary` | 11.29 | 3 | chart series 7 |
+| `viz-8` | `bg-secondary` | 6.36 | 3 | chart series 8 |
+| `text-primary` | `bg-tertiary` | 14.76 | 7 | body text (AAA) |
+| `text-secondary` | `bg-tertiary` | 6.99 | 4.5 | secondary text |
+| `text-muted` | `bg-tertiary` | 5.24 | 4.5 | muted text |
+| `text-placeholder` | `bg-tertiary` | 5.18 | 4.5 | placeholder text (informational) |
+| `graphic-muted` | `bg-tertiary` | 3.73 | 3 | neutral icon / glyph (1.4.11) |
+| `border-strong` | `bg-tertiary` | 3.61 | 3 | control border (1.4.11) |
+| `focus-ring` | `bg-tertiary` | 7.05 | 3 | focus indicator (2.4.11) |
+| `accent-text` | `bg-tertiary` | 7.05 | 4.5 | accent text |
+| `accent-graphic` | `bg-tertiary` | 5.75 | 3 | accent icon / graphic |
+| `cta-text` | `bg-tertiary` | 6.45 | 4.5 | cta text |
+| `cta-graphic` | `bg-tertiary` | 4.00 | 3 | cta icon / graphic |
+| `success-text` | `bg-tertiary` | 7.69 | 4.5 | success text |
+| `success-graphic` | `bg-tertiary` | 7.69 | 3 | success icon / graphic |
+| `danger-text` | `bg-tertiary` | 6.37 | 4.5 | danger text |
+| `danger-graphic` | `bg-tertiary` | 4.53 | 3 | danger icon / graphic |
+| `warning-text` | `bg-tertiary` | 11.01 | 4.5 | warning text |
+| `warning-graphic` | `bg-tertiary` | 11.01 | 3 | warning icon / graphic |
+| `info-text` | `bg-tertiary` | 6.69 | 4.5 | info text |
+| `info-graphic` | `bg-tertiary` | 4.90 | 3 | info icon / graphic |
+| `viz-1` | `bg-tertiary` | 5.75 | 3 | chart series 1 |
+| `viz-2` | `bg-tertiary` | 3.96 | 3 | chart series 2 |
+| `viz-3` | `bg-tertiary` | 12.14 | 3 | chart series 3 |
+| `viz-4` | `bg-tertiary` | 7.16 | 3 | chart series 4 |
+| `viz-5` | `bg-tertiary` | 3.74 | 3 | chart series 5 |
+| `viz-6` | `bg-tertiary` | 8.99 | 3 | chart series 6 |
+| `viz-7` | `bg-tertiary` | 10.28 | 3 | chart series 7 |
+| `viz-8` | `bg-tertiary` | 5.79 | 3 | chart series 8 |
+| `text-primary` | `surface-overlay` | 13.11 | 7 | body text (AAA) |
+| `text-secondary` | `surface-overlay` | 6.21 | 4.5 | secondary text |
+| `text-muted` | `surface-overlay` | 4.65 | 4.5 | muted text |
+| `text-placeholder` | `surface-overlay` | 4.60 | 4.5 | placeholder text (informational) |
+| `graphic-muted` | `surface-overlay` | 3.31 | 3 | neutral icon / glyph (1.4.11) |
+| `border-strong` | `surface-overlay` | 3.21 | 3 | control border (1.4.11) |
+| `focus-ring` | `surface-overlay` | 6.26 | 3 | focus indicator (2.4.11) |
+| `accent-text` | `surface-overlay` | 6.26 | 4.5 | accent text |
+| `accent-graphic` | `surface-overlay` | 5.11 | 3 | accent icon / graphic |
+| `cta-text` | `surface-overlay` | 5.73 | 4.5 | cta text |
+| `cta-graphic` | `surface-overlay` | 3.56 | 3 | cta icon / graphic |
+| `success-text` | `surface-overlay` | 6.83 | 4.5 | success text |
+| `success-graphic` | `surface-overlay` | 6.83 | 3 | success icon / graphic |
+| `danger-text` | `surface-overlay` | 5.65 | 4.5 | danger text |
+| `danger-graphic` | `surface-overlay` | 4.02 | 3 | danger icon / graphic |
+| `warning-text` | `surface-overlay` | 9.78 | 4.5 | warning text |
+| `warning-graphic` | `surface-overlay` | 9.78 | 3 | warning icon / graphic |
+| `info-text` | `surface-overlay` | 5.95 | 4.5 | info text |
+| `info-graphic` | `surface-overlay` | 4.35 | 3 | info icon / graphic |
+| `viz-1` | `surface-overlay` | 5.11 | 3 | chart series 1 |
+| `viz-2` | `surface-overlay` | 3.51 | 3 | chart series 2 |
+| `viz-3` | `surface-overlay` | 10.79 | 3 | chart series 3 |
+| `viz-4` | `surface-overlay` | 6.36 | 3 | chart series 4 |
+| `viz-5` | `surface-overlay` | 3.32 | 3 | chart series 5 |
+| `viz-6` | `surface-overlay` | 7.99 | 3 | chart series 6 |
+| `viz-7` | `surface-overlay` | 9.13 | 3 | chart series 7 |
+| `viz-8` | `surface-overlay` | 5.14 | 3 | chart series 8 |
 | `text-disabled` | `disabled-bg` | 2.74 | 1 | EXEMPT: inactive component (WCAG 1.4.3) — no AA claim, never for readable content |
-| `text-inverse` | `text-primary` | 17.53 | 7 | text on ink panel |
-| `on-inverse` | `surface-inverse` | 14.51 | 7 | text on inverse panel |
-| `on-inverse-muted` | `surface-inverse` | 6.56 | 4.5 | muted text on inverse panel |
+| `text-inverse` | `text-primary` | 17.50 | 7 | text on ink panel |
+| `on-inverse` | `surface-inverse` | 14.22 | 7 | text on inverse panel |
+| `on-inverse-muted` | `surface-inverse` | 6.74 | 4.5 | muted text on inverse panel |
 | `border-inverse` | `surface-inverse` | 3.21 | 3 | border on inverse panel |
-| `text-primary` | `selection-bg` | 9.78 | 7 | selected text |
-| `on-accent` | `accent-fill` | 4.80 | 4.5 | text on accent fill |
-| `on-accent` | `accent-hover` | 5.68 | 4.5 | text on accent hover |
-| `on-accent` | `accent-active` | 6.81 | 4.5 | text on accent active |
-| `accent-strong` | `accent-subtle` | 7.05 | 7 | accent text on its tint (AAA) |
-| `accent-text` | `accent-subtle` | 4.81 | 4.5 | accent text on its tint |
-| `text-primary` | `accent-subtle` | 13.56 | 7 | body text on accent tint |
-| `text-secondary` | `accent-subtle` | 5.49 | 4.5 | secondary text on accent tint |
-| `on-cta` | `cta-fill` | 7.70 | 4.5 | text on cta fill |
-| `on-cta` | `cta-hover` | 9.00 | 4.5 | text on cta hover |
-| `on-cta` | `cta-active` | 10.41 | 4.5 | text on cta active |
-| `cta-strong` | `cta-subtle` | 7.04 | 7 | cta text on its tint (AAA) |
-| `cta-text` | `cta-subtle` | 6.70 | 4.5 | cta text on its tint |
-| `text-primary` | `cta-subtle` | 13.80 | 7 | body text on cta tint |
-| `text-secondary` | `cta-subtle` | 5.58 | 4.5 | secondary text on cta tint |
-| `on-success` | `success-fill` | 8.38 | 4.5 | text on success fill |
-| `on-success` | `success-hover` | 9.62 | 4.5 | text on success hover |
-| `on-success` | `success-active` | 10.98 | 4.5 | text on success active |
-| `success-strong` | `success-subtle` | 7.04 | 7 | success text on its tint (AAA) |
-| `success-text` | `success-subtle` | 7.04 | 4.5 | success text on its tint |
-| `text-primary` | `success-subtle` | 13.30 | 7 | body text on success tint |
-| `text-secondary` | `success-subtle` | 5.38 | 4.5 | secondary text on success tint |
-| `on-danger` | `danger-fill` | 5.72 | 4.5 | text on danger fill |
-| `on-danger` | `danger-hover` | 6.65 | 4.5 | text on danger hover |
-| `on-danger` | `danger-active` | 7.81 | 4.5 | text on danger active |
-| `danger-strong` | `danger-subtle` | 7.03 | 7 | danger text on its tint (AAA) |
-| `danger-text` | `danger-subtle` | 4.97 | 4.5 | danger text on its tint |
-| `text-primary` | `danger-subtle` | 13.77 | 7 | body text on danger tint |
-| `text-secondary` | `danger-subtle` | 5.57 | 4.5 | secondary text on danger tint |
-| `on-warning` | `warning-fill` | 8.83 | 4.5 | text on warning fill |
-| `on-warning` | `warning-hover` | 10.16 | 4.5 | text on warning hover |
-| `on-warning` | `warning-active` | 11.58 | 4.5 | text on warning active |
-| `warning-strong` | `warning-subtle` | 7.58 | 7 | warning text on its tint (AAA) |
-| `warning-text` | `warning-subtle` | 7.58 | 4.5 | warning text on its tint |
-| `text-primary` | `warning-subtle` | 13.59 | 7 | body text on warning tint |
-| `text-secondary` | `warning-subtle` | 5.50 | 4.5 | secondary text on warning tint |
-| `on-info` | `info-fill` | 8.35 | 4.5 | text on info fill |
-| `on-info` | `info-hover` | 9.58 | 4.5 | text on info hover |
-| `on-info` | `info-active` | 10.91 | 4.5 | text on info active |
-| `info-strong` | `info-subtle` | 7.08 | 7 | info text on its tint (AAA) |
-| `info-text` | `info-subtle` | 7.08 | 4.5 | info text on its tint |
-| `text-primary` | `info-subtle` | 13.42 | 7 | body text on info tint |
-| `text-secondary` | `info-subtle` | 5.43 | 4.5 | secondary text on info tint |
-| `on-brand` | `brand-from` | 4.80 | 4.5 | text on brand gradient (start) |
-| `on-brand` | `brand-to` | 4.82 | 4.5 | text on brand gradient (end) |
-| `brand-from` | `bg-primary` | 4.12 | 3 | brand gradient start vs page (1.4.11) |
-| `brand-to` | `bg-primary` | 4.10 | 3 | brand gradient end vs page (1.4.11) |
-| `brand-from` | `bg-secondary` | 3.93 | 3 | brand gradient start vs page (1.4.11) |
-| `brand-to` | `bg-secondary` | 3.91 | 3 | brand gradient end vs page (1.4.11) |
-| `brand-from` | `bg-tertiary` | 3.69 | 3 | brand gradient start vs page (1.4.11) |
-| `brand-to` | `bg-tertiary` | 3.67 | 3 | brand gradient end vs page (1.4.11) |
-| `brand-from` | `surface-overlay` | 3.38 | 3 | brand gradient start vs page (1.4.11) |
-| `brand-to` | `surface-overlay` | 3.37 | 3 | brand gradient end vs page (1.4.11) |
-| `text-primary` | `glass over #FFFFFF` | 11.34 | 7 | glass surface |
-| `text-secondary` | `glass over #FFFFFF` | 4.59 | 4.5 | glass surface |
-| `text-primary` | `glass over #000000` | 16.97 | 7 | glass surface |
-| `text-secondary` | `glass over #000000` | 6.87 | 4.5 | glass surface |
-| `text-primary` | `mesh(accent-graphic@0.14)` | 15.06 | 7 | text over brand gradient |
-| `text-secondary` | `mesh(accent-graphic@0.14)` | 6.10 | 4.5 | text over brand gradient |
-| `accent-text` | `mesh(accent-graphic@0.14)` | 5.35 | 4.5 | text over brand gradient |
-| `text-primary` | `mesh(cta-graphic@0.1)` | 15.48 | 7 | text over brand gradient |
-| `text-secondary` | `mesh(cta-graphic@0.1)` | 6.26 | 4.5 | text over brand gradient |
-| `accent-text` | `mesh(cta-graphic@0.1)` | 5.49 | 4.5 | text over brand gradient |
+| `text-primary` | `selection-bg` | 10.64 | 7 | selected text |
+| `on-accent` | `accent-fill` | 6.82 | 4.5 | text on accent fill |
+| `on-accent` | `accent-hover` | 7.96 | 4.5 | text on accent hover |
+| `on-accent` | `accent-active` | 9.30 | 4.5 | text on accent active |
+| `accent-strong` | `accent-subtle` | 7.03 | 7 | accent text on its tint (AAA) |
+| `accent-text` | `accent-subtle` | 7.03 | 4.5 | accent text on its tint |
+| `text-primary` | `accent-subtle` | 14.72 | 7 | body text on accent tint |
+| `text-secondary` | `accent-subtle` | 6.97 | 4.5 | secondary text on accent tint |
+| `on-cta` | `cta-fill` | 4.81 | 4.5 | text on cta fill |
+| `on-cta` | `cta-hover` | 5.71 | 4.5 | text on cta hover |
+| `on-cta` | `cta-active` | 6.73 | 4.5 | text on cta active |
+| `cta-strong` | `cta-subtle` | 7.02 | 7 | cta text on its tint (AAA) |
+| `cta-text` | `cta-subtle` | 6.40 | 4.5 | cta text on its tint |
+| `text-primary` | `cta-subtle` | 14.64 | 7 | body text on cta tint |
+| `text-secondary` | `cta-subtle` | 6.94 | 4.5 | secondary text on cta tint |
+| `on-success` | `success-fill` | 9.12 | 4.5 | text on success fill |
+| `on-success` | `success-hover` | 10.42 | 4.5 | text on success hover |
+| `on-success` | `success-active` | 11.95 | 4.5 | text on success active |
+| `success-strong` | `success-subtle` | 7.47 | 7 | success text on its tint (AAA) |
+| `success-text` | `success-subtle` | 7.47 | 4.5 | success text on its tint |
+| `text-primary` | `success-subtle` | 14.33 | 7 | body text on success tint |
+| `text-secondary` | `success-subtle` | 6.79 | 4.5 | secondary text on success tint |
+| `on-danger` | `danger-fill` | 4.83 | 4.5 | text on danger fill |
+| `on-danger` | `danger-hover` | 5.72 | 4.5 | text on danger hover |
+| `on-danger` | `danger-active` | 6.71 | 4.5 | text on danger active |
+| `danger-strong` | `danger-subtle` | 7.02 | 7 | danger text on its tint (AAA) |
+| `danger-text` | `danger-subtle` | 6.35 | 4.5 | danger text on its tint |
+| `text-primary` | `danger-subtle` | 14.73 | 7 | body text on danger tint |
+| `text-secondary` | `danger-subtle` | 6.98 | 4.5 | secondary text on danger tint |
+| `on-warning` | `warning-fill` | 13.05 | 4.5 | text on warning fill |
+| `on-warning` | `warning-hover` | 14.85 | 4.5 | text on warning hover |
+| `on-warning` | `warning-active` | 16.71 | 4.5 | text on warning active |
+| `warning-strong` | `warning-subtle` | 10.81 | 7 | warning text on its tint (AAA) |
+| `warning-text` | `warning-subtle` | 10.81 | 4.5 | warning text on its tint |
+| `text-primary` | `warning-subtle` | 14.49 | 7 | body text on warning tint |
+| `text-secondary` | `warning-subtle` | 6.87 | 4.5 | secondary text on warning tint |
+| `on-info` | `info-fill` | 5.81 | 4.5 | text on info fill |
+| `on-info` | `info-hover` | 6.79 | 4.5 | text on info hover |
+| `on-info` | `info-active` | 7.94 | 4.5 | text on info active |
+| `info-strong` | `info-subtle` | 7.05 | 7 | info text on its tint (AAA) |
+| `info-text` | `info-subtle` | 6.60 | 4.5 | info text on its tint |
+| `text-primary` | `info-subtle` | 14.55 | 7 | body text on info tint |
+| `text-secondary` | `info-subtle` | 6.89 | 4.5 | secondary text on info tint |
+| `on-brand` | `brand-from` | 6.82 | 4.5 | text on brand gradient (start) |
+| `on-brand` | `brand-to` | 4.81 | 4.5 | text on brand gradient (end) |
+| `brand-from` | `bg-primary` | 6.82 | 3 | brand gradient start vs page (1.4.11) |
+| `brand-to` | `bg-primary` | 4.81 | 3 | brand gradient end vs page (1.4.11) |
+| `brand-from` | `bg-secondary` | 6.32 | 3 | brand gradient start vs page (1.4.11) |
+| `brand-to` | `bg-secondary` | 4.45 | 3 | brand gradient end vs page (1.4.11) |
+| `brand-from` | `bg-tertiary` | 5.75 | 3 | brand gradient start vs page (1.4.11) |
+| `brand-to` | `bg-tertiary` | 4.06 | 3 | brand gradient end vs page (1.4.11) |
+| `brand-from` | `surface-overlay` | 5.11 | 3 | brand gradient start vs page (1.4.11) |
+| `brand-to` | `surface-overlay` | 3.60 | 3 | brand gradient end vs page (1.4.11) |
+| `text-primary` | `glass over #FFFFFF` | 9.85 | 7 | glass surface |
+| `text-secondary` | `glass over #FFFFFF` | 4.67 | 4.5 | glass surface |
+| `text-primary` | `glass over #000000` | 16.88 | 7 | glass surface |
+| `text-secondary` | `glass over #000000` | 8.00 | 4.5 | glass surface |
+| `text-primary` | `mesh(accent-graphic@0.18)` | 13.35 | 7 | text over brand gradient |
+| `text-secondary` | `mesh(accent-graphic@0.18)` | 6.32 | 4.5 | text over brand gradient |
+| `accent-text` | `mesh(accent-graphic@0.18)` | 6.37 | 4.5 | text over brand gradient |
+| `text-primary` | `mesh(cta-graphic@0.12)` | 15.44 | 7 | text over brand gradient |
+| `text-secondary` | `mesh(cta-graphic@0.12)` | 7.31 | 4.5 | text over brand gradient |
+| `accent-text` | `mesh(cta-graphic@0.12)` | 7.37 | 4.5 | text over brand gradient |
+| `text-primary` | `aurora(aurora-1@0.08800000000000001)` | 15.58 | 7 | text over aurora wash |
+| `text-secondary` | `aurora(aurora-1@0.08800000000000001)` | 7.38 | 4.5 | text over aurora wash |
+| `text-primary` | `aurora(aurora-2@0.064)` | 16.01 | 7 | text over aurora wash |
+| `text-secondary` | `aurora(aurora-2@0.064)` | 7.59 | 4.5 | text over aurora wash |
+| `text-primary` | `aurora(aurora-3@0.096)` | 14.65 | 7 | text over aurora wash |
+| `text-secondary` | `aurora(aurora-3@0.096)` | 6.94 | 4.5 | text over aurora wash |
+| `text-primary` | `aurora(aurora-4@0.04000000000000001)` | 17.07 | 7 | text over aurora wash |
+| `text-secondary` | `aurora(aurora-4@0.04000000000000001)` | 8.09 | 4.5 | text over aurora wash |
 
-### light-hc — 168 pairs, min ratio 2.61
+### light-hc — 176 pairs, min ratio 2.61
 
 | Foreground | Background | Ratio | Min | Use |
 |---|---|---|---|---|
 | `text-primary` | `bg-primary` | 21.00 | 7 | body text (AAA) |
-| `text-secondary` | `bg-primary` | 8.91 | 7 | secondary text |
-| `text-muted` | `bg-primary` | 7.99 | 7 | muted text |
-| `text-placeholder` | `bg-primary` | 7.99 | 7 | placeholder text (informational) |
-| `graphic-muted` | `bg-primary` | 5.13 | 4.5 | neutral icon / glyph (1.4.11) |
-| `border-strong` | `bg-primary` | 5.16 | 4.5 | control border (1.4.11) |
-| `focus-ring` | `bg-primary` | 7.99 | 3 | focus indicator (2.4.11) |
-| `accent-text` | `bg-primary` | 7.99 | 7 | accent text |
-| `accent-graphic` | `bg-primary` | 7.90 | 4.5 | accent icon / graphic |
-| `cta-text` | `bg-primary` | 7.98 | 7 | cta text |
-| `cta-graphic` | `bg-primary` | 5.15 | 4.5 | cta icon / graphic |
-| `success-text` | `bg-primary` | 7.99 | 7 | success text |
-| `success-graphic` | `bg-primary` | 5.17 | 4.5 | success icon / graphic |
-| `danger-text` | `bg-primary` | 7.98 | 7 | danger text |
-| `danger-graphic` | `bg-primary` | 5.36 | 4.5 | danger icon / graphic |
-| `warning-text` | `bg-primary` | 7.98 | 7 | warning text |
-| `warning-graphic` | `bg-primary` | 5.14 | 4.5 | warning icon / graphic |
-| `info-text` | `bg-primary` | 7.99 | 7 | info text |
-| `info-graphic` | `bg-primary` | 5.16 | 4.5 | info icon / graphic |
-| `viz-1` | `bg-primary` | 4.42 | 3 | chart series 1 |
-| `viz-2` | `bg-primary` | 6.81 | 3 | chart series 2 |
-| `viz-3` | `bg-primary` | 12.91 | 3 | chart series 3 |
-| `viz-4` | `bg-primary` | 12.64 | 3 | chart series 4 |
-| `viz-5` | `bg-primary` | 7.02 | 3 | chart series 5 |
-| `viz-6` | `bg-primary` | 4.57 | 3 | chart series 6 |
-| `viz-7` | `bg-primary` | 9.17 | 3 | chart series 7 |
-| `viz-8` | `bg-primary` | 5.48 | 3 | chart series 8 |
+| `text-secondary` | `bg-primary` | 8.72 | 7 | secondary text |
+| `text-muted` | `bg-primary` | 8.05 | 7 | muted text |
+| `text-placeholder` | `bg-primary` | 7.98 | 7 | placeholder text (informational) |
+| `graphic-muted` | `bg-primary` | 5.17 | 4.5 | neutral icon / glyph (1.4.11) |
+| `border-strong` | `bg-primary` | 5.17 | 4.5 | control border (1.4.11) |
+| `focus-ring` | `bg-primary` | 9.50 | 3 | focus indicator (2.4.11) |
+| `accent-text` | `bg-primary` | 9.50 | 7 | accent text |
+| `accent-graphic` | `bg-primary` | 5.15 | 4.5 | accent icon / graphic |
+| `cta-text` | `bg-primary` | 10.78 | 7 | cta text |
+| `cta-graphic` | `bg-primary` | 6.19 | 4.5 | cta icon / graphic |
+| `success-text` | `bg-primary` | 9.32 | 7 | success text |
+| `success-graphic` | `bg-primary` | 5.15 | 4.5 | success icon / graphic |
+| `danger-text` | `bg-primary` | 10.39 | 7 | danger text |
+| `danger-graphic` | `bg-primary` | 5.17 | 4.5 | danger icon / graphic |
+| `warning-text` | `bg-primary` | 8.55 | 7 | warning text |
+| `warning-graphic` | `bg-primary` | 5.13 | 4.5 | warning icon / graphic |
+| `info-text` | `bg-primary` | 10.38 | 7 | info text |
+| `info-graphic` | `bg-primary` | 5.13 | 4.5 | info icon / graphic |
+| `viz-1` | `bg-primary` | 3.90 | 3 | chart series 1 |
+| `viz-2` | `bg-primary` | 5.78 | 3 | chart series 2 |
+| `viz-3` | `bg-primary` | 3.57 | 3 | chart series 3 |
+| `viz-4` | `bg-primary` | 9.38 | 3 | chart series 4 |
+| `viz-5` | `bg-primary` | 4.09 | 3 | chart series 5 |
+| `viz-6` | `bg-primary` | 8.01 | 3 | chart series 6 |
+| `viz-7` | `bg-primary` | 10.39 | 3 | chart series 7 |
+| `viz-8` | `bg-primary` | 6.21 | 3 | chart series 8 |
 | `text-primary` | `bg-secondary` | 21.00 | 7 | body text (AAA) |
-| `text-secondary` | `bg-secondary` | 8.91 | 7 | secondary text |
-| `text-muted` | `bg-secondary` | 7.99 | 7 | muted text |
-| `text-placeholder` | `bg-secondary` | 7.99 | 7 | placeholder text (informational) |
-| `graphic-muted` | `bg-secondary` | 5.13 | 4.5 | neutral icon / glyph (1.4.11) |
-| `border-strong` | `bg-secondary` | 5.16 | 4.5 | control border (1.4.11) |
-| `focus-ring` | `bg-secondary` | 7.99 | 3 | focus indicator (2.4.11) |
-| `accent-text` | `bg-secondary` | 7.99 | 7 | accent text |
-| `accent-graphic` | `bg-secondary` | 7.90 | 4.5 | accent icon / graphic |
-| `cta-text` | `bg-secondary` | 7.98 | 7 | cta text |
-| `cta-graphic` | `bg-secondary` | 5.15 | 4.5 | cta icon / graphic |
-| `success-text` | `bg-secondary` | 7.99 | 7 | success text |
-| `success-graphic` | `bg-secondary` | 5.17 | 4.5 | success icon / graphic |
-| `danger-text` | `bg-secondary` | 7.98 | 7 | danger text |
-| `danger-graphic` | `bg-secondary` | 5.36 | 4.5 | danger icon / graphic |
-| `warning-text` | `bg-secondary` | 7.98 | 7 | warning text |
-| `warning-graphic` | `bg-secondary` | 5.14 | 4.5 | warning icon / graphic |
-| `info-text` | `bg-secondary` | 7.99 | 7 | info text |
-| `info-graphic` | `bg-secondary` | 5.16 | 4.5 | info icon / graphic |
-| `viz-1` | `bg-secondary` | 4.42 | 3 | chart series 1 |
-| `viz-2` | `bg-secondary` | 6.81 | 3 | chart series 2 |
-| `viz-3` | `bg-secondary` | 12.91 | 3 | chart series 3 |
-| `viz-4` | `bg-secondary` | 12.64 | 3 | chart series 4 |
-| `viz-5` | `bg-secondary` | 7.02 | 3 | chart series 5 |
-| `viz-6` | `bg-secondary` | 4.57 | 3 | chart series 6 |
-| `viz-7` | `bg-secondary` | 9.17 | 3 | chart series 7 |
-| `viz-8` | `bg-secondary` | 5.48 | 3 | chart series 8 |
+| `text-secondary` | `bg-secondary` | 8.72 | 7 | secondary text |
+| `text-muted` | `bg-secondary` | 8.05 | 7 | muted text |
+| `text-placeholder` | `bg-secondary` | 7.98 | 7 | placeholder text (informational) |
+| `graphic-muted` | `bg-secondary` | 5.17 | 4.5 | neutral icon / glyph (1.4.11) |
+| `border-strong` | `bg-secondary` | 5.17 | 4.5 | control border (1.4.11) |
+| `focus-ring` | `bg-secondary` | 9.50 | 3 | focus indicator (2.4.11) |
+| `accent-text` | `bg-secondary` | 9.50 | 7 | accent text |
+| `accent-graphic` | `bg-secondary` | 5.15 | 4.5 | accent icon / graphic |
+| `cta-text` | `bg-secondary` | 10.78 | 7 | cta text |
+| `cta-graphic` | `bg-secondary` | 6.19 | 4.5 | cta icon / graphic |
+| `success-text` | `bg-secondary` | 9.32 | 7 | success text |
+| `success-graphic` | `bg-secondary` | 5.15 | 4.5 | success icon / graphic |
+| `danger-text` | `bg-secondary` | 10.39 | 7 | danger text |
+| `danger-graphic` | `bg-secondary` | 5.17 | 4.5 | danger icon / graphic |
+| `warning-text` | `bg-secondary` | 8.55 | 7 | warning text |
+| `warning-graphic` | `bg-secondary` | 5.13 | 4.5 | warning icon / graphic |
+| `info-text` | `bg-secondary` | 10.38 | 7 | info text |
+| `info-graphic` | `bg-secondary` | 5.13 | 4.5 | info icon / graphic |
+| `viz-1` | `bg-secondary` | 3.90 | 3 | chart series 1 |
+| `viz-2` | `bg-secondary` | 5.78 | 3 | chart series 2 |
+| `viz-3` | `bg-secondary` | 3.57 | 3 | chart series 3 |
+| `viz-4` | `bg-secondary` | 9.38 | 3 | chart series 4 |
+| `viz-5` | `bg-secondary` | 4.09 | 3 | chart series 5 |
+| `viz-6` | `bg-secondary` | 8.01 | 3 | chart series 6 |
+| `viz-7` | `bg-secondary` | 10.39 | 3 | chart series 7 |
+| `viz-8` | `bg-secondary` | 6.21 | 3 | chart series 8 |
 | `text-primary` | `bg-tertiary` | 18.43 | 7 | body text (AAA) |
-| `text-secondary` | `bg-tertiary` | 7.81 | 7 | secondary text |
-| `text-muted` | `bg-tertiary` | 7.01 | 7 | muted text |
-| `text-placeholder` | `bg-tertiary` | 7.01 | 7 | placeholder text (informational) |
-| `graphic-muted` | `bg-tertiary` | 4.51 | 4.5 | neutral icon / glyph (1.4.11) |
-| `border-strong` | `bg-tertiary` | 4.53 | 4.5 | control border (1.4.11) |
-| `focus-ring` | `bg-tertiary` | 7.01 | 3 | focus indicator (2.4.11) |
-| `accent-text` | `bg-tertiary` | 7.01 | 7 | accent text |
-| `accent-graphic` | `bg-tertiary` | 6.93 | 4.5 | accent icon / graphic |
-| `cta-text` | `bg-tertiary` | 7.00 | 7 | cta text |
-| `cta-graphic` | `bg-tertiary` | 4.52 | 4.5 | cta icon / graphic |
-| `success-text` | `bg-tertiary` | 7.01 | 7 | success text |
-| `success-graphic` | `bg-tertiary` | 4.54 | 4.5 | success icon / graphic |
-| `danger-text` | `bg-tertiary` | 7.00 | 7 | danger text |
-| `danger-graphic` | `bg-tertiary` | 4.70 | 4.5 | danger icon / graphic |
-| `warning-text` | `bg-tertiary` | 7.01 | 7 | warning text |
-| `warning-graphic` | `bg-tertiary` | 4.51 | 4.5 | warning icon / graphic |
-| `info-text` | `bg-tertiary` | 7.01 | 7 | info text |
-| `info-graphic` | `bg-tertiary` | 4.53 | 4.5 | info icon / graphic |
-| `viz-1` | `bg-tertiary` | 3.88 | 3 | chart series 1 |
-| `viz-2` | `bg-tertiary` | 5.97 | 3 | chart series 2 |
-| `viz-3` | `bg-tertiary` | 11.33 | 3 | chart series 3 |
-| `viz-4` | `bg-tertiary` | 11.09 | 3 | chart series 4 |
-| `viz-5` | `bg-tertiary` | 6.16 | 3 | chart series 5 |
-| `viz-6` | `bg-tertiary` | 4.01 | 3 | chart series 6 |
-| `viz-7` | `bg-tertiary` | 8.05 | 3 | chart series 7 |
-| `viz-8` | `bg-tertiary` | 4.81 | 3 | chart series 8 |
+| `text-secondary` | `bg-tertiary` | 7.65 | 7 | secondary text |
+| `text-muted` | `bg-tertiary` | 7.07 | 7 | muted text |
+| `text-placeholder` | `bg-tertiary` | 7.00 | 7 | placeholder text (informational) |
+| `graphic-muted` | `bg-tertiary` | 4.54 | 4.5 | neutral icon / glyph (1.4.11) |
+| `border-strong` | `bg-tertiary` | 4.54 | 4.5 | control border (1.4.11) |
+| `focus-ring` | `bg-tertiary` | 8.34 | 3 | focus indicator (2.4.11) |
+| `accent-text` | `bg-tertiary` | 8.34 | 7 | accent text |
+| `accent-graphic` | `bg-tertiary` | 4.52 | 4.5 | accent icon / graphic |
+| `cta-text` | `bg-tertiary` | 9.46 | 7 | cta text |
+| `cta-graphic` | `bg-tertiary` | 5.43 | 4.5 | cta icon / graphic |
+| `success-text` | `bg-tertiary` | 8.18 | 7 | success text |
+| `success-graphic` | `bg-tertiary` | 4.52 | 4.5 | success icon / graphic |
+| `danger-text` | `bg-tertiary` | 9.12 | 7 | danger text |
+| `danger-graphic` | `bg-tertiary` | 4.53 | 4.5 | danger icon / graphic |
+| `warning-text` | `bg-tertiary` | 7.50 | 7 | warning text |
+| `warning-graphic` | `bg-tertiary` | 4.50 | 4.5 | warning icon / graphic |
+| `info-text` | `bg-tertiary` | 9.11 | 7 | info text |
+| `info-graphic` | `bg-tertiary` | 4.50 | 4.5 | info icon / graphic |
+| `viz-1` | `bg-tertiary` | 3.42 | 3 | chart series 1 |
+| `viz-2` | `bg-tertiary` | 5.07 | 3 | chart series 2 |
+| `viz-3` | `bg-tertiary` | 3.13 | 3 | chart series 3 |
+| `viz-4` | `bg-tertiary` | 8.23 | 3 | chart series 4 |
+| `viz-5` | `bg-tertiary` | 3.59 | 3 | chart series 5 |
+| `viz-6` | `bg-tertiary` | 7.03 | 3 | chart series 6 |
+| `viz-7` | `bg-tertiary` | 9.12 | 3 | chart series 7 |
+| `viz-8` | `bg-tertiary` | 5.45 | 3 | chart series 8 |
 | `text-primary` | `surface-overlay` | 21.00 | 7 | body text (AAA) |
-| `text-secondary` | `surface-overlay` | 8.91 | 7 | secondary text |
-| `text-muted` | `surface-overlay` | 7.99 | 7 | muted text |
-| `text-placeholder` | `surface-overlay` | 7.99 | 7 | placeholder text (informational) |
-| `graphic-muted` | `surface-overlay` | 5.13 | 4.5 | neutral icon / glyph (1.4.11) |
-| `border-strong` | `surface-overlay` | 5.16 | 4.5 | control border (1.4.11) |
-| `focus-ring` | `surface-overlay` | 7.99 | 3 | focus indicator (2.4.11) |
-| `accent-text` | `surface-overlay` | 7.99 | 7 | accent text |
-| `accent-graphic` | `surface-overlay` | 7.90 | 4.5 | accent icon / graphic |
-| `cta-text` | `surface-overlay` | 7.98 | 7 | cta text |
-| `cta-graphic` | `surface-overlay` | 5.15 | 4.5 | cta icon / graphic |
-| `success-text` | `surface-overlay` | 7.99 | 7 | success text |
-| `success-graphic` | `surface-overlay` | 5.17 | 4.5 | success icon / graphic |
-| `danger-text` | `surface-overlay` | 7.98 | 7 | danger text |
-| `danger-graphic` | `surface-overlay` | 5.36 | 4.5 | danger icon / graphic |
-| `warning-text` | `surface-overlay` | 7.98 | 7 | warning text |
-| `warning-graphic` | `surface-overlay` | 5.14 | 4.5 | warning icon / graphic |
-| `info-text` | `surface-overlay` | 7.99 | 7 | info text |
-| `info-graphic` | `surface-overlay` | 5.16 | 4.5 | info icon / graphic |
-| `viz-1` | `surface-overlay` | 4.42 | 3 | chart series 1 |
-| `viz-2` | `surface-overlay` | 6.81 | 3 | chart series 2 |
-| `viz-3` | `surface-overlay` | 12.91 | 3 | chart series 3 |
-| `viz-4` | `surface-overlay` | 12.64 | 3 | chart series 4 |
-| `viz-5` | `surface-overlay` | 7.02 | 3 | chart series 5 |
-| `viz-6` | `surface-overlay` | 4.57 | 3 | chart series 6 |
-| `viz-7` | `surface-overlay` | 9.17 | 3 | chart series 7 |
-| `viz-8` | `surface-overlay` | 5.48 | 3 | chart series 8 |
+| `text-secondary` | `surface-overlay` | 8.72 | 7 | secondary text |
+| `text-muted` | `surface-overlay` | 8.05 | 7 | muted text |
+| `text-placeholder` | `surface-overlay` | 7.98 | 7 | placeholder text (informational) |
+| `graphic-muted` | `surface-overlay` | 5.17 | 4.5 | neutral icon / glyph (1.4.11) |
+| `border-strong` | `surface-overlay` | 5.17 | 4.5 | control border (1.4.11) |
+| `focus-ring` | `surface-overlay` | 9.50 | 3 | focus indicator (2.4.11) |
+| `accent-text` | `surface-overlay` | 9.50 | 7 | accent text |
+| `accent-graphic` | `surface-overlay` | 5.15 | 4.5 | accent icon / graphic |
+| `cta-text` | `surface-overlay` | 10.78 | 7 | cta text |
+| `cta-graphic` | `surface-overlay` | 6.19 | 4.5 | cta icon / graphic |
+| `success-text` | `surface-overlay` | 9.32 | 7 | success text |
+| `success-graphic` | `surface-overlay` | 5.15 | 4.5 | success icon / graphic |
+| `danger-text` | `surface-overlay` | 10.39 | 7 | danger text |
+| `danger-graphic` | `surface-overlay` | 5.17 | 4.5 | danger icon / graphic |
+| `warning-text` | `surface-overlay` | 8.55 | 7 | warning text |
+| `warning-graphic` | `surface-overlay` | 5.13 | 4.5 | warning icon / graphic |
+| `info-text` | `surface-overlay` | 10.38 | 7 | info text |
+| `info-graphic` | `surface-overlay` | 5.13 | 4.5 | info icon / graphic |
+| `viz-1` | `surface-overlay` | 3.90 | 3 | chart series 1 |
+| `viz-2` | `surface-overlay` | 5.78 | 3 | chart series 2 |
+| `viz-3` | `surface-overlay` | 3.57 | 3 | chart series 3 |
+| `viz-4` | `surface-overlay` | 9.38 | 3 | chart series 4 |
+| `viz-5` | `surface-overlay` | 4.09 | 3 | chart series 5 |
+| `viz-6` | `surface-overlay` | 8.01 | 3 | chart series 6 |
+| `viz-7` | `surface-overlay` | 10.39 | 3 | chart series 7 |
+| `viz-8` | `surface-overlay` | 6.21 | 3 | chart series 8 |
 | `text-disabled` | `disabled-bg` | 2.61 | 1 | EXEMPT: inactive component (WCAG 1.4.3) — no AA claim, never for readable content |
-| `text-inverse` | `text-primary` | 20.48 | 7 | text on ink panel |
-| `on-inverse` | `surface-inverse` | 15.98 | 7 | text on inverse panel |
-| `on-inverse-muted` | `surface-inverse` | 7.23 | 7 | muted text on inverse panel |
-| `border-inverse` | `surface-inverse` | 3.22 | 3 | border on inverse panel |
-| `text-primary` | `selection-bg` | 14.57 | 7 | selected text |
-| `on-accent` | `accent-fill` | 7.90 | 7 | text on accent fill |
-| `on-accent` | `accent-hover` | 9.44 | 4.5 | text on accent hover |
-| `on-accent` | `accent-active` | 11.26 | 4.5 | text on accent active |
-| `accent-strong` | `accent-subtle` | 10.00 | 7 | accent text on its tint (AAA) |
-| `accent-text` | `accent-subtle` | 7.19 | 7 | accent text on its tint |
-| `text-primary` | `accent-subtle` | 18.90 | 7 | body text on accent tint |
-| `text-secondary` | `accent-subtle` | 8.01 | 4.5 | secondary text on accent tint |
+| `text-inverse` | `text-primary` | 19.93 | 7 | text on ink panel |
+| `on-inverse` | `surface-inverse` | 17.50 | 7 | text on inverse panel |
+| `on-inverse-muted` | `surface-inverse` | 8.29 | 7 | muted text on inverse panel |
+| `border-inverse` | `surface-inverse` | 3.20 | 3 | border on inverse panel |
+| `text-primary` | `selection-bg` | 14.40 | 7 | selected text |
+| `on-accent` | `accent-fill` | 7.77 | 7 | text on accent fill |
+| `on-accent` | `accent-hover` | 9.33 | 4.5 | text on accent hover |
+| `on-accent` | `accent-active` | 10.91 | 4.5 | text on accent active |
+| `accent-strong` | `accent-subtle` | 10.04 | 7 | accent text on its tint (AAA) |
+| `accent-text` | `accent-subtle` | 8.56 | 7 | accent text on its tint |
+| `text-primary` | `accent-subtle` | 18.92 | 7 | body text on accent tint |
+| `text-secondary` | `accent-subtle` | 7.86 | 4.5 | secondary text on accent tint |
 | `on-cta` | `cta-fill` | 7.03 | 7 | text on cta fill |
-| `on-cta` | `cta-hover` | 8.31 | 4.5 | text on cta hover |
-| `on-cta` | `cta-active` | 9.76 | 4.5 | text on cta active |
-| `cta-strong` | `cta-subtle` | 10.05 | 7 | cta text on its tint (AAA) |
-| `cta-text` | `cta-subtle` | 7.19 | 7 | cta text on its tint |
-| `text-primary` | `cta-subtle` | 18.92 | 7 | body text on cta tint |
-| `text-secondary` | `cta-subtle` | 8.02 | 4.5 | secondary text on cta tint |
-| `on-success` | `success-fill` | 7.05 | 7 | text on success fill |
-| `on-success` | `success-hover` | 8.44 | 4.5 | text on success hover |
-| `on-success` | `success-active` | 9.98 | 4.5 | text on success active |
-| `success-strong` | `success-subtle` | 10.02 | 7 | success text on its tint (AAA) |
-| `success-text` | `success-subtle` | 7.29 | 7 | success text on its tint |
-| `text-primary` | `success-subtle` | 19.16 | 7 | body text on success tint |
-| `text-secondary` | `success-subtle` | 8.13 | 4.5 | secondary text on success tint |
-| `on-danger` | `danger-fill` | 7.01 | 7 | text on danger fill |
-| `on-danger` | `danger-hover` | 8.25 | 4.5 | text on danger hover |
-| `on-danger` | `danger-active` | 9.74 | 4.5 | text on danger active |
-| `danger-strong` | `danger-subtle` | 10.03 | 7 | danger text on its tint (AAA) |
-| `danger-text` | `danger-subtle` | 7.15 | 7 | danger text on its tint |
-| `text-primary` | `danger-subtle` | 18.82 | 7 | body text on danger tint |
-| `text-secondary` | `danger-subtle` | 7.98 | 4.5 | secondary text on danger tint |
-| `on-warning` | `warning-fill` | 9.78 | 7 | text on warning fill |
-| `on-warning` | `warning-hover` | 11.29 | 4.5 | text on warning hover |
-| `on-warning` | `warning-active` | 12.95 | 4.5 | text on warning active |
-| `warning-strong` | `warning-subtle` | 10.01 | 7 | warning text on its tint (AAA) |
-| `warning-text` | `warning-subtle` | 7.21 | 7 | warning text on its tint |
+| `on-cta` | `cta-hover` | 8.43 | 4.5 | text on cta hover |
+| `on-cta` | `cta-active` | 9.96 | 4.5 | text on cta active |
+| `cta-strong` | `cta-subtle` | 10.03 | 7 | cta text on its tint (AAA) |
+| `cta-text` | `cta-subtle` | 9.74 | 7 | cta text on its tint |
+| `text-primary` | `cta-subtle` | 18.97 | 7 | body text on cta tint |
+| `text-secondary` | `cta-subtle` | 7.88 | 4.5 | secondary text on cta tint |
+| `on-success` | `success-fill` | 9.46 | 7 | text on success fill |
+| `on-success` | `success-hover` | 10.87 | 4.5 | text on success hover |
+| `on-success` | `success-active` | 12.52 | 4.5 | text on success active |
+| `success-strong` | `success-subtle` | 10.13 | 7 | success text on its tint (AAA) |
+| `success-text` | `success-subtle` | 8.48 | 7 | success text on its tint |
+| `text-primary` | `success-subtle` | 19.11 | 7 | body text on success tint |
+| `text-secondary` | `success-subtle` | 7.94 | 4.5 | secondary text on success tint |
+| `on-danger` | `danger-fill` | 7.05 | 7 | text on danger fill |
+| `on-danger` | `danger-hover` | 8.32 | 4.5 | text on danger hover |
+| `on-danger` | `danger-active` | 9.73 | 4.5 | text on danger active |
+| `danger-strong` | `danger-subtle` | 10.04 | 7 | danger text on its tint (AAA) |
+| `danger-text` | `danger-subtle` | 9.32 | 7 | danger text on its tint |
+| `text-primary` | `danger-subtle` | 18.84 | 7 | body text on danger tint |
+| `text-secondary` | `danger-subtle` | 7.83 | 4.5 | secondary text on danger tint |
+| `on-warning` | `warning-fill` | 13.89 | 7 | text on warning fill |
+| `on-warning` | `warning-hover` | 15.78 | 4.5 | text on warning hover |
+| `on-warning` | `warning-active` | 17.93 | 4.5 | text on warning active |
+| `warning-strong` | `warning-subtle` | 10.06 | 7 | warning text on its tint (AAA) |
+| `warning-text` | `warning-subtle` | 7.72 | 7 | warning text on its tint |
 | `text-primary` | `warning-subtle` | 18.97 | 7 | body text on warning tint |
-| `text-secondary` | `warning-subtle` | 8.04 | 4.5 | secondary text on warning tint |
-| `on-info` | `info-fill` | 7.01 | 7 | text on info fill |
-| `on-info` | `info-hover` | 8.36 | 4.5 | text on info hover |
-| `on-info` | `info-active` | 9.86 | 4.5 | text on info active |
-| `info-strong` | `info-subtle` | 10.01 | 7 | info text on its tint (AAA) |
-| `info-text` | `info-subtle` | 7.22 | 7 | info text on its tint |
-| `text-primary` | `info-subtle` | 18.97 | 7 | body text on info tint |
-| `text-secondary` | `info-subtle` | 8.04 | 4.5 | secondary text on info tint |
-| `on-brand` | `brand-from` | 7.90 | 7 | text on brand gradient (start) |
+| `text-secondary` | `warning-subtle` | 7.88 | 4.5 | secondary text on warning tint |
+| `on-info` | `info-fill` | 7.06 | 7 | text on info fill |
+| `on-info` | `info-hover` | 8.33 | 4.5 | text on info hover |
+| `on-info` | `info-active` | 9.89 | 4.5 | text on info active |
+| `info-strong` | `info-subtle` | 10.02 | 7 | info text on its tint (AAA) |
+| `info-text` | `info-subtle` | 9.37 | 7 | info text on its tint |
+| `text-primary` | `info-subtle` | 18.95 | 7 | body text on info tint |
+| `text-secondary` | `info-subtle` | 7.87 | 4.5 | secondary text on info tint |
+| `on-brand` | `brand-from` | 7.02 | 7 | text on brand gradient (start) |
 | `on-brand` | `brand-to` | 7.03 | 7 | text on brand gradient (end) |
 | `text-primary` | `glass over #FFFFFF` | 21.00 | 7 | glass surface |
-| `text-secondary` | `glass over #FFFFFF` | 8.91 | 4.5 | glass surface |
+| `text-secondary` | `glass over #FFFFFF` | 8.72 | 4.5 | glass surface |
 | `text-primary` | `glass over #000000` | 11.18 | 7 | glass surface |
-| `text-secondary` | `glass over #000000` | 4.74 | 4.5 | glass surface |
-| `text-primary` | `mesh(accent-graphic@0.14)` | 16.54 | 7 | text over brand gradient |
-| `text-secondary` | `mesh(accent-graphic@0.14)` | 7.01 | 4.5 | text over brand gradient |
-| `accent-text` | `mesh(accent-graphic@0.14)` | 6.29 | 4.5 | text over brand gradient |
-| `text-primary` | `mesh(cta-graphic@0.1)` | 18.18 | 7 | text over brand gradient |
-| `text-secondary` | `mesh(cta-graphic@0.1)` | 7.71 | 4.5 | text over brand gradient |
-| `accent-text` | `mesh(cta-graphic@0.1)` | 6.92 | 4.5 | text over brand gradient |
+| `text-secondary` | `glass over #000000` | 4.64 | 4.5 | glass surface |
+| `text-primary` | `mesh(accent-graphic@0.18)` | 16.14 | 7 | text over brand gradient |
+| `text-secondary` | `mesh(accent-graphic@0.18)` | 6.70 | 4.5 | text over brand gradient |
+| `accent-text` | `mesh(accent-graphic@0.18)` | 7.30 | 4.5 | text over brand gradient |
+| `text-primary` | `mesh(cta-graphic@0.12)` | 17.37 | 7 | text over brand gradient |
+| `text-secondary` | `mesh(cta-graphic@0.12)` | 7.21 | 4.5 | text over brand gradient |
+| `accent-text` | `mesh(cta-graphic@0.12)` | 7.86 | 4.5 | text over brand gradient |
+| `text-primary` | `aurora(aurora-1@0.22)` | 16.98 | 7 | text over aurora wash |
+| `text-secondary` | `aurora(aurora-1@0.22)` | 7.05 | 4.5 | text over aurora wash |
+| `text-primary` | `aurora(aurora-2@0.16)` | 18.34 | 7 | text over aurora wash |
+| `text-secondary` | `aurora(aurora-2@0.16)` | 7.62 | 4.5 | text over aurora wash |
+| `text-primary` | `aurora(aurora-3@0.24)` | 18.31 | 7 | text over aurora wash |
+| `text-secondary` | `aurora(aurora-3@0.24)` | 7.60 | 4.5 | text over aurora wash |
+| `text-primary` | `aurora(aurora-4@0.1)` | 17.96 | 7 | text over aurora wash |
+| `text-secondary` | `aurora(aurora-4@0.1)` | 7.46 | 4.5 | text over aurora wash |
 
-### dark-hc — 168 pairs, min ratio 2.74
+### dark-hc — 176 pairs, min ratio 2.74
 
 | Foreground | Background | Ratio | Min | Use |
 |---|---|---|---|---|
 | `text-primary` | `bg-primary` | 21.00 | 7 | body text (AAA) |
-| `text-secondary` | `bg-primary` | 8.00 | 7 | secondary text |
-| `text-muted` | `bg-primary` | 7.99 | 7 | muted text |
+| `text-secondary` | `bg-primary` | 9.44 | 7 | secondary text |
+| `text-muted` | `bg-primary` | 8.00 | 7 | muted text |
 | `text-placeholder` | `bg-primary` | 7.99 | 7 | placeholder text (informational) |
-| `graphic-muted` | `bg-primary` | 5.13 | 4.5 | neutral icon / glyph (1.4.11) |
-| `border-strong` | `bg-primary` | 5.13 | 4.5 | control border (1.4.11) |
-| `focus-ring` | `bg-primary` | 9.66 | 3 | focus indicator (2.4.11) |
-| `accent-text` | `bg-primary` | 9.66 | 7 | accent text |
-| `accent-graphic` | `bg-primary` | 6.27 | 4.5 | accent icon / graphic |
-| `cta-text` | `bg-primary` | 9.49 | 7 | cta text |
-| `cta-graphic` | `bg-primary` | 9.04 | 4.5 | cta icon / graphic |
-| `success-text` | `bg-primary` | 9.84 | 7 | success text |
-| `success-graphic` | `bg-primary` | 9.84 | 4.5 | success icon / graphic |
-| `danger-text` | `bg-primary` | 9.49 | 7 | danger text |
-| `danger-graphic` | `bg-primary` | 6.71 | 4.5 | danger icon / graphic |
-| `warning-text` | `bg-primary` | 10.37 | 7 | warning text |
-| `warning-graphic` | `bg-primary` | 10.37 | 4.5 | warning icon / graphic |
-| `info-text` | `bg-primary` | 9.80 | 7 | info text |
-| `info-graphic` | `bg-primary` | 9.80 | 4.5 | info icon / graphic |
-| `viz-1` | `bg-primary` | 5.92 | 3 | chart series 1 |
-| `viz-2` | `bg-primary` | 10.18 | 3 | chart series 2 |
-| `viz-3` | `bg-primary` | 15.31 | 3 | chart series 3 |
-| `viz-4` | `bg-primary` | 11.53 | 3 | chart series 4 |
-| `viz-5` | `bg-primary` | 14.83 | 3 | chart series 5 |
-| `viz-6` | `bg-primary` | 8.37 | 3 | chart series 6 |
-| `viz-7` | `bg-primary` | 5.77 | 3 | chart series 7 |
-| `viz-8` | `bg-primary` | 5.48 | 3 | chart series 8 |
+| `graphic-muted` | `bg-primary` | 5.15 | 4.5 | neutral icon / glyph (1.4.11) |
+| `border-strong` | `bg-primary` | 5.15 | 4.5 | control border (1.4.11) |
+| `focus-ring` | `bg-primary` | 10.91 | 3 | focus indicator (2.4.11) |
+| `accent-text` | `bg-primary` | 10.91 | 7 | accent text |
+| `accent-graphic` | `bg-primary` | 7.77 | 4.5 | accent icon / graphic |
+| `cta-text` | `bg-primary` | 10.14 | 7 | cta text |
+| `cta-graphic` | `bg-primary` | 5.41 | 4.5 | cta icon / graphic |
+| `success-text` | `bg-primary` | 11.75 | 7 | success text |
+| `success-graphic` | `bg-primary` | 10.39 | 4.5 | success icon / graphic |
+| `danger-text` | `bg-primary` | 10.04 | 7 | danger text |
+| `danger-graphic` | `bg-primary` | 6.12 | 4.5 | danger icon / graphic |
+| `warning-text` | `bg-primary` | 14.87 | 7 | warning text |
+| `warning-graphic` | `bg-primary` | 14.87 | 4.5 | warning icon / graphic |
+| `info-text` | `bg-primary` | 10.44 | 7 | info text |
+| `info-graphic` | `bg-primary` | 6.61 | 4.5 | info icon / graphic |
+| `viz-1` | `bg-primary` | 7.77 | 3 | chart series 1 |
+| `viz-2` | `bg-primary` | 5.34 | 3 | chart series 2 |
+| `viz-3` | `bg-primary` | 16.40 | 3 | chart series 3 |
+| `viz-4` | `bg-primary` | 9.67 | 3 | chart series 4 |
+| `viz-5` | `bg-primary` | 5.05 | 3 | chart series 5 |
+| `viz-6` | `bg-primary` | 12.14 | 3 | chart series 6 |
+| `viz-7` | `bg-primary` | 13.89 | 3 | chart series 7 |
+| `viz-8` | `bg-primary` | 7.82 | 3 | chart series 8 |
 | `text-primary` | `bg-secondary` | 21.00 | 7 | body text (AAA) |
-| `text-secondary` | `bg-secondary` | 8.00 | 7 | secondary text |
-| `text-muted` | `bg-secondary` | 7.99 | 7 | muted text |
+| `text-secondary` | `bg-secondary` | 9.44 | 7 | secondary text |
+| `text-muted` | `bg-secondary` | 8.00 | 7 | muted text |
 | `text-placeholder` | `bg-secondary` | 7.99 | 7 | placeholder text (informational) |
-| `graphic-muted` | `bg-secondary` | 5.13 | 4.5 | neutral icon / glyph (1.4.11) |
-| `border-strong` | `bg-secondary` | 5.13 | 4.5 | control border (1.4.11) |
-| `focus-ring` | `bg-secondary` | 9.66 | 3 | focus indicator (2.4.11) |
-| `accent-text` | `bg-secondary` | 9.66 | 7 | accent text |
-| `accent-graphic` | `bg-secondary` | 6.27 | 4.5 | accent icon / graphic |
-| `cta-text` | `bg-secondary` | 9.49 | 7 | cta text |
-| `cta-graphic` | `bg-secondary` | 9.04 | 4.5 | cta icon / graphic |
-| `success-text` | `bg-secondary` | 9.84 | 7 | success text |
-| `success-graphic` | `bg-secondary` | 9.84 | 4.5 | success icon / graphic |
-| `danger-text` | `bg-secondary` | 9.49 | 7 | danger text |
-| `danger-graphic` | `bg-secondary` | 6.71 | 4.5 | danger icon / graphic |
-| `warning-text` | `bg-secondary` | 10.37 | 7 | warning text |
-| `warning-graphic` | `bg-secondary` | 10.37 | 4.5 | warning icon / graphic |
-| `info-text` | `bg-secondary` | 9.80 | 7 | info text |
-| `info-graphic` | `bg-secondary` | 9.80 | 4.5 | info icon / graphic |
-| `viz-1` | `bg-secondary` | 5.92 | 3 | chart series 1 |
-| `viz-2` | `bg-secondary` | 10.18 | 3 | chart series 2 |
-| `viz-3` | `bg-secondary` | 15.31 | 3 | chart series 3 |
-| `viz-4` | `bg-secondary` | 11.53 | 3 | chart series 4 |
-| `viz-5` | `bg-secondary` | 14.83 | 3 | chart series 5 |
-| `viz-6` | `bg-secondary` | 8.37 | 3 | chart series 6 |
-| `viz-7` | `bg-secondary` | 5.77 | 3 | chart series 7 |
-| `viz-8` | `bg-secondary` | 5.48 | 3 | chart series 8 |
+| `graphic-muted` | `bg-secondary` | 5.15 | 4.5 | neutral icon / glyph (1.4.11) |
+| `border-strong` | `bg-secondary` | 5.15 | 4.5 | control border (1.4.11) |
+| `focus-ring` | `bg-secondary` | 10.91 | 3 | focus indicator (2.4.11) |
+| `accent-text` | `bg-secondary` | 10.91 | 7 | accent text |
+| `accent-graphic` | `bg-secondary` | 7.77 | 4.5 | accent icon / graphic |
+| `cta-text` | `bg-secondary` | 10.14 | 7 | cta text |
+| `cta-graphic` | `bg-secondary` | 5.41 | 4.5 | cta icon / graphic |
+| `success-text` | `bg-secondary` | 11.75 | 7 | success text |
+| `success-graphic` | `bg-secondary` | 10.39 | 4.5 | success icon / graphic |
+| `danger-text` | `bg-secondary` | 10.04 | 7 | danger text |
+| `danger-graphic` | `bg-secondary` | 6.12 | 4.5 | danger icon / graphic |
+| `warning-text` | `bg-secondary` | 14.87 | 7 | warning text |
+| `warning-graphic` | `bg-secondary` | 14.87 | 4.5 | warning icon / graphic |
+| `info-text` | `bg-secondary` | 10.44 | 7 | info text |
+| `info-graphic` | `bg-secondary` | 6.61 | 4.5 | info icon / graphic |
+| `viz-1` | `bg-secondary` | 7.77 | 3 | chart series 1 |
+| `viz-2` | `bg-secondary` | 5.34 | 3 | chart series 2 |
+| `viz-3` | `bg-secondary` | 16.40 | 3 | chart series 3 |
+| `viz-4` | `bg-secondary` | 9.67 | 3 | chart series 4 |
+| `viz-5` | `bg-secondary` | 5.05 | 3 | chart series 5 |
+| `viz-6` | `bg-secondary` | 12.14 | 3 | chart series 6 |
+| `viz-7` | `bg-secondary` | 13.89 | 3 | chart series 7 |
+| `viz-8` | `bg-secondary` | 7.82 | 3 | chart series 8 |
 | `text-primary` | `bg-tertiary` | 18.42 | 7 | body text (AAA) |
-| `text-secondary` | `bg-tertiary` | 7.02 | 7 | secondary text |
-| `text-muted` | `bg-tertiary` | 7.01 | 7 | muted text |
+| `text-secondary` | `bg-tertiary` | 8.28 | 7 | secondary text |
+| `text-muted` | `bg-tertiary` | 7.02 | 7 | muted text |
 | `text-placeholder` | `bg-tertiary` | 7.01 | 7 | placeholder text (informational) |
-| `graphic-muted` | `bg-tertiary` | 4.50 | 4.5 | neutral icon / glyph (1.4.11) |
-| `border-strong` | `bg-tertiary` | 4.50 | 4.5 | control border (1.4.11) |
-| `focus-ring` | `bg-tertiary` | 8.48 | 3 | focus indicator (2.4.11) |
-| `accent-text` | `bg-tertiary` | 8.48 | 7 | accent text |
-| `accent-graphic` | `bg-tertiary` | 5.50 | 4.5 | accent icon / graphic |
-| `cta-text` | `bg-tertiary` | 8.32 | 7 | cta text |
-| `cta-graphic` | `bg-tertiary` | 7.93 | 4.5 | cta icon / graphic |
-| `success-text` | `bg-tertiary` | 8.63 | 7 | success text |
-| `success-graphic` | `bg-tertiary` | 8.63 | 4.5 | success icon / graphic |
-| `danger-text` | `bg-tertiary` | 8.32 | 7 | danger text |
-| `danger-graphic` | `bg-tertiary` | 5.89 | 4.5 | danger icon / graphic |
-| `warning-text` | `bg-tertiary` | 9.10 | 7 | warning text |
-| `warning-graphic` | `bg-tertiary` | 9.10 | 4.5 | warning icon / graphic |
-| `info-text` | `bg-tertiary` | 8.60 | 7 | info text |
-| `info-graphic` | `bg-tertiary` | 8.60 | 4.5 | info icon / graphic |
-| `viz-1` | `bg-tertiary` | 5.19 | 3 | chart series 1 |
-| `viz-2` | `bg-tertiary` | 8.93 | 3 | chart series 2 |
-| `viz-3` | `bg-tertiary` | 13.43 | 3 | chart series 3 |
-| `viz-4` | `bg-tertiary` | 10.11 | 3 | chart series 4 |
-| `viz-5` | `bg-tertiary` | 13.01 | 3 | chart series 5 |
-| `viz-6` | `bg-tertiary` | 7.34 | 3 | chart series 6 |
-| `viz-7` | `bg-tertiary` | 5.06 | 3 | chart series 7 |
-| `viz-8` | `bg-tertiary` | 4.80 | 3 | chart series 8 |
+| `graphic-muted` | `bg-tertiary` | 4.52 | 4.5 | neutral icon / glyph (1.4.11) |
+| `border-strong` | `bg-tertiary` | 4.52 | 4.5 | control border (1.4.11) |
+| `focus-ring` | `bg-tertiary` | 9.57 | 3 | focus indicator (2.4.11) |
+| `accent-text` | `bg-tertiary` | 9.57 | 7 | accent text |
+| `accent-graphic` | `bg-tertiary` | 6.82 | 4.5 | accent icon / graphic |
+| `cta-text` | `bg-tertiary` | 8.90 | 7 | cta text |
+| `cta-graphic` | `bg-tertiary` | 4.74 | 4.5 | cta icon / graphic |
+| `success-text` | `bg-tertiary` | 10.31 | 7 | success text |
+| `success-graphic` | `bg-tertiary` | 9.11 | 4.5 | success icon / graphic |
+| `danger-text` | `bg-tertiary` | 8.81 | 7 | danger text |
+| `danger-graphic` | `bg-tertiary` | 5.37 | 4.5 | danger icon / graphic |
+| `warning-text` | `bg-tertiary` | 13.05 | 7 | warning text |
+| `warning-graphic` | `bg-tertiary` | 13.05 | 4.5 | warning icon / graphic |
+| `info-text` | `bg-tertiary` | 9.16 | 7 | info text |
+| `info-graphic` | `bg-tertiary` | 5.80 | 4.5 | info icon / graphic |
+| `viz-1` | `bg-tertiary` | 6.82 | 3 | chart series 1 |
+| `viz-2` | `bg-tertiary` | 4.69 | 3 | chart series 2 |
+| `viz-3` | `bg-tertiary` | 14.39 | 3 | chart series 3 |
+| `viz-4` | `bg-tertiary` | 8.48 | 3 | chart series 4 |
+| `viz-5` | `bg-tertiary` | 4.43 | 3 | chart series 5 |
+| `viz-6` | `bg-tertiary` | 10.65 | 3 | chart series 6 |
+| `viz-7` | `bg-tertiary` | 12.18 | 3 | chart series 7 |
+| `viz-8` | `bg-tertiary` | 6.86 | 3 | chart series 8 |
 | `text-primary` | `surface-overlay` | 19.56 | 7 | body text (AAA) |
-| `text-secondary` | `surface-overlay` | 7.45 | 7 | secondary text |
-| `text-muted` | `surface-overlay` | 7.44 | 7 | muted text |
+| `text-secondary` | `surface-overlay` | 8.80 | 7 | secondary text |
+| `text-muted` | `surface-overlay` | 7.46 | 7 | muted text |
 | `text-placeholder` | `surface-overlay` | 7.44 | 7 | placeholder text (informational) |
-| `graphic-muted` | `surface-overlay` | 4.78 | 4.5 | neutral icon / glyph (1.4.11) |
-| `border-strong` | `surface-overlay` | 4.78 | 4.5 | control border (1.4.11) |
-| `focus-ring` | `surface-overlay` | 9.00 | 3 | focus indicator (2.4.11) |
-| `accent-text` | `surface-overlay` | 9.00 | 7 | accent text |
-| `accent-graphic` | `surface-overlay` | 5.84 | 4.5 | accent icon / graphic |
-| `cta-text` | `surface-overlay` | 8.84 | 7 | cta text |
-| `cta-graphic` | `surface-overlay` | 8.42 | 4.5 | cta icon / graphic |
-| `success-text` | `surface-overlay` | 9.17 | 7 | success text |
-| `success-graphic` | `surface-overlay` | 9.17 | 4.5 | success icon / graphic |
-| `danger-text` | `surface-overlay` | 8.84 | 7 | danger text |
-| `danger-graphic` | `surface-overlay` | 6.25 | 4.5 | danger icon / graphic |
-| `warning-text` | `surface-overlay` | 9.66 | 7 | warning text |
-| `warning-graphic` | `surface-overlay` | 9.66 | 4.5 | warning icon / graphic |
-| `info-text` | `surface-overlay` | 9.13 | 7 | info text |
-| `info-graphic` | `surface-overlay` | 9.13 | 4.5 | info icon / graphic |
-| `viz-1` | `surface-overlay` | 5.51 | 3 | chart series 1 |
-| `viz-2` | `surface-overlay` | 9.48 | 3 | chart series 2 |
-| `viz-3` | `surface-overlay` | 14.26 | 3 | chart series 3 |
-| `viz-4` | `surface-overlay` | 10.74 | 3 | chart series 4 |
-| `viz-5` | `surface-overlay` | 13.81 | 3 | chart series 5 |
-| `viz-6` | `surface-overlay` | 7.80 | 3 | chart series 6 |
-| `viz-7` | `surface-overlay` | 5.37 | 3 | chart series 7 |
-| `viz-8` | `surface-overlay` | 5.10 | 3 | chart series 8 |
+| `graphic-muted` | `surface-overlay` | 4.80 | 4.5 | neutral icon / glyph (1.4.11) |
+| `border-strong` | `surface-overlay` | 4.80 | 4.5 | control border (1.4.11) |
+| `focus-ring` | `surface-overlay` | 10.16 | 3 | focus indicator (2.4.11) |
+| `accent-text` | `surface-overlay` | 10.16 | 7 | accent text |
+| `accent-graphic` | `surface-overlay` | 7.24 | 4.5 | accent icon / graphic |
+| `cta-text` | `surface-overlay` | 9.45 | 7 | cta text |
+| `cta-graphic` | `surface-overlay` | 5.04 | 4.5 | cta icon / graphic |
+| `success-text` | `surface-overlay` | 10.94 | 7 | success text |
+| `success-graphic` | `surface-overlay` | 9.68 | 4.5 | success icon / graphic |
+| `danger-text` | `surface-overlay` | 9.35 | 7 | danger text |
+| `danger-graphic` | `surface-overlay` | 5.70 | 4.5 | danger icon / graphic |
+| `warning-text` | `surface-overlay` | 13.85 | 7 | warning text |
+| `warning-graphic` | `surface-overlay` | 13.85 | 4.5 | warning icon / graphic |
+| `info-text` | `surface-overlay` | 9.72 | 7 | info text |
+| `info-graphic` | `surface-overlay` | 6.16 | 4.5 | info icon / graphic |
+| `viz-1` | `surface-overlay` | 7.24 | 3 | chart series 1 |
+| `viz-2` | `surface-overlay` | 4.98 | 3 | chart series 2 |
+| `viz-3` | `surface-overlay` | 15.28 | 3 | chart series 3 |
+| `viz-4` | `surface-overlay` | 9.00 | 3 | chart series 4 |
+| `viz-5` | `surface-overlay` | 4.70 | 3 | chart series 5 |
+| `viz-6` | `surface-overlay` | 11.31 | 3 | chart series 6 |
+| `viz-7` | `surface-overlay` | 12.94 | 3 | chart series 7 |
+| `viz-8` | `surface-overlay` | 7.28 | 3 | chart series 8 |
 | `text-disabled` | `disabled-bg` | 2.74 | 1 | EXEMPT: inactive component (WCAG 1.4.3) — no AA claim, never for readable content |
-| `text-inverse` | `text-primary` | 19.80 | 7 | text on ink panel |
-| `on-inverse` | `surface-inverse` | 14.51 | 7 | text on inverse panel |
-| `on-inverse-muted` | `surface-inverse` | 7.02 | 7 | muted text on inverse panel |
+| `text-inverse` | `text-primary` | 18.43 | 7 | text on ink panel |
+| `on-inverse` | `surface-inverse` | 14.22 | 7 | text on inverse panel |
+| `on-inverse-muted` | `surface-inverse` | 7.04 | 7 | muted text on inverse panel |
 | `border-inverse` | `surface-inverse` | 3.21 | 3 | border on inverse panel |
-| `text-primary` | `selection-bg` | 11.04 | 7 | selected text |
-| `on-accent` | `accent-fill` | 7.00 | 7 | text on accent fill |
-| `on-accent` | `accent-hover` | 8.37 | 4.5 | text on accent hover |
-| `on-accent` | `accent-active` | 9.92 | 4.5 | text on accent active |
-| `accent-strong` | `accent-subtle` | 10.04 | 7 | accent text on its tint (AAA) |
-| `accent-text` | `accent-subtle` | 7.05 | 7 | accent text on its tint |
-| `text-primary` | `accent-subtle` | 15.32 | 7 | body text on accent tint |
-| `text-secondary` | `accent-subtle` | 5.84 | 4.5 | secondary text on accent tint |
-| `on-cta` | `cta-fill` | 9.04 | 7 | text on cta fill |
-| `on-cta` | `cta-hover` | 10.56 | 4.5 | text on cta hover |
-| `on-cta` | `cta-active` | 12.22 | 4.5 | text on cta active |
-| `cta-strong` | `cta-subtle` | 10.05 | 7 | cta text on its tint (AAA) |
-| `cta-text` | `cta-subtle` | 7.04 | 7 | cta text on its tint |
-| `text-primary` | `cta-subtle` | 15.58 | 7 | body text on cta tint |
-| `text-secondary` | `cta-subtle` | 5.94 | 4.5 | secondary text on cta tint |
-| `on-success` | `success-fill` | 9.84 | 7 | text on success fill |
-| `on-success` | `success-hover` | 11.30 | 4.5 | text on success hover |
-| `on-success` | `success-active` | 12.89 | 4.5 | text on success active |
-| `success-strong` | `success-subtle` | 10.05 | 7 | success text on its tint (AAA) |
-| `success-text` | `success-subtle` | 7.04 | 7 | success text on its tint |
-| `text-primary` | `success-subtle` | 15.02 | 7 | body text on success tint |
-| `text-secondary` | `success-subtle` | 5.72 | 4.5 | secondary text on success tint |
-| `on-danger` | `danger-fill` | 7.02 | 7 | text on danger fill |
-| `on-danger` | `danger-hover` | 9.69 | 4.5 | text on danger hover |
-| `on-danger` | `danger-active` | 11.23 | 4.5 | text on danger active |
-| `danger-strong` | `danger-subtle` | 10.01 | 7 | danger text on its tint (AAA) |
-| `danger-text` | `danger-subtle` | 7.03 | 7 | danger text on its tint |
-| `text-primary` | `danger-subtle` | 15.55 | 7 | body text on danger tint |
-| `text-secondary` | `danger-subtle` | 5.92 | 4.5 | secondary text on danger tint |
-| `on-warning` | `warning-fill` | 10.37 | 7 | text on warning fill |
-| `on-warning` | `warning-hover` | 11.93 | 4.5 | text on warning hover |
-| `on-warning` | `warning-active` | 13.59 | 4.5 | text on warning active |
-| `warning-strong` | `warning-subtle` | 10.00 | 7 | warning text on its tint (AAA) |
-| `warning-text` | `warning-subtle` | 7.58 | 7 | warning text on its tint |
-| `text-primary` | `warning-subtle` | 15.35 | 7 | body text on warning tint |
-| `text-secondary` | `warning-subtle` | 5.85 | 4.5 | secondary text on warning tint |
-| `on-info` | `info-fill` | 9.80 | 7 | text on info fill |
-| `on-info` | `info-hover` | 11.24 | 4.5 | text on info hover |
-| `on-info` | `info-active` | 12.81 | 4.5 | text on info active |
-| `info-strong` | `info-subtle` | 10.03 | 7 | info text on its tint (AAA) |
-| `info-text` | `info-subtle` | 7.08 | 7 | info text on its tint |
-| `text-primary` | `info-subtle` | 15.16 | 7 | body text on info tint |
-| `text-secondary` | `info-subtle` | 5.77 | 4.5 | secondary text on info tint |
-| `on-brand` | `brand-from` | 7.00 | 7 | text on brand gradient (start) |
-| `on-brand` | `brand-to` | 7.00 | 7 | text on brand gradient (end) |
-| `text-primary` | `glass over #FFFFFF` | 12.63 | 7 | glass surface |
-| `text-secondary` | `glass over #FFFFFF` | 4.81 | 4.5 | glass surface |
+| `text-primary` | `selection-bg` | 11.21 | 7 | selected text |
+| `on-accent` | `accent-fill` | 7.77 | 7 | text on accent fill |
+| `on-accent` | `accent-hover` | 9.33 | 4.5 | text on accent hover |
+| `on-accent` | `accent-active` | 10.91 | 4.5 | text on accent active |
+| `accent-strong` | `accent-subtle` | 10.02 | 7 | accent text on its tint (AAA) |
+| `accent-text` | `accent-subtle` | 8.05 | 7 | accent text on its tint |
+| `text-primary` | `accent-subtle` | 15.51 | 7 | body text on accent tint |
+| `text-secondary` | `accent-subtle` | 6.97 | 4.5 | secondary text on accent tint |
+| `on-cta` | `cta-fill` | 7.02 | 7 | text on cta fill |
+| `on-cta` | `cta-hover` | 9.33 | 4.5 | text on cta hover |
+| `on-cta` | `cta-active` | 10.83 | 4.5 | text on cta active |
+| `cta-strong` | `cta-subtle` | 10.00 | 7 | cta text on its tint (AAA) |
+| `cta-text` | `cta-subtle` | 7.45 | 7 | cta text on its tint |
+| `text-primary` | `cta-subtle` | 15.43 | 7 | body text on cta tint |
+| `text-secondary` | `cta-subtle` | 6.94 | 4.5 | secondary text on cta tint |
+| `on-success` | `success-fill` | 10.39 | 7 | text on success fill |
+| `on-success` | `success-hover` | 11.88 | 4.5 | text on success hover |
+| `on-success` | `success-active` | 13.62 | 4.5 | text on success active |
+| `success-strong` | `success-subtle` | 10.07 | 7 | success text on its tint (AAA) |
+| `success-text` | `success-subtle` | 8.45 | 7 | success text on its tint |
+| `text-primary` | `success-subtle` | 15.10 | 7 | body text on success tint |
+| `text-secondary` | `success-subtle` | 6.79 | 4.5 | secondary text on success tint |
+| `on-danger` | `danger-fill` | 7.05 | 7 | text on danger fill |
+| `on-danger` | `danger-hover` | 8.31 | 4.5 | text on danger hover |
+| `on-danger` | `danger-active` | 9.73 | 4.5 | text on danger active |
+| `danger-strong` | `danger-subtle` | 10.03 | 7 | danger text on its tint (AAA) |
+| `danger-text` | `danger-subtle` | 7.42 | 7 | danger text on its tint |
+| `text-primary` | `danger-subtle` | 15.52 | 7 | body text on danger tint |
+| `text-secondary` | `danger-subtle` | 6.98 | 4.5 | secondary text on danger tint |
+| `on-warning` | `warning-fill` | 14.87 | 7 | text on warning fill |
+| `on-warning` | `warning-hover` | 16.91 | 4.5 | text on warning hover |
+| `on-warning` | `warning-active` | 19.04 | 4.5 | text on warning active |
+| `warning-strong` | `warning-subtle` | 10.81 | 7 | warning text on its tint (AAA) |
+| `warning-text` | `warning-subtle` | 10.81 | 7 | warning text on its tint |
+| `text-primary` | `warning-subtle` | 15.27 | 7 | body text on warning tint |
+| `text-secondary` | `warning-subtle` | 6.87 | 4.5 | secondary text on warning tint |
+| `on-info` | `info-fill` | 7.06 | 7 | text on info fill |
+| `on-info` | `info-hover` | 9.27 | 4.5 | text on info hover |
+| `on-info` | `info-active` | 10.69 | 4.5 | text on info active |
+| `info-strong` | `info-subtle` | 10.00 | 7 | info text on its tint (AAA) |
+| `info-text` | `info-subtle` | 7.62 | 7 | info text on its tint |
+| `text-primary` | `info-subtle` | 15.33 | 7 | body text on info tint |
+| `text-secondary` | `info-subtle` | 6.89 | 4.5 | secondary text on info tint |
+| `on-brand` | `brand-from` | 7.77 | 7 | text on brand gradient (start) |
+| `on-brand` | `brand-to` | 7.02 | 7 | text on brand gradient (end) |
+| `text-primary` | `glass over #FFFFFF` | 10.05 | 7 | glass surface |
+| `text-secondary` | `glass over #FFFFFF` | 4.52 | 4.5 | glass surface |
 | `text-primary` | `glass over #000000` | 21.00 | 7 | glass surface |
-| `text-secondary` | `glass over #000000` | 8.00 | 4.5 | glass surface |
-| `text-primary` | `mesh(accent-graphic@0.14)` | 18.55 | 7 | text over brand gradient |
-| `text-secondary` | `mesh(accent-graphic@0.14)` | 7.06 | 4.5 | text over brand gradient |
-| `accent-text` | `mesh(accent-graphic@0.14)` | 8.53 | 4.5 | text over brand gradient |
-| `text-primary` | `mesh(cta-graphic@0.1)` | 18.91 | 7 | text over brand gradient |
-| `text-secondary` | `mesh(cta-graphic@0.1)` | 7.20 | 4.5 | text over brand gradient |
-| `accent-text` | `mesh(cta-graphic@0.1)` | 8.70 | 4.5 | text over brand gradient |
+| `text-secondary` | `glass over #000000` | 9.44 | 4.5 | glass surface |
+| `text-primary` | `mesh(accent-graphic@0.18)` | 17.14 | 7 | text over brand gradient |
+| `text-secondary` | `mesh(accent-graphic@0.18)` | 7.71 | 4.5 | text over brand gradient |
+| `accent-text` | `mesh(accent-graphic@0.18)` | 8.90 | 4.5 | text over brand gradient |
+| `text-primary` | `mesh(cta-graphic@0.12)` | 19.15 | 7 | text over brand gradient |
+| `text-secondary` | `mesh(cta-graphic@0.12)` | 8.61 | 4.5 | text over brand gradient |
+| `accent-text` | `mesh(cta-graphic@0.12)` | 9.95 | 4.5 | text over brand gradient |
+| `text-primary` | `aurora(aurora-1@0.08800000000000001)` | 19.43 | 7 | text over aurora wash |
+| `text-secondary` | `aurora(aurora-1@0.08800000000000001)` | 8.74 | 4.5 | text over aurora wash |
+| `text-primary` | `aurora(aurora-2@0.064)` | 19.79 | 7 | text over aurora wash |
+| `text-secondary` | `aurora(aurora-2@0.064)` | 8.90 | 4.5 | text over aurora wash |
+| `text-primary` | `aurora(aurora-3@0.096)` | 18.66 | 7 | text over aurora wash |
+| `text-secondary` | `aurora(aurora-3@0.096)` | 8.39 | 4.5 | text over aurora wash |
+| `text-primary` | `aurora(aurora-4@0.04000000000000001)` | 20.65 | 7 | text over aurora wash |
+| `text-secondary` | `aurora(aurora-4@0.04000000000000001)` | 9.29 | 4.5 | text over aurora wash |
 
 ## Data-viz colour-blind check (min pairwise OKLab ΔE across 8 categorical series)
 
 | Theme | Normal | Protanopia | Deuteranopia | Tritanopia | Grayscale |
 |---|---|---|---|---|---|
-| light | 0.104 | 0.102 | 0.102 | 0.103 | 0.004 |
-| dark | 0.122 | 0.111 | 0.114 | 0.112 | 0.007 |
+| light | 0.117 | 0.102 | 0.098 | 0.099 | 0.014 |
+| dark | 0.140 | 0.099 | 0.096 | 0.097 | 0.003 |
 
 ΔE < ~0.08 means two series can be confused by colour alone — which is why every series also carries a pattern (`VIZ_PATTERNS`), a marker shape (`VIZ_MARKERS`) and a direct label.
