@@ -33,37 +33,41 @@ async function renewalPass(admin: SupabaseClient, stripe: Stripe, now: Date): Pr
   const nowSec = Math.floor(now.getTime() / 1000);
   const horizon = nowSec + (RENEWAL_NOTICE_DAYS + 1) * 86400;
   let seen = 0;
-  for await (const sub of stripe.subscriptions.list({ status: "active", current_period_end: { gte: nowSec, lte: horizon }, limit: 100 })) {
-    if (++seen > MAX_STRIPE_SUBS_PER_RUN || t.sent >= MAX_SENDS_PER_RUN) break;
-    const price = sub.items.data[0]?.price;
-    const customerId = typeof sub.customer === "string" ? sub.customer : sub.customer?.id;
-    if (!price || !customerId) { bump(t, "skipped"); continue; }
+  // Query only ANNUAL prices: every active monthly subscription also renews within 31 days, so an
+  // unfiltered list would page through the whole customer base every hour and starve the annual ones.
+  for await (const annual of stripe.prices.list({ active: true, type: "recurring", recurring: { interval: "year" }, limit: 100 })) {
+    for await (const sub of stripe.subscriptions.list({ price: annual.id, status: "active", current_period_end: { gte: nowSec, lte: horizon }, limit: 100 })) {
+      if (++seen > MAX_STRIPE_SUBS_PER_RUN || t.sent >= MAX_SENDS_PER_RUN) return t;
+      const price = sub.items.data.find((i) => i.price.id === annual.id)?.price ?? annual;
+      const customerId = typeof sub.customer === "string" ? sub.customer : sub.customer?.id;
+      if (!customerId) { bump(t, "skipped"); continue; }
 
-    const { data: row } = await admin.from("profiles").select("*").eq("stripe_customer_id", customerId).maybeSingle();
-    if (!row) { bump(t, "skipped"); continue; }
-    const owner = toOwnerProfile(row as Record<string, unknown>);
-    const periodEnd = new Date(sub.current_period_end * 1000);
-    if (!owner.email || owner.status === "suspended" ||
-        !renewalNoticeDue({ periodEnd, interval: price.recurring?.interval, cancelAtPeriodEnd: sub.cancel_at_period_end, now, tz: owner.timeZone })) {
-      bump(t, "skipped");
-      continue;
+      const { data: row } = await admin.from("profiles").select("*").eq("stripe_customer_id", customerId).maybeSingle();
+      if (!row) { bump(t, "skipped"); continue; }
+      const owner = toOwnerProfile(row as Record<string, unknown>);
+      const periodEnd = new Date(sub.current_period_end * 1000);
+      if (!owner.email || owner.status === "suspended" ||
+          !renewalNoticeDue({ periodEnd, interval: price.recurring?.interval, cancelAtPeriodEnd: sub.cancel_at_period_end, now, tz: owner.timeZone })) {
+        bump(t, "skipped");
+        continue;
+      }
+      const planId = planIdFromPriceId(price.id, (k) => Deno.env.get(k)) ?? owner.plan;
+      if (!planId || minutesForPlan(planId) === null) { bump(t, "skipped"); continue; } // custom/enterprise: no fixed minutes to quote
+
+      // Amount actually due at renewal (discounts/credits included); fall back to the list price.
+      let amountCents = price.unit_amount ?? 0;
+      try {
+        const upcoming = await stripe.invoices.retrieveUpcoming({ subscription: sub.id });
+        amountCents = upcoming.amount_due;
+      } catch (e) {
+        console.error(JSON.stringify({ event: "renewal_upcoming_invoice_unavailable", sub: sub.id, error: String(e) }));
+      }
+      if (!(amountCents > 0)) { bump(t, "skipped"); continue; }
+
+      bump(t, await sendRenewalNotice(admin, owner,
+        { planId, renewalYmd: localYmd(periodEnd, owner.timeZone), amountCents, currency: price.currency },
+        `renewal:${sub.id}:${sub.current_period_end}`));
     }
-    const planId = planIdFromPriceId(price.id, (k) => Deno.env.get(k)) ?? owner.plan;
-    if (!planId || minutesForPlan(planId) === null) { bump(t, "skipped"); continue; } // custom/enterprise: no fixed minutes to quote
-
-    // Amount actually due at renewal (discounts/credits included); fall back to the list price.
-    let amountCents = price.unit_amount ?? 0;
-    try {
-      const upcoming = await stripe.invoices.retrieveUpcoming({ subscription: sub.id });
-      amountCents = upcoming.amount_due;
-    } catch (e) {
-      console.error(JSON.stringify({ event: "renewal_upcoming_invoice_unavailable", sub: sub.id, error: String(e) }));
-    }
-    if (!(amountCents > 0)) { bump(t, "skipped"); continue; }
-
-    bump(t, await sendRenewalNotice(admin, owner,
-      { planId, renewalYmd: localYmd(periodEnd, owner.timeZone), amountCents, currency: price.currency },
-      `renewal:${sub.id}:${sub.current_period_end}`));
   }
   return t;
 }
