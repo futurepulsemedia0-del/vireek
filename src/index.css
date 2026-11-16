@@ -462,3 +462,8 @@ html:lang(ar) *, html:lang(fa) *, html:lang(hi) *, html:lang(ja) *, html:lang(zh
 }
 /* 3) Floating launchers step aside while the on-screen keyboard is open (--vk-kb-inset set by useKeyboardInset). */
 html[style*='--vk-kb-inset'] [data-floating-launcher] { opacity: 0; pointer-events: none; }
+/* 4) Named max-h tokens (sheet/modal/tall) with dvh. Fallback line first for browsers without dvh. */
+.max-h-sheet { max-height: 92vh; max-height: 92dvh; }
+.max-h-modal { max-height: 90vh; max-height: 90dvh; }
+.max-h-tall { max-height: 85vh; max-height: 85dvh; }
+.h-\[80vh\] { height: 80vh; height: 80dvh; }
