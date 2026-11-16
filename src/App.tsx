@@ -117,6 +117,7 @@ const ValueScoreboardPage = lazy(() => import('@/pages/ValueScoreboardPage').the
 const StaffValueScoreboardPage = lazy(() => import('@/pages/StaffValueScoreboardPage').then((m) => ({ default: m.StaffValueScoreboardPage })));
 const BusinessKpisPage = lazy(() => import('@/pages/BusinessKpisPage').then((m) => ({ default: m.BusinessKpisPage })));
 const StaffFounderKpisPage = lazy(() => import('@/pages/StaffFounderKpisPage').then((m) => ({ default: m.StaffFounderKpisPage })));
+const StaffActivationFunnelPage = lazy(() => import('@/pages/StaffActivationFunnelPage').then((m) => ({ default: m.StaffActivationFunnelPage })));
 const StaffWinLossPage = lazy(() => import('@/pages/StaffWinLossPage').then((m) => ({ default: m.StaffWinLossPage })));
 const ResultsPlanPage = lazy(() => import('@/pages/ResultsPlanPage').then((m) => ({ default: m.ResultsPlanPage })));
 const HowWeVerifyPage = lazy(() => import('@/pages/HowWeVerifyPage').then((m) => ({ default: m.HowWeVerifyPage })));
@@ -821,6 +822,7 @@ function AppRoutes() {
         <Route path="/staff/open-voice-benchmark" element={<StaffRoute><StaffOpenVoiceBenchmarkPage /></StaffRoute>} />
         <Route path="/staff/value-scoreboard" element={<StaffRoute><StaffValueScoreboardPage /></StaffRoute>} />
         <Route path="/staff/founder-kpis" element={<StaffRoute><StaffFounderKpisPage /></StaffRoute>} />
+        <Route path="/staff/activation" element={<StaffRoute><StaffActivationFunnelPage /></StaffRoute>} />
         <Route path="/staff/win-loss" element={<StaffRoute><StaffWinLossPage /></StaffRoute>} />
         <Route path="/staff/results-plan" element={<StaffRoute><StaffResultsPlanPage /></StaffRoute>} />
         <Route
