@@ -479,3 +479,16 @@ html[style*='--vk-kb-inset'] [data-floating-launcher] { opacity: 0; pointer-even
 .max-h-modal { max-height: 90vh; max-height: 90dvh; }
 .max-h-tall { max-height: 85vh; max-height: 85dvh; }
 .h-\[80vh\] { height: 80vh; height: 80dvh; }
+/* Theme switch: color-only 180ms transition, applied for ~220ms after an explicit user change. */
+html.vrk-theme-transition,
+html.vrk-theme-transition *,
+html.vrk-theme-transition *::before,
+html.vrk-theme-transition *::after {
+  transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  html.vrk-theme-transition,
+  html.vrk-theme-transition * {
+    transition: none !important;
+  }
+}
