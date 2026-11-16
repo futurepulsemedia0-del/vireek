@@ -15,6 +15,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { toolSearchKnowledge } from "../_shared/knowledge/search.ts";
+import { safeEqual, verifyMetaSignature } from "../_shared/dmChannels/protocol.ts";
 
 Deno.serve(async (req: Request) => {
   const url = new URL(req.url);
@@ -24,13 +25,24 @@ Deno.serve(async (req: Request) => {
     const mode = url.searchParams.get("hub.mode");
     const token = url.searchParams.get("hub.verify_token");
     const challenge = url.searchParams.get("hub.challenge");
-    if (mode === "subscribe" && token === Deno.env.get("WHATSAPP_VERIFY_TOKEN")) {
+    const expectedVerifyToken = Deno.env.get("WHATSAPP_VERIFY_TOKEN") ?? "";
+    if (mode === "subscribe" && expectedVerifyToken && token && safeEqual(token, expectedVerifyToken)) {
       return new Response(challenge ?? "", { status: 200 });
     }
     return new Response("Forbidden", { status: 403 });
   }
 
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
+  // Meta signs every POST: X-Hub-Signature-256 = sha256 HMAC(app secret, raw body). Fail closed.
+  const appSecret = Deno.env.get("META_APP_SECRET");
+  if (!appSecret) {
+    console.error(JSON.stringify({ event: "whatsapp_webhook_misconfigured", error: "META_APP_SECRET is not set" }));
+    return new Response("Not configured", { status: 500 });
+  }
+  const rawBody = await req.text();
+  if (!(await verifyMetaSignature(rawBody, req.headers.get("x-hub-signature-256"), appSecret))) {
+    return new Response("Invalid signature", { status: 401 });
+  }
 
   const admin = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
@@ -39,7 +51,7 @@ Deno.serve(async (req: Request) => {
   );
 
   try {
-    const payload = await req.json();
+    const payload = JSON.parse(rawBody);
     const value = payload?.entry?.[0]?.changes?.[0]?.value;
     const message = value?.messages?.[0];
     const phoneNumberId = value?.metadata?.phone_number_id;
