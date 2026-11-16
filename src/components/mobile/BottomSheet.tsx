@@ -4,6 +4,10 @@
 import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react';
 import { haptic } from '@/lib/native/haptics';
 import { resolveSnap, shouldDismissSheet } from '@/lib/native/gestureMath';
+import { useKeyboardInset } from '@/hooks/useKeyboardInset';
+import { useScrollLock } from '@/hooks/useScrollLock';
+
+const FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]):not([type=hidden]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
 
 interface Props {
   open: boolean;
@@ -20,6 +24,8 @@ export function BottomSheet({ open, onClose, title, children, snapPoints = [0.5,
   const [dragFraction, setDragFraction] = useState<number | null>(null);
   const drag = useRef<{ y: number; fraction: number; t: number; lastY: number } | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  useScrollLock(open);
+  const keyboardInset = useKeyboardInset(open);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -27,7 +33,28 @@ export function BottomSheet({ open, onClose, title, children, snapPoints = [0.5,
     const previous = document.activeElement as HTMLElement | null;
     panelRef.current?.focus();
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+      if (e.key !== 'Tab' || !panelRef.current) return;
+      // Focus trap: keep Tab / Shift+Tab inside the sheet (WCAG 2.4.3).
+      const items = Array.from(panelRef.current.querySelectorAll<HTMLElement>(FOCUSABLE)).filter((el) => el.offsetParent !== null);
+      if (items.length === 0) {
+        e.preventDefault();
+        panelRef.current.focus();
+        return;
+      }
+      const first = items[0]!;
+      const last = items[items.length - 1]!;
+      const active = document.activeElement;
+      if (e.shiftKey && (active === first || active === panelRef.current)) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     window.addEventListener('keydown', onKey);
     return () => {
@@ -80,7 +107,11 @@ export function BottomSheet({ open, onClose, title, children, snapPoints = [0.5,
         aria-label={title}
         tabIndex={-1}
         className="absolute inset-x-0 bottom-0 mx-auto flex max-w-lg flex-col rounded-t-2xl border border-border bg-bg-primary shadow-2xl outline-none"
-        style={{ height: `${fraction * 100}dvh`, transition: dragFraction === null ? 'height 200ms ease-out' : 'none' }}
+        style={{
+          bottom: keyboardInset,
+          height: `min(${fraction * 100}dvh, calc(100dvh - ${keyboardInset}px))`,
+          transition: dragFraction === null ? 'height 200ms ease-out, bottom 150ms ease-out' : 'none',
+        }}
       >
         <div
           className="flex min-h-[44px] cursor-grab touch-none items-center justify-center"
