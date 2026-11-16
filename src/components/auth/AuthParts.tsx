@@ -134,7 +134,7 @@ export const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
               type="button"
               onClick={() => setShowPw((v) => !v)}
               aria-label={showPw ? 'Hide password' : 'Show password'}
-              className="focus-ring absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1 text-text-secondary/60 transition-colors hover:text-text-primary"
+              className="focus-ring absolute end-0.5 top-1/2 flex h-11 w-11 -translate-y-1/2 touch-manipulation items-center justify-center rounded-lg text-text-secondary/60 transition-colors hover:text-text-primary active:text-text-primary"
             >
               {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
@@ -146,7 +146,7 @@ export const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0, opacity: 0 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-success-500"
+                className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-success-500"
               >
                 <Check size={18} />
               </motion.span>
