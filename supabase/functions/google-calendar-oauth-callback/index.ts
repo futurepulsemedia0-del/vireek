@@ -46,8 +46,6 @@ Deno.serve(async (req: Request) => {
         integration_type: "google_calendar",
         status: "connected",
         config: {
-          access_token: tokens.access_token,
-          refresh_token: tokens.refresh_token ?? null,
           expires_at: new Date(Date.now() + tokens.expires_in * 1000).toISOString(),
           calendar_id: calendar?.id ?? "primary",
         },
