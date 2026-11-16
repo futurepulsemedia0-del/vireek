@@ -17,7 +17,7 @@ export function LogoConstruction({ mode }: { mode: 'grid' | 'clearspace' }) {
     <svg viewBox={vb} className="h-auto w-full" aria-hidden="true">
       {mode === 'clearspace' && (
         <>
-          <rect x={-x} y={-x} width={s.w + x * 2} height={s.h + x * 2} fill="rgb(var(--accent-primary, 32 58 216) / 0.06)" stroke="rgb(var(--accent-primary, 32 58 216))" strokeWidth={3} strokeDasharray="14 10" />
+          <rect x={-x} y={-x} width={s.w + x * 2} height={s.h + x * 2} fill="rgb(var(--accent-primary, 174 54 0) / 0.06)" stroke="rgb(var(--accent-primary, 174 54 0))" strokeWidth={3} strokeDasharray="14 10" />
           <rect x={0} y={0} width={s.w} height={s.h} fill="var(--bg-card, #fff)" opacity={0.0} />
           {[
             [s.w / 2 - x / 2, -x],
@@ -26,7 +26,7 @@ export function LogoConstruction({ mode }: { mode: 'grid' | 'clearspace' }) {
             [s.w, s.h / 2 - x / 2],
           ].map(([bx, by], i) => (
             <g key={i}>
-              <rect x={bx} y={by} width={x} height={x} fill="rgb(var(--accent-primary, 32 58 216) / 0.16)" />
+              <rect x={bx} y={by} width={x} height={x} fill="rgb(var(--accent-primary, 174 54 0) / 0.16)" />
               <text x={bx + x / 2} y={by + x / 2 + 16} textAnchor="middle" {...label}>x</text>
             </g>
           ))}
