@@ -1,6 +1,7 @@
 import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { stripeRequest } from "../_shared/stripe/client.ts";
-import { sendSms, sendEmail } from "../_shared/notify/deliver.ts";
+import { sendEmail } from "../_shared/notify/deliver.ts";
+import { sendGuardedSms } from "../_shared/messaging/gatedSend.ts";
 import {
   parseIssueInput,
   stripeReasonFor,
@@ -90,7 +91,7 @@ async function sendNotice(admin: SupabaseClient, ownerId: string, refund: Row): 
   let delivered = false;
   if (phone) {
     try {
-      const r = await sendSms(phone, `${business}: we've refunded ${amount} to your original payment method.${memo} ${timing}`);
+      const r = await sendGuardedSms(admin, ownerId, phone, `${business}: we've refunded ${amount} to your original payment method.${memo} ${timing}`, { purpose: "service", source: "issue-refund" });
       delivered = r.ok || delivered;
     } catch (e) {
       console.error(JSON.stringify({ event: "refund_sms_failed", error: e instanceof Error ? e.message : String(e) }));
