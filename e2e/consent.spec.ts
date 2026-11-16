@@ -22,7 +22,7 @@ const googleHits = (log: { url: string }[]) => log.filter((e) => GOOGLE.test(e.u
 test('NO Google request before any consent decision (load, scroll, navigate)', async ({ page }, info) => {
   const log = await watch(page);
   await page.goto('/');
-  await expect(page.getByRole('dialog', { name: /cookie/i })).toBeVisible();
+  await expect(page.getByRole('region', { name: /cookie choices/i })).toBeVisible();
   await page.mouse.wheel(0, 1200);
   await page.goto('/pricing');
   await page.waitForTimeout(3000);
@@ -34,7 +34,7 @@ test('NO Google request before any consent decision (load, scroll, navigate)', a
 test('Reject non-essential keeps Google silent and the banner does not return', async ({ page }) => {
   const log = await watch(page);
   await page.goto('/');
-  await page.getByRole('button', { name: /reject non-essential/i }).click();
+  await page.getByRole('button', { name: /reject all/i }).click();
   await page.reload();
   await page.waitForTimeout(2000);
   await expect(page.getByRole('dialog', { name: /cookie/i })).toHaveCount(0);
@@ -61,7 +61,7 @@ test('Withdrawing consent deletes _ga cookies and stops Google traffic without a
   await context.addCookies([{ name: '_ga', value: 'GA1.1.1', domain: host, path: '/' }]);
 
   await page.getByRole('button', { name: /cookie preferences/i }).click();
-  await page.getByRole('button', { name: /reject non-essential/i }).click();
+  await page.getByRole('button', { name: /reject all/i }).click();
   await expect.poll(async () => (await context.cookies()).filter((c) => /^_ga/.test(c.name)).length).toBe(0);
 
   const before = googleHits(log).length;
@@ -75,7 +75,7 @@ test('GPC: marketing switch is locked off', async ({ browser }) => {
   await ctx.addInitScript(() => Object.defineProperty(navigator, 'globalPrivacyControl', { value: true }));
   const page = await ctx.newPage();
   await page.goto('/');
-  await page.getByRole('button', { name: /choose settings/i }).click();
+  await page.getByRole('button', { name: /customize/i }).click();
   const sw = page.getByRole('switch', { name: /marketing/i });
   await expect(sw).toBeDisabled();
   await expect(sw).toHaveAttribute('aria-checked', 'false');
@@ -92,7 +92,7 @@ test('banner and settings: axe, Esc, focus trap, focus return, live announcement
   const sizes = await banner.getByRole('button').evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height));
   for (const h of sizes) expect(h).toBeGreaterThanOrEqual(44);
 
-  await page.getByRole('button', { name: /choose settings/i }).click();
+  await page.getByRole('button', { name: /customize/i }).click();
   const center = page.getByRole('dialog', { name: /cookie settings/i });
   await expect(center).toBeVisible();
   results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag22aa']).analyze();
