@@ -62,7 +62,13 @@ Deno.serve(async (req: Request) => {
 
       if (upsertError) throw upsertError;
     }
-
+    // Consent revocation: remove every metric not written in this run (including when this run
+    // produced zero rows), so data from tenants that withdrew consent never lingers.
+    const { error: purgeError } = await admin
+      .from("benchmark_snapshots")
+      .delete()
+      .lt("computed_at", computedAt);
+    if (purgeError) throw purgeError;
     return jsonResponse({ metrics_computed: safeRows.length });
   } catch (error) {
     console.error(JSON.stringify({ event: "compute_benchmarks_failed", error: error instanceof Error ? error.message : String(error) }));
