@@ -51,5 +51,6 @@ Run from the repo root. "CI" = run by a workflow in `.github/workflows` (verify 
 | `cap:sync` / `cap:ios` / `cap:android` | Build + `cap sync` / open Xcode / Android Studio | native work |
 | `build:home` / `cap:home` | Build / sync the "Vireek Home" app variant | Home app work |
 | `cli:build` / `cli:typecheck` | Build / typecheck `packages/cli` | CLI changes |
+| `ai-governance:inventory` / `ai-governance:check` | Regenerate / verify `docs/ai-governance/ai-system-register.md` (every AI call site must be registered; policy: `docs/ai-governance/ai-policy.md`) | after adding or removing any AI use; check runs in CI |
 
 Scripts under `scripts/` not exposed through npm (run with `node scripts/<file>`): see `scripts/README.md`.
