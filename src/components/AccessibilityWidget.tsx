@@ -806,7 +806,7 @@ export function AccessibilityWidget() {
             {isDesktop && <motion.div ref={panelRef}
               initial={{ opacity: 0, y: 16, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 16, scale: 0.96 }}
               transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-              className="fixed bottom-[calc(72px_+_var(--vk-bottom-nav-h,0px))] right-5 z-[74] hidden h-[min(640px,80vh)] w-[400px] flex-col overflow-hidden rounded-2xl border border-border bg-bg-secondary shadow-2xl sm:flex"
+              className="fixed bottom-[calc(72px_+_var(--vk-bottom-nav-h,0px))] right-5 z-[74] hidden h-[min(640px,80dvh)] w-[400px] flex-col overflow-hidden rounded-2xl border border-border bg-bg-secondary shadow-2xl sm:flex"
               role="dialog" aria-modal="true" aria-label="Accessibility Center">
               <PanelContent onClose={() => setIsOpen(false)} />
             </motion.div>}
