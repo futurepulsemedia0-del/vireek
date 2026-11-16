@@ -21,6 +21,7 @@ import { getSupportStatus, SUPPORT_HOURS_LABEL } from '@/lib/supportHours';
 import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion';
 import { Button } from '@/components/ui/Button';
 import { ChatAvatar, MessageBubble, OnlineDot, StarterPromptChip, TypingIndicator } from '@/components/chat/ChatVisuals';
+import { SiteAssistantExtras, type AssistantMeta } from '@/components/SiteAssistantExtras';
 import { SupportAgentIcon } from './SupportAgentIcon';
 import { FixPanel } from './FixPanel';
 import { useSupportDiagnostics } from './useSupportDiagnostics';
@@ -32,7 +33,7 @@ const TABS: { id: Tab; label: string; Icon: typeof Wrench }[] = [
   { id: 'team', label: 'Team', Icon: MessageCircle },
 ];
 
-interface ChatMessage { id: string; role: 'user' | 'assistant'; text: string; isError?: boolean; streaming?: boolean }
+interface ChatMessage { id: string; role: 'user' | 'assistant'; text: string; isError?: boolean; streaming?: boolean; meta?: AssistantMeta }
 
 const STARTERS: { label: string; fix?: boolean }[] = [
   { label: "I can't sign in", fix: true },
@@ -149,6 +150,9 @@ export function SupportAgent() {
           setMessages((p) => p.map((m) => (m.id === assistantId ? { ...m, text: m.text + delta } : m)));
         }
       },
+      onMeta: (meta) => {
+        setMessages((p) => p.map((m) => (m.id === assistantId ? { ...m, meta: meta as AssistantMeta } : m)));
+      },
       onDone: () => {
         setThinking(false);
         setMessages((p) => p.map((m) => (m.id === assistantId ? { ...m, streaming: false } : m)));
@@ -173,9 +177,10 @@ export function SupportAgent() {
 
   const talkToTeam = () => {
     setOpen(false);
-    window.dispatchEvent(new CustomEvent('vireek:open-live-chat'));
+    window.dispatchEvent(new CustomEvent('vireek:open-live-chat', { detail: d.report ? { prefill: `Hi, I need help. My diagnostic report:\n${d.report}` } : undefined }));
   };
 
+  const transcript = () => messages.map((m) => `${m.role === 'user' ? 'Visitor' : 'Assistant'}: ${m.text}`).join('\n');
   const copyReport = async () => {
     if (!d.report) return;
     try {
@@ -321,8 +326,13 @@ export function SupportAgent() {
                         </div>
                       </div>
                     )}
-                    {messages.map((m) => (
-                      <MessageBubble key={m.id} role={m.role} isError={m.isError} streaming={m.streaming}>{m.text}</MessageBubble>
+                    {messages.map((m, i) => (
+                      <div key={m.id} className="space-y-2">
+                        <MessageBubble role={m.role} isError={m.isError} streaming={m.streaming}>{m.text}</MessageBubble>
+                        {m.role === 'assistant' && !m.streaming && !m.isError && m.meta && (
+                          <SiteAssistantExtras text={m.text} meta={m.meta} isLast={i === messages.length - 1} disabled={thinking} onAsk={(q) => void ask(q)} transcript={transcript} />
+                        )}
+                      </div>
                     ))}
                     {thinking && <TypingIndicator />}
                   </div>
