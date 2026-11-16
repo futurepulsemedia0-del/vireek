@@ -1,0 +1,7 @@
+{ "data": { "products": {
+  "nodes": [
+    { "id": "Z2lkOi8vSm9iYmVyL1Byb2R1Y3QvMQ==", "name": "Furnace tune-up", "category": "HVAC", "defaultUnitCost": 129.99 },
+    { "id": "Z2lkOi8vSm9iYmVyL1Byb2R1Y3QvMg==", "name": "No cost product", "category": null, "defaultUnitCost": null }
+  ],
+  "pageInfo": { "hasNextPage": false, "endCursor": null } } },
+  "extensions": { "cost": { "requestedQueryCost": 12, "throttleStatus": { "currentlyAvailable": 9988, "restoreRate": 500 } } } }
