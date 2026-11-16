@@ -32,6 +32,7 @@ import { hideNativeSplash } from '@/lib/native/shell';
 import { initInstallPrompt } from '@/lib/pwa/installPrompt';
 import { initSentry } from '@/lib/sentry';
 import { installChunkRecovery } from '@/lib/chunkRecovery';
+import { installErrorBuffer } from '@/lib/supportAgent/errorBuffer';
 import { registerServiceWorker } from '@/lib/pwa/swUpdate';
 import { initWebVitals } from '@/lib/perf/webVitals';
 import { installMotionRuntime } from '@/lib/motionPolicy';
@@ -42,13 +43,14 @@ import './styles/a11y.css';
 import './styles/motion.css';
 import './styles/print.css';
 
-const SiteAssistant = lazy(() => import('@/components/SiteAssistant').then((m) => ({ default: m.SiteAssistant })));
+const SupportAgent = lazy(() => import('@/components/support/SupportAgent').then((m) => ({ default: m.SupportAgent })));
 const LiveChatWidget = lazy(() => import('@/components/LiveChatWidget').then((m) => ({ default: m.LiveChatWidget })));
 
 installMotionRuntime(); // data-motion روی <html> (OS + Accessibility Center) + توقف انیمیشن‌ها در تب پنهان
 initWebVitals();
 initSentry();
 installChunkRecovery();
+installErrorBuffer();
 initNativeRuntime();
 initInstallPrompt(); // must run at boot: beforeinstallprompt fires only once, early
 
@@ -82,6 +84,7 @@ createRoot(document.getElementById('root')!).render(
                           <LanguagePersistenceSync />
                           <Suspense fallback={null}>
                             <LiveChatWidget />
+                            <SupportAgent />
                           </Suspense>
                           <ConsentManager />
                         </ErrorBoundary>
