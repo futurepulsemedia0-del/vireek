@@ -7,7 +7,9 @@ import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { announce } from '@/lib/a11y/announce';
 import { startMediaGuard } from '@/lib/a11y/mediaControl';
-import { CENTER_TABS, REGISTRY, SECTIONS, matchesQuery, type CenterTab, type SectionDef } from '@/lib/a11y/registry';
+import { startMediaPrefs } from '@/lib/a11y/mediaPrefs';
+import { CENTER_TABS, REGISTRY, SECTIONS, isCategoryModified, matchesQuery, resetCategory, type CenterTab, type SectionDef } from '@/lib/a11y/registry';
+import type { A11yKey } from '@/lib/a11y/strings';
 import { translate } from '@/lib/a11y/strings';
 import { useA11yText } from '../useA11yText';
 import { LiveRegion, Magnifier, ReadingAids } from '../AccessibilityOverlays';
@@ -49,6 +51,7 @@ function SectionBody({ id }: { id: SectionDef['id'] }) {
 
 function TabContent({ tab }: { tab: CenterTab }) {
   const { t } = useA11yText();
+  const { settings, replaceSettings } = useAccessibility();
   const items = REGISTRY.filter((i) => i.tab === tab);
   const sections = SECTIONS.filter((s) => s.tab === tab);
   const tabLabel = t(CENTER_TABS.find((c) => c.id === tab)?.labelKey ?? 'title');
@@ -56,6 +59,7 @@ function TabContent({ tab }: { tab: CenterTab }) {
   const after = sections.filter((s) => s.id !== 'profiles');
   return (
     <div className="space-y-4">
+      <p className="break-words text-sm text-text-primary">{t(`help_${tab}` as A11yKey)}</p>
       {before.map((s) => <Section key={s.id} id={`a11y-s-${s.id}`} title={t(s.titleKey)}><SectionBody id={s.id} /></Section>)}
       {items.length > 0 && (
         <Section id={`a11y-s-${tab}`} title={tabLabel}>
@@ -63,6 +67,14 @@ function TabContent({ tab }: { tab: CenterTab }) {
         </Section>
       )}
       {after.map((s) => <Section key={s.id} id={`a11y-s-${s.id}`} title={t(s.titleKey)}><SectionBody id={s.id} /></Section>)}
+      {tab !== 'quick' && tab !== 'advanced' && (
+        <Btn
+          disabled={!isCategoryModified(settings, tab)}
+          onClick={() => { replaceSettings(resetCategory(settings, tab)); announce(t('resetCategoryDone', { name: tabLabel })); }}
+        >
+          <RotateCcw size={18} aria-hidden="true" />{t('resetCategory')}
+        </Btn>
+      )}
     </div>
   );
 }
@@ -238,7 +250,8 @@ export function AccessibilityCenter({ openOnMount = false }: { openOnMount?: boo
 
   const guard = settings.stopAnimations || settings.focusMode;
   useEffect(() => (guard ? startMediaGuard() : undefined), [guard]);
-
+  useEffect(() => startMediaPrefs({ mute: settings.muteMedia, captions: settings.captionsAlways }), [settings.muteMedia, settings.captionsAlways]);
+  
   if (pathname.startsWith('/wallboard')) return null;
   return (
     <RuntimeProvider value={runtime}>
