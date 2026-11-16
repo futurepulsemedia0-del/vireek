@@ -711,6 +711,12 @@ export function AccessibilityWidget() {
   const onWallboard = useLocation().pathname.startsWith('/wallboard');
   const isDesktop = useMediaQuery('(min-width: 640px)', true);
 
+  // Lets the Support Agent stay clear of this panel (see components/support/SupportAgent.tsx).
+  useEffect(() => {
+    document.documentElement.setAttribute('data-a11y-open', String(isOpen));
+    return () => document.documentElement.removeAttribute('data-a11y-open');
+  }, [isOpen]);
+
   useEffect(() => {
     if (!hasOnboarded) {
       const timer = setTimeout(() => setShowOnboarding(true), 2000);
