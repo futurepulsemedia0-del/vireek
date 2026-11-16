@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { SETTINGS_GROUPS, SETTINGS_REGISTRY, type SettingsEntry } from '@/lib/settings/registry';
 import { resolveAccess, type AccessResult } from '@/lib/settings/access';
 import { searchSettings } from '@/lib/settings/search';
+import { openConsentPreferences } from '@/lib/consent/engine';
 
 function Highlighted({ text, ranges }: { text: string; ranges: [number, number][] }) {
   if (ranges.length === 0) return <>{text}</>;
@@ -133,6 +134,15 @@ export function SettingsHubPage() {
           ))}
         </div>
       )}
+      <div className="mt-10 border-t border-border pt-4">
+        <button
+          type="button"
+          onClick={openConsentPreferences}
+          className="focus-ring inline-flex min-h-[44px] items-center rounded text-sm font-medium text-accent hover:underline"
+        >
+          {t('settings.hub.cookieSettings', { defaultValue: 'Cookie settings' })}
+        </button>
+      </div>
     </DashboardLayout>
   );
 }
