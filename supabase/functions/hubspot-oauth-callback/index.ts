@@ -40,7 +40,7 @@ Deno.serve(async (req: Request) => {
         user_id: userId,
         integration_type: "hubspot",
         status: "connected",
-        config: { access_token: tokens.access_token, refresh_token: tokens.refresh_token, expires_at: new Date(Date.now() + tokens.expires_in * 1000).toISOString() },
+        config: { expires_at: new Date(Date.now() + tokens.expires_in * 1000).toISOString() },
       },
       { onConflict: "user_id,integration_type" },
     );
