@@ -26,6 +26,11 @@ export interface StartCallInput {
   customerNumber: string;
   /** Variables injected into the assistant prompt (key order is preserved on the wire). */
   variableValues: Record<string, string>;
+  /**
+   * Provider-side hard cap on the call length, from PLAN_LIMITS[plan].maxCallSeconds (see fraud/outboundGate.ts).
+   * Sent as assistantOverrides.maxDurationSeconds. Omitted = the request is byte-identical to the legacy one.
+   */
+  maxDurationSeconds?: number;
 }
 
 export type StartCallResult =
