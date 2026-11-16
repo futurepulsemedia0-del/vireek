@@ -12,6 +12,7 @@ const ALLOWED = [
   '/about', '/manifesto', '/features', '/pricing', '/industries', '/trust', '/security', '/platform',
   '/integrations', '/docs', '/help', '/status', '/system-requirements', '/contact', '/calculator',
   '/use-cases/missed-calls', '/use-cases/emergency-dispatch', '/use-cases/after-hours', '/use-cases/estimate-follow-up',
+  '/switch', '/compare', '/compare/matrix',
 ];
 
 describe('related links', () => {
