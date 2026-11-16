@@ -57,3 +57,23 @@ export async function startPlanCheckout(planId: PlanId): Promise<string> {
   if (!url) throw new PlanChangeError('Could not start checkout.');
   return url;
 }
+
+export interface TopupState {
+  available: boolean;
+  reason?: string;
+  minutesPerPack: number;
+  maxQuantity: number;
+  amountMinor: number | null;
+  currency: string | null;
+}
+
+export function fetchTopupState(): Promise<TopupState> {
+  return call<TopupState>({ action: 'topup_state' });
+}
+
+/** Starts a Stripe Checkout for `quantity` x 100-minute packs and returns its URL. Minutes are credited by the webhook. */
+export async function startTopupCheckout(quantity = 1): Promise<string> {
+  const { url } = await call<{ url: string | null }>({ action: 'topup_checkout', quantity });
+  if (!url) throw new PlanChangeError('Could not start checkout.');
+  return url;
+}
