@@ -5,6 +5,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { prepareSpeechText, sanitizeTuning } from "../_shared/voice-studio/logic.ts";
 import { buildVapiVoice } from "../_shared/voice-studio/vapi.ts";
 import { isValidE164 } from "../_shared/voice-hardening/escalation.ts";
+import { asFraudDb, blockedBody, capDurationSeconds, gateDestinationOnly } from "../_shared/fraud/outboundGate.ts";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -60,6 +61,10 @@ Deno.serve(async (req: Request) => {
     const { count, error: ce } = await admin.from("voice_test_calls").select("id", { count: "exact", head: true }).eq("user_id", owner).gte("created_at", since);
     if (ce) throw ce;
     if ((count ?? 0) >= DAILY_LIMIT) return json({ error: "Daily test-call limit reached.", code: "rate_limited" }, 429);
+    // Fraud guard, destination policy: escalation_phone is owner-editable, so it must pass the same premium / unroutable /
+    // international rules as any other outbound number. Duration: the fixed 45 s test cap, never above the plan cap.
+    const fraud = await gateDestinationOnly(asFraudDb(admin), owner, prof!.escalation_phone as string, "voice-studio-test-call");
+    if (!fraud.allowed) return json({ ...blockedBody(fraud.blocked), code: "destination_blocked" }, fraud.blocked.httpStatus);
 
     const tuning = sanitizeTuning(body?.tuning);
     const r = await fetch("https://api.vapi.ai/call", {
@@ -68,11 +73,11 @@ Deno.serve(async (req: Request) => {
       body: JSON.stringify({
         assistantId: bp.vapi_assistant_id,
         phoneNumberId: bp.vapi_phone_number_id,
-        customer: { number: prof!.escalation_phone },
+        customer: { number: fraud.e164 },
         assistantOverrides: {
           voice: buildVapiVoice(map[voiceKey], tuning),
           firstMessage: prepareSpeechText(TEST_LINE, tuning),
-          maxDurationSeconds: 45,
+          maxDurationSeconds: capDurationSeconds(fraud.maxCallSeconds, 45),
         },
       }),
       signal: AbortSignal.timeout(12_000),
