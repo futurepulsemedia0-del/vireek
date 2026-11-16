@@ -8,6 +8,8 @@ import { BackButton } from '@/components/ui/BackButton';
 import { CookieConsent } from '@/components/CookieConsent';
 import { EASE, eyebrowClass, sectionHeadingClass, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
+import { DeepContent } from '@/components/marketing/DeepContent';
+import { buildCompareDeep } from '@/lib/deepContent/compareDeep';
 import { COMPETITORS, getCompetitorBySlug, type FeatureValue } from '@/lib/competitors';
 import { alternativePath, getAlternativeByCompetitorSlug } from '@/lib/alternatives';
 
@@ -279,6 +281,10 @@ export function CompetitorPage() {
           </section>
         )}
 
+        <DeepContent
+          data={buildCompareDeep({ name, isVoiceAICompetitor })}
+          idPrefix={`compare-${competitor.slug}`}
+        />
         {/* Compare Vireek to other tools */}
         <section className="px-6 py-16 sm:py-20">
           <div className="mx-auto max-w-5xl">
