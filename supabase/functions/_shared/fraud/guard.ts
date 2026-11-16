@@ -162,7 +162,7 @@ export async function guardOutbound(db: FraudDb, req: GuardRequest): Promise<Gua
   }
 
   const plan = normalizePlan(ctx.plan);
-  const shadow = ctx.enforce === false;
+  const shadow = ctx.enforce === false || (req.rollout === "outbound" && ctx.outbound_guard_mode !== "enforce");
   const finish = async (code: GuardCode, country: string | null): Promise<GuardResult> => {
     await logEvent(db, req.userId, req, code, country, shadow);
     if (shadow) return { ok: true, e164: null, country, reservedCents: 0, maxCallSeconds: PLAN_LIMITS[plan].maxCallSeconds, emergency: false, shadowDenied: code };
@@ -258,6 +258,7 @@ async function reserve(
   want: { calls: number; sms: number; costCents: number },
   plan: ReturnType<typeof normalizePlan>,
   factor: number,
+  const scale = factor * (req.purpose === "marketing" ? MARKETING_CAP_SHARE : 1);
 ): Promise<GuardCode | null> {
   const caps = effectiveCaps(plan, ctx.account_age_days);
   try {
@@ -267,9 +268,9 @@ async function reserve(
       p_calls: want.calls,
       p_sms: want.sms,
       p_cost: want.costCents,
-      p_cap_calls: Math.floor(caps.dailyOutboundCalls * factor),
-      p_cap_sms: Math.floor(caps.dailySms * factor),
-      p_cap_day_cost: Math.floor(caps.dailyCostCents * factor),
+      p_cap_calls: Math.floor(caps.dailyOutboundCalls * scale),
+      p_cap_sms: Math.floor(caps.dailySms * scale),
+      p_cap_day_cost: Math.floor(caps.dailyCostCents * scale),
       p_cap_life_cost: caps.lifetimeCostCents,
     });
     if (error) return "GUARD_UNAVAILABLE";
@@ -326,13 +327,23 @@ export async function settleCall(db: FraudDb, externalId: string | null | undefi
 
 /**
  * Destination-only check (no budget, no verification gate, no kill switch): for hops where the reservation was
- * already made earlier in the same flow (e.g. the contact leg of a power-dialer bridge). Applies the same
- * destination policy as guardOutbound with the account's own unlock state. Emergency numbers always pass.
+ * already made earlier in the same flow (e.g. the contact leg of a power-dialer bridge) or where the number is the
+ * account owner's own (test / demo calls). Applies the same destination policy as guardOutbound with the account's
+ * own unlock state. Emergency numbers always pass.
+ *
+ * With opts.rollout = "outbound" the staged-rollout switch applies: while shadow, a would-be denial is logged to
+ * fraud_events and the hop is allowed (shadowDenied is set). Without opts the behaviour is unchanged (always enforced).
  */
-export async function guardDestination(db: FraudDb, userId: string, to: string): Promise<GuardResult> {
+export async function guardDestination(
+  db: FraudDb,
+  userId: string,
+  to: string,
+  opts: { rollout?: "global" | "outbound"; source?: string } = {},
+): Promise<GuardResult> {
   let ctx: GuardContext | null = null;
   try {
     const { data, error } = await db.rpc("fraud_guard_context", { p_user: userId });
+  const plan = normalizePlan(ctx?.plan);
     if (!error && data && typeof data === "object") ctx = data as GuardContext;
   } catch {
     ctx = null;
@@ -341,6 +352,13 @@ export async function guardDestination(db: FraudDb, userId: string, to: string):
     internationalUnlocked: ctx ? ctx.international_unlocked && !ctx.kill_international : false,
     allowedCountries: ctx?.allowed_countries ?? [],
   });
-  if (!dest.allowed) return deny(dest.reason);
-  return { ok: true, e164: dest.e164, country: dest.country, reservedCents: 0, maxCallSeconds: PLAN_LIMITS[normalizePlan(ctx?.plan)].maxCallSeconds, emergency: dest.emergency };
+  if (!dest.allowed) {
+    const shadow = opts.rollout === "outbound" && !!ctx && (ctx.enforce === false || ctx.outbound_guard_mode !== "enforce");
+    if (shadow) {
+      await logEvent(db, userId, { userId, kind: "call", purpose: "service", source: opts.source ?? "guardDestination" }, dest.reason, dest.country ?? null, true);
+      return { ok: true, e164: null, country: dest.country ?? null, reservedCents: 0, maxCallSeconds: PLAN_LIMITS[plan].maxCallSeconds, emergency: false, shadowDenied: dest.reason };
+    }
+    return deny(dest.reason);
+  }
+  return { ok: true, e164: dest.e164, country: dest.country, reservedCents: 0, maxCallSeconds: PLAN_LIMITS[plan].maxCallSeconds, emergency: dest.emergency };
 }
