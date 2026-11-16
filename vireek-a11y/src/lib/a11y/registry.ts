@@ -1,21 +1,23 @@
 import type { A11yKey } from './strings';
-import type { BooleanSettingKey, NumericSettingKey } from './settings';
+import { DEFAULT_SETTINGS, type AccessibilitySettings, type BooleanSettingKey, type ChoiceSettingKey, type NumericSettingKey } from './settings';
 
-export type CenterTab = 'quick' | 'vision' | 'color' | 'reading' | 'motion' | 'navigation' | 'language' | 'data';
+export type CenterTab = 'quick' | 'vision' | 'reading' | 'cognitive' | 'hearing' | 'navigation' | 'cursor' | 'motion' | 'advanced';
 export const CENTER_TABS: readonly { id: CenterTab; labelKey: A11yKey }[] = [
   { id: 'quick', labelKey: 'tabQuick' },
   { id: 'vision', labelKey: 'tabVision' },
-  { id: 'color', labelKey: 'tabColor' },
   { id: 'reading', labelKey: 'tabReading' },
-  { id: 'motion', labelKey: 'tabMotion' },
+  { id: 'cognitive', labelKey: 'tabCognitive' },
+  { id: 'hearing', labelKey: 'tabHearing' },
   { id: 'navigation', labelKey: 'tabNav' },
-  { id: 'language', labelKey: 'tabLanguage' },
-  { id: 'data', labelKey: 'tabData' },
+  { id: 'cursor', labelKey: 'tabCursor' },
+  { id: 'motion', labelKey: 'tabMotion' },
+  { id: 'advanced', labelKey: 'tabAdvanced' },
 ];
 
 export type Control =
   | { kind: 'toggle'; key: BooleanSettingKey }
-  | { kind: 'slider'; key: NumericSettingKey; step: number; unit: 'percent' | 'plain' | 'em' }
+  | { kind: 'slider'; key: NumericSettingKey; step: number; unit: 'percent' | 'plain' | 'em' | 'px' }
+  | { kind: 'choice'; key: ChoiceSettingKey }
   | { kind: 'colorBlind' }
   | { kind: 'theme' };
 
@@ -33,29 +35,33 @@ const toggle = (tab: CenterTab, key: BooleanSettingKey, keywords = ''): Registry
   id: key, tab, control: { kind: 'toggle', key },
   labelKey: `lbl_${key}` as A11yKey, descKey: `dsc_${key}` as A11yKey, keywords,
 });
-const slider = (tab: CenterTab, key: NumericSettingKey, step: number, unit: 'percent' | 'plain' | 'em', keywords = ''): RegistryItem => ({
+const slider = (tab: CenterTab, key: NumericSettingKey, step: number, unit: 'percent' | 'plain' | 'em' | 'px', keywords = ''): RegistryItem => ({
   id: key, tab, control: { kind: 'slider', key, step, unit },
+  labelKey: `lbl_${key}` as A11yKey, descKey: `dsc_${key}` as A11yKey, keywords,
+});
+const choice = (tab: CenterTab, key: ChoiceSettingKey, keywords = ''): RegistryItem => ({
+  id: key, tab, control: { kind: 'choice', key },
   labelKey: `lbl_${key}` as A11yKey, descKey: `dsc_${key}` as A11yKey, keywords,
 });
 
 export const REGISTRY: readonly RegistryItem[] = [
+  // Vision & display
   slider('vision', 'textSize', 0.125, 'percent', 'font size bigger larger zoom text'),
   slider('vision', 'contentScale', 0.05, 'percent', 'zoom magnify scale page'),
   { id: 'theme', tab: 'vision', control: { kind: 'theme' }, labelKey: 'lbl_theme', descKey: 'dsc_theme', keywords: 'dark mode light mode night' },
-  toggle('vision', 'largeCursor', 'mouse pointer big'),
-  toggle('vision', 'strongFocus', 'keyboard outline ring highlight'),
   toggle('vision', 'highlightLinks', 'underline'),
   toggle('vision', 'highlightHeadings', 'outline titles'),
   toggle('vision', 'magnifier', 'zoom text hover loupe'),
-  toggle('color', 'highContrast', 'contrast'),
-  toggle('color', 'darkContrast', 'dark background'),
-  toggle('color', 'lightContrast', 'light background'),
-  toggle('color', 'invertColors', 'negative invert'),
-  toggle('color', 'grayscale', 'gray grey'),
-  toggle('color', 'monochrome', 'black white'),
-  toggle('color', 'highSaturation', 'vivid saturate'),
-  toggle('color', 'lowSaturation', 'muted desaturate calm'),
-  { id: 'colorBlind', tab: 'color', control: { kind: 'colorBlind' }, labelKey: 'lbl_colorBlind', descKey: 'dsc_colorBlind', keywords: 'protanopia deuteranopia tritanopia daltonism color blind' },
+  toggle('vision', 'highContrast', 'contrast'),
+  toggle('vision', 'darkContrast', 'dark background'),
+  toggle('vision', 'lightContrast', 'light background'),
+  toggle('vision', 'invertColors', 'negative invert'),
+  toggle('vision', 'grayscale', 'gray grey'),
+  toggle('vision', 'monochrome', 'black white'),
+  toggle('vision', 'highSaturation', 'vivid saturate'),
+  toggle('vision', 'lowSaturation', 'muted desaturate calm'),
+  { id: 'colorBlind', tab: 'vision', control: { kind: 'colorBlind' }, labelKey: 'lbl_colorBlind', descKey: 'dsc_colorBlind', keywords: 'protanopia deuteranopia tritanopia daltonism color blind' },
+  // Typography & reading
   toggle('reading', 'simpleFont', 'sans serif arial'),
   toggle('reading', 'readableFont', 'serif georgia'),
   toggle('reading', 'dyslexiaFont', 'dyslexia opendyslexic'),
@@ -65,24 +71,38 @@ export const REGISTRY: readonly RegistryItem[] = [
   slider('reading', 'wordSpacing', 0.02, 'em', ''),
   toggle('reading', 'readingMask', 'dim focus band'),
   toggle('reading', 'readingGuide', 'ruler line'),
-  toggle('motion', 'reduceMotion', 'vestibular'),
-  toggle('motion', 'stopAnimations', 'pause autoplay video epilepsy'),
-  toggle('motion', 'hideImages', 'pictures'),
-  toggle('motion', 'focusMode', 'distraction adhd sidebar'),
+  // Cognitive support
+  toggle('cognitive', 'focusMode', 'distraction adhd sidebar clutter'),
+  toggle('cognitive', 'hideImages', 'pictures'),
+  toggle('cognitive', 'unstickHeaders', 'sticky fixed header bar covers obscured'),
+  // Hearing & audio
+  toggle('hearing', 'muteMedia', 'sound silent volume deaf video audio'),
+  toggle('hearing', 'captionsAlways', 'subtitles captions deaf hard of hearing video'),
+  // Navigation & motor
   toggle('navigation', 'largeTargets', 'touch target size 44px tremor'),
   toggle('navigation', 'screenReaderMode', 'nvda voiceover talkback aria'),
+  // Cursor & focus
+  toggle('cursor', 'largeCursor', 'mouse pointer big'),
+  choice('cursor', 'cursorColor', 'mouse pointer color colour'),
+  toggle('cursor', 'strongFocus', 'keyboard outline ring highlight'),
+  choice('cursor', 'focusColor', 'keyboard outline ring color colour'),
+  slider('cursor', 'focusWidth', 1, 'px', 'keyboard outline ring thickness width'),
+  // Motion & animation
+  toggle('motion', 'reduceMotion', 'vestibular'),
+  toggle('motion', 'stopAnimations', 'pause autoplay video epilepsy'),
 ];
 
 /** Non-registry sections that are also searchable. */
-export interface SectionDef { id: 'tts' | 'voice' | 'shortcuts' | 'pageMap' | 'language' | 'profiles' | 'data'; tab: CenterTab; titleKey: A11yKey; keywords: string }
+export interface SectionDef { id: 'tts' | 'voice' | 'shortcuts' | 'pageMap' | 'language' | 'profiles' | 'customProfiles' | 'data'; tab: CenterTab; titleKey: A11yKey; keywords: string }
 export const SECTIONS: readonly SectionDef[] = [
   { id: 'profiles', tab: 'quick', titleKey: 'profilesTitle', keywords: 'profile preset adhd dyslexia blind senior autism epilepsy' },
+  { id: 'customProfiles', tab: 'quick', titleKey: 'customTitle', keywords: 'my profiles save custom personal preset snapshot' },
   { id: 'tts', tab: 'reading', titleKey: 'ttsTitle', keywords: 'text to speech tts read aloud speak voice' },
   { id: 'voice', tab: 'navigation', titleKey: 'voiceTitle', keywords: 'voice control speech recognition microphone commands' },
   { id: 'shortcuts', tab: 'navigation', titleKey: 'shortcutsTitle', keywords: 'hotkeys keybindings keyboard' },
   { id: 'pageMap', tab: 'navigation', titleKey: 'pageMapTitle', keywords: 'headings links outline table of contents landmarks' },
-  { id: 'language', tab: 'language', titleKey: 'languageTitle', keywords: 'translate rtl direction persian arabic farsi' },
-  { id: 'data', tab: 'data', titleKey: 'dataExport', keywords: 'export import backup sync cloud account reset device system' },
+  { id: 'language', tab: 'advanced', titleKey: 'languageTitle', keywords: 'translate rtl direction persian arabic farsi' },
+  { id: 'data', tab: 'advanced', titleKey: 'dataExport', keywords: 'export import backup sync cloud account reset device system' },
 ];
 
 /** Case/diacritic/Arabic-Persian-variant insensitive normalisation for search. */
@@ -102,4 +122,41 @@ export function matchesQuery(haystacks: readonly string[], query: string): boole
   if (!q) return true;
   const hay = normalizeSearch(haystacks.join(' '));
   return q.split(/\s+/).every((tok) => hay.includes(tok));
+}
+
+/* ------------------------------ per-category reset ------------------------------ */
+/** Stored settings owned by non-registry sections. */
+const SECTION_SETTING_KEYS: Partial<Record<SectionDef['id'], readonly (keyof AccessibilitySettings)[]>> = {
+  tts: ['ttsRate', 'ttsPitch', 'ttsVolume', 'ttsVoiceURI'],
+  shortcuts: ['shortcuts'],
+};
+/** Legacy keys that still affect a category but have no registry row. */
+const EXTRA_TAB_KEYS: Partial<Record<CenterTab, readonly (keyof AccessibilitySettings)[]>> = {
+  cursor: ['highlightKeyboardFocus'],
+};
+
+/** Every stored setting a category controls (the theme lives in ThemeContext and is not included). */
+export function settingKeysForTab(tab: CenterTab): (keyof AccessibilitySettings)[] {
+  const keys = new Set<keyof AccessibilitySettings>();
+  for (const i of REGISTRY) {
+    if (i.tab !== tab || i.control.kind === 'theme') continue;
+    keys.add(i.control.kind === 'colorBlind' ? 'colorBlind' : i.control.key);
+  }
+  for (const sec of SECTIONS) if (sec.tab === tab) SECTION_SETTING_KEYS[sec.id]?.forEach((k) => keys.add(k));
+  EXTRA_TAB_KEYS[tab]?.forEach((k) => keys.add(k));
+  return [...keys];
+}
+
+export function isCategoryModified(s: AccessibilitySettings, tab: CenterTab): boolean {
+  return settingKeysForTab(tab).some((k) => JSON.stringify(s[k]) !== JSON.stringify(DEFAULT_SETTINGS[k]));
+}
+
+/** Returns a copy of `s` with only this category's settings back at their defaults. */
+export function resetCategory(s: AccessibilitySettings, tab: CenterTab): AccessibilitySettings {
+  const next: AccessibilitySettings = { ...s };
+  const put = <K extends keyof AccessibilitySettings>(k: K): void => {
+    next[k] = (k === 'shortcuts' ? { ...DEFAULT_SETTINGS.shortcuts } : DEFAULT_SETTINGS[k]) as AccessibilitySettings[K];
+  };
+  settingKeysForTab(tab).forEach(put);
+  return next;
 }
