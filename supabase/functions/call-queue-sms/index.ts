@@ -25,6 +25,7 @@ const FRIENDLY: Record<string, string> = {
   OPTED_OUT: "This customer opted out of texts.",
   NOT_CONFIGURED: "Texting isn't configured for this account.",
   TWILIO_ERROR: "The carrier rejected this message.",
+  FRAUD_BLOCKED: "This text was blocked by account safety checks.",
 };
 
 Deno.serve(async (req: Request) => {
