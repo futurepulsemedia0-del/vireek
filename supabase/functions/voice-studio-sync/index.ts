@@ -2,6 +2,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { sanitizeTuning } from "../_shared/voice-studio/logic.ts";
 import { buildVapiPatch } from "../_shared/voice-studio/vapi.ts";
+import { asFraudDb, resolveInboundCap } from "../_shared/fraud/outboundGate.ts";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -60,10 +61,15 @@ Deno.serve(async (req: Request) => {
     }
     if (!providerVoice) return json({ error: "This voice isn't configured yet.", code: "voice_unconfigured" }, 503);
 
-    const patch = buildVapiPatch(providerVoice, sanitizeTuning(prof.tuning));
+    const voicePatch = buildVapiPatch(providerVoice, sanitizeTuning(prof.tuning));
+    // Per-call duration cap on the live assistant (PLAN_LIMITS[plan].maxCallSeconds, most restrictive for an unknown
+    // plan). It goes live only when fraud_settings.outbound_guard_mode = 'enforce'; in shadow it is reported, not applied.
+    // An unreadable plan leaves the assistant's own limit untouched (never cut live inbound calls on a store hiccup).
+    const cap = await resolveInboundCap(asFraudDb(admin), owner);
+    const patch = cap?.enforce ? { ...voicePatch, maxDurationSeconds: cap.seconds } : voicePatch;
     const before = await getAssistant(bp.vapi_assistant_id, vapiKey);
     if (!before) return json({ error: "Could not read the live assistant.", code: "vapi_unreachable" }, 502);
-    if (!apply) return json({ dryRun: true, current: before.voice ?? null, proposed: patch.voice });
+    if (!apply) return json({ dryRun: true, current: before.voice ?? null, proposed: patch.voice, maxDurationSeconds: cap ? { seconds: cap.seconds, applied: cap.enforce } : null });
 
     const log = (ok: boolean, detail: string) =>
       admin.from("voice_sync_log").insert({ user_id: owner, assistant_id: bp.vapi_assistant_id, ok, detail });
