@@ -444,3 +444,21 @@ html:lang(ar) *, html:lang(fa) *, html:lang(hi) *, html:lang(ja) *, html:lang(zh
 @media (max-width: 767px) {
   input:not([type='checkbox']):not([type='radio']):not([type='range']), select, textarea { font-size: max(16px, 1em); }
 }
+
+/* ---- Mobile pass (Phase 1) ---------------------------------------------------------------
+   1) Dialog/sheet height caps: vh -> dvh so panels are not taller than the visible viewport when the
+      mobile browser toolbar is showing. vh stays as the fallback for browsers without dvh.        */
+.max-h-\[85vh\] { max-height: 85vh; max-height: 85dvh; }
+.max-h-\[90vh\] { max-height: 90vh; max-height: 90dvh; }
+.max-h-\[92vh\] { max-height: 92vh; max-height: 92dvh; }
+.max-h-\[94vh\] { max-height: 94vh; max-height: 94dvh; }
+@media (min-width: 640px) {
+  .sm\:max-h-\[90vh\] { max-height: 90vh; max-height: 90dvh; }
+}
+/* 2) Text floor: nothing below 12px on phones (html is 15px <=640px, so text-xs would otherwise be 11.25px). */
+@media (max-width: 767px) {
+  .text-xs { font-size: max(0.75rem, 12px); }
+  .text-\[9px\], .text-\[10px\], .text-\[11px\] { font-size: 12px; line-height: 1.35; }
+}
+/* 3) Floating launchers step aside while the on-screen keyboard is open (--vk-kb-inset set by useKeyboardInset). */
+html[style*='--vk-kb-inset'] [data-floating-launcher] { opacity: 0; pointer-events: none; }
