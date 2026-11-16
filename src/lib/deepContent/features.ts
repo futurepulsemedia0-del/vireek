@@ -205,7 +205,7 @@ export const FEATURES_DEEP: DeepContentData = {
             { title: 'Answering, summaries and escalation rules', text: 'Get the front door right and confirm the summaries match what you would have heard.' },
             { title: 'Booking and calendar sync', text: 'Connect your calendar and confirm that real availability is offered.' },
             { title: 'Text confirmations and missed-call text-back', text: 'Add messaging once you are confident in bookings and have consent practices in place.' },
-            { title: 'CRM sync', text: 'Connect your field-service tool so the data flows where your team works.' },
+            { title: 'CRM sync', text: 'Connect your field-service tool where an integration exists, and check its page for exactly what syncs.' },
             { title: 'Analytics and QA review', text: 'Use outcomes and quality scores to refine your knowledge base.' },
             { title: 'Dispatch, parts and automation', text: 'Add operations and follow-up features as your volume and team size justify them.' },
           ],
