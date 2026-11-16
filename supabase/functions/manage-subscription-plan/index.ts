@@ -41,6 +41,13 @@ import {
   type PlanChangeKind,
   type PurchasablePlanId,
 } from "../_shared/billing/planCatalog.ts";
+import {
+  TOPUP_MAX_QUANTITY,
+  TOPUP_MINUTES_PER_PACK,
+  TOPUP_PRICE_ENV,
+  TOPUP_PURCHASE_TYPE,
+  parseTopupQuantity,
+} from "../_shared/billing/topup.ts";
 import { minutesIncludedAfterPlanChange, type TrialState } from "../_shared/billing/trialLifecycle.ts";
 
 const corsHeaders = {
@@ -367,6 +374,7 @@ Deno.serve(async (req: Request) => {
       planId?: string;
       prorationDate?: number;
       expectedDueNowMinor?: number;
+      quantity?: unknown;
     };
 
     const ctx = await resolveBillingContext(admin, userData.user.id);
@@ -460,7 +468,82 @@ Deno.serve(async (req: Request) => {
       });
       return jsonResponse({ url: session.url });
     }
+    // ----------------------------------------------------------- topup_state
+    if (body.action === "topup_state") {
+      const unavailable = (reason: string) =>
+        jsonResponse({ available: false, reason, minutesPerPack: TOPUP_MINUTES_PER_PACK, maxQuantity: TOPUP_MAX_QUANTITY, amountMinor: null, currency: null });
+      if (!ctx.canManage) return unavailable("OWNER_ONLY");
+      if (!sub || !CHANGEABLE_STATUSES.has(sub.status) || (ctx.owner.subscription_status ?? "active") !== "active") {
+        return unavailable("NO_ACTIVE_SUBSCRIPTION");
+      }
+      const topupPriceId = Deno.env.get(TOPUP_PRICE_ENV);
+      if (!topupPriceId) return unavailable("NOT_CONFIGURED");
+      try {
+        const price = await stripe.prices.retrieve(topupPriceId);
+        if (!price.active || price.type !== "one_time" || price.unit_amount === null) return unavailable("NOT_CONFIGURED");
+        return jsonResponse({
+          available: true,
+          minutesPerPack: TOPUP_MINUTES_PER_PACK,
+          maxQuantity: TOPUP_MAX_QUANTITY,
+          amountMinor: price.unit_amount,
+          currency: price.currency,
+        });
+      } catch {
+        return unavailable("NOT_CONFIGURED");
+      }
+    }
 
+    // -------------------------------------------------------- topup_checkout
+    if (body.action === "topup_checkout") {
+      requireOwner(ctx);
+      const quantity = parseTopupQuantity(body.quantity);
+      if (quantity === null) throw new HttpError(400, `Choose between 1 and ${TOPUP_MAX_QUANTITY} packs.`, "BAD_QUANTITY");
+      const topupPriceId = Deno.env.get(TOPUP_PRICE_ENV);
+      if (!topupPriceId) throw new HttpError(503, "Top-up packs are not available yet.", "NOT_CONFIGURED");
+      if (!sub || !CHANGEABLE_STATUSES.has(sub.status) || (ctx.owner.subscription_status ?? "active") !== "active") {
+        throw new HttpError(409, "Top-up packs are available on an active paid plan. Fix any payment issue first.", "NO_ACTIVE_SUBSCRIPTION");
+      }
+
+      // The Stripe customer must belong to this account (never trust the stored id alone).
+      const customerId = ctx.owner.stripe_customer_id;
+      if (!customerId || idOf(sub.customer) !== customerId) {
+        throw new HttpError(403, "This billing account does not match your subscription. Contact support.", "CUSTOMER_MISMATCH");
+      }
+      const customer = await stripe.customers.retrieve(customerId);
+      if ("deleted" in customer && customer.deleted) {
+        throw new HttpError(403, "This billing account no longer exists. Contact support.", "CUSTOMER_MISMATCH");
+      }
+      const stampedOwner = (customer as Stripe.Customer).metadata?.supabase_user_id;
+      if (stampedOwner && stampedOwner !== ctx.owner.id) {
+        throw new HttpError(403, "This billing account does not match your subscription. Contact support.", "CUSTOMER_MISMATCH");
+      }
+
+      const price = await stripe.prices.retrieve(topupPriceId);
+      if (!price.active || price.type !== "one_time") {
+        throw new HttpError(503, "Top-up packs are not available yet.", "NOT_CONFIGURED");
+      }
+
+      const siteUrl = (Deno.env.get("SITE_URL") || "https://vireek.com").replace(/\/$/, "");
+      const metadata = { supabase_user_id: ctx.owner.id, purchase_type: TOPUP_PURCHASE_TYPE };
+      const bucket = Math.floor(Date.now() / 60_000);
+      const session = await stripe.checkout.sessions.create(
+        {
+          mode: "payment",
+          customer: customerId,
+          line_items: [
+            { price: topupPriceId, quantity, adjustable_quantity: { enabled: true, minimum: 1, maximum: TOPUP_MAX_QUANTITY } },
+          ],
+          success_url: `${siteUrl}/dashboard/usage?topup=success`,
+          cancel_url: `${siteUrl}/dashboard/usage?topup=cancelled`,
+          metadata,
+          payment_intent_data: { metadata },
+        },
+        { idempotencyKey: `topup-checkout:${ctx.owner.id}:${quantity}:${bucket}` },
+      );
+      await logPlanEvent(admin, ctx, "topup.checkout_started", { quantity, session_id: session.id });
+      return jsonResponse({ url: session.url });
+    }
+    
     // ----------------------------------------------------- cancel_scheduled
     if (body.action === "cancel_scheduled") {
       requireOwner(ctx);
