@@ -8,6 +8,8 @@ import { BackButton } from '@/components/ui/BackButton';
 import { CookieConsent } from '@/components/CookieConsent';
 import { EASE, eyebrowClass, bodyClass, staggerContainer, fadeUpItem, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
+import { DeepContent } from '@/components/marketing/DeepContent';
+import { MANIFESTO_DEEP } from '@/lib/deepContent/manifesto';
 
 // ============================================================
 // CONTENT
@@ -232,6 +234,7 @@ export function ManifestoPage() {
           </div>
         </section>
 
+        <DeepContent data={MANIFESTO_DEEP} idPrefix="manifesto" />
         {/* Final CTA */}
         <section className="px-6 py-16 md:py-20">
           <motion.div
