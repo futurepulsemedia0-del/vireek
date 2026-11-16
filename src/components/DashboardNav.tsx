@@ -36,6 +36,8 @@ import { NotificationsProvider } from '@/contexts/NotificationsContext';
 import { ThemeSegmentedControl } from '@/components/ThemeSegmentedControl';
 import { UpgradeBanner } from '@/components/UpgradeBanner';
 import { SecurityAlertBanner } from '@/components/security/SecurityAlertBanner';
+import { IncidentBanner } from '@/components/status/IncidentBanner';
+import { SupportDock } from '@/components/support/SupportDock';
 import { SurgeModeBanner } from '@/components/SurgeModeBanner';
 import { ActivePlaybookBanner } from '@/components/playbooks/ActivePlaybookBanner';
 import { PaymentFailedBanner } from '@/components/PaymentFailedBanner';
@@ -885,6 +887,7 @@ export function DashboardLayout({
                   <TrialBanner />
                   <PwaInstallBanner />
                   <SecurityAlertBanner />
+                  <IncidentBanner />
                 </div>
                 <div key={i18n.language} className="contents">
                   {children}
@@ -893,6 +896,7 @@ export function DashboardLayout({
             </div>
             <div className="no-print">
               <TaskReminderWatcher />
+              <SupportDock />
               <GlobalSearchPalette />
               <AiAssistant />
               <NpsPrompt />
