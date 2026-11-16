@@ -29,6 +29,10 @@ export function ConsentManager() {
   const { pathname } = useLocation();
   const [centerOpen, setCenterOpen] = useState(false);
   const [announcement, setAnnouncement] = useState('');
+  const [dismissed, setDismissed] = useState(readBannerDismissed);
+  const [bannerMounted, setBannerMounted] = useState(false);
+  const [bannerLeaving, setBannerLeaving] = useState(false);
+  const [skipHost, setSkipHost] = useState<HTMLElement | null>(null);
   const openerRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => startConsentSync(), []);
@@ -66,10 +70,71 @@ export function ConsentManager() {
     return () => window.clearTimeout(timer);
   }, [announcement]);
 
+  // --- Banner timing: never at first paint, never on excluded routes, never right after a dismissal. ---
   const bannerAllowed = !pathname.startsWith('/wallboard/');
+  const eligible = consent.needsPrompt && bannerAllowed && !dismissed;
+  const revealed = useBannerReveal(eligible);
+  const wantBanner = eligible && revealed && !centerOpen;
+
+  useEffect(() => {
+    if (wantBanner) {
+      setBannerMounted(true);
+      setBannerLeaving(false);
+      return undefined;
+    }
+    if (!bannerMounted) return undefined;
+    setBannerLeaving(true);
+    const timer = window.setTimeout(
+      () => {
+        setBannerMounted(false);
+        setBannerLeaving(false);
+      },
+      prefersReducedMotion() ? 0 : BANNER_EXIT_MS,
+    );
+    return () => window.clearTimeout(timer);
+  }, [wantBanner, bannerMounted]);
+
+  // Announce politely when the banner appears (focus is deliberately NOT moved).
+  const bannerAnnouncedRef = useRef(false);
+  useEffect(() => {
+    if (!bannerMounted) {
+      bannerAnnouncedRef.current = false;
+      return;
+    }
+    if (bannerAnnouncedRef.current) return;
+    bannerAnnouncedRef.current = true;
+    setAnnouncement(`${t('banner.region')}: ${t('banner.title')}`);
+  }, [bannerMounted, t]);
+
+  // "Cookie choices" skip link: first in the tab order while the banner exists.
+  useEffect(() => {
+    if (!bannerMounted) return undefined;
+    const host = document.createElement('div');
+    host.id = 'consent-skip-host';
+    document.body.insertBefore(host, document.body.firstChild);
+    setSkipHost(host);
+    return () => {
+      host.remove();
+      setSkipHost(null);
+    };
+  }, [bannerMounted]);
+
+  const returnFocusFromBanner = () => {
+    const banner = document.getElementById('consent-banner');
+    if (banner?.contains(document.activeElement)) document.getElementById('main-content')?.focus?.();
+  };
+
   const decide = (action: () => void) => {
+    returnFocusFromBanner();
     action();
+    clearBannerDismissal();
     setAnnouncement(t('center.saved'));
+  };
+
+  const dismissBanner = () => {
+    returnFocusFromBanner();
+    markBannerDismissed();
+    setDismissed(true);
   };
 
   return (
@@ -77,11 +142,27 @@ export function ConsentManager() {
       <div id="consent-live-region" role="status" aria-live="polite" className="sr-only">
         {announcement}
       </div>
-      {consent.needsPrompt && !centerOpen && bannerAllowed && (
+      {skipHost &&
+        createPortal(
+          <a
+            href="#consent-banner"
+            className={SKIP_LINK_CLASS}
+            onClick={(event) => {
+              event.preventDefault();
+              document.getElementById('consent-banner')?.focus();
+            }}
+          >
+            {t('banner.region')}
+          </a>,
+          skipHost,
+        )}
+      {bannerMounted && (
         <ConsentBanner
+          leaving={bannerLeaving}
           onAcceptAll={() => decide(consent.acceptAll)}
           onReject={() => decide(consent.rejectNonEssential)}
           onCustomize={openCenter}
+          onDismiss={dismissBanner}
         />
       )}
       {centerOpen && (
