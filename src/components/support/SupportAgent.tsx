@@ -11,11 +11,14 @@
 // Mounted once in src/main.tsx. Hidden on app/staff/portal/wallboard routes.
 
 import { KeyboardEvent as ReactKeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { Copy, Mail, MessageCircle, Send, Wrench, X, Sparkles } from 'lucide-react';
+import { Copy, Mail, MessageCircle, RotateCcw, Send, Sparkles, Ticket, Wrench, X } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 import { streamAiChat } from '@/lib/aiStream';
+import { clearChat, getSessionStore, loadChat, saveChat } from '@/lib/supportAgent/chatMemory';
+import { buildTicketDraft, putTicketDraft } from '@/lib/supportAgent/ticketDraft';
 import { buildSupportMailto, generateIncidentId } from '@/lib/incident';
 import { getSupportStatus, SUPPORT_HOURS_LABEL } from '@/lib/supportHours';
 import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion';
@@ -50,12 +53,14 @@ export function SupportAgent() {
   const hidden = HIDDEN_ROUTES.test(pathname);
   const reduced = usePrefersReducedMotion();
   const d = useSupportDiagnostics(!hidden);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<Tab>('ask');
   const [status, setStatus] = useState(() => getSupportStatus());
   const [tooltip, setTooltip] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>(() => loadChat(getSessionStore()));
   const [input, setInput] = useState('');
   const [thinking, setThinking] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -122,6 +127,12 @@ export function SupportAgent() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: reduced ? 'auto' : 'smooth' });
   }, [messages, thinking, tab, reduced]);
 
+  // Conversation memory (per tab): saved once a reply has settled, never while it is streaming.
+  useEffect(() => {
+    if (messages.some((m) => m.streaming)) return;
+    saveChat(getSessionStore(), messages);
+  }, [messages]);
+
   if (hidden) return null;
 
   const ask = async (question: string) => {
@@ -158,6 +169,7 @@ export function SupportAgent() {
         setMessages((p) => p.map((m) => (m.id === assistantId ? { ...m, streaming: false } : m)));
       },
       onError: (message) => {
+        if (controller.signal.aborted) return; // "New chat" / unmount aborted it on purpose
         setThinking(false);
         setMessages((p) => (started
           ? p.map((m) => (m.id === assistantId ? { ...m, text: message, isError: true, streaming: false } : m))
@@ -175,6 +187,19 @@ export function SupportAgent() {
     }
   };
 
+  const newChat = () => {
+    abortRef.current?.abort();
+    setThinking(false);
+    setMessages([]);
+    clearChat(getSessionStore());
+  };
+
+  const openTicket = () => {
+    const lastQuestion = [...messages].reverse().find((m) => m.role === 'user')?.text ?? null;
+    putTicketDraft(getSessionStore(), buildTicketDraft({ findings: d.findings, report: d.report, lastQuestion }));
+    setOpen(false);
+    navigate('/dashboard/support');
+  };
   const talkToTeam = () => {
     setOpen(false);
     window.dispatchEvent(new CustomEvent('vireek:open-live-chat', { detail: d.report ? { prefill: `Hi, I need help. My diagnostic report:\n${d.report}` } : undefined }));
@@ -313,6 +338,11 @@ export function SupportAgent() {
               <div ref={scrollRef} role="tabpanel" id={`vk-agent-panel-${tab}`} aria-labelledby={`vk-agent-tab-${tab}`} className="flex-1 overflow-y-auto px-4 py-4">
                 {tab === 'ask' && (
                   <div className="space-y-4">
+                    {messages.length > 0 && (
+                      <div className="flex justify-end">
+                        <Button size="xs" variant="ghost" onClick={newChat}><RotateCcw size={14} aria-hidden="true" /> New chat</Button>
+                      </div>
+                    )}
                     {messages.length === 0 && (
                       <div className="space-y-2.5">
                         <div className="flex items-end gap-2.5">
@@ -345,6 +375,11 @@ export function SupportAgent() {
                     <p className="text-sm text-text-secondary">
                       {status.online ? 'A real person is online now.' : `Our team is offline (${SUPPORT_HOURS_LABEL}). Leave a message and we reply by email.`}
                     </p>
+                    {user && (
+                      <Button fullWidth size="sm" variant="secondary" onClick={openTicket}>
+                        <Ticket size={16} aria-hidden="true" /> Open a support ticket
+                      </Button>
+                    )}
                     <Button fullWidth size="sm" variant="primary" onClick={talkToTeam}>
                       <MessageCircle size={16} aria-hidden="true" /> {status.online ? 'Chat with our team' : 'Leave a message'}
                     </Button>
