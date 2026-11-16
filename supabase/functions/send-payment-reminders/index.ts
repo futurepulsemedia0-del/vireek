@@ -1,5 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
-import { sendSms, sendEmail } from "../_shared/notify/deliver.ts";
+import { sendEmail } from "../_shared/notify/deliver.ts";
+import { sendGuardedSms } from "../_shared/messaging/gatedSend.ts";
 import { resolveCustomerLanguage } from "../_shared/i18n/customerLanguage.ts";
 import { MAX_REMINDERS, nextReminderUpdate, reminderCutoffs } from "../_shared/payment-reminders/window.ts";
 import { escapeHtml, formatMoney, htmlLangAttrs, renderTemplate } from "../_shared/i18n/templates.ts";
@@ -38,7 +39,7 @@ Deno.serve(async (req: Request) => {
       const vars = { name: request.customer_name, amount: amountLabel, url: request.payment_link_url };
       const smsText = renderTemplate("payment.sms.reminder", language, vars);
       if (request.customer_phone) {
-        await sendSms(request.customer_phone, smsText);
+        await sendGuardedSms(admin, request.user_id, request.customer_phone, smsText, { purpose: "service", source: "send-payment-reminders" });
       }
       if (request.customer_email) {
         await sendEmail(
