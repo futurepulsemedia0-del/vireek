@@ -7,7 +7,8 @@
 // Deploy: supabase functions deploy emergency-ops-broadcast
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
-import { sendSms } from "../_shared/notify/deliver.ts";
+import { sendSms } from "../_shared/notify/deliver.ts"; // team / on-call alerts only (internal)
+import { sendGuardedSms } from "../_shared/messaging/gatedSend.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -100,7 +101,11 @@ Deno.serve(async (req: Request) => {
 
   for (const phone of phones) {
     try {
-      const result = await sendSms(phone, message);
+      // Customers pass the fraud guard (purpose "service": a transactional notice, up to MAX_RECIPIENTS per request);
+      // team / on-call alerts are internal staff messages and are not capped.
+      const result = audience === "customers"
+        ? await sendGuardedSms(admin, userId, phone, message, { purpose: "service", source: "emergency-ops-broadcast" })
+        : await sendSms(phone, message);
       if (result.ok) sent += 1;
     } catch (err) {
       console.error(JSON.stringify({ event: "emergency_broadcast_sms_failed", user_id: userId, error: err instanceof Error ? err.message : String(err) }));
