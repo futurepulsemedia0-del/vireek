@@ -8,6 +8,8 @@ import { BackButton } from '@/components/ui/BackButton';
 import { CookieConsent } from '@/components/CookieConsent';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
+import { DeepContent } from '@/components/marketing/DeepContent';
+import { SERVICES_DEEP } from '@/lib/deepContent/services';
 
 const CAPABILITIES = [
   {
@@ -202,6 +204,7 @@ export function ServicesPage() {
           </div>
         </section>
 
+        <DeepContent data={SERVICES_DEEP} idPrefix="services" />
         {/* Final CTA */}
         <section className="px-6 py-16 md:py-20">
           <motion.div
