@@ -1,0 +1,66 @@
+name: License Compliance
+
+# Fails on denied, unknown or unwaived-review licences in production npm dependencies and edge-function imports,
+# and when THIRD_PARTY_NOTICES.md is stale. Offline: reads package-lock.json, no `npm ci` needed.
+# Policy: config/license-policy.json · Explained in docs/compliance/oss-license-policy.md
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'config/license-policy.json'
+      - 'THIRD_PARTY_NOTICES.md'
+      - 'scripts/supply-chain/**'
+      - 'supabase/functions/**'
+      - '.github/workflows/license-compliance.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'config/license-policy.json'
+      - 'THIRD_PARTY_NOTICES.md'
+      - 'scripts/supply-chain/**'
+      - 'supabase/functions/**'
+      - '.github/workflows/license-compliance.yml'
+  schedule:
+    - cron: '17 5 * * 1' # weekly: catches expired waivers even when nothing changed
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: license-compliance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  licenses:
+    name: Licence policy + notices
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Checker unit tests
+        run: npm run test:scripts:licenses
+
+      - name: Licence gate (denied / unknown / unwaived review) and notices freshness
+        run: npm run licenses:check
+
+      - name: Machine-readable report (artifact)
+        if: always()
+        run: node scripts/supply-chain/license-check.mjs --json > license-report.json || true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: license-report
+          path: license-report.json
+          retention-days: 30
