@@ -23,6 +23,7 @@
 // Env:     SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY (set by Supabase), SITE_URL (optional)
 
 import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
+import { jwtAal, mfaEnforcementActive } from "../_shared/security/aal.ts";
 import {
   IMPERSONATION_MAX_PER_HOUR,
   IMPERSONATION_MINUTES,
@@ -79,6 +80,13 @@ Deno.serve(async (req: Request) => {
       return jsonResponse({ error: "Staff access required." }, 403);
     }
 
+
+    // 1b. Staff must present an AAL2 (MFA) session once enforcement is switched on (server-side, not bypassable from the UI).
+    if (jwtAal(jwt) !== "aal2" && (await mfaEnforcementActive(admin))) {
+      await audit(admin, { staff_id: staffId, staff_email: staffEmail, action: "impersonation_denied", target_account_id: UUID.test(body.accountId ?? "") ? body.accountId : null, metadata: { why: "mfa_required" } });
+      return jsonResponse({ error: "MFA (AAL2) required for staff impersonation.", code: "mfa_required" }, 403);
+    }
+    
     // ---------------- END ----------------
     if (body.action === "end") {
       if (!UUID.test(body.sessionId ?? "")) return jsonResponse({ error: "Invalid session." }, 400);
