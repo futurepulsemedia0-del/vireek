@@ -66,7 +66,7 @@ export const SURFACES: Record<SurfaceKind, SurfaceRecipe> = {
     error: '',
   },
   danger: {
-    rest: 'bg-danger text-bg-primary shadow-sm',
+    rest: 'bg-danger text-on-danger shadow-sm',
     hover: 'hover:brightness-110',
     active: 'active:brightness-90 active:shadow-none',
     selected: 'data-[selected=true]:brightness-90',
