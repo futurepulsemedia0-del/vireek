@@ -45,3 +45,38 @@ The free figure includes 60 included inbound AI minutes at 12c, now enforced by 
 * Cron: `fraud-sweep` `{"task":"sweep"}` every 5 min, `{"task":"weekly_report"}` Mondays; header `X-Cron-Secret`.
 * Secrets: `SEND_SMS_HOOK_SECRET`, `BEFORE_USER_CREATED_HOOK_SECRET`, `FRAUD_HASH_PEPPER`, `CRON_SECRET`; Stripe event `charge.dispute.created` must be enabled on the platform webhook; optional
   `FRAUD_ONCALL_SCHEDULE_ID`, `FRAUD_ALERT_SLACK_WEBHOOK`, `FRAUD_ALERT_EMAIL`. Frontend: `VITE_TURNSTILE_SITE_KEY`.
+---
+
+## Customer-driven outbound senders (guard rollout)
+
+Every customer-driven outbound SMS / call passes `gateCustomerOutbound()` (`_shared/fraud/outboundGate.ts`, a typed wrapper
+around `guardOutbound`) immediately before the Twilio / Vapi request. The full classification of every sender (guarded,
+in-call helper, system / internal, provider adapter) lives in `_shared/fraud/senderRegistry.ts`; `senderRegistry.test.ts`
+fails CI when a new file reaches a provider without being classified or without its guard marker.
+
+**Rollout switch.** `fraud_settings.outbound_guard_mode` (`'shadow'` default | `'enforce'`). Shadow = evaluate + log the
+would-block to `fraud_events` (`detail.shadow = true`) and allow. `fraud_settings.enforce = false` still forces shadow
+everywhere; OTP / inbound keep using `enforce` unchanged.
+
+```sql
+-- what would be blocked?
+SELECT code, source, count(*) FROM fraud_events WHERE detail->>'shadow' = 'true' GROUP BY 1,2 ORDER BY 3 DESC;
+-- go live
+UPDATE public.fraud_settings SET outbound_guard_mode = 'enforce';
+```
+
+**Purpose semantics.** `service` (confirmations, payment links, refunds) uses the full daily caps; `marketing` may use at
+most `MARKETING_CAP_SHARE` (80 %) of them, so a campaign can never starve service traffic; `emergency` to a domestic number
+bypasses caps, kill switches, suspension and verification (own runaway ceiling). Staff / on-call / OTP traffic is not
+customer-driven and is never capped.
+
+**Blocked sends.** Typed `BlockedSend { code, message, httpStatus, retryable, retryAfterSeconds, retryAt }`. Dispatchers park
+a retryable block until `retryAt` (daily cap resets at 00:00 UTC) and end non-retryable ones; nothing re-queues on a short loop.
+
+**Duration cap.** `PLAN_LIMITS[plan].maxCallSeconds` (unknown plan -> most restrictive) is sent as Vapi
+`assistantOverrides.maxDurationSeconds` / Twilio `TimeLimit` / `<Dial timeLimit>` on outbound calls. Inbound
+(`vapi-webhook` assistant-request) and the assistant PATCH in `voice-studio-sync` apply it only in `enforce`.
+
+**Reservations.** `attachOutboundCall` links the provider call id; `vapi-webhook` (end-of-call-report), `call-bridge-voice`
+and `pbx-voice` call `settleCall` with the real duration; a call the provider never placed is released with
+`releaseOutboundReservation`.
