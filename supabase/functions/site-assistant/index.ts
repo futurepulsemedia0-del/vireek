@@ -28,6 +28,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { askVireekAiStream, safeFallbackMessage } from "../_shared/ai-core/index.ts";
 import type { ChatMessage } from "../_shared/ai-core/types.ts";
+import { buildDiagnosticsPrefix } from "../_shared/ai-core/diagnosticsPrefix.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -138,7 +139,7 @@ Deno.serve(async (req: Request) => {
               task: "general",
               messages: [...trimmedHistory, { role: "user", content: message }],
               maxTokens: 320,
-              extraInstructions:
+              extraInstructions: buildDiagnosticsPrefix(body?.diagnostics) +
                 "You are the 'Ask Vireek' help widget shown on every public marketing page — a visitor may be stuck, confused, or just curious, about anything from pricing to how a specific feature works to which page covers a topic. Answer directly and completely using the reference knowledge below when relevant. Keep replies conversational (short paragraphs or a tight list, not a wall of text). If something genuinely isn't covered in your reference knowledge (an exact number, a legal specifics, account-specific detail), say so plainly and point them to the right page (Pricing, Contact, Help Center) rather than guessing.",
             },
             (delta) => {
