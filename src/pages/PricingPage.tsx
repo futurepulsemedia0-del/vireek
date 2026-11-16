@@ -33,6 +33,8 @@ import { useExperiment } from '@/contexts/ExperimentContext';
 import { formatPrice } from '@/lib/currency';
 import { EASE, eyebrowClass, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
+import { DeepContent } from '@/components/marketing/DeepContent';
+import { PRICING_DEEP } from '@/lib/deepContent/enterprisePricingDeep';
 import {
   PRICING_PLANS,
   PRICING_FAQS,
@@ -568,6 +570,7 @@ const [billing, setBilling] = useState<BillingCycle>(defaultBillingVariant as Bi
           </div>
         </section>
 
+        <DeepContent data={PRICING_DEEP} idPrefix="pricing" />
         {/* Final CTA */}
         <section className="px-6 pb-24">
           <motion.div
