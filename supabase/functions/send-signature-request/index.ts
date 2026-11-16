@@ -1,5 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
-import { sendSms, sendEmail } from "../_shared/notify/deliver.ts";
+import { sendEmail } from "../_shared/notify/deliver.ts";
+import { sendGuardedSms } from "../_shared/messaging/gatedSend.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -123,7 +124,7 @@ Deno.serve(async (req: Request) => {
         emailSent = res.ok;
       }
       if (signer.phone) {
-        const res = await sendSms(signer.phone, `${businessName} sent you "${title}" to sign: ${signUrl}`);
+        const res = await sendGuardedSms(admin, ownerId, signer.phone, `${businessName} sent you "${title}" to sign: ${signUrl}`, { purpose: "service", source: "send-signature-request" });
         smsSent = res.ok;
       }
 
