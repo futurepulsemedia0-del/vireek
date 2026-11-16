@@ -61,7 +61,7 @@ self.addEventListener('notificationclick', (event) => {
 // ------------------------------------------------------------------
 // Offline app shell + background sync (PWA). Lets a technician open the app with no signal.
 // ------------------------------------------------------------------
-const VK_CACHE = 'vireek-shell-v1';
+const VK_CACHE = 'vireek-shell-v2';
 const VK_SHELL = '/index.html';
 
 self.addEventListener('install', (event) => {
