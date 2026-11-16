@@ -83,8 +83,8 @@ export const LIMITS = {
 } as const;
 
 export const DEFAULT_FORM: BrandForm = {
-  primary_color: '#A94C2D',
-  accent_color: '#6A9BCC',
+  primary_color: '#AE3600',
+  accent_color: '#006FE1',
   email_sender_name: '',
   email_reply_to: '',
   email_footer: '',
@@ -97,12 +97,12 @@ export const DEFAULT_FORM: BrandForm = {
 };
 
 export const COLOR_PRESETS: { name: string; primary: string; accent: string }[] = [
-  { name: 'Clay', primary: '#A94C2D', accent: '#6A9BCC' },
-  { name: 'Sky', primary: '#3C6B9A', accent: '#D97757' },
-  { name: 'Green', primary: '#00782B', accent: '#34C759' },
-  { name: 'Blurple', primary: '#594DF1', accent: '#D97757' },
-  { name: 'Graphite', primary: '#44423D', accent: '#D97757' },
-  { name: 'Red', primary: '#D2001E', accent: '#FFCC00' },
+  { name: 'Clay', primary: '#AE3600', accent: '#006FE1' },
+  { name: 'Blue', primary: '#0058B3', accent: '#F9774C' },
+  { name: 'Green', primary: '#007228', accent: '#34C759' },
+  { name: 'Blurple', primary: '#4C2BF2', accent: '#F9774C' },
+  { name: 'Graphite', primary: '#44423D', accent: '#F9774C' },
+  { name: 'Red', primary: '#B80034', accent: '#FFCC00' },
 ];
 
 // ============================================================
@@ -212,8 +212,8 @@ export interface FormErrors {
 
 export function validateForm(form: BrandForm): FormErrors {
   const errors: FormErrors = {};
-  if (!isHexColor(form.primary_color)) errors.primary_color = 'Use a 6-digit hex color, e.g. #A94C2D.';
-  if (!isHexColor(form.accent_color)) errors.accent_color = 'Use a 6-digit hex color, e.g. #6A9BCC.';
+  if (!isHexColor(form.primary_color)) errors.primary_color = 'Use a 6-digit hex color, e.g. #AE3600.';
+  if (!isHexColor(form.accent_color)) errors.accent_color = 'Use a 6-digit hex color, e.g. #006FE1.';
   const name = validateSenderName(form.email_sender_name);
   if (name) errors.email_sender_name = name;
   const reply = validateEmail(form.email_reply_to);
