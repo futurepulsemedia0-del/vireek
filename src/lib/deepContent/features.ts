@@ -129,7 +129,7 @@ export const FEATURES_DEEP: DeepContentData = {
         {
           kind: 'list',
           items: [
-            'CRM Sync sends call details, lead information and bookings to ServiceTitan, Housecall Pro and Jobber on plans that include those integrations.',
+          'CRM Sync connects Vireek to field-service tools. The ServiceTitan and Jobber connections currently sync your price book so Sarah quotes current prices; each integration page lists its exact scope, and anything not listed there should be assumed not to sync yet.',
             'Knowledge Base Sync pushes changes to your business information into Sarah’s live prompt, so updating hours or services takes effect without a rebuild.',
             'Unified Inbox brings channels such as Facebook, Angi, Thumbtack and Google chat into one thread per customer.',
           ],
