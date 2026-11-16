@@ -1,10 +1,12 @@
-import { useEffect, useState, useMemo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Zap, TrendingUp, Clock, Gauge, TriangleAlert as AlertTriangle, ArrowRight } from 'lucide-react';
+import { ArrowLeft, Zap, TrendingUp, Clock, Gauge, TriangleAlert as AlertTriangle, ArrowRight, Plus } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { supabase, Call } from '@/lib/supabase';
+import { useToast } from '@/contexts/ToastContext';
+import { fetchTopupState, startTopupCheckout, type TopupState } from '@/lib/planChangeApi';
 import { parseOverageRate } from '@/lib/pricing';
 import { PlanLimitsCard } from '@/components/usage/PlanLimitsCard';
 import { UpgradeSuggestionNotice } from '@/components/usage/UpgradeSuggestionNotice';
@@ -240,10 +242,56 @@ function OutcomeBreakdownBar({ counts }: { counts: Record<string, number> }) {
 
 export function UsageDashboardPage() {
   const navigate = useNavigate();
-  const { user, profile, profileLoading } = useAuth();
+  const { user, profile, profileLoading, refreshProfile } = useAuth();
+  const { toast } = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [calls, setCalls] = useState<Call[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
+  const [topup, setTopup] = useState<TopupState | null>(null);
+  const [topupBusy, setTopupBusy] = useState(false);
+  const topupReturnHandled = useRef(false);
+  const isOwner = profile?.role === 'owner';
+  const hasSubscription = Boolean(profile?.stripe_subscription_id);
+
+  useEffect(() => {
+    if (!isOwner || !hasSubscription) return;
+    let cancelled = false;
+    fetchTopupState()
+      .then((state) => {
+        if (!cancelled) setTopup(state);
+      })
+      .catch(() => {
+        if (!cancelled) setTopup(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isOwner, hasSubscription]);
+
+  useEffect(() => {
+    const result = searchParams.get('topup');
+    if (!result || topupReturnHandled.current) return;
+    topupReturnHandled.current = true;
+    if (result === 'success') {
+      toast('Payment received. Your minutes will appear in a moment.', 'success');
+      void refreshProfile();
+      [2000, 6000, 12000].forEach((ms) => window.setTimeout(() => void refreshProfile(), ms));
+    } else if (result === 'cancelled') {
+      toast('Checkout was cancelled. You have not been charged.', 'info');
+    }
+    setSearchParams({}, { replace: true });
+  }, [searchParams, setSearchParams, toast, refreshProfile]);
+
+  const buyTopup = async () => {
+    setTopupBusy(true);
+    try {
+      window.location.assign(await startTopupCheckout(1));
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Could not start checkout. Please try again.', 'error');
+      setTopupBusy(false);
+    }
+  };
   const accountCounts = useAccountResourceCounts(profile?.id ?? null);
   const loadData = useCallback(async () => {
     if (!user) return;
@@ -380,6 +428,33 @@ export function UsageDashboardPage() {
             </div>
           )}
 
+          {(topup?.available || (profile?.bonus_minutes ?? 0) > 0) && (
+            <div className="mb-5 flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-bg-secondary p-4 shadow-card dark:shadow-card-dark">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-text-primary">Top-up minutes: {profile?.bonus_minutes ?? 0}</p>
+                <p className="mt-0.5 text-xs text-text-secondary">
+                  Used automatically after your included minutes, before any per-minute overage. They carry over until used.
+                </p>
+              </div>
+              {topup?.available && (
+                <button
+                  type="button"
+                  onClick={buyTopup}
+                  disabled={topupBusy}
+                  className="focus-ring flex shrink-0 items-center gap-1.5 rounded-lg bg-accent px-3.5 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+                >
+                  <Plus size={15} />
+                  {topupBusy
+                    ? 'Opening checkout…'
+                    : `Buy ${topup.minutesPerPack} minutes${
+                        topup.amountMinor !== null && topup.currency
+                          ? ` · ${new Intl.NumberFormat('en-US', { style: 'currency', currency: topup.currency.toUpperCase() }).format(topup.amountMinor / 100)}`
+                          : ''
+                      }`}
+                </button>
+              )}
+            </div>
+          )}
           {/* Stat cards */}
           <div className="mb-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard
