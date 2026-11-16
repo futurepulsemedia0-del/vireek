@@ -9,6 +9,7 @@ import { BusinessInfoStep } from './steps/BusinessInfoStep';
 import { OperationsStep } from './steps/OperationsStep';
 import { VerticalStep } from './steps/VerticalStep';
 import { HoursStep } from './steps/HoursStep';
+import { ServicesStep } from './steps/ServicesStep';
 import { PhoneStep } from './steps/PhoneStep';
 import { CalendarStep } from './steps/CalendarStep';
 import { SarahStep } from './steps/SarahStep';
@@ -73,6 +74,7 @@ export function OnboardingWizard() {
             {stepId === 'business' && <BusinessInfoStep key="business" {...stepProps} onBack={undefined} />}
             {stepId === 'vertical' && <VerticalStep key="vertical" {...stepProps} />}
             {stepId === 'operations' && <OperationsStep key="operations" {...stepProps} />}
+            {stepId === 'services' && <ServicesStep key="services" {...stepProps} />}
             {stepId === 'hours' && <HoursStep key="hours" {...stepProps} />}
             {stepId === 'phone' && <PhoneStep key="phone" {...stepProps} />}
             {stepId === 'calendar' && <CalendarStep key="calendar" {...stepProps} />}
