@@ -5,6 +5,13 @@ export const FAQ_DEEP: DeepContentData = {
   title: 'Longer answers to the questions people ask before they switch',
   intro:
     'The quick answers above are intentionally short. These sections go further on the topics that most affect a buying decision: reliability, cost, setup, risk and what happens when something goes wrong.',
+  related: [
+    { label: 'Help center', href: '/help' },
+    { label: 'Pricing', href: '/pricing' },
+    { label: 'Status', href: '/status' },
+    { label: 'System requirements', href: '/system-requirements' },
+    { label: 'Contact', href: '/contact' },
+  ],
   sections: [
     {
       id: 'how-accurate',
