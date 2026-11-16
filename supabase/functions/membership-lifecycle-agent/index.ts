@@ -29,7 +29,8 @@
 // --no-verify-jwt, then point your cron at it once a day.
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
-import { sendSms, sendEmail } from "../_shared/notify/deliver.ts";
+import { sendEmail } from "../_shared/notify/deliver.ts";
+import { sendGuardedSms } from "../_shared/messaging/gatedSend.ts";
 import { runRenewalPipeline } from "../_shared/membershipRenewal/pipeline.ts";
 import { makeStripeCharger } from "../_shared/membershipRenewal/stripeCharger.ts";
 import { cardUsable, winBackEventData } from "../_shared/membershipRenewal/logic.ts";
@@ -84,7 +85,11 @@ Deno.serve(async (req: Request) => {
   // Renewal workflow: 60/30/7 pipeline, renewal quote, card-on-file charge, non-renewing close-out.
   // Runs first so a card charged today is already rolled forward when step 1 below looks at it.
   const renewal = await runRenewalPipeline(admin, {
-    now, siteUrl, sendSms, sendEmail,
+    now, siteUrl, sendEmail,
+    // Customer message: fraud-guarded (the pipeline passes the owning account). No owner => nothing is sent.
+    sendSms: async (phone, text, userId) => userId
+      ? await sendGuardedSms(admin, userId, phone, text, { purpose: "service", source: "membership-renewal" })
+      : { ok: false, error: "no_owner" },
     enroll: (a) => enroll(admin, a),
     charge: secretKey ? makeStripeCharger(secretKey) : undefined,
     log: (event, data) => console.error(JSON.stringify({ event, ...data })),
@@ -157,7 +162,7 @@ Deno.serve(async (req: Request) => {
       await admin.from("memberships").update({ last_payment_request_id: paymentRequest.id, renewal_alert_stage: "sent", renewal_alert_sent_at: now.toISOString() }).eq("id", m.id);
 
       const amountLabel = `$${(plan.price_cents / 100).toFixed(0)}`;
-      if (m.customer_phone) await sendSms(m.customer_phone, `Hi ${m.customer_name}, your ${plan.name} membership renews for ${amountLabel}. Pay securely: ${session.url}`);
+      if (m.customer_phone) await sendGuardedSms(admin, m.user_id, m.customer_phone, `Hi ${m.customer_name}, your ${plan.name} membership renews for ${amountLabel}. Pay securely: ${session.url}`, { purpose: "service", source: "membership-lifecycle-agent" });
       if (m.customer_email) await sendEmail(m.customer_email, `Your ${plan.name} membership renewal`, `<p>Your ${plan.name} membership renews for ${amountLabel}.</p><p><a href="${session.url}">Renew now</a></p>`, `Renew your ${plan.name} membership for ${amountLabel}: ${session.url}`);
 
       await enroll(admin, { aggregateId: m.id, eventType: "membership.renewal_upcoming", userId: m.user_id, customerName: m.customer_name, customerPhone: m.customer_phone, customerEmail: m.customer_email, extra: { amount_cents: plan.price_cents, payment_link_url: session.url } });
