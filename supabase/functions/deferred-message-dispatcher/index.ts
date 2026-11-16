@@ -5,8 +5,10 @@
 // added while the message waited, a changed customer timezone, or an opt-out is respected.
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
-import { sendEmail, sendSms } from "../_shared/notify/deliver.ts";
+import { sendEmail } from "../_shared/notify/deliver.ts";
 import { sendCompliantSms } from "../_shared/messaging/sendSms.ts";
+import { sendGuardedSms } from "../_shared/messaging/gatedSend.ts";
+import type { BlockedSend } from "../_shared/fraud/outboundGate.ts";
 import { gateOutbound } from "../_shared/messaging/quietHours.ts";
 
 const BATCH = 50;
@@ -70,6 +72,7 @@ Deno.serve(async (req: Request) => {
       let terminal = false;
       let detail = "";
       let ref: string | null = null;
+      let blocked: BlockedSend | null = null;
 
       if (row.channel === "sms" && row.transport === "a2p") {
         const r = await sendCompliantSms(admin, row.user_id, row.to_address, row.body_text, { skipQuietHours: true, purpose: row.purpose, source: "deferred-message-dispatcher" });
@@ -77,12 +80,28 @@ Deno.serve(async (req: Request) => {
         else {
           detail = `${r.reason}${r.detail ? `: ${r.detail}` : ""}`;
           terminal = r.reason === "A2P_NOT_APPROVED" || r.reason === "OPTED_OUT" || r.reason === "NOT_CONFIGURED";
+          if (r.reason === "FRAUD_BLOCKED") blocked = r.block;
         }
       } else if (row.channel === "sms") {
-        const r = await sendSms(row.to_address, row.body_text);
+        const r = await sendGuardedSms(admin, row.user_id, row.to_address, row.body_text, { purpose: row.purpose, source: "deferred-message-dispatcher" });
         ok = r.ok; detail = r.error ?? "";
+        if (r.blocked) blocked = r.blocked;
       } else {
         const r = await sendEmail(row.to_address, row.subject ?? "(no subject)", row.body_html ?? `<p>${row.body_text}</p>`, row.body_text);
+      }
+
+      if (blocked) {
+        // Fraud guard refusal: NEVER retry on the short backoff. A cap that resets (daily limit, outage, kill switch) is
+        // parked until block.retryAt and keeps its attempt count (so it is still bounded by MAX_ATTEMPTS); anything a
+        // retry cannot fix (suspended, unverified, destination policy) fails now.
+        if (blocked.retryable && blocked.retryAt && row.attempts < MAX_ATTEMPTS) {
+          await admin.from("deferred_messages").update({ status: "queued", send_after: blocked.retryAt, last_error: `fraud_guard:${blocked.code}` }).eq("id", row.id);
+          rescheduled++;
+        } else {
+          await finish(admin, row, "failed", `fraud_guard:${blocked.code}: ${blocked.message}`);
+          failed++;
+        }
+        continue;
         ok = r.ok; detail = r.error ?? "";
       }
 
