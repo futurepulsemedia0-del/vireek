@@ -54,13 +54,19 @@ export interface DialArgs {
   /** Absolute URL Twilio calls when the <Dial> ends (DialCallStatus / DialCallDuration). */
   action: string;
   timeout?: number;
+  /** Hard cap on the connected call in seconds (Twilio <Dial timeLimit>), from PLAN_LIMITS[plan].maxCallSeconds. Omitted = unchanged TwiML. */
+  timeLimit?: number;
 }
 
 /** TwiML that connects the caller to `number`, showing `callerId`. Throws on invalid numbers. */
 export function dialTwiml({ callerId, number, action, timeout = 30 }: DialArgs): string {
   if (!isE164(callerId) || !isE164(number)) throw new Error('dialTwiml: numbers must be E.164');
   const t = Math.min(Math.max(Math.trunc(timeout), 5), 60);
-  return `<Dial callerId="${xmlEscape(callerId)}" answerOnBridge="true" timeout="${t}" action="${xmlEscape(action)}" method="POST"><Number>${xmlEscape(number)}</Number></Dial>`;
+ export function dialTwiml({ callerId, number, action, timeout = 30, timeLimit }: DialArgs): string {
+  if (!isE164(callerId) || !isE164(number)) throw new Error('dialTwiml: numbers must be E.164');
+  const t = Math.min(Math.max(Math.trunc(timeout), 5), 60);
+  const limit = timeLimit && Number.isFinite(timeLimit) ? ` timeLimit="${Math.min(Math.max(Math.trunc(timeLimit), 10), 14_400)}"` : '';
+  return `<Dial callerId="${xmlEscape(callerId)}" answerOnBridge="true" timeout="${t}"${limit} action="${xmlEscape(action)}" method="POST"><Number>${xmlEscape(number)}</Number></Dial>`;
 }
 
 export function sayHangup(message: string): string {
