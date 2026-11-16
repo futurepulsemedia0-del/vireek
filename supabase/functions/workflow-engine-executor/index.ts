@@ -28,6 +28,7 @@ import { isDncSuppressed } from "../_shared/compliance/dncCheck.ts";
 import { sendCompliantSms } from "../_shared/messaging/sendSms.ts";
 import { appendBookingLink, buildTrackedBookingLink, wantsBookingLink } from "../_shared/rescue/bookingLink.ts";
 import { authorizeAgentAction, recordAgentActionOutcome } from "../_shared/governance/agentGovernance.ts";
+import { asFraudDb, attachOutboundCall, gateCustomerOutbound, releaseOutboundReservation } from "../_shared/fraud/outboundGate.ts";
 
 const BATCH_SIZE = 25;
 const VAPI_CALL_URL = "https://api.vapi.ai/call";
@@ -131,7 +132,19 @@ async function checkCondition(admin: SupabaseClient, run: Run, check: string): P
   }
 }
 
-async function runSmsStep(admin: SupabaseClient, run: Run, config: Record<string, unknown>) {
+/** Step outcome. retryAt is set when a fraud-guard block clears later (daily cap / outage): the retry is scheduled THEN, not on the short backoff. */
+type StepOutcome = { ok: boolean; terminal?: boolean; result?: unknown; error?: string; retryAt?: string };
+
+/**
+ * Fraud-guard purpose of a workflow step. Transactional entities (jobs, appointments, invoices) are "service";
+ * everything else (quotes, missed calls, leads) is promotional-style outreach and is treated as "marketing".
+ * The purpose is derived from the trusted run entity, never from user-editable step config.
+ */
+function workflowFraudPurpose(run: Run): "service" | "marketing" {
+  return ["job", "appointment", "invoice", "payment_request"].includes(String(run.entity_type)) ? "service" : "marketing";
+}
+
+async function runSmsStep(admin: SupabaseClient, run: Run, config: Record<string, unknown>): Promise<StepOutcome> {
   if (!run.customer_phone) return { ok: false, terminal: true, error: "No customer phone on file." };
   const vars = await buildTemplateVars(admin, run);
 
@@ -157,16 +170,21 @@ async function runSmsStep(admin: SupabaseClient, run: Run, config: Record<string
   if (auth.decision === "pending_approval") return { ok: false, terminal: false, error: "Awaiting human approval in Agent Governance." };
   if (auth.decision === "rejected") return { ok: false, terminal: true, error: "Blocked by Agent Governance policy." };
 
-  const result = await sendCompliantSms(admin, run.user_id, run.customer_phone, body);
+  const result = await sendCompliantSms(admin, run.user_id, run.customer_phone, body, { fraudPurpose: workflowFraudPurpose(run), source: "workflow-engine-executor" });
   await recordAgentActionOutcome(admin, auth.logId, {
     status: result.ok ? "executed" : "failed",
     error: result.ok ? undefined : `${result.reason}${result.detail ? `: ${result.detail}` : ""}`,
   });
   if (result.ok) return { ok: true, result: { sid: result.sid, body } };
+  if (result.reason === "FRAUD_BLOCKED") {
+    // Fraud guard refusal: terminal unless it clears later; when it does, retry exactly then (not every few minutes).
+    const b = result.block;
+    return { ok: false, terminal: !b.retryable, retryAt: b.retryAt ?? undefined, error: `fraud_guard:${b.code}: ${b.message}` };
+  }
   const terminal = result.reason === "OPTED_OUT";
   return { ok: false, terminal, error: `${result.reason}${result.detail ? `: ${result.detail}` : ""}` };
 }
-async function runCallStep(admin: SupabaseClient, run: Run, config: Record<string, unknown>, vapiKey: string | undefined) {
+async function runCallStep(admin: SupabaseClient, run: Run, config: Record<string, unknown>, vapiKey: string | undefined): Promise<StepOutcome> {
   if (!run.customer_phone) return { ok: false, terminal: true, error: "No customer phone on file." };
   if (run.mode === "test") return { ok: true, result: { simulated: true } };
   if (!vapiKey) return { ok: false, terminal: true, error: "VAPI_PRIVATE_KEY not configured." };
@@ -178,6 +196,15 @@ async function runCallStep(admin: SupabaseClient, run: Run, config: Record<strin
     .maybeSingle();
   if (!business?.vapi_assistant_id || !business?.vapi_phone_number_id) {
     return { ok: false, terminal: true, error: "No Vapi assistant/phone number configured." };
+  // Fraud guard immediately before the provider call (shadow/enforce per fraud_settings.outbound_guard_mode).
+  const fraud = await gateCustomerOutbound(asFraudDb(admin), {
+    userId: run.user_id, kind: "call", to: run.customer_phone, purpose: workflowFraudPurpose(run),
+    source: "workflow-engine-executor", campaign: `workflow:${run.workflow_id ?? "run"}`,
+  });
+  if (!fraud.allowed) {
+    const b = fraud.blocked;
+    return { ok: false, terminal: !b.retryable, retryAt: b.retryAt ?? undefined, error: `fraud_guard:${b.code}: ${b.message}` };
+  }
   }
 
   try {
@@ -187,17 +214,23 @@ async function runCallStep(admin: SupabaseClient, run: Run, config: Record<strin
       body: JSON.stringify({
         assistantId: business.vapi_assistant_id,
         phoneNumberId: business.vapi_phone_number_id,
-        customer: { number: run.customer_phone },
+        customer: { number: fraud.e164 },
         assistantOverrides: {
           variableValues: { customer_name: run.customer_name ?? "", followup_context: String(config.call_context ?? "") },
         ...voiceOverride(business.assistant_voice),
+          maxDurationSeconds: fraud.maxCallSeconds,
         },
       }),
     });
-    if (!res.ok) return { ok: false, terminal: false, error: `Vapi error ${res.status}: ${(await res.text()).slice(0, 300)}` };
+    if (!res.ok) {
+      await releaseOutboundReservation(asFraudDb(admin), fraud);
+      return { ok: false, terminal: false, error: `Vapi error ${res.status}: ${(await res.text()).slice(0, 300)}` };
+    }
     const json = await res.json();
+    await attachOutboundCall(asFraudDb(admin), fraud, json.id ?? null);
     return { ok: true, result: { vapi_call_id: json.id ?? null } };
   } catch (err) {
+    await releaseOutboundReservation(asFraudDb(admin), fraud);
     return { ok: false, terminal: false, error: err instanceof Error ? err.message : String(err) };
   }
 }
@@ -322,7 +355,7 @@ Deno.serve(async (req: Request) => {
     }
 
     // 6. sms / call / webhook — the side-effecting steps.
-    let outcome: { ok: boolean; terminal?: boolean; result?: unknown; error?: string };
+    let outcome: StepOutcome;
     if (step.step_type === "sms") outcome = await runSmsStep(admin, typedRun, step.config);
     else if (step.step_type === "call") outcome = await runCallStep(admin, typedRun, step.config, vapiKey);
     else outcome = await runWebhookStep(typedRun, step.config);
@@ -352,9 +385,11 @@ Deno.serve(async (req: Request) => {
     const exhausted = outcome.terminal || attempt >= step.max_attempts;
     if (!exhausted) {
       const backoffMinutes = Math.min(2 ** attempt, BACKOFF_CAP_MINUTES);
+      const backoffAt = new Date(Date.now() + backoffMinutes * 60_000).toISOString();
       await admin.from("workflow_run_steps").update({
         status: "pending",
-        scheduled_at: new Date(Date.now() + backoffMinutes * 60_000).toISOString(),
+        // a fraud-guard block that clears later is retried then (never earlier than the normal backoff)
+        scheduled_at: outcome.retryAt && outcome.retryAt > backoffAt ? outcome.retryAt : backoffAt,
         error: outcome.error ?? null,
       }).eq("id", step.id);
       failed += 1;
