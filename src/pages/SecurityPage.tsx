@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import { ShieldCheck, Lock, Database, UserCog, Eye, ArrowRight } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { DeepContent } from '@/components/marketing/DeepContent';
+import { SECURITY_DEEP } from '@/lib/deepContent/securityDeep';
 import { CookieConsent } from '@/components/CookieConsent';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -236,6 +238,7 @@ export function SecurityPage() {
             </div>
           </div>
         </section>
+        <DeepContent data={SECURITY_DEEP} idPrefix="security" />
       </main>
       <Footer />
       <CookieConsent />
