@@ -8,13 +8,11 @@
 @tailwind utilities;
 
 /* ================================================================ */
-/*  Vireek design tokens — "Signal" system                           */
-/*  Warm graphite neutrals + a single confident cobalt (trust,       */
-/*  always-on technology) with a copper signal accent reserved for   */
-/*  urgency/live moments (emergency detection, active-call states).  */
-/*  Two accents that compete for attention was the old system's      */
-/*  biggest tell; copper is now used sparingly, never as a primary   */
-/*  CTA color, so it reads as a deliberate signal, not decoration.   */
+/*  Vireek design tokens — "Aurora Clay" (v3)                        */
+/*  Warm Ivory/Slate neutrals + Vivid Clay orange as the brand and   */
+/*  primary-action colour (`accent`). Stripe-style Blurple (`cta`)   */
+/*  is reserved for live / AI moments (active calls, Sarah).         */
+/*  Source of truth: scripts/color/palette.mjs                       */
 /* ================================================================ */
 /* :root / .dark / high-contrast token blocks live in src/styles/tokens.generated.css */
 
@@ -123,7 +121,7 @@ body {
 
   /*
    * Premium ambient wash — the site's signature background treatment.
-   * Built from Vireek's own two brand colors (cobalt + copper) rather than
+   * Built from Vireek's own brand colors (Clay + Blurple + lilac) rather than
    * borrowing another product's palette: three overlapping color pools at
    * meaningfully higher presence than a typical subtle SaaS glow, so it
    * reads as a crafted, expensive-feeling backdrop instead of a flat tint.
@@ -284,10 +282,10 @@ html {
 
 /* Large cursor */
 .a11y-large-cursor {
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='%23203AD8' stroke-width='2'%3E%3Cpath d='M3 3l7 18 2-8 8-2z' fill='%23203AD8' fill-opacity='0.3'/%3E%3C/svg%3E") 4 4, auto;
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='%23D95A2E' stroke-width='2'%3E%3Cpath d='M3 3l7 18 2-8 8-2z' fill='%23D95A2E' fill-opacity='0.3'/%3E%3C/svg%3E") 4 4, auto;
 }
 .a11y-large-cursor * {
-  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 24 24' fill='none' stroke='%23203AD8' stroke-width='2'%3E%3Cpath d='M3 3l7 18 2-8 8-2z' fill='%23203AD8' fill-opacity='0.3'/%3E%3C/svg%3E") 4 4, auto;
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 24 24' fill='none' stroke='%23D95A2E' stroke-width='2'%3E%3Cpath d='M3 3l7 18 2-8 8-2z' fill='%23D95A2E' fill-opacity='0.3'/%3E%3C/svg%3E") 4 4, auto;
 }
 
 /* Highlight links */
