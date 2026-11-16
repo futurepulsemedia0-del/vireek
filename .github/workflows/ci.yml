@@ -51,6 +51,8 @@ jobs:
 
       - name: Public claims gate
         run: npm run claims:check
+      - name: AI system register (every AI call site must be registered)
+        run: npm run ai-governance:check
       - name: Localization gates (raw Intl ratchet, voice, translation keys)
         run: |
           npm run lint:locale
