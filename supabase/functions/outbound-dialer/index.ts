@@ -10,6 +10,7 @@ import { OpenAiRealtimeEngine } from "../_shared/voice-engine/openAiRealtimeEngi
 import { resolveVoiceEngine } from "../_shared/voice-engine/resolve.ts";
 import { voiceOverride } from "../_shared/voice/voiceMap.ts";
 import { loadVoiceOverride } from "../_shared/voice/voiceOverride.ts";
+import { asFraudDb, attachOutboundCall, gateCustomerOutbound, releaseOutboundReservation } from "../_shared/fraud/outboundGate.ts";
 
 const BATCH_SIZE = 20;
 interface QueuedCall {
@@ -112,6 +113,25 @@ Deno.serve(async (req: Request) => {
       await admin.from("outbound_calls").update({
         scheduled_for: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
         outcome_notes: `Awaiting governance: ${gate.decision ?? gate.wouldBlock}`,
+    // Fraud guard (shadow/enforce per fraud_settings.outbound_guard_mode): budget reservation + destination policy,
+    // immediately before the provider call. A blocked call is parked or failed, NEVER left in the queue to be retried
+    // on the next tick: a cap that resets is rescheduled to retryAt without using an attempt, anything else fails now.
+    const fraud = await gateCustomerOutbound(asFraudDb(admin), {
+      userId: call.user_id, kind: "call", to: call.customer_phone,
+      purpose: call.campaign_type === "appointment_reminder" ? "service" : "marketing",
+      source: "outbound-dialer", campaign: call.campaign_type,
+    });
+    if (!fraud.allowed) {
+      const b = fraud.blocked;
+      if (gate.logId) await recordAgentActionOutcome(admin, gate.logId, { status: "failed", error: `fraud_guard:${b.code}` });
+      if (b.retryable && b.retryAt) {
+        await admin.from("outbound_calls").update({ scheduled_for: b.retryAt, outcome_notes: `Held by safety checks (${b.code}); retrying after ${b.retryAt}.` }).eq("id", call.id);
+      } else {
+        await admin.from("outbound_calls").update({ status: "failed", outcome_notes: `Blocked by safety checks (${b.code}): ${b.message}`, attempt_count: call.attempt_count + 1 }).eq("id", call.id);
+        failed += 1;
+      }
+      continue;
+    }
       }).eq("id", call.id);
       continue;
     }
@@ -129,15 +149,18 @@ Deno.serve(async (req: Request) => {
         ownerId: call.user_id,
         assistantId: business.vapi_assistant_id,
         phoneNumberId: pick.vapiPhoneNumberId,
-        customerNumber: call.customer_phone,
+        customerNumber: fraud.e164,
         variableValues: { customer_name: call.customer_name, call_purpose: CAMPAIGN_CONTEXT[call.campaign_type] },
+        maxDurationSeconds: fraud.maxCallSeconds,
       });
 
       if (!started.ok) {
+        await releaseOutboundReservation(asFraudDb(admin), fraud);
         if (gate.logId) await recordAgentActionOutcome(admin, gate.logId, { status: "failed", error: String(started.note ?? "start failed") });
         await admin.from("outbound_calls").update({
           status: call.attempt_count + 1 >= 3 ? "failed" : "queued",
           outcome_notes: started.note,
+      await attachOutboundCall(asFraudDb(admin), fraud, started.callId);
           attempt_count: call.attempt_count + 1,
         }).eq("id", call.id);
         failed += 1;
@@ -153,6 +176,7 @@ Deno.serve(async (req: Request) => {
       dialed += 1;
       if (gate.logId) await recordAgentActionOutcome(admin, gate.logId, { status: "executed" });
     } catch (err) {
+      await releaseOutboundReservation(asFraudDb(admin), fraud);
       await admin.from("outbound_calls").update({
         status: call.attempt_count + 1 >= 3 ? "failed" : "queued",
         outcome_notes: err instanceof Error ? err.message : String(err),
