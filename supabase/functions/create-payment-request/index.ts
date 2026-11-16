@@ -101,7 +101,7 @@ Deno.serve(async (req: Request) => {
           customer_name: job.customer_name,
           customer_email: customerEmail ?? null,
           customer_phone: customerPhone ?? null,
-          amount: job.invoice_amount,
+          amount: payableAmount,
           status: "pending",
           technician_id: technicianId,
           collected_via: collectedVia,
@@ -110,6 +110,16 @@ Deno.serve(async (req: Request) => {
         .single();
       if (insertError || !data) throw insertError || new Error("Could not create the payment request.");
       paymentRequest = data;
+    }
+    if (paymentRequest && Math.round(Number(paymentRequest.amount) * 100) !== Math.round(payableAmount * 100)) {
+      const { data: refreshed } = await admin
+        .from("payment_requests")
+        .update({ amount: payableAmount })
+        .eq("id", paymentRequest.id)
+        .in("status", ["pending", "sent", "overdue"])
+        .select()
+        .single();
+      if (refreshed) paymentRequest = refreshed;
     }
     const payUrl = `${siteUrl}/pay/${paymentRequest.public_token}`;
 
@@ -127,7 +137,7 @@ Deno.serve(async (req: Request) => {
             quantity: 1,
             price_data: {
               currency: "usd",
-              unit_amount: Math.round(Number(job.invoice_amount) * 100),
+              unit_amount: Math.round(payableAmount * 100),
               product_data: { name: description },
             },
           },
@@ -151,7 +161,7 @@ Deno.serve(async (req: Request) => {
     await admin.from("jobs").update({ invoice_status: "sent" }).eq("id", job.id).eq("invoice_status", "not_sent");
 
  const language = await resolveCustomerLanguage(admin, ownerId, { customerId: job.customer_id, phone: customerPhone, email: customerEmail });
-    const amountLabel = formatMoney(Number(job.invoice_amount), language);
+    const amountLabel = formatMoney(payableAmount, language);
     const vars = { name: job.customer_name, amount: amountLabel, description, url: session.url };
     if (customerPhone) {
       await sendGatedSms(admin, ownerId, customerPhone, renderTemplate("payment.sms.ready", language, vars));
