@@ -5,6 +5,12 @@ export const FEATURES_DEEP: DeepContentData = {
   title: 'How the features fit together, and which ones matter first',
   intro:
     'A long feature list is hard to evaluate. This guide explains what each group of features is for, how they connect across a single job, and a sensible order to switch them on.',
+  related: [
+    { label: 'Platform', href: '/platform' },
+    { label: 'Pricing', href: '/pricing' },
+    { label: 'Integrations', href: '/integrations' },
+    { label: 'Missed calls', href: '/use-cases/missed-calls' },
+  ],
   sections: [
     {
       id: 'one-job',
