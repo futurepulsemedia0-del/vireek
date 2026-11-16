@@ -20,6 +20,7 @@
 import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { twiml, validTwilioSignature } from "../_shared/pbx/twilio.ts";
 import { isDncSuppressed } from "../_shared/compliance/dncCheck.ts";
+import { asFraudDb, attachOutboundCall, gateCustomerOutbound, gateDestinationOnly, settleCall } from "../_shared/fraud/outboundGate.ts";
 import {
   callbackUrl, dialTwiml, last4, mapTwilioStatus, normalizeE164, parseDuration, sayHangup,
 } from "../_shared/call-bridge/logic.ts";
@@ -56,27 +57,39 @@ async function proxyInbound(a: SupabaseClient, base: string, p: Record<string, s
     direction: route.direction, call_sid: sid, status: "initiated", caller_hint: last4(from),
   }, { onConflict: "call_sid", ignoreDuplicates: true });
 
+  // Forwarding a masked inbound call is an in-call hand-off: destination policy only (no budget, no duration cap),
+  // so a manipulated forward number can never reach premium / unroutable / locked destinations.
+  const fwd = await gateDestinationOnly(asFraudDb(a), route.account_owner_id, route.destination_e164, "call-bridge-voice:proxy-inbound");
+  if (!fwd.allowed) return twiml(sayHangup("This call can't be connected."));
   return twiml(dialTwiml({
-    callerId: to, number: route.destination_e164, action: callbackUrl(base, "proxy-status"), timeout: 25,
+    callerId: to, number: fwd.e164, action: callbackUrl(base, "proxy-status"), timeout: 25,
   }));
 }
 
-async function proxyBridgeJoin(a: SupabaseClient, base: string, session: string): Promise<Response> {
+async function proxyBridgeJoin(a: SupabaseClient, base: string, session: string, callSid: string): Promise<Response> {
   if (!UUID.test(session)) return twiml(sayHangup("This call can't be connected."));
   const { data: s } = await a.from("proxy_sessions")
-    .select("customer_e164, status, expires_at, proxy_numbers(e164)").eq("id", session).maybeSingle();
+    .select("account_owner_id, customer_e164, status, expires_at, proxy_numbers(e164)").eq("id", session).maybeSingle();
   const pn = Array.isArray(s?.proxy_numbers) ? s?.proxy_numbers[0] : s?.proxy_numbers;
   if (!s || s.status !== "active" || new Date(s.expires_at).getTime() <= Date.now() || !pn?.e164) {
     return twiml(sayHangup("This conversation has ended."));
   }
+  // Technician -> customer is a customer-driven outbound call: full guard (budget reserved against the account,
+  // destination policy, shadow/enforce per outbound_guard_mode) and the plan's duration cap on the connected leg.
+  const fraud = await gateCustomerOutbound(asFraudDb(a), {
+    userId: s.account_owner_id, kind: "call", to: s.customer_e164, purpose: "service", source: "proxy-bridge",
+  });
+  if (!fraud.allowed) return twiml(sayHangup("This call can't be connected right now."));
+  await attachOutboundCall(asFraudDb(a), fraud, callSid || null); // proxy-status settles the real duration against this sid
   return twiml(
     `<Say>Connecting you to the customer.</Say>` +
-    dialTwiml({ callerId: pn.e164, number: s.customer_e164, action: callbackUrl(base, "proxy-status"), timeout: 30 }),
+    dialTwiml({ callerId: pn.e164, number: fraud.e164, action: callbackUrl(base, "proxy-status"), timeout: 30, timeLimit: fraud.maxCallSeconds }),
   );
 }
 
 async function proxyStatus(a: SupabaseClient, p: Record<string, string>): Promise<Response> {
   const status = mapTwilioStatus(p.DialCallStatus);
+    await settleCall(asFraudDb(a), p.CallSid, parseDuration(p.DialCallDuration) ?? 0); // releases the unused reservation (no-op when none)
   if (p.CallSid) {
     await a.from("proxy_call_events").update({
       status, duration_seconds: parseDuration(p.DialCallDuration), updated_at: new Date().toISOString(),
@@ -111,17 +124,26 @@ async function dialerJoin(a: SupabaseClient, base: string, attemptId: string, ca
     .eq("id", camp.phone_number_id).eq("account_id", at.account_owner_id).maybeSingle();
   const callerId = normalizeE164(line?.phone_number);
   if (!callerId) return twiml(sayHangup("No caller ID is configured for this campaign."));
+  // Budget was reserved in dialer-call; this hop re-checks the destination (shadow/enforce per outbound_guard_mode)
+  // and applies the plan's duration cap to the connected contact leg.
+  const fraud = await gateDestinationOnly(asFraudDb(a), at.account_owner_id, contact.phone_e164, "call-bridge-voice:dialer-join");
+  if (!fraud.allowed) {
+    await a.rpc("dialer_record_call_status", { p_call_sid: callSid, p_call_status: "failed", p_talk_seconds: null });
+    await settleCall(asFraudDb(a), callSid, 0);
+    return twiml(sayHangup("This call can't be connected."));
+  }
 
   await a.rpc("dialer_record_call_status", { p_call_sid: callSid, p_call_status: "connected", p_talk_seconds: null });
   return twiml(
     `<Say>Connecting your next call.</Say>` +
-    dialTwiml({ callerId, number: contact.phone_e164, action: callbackUrl(base, "dialer-status"), timeout: 35 }),
+    dialTwiml({ callerId, number: fraud.e164, action: callbackUrl(base, "dialer-status"), timeout: 35, timeLimit: fraud.maxCallSeconds }),
   );
 }
 
 async function dialerStatus(a: SupabaseClient, p: Record<string, string>): Promise<Response> {
   const mapped = mapTwilioStatus(p.DialCallStatus);
   const status = ["completed", "busy", "no_answer", "canceled"].includes(mapped) ? mapped : "failed";
+    await settleCall(asFraudDb(a), p.CallSid, parseDuration(p.DialCallDuration) ?? 0); // real duration; refunds the unused worst-case reservation
   if (p.CallSid) {
     await a.rpc("dialer_record_call_status", {
       p_call_sid: p.CallSid, p_call_status: status, p_talk_seconds: parseDuration(p.DialCallDuration),
@@ -131,6 +153,7 @@ async function dialerStatus(a: SupabaseClient, p: Record<string, string>): Promi
 }
 
 async function dialerLeg(a: SupabaseClient, p: Record<string, string>): Promise<Response> {
+    await settleCall(asFraudDb(a), p.CallSid, 0); // the contact was never dialed: release the whole reservation
   const status = mapTwilioStatus(p.CallStatus);
   if (p.CallSid && ["busy", "no_answer", "failed", "canceled"].includes(status)) {
     // Only when the agent's own phone never connected (dialer-join sets "connected" first).
@@ -163,7 +186,7 @@ Deno.serve(async (req: Request) => {
   try {
     switch (action) {
       case "proxy-inbound": return await proxyInbound(admin, base, params);
-      case "proxy-bridge-join": return await proxyBridgeJoin(admin, base, url.searchParams.get("session") ?? "");
+      case "proxy-bridge-join": return await proxyBridgeJoin(admin, base, url.searchParams.get("session") ?? "", params.CallSid ?? "");
       case "proxy-status": return await proxyStatus(admin, params);
       case "proxy-leg": return await proxyLeg(admin, params);
       case "dialer-join": return await dialerJoin(admin, base, url.searchParams.get("attempt") ?? "", params.CallSid ?? "");
