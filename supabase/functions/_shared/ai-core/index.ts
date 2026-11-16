@@ -363,13 +363,16 @@ async function buildSystemPrompt(
   task: TaskType,
   messages: ChatMessage[],
   extraInstructions?: string,
+  skipKnowledge = false,
 ): Promise<string> {
   const parts: string[] = [BASE_IDENTITY];
   const taskInstructions = TASK_INSTRUCTIONS[task];
   if (taskInstructions) parts.push(taskInstructions);
   const question = latestUserMessage(messages);
 
-  if (FULL_BRIEF_TASKS.has(task) && question) {
+    if (skipKnowledge) {
+    // The caller injected retrieved knowledge itself (see AskVireekAiOptions.skipKnowledgeBrief).
+  } else if (FULL_BRIEF_TASKS.has(task) && question) {
     const matches = await searchBrandKnowledge(question);
     const ragBrief = formatMatchesForPrompt(matches);
 
@@ -416,6 +419,8 @@ export interface AskVireekAiOptions {
   jsonMode?: boolean;
   timeoutMs?: number;
   extraInstructions?: string;
+  /** Caller already supplied grounded knowledge in `extraInstructions`: skip the core's own RAG lookup (one embedding per question instead of two) and the static brief. */
+  skipKnowledgeBrief?: boolean;
   /** Opt-in AI Security layer: tenant owner id + what data this call puts in the prompt. */
   security?: AiSecurityContext;
   /** Tenant owner id for cost attribution + budget checks. Defaults to security.userId. Without either, the call is logged as platform usage. */
@@ -447,7 +452,7 @@ export async function askVireekAi(
   const sec = opts.security ? await secureInput(opts.security, opts.task, opts.messages) : null;
   const guardedMessages = runInputGuardrails(sec?.messages ?? opts.messages, guardCtx);
 
-  const system = await buildSystemPrompt(opts.task, guardedMessages, opts.extraInstructions);
+  const system = await buildSystemPrompt(opts.task, guardedMessages, opts.extraInstructions, opts.skipKnowledgeBrief);
 
   const accountId = opts.accountId ?? opts.security?.userId;
   await checkBudget(accountId, opts.task);
@@ -510,7 +515,7 @@ export async function askVireekAiStream(
   const streamGuard = createStreamGuard(guardCtx);
   const rehydrator = sec && sec.secured.vault.reverse.size ? createRehydrator(sec.secured.vault) : null;
 
-  const system = await buildSystemPrompt(opts.task, guardedMessages, opts.extraInstructions);
+  const system = await buildSystemPrompt(opts.task, guardedMessages, opts.extraInstructions, opts.skipKnowledgeBrief);
   const accountId = opts.accountId ?? opts.security?.userId;
   await checkBudget(accountId, opts.task);
   const result = await routeChatStream(
