@@ -22,6 +22,7 @@
 import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { sendSms } from "../_shared/notify/deliver.ts";
 import { loadVoiceOverride } from "../_shared/voice/voiceOverride.ts";
+import { asFraudDb, blockedBody, gateDestinationOnly } from "../_shared/fraud/outboundGate.ts";
 import { DEFAULT_ALLOWED_CODES, parseDestination, rateDecision, type FailureCode } from "../_shared/first-call/logic.ts";
 
 const cors = {
@@ -108,6 +109,12 @@ async function start(admin: SupabaseClient, userId: string, body: Row): Promise<
       phone_last4: dest.last4,
       notify_when_ready: optIn,
       notify_phone_e164: optIn ? dest.e164 : null,
+  // Fraud guard, destination policy only: this demo dials the number the owner typed, so a premium / unroutable /
+  // not-allowed destination must never reach Vapi. No budget reservation and no "verified account" requirement: the
+  // demo exists so an UNVERIFIED new account can hear Sarah, and it is already capped at 3/hour and 8/day above.
+  // The provider duration cap is the plan cap. Shadow/enforce per fraud_settings.outbound_guard_mode.
+  const fraud = await gateDestinationOnly(asFraudDb(admin), ownerId, dest.e164, "first-call-start");
+  if (!fraud.allowed) return json(blockedBody(fraud.blocked), fraud.blocked.httpStatus);
     });
   }
 
@@ -119,8 +126,8 @@ async function start(admin: SupabaseClient, userId: string, body: Row): Promise<
       body: JSON.stringify({
         assistantId: bp.vapi_assistant_id,
         phoneNumberId: bp.vapi_phone_number_id,
-        customer: { number: dest.e164 },
-        assistantOverrides: { ...voiceOverride(bp.assistant_voice), variableValues: {
+        customer: { number: fraud.e164 },
+        assistantOverrides: { ...voiceOverride(bp.assistant_voice), maxDurationSeconds: fraud.maxCallSeconds, variableValues: {
           customer_name: "you", call_purpose: "first_call_demo",
           company_name: prof?.company_name || "your business", assistant_name: bp.assistant_name || "Sarah", industry: bp.primary_industry || "home services",
         } },
@@ -162,6 +169,15 @@ async function sweep(admin: SupabaseClient): Promise<Response> {
     const claim = await admin.from("first_call_sessions").update({ notified_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("id", r.id).is("notified_at", null).select("id");
     if (!claim.data?.length) continue;
     const base = (Deno.env.get("SITE_URL") ?? "https://app.vireek.com").replace(/\/$/, "");
+    // The number was typed by the owner: apply the destination policy before texting it (no loop on a refusal).
+    const smsGate = await gateDestinationOnly(asFraudDb(admin), r.user_id, r.notify_phone_e164, "first-call-start-sweep");
+    if (!smsGate.allowed) {
+      const retry = smsGate.blocked.retryable;
+      await admin.from("first_call_sessions").update(retry
+        ? { notified_at: null }
+        : { notify_phone_e164: null, notify_when_ready: false, status: "canceled", failure_code: "number_pending", completed_at: new Date().toISOString() }).eq("id", r.id);
+      continue;
+    }
     const res = await sendSms(r.notify_phone_e164, `Vireek: your Sarah number is ready. Hear her answer your phone: ${base}/onboarding/first-call`);
     if (res.ok) {
       sent++;
