@@ -1,0 +1,1908 @@
+diff --git a/docs/_audit/integrations-compliance.md b/docs/_audit/integrations-compliance.md
+new file mode 100644
+index 0000000..e7ab083
+--- /dev/null
++++ b/docs/_audit/integrations-compliance.md
+@@ -0,0 +1,68 @@
++# Integrations compliance — audit report
++
++Date: 2026-11-13 · Basis: uploaded `vireek-main__1_.zip` only (no node_modules, no network, no database, no git history, no live provider access).
++**Nothing here was deployed, migrated or run against a real environment.**
++
++## 1. Verified in code (several docs were stale)
++- Already existed, unchanged: `provider-disconnect`, `_shared/price-book/disconnect.ts`, `jobber-webhook` (APP_DISCONNECT, HMAC, dedupe table), Price Book "Disconnect" button, Microsoft `canManage` check, `_shared/http/retry.ts` (backoff + full jitter + Retry-After + Jobber THROTTLED), Xero backoff (`retryDelayMs`, no jitter), QuickBooks `qboRequest` with sleep (jitter not verified), QuickBooks disconnect/revoke.
++- **Real bugs found and fixed:**
++  1. `_shared/price-book/jobber.ts` imported a non-existent path (`../_shared/auth/crmPermission.ts`, unused) → any function importing it fails to load in Deno.
++  2. `_shared/dispatch/externalJobSync.ts` imported `servicetitanJobs.ts`; the file is `servicetitan-jobs.ts` → `vapi-webhook` could not load.
++  3. `price-book-sync` Jobber branch dereferenced `refreshed.access_token` when `refreshed` was `null` (token still valid) → sync failed.
++  4. `price-book-sync` with `{all_tenants:true}` had no authentication → now requires `CRON_SECRET` (fail-closed).
++  5. `price-book-sync` wiped `last_synced_at` on error → "last successful sync" is now preserved.
++  6. `externalJobSync` wrote refreshed Jobber tokens back to plaintext columns, leaving the vault copy stale (Jobber rotates refresh tokens → lockout risk) → now `saveSecrets`.
++  7. `externalJobSync` had no idempotency: a webhook retry created duplicate external jobs → now claimed per `(job_id, provider)`.
++  8. `IntegrationsPage` Disconnect for Google/HubSpot only flipped `status`; tokens stayed in `integrations.config`, no Google revoke → now `provider-disconnect`.
++  9. `provider-disconnect` had no permission check (a technician could disconnect) → `can_manage_integrations`.
++- `oauthState.ts`: signed, 10-min expiry, constant-time compare: MET. NOT single-use and bound to user id only (not tenant) → single-use added.
++- 29 other unresolved relative imports remain in `supabase/functions` (agent-actions, fair-sale, safety, dispatch-optimizer, landscaping-cron, reputation, truth). Not integration code; probably files missing from this ZIP. **Not touched, not verified.**
++
++## 2. Changed (see `integrations-safety.patch`, 51 files incl. tests/docs)
++- Migrations: `20290304000000_integrations_permission_and_st_flag.sql` (can_manage_integrations, flag `servicetitan_app_key_onboarding` OFF, single-use OAuth nonces) and `20290304000100_integration_health_and_drift.sql` (drift reports, `get_integration_health()`). Rollback blocks inside each.
++- Edge functions: `price-book-connect-servicetitan` (permission + flag + grandfathering), Jobber/HubSpot/Google start (permission), their callbacks (single-use state), `provider-disconnect` (permission + audit_log row), `price-book-sync`, new `integration-reconcile` (report-only drift).
++- Shared: `auth/integrationAccess*`, `price-book/stOnboardingPolicy`, `oauthStateNonce*`, `price-book/drift`, `dispatch/jobSyncClaim`; retry/backoff wired into ServiceTitan, Housecall Pro, Jobber jobs and `externalJobSync`.
++- UI: ServiceTitan "Certified connection coming soon" when flag OFF; last successful sync shown on error; Google/HubSpot disconnect via server.
++- HubSpot **removed** from marketing (home, integrations page and marquee, FAQ, automation text, live-stream demo text, `integrations.ts` detail page, sitemap, evidence list); in-app card shown only for tenants who already have a connection (legacy, with honest text).
++- Docs: `docs/integrations/servicetitan-application-pack.md` (draft, not submitted), `partner-status.md` correction.
++
++## 3. Verification
++| Check | Result |
++|---|---|
++| New/related unit tests run under Node with a small expect shim (38 tests: access, ST policy, OAuth state + nonce, claim/idempotency, drift, provider contracts incl. 429 and THROTTLED retry) | PASSED 38/38 — **this is not vitest** |
++| `tsc --strict` on the pure new modules; TS syntax scan of all 33 edited TS/TSX files | PASSED (no syntax errors); full type-check with real deps NOT RUN |
++| Patch applies cleanly to the pristine ZIP (`git apply --check`) | PASSED |
++| `vitest run`, full `tsc -b`, `eslint` | **NOT RUN** (no node_modules/network) |
++| pgTAP (`integrations_safety.test.sql`, 15 assertions) and both migrations | **NOT RUN** (no database) |
++| Edge functions in Deno, UI in browser, any provider API | **NOT RUN / BLOCKED** |
++
++## 4. NOT done / honest limits
++- **Contract fixtures are SYNTHETIC**, not recorded from live APIs (`__fixtures__/README.md`). They pin our client's behaviour, not the provider's. No contract tests for Google (no sync client exists) or HubSpot (removed).
++- Reconciliation covers ServiceTitan and Jobber price books only. Housecall Pro (no read endpoint in code), Xero, Google, QuickBooks (has its own `qbo_reconciliation` migration, not reviewed) are not covered by `integration-reconcile`.
++- Dead-letter: `job_external_syncs.status='error'` rows are the dead-letter queue (counted by `get_integration_health()`); there is **no automatic retry job** and no UI list/retry button.
++- `get_integration_health()` is created but **not yet rendered** in the UI (the Price Book page shows last success + error only). Drift is not shown in the UI yet.
++- Xero retry has no jitter; I did not change it (existing tests may pin values).
++- ServiceTitan connect still writes `st_client_secret`/`st_app_key` to plaintext columns; Jobber/HCP connect functions not audited for the same.
++- No remote revocation for Jobber, ServiceTitan, Housecall Pro, HubSpot (no verified endpoint). UI tells the user to remove the app at the provider.
++- Jobber `APP_DISCONNECT` topic name and payload shape are from existing code/comments: **verify in GraphiQL**. Jobber GraphQL version is still pinned in 3 places (2025-04-16 everywhere now, but duplicated).
++- OAuth state binds user id, not account owner. "Bidirectional sync … automatic conflict resolution" (Salesforce/Zoho) in `AutomationEngines.tsx` is NOT verified. `docs/claims-register.json` has no entries (nothing to correct).
++- Not production-ready: no executed integration, DB or end-to-end test exists.
++
++## 5. Exact manual steps (in order)
++1. Apply patch: `git apply -p1 integrations-safety.patch`. Review `git diff`.
++2. `npm ci && npx tsc -b && npx vitest run && npm run lint` — fix anything real tooling reports (my shim is not vitest).
++3. `supabase test db` against a **staging** DB, then apply both migrations to staging, then production.
++4. Deploy: `price-book-connect-servicetitan`, `price-book-sync`, `provider-disconnect`, `jobber|hubspot|google-calendar-oauth-start`, `jobber|hubspot|google-calendar-oauth-callback`, `integration-reconcile` (new), and every function importing the fixed shared files (`vapi-webhook`, `jobber-oauth-callback`, `price-book-connect-housecallpro`).
++5. Secrets: `CRON_SECRET` must be set. If anything already calls `price-book-sync` with `all_tenants:true`, add header `x-cron-secret`. Schedule `integration-reconcile` weekly (same header, body `{"all_tenants":true}`).
++6. Decide in the staff flag console whether to enable `servicetitan_app_key_onboarding` for any tenant (default OFF).
++7. Jobber Developer Center: register webhook URL for `jobber-webhook`, confirm APP_DISCONNECT in GraphiQL.
++
++## 6. Needs human — vendor applications to submit
++- **ServiceTitan**: App Marketplace application, dues, tenant fee/rev-share, sandbox, Data+API questionnaire (draft: `servicetitan-application-pack.md`).
++- **Jobber**: Developer Center 2FA, pre-submission checklist, app review (watch the >5 paying accounts rule for Draft apps).
++- **Intuit (QuickBooks)**: app assessment questionnaire, production keys, EULA/privacy/disconnect/launch URLs.
++- **Housecall Pro**: contact partnerships for OAuth app/programme/sandbox.
++- **Google**: Actions Center interest form, Business Profile API access, OAuth verification.
++- **Microsoft**: Cloud Partner Program enrolment, publisher verification.
++- **HubSpot**: only if you decide to build a real sync later (public app + Tech Partner agreement).
++- **Cross-cutting**: named security owner, penetration test, SOC 2 / ISO decisions.
+diff --git a/docs/integrations/servicetitan-application-pack.md b/docs/integrations/servicetitan-application-pack.md
+new file mode 100644
+index 0000000..ee9142e
+--- /dev/null
++++ b/docs/integrations/servicetitan-application-pack.md
+@@ -0,0 +1,45 @@
++# ServiceTitan App Marketplace — application pack (DRAFT, NOT SUBMITTED)
++
++Status: **draft prepared from code in this repository. Nothing has been submitted, and no ServiceTitan approval, tier, sandbox or fee exists.**
++Every statement is tagged **[code]** (verified in the file cited), **[owner]** (a business fact only the owner can supply) or **[unverified]**.
++Re-check requirements on ServiceTitan's official pages before submitting; programmes change (see `partner-requirements-matrix.md` §1.1).
++
++## 1. Current integration, as implemented
++
++| Item | Fact | Source |
++|---|---|---|
++| Auth to ServiceTitan | OAuth2 `client_credentials` grant against `https://auth.servicetitan.io/connect/token`, using the **customer's own** Client ID + Client Secret + App Key + Tenant ID | [code] `_shared/price-book/servicetitan.ts` |
++| Policy status | This is the "App Key tunneling" pattern ServiceTitan prohibits. **New tenants are now blocked by default** (flag `servicetitan_app_key_onboarding`, default OFF). Existing live connections are grandfathered. | [code] `price-book-connect-servicetitan/index.ts`, `_shared/price-book/stOnboardingPolicy.ts`, migration `20290304000000` |
++| Certified auth model | Unknown: ServiceTitan's own credentials model for certified apps is not documented publicly in what was reviewed. Ask the Technology Partner Manager. | [unverified] |
++
++## 2. Data flows (verified endpoints only)
++
++| # | Direction | Method + path | Purpose | Source |
++|---|---|---|---|---|
++| 1 | Vireek → ST | `POST https://auth.servicetitan.io/connect/token` | obtain access token | [code] servicetitan.ts |
++| 2 | ST → Vireek | `GET /pricebook/v2/{tenant}/services?page&pageSize=200&active=true` (max 50 pages) | import service prices (id, name, price, active, category.name) into `price_book_items` | [code] servicetitan.ts |
++| 3 | Vireek → ST | `GET /crm/v2/tenant/{tenant}/customers?phone=…&pageSize=1` | find an existing customer by phone | [code] servicetitan-jobs.ts |
++| 4 | Vireek → ST | `POST /crm/v2/tenant/{tenant}/customers` (name, type "Residential", phone, street) | create customer when not found | [code] servicetitan-jobs.ts |
++| 5 | Vireek → ST | `POST /jpm/v2/tenant/{tenant}/jobs` (customerId, locationId, businessUnitId, jobTypeId, priority "Normal", summary, one appointment) | book a job taken by the AI receptionist | [code] servicetitan-jobs.ts |
++
++Not implemented (do not claim): reading ST technician availability/capacity, webhooks, UI embedded in ServiceTitan, two-way job status sync. [code] no such calls exist.
++Field names and paths carry a "VERIFY against a live sandbox" note in the source; **never exercised against a ServiceTitan sandbox.** [code]
++
++## 3. Scopes / least privilege
++- The code touches three API areas: Pricebook (read), CRM customers (read, create), JPM jobs (create). [code]
++- The API scopes actually granted live in the customer's ServiceTitan app today, not in Vireek code. For certification, request only the three areas above. [owner/unverified]
++
++## 4. Data handling and security answers (from code)
++- **Credential storage.** A sealed credentials vault exists (`_shared/secrets/providerCredentials.ts`, keys `st_client_secret`, `st_app_key`) with deletion on disconnect. [code] **Gap:** `price-book-connect-servicetitan` still upserts `st_client_secret`/`st_app_key` into plaintext columns of `price_book_connections`; the table is service-role only (RLS enabled, no policies, so not browser-readable) but not encrypted for this path. [code] Fix before certification.
++- **Tenant isolation.** `price_book_connections` RLS on, zero policies; status exposed through SECURITY DEFINER `get_price_book_connections()` which returns no secrets. [code] migration `20260913010100`.
++- **Authorization to connect.** `can_manage_integrations()` (business-profile edit + billing view), enforced server-side with 401/403. [code] migration `20290304000000`, `_shared/auth/integrationAccess.ts`.
++- **Disconnect / offboarding.** `provider-disconnect` deletes sealed credentials and nulls plaintext columns, marks the connection `disconnected`, optionally deletes imported price-book rows. **No ServiceTitan-side revocation call exists** (none verified). [code]
++- **Resilience.** Outbound calls use `fetchWithRetry` (exponential backoff + full jitter, `Retry-After`, 429/503 always retried, 5xx/network only for reads; writes are never replayed after a 5xx). Job push is idempotent per `(job_id, provider)`. [code] `_shared/http/retry.ts`, `_shared/dispatch/jobSyncClaim.ts`
++- **Audit logging.** Disconnect and connect events are logged to function logs only (`provider_disconnected`). **No dedicated audit-table row is written.** [code]
++- **Certifications.** No SOC 2, no ISO 27001, no evidenced penetration test in the repo. Do not claim any. [code] `docs/compliance/SOC2_READINESS.md` per matrix
++
++## 5. Questions only the owner can answer ("Needs human")
++Company legal entity and signatory · tier (Silver/Gold/Titanium) and annual dues · tenant fee vs revenue share · support SLA and contacts · target customer count · pricing · Technology Partner Manager contact · data-retention periods · sub-processors list (see `docs/security/partner-security-questionnaire.md`).
++
++## 6. Before submitting
++1. Move ST secrets to the vault on connect (remove plaintext write). 2. Obtain sandbox, run the flows in §2, correct field names. 3. Replace the App-Key connect path with ServiceTitan's certified auth model. 4. Fill ServiceTitan's Data + API Workflow Questionnaire from §2–§4.
+diff --git a/docs/partner-status.md b/docs/partner-status.md
+index 5afb10d..dc052a2 100644
+--- a/docs/partner-status.md
++++ b/docs/partner-status.md
+@@ -15,6 +15,8 @@ Owner column is **TBD** everywhere because no owner is named in the repo — ass
+ | Microsoft | Publisher verification → Publisher Attestation → M365 Certification | Calendar functions exist (not audited) | TBD | Needs you: Cloud Partner Program enrolment; eligibility check | Audit `microsoft-calendar-*` token storage; enrol; verify publisher |
+ | Cross-cutting | Security evidence | No SOC 2 / ISO / evidenced pen-test; owner TBD | TBD | Needs you: pen-test engagement, owner | Commission pen-test; close P0 items below |
+ 
++> **Update 2026-11-13 (code verified, NOT deployed):** `jobber-webhook` (APP_DISCONNECT) already exists; `can_manage_integrations` is now enforced on Jobber/HubSpot/Google starts, ServiceTitan connect and `provider-disconnect` (Microsoft already enforced its own check); the Disconnect button exists on Price Book and, for Google/HubSpot, on the Integrations page via `provider-disconnect`; HubSpot is no longer advertised. Details: `docs/_audit/integrations-compliance.md`.
++
+ ## P0 engineering list (before any partner review) — code delivered 2026-11-04, NOT yet deployed/verified in your environment
+ 1. Encrypt all provider credentials — **code done** (`provider_credentials` vault, backfill, dual-read); **you must deploy + backfill + scrub** (runbook). GBP still open (no connect flow).
+ 2. Decide ServiceTitan onboarding policy (tunneling).
+diff --git a/public/sitemap.xml b/public/sitemap.xml
+index cb48110..f37adad 100644
+--- a/public/sitemap.xml
++++ b/public/sitemap.xml
+@@ -196,12 +196,6 @@
+     <lastmod>2026-09-06</lastmod>
+     <changefreq>monthly</changefreq>
+     <priority>0.7</priority>
+-  </url>
+-    <url>
+-    <loc>https://vireek.com/integrations/hubspot</loc>
+-    <lastmod>2026-09-10</lastmod>
+-    <changefreq>monthly</changefreq>
+-    <priority>0.7</priority>
+   </url>
+   <url>
+     <loc>https://vireek.com/integrations/salesforce</loc>
+diff --git a/src/components/sections/AutomationEngines.tsx b/src/components/sections/AutomationEngines.tsx
+index 7b8d029..7f389bf 100644
+--- a/src/components/sections/AutomationEngines.tsx
++++ b/src/components/sections/AutomationEngines.tsx
+@@ -92,7 +92,7 @@ const CATEGORIES: Category[] = [
+       { icon: DollarSign, title: 'Real-Time Job Profitability', body: 'Labor, parts, and drive time are compared to the invoice the moment a job closes — margin included.' },
+       { icon: PackageSearch, title: 'Parts & Truck Stock Intelligence', body: 'Checks truck inventory before dispatch and auto-orders missing parts from the supplier.' },
+       { icon: Boxes, title: 'Multi-Location Engine', body: 'Every new location gets its own workspace, technician roster, routing, and isolated analytics.' },
+-      { icon: Landmark, title: 'External CRM Sync', body: 'Bidirectional sync with HubSpot, Salesforce, and Zoho with automatic conflict resolution.' },
++      { icon: Landmark, title: 'External CRM Sync', body: 'Bidirectional sync with Salesforce and Zoho with automatic conflict resolution.' },
+       { icon: Inbox, title: 'Notification Router', body: 'Picks the right channel — SMS, email, or push — and personalizes every message it sends.' },
+       { icon: Brain, title: 'Knowledge Base Sync', body: 'Any update to your business info is embedded and pushed straight into Sarah\u2019s live prompt.' },
+     ],
+diff --git a/src/components/sections/FAQCallout.tsx b/src/components/sections/FAQCallout.tsx
+index 6900e2e..1f4f1f4 100644
+--- a/src/components/sections/FAQCallout.tsx
++++ b/src/components/sections/FAQCallout.tsx
+@@ -25,7 +25,7 @@ const FAQS: FAQ[] = [
+   },
+   {
+     question: 'Does it work with my CRM?',
+-    answer: 'Sarah syncs directly to Google Calendar, HubSpot, Salesforce, ServiceTitan, Housecall Pro, Jobber, and any system that accepts webhooks or Zapier triggers. New integrations are added regularly.',
++    answer: 'Sarah syncs directly to Google Calendar, Salesforce, ServiceTitan, Housecall Pro, Jobber, and any system that accepts webhooks or Zapier triggers. New integrations are added regularly.',
+   },
+   {
+     question: 'Can I customize the AI?',
+diff --git a/src/components/sections/Integrations.tsx b/src/components/sections/Integrations.tsx
+index 927d5d8..746f0a2 100644
+--- a/src/components/sections/Integrations.tsx
++++ b/src/components/sections/Integrations.tsx
+@@ -1,6 +1,6 @@
+ import { motion } from 'framer-motion';
+ import {
+-  Calendar, Users, Cloud, Wrench, Zap, Plug, ArrowRight,
++  Calendar, Cloud, Wrench, Zap, Plug, ArrowRight,
+   type LucideIcon,
+ } from 'lucide-react';
+ import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, staggerContainer, fadeUpItem, viewport } from '@/lib/motion';
+@@ -14,7 +14,6 @@ interface Integration {
+ 
+ const INTEGRATIONS: Integration[] = [
+   { icon: Calendar, name: 'Google Calendar', category: 'Scheduling', description: 'Real-time two-way sync of appointments and availability.' },
+-  { icon: Users, name: 'HubSpot', category: 'CRM', description: 'Contacts, deals, and activity logs created automatically.' },
+   { icon: Cloud, name: 'Salesforce', category: 'CRM', description: 'Enterprise CRM sync with custom field mapping.' },
+   { icon: Wrench, name: 'ServiceTitan', category: 'Field Service', description: 'Jobs, dispatch, and customer data in sync.' },
+   { icon: Wrench, name: 'Housecall Pro', category: 'Field Service', description: 'Booked jobs flow straight into your dispatch board.' },
+diff --git a/src/components/sections/IntegrationsMarquee.tsx b/src/components/sections/IntegrationsMarquee.tsx
+index 15be23b..a0c5323 100644
+--- a/src/components/sections/IntegrationsMarquee.tsx
++++ b/src/components/sections/IntegrationsMarquee.tsx
+@@ -16,7 +16,6 @@ const ROW_A: readonly MarqueeItem[] = [
+   { id: 'servicetitan', name: 'ServiceTitan', href: '/integrations/servicetitan' },
+   { id: 'jobber', name: 'Jobber', href: '/integrations/jobber' },
+   { id: 'housecall-pro', name: 'Housecall Pro', href: '/integrations' },
+-  { id: 'hubspot', name: 'HubSpot', href: '/integrations/hubspot' },
+   { id: 'salesforce', name: 'Salesforce', href: '/integrations/salesforce' },
+   { id: 'quickbooks', name: 'QuickBooks', href: '/integrations/quickbooks' },
+ ];
+diff --git a/src/components/sections/LiveActivityStream.tsx b/src/components/sections/LiveActivityStream.tsx
+index 981cc6e..3eb195b 100644
+--- a/src/components/sections/LiveActivityStream.tsx
++++ b/src/components/sections/LiveActivityStream.tsx
+@@ -67,7 +67,7 @@ const EVENTS: ActivityEvent[] = [
+     'Moved to top of queue',
+     'Technician at 4:00 PM',
+     'Confirmation call placed',
+-    'Synced to HubSpot',
++    'Synced to your CRM',
+   ]),
+   buildEvent('hvac', [
+     'Apex Heating & Air',
+diff --git a/src/components/sections/integrationsMarquee.evidence.ts b/src/components/sections/integrationsMarquee.evidence.ts
+index ec30aaf..2caab26 100644
+--- a/src/components/sections/integrationsMarquee.evidence.ts
++++ b/src/components/sections/integrationsMarquee.evidence.ts
+@@ -16,10 +16,6 @@ export const INTEGRATION_EVIDENCE: Readonly<Record<string, readonly string[]>> =
+     'supabase/functions/price-book-connect-housecallpro/index.ts',
+     'supabase/functions/_shared/price-book/housecallpro.ts',
+   ],
+-  hubspot: [
+-    'supabase/functions/hubspot-oauth-start/index.ts',
+-    'supabase/functions/hubspot-oauth-callback/index.ts',
+-  ],
+   salesforce: [
+     'supabase/functions/crm-oauth-start/index.ts',
+     'supabase/functions/_shared/crm/engine.ts',
+diff --git a/src/lib/homeContent.ts b/src/lib/homeContent.ts
+index ee6680e..c9df25f 100644
+--- a/src/lib/homeContent.ts
++++ b/src/lib/homeContent.ts
+@@ -32,12 +32,12 @@ export const HERO_HEADLINES = {
+ 
+ /**
+  * VERIFIED in repo:
+- *  - Google Calendar, HubSpot: OAuth connectors (supabase/functions/google-calendar-oauth-*, hubspot-oauth-*; IntegrationsPage.tsx)
++ *  - Google Calendar: OAuth connector (supabase/functions/google-calendar-oauth-*; IntegrationsPage.tsx). HubSpot is NOT listed: its connector is an OAuth stub with no sync.
+  *  - ServiceTitan, Housecall Pro, Jobber: price-book connectors (supabase/functions/price-book-connect-*, jobber-oauth-*) —
+  *    they import your price book. They are NOT verified as two-way job/CRM sync, so the page must not say "sync jobs".
+  */
+ export const INTEGRATION_GROUPS = [
+-  { heading: 'Calendar & CRM', note: 'Connect with one click', names: ['Google Calendar', 'HubSpot'] },
++  { heading: 'Calendar & CRM', note: 'Connect with one click', names: ['Google Calendar'] },
+   { heading: 'Price-book import', note: 'Bring your pricing into Vireek', names: ['ServiceTitan', 'Housecall Pro', 'Jobber'] },
+ ] as const;
+ 
+diff --git a/src/lib/integrations.ts b/src/lib/integrations.ts
+index 56b28cf..3011d9c 100644
+--- a/src/lib/integrations.ts
++++ b/src/lib/integrations.ts
+@@ -1,4 +1,4 @@
+-import { Calculator, Calendar, CreditCard, Building2, Zap, Users, Cloud, MessageSquare, Mail, PhoneCall, Wrench, type LucideIcon } from 'lucide-react';
++import { Calculator, Calendar, CreditCard, Building2, Zap, Cloud, MessageSquare, Mail, PhoneCall, Wrench, type LucideIcon } from 'lucide-react';
+ 
+ export interface IntegrationFAQ {
+   q: string;
+@@ -170,35 +170,6 @@ export const INTEGRATIONS: Integration[] = [
+       },
+     ],
+   },
+-  {
+-    slug: 'hubspot',
+-    name: 'HubSpot',
+-    category: 'CRM',
+-    icon: Users,
+-    tagline: 'Every call becomes a contact, a deal, and a timeline entry in HubSpot.',
+-    summary:
+-      'Connect HubSpot so callers Sarah talks to are captured as contacts, with call details, timeline activity, and job status kept in sync — instead of your team re-entering the same lead by hand.',
+-    capabilities: [
+-      'New callers are matched to an existing HubSpot contact or created automatically, with no duplicate records.',
+-      'Call summaries and outcomes are logged to the contact timeline so your sales and support history stays in one place.',
+-      'Booked jobs and lead status changes update the matching HubSpot deal automatically.',
+-    ],
+-    steps: [
+-      { title: 'Open Integrations', detail: 'From your Vireek dashboard, go to Settings → Integrations.' },
+-      { title: 'Connect HubSpot', detail: 'Sign in with your HubSpot account and approve access to contacts and deals.' },
+-      { title: 'Map your pipeline', detail: 'Choose which HubSpot pipeline and stage new Vireek leads should land in.' },
+-    ],
+-    faq: [
+-      {
+-        q: 'Which HubSpot plan do I need?',
+-        a: 'The Contacts and Deals objects used by this integration are available on HubSpot\u2019s free CRM tier; certain custom properties may require a paid Marketing or Sales Hub plan.',
+-      },
+-      {
+-        q: 'Does this create duplicate contacts?',
+-        a: 'No — Vireek matches on phone number first, updating an existing HubSpot contact instead of creating a new one whenever possible.',
+-      },
+-    ],
+-  },
+   {
+     slug: 'salesforce',
+     name: 'Salesforce',
+diff --git a/src/pages/IntegrationsPage.tsx b/src/pages/IntegrationsPage.tsx
+index 52de5e9..e144651 100644
+--- a/src/pages/IntegrationsPage.tsx
++++ b/src/pages/IntegrationsPage.tsx
+@@ -16,6 +16,7 @@ import { useAuth } from '@/contexts/AuthContext';
+ import { useToast } from '@/contexts/ToastContext';
+ import { DashboardLayout } from '@/components/DashboardNav';
+ import { supabase, Integration } from '@/lib/supabase';
++import { disconnectProvider, followUpNote } from '@/lib/providerDisconnect';
+ import { useKeyboardShortcut } from '@/lib/hooks';
+ import {
+   clearFailureConfig,
+@@ -76,7 +77,7 @@ const INTEGRATION_DEFS: IntegrationDef[] = [
+   {
+     type: 'hubspot',
+     name: 'HubSpot',
+-    description: 'Push leads and customer data into your HubSpot CRM.',
++    description: 'Legacy connection. Vireek does not currently send data to HubSpot; disconnect to remove access.',
+     icon: Mail,
+     color: 'text-violet-500',
+     bgColor: 'bg-violet-500/10',
+@@ -238,12 +239,22 @@ export function IntegrationsPage() {
+     }
+     setToggling(def.type);
+     try {
+-      const { error } = await supabase.from('integrations').update({ status: 'disconnected' }).eq('id', existing.id);
+-      if (error) throw error;
+-      toast(`${def.name} disconnected.`, 'info');
++      if (def.type === 'google_calendar' || def.type === 'hubspot') {
++        // Server-side offboarding: revokes the Google grant, deletes the stored credentials, removes the row.
++        // (A client-side status flip would leave the tokens in integrations.config.)
++        const result = await disconnectProvider((name, options) => supabase.functions.invoke(name, options), def.type);
++        if (!result.ok) throw new Error(result.message);
++        toast(`${def.name} disconnected.`, 'info');
++        const note = followUpNote(def.name, def.type, result.revoked);
++        if (note) toast(note, 'info');
++      } else {
++        const { error } = await supabase.from('integrations').update({ status: 'disconnected' }).eq('id', existing.id);
++        if (error) throw error;
++        toast(`${def.name} disconnected.`, 'info');
++      }
+       await loadIntegrations();
+-    } catch {
+-      toast(`Could not disconnect ${def.name}. Please try again.`, 'error');
++    } catch (err) {
++      toast(err instanceof Error && err.message ? err.message : `Could not disconnect ${def.name}. Please try again.`, 'error');
+     } finally {
+       setToggling(null);
+     }
+@@ -424,7 +435,7 @@ export function IntegrationsPage() {
+         </div>
+       ) : (
+         <div className="grid gap-4 sm:grid-cols-2">
+-          {INTEGRATION_DEFS.map((def, i) => {
++          {INTEGRATION_DEFS.filter((d) => d.type !== 'hubspot' || getIntegration('hubspot') !== undefined).map((def, i) => {
+             const integration = getIntegration(def.type);
+             // comingSoon integrations never show as connected, even if an old
+             // "connected" row exists from before this had a real distinction.
+diff --git a/src/pages/PriceBookPage.tsx b/src/pages/PriceBookPage.tsx
+index 2acd575..aae12e7 100644
+--- a/src/pages/PriceBookPage.tsx
++++ b/src/pages/PriceBookPage.tsx
+@@ -8,6 +8,7 @@ import { DashboardLayout } from '@/components/DashboardNav';
+ import { ConfirmDialog } from '@/components/ConfirmDialog';
+ import { ProviderDisconnectControl } from '@/components/integrations/ProviderDisconnectControl';
+ import { supabase } from '@/lib/supabase';
++import { useFeatureFlag } from '@/hooks/useFeatureFlag';
+ import {
+   PriceBookItem,
+   PriceBookFormState,
+@@ -58,6 +59,8 @@ function CrmConnections({
+   const [hcpApiKey, setHcpApiKey] = useState('');
+   const [connectingHcp, setConnectingHcp] = useState(false);
+   const [syncingProvider, setSyncingProvider] = useState<CrmProvider | null>(null);
++  // Default OFF: new tenants are not asked for their ServiceTitan App Key (see servicetitan_app_key_onboarding).
++  const stAppKeyOnboarding = useFeatureFlag('servicetitan_app_key_onboarding', false);
+ 
+   const byProvider = (p: CrmProvider) => connections.find((c) => c.provider === p && c.status !== 'disconnected');
+   const handleConnectServiceTitan = async () => {
+@@ -136,7 +139,7 @@ function CrmConnections({
+                     {conn.status === 'connected' && conn.last_synced_at
+                       ? `Last synced ${new Date(conn.last_synced_at).toLocaleString()}`
+                       : conn.status === 'error'
+-                        ? `Connection error: ${conn.last_sync_error ?? 'unknown error'}`
++                        ? `Connection error: ${conn.last_sync_error ?? 'unknown error'}${conn.last_synced_at ? ` · last successful sync ${new Date(conn.last_synced_at).toLocaleString()}` : ' · never synced successfully'}`
+                         : 'Not synced yet'}
+                   </p>
+                 ) : (
+@@ -165,6 +168,13 @@ function CrmConnections({
+     onDisconnected={onChanged}
+   />
+ </div>
++              ) : provider === 'service_titan' && !stAppKeyOnboarding ? (
++                <span
++                  className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-secondary"
++                  title="Vireek does not collect ServiceTitan App Keys. A certified connection is in preparation."
++                >
++                  Certified connection coming soon
++                </span>
+               ) : provider === 'service_titan' ? (
+                 <button
+                   type="button"
+@@ -224,7 +234,7 @@ function CrmConnections({
+         </div>
+       )}
+ 
+-      {showStForm && (
++      {showStForm && stAppKeyOnboarding && (
+         <div className="mt-3 rounded-xl border border-border bg-bg-primary p-4">
+           <p className="mb-3 text-xs text-text-secondary">
+             From your ServiceTitan developer app (My Apps → your app): Client ID, Client Secret, App Key, and your Tenant ID.
+diff --git a/supabase/functions/_shared/auth/integrationAccess.test.ts b/supabase/functions/_shared/auth/integrationAccess.test.ts
+new file mode 100644
+index 0000000..d63d71a
+--- /dev/null
++++ b/supabase/functions/_shared/auth/integrationAccess.test.ts
+@@ -0,0 +1,46 @@
++import { describe, expect, it } from 'vitest';
++import { checkIntegrationAccess, type CallerClient } from './integrationAccess';
++
++const USER = '8f6a3c1e-0000-4000-8000-000000000001';
++const OWNER = '8f6a3c1e-0000-4000-8000-000000000002';
++
++function fakeCaller(opts: {
++  user?: { id: string } | null;
++  userErr?: unknown;
++  owner?: unknown;
++  ownerErr?: unknown;
++  allowed?: unknown;
++  permErr?: unknown;
++}): CallerClient {
++  return {
++    auth: { getUser: async () => ({ data: { user: opts.user === undefined ? { id: USER } : opts.user }, error: opts.userErr ?? null }) },
++    rpc: async (fn: string) => {
++      if (fn === 'get_account_owner_id') return { data: opts.owner === undefined ? OWNER : opts.owner, error: opts.ownerErr ?? null };
++      if (fn === 'can_manage_integrations') return { data: opts.allowed === undefined ? true : opts.allowed, error: opts.permErr ?? null };
++      return { data: null, error: { message: 'unexpected rpc' } };
++    },
++  };
++}
++
++describe('checkIntegrationAccess', () => {
++  it('allows a user with can_manage_integrations and returns the account owner', async () => {
++    expect(await checkIntegrationAccess(fakeCaller({}), 'Jobber')).toEqual({ ok: true, userId: USER, ownerId: OWNER });
++  });
++  it('returns 401 for a missing/invalid session', async () => {
++    expect(await checkIntegrationAccess(fakeCaller({ user: null }), 'Jobber')).toMatchObject({ ok: false, status: 401 });
++    expect(await checkIntegrationAccess(fakeCaller({ userErr: { message: 'jwt expired' } }), 'Jobber')).toMatchObject({ ok: false, status: 401 });
++  });
++  it('returns 401 when the account owner cannot be resolved', async () => {
++    expect(await checkIntegrationAccess(fakeCaller({ owner: null }), 'HubSpot')).toMatchObject({ ok: false, status: 401 });
++  });
++  it('returns 403 for a low-privilege team member (permission false)', async () => {
++    const r = await checkIntegrationAccess(fakeCaller({ allowed: false }), 'HubSpot');
++    expect(r).toMatchObject({ ok: false, status: 403 });
++    expect((r as { error: string }).error).toContain('HubSpot');
++  });
++  it('fails closed: RPC error or non-boolean-true result is 403', async () => {
++    expect(await checkIntegrationAccess(fakeCaller({ permErr: { message: 'boom' } }), 'Google Calendar')).toMatchObject({ ok: false, status: 403 });
++    expect(await checkIntegrationAccess(fakeCaller({ allowed: 'true' }), 'Google Calendar')).toMatchObject({ ok: false, status: 403 });
++    expect(await checkIntegrationAccess(fakeCaller({ allowed: null }), 'Google Calendar')).toMatchObject({ ok: false, status: 403 });
++  });
++});
+diff --git a/supabase/functions/_shared/auth/integrationAccess.ts b/supabase/functions/_shared/auth/integrationAccess.ts
+new file mode 100644
+index 0000000..c520974
+--- /dev/null
++++ b/supabase/functions/_shared/auth/integrationAccess.ts
+@@ -0,0 +1,28 @@
++// supabase/functions/_shared/auth/integrationAccess.ts
++//
++// Pure (no Deno / npm: imports) access decision for "start or change a third-party integration".
++// Fails closed: anything other than an explicit `true` from can_manage_integrations() is a 403.
++// The Deno wrapper that builds the caller client lives in integrationAccessGuard.ts.
++
++export interface CallerClient {
++  auth: { getUser(): PromiseLike<{ data: { user: { id: string } | null }; error: unknown }> };
++  rpc(fn: string): PromiseLike<{ data: unknown; error: unknown }>;
++}
++
++export type IntegrationAccess =
++  | { ok: true; userId: string; ownerId: string }
++  | { ok: false; status: 401 | 403; error: string };
++
++export async function checkIntegrationAccess(caller: CallerClient, label: string, verb: "connect" | "disconnect" = "connect"): Promise<IntegrationAccess> {
++  const { data: userData, error: userErr } = await caller.auth.getUser();
++  const userId = userData?.user?.id;
++  if (userErr || !userId) return { ok: false, status: 401, error: "Invalid or expired session." };
++
++  const { data: ownerId, error: ownerErr } = await caller.rpc("get_account_owner_id");
++  if (ownerErr || typeof ownerId !== "string" || !ownerId) return { ok: false, status: 401, error: "Could not resolve your account." };
++
++  const { data: allowed, error: permErr } = await caller.rpc("can_manage_integrations");
++  if (permErr || allowed !== true) return { ok: false, status: 403, error: `You don't have permission to ${verb} ${label}.` };
++
++  return { ok: true, userId, ownerId };
++}
+diff --git a/supabase/functions/_shared/auth/integrationAccessGuard.ts b/supabase/functions/_shared/auth/integrationAccessGuard.ts
+new file mode 100644
+index 0000000..39d6b34
+--- /dev/null
++++ b/supabase/functions/_shared/auth/integrationAccessGuard.ts
+@@ -0,0 +1,31 @@
++// supabase/functions/_shared/auth/integrationAccessGuard.ts
++//
++// Deno wrapper for checkIntegrationAccess: builds a client that acts AS THE CALLER (anon key + their JWT) so that
++// get_account_owner_id() / can_manage_integrations() evaluate auth.uid() correctly. Returns the access result or a
++// ready-to-return Response (401/403) carrying the caller's CORS headers.
++//
++// Requires migration 20290304000000_integrations_permission_and_st_flag.sql (defines can_manage_integrations).
++
++import { createClient } from "npm:@supabase/supabase-js@2.57.4";
++import { checkIntegrationAccess, type CallerClient } from "./integrationAccess.ts";
++
++export async function requireIntegrationManager(
++  req: Request,
++  label: string,
++  corsHeaders: Record<string, string>,
++  verb: "connect" | "disconnect" = "connect",
++): Promise<{ userId: string; ownerId: string } | Response> {
++  const respond = (status: number, error: string) =>
++    new Response(JSON.stringify({ error }), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
++
++  const authHeader = req.headers.get("Authorization") ?? "";
++  if (!authHeader) return respond(401, "Missing Authorization header.");
++
++  const caller = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_ANON_KEY") ?? "", {
++    global: { headers: { Authorization: authHeader } },
++    auth: { persistSession: false },
++  });
++  const access = await checkIntegrationAccess(caller as unknown as CallerClient, label, verb);
++  if (!access.ok) return respond(access.status, access.error);
++  return { userId: access.userId, ownerId: access.ownerId };
++}
+diff --git a/supabase/functions/_shared/dispatch/externalJobSync.ts b/supabase/functions/_shared/dispatch/externalJobSync.ts
+index 418f612..4d81f1c 100644
+--- a/supabase/functions/_shared/dispatch/externalJobSync.ts
++++ b/supabase/functions/_shared/dispatch/externalJobSync.ts
+@@ -12,7 +12,9 @@
+ 
+ import type { SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
+ import { refreshJobberTokenIfNeeded } from "../price-book/jobber.ts";
+-import { createServiceTitanJob, type ServiceTitanJobConfig } from "../price-book/servicetitanJobs.ts";
++import { createServiceTitanJob, type ServiceTitanJobConfig } from "../price-book/servicetitan-jobs.ts";
++import { graphqlWithRetry } from "../http/retry.ts";
++import { claimJobSync } from "./jobSyncClaim.ts";
+ import { createHousecallProJob } from "../price-book/housecallpro.ts";
+ import { hydrateRow, saveSecrets } from "../secrets/providerCredentials.ts";
+ 
+@@ -66,18 +68,16 @@ async function recordSyncResult(
+ }
+ 
+ async function jobberGraphQL(accessToken: string, query: string, variables: Record<string, unknown>) {
+-  const res = await fetch(JOBBER_GRAPHQL_URL, {
+-    method: "POST",
+-    headers: {
+-      Authorization: `Bearer ${accessToken}`,
+-      "X-JOBBER-GRAPHQL-VERSION": JOBBER_API_VERSION,
+-      "Content-Type": "application/json",
++  // Backoff + jitter on 429/503 and Jobber THROTTLED (HTTP 200 + errors[].extensions.code).
++  const json = await graphqlWithRetry<Record<string, any>>(
++    {
++      url: JOBBER_GRAPHQL_URL,
++      headers: { Authorization: `Bearer ${accessToken}`, "X-JOBBER-GRAPHQL-VERSION": JOBBER_API_VERSION },
++      query,
++      variables,
+     },
+-    body: JSON.stringify({ query, variables }),
+-    signal: AbortSignal.timeout(8000),
+-  });
+-  if (!res.ok) throw new Error(`jobber_graphql_http_${res.status}`);
+-  const json = await res.json();
++    { timeoutMs: 8000 },
++  );
+   if (json.errors?.length) throw new Error(`jobber_graphql_error_${json.errors[0]?.message ?? "unknown"}`);
+   return json.data;
+ }
+@@ -159,13 +159,15 @@ async function pushJobToJobber(
+     });
+     if (refreshed) {
+       accessToken = refreshed.access_token;
++      // Jobber rotates the refresh token: store the new pair in the credentials vault (same as price-book-sync),
++      // never back into the plaintext columns, or the vault copy goes stale and the next refresh fails.
++      await saveSecrets(admin, userId, "jobber", {
++        jobber_access_token: refreshed.access_token,
++        jobber_refresh_token: refreshed.refresh_token,
++      });
+       await admin
+         .from("price_book_connections")
+-        .update({
+-          jobber_access_token: refreshed.access_token,
+-          jobber_refresh_token: refreshed.refresh_token,
+-          jobber_token_expires_at: refreshed.expires_at,
+-        })
++        .update({ jobber_access_token: null, jobber_refresh_token: null, jobber_token_expires_at: refreshed.expires_at })
+         .eq("user_id", userId)
+         .eq("provider", "jobber");
+     }
+@@ -323,13 +325,14 @@ export async function syncJobToExternalProviders(
+   } catch (error) {
+     console.error(JSON.stringify({ event: "credential_hydrate_failed", provider: stored.provider, error: error instanceof Error ? error.message : String(error) }));
+   }
+-    if (connection.provider === "jobber") {
++    // Idempotency: one external job per (job_id, provider). A webhook retry must not create a duplicate.
++    if (connection.provider === "jobber" && (await claimJobSync(admin, userId, job.id, "jobber"))) {
+       await pushJobToJobber(admin, userId, connection, job);
+     }
+-    if (connection.provider === "service_titan") {
++    if (connection.provider === "service_titan" && (await claimJobSync(admin, userId, job.id, "service_titan"))) {
+       await pushJobToServiceTitan(admin, userId, connection, job);
+     }
+-    if (connection.provider === "housecall_pro") {
++    if (connection.provider === "housecall_pro" && (await claimJobSync(admin, userId, job.id, "housecall_pro"))) {
+       await pushJobToHousecallPro(admin, userId, connection, job);
+     }
+   }
+diff --git a/supabase/functions/_shared/dispatch/jobSyncClaim.test.ts b/supabase/functions/_shared/dispatch/jobSyncClaim.test.ts
+new file mode 100644
+index 0000000..95d2b75
+--- /dev/null
++++ b/supabase/functions/_shared/dispatch/jobSyncClaim.test.ts
+@@ -0,0 +1,71 @@
++import { describe, expect, it } from 'vitest';
++import { claimJobSync, decideClaim } from './jobSyncClaim';
++
++const NOW = Date.parse('2026-11-13T12:00:00Z');
++const iso = (msAgo: number) => new Date(NOW - msAgo).toISOString();
++
++describe('decideClaim', () => {
++  it('inserts when nothing exists', () => expect(decideClaim(null, NOW)).toBe('insert'));
++  it('skips an already synced job (no duplicate in the FSM)', () => expect(decideClaim({ status: 'synced', updated_at: iso(1e9) }, NOW)).toBe('skip_synced'));
++  it('skips a fresh pending job, takes over a stale one', () => {
++    expect(decideClaim({ status: 'pending', updated_at: iso(10_000) }, NOW)).toBe('skip_inflight');
++    expect(decideClaim({ status: 'pending', updated_at: iso(10 * 60_000) }, NOW)).toBe('takeover');
++  });
++  it('retries errors and not_connected', () => {
++    expect(decideClaim({ status: 'error', updated_at: iso(1000) }, NOW)).toBe('takeover');
++    expect(decideClaim({ status: 'not_connected', updated_at: iso(1000) }, NOW)).toBe('takeover');
++  });
++});
++
++/** Tiny in-memory job_external_syncs with unique(job_id, provider) and a CAS-capable update. */
++function fakeDb(initial: Array<Record<string, any>> = []) {
++  const rows = [...initial];
++  const find = (f: Record<string, any>) => rows.filter((r) => Object.entries(f).every(([k, v]) => r[k] === v));
++  return {
++    rows,
++    from() {
++      const filters: Record<string, any> = {};
++      let op: 'select' | 'update' = 'select';
++      let patch: any = null;
++      const b: any = {
++        select: () => b,
++        eq: (k: string, v: any) => ((filters[k] = v), b),
++        update: (p: any) => ((op = 'update'), (patch = p), b),
++        maybeSingle: async () => ({ data: find(filters)[0] ?? null, error: null }),
++        insert: async (row: any) => {
++          if (find({ job_id: row.job_id, provider: row.provider }).length) return { error: { code: '23505' } };
++          rows.push({ ...row, id: String(rows.length + 1), updated_at: new Date(NOW).toISOString() });
++          return { error: null };
++        },
++        then: (res: any) => {
++          const hit = find(filters);
++          if (op === 'update') hit.forEach((r) => Object.assign(r, patch, { updated_at: new Date(NOW + 1).toISOString() }));
++          return Promise.resolve({ data: hit.map((r) => ({ id: r.id })), error: null }).then(res);
++        },
++      };
++      return b;
++    },
++  };
++}
++
++describe('claimJobSync', () => {
++  it('first caller wins, replay is rejected', async () => {
++    const db = fakeDb();
++    expect(await claimJobSync(db, 'u', 'j1', 'jobber', NOW)).toBe(true);
++    expect(await claimJobSync(db, 'u', 'j1', 'jobber', NOW)).toBe(false);
++    expect(await claimJobSync(db, 'u', 'j1', 'service_titan', NOW)).toBe(true);
++  });
++  it('never re-pushes a synced job', async () => {
++    const db = fakeDb([{ id: '1', job_id: 'j1', provider: 'jobber', status: 'synced', updated_at: iso(5e6) }]);
++    expect(await claimJobSync(db, 'u', 'j1', 'jobber', NOW)).toBe(false);
++  });
++  it('retries a failed job exactly once under a stale observation (CAS)', async () => {
++    const db = fakeDb([{ id: '1', job_id: 'j1', provider: 'jobber', status: 'error', updated_at: iso(5000) }]);
++    expect(await claimJobSync(db, 'u', 'j1', 'jobber', NOW)).toBe(true);
++    expect(db.rows[0].status).toBe('pending');
++  });
++  it('fails closed when the database throws', async () => {
++    const boom = { from: () => { throw new Error('db down'); } };
++    expect(await claimJobSync(boom, 'u', 'j1', 'jobber', NOW)).toBe(false);
++  });
++});
+diff --git a/supabase/functions/_shared/dispatch/jobSyncClaim.ts b/supabase/functions/_shared/dispatch/jobSyncClaim.ts
+new file mode 100644
+index 0000000..536abda
+--- /dev/null
++++ b/supabase/functions/_shared/dispatch/jobSyncClaim.ts
+@@ -0,0 +1,71 @@
++// supabase/functions/_shared/dispatch/jobSyncClaim.ts
++//
++// Idempotency for "push a booked job to an external FSM". job_external_syncs has UNIQUE (job_id, provider), so that
++// pair is the idempotency key. Before pushing, a caller CLAIMS the pair:
++//   - no row            -> INSERT a 'pending' row (unique constraint arbitrates concurrent callers)
++//   - 'synced'          -> skip (already created externally; a webhook retry must not create a duplicate)
++//   - fresh 'pending'   -> skip (another invocation is in flight)
++//   - 'error' / 'not_connected' / stale 'pending' -> take over with a compare-and-swap on updated_at
++// Only the winner proceeds. Never throws: any DB failure means "do not push" (fail closed against duplicates;
++// the failure is logged and the job stays retryable).
++
++export type ClaimDecision = "insert" | "skip_synced" | "skip_inflight" | "takeover";
++
++export const PENDING_STALE_MS = 2 * 60 * 1000;
++
++export function decideClaim(existing: { status: string; updated_at: string } | null, nowMs: number, staleMs = PENDING_STALE_MS): ClaimDecision {
++  if (!existing) return "insert";
++  if (existing.status === "synced") return "skip_synced";
++  if (existing.status === "pending") {
++    const age = nowMs - Date.parse(existing.updated_at);
++    return Number.isFinite(age) && age < staleMs ? "skip_inflight" : "takeover";
++  }
++  return "takeover";
++}
++
++// Minimal structural type so this module has no npm: import (unit-testable).
++interface Db {
++  from(table: string): any; // eslint-disable-line @typescript-eslint/no-explicit-any
++}
++
++export async function claimJobSync(
++  admin: Db,
++  userId: string,
++  jobId: string,
++  provider: "jobber" | "service_titan" | "housecall_pro",
++  nowMs: number = Date.now(),
++): Promise<boolean> {
++  try {
++    const { data: existing, error: readErr } = await admin
++      .from("job_external_syncs")
++      .select("status, updated_at")
++      .eq("job_id", jobId)
++      .eq("provider", provider)
++      .maybeSingle();
++    if (readErr) throw new Error("claim_read_failed");
++
++    const decision = decideClaim(existing ?? null, nowMs);
++    if (decision === "skip_synced" || decision === "skip_inflight") return false;
++
++    if (decision === "insert") {
++      const { error } = await admin.from("job_external_syncs").insert({ user_id: userId, job_id: jobId, provider, status: "pending" });
++      if (!error) return true;
++      if ((error as { code?: string }).code === "23505") return false; // lost the race
++      throw new Error("claim_insert_failed");
++    }
++
++    // takeover: compare-and-swap on the updated_at we observed; exactly one concurrent caller gets a row back.
++    const { data: won, error: casErr } = await admin
++      .from("job_external_syncs")
++      .update({ status: "pending", error_message: null })
++      .eq("job_id", jobId)
++      .eq("provider", provider)
++      .eq("updated_at", existing.updated_at)
++      .select("id");
++    if (casErr) throw new Error("claim_cas_failed");
++    return Array.isArray(won) && won.length === 1;
++  } catch (error) {
++    console.error(JSON.stringify({ event: "job_sync_claim_failed", provider, job_id: jobId, error: error instanceof Error ? error.message : String(error) }));
++    return false;
++  }
++}
+diff --git a/supabase/functions/_shared/price-book/__fixtures__/README.md b/supabase/functions/_shared/price-book/__fixtures__/README.md
+new file mode 100644
+index 0000000..082d6ed
+--- /dev/null
++++ b/supabase/functions/_shared/price-book/__fixtures__/README.md
+@@ -0,0 +1,8 @@
++# Contract fixtures — READ FIRST
++
++These JSON files are **SYNTHETIC**: they were written by hand to contain exactly the fields our clients read
++(servicetitan.ts, jobber.ts, housecallpro.ts). They were **NOT recorded from live provider APIs** (no sandbox access
++existed when they were written), so they prove "our client still behaves as coded", NOT "the provider still behaves like this".
++
++To turn them into real contract tests: record one real response per file from a sandbox/test tenant (strip PII and
++secrets), replace the file, and keep the test unchanged. Any provider-side shape change then fails CI.
+diff --git a/supabase/functions/_shared/price-book/__fixtures__/jobber-products.json b/supabase/functions/_shared/price-book/__fixtures__/jobber-products.json
+new file mode 100644
+index 0000000..6531c00
+--- /dev/null
++++ b/supabase/functions/_shared/price-book/__fixtures__/jobber-products.json
+@@ -0,0 +1,7 @@
++{ "data": { "products": {
++  "nodes": [
++    { "id": "Z2lkOi8vSm9iYmVyL1Byb2R1Y3QvMQ==", "name": "Furnace tune-up", "category": "HVAC", "defaultUnitCost": 129.99 },
++    { "id": "Z2lkOi8vSm9iYmVyL1Byb2R1Y3QvMg==", "name": "No cost product", "category": null, "defaultUnitCost": null }
++  ],
++  "pageInfo": { "hasNextPage": false, "endCursor": null } } },
++  "extensions": { "cost": { "requestedQueryCost": 12, "throttleStatus": { "currentlyAvailable": 9988, "restoreRate": 500 } } } }
+diff --git a/supabase/functions/_shared/price-book/__fixtures__/jobber-throttled.json b/supabase/functions/_shared/price-book/__fixtures__/jobber-throttled.json
+new file mode 100644
+index 0000000..c19bfee
+--- /dev/null
++++ b/supabase/functions/_shared/price-book/__fixtures__/jobber-throttled.json
+@@ -0,0 +1,2 @@
++{ "errors": [ { "message": "Throttled", "extensions": { "code": "THROTTLED" } } ],
++  "extensions": { "cost": { "requestedQueryCost": 500, "throttleStatus": { "currentlyAvailable": 0, "restoreRate": 1000 } } } }
+diff --git a/supabase/functions/_shared/price-book/__fixtures__/servicetitan-pricebook-services.page1.json b/supabase/functions/_shared/price-book/__fixtures__/servicetitan-pricebook-services.page1.json
+new file mode 100644
+index 0000000..5944439
+--- /dev/null
++++ b/supabase/functions/_shared/price-book/__fixtures__/servicetitan-pricebook-services.page1.json
+@@ -0,0 +1,6 @@
++{ "page": 1, "pageSize": 200, "hasMore": true, "data": [
++  { "id": 101, "name": "Drain cleaning", "price": 189.5, "active": true, "category": { "name": "Plumbing" } },
++  { "id": 102, "name": "Inactive thing", "price": 10, "active": false, "category": null },
++  { "id": 103, "name": "No price service", "active": true },
++  { "name": "No id service", "price": 5, "active": true }
++] }
+diff --git a/supabase/functions/_shared/price-book/__fixtures__/servicetitan-pricebook-services.page2.json b/supabase/functions/_shared/price-book/__fixtures__/servicetitan-pricebook-services.page2.json
+new file mode 100644
+index 0000000..c298d41
+--- /dev/null
++++ b/supabase/functions/_shared/price-book/__fixtures__/servicetitan-pricebook-services.page2.json
+@@ -0,0 +1,3 @@
++{ "page": 2, "pageSize": 200, "hasMore": false, "data": [
++  { "id": 104, "name": "Water heater flush", "price": 99, "active": true, "category": { "name": "Plumbing" } }
++] }
+diff --git a/supabase/functions/_shared/price-book/drift.test.ts b/supabase/functions/_shared/price-book/drift.test.ts
+new file mode 100644
+index 0000000..0833748
+--- /dev/null
++++ b/supabase/functions/_shared/price-book/drift.test.ts
+@@ -0,0 +1,27 @@
++import { describe, expect, it } from 'vitest';
++import { computeDrift, summarizeDrift } from './drift';
++
++const it1 = (id: string, price: number, active = true) => ({ external_id: id, service_name: `s${id}`, price_cents: price, active });
++
++describe('computeDrift', () => {
++  it('reports no drift for identical sets', () => {
++    expect(computeDrift([it1('1', 100), it1('2', 200)], [it1('2', 200), it1('1', 100)]).total).toBe(0);
++  });
++  it('detects price changes, new remote items and items gone from the provider', () => {
++    const r = computeDrift([it1('1', 100), it1('2', 200)], [it1('1', 150), it1('3', 300)]);
++    expect(r.price_mismatch).toEqual([{ external_id: '1', vireek_cents: 100, provider_cents: 150 }]);
++    expect(r.missing_in_vireek).toEqual(['3']);
++    expect(r.missing_in_provider).toEqual(['2']);
++    expect(r.total).toBe(3);
++  });
++  it('ignores inactive remote items that Vireek never had, and already-inactive local items', () => {
++    expect(computeDrift([it1('2', 200, false)], [it1('9', 5, false)]).total).toBe(0);
++  });
++  it('detects an active-flag mismatch', () => {
++    expect(computeDrift([it1('1', 100, true)], [it1('1', 100, false)]).active_mismatch).toHaveLength(1);
++  });
++  it('summarizeDrift caps stored details', () => {
++    const many = Array.from({ length: 100 }, (_, i) => it1(String(i), 1));
++    expect(summarizeDrift(computeDrift([], many), 25).missing_in_vireek).toHaveLength(25);
++  });
++});
+diff --git a/supabase/functions/_shared/price-book/drift.ts b/supabase/functions/_shared/price-book/drift.ts
+new file mode 100644
+index 0000000..d00bcde
+--- /dev/null
++++ b/supabase/functions/_shared/price-book/drift.ts
+@@ -0,0 +1,45 @@
++// supabase/functions/_shared/price-book/drift.ts
++//
++// Pure drift detection between Vireek's imported price-book rows and what the provider returns right now.
++// It only REPORTS. Nothing here (or in integration-reconcile) edits price_book_items.
++//
++// Note: ServiceTitan's fetcher requests active=true only, so "missing_in_provider" means "no longer active (or deleted)
++// at the provider"; both are real drift from the tenant's point of view.
++
++export interface LocalItem { external_id: string; service_name: string; price_cents: number; active: boolean }
++export interface RemoteItem { external_id: string; service_name: string; price_cents: number; active: boolean }
++
++export interface DriftReport {
++  total: number;
++  missing_in_vireek: string[];
++  missing_in_provider: string[];
++  price_mismatch: Array<{ external_id: string; vireek_cents: number; provider_cents: number }>;
++  active_mismatch: Array<{ external_id: string; vireek_active: boolean; provider_active: boolean }>;
++}
++
++export function computeDrift(local: LocalItem[], remote: RemoteItem[]): DriftReport {
++  const l = new Map(local.map((i) => [i.external_id, i]));
++  const r = new Map(remote.map((i) => [i.external_id, i]));
++  const report: DriftReport = { total: 0, missing_in_vireek: [], missing_in_provider: [], price_mismatch: [], active_mismatch: [] };
++
++  for (const [id, item] of r) {
++    const mine = l.get(id);
++    if (!mine) { if (item.active) report.missing_in_vireek.push(id); continue; }
++    if (mine.price_cents !== item.price_cents) report.price_mismatch.push({ external_id: id, vireek_cents: mine.price_cents, provider_cents: item.price_cents });
++    if (mine.active !== item.active) report.active_mismatch.push({ external_id: id, vireek_active: mine.active, provider_active: item.active });
++  }
++  for (const [id, mine] of l) if (!r.has(id) && mine.active) report.missing_in_provider.push(id);
++
++  report.total = report.missing_in_vireek.length + report.missing_in_provider.length + report.price_mismatch.length + report.active_mismatch.length;
++  return report;
++}
++
++/** Keeps stored details small and free of business data beyond ids/amounts. */
++export function summarizeDrift(r: DriftReport, cap = 25) {
++  return {
++    missing_in_vireek: r.missing_in_vireek.slice(0, cap),
++    missing_in_provider: r.missing_in_provider.slice(0, cap),
++    price_mismatch: r.price_mismatch.slice(0, cap),
++    active_mismatch: r.active_mismatch.slice(0, cap),
++  };
++}
+diff --git a/supabase/functions/_shared/price-book/housecallpro.ts b/supabase/functions/_shared/price-book/housecallpro.ts
+index 5ad36b1..d6e9017 100644
+--- a/supabase/functions/_shared/price-book/housecallpro.ts
++++ b/supabase/functions/_shared/price-book/housecallpro.ts
+@@ -7,6 +7,8 @@
+ // verified knowledge, without live access to re-check the current API
+ // reference.
+ 
++import { fetchWithRetry } from "../http/retry.ts";
++
+ const HCP_API_BASE = "https://api.housecallpro.com";
+ 
+ export interface HousecallProJob {
+@@ -18,15 +20,19 @@ export interface HousecallProJob {
+ }
+ 
+ async function hcpFetch(apiKey: string, path: string, init: RequestInit = {}) {
+-  const res = await fetch(`${HCP_API_BASE}${path}`, {
+-    ...init,
+-    headers: {
+-      Authorization: `Bearer ${apiKey}`,
+-      "Content-Type": "application/json",
+-      ...(init.headers ?? {}),
++  // Backoff + jitter on 429/503 (always) and 5xx/network errors (reads only); POSTs are never replayed after a 5xx.
++  const res = await fetchWithRetry(
++    `${HCP_API_BASE}${path}`,
++    {
++      ...init,
++      headers: {
++        Authorization: `Bearer ${apiKey}`,
++        "Content-Type": "application/json",
++        ...(init.headers ?? {}),
++      },
+     },
+-    signal: AbortSignal.timeout(8000),
+-  });
++    { timeoutMs: 8000 },
++  );
+   if (!res.ok) {
+     const body = await res.text().catch(() => "");
+     throw new Error(`housecallpro_http_${res.status}_${body.slice(0, 200)}`);
+diff --git a/supabase/functions/_shared/price-book/jobber-jobs.ts b/supabase/functions/_shared/price-book/jobber-jobs.ts
+index a4c8d34..6478a3e 100644
+--- a/supabase/functions/_shared/price-book/jobber-jobs.ts
++++ b/supabase/functions/_shared/price-book/jobber-jobs.ts
+@@ -4,6 +4,8 @@
+ // does the minimal client+job path; extend to quotes if you need pricing
+ // approval before the job is created.
+ 
++import { graphqlWithRetry } from "../http/retry.ts";
++
+ const JOBBER_API = "https://api.getjobber.com/api/graphql";
+ 
+ interface PushJobInput {
+@@ -23,18 +25,17 @@ export interface PushJobResult {
+ }
+ 
+ async function gql(accessToken: string, query: string, variables: Record<string, unknown>) {
+-  const res = await fetch(JOBBER_API, {
+-    method: "POST",
++  const body = await graphqlWithRetry<Record<string, any>>({
++    url: JOBBER_API,
+     headers: {
+       Authorization: `Bearer ${accessToken}`,
+-      "Content-Type": "application/json",
+       "X-JOBBER-GRAPHQL-VERSION": "2025-04-16", // TODO: pin to whatever version you certify against
+     },
+-    body: JSON.stringify({ query, variables }),
++    query,
++    variables,
+   });
+-  const json = await res.json();
+-  if (!res.ok || json.errors) throw new Error(JSON.stringify(json.errors ?? json));
+-  return json.data;
++  if (body.errors) throw new Error(JSON.stringify(body.errors));
++  return body.data;
+ }
+ 
+ export async function pushJobToJobber(input: PushJobInput): Promise<PushJobResult> {
+diff --git a/supabase/functions/_shared/price-book/jobber.ts b/supabase/functions/_shared/price-book/jobber.ts
+index 5fbf50a..8c43cd2 100644
+--- a/supabase/functions/_shared/price-book/jobber.ts
++++ b/supabase/functions/_shared/price-book/jobber.ts
+@@ -5,7 +5,6 @@
+ 
+ import type { NormalizedPriceItem } from "./types.ts";
+ import { graphqlWithRetry, type GraphQlBody } from "../http/retry.ts";
+-import { denyUnlessCanManageCrm } from "../_shared/auth/crmPermission.ts";
+ 
+ export const JOBBER_API_VERSION = "2025-04-16";
+ const JOBBER_TOKEN_URL = "https://api.getjobber.com/api/oauth/token";
+diff --git a/supabase/functions/_shared/price-book/oauthStateNonce.test.ts b/supabase/functions/_shared/price-book/oauthStateNonce.test.ts
+new file mode 100644
+index 0000000..2654c3a
+--- /dev/null
++++ b/supabase/functions/_shared/price-book/oauthStateNonce.test.ts
+@@ -0,0 +1,45 @@
++import { describe, expect, it } from 'vitest';
++import { signState, verifyState } from './oauthState';
++import { consumeOAuthStateNonce, stateNonce } from './oauthStateNonce';
++
++const SECRET = 'a'.repeat(64);
++const USER = '8f6a3c1e-0000-4000-8000-000000000001';
++
++/** In-memory stand-in for the oauth_state_consume RPC: first call per nonce -> true, replay -> false. */
++function fakeRpc() {
++  const seen = new Set<string>();
++  return async (_fn: string, args: Record<string, unknown>) => {
++    const n = String(args.p_nonce);
++    if (seen.has(n)) return { data: false, error: null };
++    seen.add(n);
++    return { data: true, error: null };
++  };
++}
++
++describe('oauth state single use', () => {
++  it('extracts the nonce of a real signed state and rejects malformed ones', async () => {
++    const s = await signState(USER, SECRET);
++    expect(stateNonce(s)).toMatch(/^[0-9a-f]{24}$/);
++    expect(stateNonce('garbage')).toBeNull();
++    expect(stateNonce(`${USER}.1.nothex.sig`)).toBeNull();
++  });
++  it('accepts a verified state once and rejects the replay', async () => {
++    const rpc = fakeRpc();
++    const s = await signState(USER, SECRET);
++    expect(await verifyState(s, SECRET)).toBe(USER);
++    expect(await consumeOAuthStateNonce(s, 'jobber', rpc)).toBe(true);
++    expect(await consumeOAuthStateNonce(s, 'jobber', rpc)).toBe(false);
++  });
++  it('two different states are independent', async () => {
++    const rpc = fakeRpc();
++    expect(await consumeOAuthStateNonce(await signState(USER, SECRET), 'jobber', rpc)).toBe(true);
++    expect(await consumeOAuthStateNonce(await signState(USER, SECRET), 'jobber', rpc)).toBe(true);
++  });
++  it('fails closed on RPC error, thrown error, or non-true data', async () => {
++    const s = await signState(USER, SECRET);
++    expect(await consumeOAuthStateNonce(s, 'jobber', async () => ({ data: null, error: { message: 'x' } }))).toBe(false);
++    expect(await consumeOAuthStateNonce(s, 'jobber', async () => { throw new Error('net'); })).toBe(false);
++    expect(await consumeOAuthStateNonce(s, 'jobber', async () => ({ data: 'true', error: null }))).toBe(false);
++    expect(await consumeOAuthStateNonce('garbage', 'jobber', fakeRpc())).toBe(false);
++  });
++});
+diff --git a/supabase/functions/_shared/price-book/oauthStateNonce.ts b/supabase/functions/_shared/price-book/oauthStateNonce.ts
+new file mode 100644
+index 0000000..6970f76
+--- /dev/null
++++ b/supabase/functions/_shared/price-book/oauthStateNonce.ts
+@@ -0,0 +1,26 @@
++// supabase/functions/_shared/price-book/oauthStateNonce.ts
++//
++// Single-use enforcement for the signed OAuth `state` (see oauthState.ts: format `userId.ts.nonce.sig`).
++// verifyState() proves authenticity + freshness (10 min); this module makes a verified state usable ONCE by recording
++// its nonce through the service-role-only RPC oauth_state_consume(). Call it ONLY AFTER verifyState() succeeded.
++// Fails closed: any RPC error or non-true result means "do not proceed".
++
++type Rpc = (fn: string, args: Record<string, unknown>) => PromiseLike<{ data: unknown; error: unknown }>;
++
++/** Returns the 24-hex nonce of a state string, or null if the shape is wrong. */
++export function stateNonce(state: string): string | null {
++  const parts = state.split(".");
++  if (parts.length !== 4) return null;
++  return /^[0-9a-f]{24}$/.test(parts[2]) ? parts[2] : null;
++}
++
++export async function consumeOAuthStateNonce(state: string, provider: string, rpc: Rpc): Promise<boolean> {
++  const nonce = stateNonce(state);
++  if (!nonce) return false;
++  try {
++    const { data, error } = await rpc("oauth_state_consume", { p_nonce: nonce, p_provider: provider });
++    return !error && data === true;
++  } catch {
++    return false;
++  }
++}
+diff --git a/supabase/functions/_shared/price-book/oauthStateNonceGuard.ts b/supabase/functions/_shared/price-book/oauthStateNonceGuard.ts
+new file mode 100644
+index 0000000..6d8124e
+--- /dev/null
++++ b/supabase/functions/_shared/price-book/oauthStateNonceGuard.ts
+@@ -0,0 +1,10 @@
++// supabase/functions/_shared/price-book/oauthStateNonceGuard.ts
++// Deno wrapper: consumes the state nonce with a service-role client. Requires migration 20290304000000.
++
++import { createClient } from "npm:@supabase/supabase-js@2.57.4";
++import { consumeOAuthStateNonce } from "./oauthStateNonce.ts";
++
++export function consumeOAuthStateOnce(state: string, provider: string): Promise<boolean> {
++  const admin = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", { auth: { persistSession: false } });
++  return consumeOAuthStateNonce(state, provider, (fn, args) => admin.rpc(fn, args));
++}
+diff --git a/supabase/functions/_shared/price-book/providerContracts.test.ts b/supabase/functions/_shared/price-book/providerContracts.test.ts
+new file mode 100644
+index 0000000..04fc4f5
+--- /dev/null
++++ b/supabase/functions/_shared/price-book/providerContracts.test.ts
+@@ -0,0 +1,96 @@
++// Contract tests for the provider clients (ServiceTitan pricebook, Jobber products, Housecall Pro).
++// Fixtures in ./__fixtures__ are SYNTHETIC (see README there) - they pin OUR client's request/response contract.
++import { afterEach, describe, expect, it, vi } from 'vitest';
++import { readFileSync } from 'node:fs';
++import { join } from 'node:path';
++import { fetchServiceTitanPricebook } from './servicetitan';
++import { fetchJobberProducts } from './jobber';
++import { verifyHousecallProKey } from './housecallpro';
++
++const fx = (name: string) => readFileSync(join(__dirname, '__fixtures__', name), 'utf8');
++const jsonRes = (body: string, status = 200, headers: Record<string, string> = {}) =>
++  new Response(body, { status, headers: { 'Content-Type': 'application/json', ...headers } });
++
++afterEach(() => vi.unstubAllGlobals());
++
++const ST = { st_client_id: 'cid', st_client_secret: 'sec', st_app_key: 'key', st_tenant_id: '12345' };
++
++describe('ServiceTitan pricebook contract', () => {
++  it('authenticates with client_credentials, pages pricebook/v2 with ST-App-Key, normalizes prices to cents', async () => {
++    const calls: Array<{ url: string; init: RequestInit }> = [];
++    vi.stubGlobal('fetch', async (url: string, init: RequestInit = {}) => {
++      calls.push({ url: String(url), init });
++      if (String(url).startsWith('https://auth.servicetitan.io/connect/token')) return jsonRes('{"access_token":"tok"}');
++      return jsonRes(fx(String(url).includes('page=1') ? 'servicetitan-pricebook-services.page1.json' : 'servicetitan-pricebook-services.page2.json'));
++    });
++    const items = await fetchServiceTitanPricebook(ST);
++
++    expect(calls[0].init.method).toBe('POST');
++    expect(String(calls[0].init.body)).toContain('grant_type=client_credentials');
++    const api = calls.filter((c) => c.url.startsWith('https://api.servicetitan.io/pricebook/v2/12345/services'));
++    expect(api).toHaveLength(2);
++    expect(api[0].url).toContain('page=1');
++    expect(api[0].url).toContain('active=true');
++    const h = api[0].init.headers as Record<string, string>;
++    expect(h.Authorization).toBe('Bearer tok');
++    expect(h['ST-App-Key']).toBe('key');
++
++    expect(items.map((i) => i.external_id)).toEqual(['101', '102', '104']); // rows without id / numeric price are skipped
++    expect(items[0]).toEqual({ external_id: '101', service_name: 'Drain cleaning', category: 'Plumbing', price_cents: 18950, active: true });
++    expect(items[1].active).toBe(false);
++  });
++
++  it('retries a 429 (Retry-After: 0) and then succeeds', async () => {
++    let n = 0;
++    vi.stubGlobal('fetch', async (url: string) => {
++      if (String(url).includes('auth.servicetitan.io')) return jsonRes('{"access_token":"tok"}');
++      n += 1;
++      return n === 1 ? jsonRes('{}', 429, { 'Retry-After': '0' }) : jsonRes(fx('servicetitan-pricebook-services.page2.json'));
++    });
++    expect((await fetchServiceTitanPricebook(ST)).map((i) => i.external_id)).toEqual(['104']);
++    expect(n).toBe(2);
++  });
++
++  it('surfaces a persistent auth failure without leaking the secret', async () => {
++    vi.stubGlobal('fetch', async () => jsonRes('{"error":"invalid_client"}', 401));
++    await expect(fetchServiceTitanPricebook(ST)).rejects.toThrow('servicetitan_auth_http_401');
++  });
++});
++
++describe('Jobber products contract', () => {
++  it('queries products with cursor pagination, the pinned API version header, and skips nodes without a cost', async () => {
++    const seen: Array<{ init: RequestInit }> = [];
++    vi.stubGlobal('fetch', async (_url: string, init: RequestInit = {}) => {
++      seen.push({ init });
++      return jsonRes(fx('jobber-products.json'));
++    });
++    const items = await fetchJobberProducts('access');
++    const headers = seen[0].init.headers as Record<string, string>;
++    expect(headers['X-JOBBER-GRAPHQL-VERSION']).toBe('2025-04-16');
++    expect(headers.Authorization).toBe('Bearer access');
++    expect(String(seen[0].init.body)).toContain('products(first: 100');
++    expect(items).toEqual([{ external_id: 'Z2lkOi8vSm9iYmVyL1Byb2R1Y3QvMQ==', service_name: 'Furnace tune-up', category: 'HVAC', price_cents: 12999, active: true }]);
++  });
++
++  it('recovers from THROTTLED (HTTP 200 + errors) by waiting and retrying', async () => {
++    let n = 0;
++    vi.stubGlobal('fetch', async () => (++n === 1 ? jsonRes(fx('jobber-throttled.json')) : jsonRes(fx('jobber-products.json'))));
++    const items = await fetchJobberProducts('access');
++    expect(n).toBe(2);
++    expect(items).toHaveLength(1);
++  }, 10_000);
++});
++
++describe('Housecall Pro contract', () => {
++  it('verifies the key with GET /company and a Bearer header', async () => {
++    let captured: { url: string; init: RequestInit } | null = null;
++    vi.stubGlobal('fetch', async (url: string, init: RequestInit = {}) => ((captured = { url: String(url), init }), jsonRes('{"id":"co_1"}')));
++    await verifyHousecallProKey('k');
++    expect(captured!.url).toBe('https://api.housecallpro.com/company');
++    expect((captured!.init.headers as Record<string, string>).Authorization).toBe('Bearer k');
++  });
++  it('turns a 401 into a typed error', async () => {
++    vi.stubGlobal('fetch', async () => jsonRes('{"error":"unauthorized"}', 401));
++    await expect(verifyHousecallProKey('bad')).rejects.toThrow('housecallpro_http_401');
++  });
++});
+diff --git a/supabase/functions/_shared/price-book/servicetitan-jobs.ts b/supabase/functions/_shared/price-book/servicetitan-jobs.ts
+index 6001c68..d7b6925 100644
+--- a/supabase/functions/_shared/price-book/servicetitan-jobs.ts
++++ b/supabase/functions/_shared/price-book/servicetitan-jobs.ts
+@@ -12,6 +12,7 @@
+ // against a live sandbox tenant before this touches real customers.
+ 
+ import { getServiceTitanToken, type ServiceTitanCredentials } from "./servicetitan.ts";
++import { fetchWithRetry } from "../http/retry.ts";
+ 
+ const ST_API_BASE = "https://api.servicetitan.io";
+ 
+@@ -29,16 +30,19 @@ export interface BookedJobForServiceTitan {
+ }
+ 
+ async function stFetch(token: string, appKey: string, path: string, init: RequestInit = {}) {
+-  const res = await fetch(`${ST_API_BASE}${path}`, {
+-    ...init,
+-    headers: {
+-      Authorization: `Bearer ${token}`,
+-      "ST-App-Key": appKey,
+-      "Content-Type": "application/json",
+-      ...(init.headers ?? {}),
++  const res = await fetchWithRetry(
++    `${ST_API_BASE}${path}`,
++    {
++      ...init,
++      headers: {
++        Authorization: `Bearer ${token}`,
++        "ST-App-Key": appKey,
++        "Content-Type": "application/json",
++        ...(init.headers ?? {}),
++      },
+     },
+-    signal: AbortSignal.timeout(8000),
+-  });
++    { timeoutMs: 8000 },
++  );
+   if (!res.ok) {
+     const body = await res.text().catch(() => "");
+     throw new Error(`servicetitan_http_${res.status}_${body.slice(0, 200)}`);
+diff --git a/supabase/functions/_shared/price-book/servicetitan.ts b/supabase/functions/_shared/price-book/servicetitan.ts
+index c203dbd..abb293e 100644
+--- a/supabase/functions/_shared/price-book/servicetitan.ts
++++ b/supabase/functions/_shared/price-book/servicetitan.ts
+@@ -4,6 +4,7 @@
+ // before production use.
+ 
+ import type { NormalizedPriceItem } from "./types.ts";
++import { fetchWithRetry } from "../http/retry.ts";
+ 
+ const ST_AUTH_URL = "https://auth.servicetitan.io/connect/token";
+ const ST_API_BASE = "https://api.servicetitan.io";
+@@ -23,15 +24,19 @@ function assertCredentials(c: ServiceTitanCredentials) {
+ 
+ export async function getServiceTitanToken(creds: ServiceTitanCredentials): Promise<string> {
+   assertCredentials(creds);
+-  const res = await fetch(ST_AUTH_URL, {
+-    method: "POST",
+-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+-    body: new URLSearchParams({
+-      grant_type: "client_credentials",
+-      client_id: creds.st_client_id,
+-      client_secret: creds.st_client_secret,
+-    }),
+-  });
++  const res = await fetchWithRetry(
++    ST_AUTH_URL,
++    {
++      method: "POST",
++      headers: { "Content-Type": "application/x-www-form-urlencoded" },
++      body: new URLSearchParams({
++        grant_type: "client_credentials",
++        client_id: creds.st_client_id,
++        client_secret: creds.st_client_secret,
++      }),
++    },
++    { timeoutMs: 10_000 },
++  );
+   if (!res.ok) throw new Error(`servicetitan_auth_http_${res.status}`);
+   const json = await res.json();
+   if (!json?.access_token) throw new Error("servicetitan_auth_no_token");
+@@ -47,9 +52,7 @@ export async function fetchServiceTitanPricebook(creds: ServiceTitanCredentials)
+ 
+   while (page <= MAX_PAGES) {
+     const url = `${ST_API_BASE}/pricebook/v2/${creds.st_tenant_id}/services?page=${page}&pageSize=${pageSize}&active=true`;
+-    const res = await fetch(url, {
+-      headers: { Authorization: `Bearer ${token}`, "ST-App-Key": creds.st_app_key },
+-    });
++    const res = await fetchWithRetry(url, { headers: { Authorization: `Bearer ${token}`, "ST-App-Key": creds.st_app_key } });
+     if (!res.ok) throw new Error(`servicetitan_pricebook_http_${res.status}`);
+     const json = await res.json();
+     const services: unknown[] = Array.isArray(json?.data) ? json.data : [];
+diff --git a/supabase/functions/_shared/price-book/stOnboardingPolicy.test.ts b/supabase/functions/_shared/price-book/stOnboardingPolicy.test.ts
+new file mode 100644
+index 0000000..667249e
+--- /dev/null
++++ b/supabase/functions/_shared/price-book/stOnboardingPolicy.test.ts
+@@ -0,0 +1,19 @@
++import { describe, expect, it } from 'vitest';
++import { decideServiceTitanConnect, ST_PENDING_CODE } from './stOnboardingPolicy';
++
++describe('decideServiceTitanConnect', () => {
++  it('blocks a new tenant when the flag is off (default)', () => {
++    expect(decideServiceTitanConnect({ flagOn: false, existingStatus: null })).toMatchObject({ allow: false, code: ST_PENDING_CODE });
++    expect(decideServiceTitanConnect({ flagOn: false, existingStatus: undefined })).toMatchObject({ allow: false });
++  });
++  it('allows a new tenant when the flag is on', () => {
++    expect(decideServiceTitanConnect({ flagOn: true, existingStatus: null })).toEqual({ allow: true, reason: 'flag' });
++  });
++  it('grandfathers tenants with a live connection even if the flag is off', () => {
++    expect(decideServiceTitanConnect({ flagOn: false, existingStatus: 'connected' })).toEqual({ allow: true, reason: 'grandfathered' });
++    expect(decideServiceTitanConnect({ flagOn: false, existingStatus: 'error' })).toEqual({ allow: true, reason: 'grandfathered' });
++  });
++  it('treats a disconnected tenant as new', () => {
++    expect(decideServiceTitanConnect({ flagOn: false, existingStatus: 'disconnected' })).toMatchObject({ allow: false });
++  });
++});
+diff --git a/supabase/functions/_shared/price-book/stOnboardingPolicy.ts b/supabase/functions/_shared/price-book/stOnboardingPolicy.ts
+new file mode 100644
+index 0000000..76dd82f
+--- /dev/null
++++ b/supabase/functions/_shared/price-book/stOnboardingPolicy.ts
+@@ -0,0 +1,21 @@
++// supabase/functions/_shared/price-book/stOnboardingPolicy.ts
++//
++// ServiceTitan "tunneling" policy: collecting a customer's own App Key / Client Secret is only allowed
++//   (a) while the flag `servicetitan_app_key_onboarding` is ON for the tenant (default OFF), or
++//   (b) for tenants that already have a live ServiceTitan connection (grandfathered: status connected | error).
++// A tenant that disconnected is treated as new. Pure function so it can be unit-tested.
++
++export const ST_FLAG_KEY = "servicetitan_app_key_onboarding";
++export const ST_PENDING_CODE = "servicetitan_certified_pending";
++export const ST_PENDING_MESSAGE =
++  "ServiceTitan certified connection is coming soon. Vireek does not collect ServiceTitan App Keys for new connections.";
++
++export type StConnectDecision =
++  | { allow: true; reason: "flag" | "grandfathered" }
++  | { allow: false; code: typeof ST_PENDING_CODE; message: string };
++
++export function decideServiceTitanConnect(input: { flagOn: boolean; existingStatus: string | null | undefined }): StConnectDecision {
++  if (input.existingStatus === "connected" || input.existingStatus === "error") return { allow: true, reason: "grandfathered" };
++  if (input.flagOn === true) return { allow: true, reason: "flag" };
++  return { allow: false, code: ST_PENDING_CODE, message: ST_PENDING_MESSAGE };
++}
+diff --git a/supabase/functions/google-calendar-oauth-callback/index.ts b/supabase/functions/google-calendar-oauth-callback/index.ts
+index c6f8f80..50dc9f5 100644
+--- a/supabase/functions/google-calendar-oauth-callback/index.ts
++++ b/supabase/functions/google-calendar-oauth-callback/index.ts
+@@ -2,6 +2,7 @@
+ 
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+ import { verifyState } from "../_shared/price-book/oauthState.ts";
++import { consumeOAuthStateOnce } from "../_shared/price-book/oauthStateNonceGuard.ts";
+ 
+ Deno.serve(async (req: Request) => {
+   const url = new URL(req.url);
+@@ -19,6 +20,7 @@ Deno.serve(async (req: Request) => {
+ 
+   const userId = await verifyState(state, stateSecret);
+   if (!userId) return redirectTo({ google_calendar: "error", reason: "invalid_state" });
++  if (!(await consumeOAuthStateOnce(state, "google_calendar"))) return redirectTo({ google_calendar: "error", reason: "state_already_used" });
+ 
+   const clientId = Deno.env.get("GOOGLE_CALENDAR_CLIENT_ID") ?? "";
+   const clientSecret = Deno.env.get("GOOGLE_CALENDAR_CLIENT_SECRET") ?? "";
+diff --git a/supabase/functions/google-calendar-oauth-start/index.ts b/supabase/functions/google-calendar-oauth-start/index.ts
+index 45c6c5c..2c082be 100644
+--- a/supabase/functions/google-calendar-oauth-start/index.ts
++++ b/supabase/functions/google-calendar-oauth-start/index.ts
+@@ -8,6 +8,7 @@
+ 
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+ import { signState } from "../_shared/price-book/oauthState.ts";
++import { requireIntegrationManager } from "../_shared/auth/integrationAccessGuard.ts";
+ 
+ const corsHeaders = {
+   "Access-Control-Allow-Origin": "*",
+@@ -29,6 +30,8 @@ Deno.serve(async (req: Request) => {
+     const admin = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", { auth: { persistSession: false } });
+     const { data: userData, error: userError } = await admin.auth.getUser(jwt);
+     if (userError || !userData?.user) return jsonResponse({ error: "Invalid or expired session." }, 401);
++    const access = await requireIntegrationManager(req, "Google Calendar", corsHeaders);
++    if (access instanceof Response) return access;
+ 
+     const clientId = Deno.env.get("GOOGLE_CALENDAR_CLIENT_ID");
+     const stateSecret = Deno.env.get("GOOGLE_CALENDAR_STATE_SECRET");
+diff --git a/supabase/functions/hubspot-oauth-callback/index.ts b/supabase/functions/hubspot-oauth-callback/index.ts
+index b25934f..8cd2684 100644
+--- a/supabase/functions/hubspot-oauth-callback/index.ts
++++ b/supabase/functions/hubspot-oauth-callback/index.ts
+@@ -2,6 +2,7 @@
+ 
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+ import { verifyState } from "../_shared/price-book/oauthState.ts";
++import { consumeOAuthStateOnce } from "../_shared/price-book/oauthStateNonceGuard.ts";
+ 
+ Deno.serve(async (req: Request) => {
+   const url = new URL(req.url);
+@@ -19,6 +20,7 @@ Deno.serve(async (req: Request) => {
+ 
+   const userId = await verifyState(state, stateSecret);
+   if (!userId) return redirectTo({ hubspot: "error", reason: "invalid_state" });
++  if (!(await consumeOAuthStateOnce(state, "hubspot"))) return redirectTo({ hubspot: "error", reason: "state_already_used" });
+ 
+   const clientId = Deno.env.get("HUBSPOT_CLIENT_ID") ?? "";
+   const clientSecret = Deno.env.get("HUBSPOT_CLIENT_SECRET") ?? "";
+diff --git a/supabase/functions/hubspot-oauth-start/index.ts b/supabase/functions/hubspot-oauth-start/index.ts
+index 39deb46..2b76510 100644
+--- a/supabase/functions/hubspot-oauth-start/index.ts
++++ b/supabase/functions/hubspot-oauth-start/index.ts
+@@ -8,6 +8,7 @@
+ 
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+ import { signState } from "../_shared/price-book/oauthState.ts";
++import { requireIntegrationManager } from "../_shared/auth/integrationAccessGuard.ts";
+ 
+ const corsHeaders = {
+   "Access-Control-Allow-Origin": "*",
+@@ -29,6 +30,8 @@ Deno.serve(async (req: Request) => {
+     const admin = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", { auth: { persistSession: false } });
+     const { data: userData, error: userError } = await admin.auth.getUser(jwt);
+     if (userError || !userData?.user) return jsonResponse({ error: "Invalid or expired session." }, 401);
++    const access = await requireIntegrationManager(req, "HubSpot", corsHeaders);
++    if (access instanceof Response) return access;
+ 
+     const clientId = Deno.env.get("HUBSPOT_CLIENT_ID");
+     const stateSecret = Deno.env.get("HUBSPOT_STATE_SECRET");
+diff --git a/supabase/functions/integration-reconcile/index.ts b/supabase/functions/integration-reconcile/index.ts
+new file mode 100644
+index 0000000..00986bc
+--- /dev/null
++++ b/supabase/functions/integration-reconcile/index.ts
+@@ -0,0 +1,106 @@
++// supabase/functions/integration-reconcile/index.ts
++//
++// Drift detection: compares the price-book rows imported from ServiceTitan / Jobber with what the provider returns now
++// and records an integration_drift_reports row when they differ. REPORT ONLY - it never edits price_book_items.
++//
++// POST {}                       Authorization: Bearer <user JWT>   -> the caller's own connections
++// POST { "all_tenants": true }  x-cron-secret: <CRON_SECRET>       -> every connected tenant (schedule weekly)
++//
++// Housecall Pro has no read endpoint in this codebase (write-back only), so it is not reconciled. Not verified.
++// Deploy: supabase functions deploy integration-reconcile   (requires migration 20290304000100)
++
++import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
++import { requireCronAuth } from "../_shared/http/cronAuth.ts";
++import { hydrateRow, saveSecrets } from "../_shared/secrets/providerCredentials.ts";
++import { fetchServiceTitanPricebook } from "../_shared/price-book/servicetitan.ts";
++import { fetchJobberProducts, refreshJobberTokenIfNeeded } from "../_shared/price-book/jobber.ts";
++import { computeDrift, summarizeDrift, type LocalItem } from "../_shared/price-book/drift.ts";
++import type { NormalizedPriceItem } from "../_shared/price-book/types.ts";
++
++const corsHeaders = {
++  "Access-Control-Allow-Origin": "*",
++  "Access-Control-Allow-Methods": "POST, OPTIONS",
++  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey, X-Cron-Secret",
++};
++const json = (data: unknown, status = 200) => new Response(JSON.stringify(data), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
++
++// deno-lint-ignore no-explicit-any
++type Conn = Record<string, any> & { id: string; user_id: string; provider: "service_titan" | "jobber" };
++const MAX_LOCAL_ROWS = 10_000;
++
++async function fetchRemote(admin: SupabaseClient, conn: Conn): Promise<NormalizedPriceItem[]> {
++  if (conn.provider === "service_titan") {
++    return await fetchServiceTitanPricebook({
++      st_client_id: conn.st_client_id ?? "", st_client_secret: conn.st_client_secret ?? "",
++      st_app_key: conn.st_app_key ?? "", st_tenant_id: conn.st_tenant_id ?? "",
++    });
++  }
++  if (!conn.jobber_access_token || !conn.jobber_refresh_token) throw new Error("missing_jobber_tokens");
++  const refreshed = await refreshJobberTokenIfNeeded({ access_token: conn.jobber_access_token, refresh_token: conn.jobber_refresh_token, expires_at: conn.jobber_token_expires_at });
++  if (refreshed) {
++    await saveSecrets(admin, conn.user_id, "jobber", { jobber_access_token: refreshed.access_token, jobber_refresh_token: refreshed.refresh_token });
++    await admin.from("price_book_connections").update({ jobber_access_token: null, jobber_refresh_token: null, jobber_token_expires_at: refreshed.expires_at }).eq("id", conn.id);
++  }
++  return await fetchJobberProducts(refreshed?.access_token ?? conn.jobber_access_token);
++}
++
++async function reconcileOne(admin: SupabaseClient, stored: Conn) {
++  let conn = stored;
++  try { conn = (await hydrateRow(admin, stored.user_id, stored)) as Conn; } catch { /* fall back to stored (legacy plaintext) */ }
++
++  const remote = await fetchRemote(admin, conn);
++  const { data, error } = await admin.from("price_book_items").select("external_id, service_name, price_cents, active")
++    .eq("user_id", conn.user_id).eq("source", conn.provider).not("external_id", "is", null).limit(MAX_LOCAL_ROWS);
++  if (error) throw new Error("local_read_failed");
++
++  const report = computeDrift((data ?? []) as LocalItem[], remote);
++  // Close previous open reports, then record the new one if there is drift.
++  await admin.from("integration_drift_reports").update({ status: "resolved", resolved_at: new Date().toISOString() })
++    .eq("user_id", conn.user_id).eq("provider", conn.provider).eq("status", "open");
++  if (report.total > 0) {
++    const { error: insErr } = await admin.from("integration_drift_reports").insert({
++      user_id: conn.user_id, provider: conn.provider, total: report.total,
++      missing_in_vireek: report.missing_in_vireek.length, missing_in_provider: report.missing_in_provider.length,
++      price_mismatch: report.price_mismatch.length, active_mismatch: report.active_mismatch.length,
++      details: summarizeDrift(report),
++    });
++    if (insErr) throw new Error("report_write_failed");
++  }
++  return { provider: conn.provider, drift: report.total };
++}
++
++Deno.serve(async (req: Request) => {
++  if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: corsHeaders });
++  if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
++  const admin = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", { auth: { persistSession: false } });
++  try {
++    const body = await req.json().catch(() => ({}));
++    let query = admin.from("price_book_connections").select("*").eq("status", "connected").in("provider", ["service_titan", "jobber"]);
++    if (body?.all_tenants === true) {
++      const cron = requireCronAuth(req);
++      if (!cron.ok) return cron.response;
++    } else {
++      const jwt = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
++      if (!jwt) return json({ error: "Missing Authorization header." }, 401);
++      const { data: u, error: ue } = await admin.auth.getUser(jwt);
++      if (ue || !u?.user) return json({ error: "Invalid or expired session." }, 401);
++      query = query.eq("user_id", u.user.id);
++    }
++    const { data: conns, error } = await query;
++    if (error) return json({ error: "Could not load connections." }, 500);
++
++    const results: Array<{ provider: string; drift?: number; error?: string }> = [];
++    for (const c of (conns ?? []) as Conn[]) {
++      try { results.push(await reconcileOne(admin, c)); }
++      catch (e) {
++        // Never leak provider error bodies / credentials to the caller; log the class only.
++        console.error(JSON.stringify({ event: "reconcile_failed", provider: c.provider, error: e instanceof Error ? e.message.slice(0, 120) : "unknown" }));
++        results.push({ provider: c.provider, error: "reconcile_failed" });
++      }
++    }
++    return json({ results });
++  } catch (e) {
++    console.error(JSON.stringify({ event: "integration_reconcile_failed", error: e instanceof Error ? e.message : String(e) }));
++    return json({ error: "Something went wrong." }, 500);
++  }
++});
+diff --git a/supabase/functions/jobber-oauth-callback/index.ts b/supabase/functions/jobber-oauth-callback/index.ts
+index 145a946..cc584f0 100644
+--- a/supabase/functions/jobber-oauth-callback/index.ts
++++ b/supabase/functions/jobber-oauth-callback/index.ts
+@@ -1,6 +1,7 @@
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+ import { exchangeJobberCode, fetchJobberProducts } from "../_shared/price-book/jobber.ts";
+ import { verifyState } from "../_shared/price-book/oauthState.ts";
++import { consumeOAuthStateOnce } from "../_shared/price-book/oauthStateNonceGuard.ts";
+ import { upsertPriceBookItems } from "../_shared/price-book/upsert.ts";
+ import { saveSecrets } from "../_shared/secrets/providerCredentials.ts";
+ import { fetchJobberAccountId } from "../_shared/price-book/jobberAccount.ts";
+@@ -22,6 +23,7 @@ Deno.serve(async (req: Request) => {
+ 
+   const userId = await verifyState(state, stateSecret);
+   if (!userId) return redirectTo({ jobber: "error", reason: "invalid_state" });
++  if (!(await consumeOAuthStateOnce(state, "jobber"))) return redirectTo({ jobber: "error", reason: "state_already_used" });
+ 
+   const admin = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", { auth: { persistSession: false } });
+ 
+diff --git a/supabase/functions/jobber-oauth-start/index.ts b/supabase/functions/jobber-oauth-start/index.ts
+index ea28375..da79dcc 100644
+--- a/supabase/functions/jobber-oauth-start/index.ts
++++ b/supabase/functions/jobber-oauth-start/index.ts
+@@ -1,5 +1,6 @@
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+ import { signState } from "../_shared/price-book/oauthState.ts";
++import { requireIntegrationManager } from "../_shared/auth/integrationAccessGuard.ts";
+ 
+ const corsHeaders = {
+   "Access-Control-Allow-Origin": "*",
+@@ -23,6 +24,8 @@ Deno.serve(async (req: Request) => {
+     const admin = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", { auth: { persistSession: false } });
+     const { data: userData, error: userError } = await admin.auth.getUser(jwt);
+     if (userError || !userData?.user) return jsonResponse({ error: "Invalid or expired session." }, 401);
++    const access = await requireIntegrationManager(req, "Jobber", corsHeaders);
++    if (access instanceof Response) return access;
+ 
+     const clientId = Deno.env.get("JOBBER_CLIENT_ID");
+     const stateSecret = Deno.env.get("JOBBER_STATE_SECRET");
+diff --git a/supabase/functions/price-book-connect-servicetitan/index.ts b/supabase/functions/price-book-connect-servicetitan/index.ts
+index ebc6e86..b3bf9bb 100644
+--- a/supabase/functions/price-book-connect-servicetitan/index.ts
++++ b/supabase/functions/price-book-connect-servicetitan/index.ts
+@@ -1,6 +1,9 @@
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+ import { fetchServiceTitanPricebook } from "../_shared/price-book/servicetitan.ts";
+ import { upsertPriceBookItems } from "../_shared/price-book/upsert.ts";
++import { requireIntegrationManager } from "../_shared/auth/integrationAccessGuard.ts";
++import { createFlagEvaluator } from "../_shared/flags/flagEval.ts";
++import { decideServiceTitanConnect, ST_FLAG_KEY } from "../_shared/price-book/stOnboardingPolicy.ts";
+ 
+ const corsHeaders = {
+   "Access-Control-Allow-Origin": "*",
+@@ -35,6 +38,17 @@ Deno.serve(async (req: Request) => {
+     if (userError || !userData?.user) return jsonResponse({ error: "Invalid or expired session." }, 401);
+     const userId = userData.user.id;
+ 
++    // Permission: same rule as QuickBooks (can_manage_integrations). Fails closed with 401/403.
++    const access = await requireIntegrationManager(req, "ServiceTitan", corsHeaders);
++    if (access instanceof Response) return access;
++
++    // Anti-tunneling policy: new tenants may NOT paste their own App Key unless the flag is ON for them.
++    // Tenants with a live connection (connected | error) are grandfathered. Flag failures evaluate to OFF.
++    const { data: existing } = await admin.from("price_book_connections").select("status").eq("user_id", userId).eq("provider", "service_titan").maybeSingle();
++    const flagOn = await createFlagEvaluator({ rpc: (fn, args) => admin.rpc(fn, args) }).isOn(ST_FLAG_KEY, access.ownerId, false);
++    const decision = decideServiceTitanConnect({ flagOn, existingStatus: (existing as { status?: string } | null)?.status });
++    if (!decision.allow) return jsonResponse({ error: decision.message, code: decision.code }, 403);
++
+     const body = (await req.json()) as RequestBody;
+     const creds = {
+       st_client_id: (body.client_id ?? "").trim(),
+diff --git a/supabase/functions/price-book-sync/index.ts b/supabase/functions/price-book-sync/index.ts
+index cfdaa7d..5c6c26a 100644
+--- a/supabase/functions/price-book-sync/index.ts
++++ b/supabase/functions/price-book-sync/index.ts
+@@ -5,6 +5,7 @@ import { upsertPriceBookItems } from "../_shared/price-book/upsert.ts";
+ import type { PriceBookConnectionRow } from "../_shared/price-book/types.ts";
+ import { hydrateRow, saveSecrets } from "../_shared/secrets/providerCredentials.ts";
+ import { recordJobberAccountId } from "../_shared/price-book/jobberAccount.ts";
++import { requireCronAuth } from "../_shared/http/cronAuth.ts";
+ 
+ const corsHeaders = {
+   "Access-Control-Allow-Origin": "*",
+@@ -45,15 +46,19 @@ async function syncOneConnection(admin: SupabaseClient, conn: PriceBookConnectio
+   await recordJobberAccountId(admin, conn.id, accessToken);
+ }
+ 
+- await saveSecrets(admin, conn.user_id, "jobber", {
+-  jobber_access_token: refreshed.access_token,
+-  jobber_refresh_token: refreshed.refresh_token,
+-});
+-await admin.from("price_book_connections").update({
+-  jobber_access_token: null,
+-  jobber_refresh_token: null,
+-  jobber_token_expires_at: refreshed.expires_at,
+-}).eq("id", conn.id);
++      // refreshJobberTokenIfNeeded returns null while the current token is still valid: persist ONLY a real refresh
++      // (Jobber rotates the refresh token, so losing a refreshed pair would lock the tenant out).
++      if (refreshed) {
++        await saveSecrets(admin, conn.user_id, "jobber", {
++          jobber_access_token: refreshed.access_token,
++          jobber_refresh_token: refreshed.refresh_token,
++        });
++        await admin.from("price_book_connections").update({
++          jobber_access_token: null,
++          jobber_refresh_token: null,
++          jobber_token_expires_at: refreshed.expires_at,
++        }).eq("id", conn.id);
++      }
+ 
+       const items = await fetchJobberProducts(accessToken);
+       return await upsertPriceBookItems(admin, conn.user_id, "jobber", items);
+@@ -76,6 +81,9 @@ Deno.serve(async (req: Request) => {
+     let connections: PriceBookConnectionRow[] = [];
+ 
+     if (body?.all_tenants === true) {
++      // Cross-tenant sweep: internal/cron only (fail-closed: 503 when CRON_SECRET is unset, 401 on a wrong secret).
++      const cron = requireCronAuth(req);
++      if (!cron.ok) return cron.response;
+       const { data, error } = await admin.from("price_book_connections").select("*").eq("status", "connected");
+       if (error) return jsonResponse({ error: error.message }, 500);
+       connections = (data as PriceBookConnectionRow[]) || [];
+@@ -109,7 +117,8 @@ connections = await Promise.all(
+         const result = await syncOneConnection(admin, conn);
+         await admin.from("price_book_connections").update({
+           status: result.error ? "error" : "connected",
+-          last_synced_at: result.error ? null : new Date().toISOString(),
++          // Keep the previous last_synced_at on failure: it is the tenant's "last SUCCESSFUL sync".
++          ...(result.error ? {} : { last_synced_at: new Date().toISOString() }),
+           last_sync_error: result.error ?? null,
+         }).eq("id", conn.id);
+         return { provider: conn.provider, ...result };
+diff --git a/supabase/functions/provider-disconnect/index.ts b/supabase/functions/provider-disconnect/index.ts
+index 187b593..a61238e 100644
+--- a/supabase/functions/provider-disconnect/index.ts
++++ b/supabase/functions/provider-disconnect/index.ts
+@@ -18,6 +18,7 @@
+ 
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+ import { deleteSecrets, loadSecrets, type CredentialProvider } from "../_shared/secrets/providerCredentials.ts";
++import { requireIntegrationManager } from "../_shared/auth/integrationAccessGuard.ts";
+ 
+ const corsHeaders = {
+   "Access-Control-Allow-Origin": "*",
+@@ -59,6 +60,10 @@ Deno.serve(async (req: Request) => {
+     if (userError || !userData?.user) return json({ error: "Invalid or expired session." }, 401);
+     const userId = userData.user.id;
+ 
++    // Only people who may manage integrations can disconnect them (a technician must get 403).
++    const access = await requireIntegrationManager(req, "this integration", corsHeaders, "disconnect");
++    if (access instanceof Response) return access;
++
+     const body = (await req.json().catch(() => ({}))) as { provider?: unknown; delete_imported_data?: unknown };
+     if (!isProvider(body.provider)) return json({ error: "Unknown provider." }, 400);
+     const provider = body.provider;
+@@ -116,6 +121,17 @@ Deno.serve(async (req: Request) => {
+       importedDeleted = count ?? 0;
+     }
+ 
++    // Audit trail (best effort: the disconnect already happened and must not be reported as failed because of logging).
++    const { error: auditError } = await admin.from("audit_log").insert({
++      user_id: access.ownerId,
++      actor_id: userId,
++      actor_email: userData.user.email ?? null,
++      action: `integration_disconnected:${provider}`,
++      target_table: isPriceBook(provider) ? "price_book_connections" : "integrations",
++      target_id: provider,
++    });
++    if (auditError) console.error(JSON.stringify({ event: "provider_disconnect_audit_failed", provider }));
++
+     console.log(JSON.stringify({ event: "provider_disconnected", user_id: userId, provider, revoked, imported_deleted: importedDeleted }));
+     return json({ ok: true, provider, revoked, imported_data_deleted: importedDeleted });
+   } catch (error) {
+diff --git a/supabase/migrations/20290304000000_integrations_permission_and_st_flag.sql b/supabase/migrations/20290304000000_integrations_permission_and_st_flag.sql
+new file mode 100644
+index 0000000..02aa3e2
+--- /dev/null
++++ b/supabase/migrations/20290304000000_integrations_permission_and_st_flag.sql
+@@ -0,0 +1,81 @@
++/*
++  Integrations safety pack.
++
++  1. public.can_manage_integrations()  - permission used by the Jobber / HubSpot / Google Calendar OAuth start
++     functions and the ServiceTitan connect function. Same rule as can_manage_quickbooks(): business-profile edit
++     AND billing view (owners always pass via has_account_permission's "no team_members row" branch).
++  2. Feature flag `servicetitan_app_key_onboarding`, seeded OFF (enabled=false, rollout 0). New tenants cannot hand
++     Vireek their ServiceTitan App Key; tenants with a live connection are grandfathered in code
++     (price-book-connect-servicetitan), not by this flag.
++  3. oauth_state_consumed + oauth_state_consume(): single-use enforcement for signed OAuth state nonces.
++
++  Prerequisites (verified in this repo): has_account_permission(text) [20270503000000_crm_sync.sql],
++  feature_flags [20270411000100_feature_flags.sql; kind/risk/owner columns in 20280501000000_release_safety_core.sql].
++
++  ROLLBACK (manual, in this order):
++    DROP FUNCTION IF EXISTS public.oauth_state_consume(text, text);
++    DROP TABLE IF EXISTS public.oauth_state_consumed;
++    DELETE FROM public.feature_flags WHERE key = 'servicetitan_app_key_onboarding';
++    DROP FUNCTION IF EXISTS public.can_manage_integrations();
++  (Roll back the edge-function changes first; they call these objects.)
++*/
++
++-- 1. PERMISSION ---------------------------------------------------------------------------------------------
++CREATE OR REPLACE FUNCTION public.can_manage_integrations()
++RETURNS boolean
++LANGUAGE sql
++STABLE
++SECURITY DEFINER
++SET search_path = public
++AS $$
++  SELECT public.has_account_permission('can_edit_business_profile')
++     AND public.has_account_permission('can_view_billing');
++$$;
++REVOKE ALL ON FUNCTION public.can_manage_integrations() FROM PUBLIC, anon;
++GRANT EXECUTE ON FUNCTION public.can_manage_integrations() TO authenticated;
++
++-- 2. FEATURE FLAG (default OFF) -----------------------------------------------------------------------------
++INSERT INTO public.feature_flags (key, name, description, enabled, rollout_pct, kind, risk)
++VALUES (
++  'servicetitan_app_key_onboarding',
++  'ServiceTitan App-Key onboarding',
++  'When OFF (default) new tenants cannot connect ServiceTitan by pasting their own App Key (ServiceTitan treats this as tunneling). Tenants with an existing connection keep working.',
++  false, 0, 'ops', 'high'
++)
++ON CONFLICT (key) DO NOTHING;
++
++-- 3. SINGLE-USE OAUTH STATE ---------------------------------------------------------------------------------
++CREATE TABLE IF NOT EXISTS public.oauth_state_consumed (
++  nonce text PRIMARY KEY CHECK (nonce ~ '^[0-9a-f]{24}$'),
++  provider text NOT NULL CHECK (char_length(provider) BETWEEN 1 AND 40),
++  consumed_at timestamptz NOT NULL DEFAULT now()
++);
++CREATE INDEX IF NOT EXISTS oauth_state_consumed_at_idx ON public.oauth_state_consumed (consumed_at);
++ALTER TABLE public.oauth_state_consumed ENABLE ROW LEVEL SECURITY;  -- no policies: service_role only
++REVOKE ALL ON public.oauth_state_consumed FROM PUBLIC, anon, authenticated;
++
++-- Returns true only for the FIRST consumption of a nonce. States live 10 minutes, so rows older than 1 day are
++-- safe to prune (pruned opportunistically here to avoid needing a cron job).
++CREATE OR REPLACE FUNCTION public.oauth_state_consume(p_nonce text, p_provider text)
++RETURNS boolean
++LANGUAGE plpgsql
++SECURITY DEFINER
++SET search_path = public
++AS $$
++DECLARE
++  v_rows integer;
++BEGIN
++  IF p_nonce IS NULL OR p_nonce !~ '^[0-9a-f]{24}$' THEN
++    RETURN false;
++  END IF;
++  INSERT INTO public.oauth_state_consumed (nonce, provider) VALUES (p_nonce, left(coalesce(p_provider, 'unknown'), 40))
++  ON CONFLICT (nonce) DO NOTHING;
++  GET DIAGNOSTICS v_rows = ROW_COUNT;
++  IF random() < 0.02 THEN
++    DELETE FROM public.oauth_state_consumed WHERE consumed_at < now() - interval '1 day';
++  END IF;
++  RETURN v_rows = 1;
++END;
++$$;
++REVOKE ALL ON FUNCTION public.oauth_state_consume(text, text) FROM PUBLIC, anon, authenticated;
++GRANT EXECUTE ON FUNCTION public.oauth_state_consume(text, text) TO service_role;
+diff --git a/supabase/migrations/20290304000100_integration_health_and_drift.sql b/supabase/migrations/20290304000100_integration_health_and_drift.sql
+new file mode 100644
+index 0000000..afbac6c
+--- /dev/null
++++ b/supabase/migrations/20290304000100_integration_health_and_drift.sql
+@@ -0,0 +1,60 @@
++/*
++  Integration health + drift reports.
++
++  - integration_drift_reports: written ONLY by the integration-reconcile edge function (service_role). Drift is surfaced,
++    never auto-fixed. Owners/team read their own rows.
++  - get_integration_health(): one call for the UI: per provider connection status, last successful sync, last error,
++    open drift count, failed job pushes (job_external_syncs.status='error') in the last 30 days.
++    job_external_syncs rows with status 'error' ARE the dead-letter queue for job write-back (verified: schema in
++    20261001000000_job_external_sync.sql; jobSyncClaim.ts lets them be retried exactly once at a time).
++
++  Prerequisites: price_book_connections, job_external_syncs, get_account_owner_id().
++
++  ROLLBACK:
++    DROP FUNCTION IF EXISTS public.get_integration_health();
++    DROP TABLE IF EXISTS public.integration_drift_reports;
++*/
++
++CREATE TABLE IF NOT EXISTS public.integration_drift_reports (
++  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
++  user_id uuid NOT NULL,
++  provider text NOT NULL CHECK (provider IN ('jobber', 'service_titan', 'housecall_pro')),
++  status text NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'resolved')),
++  total integer NOT NULL CHECK (total >= 0),
++  missing_in_vireek integer NOT NULL DEFAULT 0,
++  missing_in_provider integer NOT NULL DEFAULT 0,
++  price_mismatch integer NOT NULL DEFAULT 0,
++  active_mismatch integer NOT NULL DEFAULT 0,
++  details jsonb NOT NULL DEFAULT '{}'::jsonb CHECK (jsonb_typeof(details) = 'object'),
++  detected_at timestamptz NOT NULL DEFAULT now(),
++  resolved_at timestamptz
++);
++CREATE INDEX IF NOT EXISTS idx_integration_drift_open ON public.integration_drift_reports (user_id, provider) WHERE status = 'open';
++
++ALTER TABLE public.integration_drift_reports ENABLE ROW LEVEL SECURITY;
++REVOKE ALL ON public.integration_drift_reports FROM PUBLIC, anon, authenticated;
++GRANT SELECT ON public.integration_drift_reports TO authenticated;
++DROP POLICY IF EXISTS "select_own_integration_drift" ON public.integration_drift_reports;
++CREATE POLICY "select_own_integration_drift" ON public.integration_drift_reports
++  FOR SELECT TO authenticated
++  USING (user_id = auth.uid() OR user_id = public.get_account_owner_id());
++
++CREATE OR REPLACE FUNCTION public.get_integration_health()
++RETURNS TABLE (provider text, status text, last_synced_at timestamptz, last_sync_error text, open_drift integer, failed_job_pushes_30d integer)
++LANGUAGE sql
++STABLE
++SECURITY DEFINER
++SET search_path = public
++AS $$
++  SELECT c.provider, c.status, c.last_synced_at, c.last_sync_error,
++         COALESCE((SELECT sum(d.total)::integer FROM integration_drift_reports d
++                    WHERE d.user_id = c.user_id AND d.provider = c.provider AND d.status = 'open'), 0),
++         COALESCE((SELECT count(*)::integer FROM job_external_syncs j
++                    WHERE j.user_id = public.get_account_owner_id() AND j.provider = c.provider
++                      AND j.status = 'error' AND j.updated_at > now() - interval '30 days'), 0)
++    FROM price_book_connections c
++   WHERE c.user_id IN (auth.uid(), public.get_account_owner_id())
++     AND c.status <> 'disconnected';
++$$;
++REVOKE ALL ON FUNCTION public.get_integration_health() FROM PUBLIC, anon;
++GRANT EXECUTE ON FUNCTION public.get_integration_health() TO authenticated;
+diff --git a/supabase/tests/database/integrations_safety.test.sql b/supabase/tests/database/integrations_safety.test.sql
+new file mode 100644
+index 0000000..f83ab41
+--- /dev/null
++++ b/supabase/tests/database/integrations_safety.test.sql
+@@ -0,0 +1,28 @@
++-- Integrations safety pack (migration 20290304000000): pgTAP. Run with: supabase test db
++-- NOT RUN by the author (no database available when written) - run before release.
++begin;
++create extension if not exists pgtap with schema extensions;
++select plan(15);
++
++select has_function('public', 'can_manage_integrations', array[]::text[], 'can_manage_integrations() exists');
++select ok(has_function_privilege('authenticated', 'public.can_manage_integrations()', 'EXECUTE'), 'authenticated may call can_manage_integrations');
++select ok(not has_function_privilege('anon', 'public.can_manage_integrations()', 'EXECUTE'), 'anon may NOT call can_manage_integrations');
++
++select is((select enabled from public.feature_flags where key = 'servicetitan_app_key_onboarding'), false, 'ServiceTitan App-Key flag is seeded OFF');
++select is((select rollout_pct from public.feature_flags where key = 'servicetitan_app_key_onboarding'), 0, 'rollout is 0');
++select is(public.flag_evaluate('servicetitan_app_key_onboarding', gen_random_uuid()), false, 'flag evaluates OFF for an arbitrary tenant');
++
++select ok(not has_function_privilege('authenticated', 'public.oauth_state_consume(text,text)', 'EXECUTE'), 'authenticated may NOT consume OAuth nonces');
++select ok(has_function_privilege('service_role', 'public.oauth_state_consume(text,text)', 'EXECUTE'), 'service_role may consume OAuth nonces');
++
++select is(public.oauth_state_consume('0123456789abcdef01234567', 'jobber'), true, 'first consumption of a nonce succeeds');
++select is(public.oauth_state_consume('0123456789abcdef01234567', 'jobber'), false, 'replay of the same nonce is rejected');
++select is(public.oauth_state_consume('not-a-nonce', 'jobber'), false, 'malformed nonce is rejected');
++
++select has_table('public', 'integration_drift_reports', 'drift reports table exists (migration 20290304000100)');
++select ok(not has_table_privilege('anon', 'public.integration_drift_reports', 'SELECT'), 'anon may NOT read drift reports');
++select ok(not has_table_privilege('authenticated', 'public.integration_drift_reports', 'INSERT'), 'authenticated may NOT write drift reports');
++select ok(not has_function_privilege('anon', 'public.get_integration_health()', 'EXECUTE'), 'anon may NOT call get_integration_health');
++
++select * from finish();
++rollback;
