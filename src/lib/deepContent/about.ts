@@ -124,7 +124,7 @@ export const ABOUT_DEEP: DeepContentData = {
           items: [
             'Scheduling: booking against your calendar, reminders and reschedule handling.',
             'Customer communication: SMS confirmations, missed-call text-back, and WhatsApp and Instagram DMs where connected.',
-            'CRM and field-service sync: ServiceTitan, Housecall Pro and Jobber on plans that include them.',
+            'Field-service connections such as ServiceTitan and Jobber. Today these sync your price book so Sarah can quote current prices; each integration page states its current scope.',
             'Operations: dispatch, parts checks and multi-location management on the plans that include them.',
           ],
         },
