@@ -176,7 +176,7 @@ function ProductVisual() {
 export function Hero() {
   const headlineVariant = useExperiment('hero_headline');
   return (
-    <section id="top" className="relative overflow-hidden bg-noise bg-gradient-mesh">
+    <section id="top" className="relative overflow-hidden bg-noise bg-gradient-aurora">
       <div className="absolute inset-0 -z-10 bg-gradient-to-b from-bg-primary via-bg-primary to-bg-secondary" />
 
       <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-16 px-5 pb-20 pt-28 sm:px-6 sm:pt-32 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10 lg:pb-28 lg:pt-40">
