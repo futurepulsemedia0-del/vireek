@@ -7,7 +7,6 @@ import { CookieConsent } from '@/components/CookieConsent';
 import { BackButton } from '@/components/ui/BackButton';
 import { HelpSearch } from '@/components/HelpSearch';
 import { HelpFeedback } from '@/components/HelpFeedback';
-import { HelpArticleList } from '@/components/help/HelpArticleList';
 import { useSEO } from '@/lib/seo';
 import { parseHelpBody } from '@/lib/helpBody';
 import { HELP_CATEGORIES } from '@/lib/helpContent';
@@ -202,11 +201,15 @@ function ArticleView({ article }: { article: HelpArticleRecord }) {
                   <h2 id="related-title" className="text-xl font-bold tracking-tight text-text-primary">
                     Related articles
                   </h2>
-                  <HelpArticleList
-                    className="mt-4"
-                    label="Related articles"
-                    items={related.map((r) => ({ slug: r.slug, title: r.title, eyebrow: r.categoryName }))}
-                  />
+               <ul className="mt-4 space-y-2">
+                  {related.map((r) => (
+                     <li key={r.slug}>
+                            <Link to={`/help/${r.slug}`} className="focus-ring block min-h-11 rounded-xl border border-border bg-bg-secondary px-4 py-3 text-sm font-medium text-text-primary hover:border-accent">
+                       {r.title}
+                     </Link>
+                   </li>
+                  ))}
+                  </ul>
                 </section>
               )}
             </div>
