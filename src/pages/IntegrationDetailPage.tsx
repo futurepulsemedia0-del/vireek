@@ -6,6 +6,8 @@ import { Footer } from '@/components/Footer';
 import { CookieConsent } from '@/components/CookieConsent';
 import { Button } from '@/components/ui/Button';
 import { useSEO } from '@/lib/seo';
+import { DeepContent } from '@/components/marketing/DeepContent';
+import { buildIntegrationDeep } from '@/lib/deepContent/integrationsDeep';
 import { EASE, eyebrowClass, sectionHeadingClass, viewport } from '@/lib/motion';
 import { getIntegrationBySlug, INTEGRATIONS } from '@/lib/integrations';
 
@@ -157,6 +159,7 @@ export function IntegrationDetailPage() {
           </section>
         )}
 
+        <DeepContent data={buildIntegrationDeep(integration)} idPrefix={`integration-${integration.slug}`} />
         {/* Other integrations */}
         <section className="px-5 py-12 sm:px-6 sm:py-16 lg:py-20">
           <div className="mx-auto max-w-5xl">
