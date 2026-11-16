@@ -130,3 +130,15 @@ Ladder change ⇒ row in `voice_ladder_events`, public incident via `synthetic_o
 - Vapi `destination` response, SIP dialing, `ForwardedFrom` behaviour per carrier, rebuilt end-of-call-report shape: unverified.
 - No secondary AI engine. No ASR/TTS secondary. No in-repo copy of voicemail audio. No timer worker for `next_attempt_at`.
 - RLS written for tenant tables, never exercised with real JWTs; cross-tenant tests against a real database not run.
+
+## Bulkhead isolation (feature-flagged, default OFF)
+
+Code: `supabase/functions/_shared/voice-resilience/bulkhead.ts`. Each provider call path has its own concurrency limit, a bounded wait queue and a queue timeout, so one slow vendor cannot use up every slot. Excess calls are rejected fast with `BulkheadRejectedError` and the existing fallback runs.
+
+- **Flag:** `VOICE_BULKHEAD_ENABLED=true` (edge-function secret). Unset/anything else = original behaviour, no code path change.
+- **Wired calls:** Twilio `placeCall` + `listCalls` (`twilio:carrier`), SMS send (`twilio:sms`, `telnyx:sms`), Vapi `listCalls`/`getCall` (`vapi:voice_engine`). Health checks are deliberately NOT guarded.
+- **Fallbacks:** SMS skips a saturated provider and tries the next one (the rejection is NOT reported to the circuit breaker, it is not a vendor failure); `voice-resilience-admin` returns HTTP 503 `retry_after_seconds: 5`; `voice-reconcile` records the job error and retries on the next tick.
+- **Tuning:** optional `VOICE_BULKHEAD_CONFIG` JSON, e.g. `{"twilio:sms":{"maxConcurrent":4,"maxQueue":16,"queueTimeoutMs":2000}}`. Invalid fields are ignored. Defaults are starting points, **[VERIFY]** against real concurrency data before production.
+- **Observability:** every rejection logs one JSON line `{"evt":"voice_bulkhead", ...}` (no payloads). Counters are available in-process via `allBulkheadMetrics()`; **not yet exported to a dashboard**.
+- **Limits:** state is per edge-function isolate, not global. It bounds each isolate's exposure; it is not a cluster-wide limiter and does not replace the circuit breaker.
+- **Roll back:** unset `VOICE_BULKHEAD_ENABLED`.
