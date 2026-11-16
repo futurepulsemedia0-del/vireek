@@ -180,7 +180,7 @@ export function AiAssistant() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 24, scale: 0.97 }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed bottom-[calc(164px_+_var(--vk-bottom-nav-h,0px))] right-5 z-40 flex h-[560px] w-[390px] max-w-[92vw] flex-col overflow-hidden rounded-3xl border border-border bg-bg-secondary/95 shadow-card-hover backdrop-blur-xl dark:shadow-card-hover-dark"
+            className="fixed bottom-[calc(164px_+_var(--vk-bottom-nav-h,0px))] right-5 z-40 flex h-[min(560px,calc(100dvh_-_11.5rem_-_var(--vk-bottom-nav-h,0px)))] w-[min(390px,calc(100vw_-_2.5rem))] flex-col overflow-hidden rounded-3xl border border-border bg-bg-secondary/95 shadow-card-hover backdrop-blur-xl dark:shadow-card-hover-dark"
             role="dialog"
             aria-modal="true"
             aria-label="AI Assistant"
