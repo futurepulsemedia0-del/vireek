@@ -9,6 +9,12 @@ import { useConsent } from '@/lib/consent/useConsent';
 type CardKey = 'essential' | ConsentCategory;
 const CARDS: readonly CardKey[] = ['essential', ...CONSENT_CATEGORIES];
 const DETAIL_FIELDS = ['collected', 'purpose', 'retention', 'recipients', 'storage'] as const;
+/** Real providers only (proper nouns, not translated). Must match what the code actually loads. */
+const PROVIDERS: Record<CardKey, string> = {
+  essential: 'Vireek, Supabase',
+  analytics: 'Google Analytics (Google LLC)',
+  marketing: 'Vireek, Supabase',
+};
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
@@ -170,6 +176,9 @@ export default function PreferenceCenter({ onClose }: Props) {
                   <div className="min-w-0">
                     <h3 className="text-sm font-semibold">{title}</h3>
                     <p className="mt-1 text-sm text-text-secondary">{t(`categories.${key}.summary`)}</p>
+                    <p className="mt-1 text-xs text-text-secondary">
+                      <span className="font-medium">{t('center.label.provider')}:</span> <span className="ltr-isolate inline-block">{PROVIDERS[key]}</span>
+                    </p>
                   </div>
                   <div className="flex shrink-0 items-center gap-1">
                     <span className="text-xs font-medium text-text-secondary">
