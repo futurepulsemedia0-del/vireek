@@ -122,6 +122,7 @@ import {
   type XeroInvoiceDoc,
   type XeroSettings,
 } from "../_shared/xero/engine.ts";
+import { secretEquals } from "../_shared/security/secretEquals.ts";
 
 declare const EdgeRuntime: { waitUntil(promise: Promise<unknown>): void } | undefined;
 // deno-lint-ignore no-explicit-any
@@ -1487,7 +1488,7 @@ Deno.serve(async (req: Request) => {
   // ---- scheduled sync + webhook ------------------------------------------
   if (body.action === "cron" || body.action === "webhook") {
     const secret = Deno.env.get("CRON_SECRET");
-    if (!secret || req.headers.get("X-Cron-Secret") !== secret) return json({ error: "Forbidden" }, 403);
+    if (!(await secretEquals(req.headers.get("X-Cron-Secret"), secret))) return json({ error: "Forbidden" }, 403);
     let q = admin.from("xero_connections").select(CONN_COLS).eq("status", "connected");
     let trigger: "scheduled" | "webhook" = "scheduled";
     if (body.action === "webhook") {
