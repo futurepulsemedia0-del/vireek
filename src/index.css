@@ -130,6 +130,20 @@ body {
    * Used behind the Hero and the closing CTA — the two moments the page
    * is allowed to feel a little more alive.
    */
+  .bg-gradient-aurora {
+    background-image:
+      radial-gradient(ellipse 55% 60% at 100% 0%, rgb(var(--aurora-1) / 0.22), transparent 62%),
+      radial-gradient(ellipse 50% 55% at 82% 38%, rgb(var(--aurora-2) / 0.16), transparent 62%),
+      radial-gradient(ellipse 55% 60% at 8% 0%, rgb(var(--aurora-3) / 0.24), transparent 62%),
+      radial-gradient(ellipse 60% 50% at 50% 115%, rgb(var(--aurora-4) / 0.10), transparent 62%);
+  }
+  .dark .bg-gradient-aurora {
+    background-image:
+      radial-gradient(ellipse 55% 60% at 100% 0%, rgb(var(--aurora-1) / 0.088), transparent 62%),
+      radial-gradient(ellipse 50% 55% at 82% 38%, rgb(var(--aurora-2) / 0.064), transparent 62%),
+      radial-gradient(ellipse 55% 60% at 8% 0%, rgb(var(--aurora-3) / 0.096), transparent 62%),
+      radial-gradient(ellipse 60% 50% at 50% 115%, rgb(var(--aurora-4) / 0.04), transparent 62%);
+  }
   .bg-gradient-mesh {
     background-image:
       radial-gradient(ellipse 65% 55% at 8% -10%, rgb(var(--accent-primary) / var(--mesh-accent-alpha)), transparent 60%),
