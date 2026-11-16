@@ -59,7 +59,8 @@ export interface ChargeInput {
 export interface PipelineDeps {
   now: Date;
   siteUrl: string;
-  sendSms: (phone: string, text: string) => Promise<unknown>;
+  /** userId = the account that owns the membership: the production sender needs it to pass the fraud guard. */
+  sendSms: (phone: string, text: string, userId?: string) => Promise<unknown>;
   sendEmail: (to: string, subject: string, html: string, text: string) => Promise<unknown>;
   enroll: (args: {
     aggregateId: string;
@@ -102,11 +103,11 @@ function autolink(escaped: string): string {
 }
 
 /** Best-effort customer message: SMS + email, each isolated so one failing channel never blocks the other. */
-async function notify(deps: PipelineDeps, to: { phone?: string | null; email?: string | null }, subject: string, text: string): Promise<boolean> {
+async function notify(deps: PipelineDeps, to: { phone?: string | null; email?: string | null }, subject: string, text: string, userId?: string): Promise<boolean> {
   let attempted = false;
   if (to.phone) {
     attempted = true;
-    try { await deps.sendSms(to.phone, text); } catch (e) { deps.log?.("membership_renewal_sms_failed", { error: errMsg(e) }); }
+    try { await deps.sendSms(to.phone, text, userId); } catch (e) { deps.log?.("membership_renewal_sms_failed", { error: errMsg(e) }); }
   }
   if (to.email) {
     attempted = true;
@@ -289,7 +290,7 @@ async function advanceCycles(admin: any, deps: PipelineDeps, counts: RenewalCoun
           periodEnd, route, cardLabel: cardLabel(m.card_brand, m.card_last4),
           url: renewalUrl(deps.siteUrl, c.quote_token),
         });
-        if (await notify(deps, { phone: m.customer_phone, email: m.customer_email }, msg.subject, msg.text)) counts.notices_sent++;
+        if (await notify(deps, { phone: m.customer_phone, email: m.customer_email }, msg.subject, msg.text, c.user_id)) counts.notices_sent++;
       }
     } catch (e) {
       counts.errors++;
@@ -392,7 +393,7 @@ async function chargeDueCycles(admin: any, deps: PipelineDeps, counts: RenewalCo
           const { nextEnd } = await rollMembershipPeriod(admin, c.membership_id, m.current_period_end, { billing_interval: interval, visits_included_per_period: plan.visits_included_per_period }, request.id);
           await admin.from("membership_renewal_cycles").update({ ...attemptPatch, last_charge_error: null }).eq("id", c.id);
           const msg = renewalReceiptMessage({ customerName: m.customer_name, planName: plan.name, amountCents: c.amount_cents, nextEnd });
-          await notify(deps, to, msg.subject, msg.text);
+          await notify(deps, to, msg.subject, msg.text, c.user_id);
           counts.charged++;
         } else {
           // Money moved but the ledger disagrees: surface for a human, never roll silently.
@@ -407,7 +408,7 @@ async function chargeDueCycles(admin: any, deps: PipelineDeps, counts: RenewalCo
         // The bank wants the customer present (SCA): stop retrying, hand them the pay link.
         await admin.from("membership_renewal_cycles").update({ ...attemptPatch, charge_attempts: MAX_CHARGE_ATTEMPTS, last_charge_error: "authentication_required", payment_route: "pay_link" }).eq("id", c.id);
         const msg = authRequiredMessage({ customerName: m.customer_name, planName: plan.name, amountCents: c.amount_cents, payUrl });
-        await notify(deps, to, msg.subject, msg.text);
+        await notify(deps, to, msg.subject, msg.text, c.user_id);
         counts.charge_requires_action++;
         continue;
       }
@@ -429,7 +430,7 @@ async function chargeDueCycles(admin: any, deps: PipelineDeps, counts: RenewalCo
       // First failure and the final attempt get a message; the middle retry stays quiet.
       if (attempts === 0 || attempts + 1 >= MAX_CHARGE_ATTEMPTS) {
         const msg = chargeFailedMessage({ customerName: m.customer_name, planName: plan.name, amountCents: c.amount_cents, payUrl });
-        await notify(deps, to, msg.subject, msg.text);
+        await notify(deps, to, msg.subject, msg.text, c.user_id);
       }
       counts.charge_declined++;
     } catch (e) {
