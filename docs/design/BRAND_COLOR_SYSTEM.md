@@ -1,48 +1,41 @@
-# Vireek colour system — "Claude-first" (v2)
+# Vireek colour system v3 — "Aurora Clay"
 
-Single source of truth: `scripts/color/palette.mjs`. Everything else is generated (`npm run tokens:build`, `npm run tokens:export`)
-or migrated by `scripts/color/rebrand-hex.mjs`. **No colour may exist in the product outside this palette** — `npm run lint:palette` enforces it.
+Single source of truth: `scripts/color/palette.mjs`. Everything else is generated (`npm run tokens:build`, `npm run tokens:export`) or migrated by
+`scripts/color/rebrand-hex.mjs` (`npm run lint:palette` forbids any colour outside the palette).
 
-## 1. Where every colour comes from
+**Idea:** Anthropic's warm ivory / slate world, but brighter and glossier — the Clay hue pushed to a vivid coral-orange — with Apple's
+blue and status colours, Stripe's blurple and orange-pink-lilac aurora, and NVIDIA's "bright fill + black text" button logic.
 
-| Weight | Reference system | What Vireek takes | Exact values |
-|---|---|---|---|
-| Dominant | **Anthropic** | all neutrals, the brand/primary colour, `info`, chart hues | Slate `#141413`, Ivory `#FAF9F5`, Light Gray `#E8E6DC`, Mid Gray `#B0AEA5`, surface `#F0EEE6`, **Clay `#D97757`**, **Sky `#6A9BCC`**, Fig `#C46686`, Kraft `#D4A27F` |
-| Second | **Apple** (HIG system colours) | the three status colours + chart hues | Green `#34C759`/`#30D158`, Red `#FF383C`/`#FF4245`, Yellow `#FFCC00`/`#FFD600`, Blue `#0088FF`, Purple `#CB30E0` |
-| Third | **Stripe** | the "live / AI signal" family | Blurple `#635BFF`, Lilac `#7E6BFD` |
+## 1. Where every element comes from
 
-Only the *seeds* are brand values. The solver in `palette.mjs` moves lightness (never hue) to reach the contrast targets, so
-`accent-fill` is exactly `#D97757` in both themes, `success-fill` exactly `#34C759`/`#30D158`, `warning-fill` exactly `#FFCC00`/`#FFD600`,
-`info-fill` exactly `#6A9BCC`, `cta-graphic` exactly `#635BFF`/`#7E6BFD`, `bg-primary` exactly Ivory/Slate.
-
-## 2. Roles (what each family means)
-
-| Family | Colour | Meaning — and the rule |
+| Element | Inspired by | What Vireek does |
 |---|---|---|
-| `accent` | Clay | Brand and primary action. Fill carries **Slate** text (5.9:1). |
-| `cta` | Blurple / Lilac | LIVE and AI-signal moments only (active call, emergency, assistant). Never a generic call-to-action. |
-| `success` / `danger` / `warning` | Apple green / red / yellow | Status. Colour is never the only signal: always add icon or text. |
-| `info` | Sky | Neutral information. |
-| neutrals | Slate / Ivory family | Text, surfaces, borders. |
+| Page, cards, borders | **Anthropic** | Ivory `#FAF9F5`, white cards, surface `#F0EEE6`, border Light Gray `#E8E6DC`; dark: Slate `#141413` |
+| **Primary button** | **NVIDIA** (bright fill + black text) + **Apple / Anthropic / Vercel** (pill) | Vivid Clay `#F9774C`, Slate text (6.8:1), full pill, glossy highlight + coloured glow |
+| Secondary "dark" button | **Vercel / Anthropic** | Slate pill with Ivory text (inverted in dark theme: Ivory pill) |
+| Outline button | **Anthropic / Apple / Vercel** | pill with a 1 px `border-strong`, transparent fill |
+| Info / links / "Learn more" | **Apple** | Apple blue `#0071E3` family (`info`) |
+| Live / AI signal (`cta`) | **Stripe** | Blurple `#533AFD` (Lilac `#7E6BFD` in dark) |
+| Status | **Apple** | Green `#34C759`, Red `#FF383C`, Yellow `#FFCC00` (dark variants `#30D158`, `#FF4245`, `#FFD600`) |
+| Danger *text* | **Apple** | Apple Pink hue `#FF2D55` / `#FF375F` so it stays distinguishable from Clay |
+| Header | **Anthropic / Apple** | translucent `bg-secondary/80` bar, hairline border, pill login + glossy pill CTA |
+| Hero backdrop | **Stripe / SAP** | `bg-gradient-aurora`: vivid clay, coral pink, lilac, blurple washes (dark theme: ×0.4) |
+| Footer | **Anthropic / Vercel** | always-dark Slate footer (`<footer class="dark …">` flips every token inside it) |
+| Corners | **Apple / Anthropic / Vercel** | buttons and header CTAs: full pill (implemented in `Button.tsx` + `Header.tsx`). Cards, inputs and panels keep the project's existing radius tokens (`scripts/design/radius-tokens.mjs`) |
+| Charts | all seven | 8 hues: Vivid Clay, Blurple, SAP blue + violet, Stripe pink / orange, Microsoft magenta, NVIDIA lime, Anthropic Fig / Sage / Sky |
 
-## 3. Evidence (reproducible)
+## 2. Evidence (reproducible)
 
-* 4 themes × 157 declared pairs: 0 failures (`scripts/color/contrast.test.ts`).
-* Chart categories: min pairwise ΔE ≥ 0.093 (light) / 0.094 (dark) under normal, protan, deutan, tritan vision. Series 1 is always Clay.
-* Semantic families under colour-vision deficiency — smallest ΔE between any two of the six families (normal / protan / deutan / tritan):
-  fills light 0.142 / 0.083 / 0.049 / 0.083, dark 0.138 / 0.077 / 0.076 / 0.070. Coloured *text* and *graphics* are weaker
-  (0.070–0.110 for normal vision, ≤ 0.04 in the worst pair under CVD) — the same order as the previous palette (0.016–0.081).
-  Therefore status must always carry an icon or a text label. The dark `danger` fill uses white text on a deeper red, which lifted the
-  deuteranopia separation from Clay from 0.023 to 0.089. **Known limit:** dark `accent-text` vs `danger-text` (0.070 normal vision).
-* Logo: Slate/Ivory letters + Clay dot; tile Clay with Slate "V" (5.9:1) and Ivory dot (≈3.0:1, graphic; logos are exempt from WCAG 1.4.11).
+* 4 themes × 180 declared pairs = **720**, 0 failures (`contrast.test.ts`).
+* Chart categories: minimum ΔE **0.098** (light) / **0.096** (dark) under normal, protan, deutan and tritan vision; every colour ≥ 3:1 on every surface.
+* Anchors checked exactly: Ivory / Slate / Light Gray / Mid Gray, Vivid Clay fill `#F9774C`, Apple green / yellow fills, Stripe blurple `#533AFD` / Lilac `#7E6BFD`.
+* Translucent tints (`bg-accent/5…/20`) are part of the solver (they were the main regression source): `lint:surfaces` 2647 → **1614** failing class strings (all remaining ones existed before the rebrand: raw `*-500` scale classes).
+* Colour-blind separation between the six semantic families (smallest ΔE of any pair): fills light 0.117 / 0.062 / 0.024 / 0.067 (normal / protan / deutan / tritan), dark 0.115 / 0.075 / 0.031 / 0.084. Coloured **text** is weaker (0.065–0.073 normal vision, ≤ 0.03 under colour-blindness) — **status must always carry an icon or a label.**
 
-## 4. Authoring rules
+## 3. Rules
 
-1. Use semantic tokens (`bg-accent`, `text-on-accent`, `text-text-secondary`, `border-border`). Never hex, `rgb()` or Tailwind palette classes.
-2. Text on a solid fill is always `text-on-<family>` — never `text-white`/`text-black`.
-3. Legacy Tailwind names (`slate-*`, `blue-*`, `emerald-*` …) are aliased to palette scales in `tailwind-colors.mjs`, but they are static (do not flip in dark mode). Prefer tokens.
-4. After editing `palette.mjs`: `npm run tokens:build && npm run tokens:export && npm test`.
-
-## 5. Hand-off
-
-`docs/design/tokens.json` (W3C Design-Tokens, 4 themes + scales + chart colours) and `docs/design/color-preview.html` (both themes, real components, contrast table) are generated by `npm run tokens:export`.
+1. Semantic tokens only (`bg-accent`, `text-on-accent`, `bg-gloss`, `shadow-gloss`, `border-border`). Never hex / `rgb()` / Tailwind palette classes.
+2. Text on a solid fill is always `text-on-<family>`.
+3. Footer / any always-dark band: put the `dark` class on the element, not hand-picked colours.
+4. Aurora alphas live in two places that must change together: `AURORA_ALPHA` (+ `AURORA_DARK_SCALE`) in `palette.mjs` and `.bg-gradient-aurora` in `index.css`.
+5. After editing `palette.mjs`: `npm run tokens:build && npm run tokens:export && npm test`.
