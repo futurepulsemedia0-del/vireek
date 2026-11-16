@@ -1,5 +1,6 @@
 import * as Sentry from '@sentry/react';
 import { isNative } from '@/lib/native/platform';
+import { scrubBreadcrumb, scrubSentryEvent } from '@/lib/sentryScrub';
 
 const DSN = import.meta.env.VITE_SENTRY_DSN;
 
@@ -25,7 +26,9 @@ export function initSentry() {
     ],
     beforeSend(event) {
       // Strip anything that could carry PII before it leaves the browser.
-      if (event.request) delete event.request.cookies;
+    sendDefaultPii: false,
+    beforeBreadcrumb: (b) => scrubBreadcrumb(b),
+    beforeSend: (event) => scrubSentryEvent(event),
       return event;
     },
   });
