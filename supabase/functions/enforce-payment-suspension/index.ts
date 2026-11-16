@@ -32,6 +32,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { runSuspensionSweep } from "../_shared/billing/suspensionSweep.ts";
+import { notifyPaymentSuspended } from "../_shared/billing/notices/dispatch.ts";
 
 Deno.serve(async (_req: Request) => {
   const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
@@ -40,6 +41,10 @@ Deno.serve(async (_req: Request) => {
 
   try {
     const result = await runSuspensionSweep(admin);
+    for (const id of result.suspendedIds) {
+      try { await notifyPaymentSuspended(admin, id); }
+      catch (noticeErr) { console.error("payment suspension notice failed (reconciled hourly):", noticeErr); }
+    }
     return new Response(
       JSON.stringify({ suspended_count: result.suspendedCount, suspended_ids: result.suspendedIds }),
       { headers: { "Content-Type": "application/json" } },
