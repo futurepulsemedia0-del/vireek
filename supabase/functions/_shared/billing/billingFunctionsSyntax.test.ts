@@ -10,6 +10,8 @@ import ts from 'typescript';
 const FILES = [
   'supabase/functions/stripe-webhook/index.ts',
   'supabase/functions/manage-subscription-plan/index.ts',
+  'supabase/functions/manage-subscription-cancellation/index.ts',
+  'supabase/functions/_shared/billing/churnSaveLogic.ts',
   'supabase/functions/_shared/billing/planCatalog.ts',
   'supabase/functions/_shared/fraud/planLimits.ts',
 ];
