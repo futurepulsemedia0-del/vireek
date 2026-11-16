@@ -13,7 +13,8 @@
 
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { stripeRequest } from "../stripe/client.ts";
-import { sendEmail, sendSms } from "../notify/deliver.ts";
+import { sendEmail } from "../notify/deliver.ts";
+import { sendGuardedSms } from "../messaging/gatedSend.ts";
 
 const MAX_PER_RUN = 50;
 const MAX_ATTEMPTS = 5;
@@ -213,7 +214,7 @@ export async function processPendingInvoices(admin: SupabaseClient): Promise<Inv
         await admin.from("jobs").update({ invoice_status: "sent" }).eq("id", job.id).eq("invoice_status", "not_sent");
 
         const amountLabel = `$${amount.toFixed(2)}`;
-        if (phone) await sendSms(phone, `Hi ${job.customer_name}, your ${amountLabel} invoice for ${agreement?.title ?? "your recent visit"} is ready. Pay securely: ${session.url}`);
+        if (phone) await sendGuardedSms(admin, row.user_id, phone, `Hi ${job.customer_name}, your ${amountLabel} invoice for ${agreement?.title ?? "your recent visit"} is ready. Pay securely: ${session.url}`, { purpose: "service", source: "recurring-invoice" });
         if (email) {
           await sendEmail(
             email,
