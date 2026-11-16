@@ -58,7 +58,13 @@ export function minutesForPlan(id: string | null | undefined): number | null {
   const def = PURCHASABLE_PLANS.find((p) => p.id === id);
   return def ? def.minutesIncluded : null;
 }
-
+export function minutesToWriteOnSync(
+  currentPlanId: string | null | undefined,
+  newPlanId: string,
+): number | undefined {
+  if (currentPlanId && currentPlanId === newPlanId) return undefined;
+  return minutesForPlan(newPlanId) ?? undefined;
+}
 /**
  * Maps a Stripe price id back to a plan id using the configured secrets.
  * `readEnv` is injected so this stays testable (pass `Deno.env.get` in edge functions).
