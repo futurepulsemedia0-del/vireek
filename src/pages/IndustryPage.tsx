@@ -15,6 +15,8 @@ import { EASE, eyebrowClass, sectionHeadingClass, staggerContainer, fadeUpItem, 
 import { getIndustryBySlug, INDUSTRIES } from '@/lib/industries';
 import { IndustryRoiCalculator } from '@/components/sections/IndustryRoiCalculator';
 import { useSEO } from '@/lib/seo';
+import { DeepContent } from '@/components/marketing/DeepContent';
+import { INDUSTRY_DEEP } from '@/lib/deepContent/industriesDeep';
 import { LocalAreaLinks } from '@/components/sections/LocalAreaLinks';
 
 /* ------------------------------------------------------------------ */
@@ -297,6 +299,9 @@ export function IndustryPage() {
           </section>
         )}
 
+        {INDUSTRY_DEEP[industry.slug] && (
+          <DeepContent data={INDUSTRY_DEEP[industry.slug]} idPrefix={`industry-${industry.slug}`} />
+        )}
         <LocalAreaLinks industry={industry} />
         {/* Explore other trades */}
         <section className="px-5 py-12 sm:px-6 sm:py-16 lg:py-20">
