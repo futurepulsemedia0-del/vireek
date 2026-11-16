@@ -1,0 +1,71 @@
+{
+  "$comment": "OSS licence policy enforced by scripts/supply-chain/license-check.mjs. Explained in docs/compliance/oss-license-policy.md. DRAFT: the allow/review/deny lists are an engineering proposal and need [COUNSEL] approval. Matching is case-insensitive; '*' is a wildcard.",
+  "version": 1,
+  "allow": [
+    "MIT", "MIT-0", "ISC", "BSD-2-Clause", "BSD-3-Clause", "0BSD", "Apache-2.0",
+    "BlueOak-1.0.0", "Unlicense", "Zlib", "CC0-1.0", "Python-2.0"
+  ],
+  "review": [
+    "MPL-2.0", "MPL-1.1", "EPL-*", "CDDL-*", "CC-BY-4.0", "CC-BY-3.0", "LGPL-*", "OFL-1.1"
+  ],
+  "deny": [
+    "GPL-*", "AGPL-*", "SSPL-*", "BUSL-*", "Elastic-*", "CC-BY-NC*", "CC-BY-SA-*", "UNLICENSED", "Commons-Clause", "WTFPL-NONFREE"
+  ],
+  "aliases": {
+    "MIT/X11": "MIT",
+    "Apache 2.0": "Apache-2.0",
+    "Apache2": "Apache-2.0",
+    "BSD": "BSD-3-Clause"
+  },
+  "waivers": [
+    {
+      "name": "buffers",
+      "version": "0.1.1",
+      "reason": "package-lock.json carries no licence for this transitive dependency. Resolve by reading node_modules/buffers/package.json and LICENSE after npm ci, then replace this waiver with an alias/override or remove the dependency. This waiver asserts NO licence.",
+      "approvedBy": "PENDING-OWNER-DECISION",
+      "expires": "2026-12-15"
+    },
+    {
+      "name": "@capgo/background-geolocation",
+      "version": "*",
+      "reason": "MPL-2.0 (file-level copyleft). Unmodified use as a Capacitor plugin. [COUNSEL] confirm obligations for distribution inside the mobile apps.",
+      "approvedBy": "PENDING-COUNSEL",
+      "expires": "2026-12-15"
+    },
+    {
+      "name": "@capgo/capacitor-nfc",
+      "version": "*",
+      "reason": "MPL-2.0 (file-level copyleft). Unmodified use as a Capacitor plugin. [COUNSEL] confirm obligations for distribution inside the mobile apps.",
+      "approvedBy": "PENDING-COUNSEL",
+      "expires": "2026-12-15"
+    },
+    {
+      "name": "npm:web-push",
+      "version": "*",
+      "reason": "MPL-2.0 per policy.externalImports (unverified). Server-side only (edge function), not redistributed to customers. [COUNSEL]",
+      "approvedBy": "PENDING-COUNSEL",
+      "expires": "2026-12-15"
+    },
+    {
+      "name": "npm:@resvg/resvg-wasm",
+      "version": "*",
+      "reason": "MPL-2.0 per policy.externalImports (unverified). Server-side only (edge function). [COUNSEL]",
+      "approvedBy": "PENDING-COUNSEL",
+      "expires": "2026-12-15"
+    }
+  ],
+  "externalImports": {
+    "$comment": "Edge-function imports whose licence cannot be read from package-lock.json. verified:false means the value was NOT confirmed against the package's own metadata in this environment: it is reported as [VERIFY] on every run and fails under --strict-verify. Confirm each against the registry / repository, then set verified:true.",
+    "npm:stripe": { "license": "MIT", "verified": false },
+    "npm:jose": { "license": "MIT", "verified": false },
+    "npm:node-forge": { "license": "(BSD-3-Clause OR GPL-2.0)", "verified": false },
+    "npm:web-push": { "license": "MPL-2.0", "verified": false },
+    "npm:standardwebhooks": { "license": "MIT", "verified": false },
+    "npm:postgres": { "license": "Unlicense", "verified": false },
+    "npm:ssh2": { "license": "MIT", "verified": false },
+    "npm:@resvg/resvg-wasm": { "license": "MPL-2.0", "verified": false },
+    "https://deno.land/std": { "license": "MIT", "verified": false },
+    "jsr:@std/assert": { "license": "MIT", "verified": false },
+    "https://esm.sh/@supabase/supabase-js": { "license": "MIT", "verified": false }
+  }
+}
