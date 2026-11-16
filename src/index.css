@@ -383,6 +383,20 @@ html:lang(ar) *, html:lang(fa) *, html:lang(hi) *, html:lang(ja) *, html:lang(zh
     --vk-bottom-nav-h: calc(4rem + env(safe-area-inset-bottom, 0px));
   }
 }
+/* ---- Cookie banner (ConsentBanner) ----
+   --vk-consent-h is set by the banner while it is visible. --vk-consent-lift is what floating
+   launchers add to their bottom offset, only where the banner can overlap them: the full-width
+   mobile sheet, and the end-aligned card in RTL. */
+:root {
+  --vk-consent-h: 0px;
+  --vk-consent-lift: 0px;
+}
+@media (max-width: 639.98px) {
+  :root { --vk-consent-lift: var(--vk-consent-h); }
+}
+@media (min-width: 640px) {
+  :root[dir='rtl'] { --vk-consent-lift: var(--vk-consent-h); }
+}
 /* ---- LogoMarquee ---- */
 .logo-marquee {
   --marquee-duration: 40s;
