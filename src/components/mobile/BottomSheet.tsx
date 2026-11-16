@@ -6,6 +6,7 @@ import { haptic } from '@/lib/native/haptics';
 import { resolveSnap, shouldDismissSheet } from '@/lib/native/gestureMath';
 import { useKeyboardInset } from '@/hooks/useKeyboardInset';
 import { useScrollLock } from '@/hooks/useScrollLock';
+const isVisible = (el: HTMLElement): boolean => !el.hidden && getComputedStyle(el).display !== 'none' && getComputedStyle(el).visibility !== 'hidden';
 
 const FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]):not([type=hidden]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
 
@@ -39,7 +40,7 @@ export function BottomSheet({ open, onClose, title, children, snapPoints = [0.5,
       }
       if (e.key !== 'Tab' || !panelRef.current) return;
       // Focus trap: keep Tab / Shift+Tab inside the sheet (WCAG 2.4.3).
-      const items = Array.from(panelRef.current.querySelectorAll<HTMLElement>(FOCUSABLE)).filter((el) => el.offsetParent !== null);
+      const items = Array.from(panelRef.current.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(isVisible);
       if (items.length === 0) {
         e.preventDefault();
         panelRef.current.focus();
