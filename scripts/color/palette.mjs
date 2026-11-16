@@ -4,13 +4,14 @@
 // never silently drift below AA. `npm run tokens:build` turns this file into CSS variables, Tailwind colours,
 // TS/Deno hex constants and the docs table; `npm run test` re-verifies every declared pair.
 //
-// "Claude-first" brand system. Every seed below is a published colour of one of three reference systems:
-//   ANTHROPIC (dominant): Slate #141413, Ivory #FAF9F5, Light Gray #E8E6DC, Mid Gray #B0AEA5, Clay #D97757, Sky #6A9BCC,
-//                         Sage #788C5D (+ extracted surface #F0EEE6)       -> neutrals, brand accent (Clay), info (Sky), data-viz
-//   APPLE (second):       system Green #34C759/#30D158, Red #FF383C/#FF4245, Yellow #FFCC00/#FFD600 (+ teal/pink/brown in charts)
-//                         -> status colours (success / danger / warning)
-//   STRIPE (third):       Blurple #635BFF, Lilac #7E6BFD                         -> the "live / AI signal" family (`cta`)
-// No other hue is allowed anywhere in the product. Clay = brand/primary action; Blurple (cta) = LIVE / AI signal only.
+// "Aurora Clay" (v3) — Claude-first, brighter and more colourful. Every seed is a published or screenshot-sampled colour:
+//   ANTHROPIC (dominant): Ivory #FAF9F5, Slate #141413, Light Gray #E8E6DC, surface #F0EEE6, Clay hue (#D97757) pushed to a VIVID
+//                         coral-orange #F9774C (same hue 38.76°, chroma 0.131 -> 0.170, lightness 0.672 -> 0.715) = the brand/primary colour
+//   APPLE (second):       Blue #0071E3 / #0091FF (info), Green #34C759 / #30D158, Red #FF383C / #FF4245, Yellow #FFCC00 / #FFD600
+//   STRIPE (third):       Blurple #533AFD / Lilac #7E6BFD (`cta`), orange->pink->lilac aurora (#FE8E22 / #FF88E9 / #BABAFE)
+//   chart hues also use: NVIDIA #76B900, SAP #9652D2 / #0256D2, Microsoft #8A2A8A.
+// No other hue is allowed anywhere in the product. Vivid Clay = brand/primary action (fill carries Slate text, like NVIDIA's
+// green + black); Blurple (cta) = LIVE / AI signal only.
 
 import { oklchToRgb, contrast, solveL, over, toHex, rgbToOklch } from './oklch.mjs';
 
@@ -24,7 +25,14 @@ const HC = { text: 7.0, ui: 4.5, secondary: 7.0, muted: 7.0, placeholder: 7.0, o
 
 // Peak alpha of the brand radial wash (.bg-gradient-mesh). Was .22/.16 — lowered so secondary text keeps AA
 // without darkening the whole neutral ramp. Used by the solver AND emitted into the CSS.
-export const MESH_ALPHA = { accent: 0.14, cta: 0.1 };
+export const MESH_ALPHA = { accent: 0.18, cta: 0.12 };
+// Aurora wash (.bg-gradient-aurora, Stripe/SAP-style hero backdrop): four soft pools. Alphas are the PEAK values used in index.css;
+// the solver clears secondary text against every one of them at full strength.
+export const AURORA_ALPHA = { 'aurora-1': 0.22, 'aurora-2': 0.16, 'aurora-3': 0.24, 'aurora-4': 0.1 };
+// In the dark themes the same wash would lift the page surface and force every secondary text lighter, so index.css uses the
+// alphas scaled by this factor under `.dark` (and the solver uses the same scaled values there).
+export const AURORA_DARK_SCALE = 0.4;
+const AURORA_OKLCH = { 'aurora-1': [0.715, 0.17, 38.76], 'aurora-2': [0.74, 0.15, 5], 'aurora-3': [0.8132, 0.0954, 284.08], 'aurora-4': [0.5211, 0.2679, 277.43] };
 
 // ---------------------------------------------------------------- surfaces & neutrals (OKLCH)
 const SURFACE = {
@@ -40,41 +48,41 @@ const GRAPHITE = rgbOf([0.190839, 0.001983, 106.5859]); // Anthropic Slate #1414
 // text/fill/graphic seeds are the brand anchors; the solver only moves lightness (never hue) when needed.
 // `on` = text colour used on the family's solid fill, per theme.
 const FAMILIES = {
-  accent: { // Anthropic CLAY #D97757 — brand + primary action
-    seed: { light: [0.67242, 0.13084, 38.7559], dark: [0.67242, 0.13084, 38.7559] },
-    fillSeed: { light: [0.67242, 0.13084, 38.7559], dark: [0.67242, 0.13084, 38.7559] },
-    on: { light: 'ink', dark: 'ink' }, // Slate on Clay = 5.9:1 (the report's measured pairing) -> the fill stays EXACTLY #D97757
-    scale: { anchorStep: 500, anchorL: 0.67242 },
+  accent: { // VIVID CLAY #F9774C — Anthropic Clay hue, brighter + more saturated. Brand + primary action. Slate text (6.8:1).
+    seed: { light: [0.715, 0.17, 38.76], dark: [0.715, 0.17, 38.76] },
+    fillSeed: { light: [0.715, 0.17, 38.76], dark: [0.715, 0.17, 38.76] },
+    on: { light: 'ink', dark: 'ink' },
+    scale: { anchorStep: 500, anchorL: 0.715 },
   },
-  cta: { // Stripe BLURPLE #635BFF (light) / LILAC #7E6BFD (dark) — live / AI signal only
-    seed: { light: [0.57843, 0.234615, 278.2909], dark: [0.622379, 0.208774, 284.4749] },
-    fillSeed: { light: [0.57843, 0.234615, 278.2909], dark: [0.622379, 0.208774, 284.4749] },
+  cta: { // Stripe BLURPLE #533AFD (light) / LILAC #7E6BFD (dark) — live / AI signal only
+    seed: { light: [0.5211, 0.2679, 277.43], dark: [0.622379, 0.208774, 284.4749] },
+    fillSeed: { light: [0.5211, 0.2679, 277.43], dark: [0.622379, 0.208774, 284.4749] },
     on: { light: 'white', dark: 'ink' },
-    scale: { anchorStep: 500, anchorL: 0.57843 },
+    scale: { anchorStep: 600, anchorL: 0.5211 },
   },
-  success: { // Apple system GREEN #34C759 / #30D158
+  success: { // Apple GREEN #34C759 / #30D158
     seed: { light: [0.730324, 0.194381, 147.4439], dark: [0.755551, 0.208246, 146.9836] },
     fillSeed: { light: [0.730324, 0.194381, 147.4439], dark: [0.755551, 0.208246, 146.9836] },
     on: { light: 'ink', dark: 'ink' },
     scale: { anchorStep: 500, anchorL: 0.730324 },
   },
-  danger: { // Apple system RED #FF383C / #FF4245
-    seed: { light: [0.653197, 0.232821, 25.7394], dark: [0.662002, 0.224599, 25.1223] },
-    fillSeed: { light: [0.653197, 0.232821, 25.7394], dark: [0.662002, 0.224599, 25.1223] },
-    on: { light: 'white', dark: 'white' }, // white-on-red = the expected destructive look; fill is deepened to pass 4.8:1 AND to separate from Clay for deuteranopes (dE 0.023 -> 0.089)
+  danger: { // Apple RED #FF383C / #FF4245
+    seed: { light: [0.64965, 0.23834, 17.89816], dark: [0.65772, 0.2317, 16.01796] }, // text/tints: Apple PINK #FF2D55 / #FF375F (hue 17°, further from Clay 39°)
+    fillSeed: { light: [0.653197, 0.232821, 25.7394], dark: [0.662002, 0.224599, 25.1223] }, // fill/graphic: Apple RED
+    on: { light: 'white', dark: 'white' }, // white-on-red = the expected destructive look; fill is deepened to pass 4.8:1 AND to separate from Clay for deuteranopes
     scale: { anchorStep: 500, anchorL: 0.653197 },
   },
-  warning: { // Apple system YELLOW #FFCC00 / #FFD600 (text is solved darker into a gold; the fill stays the exact yellow)
+  warning: { // Apple YELLOW #FFCC00 / #FFD600
     seed: { light: [0.865209, 0.176828, 90.3816], dark: [0.884795, 0.181642, 94.8972] },
     fillSeed: { light: [0.865209, 0.176828, 90.3816], dark: [0.884795, 0.181642, 94.8972] },
     on: { light: 'ink', dark: 'ink' },
     scale: { anchorStep: 500, anchorL: 0.865209 },
   },
-  info: { // Anthropic SKY #6A9BCC
-    seed: { light: [0.674177, 0.09015, 249.2918], dark: [0.674177, 0.09015, 249.2918] },
-    fillSeed: { light: [0.674177, 0.09015, 249.2918], dark: [0.674177, 0.09015, 249.2918] },
-    on: { light: 'ink', dark: 'ink' },
-    scale: { anchorStep: 500, anchorL: 0.674177 },
+  info: { // APPLE BLUE #0071E3 (light) / #0091FF (dark) — the Apple pill-button blue
+    seed: { light: [0.5629, 0.1933, 256.16], dark: [0.6573, 0.2018, 252.5] },
+    fillSeed: { light: [0.5629, 0.1933, 256.16], dark: [0.6573, 0.2018, 252.5] },
+    on: { light: 'white', dark: 'ink' },
+    scale: { anchorStep: 600, anchorL: 0.5629 },
   },
 };
 
@@ -104,11 +112,11 @@ export const NEUTRAL_SCALE = (() => {
 // 8 categorical colours: hue + chroma are inherited from published colours of the three reference brands (Anthropic Clay /
 // Sky / Kraft / Fig / Mid Gray, Apple Blue / Purple / Cyan / Yellow / Brown, Stripe Blurple / Lilac / Navy-range); lightness was
 // then optimised by maximin search (OKLab ΔE under normal + protan + deutan + tritan vision, >=3:1 on every surface).
-// Constraints: chroma <= 0.17 and no near-black / near-white series (aesthetic evenness). Result: min pairwise ΔE 0.093 (light) / 0.094 (dark); gate is 0.09.
+// Hues: Vivid Clay, Stripe Blurple / pink / orange, SAP violet + blue, Microsoft magenta, NVIDIA lime, Anthropic Fig / Sky / Sage. Result: min pairwise ΔE 0.0975 (light) / 0.0959 (dark); gate is 0.09.
 // Series 1 is always brand Clay. Colour alone can NEVER carry meaning: charts must also use VIZ_PATTERNS + VIZ_MARKERS + direct labels.
 const VIZ_CAT_OKLCH = {
-  light: [[0.62, 0.1308, 38.76], [0.4748, 0.17, 284.47], [0.5258, 0.1294, 359.65], [0.5512, 0.098, 249.29], [0.4509, 0.1403, 90.38], [0.3852, 0.17, 322.51], [0.627, 0.17, 254.09], [0.38, 0.002, 106.59]],
-  dark: [[0.6724, 0.1308, 38.76], [0.7011, 0.0971, 249.29], [0.6189, 0.17, 284.47], [0.88, 0.17, 147.44], [0.6, 0.0746, 359.65], [0.784, 0.1356, 55.72], [0.8513, 0.17, 278.29], [0.7386, 0.0129, 96.48]],
+  light: [[0.62, 0.17, 38.76], [0.5254, 0.2, 277.43], [0.6291, 0.1589, 260.37], [0.4205, 0.1897, 305.68], [0.6058, 0.1233, 334.51], [0.441, 0.1639, 57.22], [0.3709, 0.07, 249.29], [0.4913, 0.002, 106.59]],
+  dark: [[0.715, 0.17, 38.76], [0.6148, 0.1968, 277.43], [0.9, 0.2, 130.8], [0.7816, 0.2, 327.9], [0.6, 0.0999, 359.65], [0.8147, 0.0895, 127.12], [0.8761, 0.1878, 334.51], [0.697, 0.0129, 96.48]],
 };
 
 // ---------------------------------------------------------------- the solver
@@ -143,10 +151,10 @@ export function buildTheme(theme) {
   tok['text-primary'] = hc ? (mode === 'light' ? [0, 0, 0] : WHITE) : rgbOf(INK[mode]);
   const nL = 98; // Anthropic neutrals are warm (hue ~96-107)
   // brand radial wash worst case (bg-gradient-mesh pools at full strength) must not reduce secondary/muted text
-  const POOLS = Object.entries(MESH_ALPHA).map(([f, a]) => [a, f]).map(([a, f]) => {
-    const [L, C, h] = FAMILIES[f].fillSeed[mode];
-    return over(oklchToRgb(L, C, h), a, tok['bg-primary']);
-  });
+  const POOLS = [
+    ...Object.entries(MESH_ALPHA).map(([f, a]) => { const [L, C, h] = FAMILIES[f].fillSeed[mode]; return over(oklchToRgb(L, C, h), a, tok['bg-primary']); }),
+    ...Object.entries(AURORA_ALPHA).map(([k, a]) => over(rgbOf(AURORA_OKLCH[k]), mode === 'dark' ? a * AURORA_DARK_SCALE : a, tok['bg-primary'])),
+  ];
   const solveNeutral = (seedL, C, target) => oklchToRgb(solveL(seedL, C, nL, [...SF, ...POOLS], target, dir), C, nL);
   tok['text-secondary'] = solveNeutral(mode === 'light' ? 0.5 : 0.749863, mode === 'light' ? 0.011 : 0.012863, tgt.secondary);
   tok['text-muted'] = oklchToRgb(solveL(mode === 'light' ? 0.551 : 0.62, 0.009, nL, SF, tgt.muted, dir), 0.009, nL); // never place muted text over .bg-gradient-mesh
@@ -171,8 +179,17 @@ export function buildTheme(theme) {
     const [sL, sC, sh] = f.seed[mode];
     const [fL, fC, fh] = f.fillSeed[mode];
     const subtle = subtleOf(f);
+    // `bg-<family>/5|10|15|20` (translucent tints) are used all over the product: the text colour must clear the WORST of them
+    // blended over every page surface, not only the opaque `subtle` token (surface gate: scripts/color/check-surfaces.mjs).
+    const fillSeedRgb = oklchToRgb(fL, fC, fh);
+    const tints = [0.05, 0.1, 0.15, 0.2].flatMap((a) => SF.map((sf) => over(fillSeedRgb, a, sf)));
     const surfPlusSubtle = [...SF, subtle];
-    const text = oklchToRgb(solveL(sL, sC, sh, surfPlusSubtle, tgt.text, dir), sC, sh);
+    // opaque surfaces keep the full safety margin (tgt.text); translucent tints only need the AA minimum plus a rounding margin,
+    // so the text is moved no further than necessary (keeps accent/danger/… text as distinguishable as possible).
+    const tintTarget = hc ? tgt.text : 4.55;
+    const textOpaque = solveL(sL, sC, sh, surfPlusSubtle, tgt.text, dir);
+    const textTint = solveL(sL, sC, sh, tints, tintTarget, dir);
+    const text = oklchToRgb(dir < 0 ? Math.min(textOpaque, textTint) : Math.max(textOpaque, textTint), sC, sh);
     const strong = oklchToRgb(solveL(sL, sC, sh, [subtle], hc ? 10 : T.strong, dir), sC, sh);
     const graphic = oklchToRgb(solveL(fL, fC, fh, SF, tgt.ui, dir), fC, fh);
     const onIsWhite = f.on[mode] === 'white';
@@ -245,16 +262,18 @@ export function buildTheme(theme) {
   tok['glass-bg'] = glassBase;
   meta.glassAlpha = Math.min(1, Math.round(alpha * 100) / 100);
 
+  for (const [k, lch] of Object.entries(AURORA_OKLCH)) tok[k] = rgbOf(lch); // decorative wash colours (same in every theme)
+
   // data-viz: categorical (pre-optimised), sequential (monotonic lightness => grayscale-safe), diverging (accent <-> gold)
   VIZ_CAT_OKLCH[mode].forEach(([L, C, h], i) => { tok[`viz-${i + 1}`] = oklchToRgb(L, C, h); });
   for (let i = 0; i < 9; i++) {
     const t = i / 8;
     const L = mode === 'light' ? 0.96 - t * 0.6 : 0.3 + t * 0.55;
-    tok[`viz-seq-${i + 1}`] = oklchToRgb(L, 0.13 * Math.sin(Math.PI * (0.15 + 0.75 * t)) + 0.015, 249.2918);
+    tok[`viz-seq-${i + 1}`] = oklchToRgb(L, 0.15 * Math.sin(Math.PI * (0.15 + 0.75 * t)) + 0.015, 256.16);
   }
   for (let i = 0; i < 9; i++) {
     const d = (i - 4) / 4; // -1 .. +1 ; centre is neutral, ends are saturated and darker (light) / lighter (dark)
-    tok[`viz-div-${i + 1}`] = oklchToRgb(mode === 'light' ? 0.95 - Math.abs(d) * 0.45 : 0.3 + Math.abs(d) * 0.48, 0.13 * Math.abs(d) + 0.005, d < 0 ? 249.2918 : 38.7559);
+    tok[`viz-div-${i + 1}`] = oklchToRgb(mode === 'light' ? 0.95 - Math.abs(d) * 0.45 : 0.3 + Math.abs(d) * 0.48, 0.15 * Math.abs(d) + 0.005, d < 0 ? 256.16 : 38.76);
   }
   return { tok, meta, mode, hc };
 }
@@ -315,6 +334,11 @@ export function declaredPairs(theme) {
     for (const t of ['text-primary', 'text-secondary', 'accent-text']) {
       P.push({ fg: t, bg: `mesh(${pool}@${a})`, min: t === 'text-primary' ? 7 : 4.5, label: 'text over brand gradient', fgRgb: tok[t], bgRgb: c });
     }
+  }
+  for (const [k, a0] of Object.entries(AURORA_ALPHA)) {
+    const a = theme.startsWith('dark') ? a0 * AURORA_DARK_SCALE : a0;
+    const c = over(tok[k], a, tok['bg-primary']);
+    for (const t of ['text-primary', 'text-secondary']) P.push({ fg: t, bg: `aurora(${k}@${a})`, min: t === 'text-primary' ? 7 : 4.5, label: 'text over aurora wash', fgRgb: tok[t], bgRgb: c });
   }
   return P;
 }
