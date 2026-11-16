@@ -1,0 +1,212 @@
+--- a/supabase/functions/stripe-webhook/index.ts
++++ b/supabase/functions/stripe-webhook/index.ts
+@@ -40,7 +40,7 @@
+ import Stripe from "npm:stripe@17.4.0";
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+ import { computeDunningUpdate, computeRecoveryUpdate } from "../_shared/stripe/dunningLogic.ts";
+-import { minutesForPlan, planIdFromPriceId } from "../_shared/billing/planCatalog.ts";
++import { minutesForPlan, minutesToWriteOnSync, planIdFromPriceId } from "../_shared/billing/planCatalog.ts";
+ 
+ const corsHeaders = {
+   "Access-Control-Allow-Origin": "*",
+@@ -350,9 +350,16 @@
+           (subscription.metadata?.plan_id as string | undefined);
+         if (!customerId || !planId) break;
+ 
+-                await admin
++        // Grandfathering: only take the catalog minutes when the plan actually changes. A subscription.updated for
++        // the same plan (card update, trial end, metadata) must not reset a stored legacy allowance.
++        const { data: currentProfile } = await admin
+           .from("profiles")
+-          .update({ plan: planId, minutes_included: minutesForPlan(planId) ?? undefined })
++          .select("plan")
++          .eq("stripe_customer_id", customerId)
++          .maybeSingle();
++        await admin
++          .from("profiles")
++          .update({ plan: planId, minutes_included: minutesToWriteOnSync(currentProfile?.plan as string | undefined, planId) })
+           .eq("stripe_customer_id", customerId);
+         break;
+       }
+@@ -361,7 +368,6 @@
+         break;
+     }
+   } catch (err) {
+-   } catch (err) {
+     console.error(`Error handling Stripe event ${event.type} (${event.id}):`, err);
+     await admin.rpc("complete_billing_event", {
+       p_event_id: event.id,
+--- a/supabase/functions/_shared/billing/planCatalog.ts
++++ b/supabase/functions/_shared/billing/planCatalog.ts
+@@ -58,6 +58,20 @@
+ }
+ 
+ /**
++ * The minutes_included value to write when a billing event reports `newPlanId` for an account that is currently on
++ * `currentPlanId`. `undefined` means "leave the column alone": an account whose plan did NOT change keeps its stored
++ * allowance, so grandfathered legacy minutes survive card updates, trial ends and metadata-only subscription updates.
++ * Only a genuine plan change (or an account with no recorded plan) takes the catalog value.
++ */
++export function minutesToWriteOnSync(
++  currentPlanId: string | null | undefined,
++  newPlanId: string,
++): number | undefined {
++  if (currentPlanId && currentPlanId === newPlanId) return undefined;
++  return minutesForPlan(newPlanId) ?? undefined;
++}
++
++/**
+  * Maps a Stripe price id back to a plan id using the configured secrets.
+  * `readEnv` is injected so this stays testable (pass `Deno.env.get` in edge functions).
+  */
+--- a/supabase/functions/_shared/fraud/inbound.ts
++++ b/supabase/functions/_shared/fraud/inbound.ts
+@@ -48,3 +48,29 @@
+   }
+   return { error: "This business's free answering minutes have been used. Please call back later or contact them directly." };
+ }
++
++export interface InboundDecision {
++  /** Whether the call may be answered by the AI. */
++  allowed: boolean;
++  /** The free minutes ARE exhausted, but enforcement is not on (fraud_settings.enforce <> true): logged, not stopped. */
++  shadowDenied: boolean;
++  allowance: InboundAllowance;
++}
++
++/**
++ * Enforce-or-shadow decision for the free-minute stop. Honours the same fraud_settings.enforce switch as
++ * guardOutbound(), so the stop can be rolled out in log-only mode first. Anything unreadable resolves to "allow":
++ * inbound answering must never break because the fraud store did.
++ */
++export async function evaluateInbound(db: FraudDb, userId: string): Promise<InboundDecision> {
++  const allowance = await checkInboundAllowance(db, userId);
++  if (allowance.allowed) return { allowed: true, shadowDenied: false, allowance };
++  let enforce = false;
++  try {
++    const { data, error } = await db.rpc("fraud_guard_context", { p_user: userId });
++    if (!error && data && typeof data === "object") enforce = (data as { enforce?: unknown }).enforce === true;
++  } catch {
++    /* unknown => shadow */
++  }
++  return enforce ? { allowed: false, shadowDenied: false, allowance } : { allowed: true, shadowDenied: true, allowance };
++}
+--- a/supabase/functions/vapi-webhook/index.ts
++++ b/supabase/functions/vapi-webhook/index.ts
+@@ -22,6 +22,7 @@
+ import { detectEmergencyText } from "../_shared/voice-resilience/emergencyFastPath.ts";
+ import { ladderResponse } from "../_shared/voice-resilience/vapiRouting.ts";
+ import { effectiveLevel, loadLadderRouting, loadReducedAssistantId, recordOutcome } from "../_shared/voice-resilience/runtime.ts";
++import { evaluateInbound, exhaustedResponse } from "../_shared/fraud/inbound.ts";
+ import { findEscalationTarget, isValidE164 } from "../_shared/voice-hardening/escalation.ts";
+ import { findDuplicateBooking } from "../_shared/voice-hardening/bookingIdempotency.ts";
+ import { planDisclosure, recordDisclosureOutcome } from "../_shared/ai-disclosure/ledger.ts";
+@@ -730,6 +731,21 @@
+     });
+   }
+ 
++  // Free-plan minutes exhausted: stop BEFORE the AI connects (forward to the owner, else play a short message).
++  // Enforce vs log-only follows fraud_settings.enforce; any infrastructure error fails OPEN (see fraud/inbound.ts).
++  try {
++    const inbound = await evaluateInbound(admin, tenant.userId);
++    if (inbound.shadowDenied) {
++      logEvent("assistant_request_free_minutes_would_block", requestId, { user_id: tenant.userId, used: inbound.allowance.used, included: inbound.allowance.included });
++    } else if (!inbound.allowed) {
++      const { forwardTarget } = await loadLadderRouting(admin, tenant.userId);
++      logEvent("assistant_request_free_minutes_exhausted", requestId, { user_id: tenant.userId, forwarded: Boolean(forwardTarget) });
++      return jsonResponse(await exhaustedResponse(admin, tenant.userId, forwardTarget));
++    }
++  } catch (err) {
++    logError("free_minutes_check_failed_open", requestId, err, {});
++  }
++
+   const callerNumber = message.call?.customer?.number ?? null;
+   try {
+     const { level } = await effectiveLevel(admin, tenant.userId);
+--- a/supabase/functions/_shared/messaging/sendSms.ts
++++ b/supabase/functions/_shared/messaging/sendSms.ts
+@@ -18,12 +18,13 @@
+ import { isDncSuppressed, normalizePhone } from "../compliance/dncCheck.ts";
+ import { gateOutbound, deferMessage, type Purpose } from "./quietHours.ts";
+ import { estimateSmsSegments, recordUsageEvent } from "../billing/usageEvents.ts";
++import { guardOutbound } from "../fraud/guard.ts";
+ 
+ export type SendSmsResult =
+   | { ok: true; sid: string; deferred?: false }
+   | { ok: true; sid: string; deferred: true; sendAt: string }
+   | { ok: false; reason: "QUIET_HOURS"; sendAt: string; detail?: string }
+-  | { ok: false; reason: "A2P_NOT_APPROVED" | "OPTED_OUT" | "NOT_CONFIGURED" | "TWILIO_ERROR" | "QUEUE_ERROR"; detail?: string };
++  | { ok: false; reason: "A2P_NOT_APPROVED" | "OPTED_OUT" | "NOT_CONFIGURED" | "TWILIO_ERROR" | "QUEUE_ERROR" | "GUARD_BLOCKED"; detail?: string };
+ 
+ export interface SendSmsOptions {
+   purpose?: Purpose;
+@@ -63,6 +64,12 @@
+       return { ok: true, sid: `deferred:${queued.queueId}`, deferred: true, sendAt: queued.sendAt };
+     }
+   }
++  // Plan / fraud gate (fraud/guard.ts): daily SMS + spend caps, kill switches, verification, destination policy.
++  // Placed AFTER the compliance gates so a refused message never consumes budget. purpose "emergency" uses the
++  // hand-off lane and is never refused; fraud_settings.enforce = false turns this into log-only (shadow) mode.
++  const guard = await guardOutbound(admin, { userId, kind: "sms", to, purpose: opts.purpose ?? "service", source: opts.source ?? "sendCompliantSms" });
++  if (!guard.ok) return { ok: false, reason: "GUARD_BLOCKED", detail: guard.code };
++
+   const accountSid = Deno.env.get("TWILIO_ACCOUNT_SID");
+   const authToken = Deno.env.get("TWILIO_AUTH_TOKEN");
+   const messagingServiceSid = Deno.env.get("TWILIO_MESSAGING_SERVICE_SID");
+--- a/supabase/functions/outbound-dialer/index.ts
++++ b/supabase/functions/outbound-dialer/index.ts
+@@ -2,6 +2,7 @@
+ import { isDncSuppressed } from "../_shared/compliance/dncCheck.ts";
+ import { gateOutbound } from "../_shared/messaging/quietHours.ts";
+ import { governedGate } from "../_shared/governance/shadowGate.ts";
++import { attachCallRef, guardOutbound } from "../_shared/fraud/guard.ts";
+ import { recordAgentActionOutcome } from "../_shared/governance/agentGovernance.ts";
+ import { selectOutboundNumber, recordDialAttempt } from "../_shared/number-reputation/attempts.ts";
+ import { getKillSwitchGuard } from "../_shared/flags/killSwitch.ts";
+@@ -115,6 +116,27 @@
+       }).eq("id", call.id);
+       continue;
+     }
++    // Plan / fraud gate: daily call + spend caps, verification, kill switches, destination policy (fraud/guard.ts).
++    // Destination problems can never succeed on retry -> fail the row. Everything else (caps, kill switch, store
++    // outage) leaves the row queued and tries again in an hour without burning an attempt.
++    const guard = await guardOutbound(admin, {
++      userId: call.user_id,
++      kind: "call",
++      to: call.customer_phone,
++      purpose: call.campaign_type === "review_request_call" ? "marketing" : "service",
++      campaign: call.campaign_type,
++      source: "outbound-dialer",
++    });
++    if (!guard.ok) {
++      const terminal = ["INVALID_NUMBER", "NEVER_ROUTABLE", "PREMIUM_RATE", "UNKNOWN_DESTINATION", "COUNTRY_NOT_ALLOWED", "INTERNATIONAL_LOCKED"].includes(guard.code);
++      if (terminal) {
++        await admin.from("outbound_calls").update({ status: "failed", outcome_notes: `Blocked: ${guard.code}`, attempt_count: call.attempt_count + 1 }).eq("id", call.id);
++        failed += 1;
++      } else {
++        await admin.from("outbound_calls").update({ scheduled_for: new Date(Date.now() + 60 * 60 * 1000).toISOString(), outcome_notes: `Held: ${guard.code}` }).eq("id", call.id);
++      }
++      continue;
++    }
+     try {
+        const { engine } = await resolveVoiceEngine({
+         ownerId: call.user_id,
+@@ -144,6 +166,7 @@
+         continue;
+       }
+ 
++      await attachCallRef(admin, guard.eventRef, started.callId);
+       await admin.from("outbound_calls").update({
+         status: "calling", vapi_call_id: started.callId, called_at: new Date().toISOString(), attempt_count: call.attempt_count + 1,
+       }).eq("id", call.id);
+--- a/supabase/functions/_shared/fraud/planLimits.ts
++++ b/supabase/functions/_shared/fraud/planLimits.ts
+@@ -123,7 +123,7 @@
+ };
+ 
+ export function normalizePlan(plan: string | null | undefined): PlanId {
+-  return plan && plan in PLAN_LIMITS ? (plan as PlanId) : "free"; // unknown => most restrictive
++  return plan && Object.prototype.hasOwnProperty.call(PLAN_LIMITS, plan) ? (plan as PlanId) : "free"; // unknown (incl. prototype keys like "constructor") => most restrictive
+ }
+ 
+ /** New accounts get a fraction of their caps while they build history (stolen-card / farming ramp). */
