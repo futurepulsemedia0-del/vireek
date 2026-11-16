@@ -1,4 +1,5 @@
 import { useEffect, useId } from 'react';
+import { Link } from 'react-router-dom';
 import type { DeepBlock, DeepContentData } from '@/lib/deepContent/types';
 import { eyebrowClass, sectionHeadingClass, bodyClass } from '@/lib/motion';
 
@@ -154,6 +155,20 @@ export function DeepContent({ data, idPrefix, emitFaqSchema = false }: DeepConte
                 </li>
               )}
             </ul>
+            {data.related && data.related.length > 0 && (
+              <div className="mt-8">
+                <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary">Related</p>
+                <ul className="mt-3 space-y-1">
+                  {data.related.map((r) => (
+                    <li key={r.href}>
+                      <Link to={r.href} className="focus-ring block rounded py-1 text-sm text-accent hover:underline">
+                        {r.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </nav>
 
           <div className="min-w-0 space-y-16">
