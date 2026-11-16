@@ -52,6 +52,7 @@ const CommunityForumPage = lazy(() => import('@/pages/CommunityForumPage').then(
 const CommunityThreadPage = lazy(() => import('@/pages/CommunityThreadPage').then((m) => ({ default: m.CommunityThreadPage })));
 const AmbassadorPage = lazy(() => import('@/pages/AmbassadorPage').then((m) => ({ default: m.AmbassadorPage })));
 const SupportInboxPage = lazy(() => import('@/pages/SupportInboxPage').then((m) => ({ default: m.SupportInboxPage })));
+const StaffCustomerHealthPage = lazy(() => import('@/pages/StaffCustomerHealthPage').then((m) => ({ default: m.StaffCustomerHealthPage })));
 const PricingPage = lazy(() => import('@/pages/PricingPage').then((m) => ({ default: m.PricingPage })));
 const DashboardHome = lazy(() => import('@/pages/DashboardHome').then((m) => ({ default: m.DashboardHome })));
 const SupportTicketsPage = lazy(() => import('@/pages/SupportTicketsPage').then((m) => ({ default: m.SupportTicketsPage })));
@@ -800,6 +801,7 @@ function AppRoutes() {
         <Route path="/ambassador" element={<AmbassadorPage />} />
         <Route path="/staff/packs" element={<StaffRoute><StaffPacksPage /></StaffRoute>} />
         <Route path="/staff/web-vitals" element={<StaffRoute><StaffWebVitalsPage /></StaffRoute>} />
+        <Route path="/staff/customer-health" element={<StaffRoute><StaffCustomerHealthPage /></StaffRoute>} />
         <Route path="/staff/partner-commissions" element={<StaffRoute><Suspense fallback={<PageLoader />}><StaffPartnerCommissionsPage /></Suspense></StaffRoute>} />
         <Route
           path="/staff/support-inbox"
