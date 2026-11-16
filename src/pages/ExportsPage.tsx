@@ -44,6 +44,7 @@ import {
   type ExportJobStatus,
 } from '@/lib/dataExports';
 import { formatBytes } from '../../supabase/functions/_shared/exports/engine';
+import { FullExportButton } from '@/components/FullExportButton';
 
 const PAGE_STEP = 25;
 const POLL_MS = 4000;
@@ -275,7 +276,8 @@ export function ExportsPage() {
             </p>
           </div>
         </div>
-
+        
+<FullExportButton />
         {/* Create */}
         <section className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark sm:p-6">
           <h2 className="text-base font-semibold text-text-primary">New export</h2>
