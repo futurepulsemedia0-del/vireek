@@ -121,7 +121,7 @@ export function SarahLearnPage({ embedded = false }: { embedded?: boolean } = {}
 
   if (authLoading || loading) {
     return (
-      <div role="status" aria-label={t('page.loading')} className={`flex items-center justify-center bg-bg-primary ${embedded ? 'min-h-[240px]' : 'min-h-screen'}`}> تغییر دهید.
+      <div role="status" aria-label={t('page.loading')} className={`flex items-center justify-center bg-bg-primary ${embedded ? 'min-h-[240px]' : 'min-h-screen'}`}>
         <MiniLoader size={28} />
       </div>
     );
@@ -143,7 +143,6 @@ export function SarahLearnPage({ embedded = false }: { embedded?: boolean } = {}
           <ThemeToggle />
         </div>
       </header>
-      )}
 
       <main className="mx-auto w-full max-w-2xl space-y-6">
         <div>
@@ -185,7 +184,7 @@ export function SarahLearnPage({ embedded = false }: { embedded?: boolean } = {}
 
         {user && (
           <Card interactive={false} className="!p-5 sm:!p-8">
-            {stage === 'sources' && <SourcesStep locale={locale} parentRunId={rerunOf} initialUrl={run?.website_url ?? prefillSite}} onDone={onDrafted} />}
+            {stage === 'sources' && <SourcesStep locale={locale} parentRunId={rerunOf} initialUrl={run?.website_url ?? prefillSite} onDone={onDrafted} />}
             {stage === 'interview' && run && <InterviewStep runId={run.id} locale={run.locale} onDone={toReview} />}
             {stage === 'review' && run && (
               <ReviewStep
