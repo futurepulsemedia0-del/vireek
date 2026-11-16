@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/Button';
 import { EASE, eyebrowClass, sectionHeadingClass, staggerContainer, fadeUpItem, viewport } from '@/lib/motion';
 import { USE_CASES, getUseCaseBySlug, useCasePath, type UseCase } from '@/lib/useCases';
 import { useSEO } from '@/lib/seo';
+import { DeepContent } from '@/components/marketing/DeepContent';
+import { USE_CASE_DEEP } from '@/lib/deepContent/useCasesDeep';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 
 const SITE = 'https://vireek.com';
@@ -232,6 +234,9 @@ function UseCaseContent({ useCase }: { useCase: UseCase }) {
           </div>
         </section>
 
+        {USE_CASE_DEEP[useCase.slug] && (
+          <DeepContent data={USE_CASE_DEEP[useCase.slug]} idPrefix={`usecase-${useCase.slug}`} />
+        )}
         {/* Other use cases */}
         <section className="px-5 py-8 sm:px-6 sm:py-12">
           <div className="mx-auto max-w-5xl">
