@@ -3,6 +3,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useDirection } from '@/hooks/useDirection';
 import { NAV_ITEMS, isInternalHref, isNavItemActive, type MegaLink } from '@/lib/headerNav';
 
 const EASE = [0.16, 1, 0.3, 1] as const;
@@ -33,6 +34,7 @@ export function MobileNav({ onNavigate }: { onNavigate: () => void }) {
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const reduce = useReducedMotion();
+  const { isRtl } = useDirection();
   const baseId = useId();
   const [expanded, setExpanded] = useState<string | null>(
     () => NAV_ITEMS.find((i) => i.panel && isNavItemActive(i, pathname))?.id ?? null,
@@ -51,7 +53,7 @@ export function MobileNav({ onNavigate }: { onNavigate: () => void }) {
           return (
             <motion.li
               key={item.id}
-              initial={reduce ? false : { opacity: 0, x: 24 }}
+              initial={reduce ? false : { opacity: 0, x: isRtl ? -24 : 24 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: reduce ? 0 : 0.06 + i * 0.04, duration: reduce ? 0 : 0.26, ease: EASE }}
             >
@@ -77,7 +79,7 @@ export function MobileNav({ onNavigate }: { onNavigate: () => void }) {
                         transition={{ duration: reduce ? 0 : 0.24, ease: EASE }}
                         className="overflow-hidden"
                       >
-                        <div className="ml-4 space-y-3 border-l border-border py-2 pl-3">
+                        <div className="ms-4 space-y-3 border-s border-border py-2 ps-3">
                           <MobileLink link={item.panel.overview} onNavigate={onNavigate} strong />
                           {item.panel.groups.map((g) => (
                             <div key={g.title}>
