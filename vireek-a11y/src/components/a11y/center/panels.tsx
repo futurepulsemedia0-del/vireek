@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type KeyboardEvent as ReactKeyboardEvent } from 'react';
-import { Check, Download, Mic, MicOff, Pause, Play, RefreshCw, Square, Upload } from 'lucide-react';
+import { useEffect, useId, useMemo, useRef, useState, useSyncExternalStore, type KeyboardEvent as ReactKeyboardEvent } from 'react';
+import { Check, Download, Mic, MicOff, Pause, Play, RefreshCw, Save, Square, Trash2, Upload } from 'lucide-react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { useTheme, type ThemePreference } from '@/contexts/ThemeContext';
 import { LANGUAGES, type LanguageCode } from '@/lib/i18n';
@@ -14,8 +14,13 @@ import { getSpeechState, pauseSpeech, pickVoice, resumeSpeech, stopSpeech, subsc
 import { detectSystemPreferences } from '@/lib/a11y/system';
 import type { A11yKey } from '@/lib/a11y/strings';
 import { useA11yText } from '../useA11yText';
-import { Btn, Notice, SelectRow, SliderRow, ToggleRow } from './controls';
+import { Btn, Notice, Section, SelectRow, SliderRow, ToggleRow } from './controls';
 import { setCapturingShortcut, speakCurrent, useRuntime } from './runtime';
+import { FOCUS_COLORS } from '@/lib/a11y/apply';
+import {
+  CUSTOM_PROFILES_KEY, MAX_CUSTOM_PROFILES, MAX_PROFILE_NAME, addCustomProfile, applyCustomProfile, detectActiveCustom,
+  loadCustomProfiles, newProfileId, normalizeProfileName, removeCustomProfile, saveCustomProfiles, type CustomProfile,
+} from '@/lib/a11y/customProfiles';
 
 /* ---------------------------------- registry rows ---------------------------------- */
 const fmt = (unit: 'percent' | 'plain' | 'em' | 'px', v: number): string =>
@@ -91,6 +96,101 @@ export function ProfilesPanel() {
         })}
       </ul>
     </div>
+  );
+}
+
+/* ------------------------------------ custom profiles ------------------------------------ */
+export function CustomProfilesPanel() {
+  const { settings, replaceSettings } = useAccessibility();
+  const { t } = useA11yText();
+  const nameId = useId();
+  const [profiles, setProfiles] = useState<CustomProfile[]>(() => loadCustomProfiles());
+  const [name, setName] = useState('');
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    const onStorage = (e: StorageEvent): void => { if (e.key === CUSTOM_PROFILES_KEY || e.key === null) setProfiles(loadCustomProfiles()); };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+  const active = detectActiveCustom(settings, profiles);
+  const clean = normalizeProfileName(name);
+  const commit = (next: CustomProfile[]): boolean => {
+    const ok = saveCustomProfiles(next);
+    setFailed(!ok);
+    if (ok) setProfiles(next);
+    return ok;
+  };
+  const save = (): void => {
+    const r = addCustomProfile(profiles, clean, settings, Date.now(), newProfileId());
+    if (!r.ok) return;
+    if (commit(r.profiles)) {
+      setName('');
+      announce(t(r.replaced ? 'customUpdated' : 'customSaved', { name: r.profile.name }));
+    }
+  };
+  const full = profiles.length >= MAX_CUSTOM_PROFILES && !profiles.some((p) => p.name.toLocaleLowerCase() === clean.toLocaleLowerCase());
+  return (
+    <div>
+      <p className="mb-2 break-words text-sm text-text-primary">{t('customHint')}</p>
+      <form className="space-y-2" onSubmit={(e) => { e.preventDefault(); save(); }}>
+        <label htmlFor={nameId} className="block text-sm font-bold text-text-primary">{t('customNameLabel')}</label>
+        <input
+          id={nameId} type="text" value={name} maxLength={MAX_PROFILE_NAME} autoComplete="off"
+          onChange={(e) => setName(e.target.value)}
+          className="focus-ring min-h-[44px] w-full rounded-xl border-2 border-text-secondary bg-bg-secondary px-3 text-base text-text-primary"
+        />
+        <Btn type="submit" variant="primary" disabled={!clean || full} className="w-full"><Save size={18} aria-hidden="true" />{t('customSave')}</Btn>
+      </form>
+      {full && <Notice>{t('customLimit')}</Notice>}
+      {failed && <Notice tone="error">{t('customStoreFail')}</Notice>}
+      {profiles.length === 0 ? (
+        <p className="mt-3 break-words text-sm text-text-primary">{t('customEmpty')}</p>
+      ) : (
+        <ul className="mt-3 grid grid-cols-1 gap-2">
+          {profiles.map((p) => {
+            const on = active === p.id;
+            return (
+              <li key={p.id} className="flex items-stretch gap-2">
+                <button type="button" aria-pressed={on}
+                  onClick={() => { replaceSettings(applyCustomProfile(settings, p)); announce(t('profileApplied', { name: p.name })); }}
+                  className={`focus-ring flex min-h-[44px] min-w-0 flex-1 items-center gap-3 rounded-xl border-2 px-3 py-2 text-start ${on ? 'border-text-primary bg-bg-tertiary' : 'border-text-secondary bg-bg-secondary'}`}>
+                  <span className="min-w-0 flex-1 break-words text-base font-bold text-text-primary">{p.name}</span>
+                  {on && <span className="flex shrink-0 items-center gap-1 text-sm font-bold text-text-primary"><Check size={16} aria-hidden="true" />{t('profileActive')}</span>}
+                </button>
+                <Btn aria-label={t('customDelete', { name: p.name })}
+                  onClick={() => { if (commit(removeCustomProfile(profiles, p.id))) announce(t('customDeleted', { name: p.name })); }}>
+                  <Trash2 size={18} aria-hidden="true" />
+                </Btn>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+/* --------------------------------- cursor & focus preview --------------------------------- */
+export function CursorPreview() {
+  const { settings: s } = useAccessibility();
+  const { t } = useA11yText();
+  const ring = FOCUS_COLORS[s.focusColor];
+  const ringOn = s.strongFocus || s.highlightKeyboardFocus || s.focusColor !== 'default' || s.focusWidth !== DEFAULT_SETTINGS.focusWidth;
+  const pointer = s.cursorColor !== 'default' ? `a11y-cursor-${s.cursorColor}` : s.largeCursor ? 'a11y-large-cursor' : '';
+  return (
+    <Section id="a11y-s-preview" title={t('previewTitle')}>
+      <div className={`${pointer} rounded-xl border-2 border-dashed border-text-secondary p-4`}>
+        <p className="mb-4 break-words text-sm text-text-primary">{t('previewPointer')}</p>
+        <span
+          aria-hidden="true"
+          className="inline-flex min-h-[44px] items-center rounded-xl border-2 border-text-secondary bg-bg-tertiary px-4 text-sm font-semibold text-text-primary"
+          style={ringOn ? { outline: `${s.focusWidth}px solid ${ring.ring}`, outlineOffset: 2, boxShadow: `0 0 0 ${s.focusWidth + 2}px ${ring.halo}` } : undefined}
+        >
+          {t('previewFocus')}
+        </span>
+        {!ringOn && <p className="mt-3 break-words text-sm text-text-primary">{t('previewFocusOff')}</p>}
+      </div>
+    </Section>
   );
 }
 
