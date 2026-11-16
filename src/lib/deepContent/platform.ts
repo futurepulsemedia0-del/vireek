@@ -5,6 +5,12 @@ export const PLATFORM_DEEP: DeepContentData = {
   title: 'How the platform is organised, and how to adopt it without disruption',
   intro:
     'Vireek began as an AI receptionist and has grown into a connected operating layer for home-service businesses. This page explains the layers, how data moves between them and a low-risk way to adopt them.',
+  related: [
+    { label: 'Integrations', href: '/integrations' },
+    { label: 'Developer docs', href: '/docs' },
+    { label: 'Security', href: '/security' },
+    { label: 'Pricing', href: '/pricing' },
+  ],
   sections: [
     {
       id: 'layers',
@@ -40,7 +46,7 @@ export const PLATFORM_DEEP: DeepContentData = {
             { title: 'Capture at the edge', text: 'Calls, texts and chats create or update a customer record.' },
             { title: 'Enrich and deduplicate', text: 'Repeat contacts are matched, so history accumulates in one place.' },
             { title: 'Act on the record', text: 'Booking, dispatch, quoting and follow-up all read the same record.' },
-            { title: 'Sync outward', text: 'Changes are sent to connected CRM, accounting and calendar tools.' },
+            { title: 'Sync outward', text: 'Where an integration supports it, changes are sent to connected CRM, accounting and calendar tools.' },
             { title: 'Measure', text: 'Outcomes feed analytics and quality reviews, which inform your next configuration changes.' },
           ],
         },
@@ -101,7 +107,7 @@ export const PLATFORM_DEEP: DeepContentData = {
       blocks: [
         {
           kind: 'p',
-          text: 'Integrations vary by plan. Common connections include Google Calendar, ServiceTitan, Housecall Pro and Jobber, and accounting tools such as QuickBooks and Xero on plans that include them. For custom needs, developer documentation, an API reference and webhooks are available, with the extent depending on your plan.',
+          text: 'Connections include Google Calendar, ServiceTitan and Jobber (price-book sync today) and accounting tools; each integration page states whether it is live and exactly what it syncs. For custom needs, developer documentation, an API reference and webhooks are available, with the extent depending on your plan.',
         },
       ],
     },
