@@ -23,7 +23,13 @@ export function LiveChatWidget() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const openHandler = () => setOpen(true);
+    const openHandler = (e: Event) => {
+      setOpen(true);
+      // Hand-off context from the Support Agent / Ask Vireek: shown in the box so the visitor can read and edit it before sending.
+      const d = (e as CustomEvent<{ prefill?: string; context?: string }>).detail;
+      const pre = d?.prefill ?? (d?.context ? `Context from Ask Vireek:\n${d.context}` : '');
+      if (typeof pre === 'string' && pre) setInput((cur) => (cur.trim() ? cur : pre.slice(0, 1500)));
+    };
     window.addEventListener('vireek:open-live-chat', openHandler);
     return () => window.removeEventListener('vireek:open-live-chat', openHandler);
   }, []);
