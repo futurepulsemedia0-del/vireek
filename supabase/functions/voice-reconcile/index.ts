@@ -11,6 +11,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { isAuthorizedCaller, json } from "../_shared/synthetic/auth.ts";
 import { twilioCarrier, vapiEngine } from "../_shared/voice-resilience/adapters.ts";
+import { bulkheadGuard } from "../_shared/voice-resilience/bulkhead.ts";
 import { diffCalls, gapSeverity, toEndOfCallReport } from "../_shared/voice-resilience/reconcile.ts";
 
 type Admin = ReturnType<typeof createClient>;
@@ -29,7 +30,7 @@ async function replayThroughWebhook(message: Record<string, unknown>): Promise<b
 async function reconcileEngine(admin: Admin, hours: number, maxRecover: number) {
   const key = Deno.env.get("VAPI_PRIVATE_KEY");
   if (!key) return { skipped: "VAPI_PRIVATE_KEY missing" };
-  const engine = vapiEngine({ privateKey: key });
+  const engine = vapiEngine({ privateKey: key, guard: bulkheadGuard("vapi:voice_engine", Deno.env) });
   const now = Date.now();
   const since = new Date(now - hours * 3_600_000), until = new Date(now);
   const provider = await engine.listCalls({ since, until, limit: 1000 });
@@ -68,7 +69,7 @@ async function reconcileCarrier(admin: Admin, hours: number) {
   const { data: nums } = await admin.from("phone_numbers").select("phone_number, account_id").in("account_id", owners);
   const numToOwner = new Map((nums ?? []).map((n: { phone_number: string; account_id: string }) => [n.phone_number, n.account_id]));
   const now = Date.now();
-  const all = await twilioCarrier({ accountSid: sid, authToken: tok }).listCalls({ since: new Date(now - hours * 3_600_000), until: new Date(now), limit: 1000 });
+  const all = await twilioCarrier({ accountSid: sid, authToken: tok, guard: bulkheadGuard("twilio:carrier", Deno.env) }).listCalls({ since: new Date(now - hours * 3_600_000), until: new Date(now), limit: 1000 });
   const mine = all.filter((c) => c.to && numToOwner.has(c.to));
   const sids = mine.map((c) => c.providerCallId);
   const known = new Set<string>();
