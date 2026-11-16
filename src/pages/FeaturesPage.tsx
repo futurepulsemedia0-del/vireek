@@ -24,6 +24,8 @@ import { Card } from '@/components/ui/Card';
 import { CookieConsent } from '@/components/CookieConsent';
 import { EASE, eyebrowClass, sectionHeadingClass, bodyClass, staggerContainer, fadeUpItem, viewport } from '@/lib/motion';
 import { useSEO } from '@/lib/seo';
+import { DeepContent } from '@/components/marketing/DeepContent';
+import { FEATURES_DEEP } from '@/lib/deepContent/features';
 
 type Feature = {
   icon: LucideIcon;
@@ -233,6 +235,7 @@ export function FeaturesPage() {
           </section>
         ))}
 
+        <DeepContent data={FEATURES_DEEP} idPrefix="features" />
         {/* Final CTA */}
         <section className="px-6 py-16 md:py-20">
           <motion.div
