@@ -15,7 +15,7 @@ const selectClass =
   'focus-ring w-full rounded-xl border border-border bg-bg-primary px-4 py-3 text-base text-text-primary focus-visible:border-accent';
 
 export function NewTicketForm({
-  ctx, onCreated, onCancel, initial,,
+  ctx, onCreated, onCancel, initial,
 }: { ctx: CreateTicketContext; onCreated: (ticket: Ticket) => void; onCancel: () => void; initial?: { subject?: string; body?: string; category?: TicketCategory } }) {
   const { toast } = useToast();
   const [subject, setSubject] = useState(initial?.subject ?? '');
