@@ -18,6 +18,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { OWNED_TABLES } from "../_shared/compliance/ownedTables.ts";
 import { eraseProviderData } from "../_shared/compliance/providerErasure.ts";
+import { sweepOwnedRows, type SweepRpcClient } from "../_shared/compliance/sweepBatches.ts";
 import { eraseTrustPackData } from "../_shared/trust/vault.ts";
 
 const corsHeaders = {
