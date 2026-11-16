@@ -32,6 +32,7 @@ Routes found: **683**.
 | `/staff/customers` | `StaffCustomersPage` | StaffRoute |
 | `/staff/evidence-partners` | `EvidencePartnersAdminPage` | StaffRoute |
 | `/staff/reliability` | `PageLoader` | StaffRoute |
+| `/staff/fairness-audit` | `PageLoader` | StaffRoute |
 | `/dashboard/hiring` | `HiringPage` | StaffRoute |
 | `/staff/usage` | `PageLoader` | StaffRoute |
 | `/staff/feature-flags` | `FeatureFlagsAdminPage` | StaffRoute |
