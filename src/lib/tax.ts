@@ -84,7 +84,7 @@ export function calculateVat(input: VatInput): VatResult {
 
   if (customer === seller) {
     const rate = VAT_RATES[seller] ?? 0;
-    const vatAmount = round2(subtotal * (rate / 100));
+    const vatAmount = vatOnSubtotal(subtotal, rate);
     return { vatRate: rate, vatAmount, total: round2(subtotal + vatAmount), reverseCharge: false, note: `Domestic VAT (${seller}) — ${rate}%` };
   }
 
@@ -96,7 +96,7 @@ export function calculateVat(input: VatInput): VatResult {
       };
     }
     const rate = VAT_RATES[customer] ?? 0;
-    const vatAmount = round2(subtotal * (rate / 100));
+    const vatAmount = vatOnSubtotal(subtotal, rate);
     return { vatRate: rate, vatAmount, total: round2(subtotal + vatAmount), reverseCharge: false, note: `EU cross-border B2C (OSS) — customer country ${customer}, ${rate}%` };
   }
 
@@ -105,4 +105,12 @@ export function calculateVat(input: VatInput): VatResult {
 
 function round2(n: number): number {
   return Math.round(n * 100) / 100;
+}
+/** VAT in currency units from integer cents, half-up (no float drift). */
+function vatOnSubtotal(subtotal: number, ratePercent: number): number {
+  if (!(ratePercent > 0) || subtotal === 0 || !Number.isFinite(subtotal)) return 0;
+  const sign = subtotal < 0 ? -1 : 1;
+  const cents = Math.round(Math.abs(subtotal) * 100);
+  const scaled = Math.round(ratePercent * 10000);
+  return (sign * Math.floor((cents * scaled + 500000) / 1000000)) / 100;
 }
