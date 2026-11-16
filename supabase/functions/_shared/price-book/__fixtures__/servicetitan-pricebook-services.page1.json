@@ -1,0 +1,6 @@
+{ "page": 1, "pageSize": 200, "hasMore": true, "data": [
+  { "id": 101, "name": "Drain cleaning", "price": 189.5, "active": true, "category": { "name": "Plumbing" } },
+  { "id": 102, "name": "Inactive thing", "price": 10, "active": false, "category": null },
+  { "id": 103, "name": "No price service", "active": true },
+  { "name": "No id service", "price": 5, "active": true }
+] }
