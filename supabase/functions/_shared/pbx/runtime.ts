@@ -4,6 +4,7 @@
 import type { SupabaseClient } from 'npm:@supabase/supabase-js@2.57.4';
 import { pickOutboundCallerId } from './logic.ts';
 import { twilioApi, twilioDownload } from './twilio.ts';
+import { asFraudDb, attachOutboundCall, gateCustomerOutbound, gateDestinationOnly, releaseOutboundReservation, type OutboundGate } from '../fraud/outboundGate.ts';
 
 // deno-lint-ignore no-explicit-any
 export type Row = Record<string, any>;
@@ -75,19 +76,39 @@ export async function createLeg(a: SupabaseClient, call: Row, args: LegArgs): Pr
   }).select('id').single();
   if (error || !leg) throw new Error(`leg insert failed: ${error?.message}`);
   const q = { call: call.id, leg: leg.id };
+
+  // Fraud guard for legs that dial an EXTERNAL number (extension "client:" legs stay inside the app and are exempt).
+  //   role 'customer' = the softphone dialing out: customer-driven outbound -> full guard (budget, destination policy,
+  //                     shadow/enforce per outbound_guard_mode) + the plan's duration cap on the leg.
+  //   other roles     = forwards / consults to an external number (in-call hand-offs): destination policy only, no cap.
+  // A refusal fails the leg exactly like a Twilio refusal (callers already handle `false`), so nothing loops.
+  let fraud: OutboundGate | null = null;
+  if (args.target.number) {
+    fraud = args.role === 'customer'
+      ? await gateCustomerOutbound(asFraudDb(a), { userId: call.account_owner_id, kind: 'call', to: args.target.number, purpose: 'service', source: 'pbx-outbound' })
+      : await gateDestinationOnly(asFraudDb(a), call.account_owner_id, args.target.number, `pbx-${args.role}-leg`);
+    if (!fraud.allowed) {
+      console.error(JSON.stringify({ event: 'pbx_leg_blocked_by_fraud_guard', code: fraud.blocked.code, role: args.role }));
+      await a.from('pbx_call_legs').update({ status: 'failed', ended_at: new Date().toISOString() }).eq('id', leg.id);
+      return false;
+    }
+  }
   try {
     const res = await twilioApi('Calls.json', { form: {
-      To: args.target.number ?? `client:${clientIdentity(args.target.extensionId as string)}`,
+      To: fraud?.allowed ? fraud.e164 : (args.target.number ?? `client:${clientIdentity(args.target.extensionId as string)}`),
       From: args.from,
       Url: hook(args.joinAction, q), Method: 'POST',
       StatusCallback: hook('leg-status', q), StatusCallbackMethod: 'POST',
       StatusCallbackEvent: 'initiated ringing answered completed',
       Timeout: String(args.ringSeconds),
+      ...(args.role === 'customer' && fraud?.allowed ? { TimeLimit: String(fraud.maxCallSeconds) } : {}),
     } });
     await a.from('pbx_call_legs').update({ call_sid: res.sid }).eq('id', leg.id);
+    if (args.role === 'customer' && fraud) await attachOutboundCall(asFraudDb(a), fraud, res.sid); // leg-status settles it
     return true;
   } catch (e) {
     console.error(JSON.stringify({ event: 'pbx_leg_create_failed', error: String(e) }));
+    if (args.role === 'customer' && fraud) await releaseOutboundReservation(asFraudDb(a), fraud);
     await a.from('pbx_call_legs').update({ status: 'failed', ended_at: new Date().toISOString() }).eq('id', leg.id);
     return false;
   }
