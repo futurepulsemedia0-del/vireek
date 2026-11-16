@@ -41,7 +41,7 @@ Deno.serve(async (req: Request) => {
         const next = nextReminder({ kind: r.kind, status: r.status, due_date: r.due_date, reminders_sent: r.reminders_sent ?? [], auto_charge: r.auto_charge }, today);
         if (!next) continue;
         const msg = reminderMessage(next.stage, { name: r.customer_name, amountCents: Number(r.amount_cents), lateFeeCents: Number(r.late_fee_cents), currency: r.currency, dueDate: r.due_date, autoCharge: r.auto_charge, link: payLinkFor("i", r.id) });
-        await notifyCustomer({ customer_phone: r.customer_phone, customer_email: r.customer_email }, msg.subject, msg.text);
+        await notifyCustomer({ customer_phone: r.customer_phone, customer_email: r.customer_email, user_id: r.user_id }, msg.subject, msg.text);
         await admin.rpc("mark_plan_reminders_sent", { p_installment_id: r.id, p_stages: next.mark });
         stats.reminders++;
       } catch (e) { fail(`reminder:${r.id}`, e); }
