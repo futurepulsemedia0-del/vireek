@@ -4,6 +4,7 @@
 // NONE of these has been exercised against the live vendor API from this repo. The Telnyx adapter in
 // particular needs a Telnyx account, a messaging profile and a 10DLC/toll-free registration before it can send.
 
+import { isBulkheadRejection, type Guard } from "./bulkhead.ts";
 import type { CarrierPort, PortHealth, ProviderCallRef, SmsPort, VoiceEnginePort } from "./providers.ts";
 
 export type FetchLike = (url: string, init?: RequestInit) => Promise<Response>;
@@ -16,9 +17,14 @@ async function timed(fetchFn: FetchLike, url: string, init: RequestInit, timeout
 
 const basic = (u: string, p: string) => "Basic " + btoa(`${u}:${p}`);
 
+// Optional bulkhead (see bulkhead.ts). Undefined guard = original behaviour. Health checks are NEVER guarded:
+// a saturated bulkhead must not hide, or fake, the provider's real health.
+const passthrough: Guard = <T>(fn: () => Promise<T>) => fn();
+
 // ------------------------------------------------------------------ Vapi (voice engine, primary)
-export function vapiEngine(cfg: { privateKey: string; fetch?: FetchLike; baseUrl?: string }): VoiceEnginePort {
+export function vapiEngine(cfg: { privateKey: string; fetch?: FetchLike; baseUrl?: string; guard?: Guard }): VoiceEnginePort {
   const f = cfg.fetch ?? fetch;
+  const guard = cfg.guard ?? passthrough;
   const base = cfg.baseUrl ?? "https://api.vapi.ai";
   const hdr = { Authorization: `Bearer ${cfg.privateKey}`, "Content-Type": "application/json" };
   return {
@@ -34,13 +40,13 @@ export function vapiEngine(cfg: { privateKey: string; fetch?: FetchLike; baseUrl
     },
     async listCalls({ since, until, limit }): Promise<ProviderCallRef[]> {
       const qs = new URLSearchParams({ createdAtGe: since.toISOString(), createdAtLe: until.toISOString(), limit: String(Math.min(limit, 1000)) });
-      const { res } = await timed(f, `${base}/call?${qs}`, { headers: hdr }, 15_000);
+       const { res } = await guard(() => timed(f, `${base}/call?${qs}`, { headers: hdr }, 15_000));
       if (!res.ok) throw new Error(`Vapi list calls failed (${res.status})`);
       const rows = (await res.json()) as Record<string, unknown>[];
       return (Array.isArray(rows) ? rows : []).map(mapVapiCall).filter((c): c is ProviderCallRef => c !== null);
     },
     async getCall(id) {
-      const { res } = await timed(f, `${base}/call/${encodeURIComponent(id)}`, { headers: hdr }, 15_000);
+      const { res } = await guard(() => timed(f, `${base}/call/${encodeURIComponent(id)}`, { headers: hdr }, 15_000));
       if (res.status === 404) return null;
       if (!res.ok) throw new Error(`Vapi get call failed (${res.status})`);
       return (await res.json()) as Record<string, unknown>;
@@ -76,8 +82,9 @@ export function mapVapiCall(r: Record<string, unknown>): ProviderCallRef | null 
 }
 
 // ------------------------------------------------------------------ Twilio (carrier, primary)
-export function twilioCarrier(cfg: { accountSid: string; authToken: string; fetch?: FetchLike }): CarrierPort {
+export function twilioCarrier(cfg: { accountSid: string; authToken: string; fetch?: FetchLike; guard?: Guard }): CarrierPort {
   const f = cfg.fetch ?? fetch;
+  const guard = cfg.guard ?? passthrough;
   const base = `https://api.twilio.com/2010-04-01/Accounts/${cfg.accountSid}`;
   const hdr = { Authorization: basic(cfg.accountSid, cfg.authToken) };
   return {
@@ -94,7 +101,7 @@ export function twilioCarrier(cfg: { accountSid: string; authToken: string; fetc
     async listCalls({ since, until, limit }) {
       const day = (d: Date) => d.toISOString().slice(0, 10);
       const qs = new URLSearchParams({ "StartTime>": day(since), "StartTime<": day(new Date(until.getTime() + 86_400_000)), PageSize: String(Math.min(limit, 1000)), Direction: "inbound" } as Record<string, string>);
-      const { res } = await timed(f, `${base}/Calls.json?${qs}`, { headers: hdr }, 15_000);
+      const { res } = await guard(() => timed(f, `${base}/Calls.json?${qs}`, { headers: hdr }, 15_000));
       if (!res.ok) throw new Error(`Twilio list calls failed (${res.status})`);
       const body = (await res.json()) as { calls?: Record<string, unknown>[] };
       return (body.calls ?? []).map((c): ProviderCallRef => {
@@ -114,7 +121,7 @@ export function twilioCarrier(cfg: { accountSid: string; authToken: string; fetc
         form.set("StatusCallback", statusCallback);
         for (const ev of ["ringing", "answered", "completed"]) form.append("StatusCallbackEvent", ev);
       }
-      const { res } = await timed(f, `${base}/Calls.json`, { method: "POST", headers: { ...hdr, "Content-Type": "application/x-www-form-urlencoded" }, body: form }, 10_000);
+      const { res } = await guard(() => timed(f, `${base}/Calls.json`, { method: "POST", headers: { ...hdr, "Content-Type": "application/x-www-form-urlencoded" }, body: form }, 10_000));
       if (!res.ok) throw new Error(`Twilio place call failed (${res.status}): ${(await res.text()).slice(0, 160)}`);
       const j = (await res.json()) as { sid?: string };
       if (!j.sid) throw new Error("Twilio place call: no sid");
@@ -124,8 +131,9 @@ export function twilioCarrier(cfg: { accountSid: string; authToken: string; fetc
 }
 
 // ------------------------------------------------------------------ SMS: Twilio (primary) and Telnyx (secondary)
-export function twilioSms(cfg: { accountSid: string; authToken: string; from: string; fetch?: FetchLike }): SmsPort {
+export function twilioSms(cfg: { accountSid: string; authToken: string; from: string; fetch?: FetchLike; guard?: Guard }): SmsPort {
   const f = cfg.fetch ?? fetch;
+  const guard = cfg.guard ?? passthrough;
   const url = `https://api.twilio.com/2010-04-01/Accounts/${cfg.accountSid}`;
   return {
     id: "twilio",
@@ -139,11 +147,11 @@ export function twilioSms(cfg: { accountSid: string; authToken: string; from: st
       }
     },
     async send({ to, body, from }) {
-      const { res } = await timed(f, `${url}/Messages.json`, {
+      const { res } = await guard(() => timed(f, `${url}/Messages.json`, {
         method: "POST",
         headers: { Authorization: basic(cfg.accountSid, cfg.authToken), "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({ To: to, From: from ?? cfg.from, Body: body }),
-      }, 10_000);
+      }, 10_000));
       if (!res.ok) throw new Error(`Twilio SMS failed (${res.status})`);
       const j = (await res.json()) as { sid?: string };
       return { providerMessageId: j.sid ?? null };
@@ -151,8 +159,9 @@ export function twilioSms(cfg: { accountSid: string; authToken: string; from: st
   };
 }
 
-export function telnyxSms(cfg: { apiKey: string; from: string; messagingProfileId?: string; fetch?: FetchLike }): SmsPort {
+export function telnyxSms(cfg: { apiKey: string; from: string; messagingProfileId?: string; fetch?: FetchLike; guard?: Guard }): SmsPort {
   const f = cfg.fetch ?? fetch;
+  const guard = cfg.guard ?? passthrough;
   const hdr = { Authorization: `Bearer ${cfg.apiKey}`, "Content-Type": "application/json" };
   return {
     id: "telnyx",
@@ -168,7 +177,7 @@ export function telnyxSms(cfg: { apiKey: string; from: string; messagingProfileI
     async send({ to, body, from }) {
       const payload: Record<string, unknown> = { from: from ?? cfg.from, to, text: body, type: "SMS" };
       if (cfg.messagingProfileId) payload.messaging_profile_id = cfg.messagingProfileId;
-      const { res } = await timed(f, "https://api.telnyx.com/v2/messages", { method: "POST", headers: hdr, body: JSON.stringify(payload) }, 10_000);
+            const { res } = await guard(() => timed(f, "https://api.telnyx.com/v2/messages", { method: "POST", headers: hdr, body: JSON.stringify(payload) }, 10_000));
       if (!res.ok) throw new Error(`Telnyx SMS failed (${res.status})`);
       const j = (await res.json()) as { data?: { id?: string } };
       return { providerMessageId: j.data?.id ?? null };
@@ -190,7 +199,8 @@ export async function sendWithFailover(
       return { ok: true, providerId: p.id };
     } catch (e) {
       last = e instanceof Error ? e.message : "error";
-      onOutcome?.(p.id, false, Date.now() - t0, last);
+            // Our own load-shedding is not a vendor failure: do not feed it to the circuit breaker. Just try the next provider.
+      if (!isBulkheadRejection(e)) onOutcome?.(p.id, false, Date.now() - t0, last);
     }
   }
   return { ok: false, providerId: null, error: last };
