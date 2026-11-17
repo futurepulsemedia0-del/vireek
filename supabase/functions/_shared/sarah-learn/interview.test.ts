@@ -36,7 +36,7 @@ describe('interview planner', () => {
   });
 
   it('asks only about gaps and low-confidence items, in priority order', () => {
-    const known = [kf('emergency_policy', { confidence: 'low', assumed: true }), kf('never_book', { status: 'approved' }), kf('service_area_notes', { status: 'approved' }), kf('diagnostic_fee', { status: 'approved' }), kf('escalation_contact', { status: 'approved' }), kf('brand_pronunciation', { status: 'approved' })];
+    const known = [kf('emergency_policy', { confidence: 'low', assumed: true }), kf('never_book', { status: 'approved' }), kf('service_area_notes', { status: 'approved' }), kf('diagnostic_fee', { status: 'approved' }), kf('escalation_contact', { status: 'approved' }), kf('brand_pronunciation', { status: 'approved' }), kf('languages', { status: 'approved' }), kf('holiday_hours', { status: 'approved' }), kf('team_names', { status: 'approved' }), kf('differentiators', { status: 'approved' })];
     const plan = planInterview(known, { asked: [] });
     expect(plan.map((q) => q.id)).toEqual(['emergency', 'style']);
   });
