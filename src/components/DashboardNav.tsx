@@ -60,6 +60,8 @@ import { ChatUnreadProvider } from '@/contexts/ChatUnreadContext';
 import { ChatNavBadge } from '@/components/teamchat/ChatNavBadge';
 import { navigationHandlers } from '@/lib/shortcuts/definitions';
 import { useShortcutContext, useShortcutHandlers, useShortcutScope } from '@/lib/shortcuts/useShortcuts';
+import { Accessibility as AccessibilityIcon, MessageCircle as AskDataIcon } from 'lucide-react';
+import { openAccessibilityCenter, openAskData } from '@/lib/uiEvents';
 import { KeyboardShortcutsModal } from '@/components/KeyboardShortcutsModal';
 import { useTranslation } from 'react-i18next';
 import { useDirection } from '@/hooks/useDirection';
@@ -673,6 +675,15 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
 
   const navContent = (
     <nav aria-label={t('nav.mainNavigation')} className="flex flex-col gap-1">
+      <button
+        type="button"
+        data-tour="ask-data"
+        onClick={() => { setDrawerOpen(false); openAskData(); }}
+        className="focus-ring mb-2 flex w-full items-center gap-3 rounded-xl border border-accent/20 bg-accent/5 px-3 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-accent/10"
+      >
+        <AskDataIcon size={18} className="text-accent" aria-hidden="true" />
+        <span className="flex-1 text-left">{t('nav.askData', { defaultValue: 'Ask your data' })}</span>
+      </button>
       {overview && <NavLink item={overview} />}
       {pillarGroups.map(({ pillar, items }) => {
         const meta = PILLARS.find((p) => p.id === pillar)!;
@@ -729,6 +740,14 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
           {t('nav.appearance')}
         </p>
         <ThemeSegmentedControl labelledBy="theme-seg-label" />
+        <button
+          type="button"
+          onClick={() => { setDrawerOpen(false); openAccessibilityCenter(); }}
+          className="focus-ring mt-2 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+        >
+          <AccessibilityIcon size={18} aria-hidden="true" />
+          {t('nav.accessibility', { defaultValue: 'Accessibility' })}
+        </button>
       </div>
     </nav>
   );
