@@ -1,0 +1,47 @@
+{
+  "title": "Crea tu cuenta",
+  "subtitle": "Prueba gratuita, sin tarjeta. Tarda unos 2 minutos.",
+  "continueWith": "Continuar con",
+  "email": {
+    "label": "Correo de trabajo",
+    "placeholder": "tu@empresa.com",
+    "required": "Introduce tu correo electrónico.",
+    "invalid": "Eso no parece un correo electrónico. Revisa si hay errores."
+  },
+  "password": {
+    "label": "Contraseña",
+    "placeholder": "Al menos 8 caracteres",
+    "show": "Mostrar contraseña",
+    "hide": "Ocultar contraseña",
+    "help": "Usa al menos 8 caracteres. Una frase corta es más fácil de recordar y más segura que los símbolos. Puedes pegarla.",
+    "tooShort": "Usa al menos 8 caracteres.",
+    "tooLong": "Usa 128 caracteres o menos.",
+    "ok": "Perfecto."
+  },
+  "consent": "Al crear una cuenta aceptas nuestros <terms>Términos del servicio</terms> y la <privacy>Política de privacidad</privacy>.",
+  "submit": "Crear cuenta",
+  "submitting": "Creando cuenta…",
+  "haveAccount": "¿Ya tienes una cuenta?",
+  "signIn": "Iniciar sesión",
+  "welcome": "¡Bienvenido a Vireek!",
+  "verify": {
+    "title": "Revisa tu correo",
+    "body": "Enviamos un código de 6 dígitos a <email/>. Introdúcelo abajo, o abre el enlace del correo en este dispositivo y te conectaremos.",
+    "spam": "¿Nada todavía? Revisa el spam, o puede que ya tengas una cuenta.",
+    "signInInstead": "Iniciar sesión",
+    "wrongEmail": "¿Correo equivocado? Volver",
+    "otpLabel": "Código de verificación de 6 dígitos"
+  },
+  "errors": {
+    "generic": "No pudimos crear tu cuenta. Inténtalo de nuevo.",
+    "rateLimited": "Demasiados intentos. Espera un minuto e inténtalo de nuevo.",
+    "network": "Problema de conexión. Revisa tu internet e inténtalo de nuevo.",
+    "codeExpired": "Este código ha caducado. Envía uno nuevo abajo.",
+    "codeWrong": "Ese código no es correcto. Inténtalo de nuevo.",
+    "verifyFailed": "Algo salió mal al verificar el código.",
+    "resendFailed": "No se pudo reenviar el código. Inténtalo en unos instantes.",
+    "googleFailed": "El registro con Google no funcionó. Usa correo y contraseña.",
+    "appleFailed": "El registro con Apple no funcionó. Usa correo y contraseña.",
+    "oauthFailed": "El registro no se completó. Inténtalo de nuevo."
+  }
+}
