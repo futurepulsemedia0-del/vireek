@@ -22,6 +22,7 @@ const report = existsSync(path.join(DIST, '_prerender-report.json'))
 const KNOWN_SEO_GAPS = [
   '/accessibility', '/accessibility/conformance', '/case-studies', '/changelog', '/demo',
   '/roadmap', '/security', '/status',
+  '/fair-sale-promise', '/security/whitepaper', '/trust/compliance',
 ];
 
 const locOf = (xmlText) => [...xmlText.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
