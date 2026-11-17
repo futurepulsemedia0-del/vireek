@@ -11,6 +11,7 @@ import { CurrencySwitcher } from '@/components/CurrencySwitcher';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { PlatformEndorsement, EndorsementStructuredData } from '@/components/brand/PlatformEndorsement';
 import { getEndorsementLineForPath } from '@/lib/brand/platformEndorsement';
+import { openAccessibilityCenter } from '@/lib/uiEvents';
 
 const FOOTER_COLUMN_TITLE_KEYS: Record<string, string> = {
   Product: 'footer.product',
@@ -597,6 +598,13 @@ const { t } = useTranslation();
               Sitemap
             </Link>
            
+            <button
+              type="button"
+              onClick={openAccessibilityCenter}
+              className="focus-ring rounded text-sm text-text-secondary transition-colors hover:text-text-primary"
+            >
+              Accessibility Preferences
+            </button>           
             <button
               type="button"
               onClick={() => window.dispatchEvent(new Event('vireek:open-consent'))}
