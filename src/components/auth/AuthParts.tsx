@@ -65,6 +65,8 @@ type AuthInputProps = InputHTMLAttributes<HTMLInputElement> & {
   touched?: boolean;
   isValid?: boolean;
   showPasswordToggle?: boolean;
+  /** Localised accessible names for the show/hide-password button. */
+  toggleLabels?: { show: string; hide: string };
   hint?: React.ReactNode;
 };
 /** True on phones/tablets (primary pointer is a finger). Auto-focusing there pops the keyboard over the form on load. */
@@ -79,16 +81,19 @@ export const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
       touched,
       isValid,
       showPasswordToggle,
+      toggleLabels,
       hint,
       type = 'text',
       id,
       className = '',
+      'aria-describedby': describedByProp,
       autoFocus,
       ...props
     },
     ref
   ) => {
     const [showPw, setShowPw] = useState(false);
+    const describedBy = [describedByProp, error && touched ? `${id}-error` : undefined].filter(Boolean).join(' ') || undefined;
     const inputType = showPasswordToggle ? (showPw ? 'text' : 'password') : type;
     const showError = !!error && touched;
     const showSuccess = isValid && touched && !error;
@@ -125,6 +130,7 @@ export const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
             } ${className}`}
             aria-invalid={showError || undefined}
             aria-describedby={error ? `${id}-error` : undefined}
+            aria-describedby={describedBy}
             autoFocus={autoFocus && !isTouchPrimary()}
             {...(type === 'email' ? { inputMode: 'email' as const, autoCapitalize: 'none', autoCorrect: 'off', spellCheck: false } : {})}
             {...props}
@@ -133,8 +139,9 @@ export const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
             <button
               type="button"
               onClick={() => setShowPw((v) => !v)}
-              aria-label={showPw ? 'Hide password' : 'Show password'}
-              className="focus-ring absolute end-0.5 top-1/2 flex h-11 w-11 -translate-y-1/2 touch-manipulation items-center justify-center rounded-lg text-text-muted transition-colors hover:text-text-primary active:text-text-primary"
+               aria-label={showPw ? (toggleLabels?.hide ?? 'Hide password') : (toggleLabels?.show ?? 'Show password')}
+              aria-pressed={showPw}
+              className="focus-ring absolute end-1 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-lg text-text-secondary/60 transition-colors hover:text-text-primary"             
             >
               {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
