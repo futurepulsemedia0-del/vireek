@@ -3,7 +3,16 @@
 // from, instead of always landing on /dashboard.
 const PENDING_INVITE_KEY = 'vireek_pending_invite_token';
 
+// team_members.invite_token is a uuid (see 20260925000000_team_invite_tokens.sql). Validating the
+// shape on write AND read means a tampered sessionStorage value can never become a redirect path.
+const INVITE_TOKEN_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export function isValidInviteToken(token: string): boolean {
+  return INVITE_TOKEN_RE.test(token);
+}
+
 export function setPendingInviteToken(token: string): void {
+  if (!isValidInviteToken(token)) return;  
   try {
     sessionStorage.setItem(PENDING_INVITE_KEY, token);
   } catch {
@@ -35,7 +44,7 @@ export function consumePostAuthRedirect(): string {
     const token = sessionStorage.getItem(PENDING_INVITE_KEY);
     if (token) {
       sessionStorage.removeItem(PENDING_INVITE_KEY);
-      return `/invite/${token}`;
+      if (isValidInviteToken(token)) return `/invite/${token}`;
     }
     const path = sessionStorage.getItem(PENDING_PATH_KEY);
     if (path) {
