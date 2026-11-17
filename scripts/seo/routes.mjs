@@ -28,13 +28,27 @@ export const STATIC_PUBLIC_PATHS = [
   '/sitemap',
   '/call-recording-consent', '/data-retention', '/billing-terms', '/disclaimer',
   '/limitation-of-liability', '/intellectual-property', '/incident-response', '/export-control',
+  '/agent-readiness', '/ai-disclosure', '/contact-sales', '/customers', '/data-request', '/dmca', '/events',
+  '/fair-sale-promise', '/how-we-verify', '/impressum', '/insights', '/locations', '/msa', '/resources',
+  '/security/whitepaper', '/sms-terms', '/state-of-home-service-calls', '/trust/compliance', '/trust/security',
+  '/developers/api-reference', '/developers/quickstarts',
 ];
 export const FLAG_GATED_PUBLIC_PATHS = ['/legal/company'];
 /** Routes whose pages come from data modules (one URL per slug). */
 export const DATA_ROUTE_PATTERNS = [
   '/blog/:slug', '/blog/category/:slug', '/industries/:slug', '/compare/:slug', '/integrations/:slug', '/switch/:slug',
-  '/locations/:slug',
+  '/locations/:slug', '/alternatives/:competitor', '/use-cases/:slug', '/resources/:slug', '/help/:slug',
 ];
+/**
+ * Data patterns where EVERY valid URL is prerendered to a static file. The Cloudflare worker uses this list to turn
+ * "no file for this slug" into a real 404. (Locations are excluded: they can also come from a runtime API.)
+ */
+export const PRERENDERED_PATTERNS = [
+  '/blog/:slug', '/blog/category/:slug', '/industries/:slug', '/compare/:slug', '/integrations/:slug', '/switch/:slug',
+  '/alternatives/:slug', '/use-cases/:slug', '/resources/:slug', '/help/:slug',
+];
+/** Public pages with dynamic segments that are NOT prerendered (SPA-rendered; careers also have their own sitemap). */
+export const PUBLIC_DYNAMIC_PATTERNS = ['/careers/:slug', '/locations/:city', '/locations/:city/:trade'];
 
 /** Same page as another route (duplicate content) — never in the sitemap or prerendered. */
 export const ALIAS_PATHS = ['/solutions'];
@@ -45,6 +59,10 @@ export const PRIVATE_EXACT = [
   '/login', '/signup', '/forgot-password', '/reset-password', '/sso-login', '/pay-result',
   '/status/unsubscribe', '/badge', '/sandbox', '/community', '/ambassador', '/onboarding-guide',
   '/academy', '/academy/certificate','/newsletter/confirm', '/newsletter/unsubscribe', '*',
+  // Utility / app-adjacent pages that must never be indexed (kept out of the sitemap, not prerendered).
+  '/maintenance', '/thank-you', '/error', '/offline', '/mfa', '/valuation', '/warranty/register', '/safety/sds',
+  '/supplier-portal', '/supplier-portal/apply', '/talent/me', '/marketing/canvassing', '/accounting/fixed-assets',
+  '/data-room', '/dev/colors', '/dev/design-system', '/dev/emails', '/dev/interpreter', '/dev/loading', '/home/*',
 ];
 
 /** Exact private pages that robots.txt should also disallow (the rest are just kept out of the sitemap). */
@@ -60,7 +78,7 @@ const matchesPrefix = (p, prefix) => p === prefix || p.startsWith(`${prefix}/`);
 /** 'static' | 'data' | 'alias' | 'private' | null (null = unclassified -> test fails). */
 export function classifyRoute(p) {
   if (STATIC_PUBLIC_PATHS.includes(p) || FLAG_GATED_PUBLIC_PATHS.includes(p)) return 'static';
-  if (DATA_ROUTE_PATTERNS.includes(p)) return 'data';
+  if (DATA_ROUTE_PATTERNS.includes(p) || PUBLIC_DYNAMIC_PATTERNS.includes(p)) return 'data';
   if (ALIAS_PATHS.includes(p)) return 'alias';
   if (
     PRIVATE_EXACT.includes(p) ||
@@ -87,7 +105,7 @@ export function robotsDisallowRules() {
   }
   for (const p of ROBOTS_DISALLOW_EXACT) rules.add(`${p}$`);
   for (const p of appRoutePaths()) {
-    if (!p.includes(':') || DATA_ROUTE_PATTERNS.includes(p)) continue;
+    if (!p.includes(':') || DATA_ROUTE_PATTERNS.includes(p) || PUBLIC_DYNAMIC_PATTERNS.includes(p)) continue;
     const prefix = p.slice(0, p.indexOf(':'));
     if (ROBOTS_ALLOWED_TOKEN_PREFIXES.includes(prefix)) continue;
     if (PRIVATE_PREFIXES.some((x) => prefix.startsWith(`${x}/`))) continue;
@@ -151,6 +169,15 @@ export async function collectRoutes() {
     /* no lastmod for /changelog */
   }
 
+/** Written to dist/app-routes.json; the Cloudflare worker uses it to answer unknown URLs with a real 404. */
+export function appRoutesManifest() {
+  return {
+    patterns: appRoutePaths().filter((x) => x !== '*'),
+    passthroughPrefixes: PRIVATE_PREFIXES,
+    prerenderedPatterns: PRERENDERED_PATTERNS,
+  };
+}
+
   let locations = [];
   if (existsSync(path.join(ROOT, 'src/lib/locations.ts'))) {
     const mod = await loadTsModule('src/lib/locations.ts');
@@ -186,6 +213,33 @@ dynamic(usedCategories, '/blog/category', 'blog-category', (c) =>
   dynamic(integrations.INTEGRATIONS, '/integrations', 'integration');
   dynamic(switchGuides.SWITCH_GUIDES, '/switch', 'switch');
   dynamic(locations, '/locations', 'location');
+
+  // Data-driven public pages (alternatives, use cases, resources, help articles). Loaded defensively: a broken data
+  // module must never fail the whole build, but a skipped section is logged and caught by assert-prerendered.
+  const safe = async (label, fn) => {
+    try {
+      return (await fn()) ?? [];
+    } catch (e) {
+      console.warn(`[seo] ${label} skipped: ${String(e?.message ?? e).split('\n')[0]}`);
+      return [];
+    }
+  };
+  const lenient = (items, base, kind, lastmodOf) => {
+    for (const item of items) {
+      if (typeof item.slug !== 'string' || !SLUG_RE.test(item.slug) || entries.has(`${base}/${item.slug}`)) {
+        console.warn(`[seo] skipped ${base}/${item.slug} (invalid or duplicate slug)`);
+        continue;
+      }
+      add(`${base}/${item.slug}`, kind, lastmodOf?.(item));
+    }
+  };
+  lenient(await safe('alternatives', async () => (await loadTsModule('src/lib/alternatives.ts')).ALTERNATIVES), '/alternatives', 'alternative');
+  lenient(await safe('use-cases', async () => (await loadTsModule('src/lib/useCases.ts')).USE_CASES), '/use-cases', 'use-case');
+  lenient(await safe('resources', async () => (await loadTsModule('src/lib/resources.ts')).publishedResources()), '/resources', 'resource');
+  lenient(
+    await safe('help articles', async () => (await loadTsModule('src/lib/helpArticles.ts')).HELP_ARTICLES),
+    '/help', 'help', (a) => toIsoDate(a.updated),
+  );
   return [...entries.values()];
 }
 
