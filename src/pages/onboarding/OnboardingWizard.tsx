@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Phone } from 'lucide-react'; ت
+import { Phone } from 'lucide-react';
+import { SkeletonForm } from '@/components/Skeleton';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useOnboardingWizard } from './useOnboardingWizard';
 import { SkeletonForm } from '@/components/Skeleton';
@@ -53,8 +54,8 @@ export function OnboardingWizard() {
         </span>
         <div className="flex items-center gap-3">
           {stepId !== 'launch' && (
-            <Link to="/onboarding/concierge" className="focus-ring hidden text-xs font-medium text-text-secondary hover:text-accent sm:block">
-              ← Prefer to just talk it through?
+            <Link to="/onboarding" className="focus-ring hidden text-xs font-medium text-text-secondary hover:text-accent sm:block">
+              ← Let Sarah learn your business instead
             </Link>
           )}
           <ThemeToggle />
