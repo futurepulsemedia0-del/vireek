@@ -41,7 +41,7 @@ function buildSteps(): TourStep[] {
       id: 'assistant',
       title: 'Ask the AI assistant',
       body: 'Questions about your business, a customer or how something works? The assistant is always one tap away.',
-      targets: ['button[aria-label="Open AI Assistant"]', 'button[aria-label="Close AI Assistant"]'],
+            targets: ['[data-tour="ask-data"]', '[data-tour="menu-button"]'],
     },
     {
       id: 'checklist',
