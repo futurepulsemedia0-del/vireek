@@ -43,6 +43,20 @@ export const SHORTCUT_DEFS: readonly ShortcutDef[] = [
     defaultLabel: 'Show keyboard shortcuts',
     context: 'global',
   },
+  {
+    id: 'a11y.open',
+    binding: 'alt+shift+a',
+    category: 'general',
+    defaultLabel: 'Open Accessibility Center',
+    context: 'global',
+  },
+  {
+    id: 'assistant.ask',
+    binding: 'a d',
+    category: 'general',
+    defaultLabel: 'Ask your data',
+    context: 'dashboard',
+  },
 
   // --- Navigation (hrefs match DashboardNav routes) -----------------------
   nav('overview', 'g o', 'Go to Overview', '/dashboard'),
