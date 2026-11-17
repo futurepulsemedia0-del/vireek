@@ -1,5 +1,6 @@
 import { DashboardLayout } from '@/components/DashboardNav';
 import { SarahLearnPage } from '@/pages/onboarding/sarah/SarahLearnPage';
+import { SarahQuickProfileCard } from '@/components/sarah/SarahQuickProfileCard';
 
 /**
  * /dashboard/sarah - Sarah's learning flow inside the normal dashboard shell (nav, search, help),
@@ -9,6 +10,7 @@ export function SarahKnowledgePage() {
   return (
     <DashboardLayout activeLabel="Sarah Knowledge">
       <div className="mx-auto max-w-3xl px-4 py-6">
+        <SarahQuickProfileCard />
         <SarahLearnPage embedded />
       </div>
     </DashboardLayout>
