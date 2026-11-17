@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { MiniLoader } from '@/components/ui/MiniLoader';
 import { useAuth } from '@/contexts/AuthContext';
+import { trackEvent } from '@/lib/analytics';
 import enSarah from '@/locales/en/sarahLearn.json';
 import esSarah from '@/locales/es/sarahLearn.json';
 import { InterviewStep } from './InterviewStep';
@@ -118,6 +119,11 @@ export function SarahLearnPage({ embedded = false }: { embedded?: boolean } = {}
 
   const stepIndex = STAGES.indexOf(stage === 'live' ? 'readiness' : stage);
   const maxReached = run ? STAGES.indexOf(stageFromRun(run, fields.length) === 'live' ? 'readiness' : stageFromRun(run, fields.length)) : 0;
+
+  // Funnel measurement: one 'viewed' event per stage the person actually sees.
+  useEffect(() => {
+    if (!authLoading && !loading) trackEvent('onboarding_step_viewed', { flow: 'sarah', step: stage, index: stepIndex + 1, total: STAGES.length });
+  }, [authLoading, loading, stage, stepIndex]);
 
   if (authLoading || loading) {
     return (
