@@ -14,7 +14,7 @@ import { KeyboardEvent as ReactKeyboardEvent, useCallback, useEffect, useRef, us
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { Copy, Mail, MessageCircle, RotateCcw, Send, Sparkles, Ticket, Wrench, X } from 'lucide-react';
+import { Copy, MessageCircle, RotateCcw, Sparkles, Wrench, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { streamAiChat } from '@/lib/aiStream';
 import { clearChat, getSessionStore, loadChat, saveChat } from '@/lib/supportAgent/chatMemory';
@@ -26,6 +26,8 @@ import { Button } from '@/components/ui/Button';
 import { ChatAvatar, MessageBubble, OnlineDot, StarterPromptChip, TypingIndicator } from '@/components/chat/ChatVisuals';
 import { SiteAssistantExtras, type AssistantMeta } from '@/components/SiteAssistantExtras';
 import { SupportAgentIcon } from './SupportAgentIcon';
+import { AskComposer } from './AskComposer';
+import { SupportTeamPanel } from './SupportTeamPanel';
 import { FixPanel } from './FixPanel';
 import { useSupportDiagnostics } from './useSupportDiagnostics';
 
@@ -64,6 +66,7 @@ export function SupportAgent() {
   const [input, setInput] = useState('');
   const [thinking, setThinking] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [chatCopied, setChatCopied] = useState(false);
   const [fallbackIncidentId] = useState(() => generateIncidentId());
 
   const launcherRef = useRef<HTMLButtonElement>(null);
@@ -127,6 +130,16 @@ export function SupportAgent() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: reduced ? 'auto' : 'smooth' });
   }, [messages, thinking, tab, reduced]);
 
+  // Fix tab: run the (read-only) quick check once per visit instead of waiting for a click.
+  const autoChecked = useRef(false);
+  useEffect(() => {
+    if (!open) { autoChecked.current = false; return undefined; }
+    if (hidden || tab !== 'fix' || autoChecked.current || d.checking || d.findings.length > 0) return undefined;
+    autoChecked.current = true;
+    void d.runChecks();
+    return undefined;
+  }, [open, tab, hidden, d.checking, d.findings.length, d.runChecks]);
+
   // Conversation memory (per tab): saved once a reply has settled, never while it is streaming.
   useEffect(() => {
     if (messages.some((m) => m.streaming)) return;
@@ -135,10 +148,11 @@ export function SupportAgent() {
 
   if (hidden) return null;
 
-  const ask = async (question: string) => {
+  const busy = thinking || messages.some((m) => m.streaming);
+  const ask = async (question: string, base: ChatMessage[] = messages) => {
     const q = question.trim();
-    if (!q || thinking) return;
-    const history = messages.map((m) => ({ role: m.role, content: m.text }));
+    if (!q || busy) return;
+    const history = base.filter((m) => !m.isError).map((m) => ({ role: m.role, content: m.text }));
     setMessages((p) => [...p, { id: crypto.randomUUID(), role: 'user', text: q }]);
     setInput('');
     setThinking(true);
@@ -192,6 +206,34 @@ export function SupportAgent() {
     setThinking(false);
     setMessages([]);
     clearChat(getSessionStore());
+  };
+
+
+  const stop = () => {
+    abortRef.current?.abort();
+    setThinking(false);
+    setMessages((p) => p.map((m) => (m.streaming ? { ...m, streaming: false } : m)));
+  };
+
+  const retry = () => {
+    if (busy) return;
+    let lastUser = -1;
+    for (let i = messages.length - 1; i >= 0; i -= 1) {
+      if (messages[i].role === 'user') { lastUser = i; break; }
+    }
+    if (lastUser < 0) return;
+    const q = messages[lastUser].text;
+    const base = messages.slice(0, lastUser);
+    setMessages(base);
+    void ask(q, base);
+  };
+
+  const copyChat = async () => {
+    try {
+      await navigator.clipboard.writeText(transcript());
+      setChatCopied(true);
+      setTimeout(() => setChatCopied(false), 2000);
+    } catch { /* clipboard blocked */ }
   };
 
   const openTicket = () => {
@@ -337,9 +379,10 @@ export function SupportAgent() {
 
               <div ref={scrollRef} role="tabpanel" id={`vk-agent-panel-${tab}`} aria-labelledby={`vk-agent-tab-${tab}`} className="flex-1 overflow-y-auto px-4 py-4">
                 {tab === 'ask' && (
-                  <div className="space-y-4">
+                  <div className="space-y-4" role="log" aria-live="polite" aria-busy={busy}>
                     {messages.length > 0 && (
-                      <div className="flex justify-end">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button size="xs" variant="ghost" onClick={() => void copyChat()}><Copy size={14} aria-hidden="true" /> {chatCopied ? 'Copied' : 'Copy chat'}</Button>
                         <Button size="xs" variant="ghost" onClick={newChat}><RotateCcw size={14} aria-hidden="true" /> New chat</Button>
                       </div>
                     )}
@@ -359,6 +402,12 @@ export function SupportAgent() {
                     {messages.map((m, i) => (
                       <div key={m.id} className="space-y-2">
                         <MessageBubble role={m.role} isError={m.isError} streaming={m.streaming}>{m.text}</MessageBubble>
+                        {m.isError && i === messages.length - 1 && !busy && (
+                          <div className="flex flex-wrap gap-2 ps-11">
+                            <Button size="xs" variant="secondary" onClick={retry}><RotateCcw size={14} aria-hidden="true" /> Try again</Button>
+                            <Button size="xs" variant="ghost" onClick={talkToTeam}>Talk to our team</Button>
+                          </div>
+                        )}
                         {m.role === 'assistant' && !m.streaming && !m.isError && m.meta && (
                           <SiteAssistantExtras text={m.text} meta={m.meta} isLast={i === messages.length - 1} disabled={thinking} onAsk={(q) => void ask(q)} transcript={transcript} />
                         )}
@@ -371,29 +420,20 @@ export function SupportAgent() {
                 {tab === 'fix' && <FixPanel d={d} onTalkToTeam={() => setTab('team')} />}
 
                 {tab === 'team' && (
-                  <div className="space-y-3">
-                    <p className="text-sm text-text-secondary">
-                      {status.online ? 'A real person is online now.' : `Our team is offline (${SUPPORT_HOURS_LABEL}). Leave a message and we reply by email.`}
-                    </p>
-                    {user && (
-                      <Button fullWidth size="sm" variant="secondary" onClick={openTicket}>
-                        <Ticket size={16} aria-hidden="true" /> Open a support ticket
-                      </Button>
-                    )}
-                    <Button fullWidth size="sm" variant="primary" onClick={talkToTeam}>
-                      <MessageCircle size={16} aria-hidden="true" /> {status.online ? 'Chat with our team' : 'Leave a message'}
-                    </Button>
-                    <a href={mailto} className="focus-ring inline-flex min-h-touch w-full items-center justify-center gap-2 rounded-control border border-border bg-bg-primary px-4 text-sm font-semibold text-text-primary hover:border-accent/40">
-                      <Mail size={16} aria-hidden="true" /> Email support
-                    </a>
-                    <Button fullWidth size="sm" variant="secondary" disabled={!d.report} disabledReason="Run the quick check on the Fix tab first" onClick={() => void copyReport()}>
-                      <Copy size={16} aria-hidden="true" /> {copied ? 'Copied' : 'Copy diagnostic report'}
-                    </Button>
-                    <p className="text-xs text-text-secondary">
-                      Incident ID: <span className="font-mono text-text-primary">{incident}</span>. The report has no email, password or token.
-                    </p>
-                  </div>
-                )}
+                  <SupportTeamPanel
+                    online={status.online}
+                    signedIn={!!user}
+                    mailto={mailto}
+                    incidentId={incident}
+                    hasReport={!!d.report}
+                    reportCopied={copied}
+                    onTalkToTeam={talkToTeam}
+                    onOpenTicket={openTicket}
+                    onCopyReport={() => void copyReport()}
+                    onNavigate={() => setOpen(false)}
+                  />
+                )}               
+
               </div>
 
               {tab === 'ask' && (
