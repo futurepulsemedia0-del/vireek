@@ -56,3 +56,45 @@ export function getSupportStatus(now: Date = new Date()): SupportStatus {
     label: online ? 'Our team is online now' : `Our team is offline — back ${SUPPORT_HOURS_LABEL}`,
   };
 }
+
+
+const WEEKDAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] as const;
+
+function formatHour(hour: number): string {
+  const hour12 = hour % 12 === 0 ? 12 : hour % 12;
+  return `${hour12}${hour >= 12 ? 'pm' : 'am'}`;
+}
+
+/**
+ * When the team is next in its window, e.g. "tomorrow at 9am EST" / "Monday at 9am EST".
+ * Returns null while the team is online now. Derived only from SUPPORT_HOURS and
+ * SUPPORT_TIME_ZONE (the zone label follows daylight saving), so it can never drift from them.
+ */
+export function getNextSupportOpening(now: Date = new Date()): string | null {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: SUPPORT_TIME_ZONE,
+    weekday: 'short',
+    hour: 'numeric',
+    hourCycle: 'h23',
+    timeZoneName: 'short',
+  }).formatToParts(now);
+
+  const weekdayShort = parts.find((p) => p.type === 'weekday')?.value ?? '';
+  const hour = Number(parts.find((p) => p.type === 'hour')?.value ?? '0');
+  const zone = parts.find((p) => p.type === 'timeZoneName')?.value ?? '';
+  const dayIndex = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(weekdayShort);
+  if (dayIndex < 0) return null;
+
+  const today = SUPPORT_HOURS[dayIndex];
+  if (today && hour >= today[0] && hour < today[1]) return null;
+
+  for (let offset = 0; offset <= 7; offset += 1) {
+    const index = (dayIndex + offset) % 7;
+    const hours = SUPPORT_HOURS[index];
+    if (!hours) continue;
+    if (offset === 0 && hour >= hours[0]) continue;
+    const when = offset === 0 ? 'today' : offset === 1 ? 'tomorrow' : WEEKDAY_NAMES[index];
+    return `${when} at ${formatHour(hours[0])} ${zone}`.trim();
+  }
+  return null;
+}
