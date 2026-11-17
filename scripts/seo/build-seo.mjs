@@ -38,6 +38,8 @@ function robotsTxt(hasLocations) {
     '',
     `Sitemap: ${SITE_URL}/sitemap.xml`,
     ...(hasLocations ? [`Sitemap: ${SITE_URL}/sitemap-locations.xml`] : []),
+    // Served live by the Cloudflare worker / vercel.json rewrite (job postings), not generated here.
+    `Sitemap: ${SITE_URL}/sitemap-careers.xml`,
     '',
   ].join('\n');
 }
@@ -61,6 +63,10 @@ if (locations.length > 0) {
   console.log('[seo] no locations data (src/lib/locations.ts) — sitemap-locations.xml not generated.');
 }
 writeFileSync(path.join(DIST, 'robots.txt'), robotsTxt(locations.length > 0));
+writeFileSync(
+  path.join(DIST, 'app-routes.json'),
+  JSON.stringify({ generatedAt: new Date().toISOString(), ...appRoutesManifest() }, null, 2),
+);
 writeFileSync(
   path.join(DIST, 'routes.json'),
   JSON.stringify({ siteUrl: SITE_URL, generatedAt: new Date().toISOString(), routes }, null, 2),
