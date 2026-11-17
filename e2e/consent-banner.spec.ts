@@ -64,7 +64,7 @@ for (const dir of ['ltr', 'rtl'] as const) {
     await expect(region(page)).toBeVisible({ timeout: 8000 });
     const b = (await region(page).boundingBox())!;
     expect(b.height).toBeLessThanOrEqual(800 * 0.45 + 1);
-    for (const sel of ['.a11y-widget button']) {
+    for (const sel of ['[data-floating-launcher]']) {
       const l = await page.locator(sel).first().boundingBox();
       if (l) expect(l.y + l.height <= b.y + 1 || l.y >= b.y + b.height).toBe(true);
     }
