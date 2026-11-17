@@ -14,6 +14,7 @@ import { TechnicianRoute } from '@/components/TechnicianRoute';
 import { PartnerRoute } from '@/components/PartnerRoute';
 import { AriaLiveRegion } from '@/lib/a11y/announcer';
 import { HomeTargetGate } from '@/pages/home/HomeTargetGate';
+import { QualificationGate } from '@/components/auth/QualificationGate';
 import { RouteProgressSignal } from '@/components/nav/RouteProgress';
 
 // Performance pass: only the landing page (the route almost every first-time
@@ -42,6 +43,7 @@ const MfaChallengePage = lazy(() => import('@/pages/MfaChallengePage').then((m) 
 const SignupPage = lazy(() => import('@/pages/SignupPage').then((m) => ({ default: m.SignupPage })));
 const OnboardingPage = lazy(() => import('@/pages/OnboardingPage').then((m) => ({ default: m.OnboardingPage })));
 const OnboardingWizard = lazy(() => import('@/pages/onboarding/OnboardingWizard').then((m) => ({ default: m.OnboardingWizard })));
+const WelcomeQualifyPage = lazy(() => import('@/pages/WelcomeQualifyPage').then((m) => ({ default: m.WelcomeQualifyPage })));
 const SarahKnowledgePage = lazy(() => import('@/pages/SarahKnowledgePage').then((m) => ({ default: m.SarahKnowledgePage })));
 const OnboardingConciergePage = lazy(() => import('@/pages/OnboardingConciergePage').then((m) => ({ default: m.OnboardingConciergePage })));
 const OnboardingGuidePage = lazy(() => import('@/pages/OnboardingGuidePage').then((m) => ({ default: m.OnboardingGuidePage })));
@@ -794,6 +796,7 @@ function AppRoutes() {
         <Route path="/onboarding/concierge" element={<OnboardingConciergePage />} />
         <Route path="/onboarding/classic" element={<OnboardingPage />} />
         <Route path="/onboarding/first-call" element={<ProtectedRoute><FirstCallPage /></ProtectedRoute>} />
+        <Route path="/welcome-setup" element={<ProtectedRoute><WelcomeQualifyPage /></ProtectedRoute>} />
         <Route path="/onboarding-guide" element={<OnboardingGuidePage />} />
         <Route path="/academy" element={<AcademyPage />} />
         <Route path="/academy/certificate" element={<AcademyCertificatePage />} />
@@ -1180,7 +1183,9 @@ function AppRoutes() {
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <DashboardPage />
+              <QualificationGate>
+                <DashboardPage />
+              </QualificationGate>
             </ProtectedRoute>
           }
         />
