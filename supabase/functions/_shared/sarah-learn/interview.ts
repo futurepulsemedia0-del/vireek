@@ -87,6 +87,48 @@ export const QUESTION_BANK: readonly InterviewQuestion[] = [
       { value: 'Brisk and to the point', label: { en: 'Brisk', es: 'Directa' } },
     ],
   },
+  {
+    id: 'languages',
+    key: 'languages',
+    text: {
+      en: 'Which languages do your customers speak with you?',
+      es: '¿En qué idiomas hablan sus clientes con ustedes?',
+    },
+    choices: [
+      { value: 'English', label: { en: 'English', es: 'Inglés' } },
+      { value: 'English and Spanish', label: { en: 'English and Spanish', es: 'Inglés y español' } },
+      { value: 'Spanish', label: { en: 'Spanish', es: 'Español' } },
+    ],
+  },
+  {
+    id: 'holidays',
+    key: 'holiday_hours',
+    text: {
+      en: 'Are you closed or on different hours on holidays?',
+      es: '¿Cierran o tienen otro horario en días festivos?',
+    },
+    choices: [
+      { value: 'Closed on major holidays', label: { en: 'Closed', es: 'Cerrado' } },
+      { value: 'Same hours on holidays', label: { en: 'Same hours', es: 'Mismo horario' } },
+      { value: 'Emergency calls only on holidays', label: { en: 'Emergencies only', es: 'Solo emergencias' } },
+    ],
+  },
+  {
+    id: 'team_names',
+    key: 'team_names',
+    text: {
+      en: 'Which names should I know when callers ask for someone, like the owner or the office manager?',
+      es: '¿Qué nombres debo conocer cuando alguien pregunta por una persona, como el dueño o la persona de la oficina?',
+    },
+  },
+  {
+    id: 'differentiators',
+    key: 'differentiators',
+    text: {
+      en: 'What makes customers choose you over the other company in town? One or two things is plenty.',
+      es: '¿Por qué los clientes los eligen a ustedes y no a otra empresa de la zona? Con una o dos cosas basta.',
+    },
+  },
 ] as const;
 
 export const MAX_INTERVIEW_QUESTIONS = 7;
