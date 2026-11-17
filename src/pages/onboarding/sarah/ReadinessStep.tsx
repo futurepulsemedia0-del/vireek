@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { MiniLoader } from '@/components/ui/MiniLoader';
 import { supabase } from '@/lib/supabase';
+import { trackEvent } from '@/lib/analytics';
 import { getVapiClient, VAPI_DEMO_ASSISTANT_ID } from '@/lib/vapi';
 import { useAuth } from '@/contexts/AuthContext';
 import { ApiError, confirmTestCall, goLive, runReadiness, track, type ReadinessResponse, type ScenarioResultDto } from './sarahLearnApi';
@@ -148,6 +149,7 @@ export function ReadinessStep({ run, fields, initialResults, locale, businessNam
       await refreshProfile();
       const ms = res.time_to_live_ms ?? Date.now() - new Date(run.started_at).getTime();
       track('go_live', { ms });
+      trackEvent('first_value_reached', { flow: 'sarah', ms });
       onLive({ ms });
     } catch (e) {
       setError(e instanceof ApiError ? e.message : t('readiness.goLiveError'));
