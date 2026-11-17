@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   QUALIFICATION_WINDOW_MS,
+  SARAH_CARD_WINDOW_MS,
   hasAnyAnswer,
   sanitizeAnswers,
   shouldPromptQualification,
@@ -41,6 +42,11 @@ describe('shouldPromptQualification', () => {
   it('never prompts old accounts', () => {
     const old = new Date(NOW - QUALIFICATION_WINDOW_MS - 1000).toISOString();
     expect(shouldPromptQualification({ ...base, createdAt: old })).toBe(false);
+  });
+  it('honours a custom window (Sarah card)', () => {
+    const d20 = new Date(NOW - 20 * 24 * 60 * 60 * 1000).toISOString();
+    expect(shouldPromptQualification({ ...base, createdAt: d20 })).toBe(false);
+    expect(shouldPromptQualification({ ...base, createdAt: d20, windowMs: SARAH_CARD_WINDOW_MS })).toBe(true);
   });
   it('fails closed on missing or invalid dates', () => {
     expect(shouldPromptQualification({ ...base, createdAt: null })).toBe(false);
