@@ -1,7 +1,8 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Check } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { trackEvent } from '@/lib/analytics';
 import { AuthLogo } from '@/components/auth/AuthParts';
 import { markQualificationDismissed, saveQualification } from '@/lib/signupQualification';
 import {
@@ -17,12 +18,17 @@ export function WelcomeQualifyPage() {
   const [answers, setAnswers] = useState<QualAnswers>({});
   const [saving, setSaving] = useState(false);
   const [failed, setFailed] = useState(false);
+  const openedAt = useRef(Date.now());
+  useEffect(() => {
+    trackEvent('qualify_view');
+  }, []);
 
   const answered = Object.keys(answers).length;
   const total = QUALIFICATION_QUESTIONS.length;
 
   const choose = useCallback((id: QuestionId, value: string) => {
     setAnswers((prev) => ({ ...prev, [id]: value }));
+    trackEvent('qualify_answer', { question: id, value });
     setFailed(false);
   }, []);
 
@@ -33,6 +39,11 @@ export function WelcomeQualifyPage() {
       setFailed(false);
       const payload: QualAnswers = skip ? {} : answers;
       const ok = await saveQualification(payload, skip || !hasAnyAnswer(payload));
+      trackEvent(skip || !hasAnyAnswer(payload) ? 'qualify_skip' : 'qualify_complete', {
+        answered: Object.keys(answers).length,
+        saved: ok ? 1 : 0,
+        seconds: Math.round((Date.now() - openedAt.current) / 1000),
+      });
       if (ok) {
         navigate('/dashboard', { replace: true });
         return;
