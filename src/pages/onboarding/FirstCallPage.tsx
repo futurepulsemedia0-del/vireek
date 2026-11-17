@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CalendarCheck, Check, Mic, Phone, PhoneOff } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
 import { useRealtimeSubscription } from '@/lib/realtime';
 import { getVapiClient, VAPI_DEMO_ASSISTANT_ID } from '@/lib/vapi';
 import { SarahOrb, type SarahState } from '@/components/sarah/SarahOrb';
@@ -58,6 +59,23 @@ export function FirstCallPage() {
   const levelRef = useRef(0);
   const sessionRef = useRef<FirstCallSession | null>(null);
   sessionRef.current = session;
+  // Pre-fill the trade from the signup question step so we never ask the same thing twice.
+  useEffect(() => {
+    if (!ownerId || trade) return;
+    let cancelled = false;
+    void supabase
+      .from('business_profile')
+      .select('primary_industry')
+      .eq('user_id', ownerId)
+      .maybeSingle()
+      .then(({ data }) => {
+        const v = (data as { primary_industry?: string | null } | null)?.primary_industry;
+        if (!cancelled && v && TRADES.some((t) => t.value === v)) setTrade((cur) => cur || v);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [ownerId, trade]);
 
   const applySession = useCallback((s: FirstCallSession | null) => {
     if (!s) return;
