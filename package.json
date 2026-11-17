@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "node scripts/generate-rss.mjs && vite build && node scripts/seo/build-seo.mjs && node scripts/seo/prerender.mjs",
+    "build": "node scripts/seo/lint-index-html.mjs && node scripts/generate-rss.mjs && vite build && node scripts/seo/build-seo.mjs && node scripts/seo/prerender.mjs && node scripts/seo/assert-prerendered.mjs",
+    "test:scripts:seo": "node --test scripts/seo/worker-routing.test.mjs scripts/seo/lint-index-html.test.mjs scripts/seo/assert-prerendered.test.mjs",
     "build:app": "vite build",
     "test:built": "vitest run -c vitest.built.config.ts",
     "lint": "eslint .",
