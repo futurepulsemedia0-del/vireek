@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
+import { trackEvent } from '@/lib/analytics';
 import { supabase, BusinessProfile } from '@/lib/supabase';
 import { purchasePhoneNumber } from '@/lib/phoneNumbers';
 import { recordActivation } from '@/lib/activation';
@@ -52,6 +53,11 @@ export function useOnboardingWizard() {
   const hasSeeded = useRef(false);
 
   const stepIndex = STEP_INDEX[stepId];
+
+  // Funnel measurement: one 'viewed' event per step the person actually sees.
+  useEffect(() => {
+    if (!loading) trackEvent('onboarding_step_viewed', { flow: 'manual', step: stepId, index: stepIndex + 1, total: STEPS.length });
+  }, [loading, stepId, stepIndex]);
 
   const update = useCallback((patch: Partial<WizardData>) => {
     setData((prev) => {
@@ -254,18 +260,21 @@ export function useOnboardingWizard() {
 
   const goNext = useCallback(() => {
     const next = STEPS[stepIndex + 1];
-    if (next) goTo(next.id, true);
-  }, [stepIndex, goTo]);
+    if (next) {
+      trackEvent('onboarding_step_completed', { flow: 'manual', step: stepId });
+      goTo(next.id, true);
+    }
+  }, [stepIndex, stepId, goTo]);
 
   const goBack = useCallback(() => {
     const prev = STEPS[stepIndex - 1];
     if (prev) goTo(prev.id, false);
-  }, [stepIndex, goTo]);
+  }, [stepIndex, stepId, goTo]);
 
   const skip = useCallback(() => {
     const next = STEPS[stepIndex + 1];
-    if (next) goTo(next.id, false);
-  }, [stepIndex, goTo]);
+ (next) goTo(next.id, false);
+ }, [stepIndex, stepId, goTo]);
 
   // ------------------------------------------------------------
   // Launch: the one step that actually flips onboarding_completed.
@@ -331,6 +340,7 @@ export function useOnboardingWizard() {
 
       await refreshProfile();
       toast('Your setup is saved. Connect your phone line to start answering calls.', 'success');
+      trackEvent('first_value_reached', { flow: 'manual' });
       setLaunched(true);
     } catch {
       setLaunchError('We could not save your setup. Check your connection and try again — nothing was lost.');
