@@ -235,8 +235,8 @@ export function SupportAgent() {
 
   return (
     <>
-      {/* Launcher rail: same right edge as the Accessibility Center, one slot above it. */}
-      <div className={`fixed right-5 bottom-[calc(5rem_+_var(--vk-bottom-nav-h,0px))] z-overlay print:hidden [html[data-a11y-open=true]_&]:hidden ${open ? 'max-sm:hidden' : ''}`}>
+      {/* Launcher rail: the only floating launcher in the bottom-right corner (public site). */}
+      <div data-floating-launcher className={`fixed right-5 bottom-[calc(1.25rem_+_var(--vk-bottom-nav-h,0px)_+_var(--vk-consent-lift,0px))] z-overlay print:hidden [html[data-a11y-open=true]_&]:hidden ${open ? 'max-sm:hidden' : ''}`}>
         <AnimatePresence>
           {d.nudge && !open && (
             <motion.div
@@ -297,7 +297,7 @@ export function SupportAgent() {
             <motion.div
               initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 24 }} transition={{ duration: dur, ease: [0.16, 1, 0.3, 1] }}
               role="dialog" aria-modal="false" aria-label="Vireek Support"
-              className="fixed inset-x-0 bottom-0 z-overlay flex h-[min(85dvh,44rem)] flex-col overflow-hidden rounded-t-overlay border border-border bg-bg-secondary pb-[env(safe-area-inset-bottom)] shadow-elevation-4 sm:inset-x-auto sm:right-5 sm:bottom-[calc(8.5rem_+_var(--vk-bottom-nav-h,0px))] sm:h-[min(36rem,calc(100dvh-11rem))] sm:w-96 sm:max-w-[calc(100vw-2.5rem)] sm:rounded-overlay sm:pb-0"
+              className="fixed inset-x-0 bottom-0 z-overlay flex h-[min(85dvh,44rem)] flex-col overflow-hidden rounded-t-overlay border border-border bg-bg-secondary pb-[env(safe-area-inset-bottom)] shadow-elevation-4 sm:inset-x-auto sm:right-5 sm:bottom-[calc(5rem_+_var(--vk-bottom-nav-h,0px)_+_var(--vk-consent-lift,0px))] sm:h-[min(36rem,calc(100dvh-8rem))] sm:w-96 sm:max-w-[calc(100vw-2.5rem)] sm:rounded-overlay sm:pb-0"
             >
               <header className="flex items-center gap-3 border-b border-border/80 px-4 py-3">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-inset bg-accent text-on-accent">
