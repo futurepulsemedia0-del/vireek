@@ -5,6 +5,7 @@ import { GrowthAttributionSync } from '@/components/GrowthAttributionSync';
 import { Suspense, lazy } from 'react';
 import { RouteFallback } from '@/components/loading/RouteFallback';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { LEGACY_ONBOARDING_REDIRECTS } from '@/lib/onboardingRoutes';
 import { HomePage } from '@/pages/HomePage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { StaffRoute } from '@/components/StaffRoute';
@@ -41,7 +42,6 @@ const VerifyEmailPage = lazy(() => import('@/pages/VerifyEmailPage').then((m) =>
 const ResetPasswordPage = lazy(() => import('@/pages/ResetPasswordPage').then((m) => ({ default: m.ResetPasswordPage })));
 const MfaChallengePage = lazy(() => import('@/pages/MfaChallengePage').then((m) => ({ default: m.MfaChallengePage })));
 const SignupPage = lazy(() => import('@/pages/SignupPage').then((m) => ({ default: m.SignupPage })));
-const OnboardingPage = lazy(() => import('@/pages/OnboardingPage').then((m) => ({ default: m.OnboardingPage })));
 const OnboardingWizard = lazy(() => import('@/pages/onboarding/OnboardingWizard').then((m) => ({ default: m.OnboardingWizard })));
 const WelcomeQualifyPage = lazy(() => import('@/pages/WelcomeQualifyPage').then((m) => ({ default: m.WelcomeQualifyPage })));
 const SarahKnowledgePage = lazy(() => import('@/pages/SarahKnowledgePage').then((m) => ({ default: m.SarahKnowledgePage })));
