@@ -54,7 +54,7 @@ export const QUALIFICATION_QUESTIONS: readonly QualQuestion[] = [
 ];
 
 export const QUALIFICATION_WINDOW_MS = 72 * 60 * 60 * 1000;
-export const QUALIFICATION_ROUTE = '/welcome-setup';
+export const SARAH_CARD_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
 
 /** Keeps only known question ids with known option values. */
 export function sanitizeAnswers(raw: unknown): QualAnswers {
@@ -78,6 +78,8 @@ export function shouldPromptQualification(i: {
   createdAt?: string | null;
   onboardingCompleted?: boolean | null;
   now: number;
+  /** Overrides QUALIFICATION_WINDOW_MS (the Sarah card uses a longer window). */
+  windowMs?: number;
 }): boolean {
   if (i.role !== 'owner') return false;
   if (i.onboardingCompleted === true) return false;
@@ -85,5 +87,5 @@ export function shouldPromptQualification(i: {
   const created = Date.parse(i.createdAt);
   if (Number.isNaN(created)) return false;
   const age = i.now - created;
-  return age >= -60_000 && age <= QUALIFICATION_WINDOW_MS;
+  return age >= -60_000 && age <= (i.windowMs ?? QUALIFICATION_WINDOW_MS);
 }
