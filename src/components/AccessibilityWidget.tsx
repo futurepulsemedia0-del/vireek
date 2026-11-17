@@ -23,6 +23,8 @@ import {
 } from '@/lib/i18n';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import type { ColorBlindMode } from '@/lib/a11y/settings';
+import { useShortcutHandlers } from '@/lib/shortcuts/useShortcuts';
+import { OPEN_ACCESSIBILITY_EVENT, OPEN_ASK_DATA_EVENT } from '@/lib/uiEvents';
 
 const EASE = [0.16, 1, 0.0, 1] as const;
 
@@ -673,43 +675,31 @@ function PanelContent({ onClose }: { onClose: () => void }) {
 /* ------------------------------------------------------------------ */
 /*  Onboarding tooltip                                                 */
 /* ------------------------------------------------------------------ */
-
-function OnboardingTip({ onDismiss }: { onDismiss: () => void }) {
-  return (
-    <motion.div initial={{ opacity: 0, y: 12, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: 8, scale: 0.95 }} transition={{ duration: 0.35, ease: EASE }}
-      className="a11y-widget absolute bottom-[72px] right-0 w-64 overflow-hidden rounded-2xl border border-border bg-bg-secondary/95 shadow-2xl backdrop-blur-xl">
-      <div className="h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
-      <div className="p-4">
-        <div className="mb-2 flex items-center gap-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent/10 text-accent"><Sparkles size={14} /></span>
-          <h4 className="text-sm font-bold text-text-primary">Accessibility Center</h4>
-        </div>
-        <p className="text-xs leading-relaxed text-text-secondary">
-          Customize text size, contrast, motion, language, and more. Your preferences are saved automatically.
-        </p>
-        <button type="button" onClick={onDismiss}
-          className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg bg-accent py-2 text-xs font-semibold text-on-accent transition-all hover:brightness-110">
-          Got it <ChevronRight size={13} />
-        </button>
-      </div>
-    </motion.div>
-  );
-}
-
 /* ------------------------------------------------------------------ */
 /*  Main widget                                                        */
+/*  No floating launcher. Opened from the dashboard sidebar, the site  */
+/*  footer, Settings and Alt+Shift+A (see lib/uiEvents.ts).            */
 /* ------------------------------------------------------------------ */
+
+function captureFocus(): HTMLElement | null {
+  const active = document.activeElement;
+  return active instanceof HTMLElement && active !== document.body ? active : null;
+}
 
 export function AccessibilityWidget() {
   const [isOpen, setIsOpen] = useState(false);
-  const [showTooltip, setShowTooltip] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(false);
-  const { hasOnboarded, setHasOnboarded } = useAccessibility();
   const panelRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
+  const returnFocusRef = useRef<HTMLElement | null>(null);
+  const wasOpenRef = useRef(false);
   const onWallboard = useLocation().pathname.startsWith('/wallboard');
   const isDesktop = useMediaQuery('(min-width: 640px)', true);
+
+  const openPanel = () => {
+    if (!wasOpenRef.current) returnFocusRef.current = captureFocus();
+    setIsOpen(true);
+  };
+  const openPanelRef = useRef(openPanel);
+  openPanelRef.current = openPanel;
 
   // Lets the Support Agent stay clear of this panel (see components/support/SupportAgent.tsx).
   useEffect(() => {
@@ -717,19 +707,43 @@ export function AccessibilityWidget() {
     return () => document.documentElement.removeAttribute('data-a11y-open');
   }, [isOpen]);
 
+  // Open requests from anywhere; opening the Ask-your-data panel closes this one (no stacked panels).
   useEffect(() => {
-    if (!hasOnboarded) {
-      const timer = setTimeout(() => setShowOnboarding(true), 2000);
-      return () => clearTimeout(timer);
+    const onOpen = () => openPanelRef.current();
+    const onAskOpen = () => setIsOpen(false);
+    window.addEventListener(OPEN_ACCESSIBILITY_EVENT, onOpen);
+    window.addEventListener(OPEN_ASK_DATA_EVENT, onAskOpen);
+    return () => {
+      window.removeEventListener(OPEN_ACCESSIBILITY_EVENT, onOpen);
+      window.removeEventListener(OPEN_ASK_DATA_EVENT, onAskOpen);
+    };
+  }, []);
+
+  useShortcutHandlers({ 'a11y.open': openPanel });
+
+  // Restore focus to whatever opened the panel, on every close path (X, overlay, Esc).
+  useEffect(() => {
+    if (wasOpenRef.current && !isOpen) {
+      const el = returnFocusRef.current;
+      if (el?.isConnected) el.focus();
+      returnFocusRef.current = null;
     }
-  }, [hasOnboarded]);
-
-  const dismissOnboarding = () => { setShowOnboarding(false); setHasOnboarded(true); };
+    wasOpenRef.current = isOpen;
+  }, [isOpen]);
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) return undefined;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { e.preventDefault(); setIsOpen(false); }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
     const panel = panelRef.current;
-    if (!panel) return;
+    if (!panel) return undefined;
     const SELECTOR =
       'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
     const getFocusable = () =>
@@ -749,55 +763,13 @@ export function AccessibilityWidget() {
       else if (!e.shiftKey && active === last) { e.preventDefault(); first.focus(); }
     };
     document.addEventListener('keydown', trap);
-    return () => {
-      document.removeEventListener('keydown', trap);
-      buttonRef.current?.focus(); // restore focus on every close path (X button, overlay, Esc)
-    };
+    return () => document.removeEventListener('keydown', trap);
   }, [isOpen, isDesktop]);
 
-  useEffect(() => {
-    if (!isOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') { e.preventDefault(); setIsOpen(false); buttonRef.current?.focus(); }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [isOpen]);
   if (onWallboard) return null;
 
   return (
-    <div data-floating-launcher className="a11y-widget fixed bottom-[calc(1.25rem_+_var(--vk-bottom-nav-h,0px)_+_var(--vk-consent-lift,0px))] right-5 z-[75] print:hidden">
-      <AnimatePresence>
-        {showOnboarding && !isOpen && <OnboardingTip onDismiss={dismissOnboarding} />}
-      </AnimatePresence>
-
-      <motion.button ref={buttonRef} type="button"
-        onClick={() => { setIsOpen((prev) => !prev); if (showOnboarding) dismissOnboarding(); }}
-        onMouseEnter={() => setShowTooltip(true)} onMouseLeave={() => setShowTooltip(false)}
-        aria-label={isOpen ? 'Close accessibility center' : 'Open accessibility center'} aria-expanded={isOpen}
-        whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.92 }} transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-        className="group relative flex h-12 w-12 items-center justify-center rounded-2xl border border-accent/20 bg-bg-secondary/80 text-accent shadow-glow-accent backdrop-blur-xl transition-colors duration-200 hover:border-accent/40">
-        <AnimatePresence mode="wait" initial={false}>
-          {isOpen ? (
-            <motion.span key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.2 }}>
-              <X size={20} />
-            </motion.span>
-          ) : (
-            <motion.span key="open" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.2 }}>
-              <Accessibility size={20} />
-            </motion.span>
-          )}
-        </AnimatePresence>
-        <AnimatePresence>
-          {showTooltip && !isOpen && !showOnboarding && (
-            <motion.span initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 8 }} transition={{ duration: 0.15 }}
-              className="pointer-events-none absolute right-14 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-lg border border-border bg-bg-secondary/95 px-3 py-1.5 text-xs font-medium text-text-primary shadow-lg backdrop-blur-xl">
-              Accessibility Center
-            </motion.span>
-          )}
-        </AnimatePresence>
-      </motion.button>
-
+    <div className="a11y-widget print:hidden">
       <AnimatePresence>
         {isOpen && (
           <>
@@ -806,7 +778,7 @@ export function AccessibilityWidget() {
             {isDesktop && <motion.div ref={panelRef}
               initial={{ opacity: 0, y: 16, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 16, scale: 0.96 }}
               transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-              className="fixed bottom-[calc(72px_+_var(--vk-bottom-nav-h,0px))] right-5 z-[74] hidden h-[min(640px,80dvh)] w-[400px] flex-col overflow-hidden rounded-2xl border border-border bg-bg-secondary shadow-2xl sm:flex"
+              className="fixed bottom-[calc(1.25rem_+_var(--vk-bottom-nav-h,0px))] right-5 z-[74] hidden h-[min(680px,calc(100dvh_-_2.5rem_-_var(--vk-bottom-nav-h,0px)))] w-[400px] flex-col overflow-hidden rounded-2xl border border-border bg-bg-secondary shadow-2xl sm:flex"
               role="dialog" aria-modal="true" aria-label="Accessibility Center">
               <PanelContent onClose={() => setIsOpen(false)} />
             </motion.div>}
