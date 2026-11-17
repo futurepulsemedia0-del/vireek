@@ -1,0 +1,47 @@
+{
+  "title": "Create your account",
+  "subtitle": "Free trial, no credit card. Takes about 2 minutes.",
+  "continueWith": "Continue with",
+  "email": {
+    "label": "Work email",
+    "placeholder": "you@company.com",
+    "required": "Enter your email address.",
+    "invalid": "That doesn't look like an email address. Check for typos."
+  },
+  "password": {
+    "label": "Password",
+    "placeholder": "At least 8 characters",
+    "show": "Show password",
+    "hide": "Hide password",
+    "help": "Use at least 8 characters. A short phrase is easier to remember and stronger than symbols. Pasting is fine.",
+    "tooShort": "Use at least 8 characters.",
+    "tooLong": "Use 128 characters or fewer.",
+    "ok": "Looks good."
+  },
+  "consent": "By creating an account you agree to our <terms>Terms of Service</terms> and <privacy>Privacy Policy</privacy>.",
+  "submit": "Create account",
+  "submitting": "Creating account…",
+  "haveAccount": "Already have an account?",
+  "signIn": "Sign in",
+  "welcome": "Welcome to Vireek!",
+  "verify": {
+    "title": "Check your email",
+    "body": "We sent a 6-digit code to <email/>. Enter it below, or open the link in that email on this device and we'll sign you in.",
+    "spam": "Nothing yet? Check spam, or you may already have an account.",
+    "signInInstead": "Sign in instead",
+    "wrongEmail": "Wrong email? Go back",
+    "otpLabel": "6-digit verification code"
+  },
+  "errors": {
+    "generic": "We couldn't create your account. Please try again.",
+    "rateLimited": "Too many attempts. Please wait a minute and try again.",
+    "network": "Connection problem. Check your internet and try again.",
+    "codeExpired": "This code has expired. Send a new one below.",
+    "codeWrong": "That code isn't right. Try again.",
+    "verifyFailed": "Something went wrong verifying that code.",
+    "resendFailed": "Couldn't resend the code. Try again shortly.",
+    "googleFailed": "Google sign-up didn't work. Please use email and password.",
+    "appleFailed": "Apple sign-up didn't work. Please use email and password.",
+    "oauthFailed": "Sign-up didn't complete. Please try again."
+  }
+}
