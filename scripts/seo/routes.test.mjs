@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
 import {
-  ALIAS_PATHS, DATA_ROUTE_PATTERNS, STATIC_PUBLIC_PATHS, appRoutePaths, classifyRoute, collectRoutes,
+  ALIAS_PATHS, DATA_ROUTE_PATTERNS, STATIC_PUBLIC_PATHS, appRoutePaths, classifyRoute, collectRoutes, robotsDisallowRules,
 } from './routes.mjs';
 
 const appPaths = appRoutePaths();
@@ -28,6 +28,13 @@ describe('route classification (App.tsx is the source of truth)', () => {
     }
   });
 
+  it('robots.txt never blocks public, indexable sections', () => {
+    const rules = robotsDisallowRules();
+    for (const prefix of ['/alternatives/', '/use-cases/', '/resources/', '/help/', '/careers/', '/locations/', '/blog', '/compare', '/industries', '/integrations', '/switch/']) {
+      expect(rules, prefix).not.toContain(prefix);
+    }
+  });
+  
   it('dashboard, tech, staff, auth and token routes are never public', () => {
     for (const p of appPaths.filter((x) => /^\/(dashboard|tech|staff|partner-portal|onboarding)/.test(x))) {
       expect(classifyRoute(p), p).toBe('private');
