@@ -1,0 +1,100 @@
+name: Regulatory calendar
+
+# Reminder system, not legal advice. Every entry in docs/compliance/regulatory-calendar.json is [COUNSEL].
+# - pull_request: validates the registry and that the .md rendering is current. Overdue reviews do NOT fail PRs.
+# - schedule (weekly) / workflow_dispatch: fails the run AND opens (or updates) one GitHub issue when a review is overdue.
+# Uses only the built-in GITHUB_TOKEN (issues: write); no extra secrets.
+
+on:
+  schedule:
+    - cron: '17 5 * * 1' # Mondays 05:17 UTC
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'docs/compliance/regulatory-calendar.json'
+      - 'docs/compliance/regulatory-calendar.md'
+      - 'scripts/compliance/calendar-check.mjs'
+      - 'scripts/compliance/calendar-check.test.mjs'
+      - '.github/workflows/regulatory-calendar.yml'
+      # Cited docs: a changed quote must fail here, not weeks later.
+      - 'docs/compliance/**'
+      - 'docs/PAY_AND_CAPITAL.md'
+      - 'docs/TALENT_NETWORK.md'
+      - 'docs/SHADOW_MODE.md'
+      - 'docs/privacy/**'
+      - 'docs/design/ICON_SCALE.md'
+      - 'docs/design/MOTION_POLICY.md'
+      - 'docs/security/FRAUD_ABUSE_PREVENTION.md'
+
+concurrency:
+  group: regulatory-calendar-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate calendar (pull requests)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Registry valid, .md current (overdue reviews are reported, not failed)
+        run: node scripts/compliance/calendar-check.mjs --allow-overdue
+      - name: Unit tests for the checker
+        run: |
+          npm ci --ignore-scripts
+          npx vitest run scripts/compliance/calendar-check.test.mjs
+
+  review-due:
+    name: Review-due check (scheduled)
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ISSUE_TITLE: 'Regulatory calendar: reviews overdue'
+      ISSUE_LABEL: regulatory-calendar
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check the calendar
+        id: check
+        run: |
+          set +e
+          node scripts/compliance/calendar-check.mjs --report-file "$RUNNER_TEMP/overdue.md"
+          code=$?
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Open or update the overdue issue
+        if: steps.check.outputs.code == '3'
+        run: |
+          set -euo pipefail
+          gh label create "$ISSUE_LABEL" --color B60205 --description "Regulatory review overdue" 2>/dev/null || true
+          number=$(gh issue list --state open --label "$ISSUE_LABEL" --search "\"$ISSUE_TITLE\" in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$number" ]; then
+            gh issue edit "$number" --body-file "$RUNNER_TEMP/overdue.md"
+            gh issue comment "$number" --body "Still overdue as of $(date -u +%F). Issue body updated."
+            echo "Updated issue #$number"
+          else
+            gh issue create --title "$ISSUE_TITLE" --label "$ISSUE_LABEL" --body-file "$RUNNER_TEMP/overdue.md"
+          fi
+
+      - name: Fail the run when anything is overdue or the registry is invalid
+        if: steps.check.outputs.code != '0'
+        run: |
+          code='${{ steps.check.outputs.code }}'
+          if [ "$code" = "3" ]; then echo "::error::One or more regulatory reviews are overdue (see the opened issue)."; else echo "::error::Regulatory calendar is invalid or its .md is stale (exit $code)."; fi
+          exit 1
