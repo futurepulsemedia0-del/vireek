@@ -24,8 +24,16 @@ describe.each(THEMES)('contrast gate — %s', (theme) => {
 
 describe('brand anchors stay put (the change must stay near-invisible)', () => {
   const L = buildTheme('light').tok, D = buildTheme('dark').tok;
-  it('clay accent', () => { expect(toHex(L['accent-text'])).toBe('#AE3600'); expect(toHex(L['accent-fill'])).toBe('#F9774C'); });
-  it('blurple cta graphic (light) and lilac cta fill (dark)', () => { expect(toHex(L['cta-graphic'])).toBe('#533AFD'); expect(toHex(D['cta-fill'])).toBe('#7F6CFE'); });
+  it('clay accent fill is Anthropic Clay, exactly (light + dark)', () => { expect(toHex(L['accent-fill'])).toBe('#D97757'); expect(toHex(D['accent-fill'])).toBe('#D97757'); });
+  it('Stripe blurple cta fill/graphic (light)', () => { expect(toHex(L['cta-graphic'])).toBe('#533AFD'); expect(toHex(L['cta-fill'])).toBe('#533AFD'); });
+  it('Apple status fills are the published values (light + dark)', () => {
+    const want = { success: ['#34C759', '#30D158'], danger: ['#FF383C', '#FF4245'], warning: ['#FFCC00', '#FFD600'], info: ['#0071E3', '#0091FF'] };
+    for (const [f, [l, d]] of Object.entries(want)) { expect(toHex(L[`${f}-fill`])).toBe(l); expect(toHex(D[`${f}-fill`])).toBe(d); }
+  });
+  it('Anthropic neutrals are the published values', () => {
+    expect(toHex(L['bg-primary'])).toBe('#FAF9F5'); expect(toHex(D['bg-primary'])).toBe('#141413');
+    expect(toHex(L['border-default'])).toBe('#E8E6DC'); expect(toHex(D['text-secondary'])).toBe('#B0AEA5');
+  });
   it('control borders are >= 3:1 on every surface', () => {
     for (const k of ['bg-primary', 'bg-secondary', 'bg-tertiary']) {
       expect(contrast(L['border-strong'], L[k])).toBeGreaterThanOrEqual(3);
