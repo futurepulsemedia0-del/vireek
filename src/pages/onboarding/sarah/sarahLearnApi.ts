@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { trackEvent } from '@/lib/analytics';
+import type { EventArgs } from '@/lib/analyticsEvents';
 import type { LearnField, LearnRun, LearnSource } from './sarahLearnLogic';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
@@ -174,7 +175,8 @@ export async function loadSuggestions(): Promise<Suggestion[]> {
   return (data ?? []) as Suggestion[];
 }
 
-/** Consent-gated (trackEvent is a no-op until analytics consent). Never sends content or PII. */
-export function track(event: string, params: Record<string, number | string | boolean> = {}): void {
-  trackEvent(`sarah_learn_${event}`, params);
+export type SarahLearnEvent = 'readiness' | 'go_live' | 'first_draft' | 'rerun';
+export function track<E extends SarahLearnEvent>(event: E, ...args: EventArgs<`sarah_learn_${E}`>): void {
+  // analytics-events: sarah_learn_readiness, sarah_learn_go_live, sarah_learn_first_draft, sarah_learn_rerun
+  trackEvent(`sarah_learn_${event}` as const, ...args);
 }
