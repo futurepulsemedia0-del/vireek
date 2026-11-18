@@ -93,6 +93,18 @@ describe('analytics gating', () => {
     expect((window.dataLayer as unknown[]).length).toBe(n + 1);
   });
 
+  it('sends page_view with only utm_* query parameters and no hash', async () => {
+    const { engine, analytics } = await fresh();
+    engine.acceptAll();
+    analytics.trackPageview('/dashboard/jobs?email=jane%40example.com&utm_source=newsletter#section', 'Jobs');
+    const call = (window.dataLayer as ArrayLike<unknown>[]).map((c) => Array.from(c)).find((c) => c[0] === 'event' && c[1] === 'page_view');
+    expect(call?.[2]).toEqual({
+      page_path: '/dashboard/jobs?utm_source=newsletter',
+      page_location: `${window.location.origin}/dashboard/jobs?utm_source=newsletter`,
+      page_title: 'Jobs',
+    });
+  });
+
   it('never reports wallboard token paths', async () => {
     const { engine, analytics } = await fresh();
     engine.acceptAll();
