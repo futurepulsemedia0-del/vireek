@@ -1,6 +1,8 @@
 // Pure helpers for the public /thank-you page: URL parsing + conversion-event logic.
 // No React / analytics imports so everything here is trivially testable.
 
+import type { EventParams } from '@/lib/analyticsEvents';
+
 export type ConversionSource = 'signup' | 'demo';
 
 export interface ThankYouParams {
@@ -31,10 +33,9 @@ export function parseThankYouParams(search: string, now: Date = new Date()): Tha
   return { source, demoStart };
 }
 
-export interface ConversionEvent {
-  name: string;
-  params: Record<string, unknown>;
-}
+export type ConversionEvent = {
+  [N in 'sign_up' | 'generate_lead' | 'demo_booked']: { name: N; params: EventParams<N> };
+}['sign_up' | 'generate_lead' | 'demo_booked'];
 
 /** GA4 recommended events (sign_up, generate_lead) plus a custom demo_booked. */
 export function buildConversionEvents(source: ConversionSource, demoStart: Date | null, now: Date = new Date()): ConversionEvent[] {
