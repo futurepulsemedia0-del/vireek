@@ -1,0 +1,126 @@
+{
+  "launcher": {
+    "label": "Ask Vireek",
+    "open": "Open Ask Vireek, the help assistant",
+    "close": "Close Ask Vireek",
+    "intro": "Questions? Ask Vireek.",
+    "introDismiss": "Dismiss",
+    "online": "Team online",
+    "aiOnly": "AI assistant online",
+    "shortcutHint": "Shortcut: Ctrl or Cmd + /"
+  },
+  "panel": {
+    "title": "Vireek Assistant",
+    "statusOnline": "AI + our team, online now",
+    "statusOffline": "AI available 24/7 · team back {{hours}}",
+    "minimize": "Minimize",
+    "close": "Close",
+    "menu": "Conversation options",
+    "dragHandle": "Drag down to close",
+    "newConversation": "New conversation",
+    "clear": "Clear conversation",
+    "export": "Download conversation",
+    "clearedToast": "Conversation cleared",
+    "notice": "You're chatting with an AI assistant, not a human. Answers come from Vireek's published pages.",
+    "dashboardNotice": "This assistant answers product questions only. It cannot see your account data."
+  },
+  "welcome": {
+    "greeting": "Hi, I'm the Vireek assistant. Ask me about plans, features, integrations, security or how to get set up.",
+    "greetingDashboard": "Hi! Ask me how something in Vireek works. For your own numbers, use the account assistant.",
+    "try": "Try asking",
+    "paths": "Or reach us directly",
+    "human": "Talk to a human",
+    "ticket": "Open a ticket",
+    "help": "Browse the help center",
+    "account": "Ask about my account data"
+  },
+  "composer": {
+    "label": "Message to Vireek assistant",
+    "placeholder": "Ask anything about Vireek…",
+    "send": "Send message",
+    "stop": "Stop generating",
+    "hint": "Enter to send, Shift+Enter for a new line",
+    "limit": "{{count}} characters left",
+    "tooLong": "Message is too long"
+  },
+  "message": {
+    "you": "You",
+    "assistant": "Vireek Assistant",
+    "copy": "Copy answer",
+    "copied": "Copied",
+    "helpful": "Helpful",
+    "notHelpful": "Not helpful",
+    "thanks": "Thanks for the feedback",
+    "sources": "Sources",
+    "followUps": "Suggested follow-up questions",
+    "typing": "Vireek Assistant is typing",
+    "retry": "Try again",
+    "sentAt": "Sent {{time}}"
+  },
+  "handoff": {
+    "title": "Want a person to take over?",
+    "body": "Your conversation comes with you, so you won't need to repeat yourself.",
+    "liveOnline": "Chat with our team ({{hours}})",
+    "liveOffline": "Leave a message for our team (we reply within 24 hours)",
+    "ticketSignedIn": "Open a support ticket",
+    "ticketVisitor": "Send us a message",
+    "lowConfidence": "I'm not sure about this one. I don't want to guess, so here are the quickest ways to get a definite answer."
+  },
+  "states": {
+    "offline": "You appear to be offline. Your question will not send until you reconnect.",
+    "rateLimited": "You've reached the question limit for now. Try again in a little while, or talk to our team.",
+    "error": "Something went wrong while answering.",
+    "empty": "No messages yet."
+  },
+  "ask": {
+    "about": "Ask about this",
+    "aboutLabel": "Ask Vireek about {{topic}}"
+  },
+  "q": {
+    "pricing": {
+      "cost": "How much does Vireek cost?",
+      "plan": "Which plan fits my business?",
+      "overage": "What happens if I go over my minutes?",
+      "setup": "Is there a setup fee?",
+      "cancel": "Can I cancel or change plans anytime?"
+    },
+    "features": {
+      "emergency": "How does emergency detection work?",
+      "booking": "Can it book appointments on my calendar?",
+      "transfer": "Can calls be transferred to on-call staff?"
+    },
+    "industries": {
+      "trades": "Which trades do you support?",
+      "plan": "Which plan suits a small HVAC company?"
+    },
+    "integrations": {
+      "crm": "Which CRMs do you integrate with?",
+      "api": "Is there an API or webhooks?",
+      "calendar": "Does it sync with Google Calendar?",
+      "plan": "Which plans include integrations?"
+    },
+    "security": {
+      "data": "Is my business data secure?",
+      "certs": "Do you have SOC 2 or HIPAA?",
+      "isolation": "How is my data separated from other accounts?",
+      "human": "Will callers know they're talking to an AI?"
+    },
+    "start": {
+      "free": "How do I get started?",
+      "number": "Do I need a new phone number?",
+      "time": "How long does setup take?",
+      "demo": "Can I hear a demo call?"
+    },
+    "help": {
+      "reach": "How do I contact support?",
+      "hours": "What are your support hours?"
+    },
+    "dash": {
+      "phone": "How do I connect or forward my phone number?",
+      "calendar": "How do I sync my calendar?",
+      "billing": "Where do I manage billing and invoices?",
+      "team": "How do I add team members and set permissions?",
+      "export": "How do I export my data?"
+    }
+  }
+}
