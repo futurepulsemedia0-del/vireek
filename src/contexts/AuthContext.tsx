@@ -112,7 +112,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const { data: tmData, error: tmError } = await supabase
           .from('team_members')
           .select('*, custom_role:custom_roles(permissions)')
-          .eq('member_email', prof.email)
+          .eq('user_id', userId)
+          .in('invite_status', ['active', 'accepted'])
+          .is('deactivated_at', null)
+          .order('created_at', { ascending: true })
+          .limit(1)
           .maybeSingle();
         if (requestId !== requestIdRef.current) return;
         if (!tmError && tmData) {
