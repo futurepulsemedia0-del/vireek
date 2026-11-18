@@ -151,6 +151,7 @@ const EvidenceMarketplacePage = lazy(() => import('@/pages/EvidenceMarketplacePa
 const EvidencePartnersAdminPage = lazy(() => import('@/pages/admin/EvidencePartnersAdminPage').then((m) => ({ default: m.EvidencePartnersAdminPage })));
 const StaffCustomersPage = lazy(() => import('@/pages/admin/StaffCustomersPage').then((m) => ({ default: m.StaffCustomersPage })));
 const StaffUsagePage = lazy(() => import('@/pages/admin/StaffUsagePage').then((m) => ({ default: m.StaffUsagePage })));
+const StaffNexusPage = lazy(() => import('@/pages/admin/StaffNexusPage').then((m) => ({ default: m.StaffNexusPage })));
 const StaffMarginsPage = lazy(() => import('@/pages/admin/StaffMarginsPage').then((m) => ({ default: m.StaffMarginsPage })));
 const StaffPartnerCommissionsPage = lazy(() => import('@/pages/admin/StaffPartnerCommissionsPage').then((m) => ({ default: m.StaffPartnerCommissionsPage })));
 const FeatureFlagsAdminPage = lazy(() => import('@/pages/admin/FeatureFlagsAdminPage').then((m) => ({ default: m.FeatureFlagsAdminPage })));
@@ -910,6 +911,16 @@ function AppRoutes() {
     <StaffRoute>
       <Suspense fallback={<PageLoader />}>
         <StaffUsagePage />
+      </Suspense>
+    </StaffRoute>
+  }
+/>
+<Route
+  path="/staff/nexus"
+  element={
+    <StaffRoute>
+      <Suspense fallback={<PageLoader />}>
+        <StaffNexusPage />
       </Suspense>
     </StaffRoute>
   }
