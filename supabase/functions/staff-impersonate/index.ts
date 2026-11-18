@@ -90,18 +90,14 @@ Deno.serve(async (req: Request) => {
     // ---------------- END ----------------
     if (body.action === "end") {
       if (!UUID.test(body.sessionId ?? "")) return jsonResponse({ error: "Invalid session." }, 400);
-      const { data: session } = await admin
+      const { data: owned } = await admin
         .from("staff_impersonation_sessions")
-        .update({ ended_at: new Date().toISOString() })
+        .select("id")
         .eq("id", body.sessionId)
         .eq("staff_id", staffId)
         .is("ended_at", null)
-        .select("id, target_account_id")
         .maybeSingle();
-      if (session) {
-        await audit(admin, { staff_id: staffId, staff_email: staffEmail, action: "impersonation_end", target_account_id: session.target_account_id, metadata: { session_id: session.id } });
-        await admin.from("audit_log").insert({ user_id: session.target_account_id, actor_id: staffId, actor_email: "Vireek Support", action: "staff_impersonation_ended", target_table: "profiles", target_id: session.target_account_id });
-      }
+      if (owned) await admin.rpc("impersonation_close", { p_session: owned.id, p_reason: "staff_ended" });
       return jsonResponse({ ok: true });
     }
 
@@ -112,6 +108,10 @@ Deno.serve(async (req: Request) => {
     const reason = (body.reason ?? "").trim();
     const ticketRef = (body.ticketRef ?? "").trim() || null;
 
+    if (Deno.env.get("IMPERSONATION_CLAIMS_ENABLED") !== "true") {
+      await audit(admin, { staff_id: staffId, staff_email: staffEmail, action: "impersonation_denied", target_account_id: UUID.test(body.accountId ?? "") ? body.accountId : null, metadata: { why: "claims_hook_not_enabled" } });
+      return jsonResponse({ error: "Support sessions are disabled until the impersonation claims hook is enabled.", code: "claims_hook_not_enabled" }, 503);
+    }
     const problems = validateImpersonationRequest({ reason, ticketRef });
     if (problems.length > 0) return jsonResponse({ error: problems[0] }, 400);
 
@@ -130,12 +130,22 @@ Deno.serve(async (req: Request) => {
       return jsonResponse({ error: `Limit reached: at most ${IMPERSONATION_MAX_PER_HOUR} customer sessions per hour.` }, 429);
     }
 
+    await admin.rpc("impersonation_sweep_expired"); // close expired-but-unclosed rows first
+    {
+      const { data: open } = await admin.from("staff_impersonation_sessions").select("id").eq("target_account_id", accountId).is("ended_at", null).limit(1);
+      if (open && open.length > 0) {
+        await audit(admin, { staff_id: staffId, staff_email: staffEmail, action: "impersonation_denied", target_account_id: accountId, reason, metadata: { why: "session_already_open" } });
+        return jsonResponse({ error: "A support session is already open for this account." }, 409);
+      }
+    }
+
     const expiresAt = new Date(Date.now() + IMPERSONATION_MINUTES * 60_000).toISOString();
     const { data: session, error: sessionError } = await admin
       .from("staff_impersonation_sessions")
       .insert({ staff_id: staffId, target_account_id: accountId, reason, ticket_ref: ticketRef, expires_at: expiresAt })
       .select("id")
       .single();
+    if (sessionError?.code === "23505") return jsonResponse({ error: "A support session is already open for this account." }, 409);
     if (sessionError || !session) throw new Error("session_insert_failed");
 
     // Audit BEFORE the link exists.
