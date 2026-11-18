@@ -75,6 +75,7 @@ export function ThankYouContent({ source, demoStart }: Props) {
   useEffect(() => {
     if (!source) return;
     return sendConversionOnce(source, demoStart, {
+      // analytics-events: sign_up, generate_lead, demo_booked
       track: trackEvent,
       hasConsent: hasAnalyticsConsent,
       onConsent: onAnalyticsConsent,
