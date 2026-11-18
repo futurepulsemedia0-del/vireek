@@ -1,0 +1,74 @@
+{
+  "page": {
+    "title": "Sales-tax / VAT nexus tracker",
+    "subtitle": "Vireek's own subscription revenue per US state and country, compared with the thresholds in config/nexus-thresholds.json.",
+    "disclaimer": "Internal early-warning aid only. Not a legal determination of nexus or of any registration duty. Thresholds are [COUNSEL][VERIFY]; confirm every value with counsel before acting.",
+    "asOf": "As of (UTC)",
+    "refresh": "Refresh",
+    "export": "Export CSV",
+    "exporting": "Exporting…",
+    "exportAuditFailed": "The CSV was downloaded, but the export could not be recorded in the audit log.",
+    "exported": "CSV downloaded."
+  },
+  "config": {
+    "unreviewed": "Threshold config status: {{status}}",
+    "problems": "The threshold config has problems:",
+    "noneConfigured": "No jurisdiction has a complete threshold yet, so nothing can be reported as below, approaching or exceeded. Fill config/nexus-thresholds.json after counsel review."
+  },
+  "kpi": {
+    "exceeded": "Exceeded",
+    "approaching": "Approaching",
+    "below": "Below",
+    "notConfigured": "Not configured",
+    "currencyMismatch": "Currency mismatch",
+    "unattributed": "Revenue with no usable address",
+    "none": "None"
+  },
+  "status": {
+    "below": "Below",
+    "approaching": "Approaching",
+    "exceeded": "Exceeded",
+    "not_configured": "Not configured",
+    "currency_mismatch": "Currency mismatch"
+  },
+  "filters": {
+    "search": "Search jurisdiction",
+    "status": "Status",
+    "all": "All statuses",
+    "showZero": "Show jurisdictions with no revenue"
+  },
+  "table": {
+    "caption": "Revenue per jurisdiction compared with configured nexus thresholds",
+    "jurisdiction": "Jurisdiction",
+    "status": "Status",
+    "currency": "Currency",
+    "window": "Window",
+    "revenue": "Revenue",
+    "invoices": "Invoices",
+    "threshold": "Revenue threshold",
+    "progress": "Progress",
+    "unreviewed": "Threshold not reviewed",
+    "unresolved": "Address partly unresolved"
+  },
+  "window": {
+    "rolling_12m": "Rolling 12 months",
+    "calendar_year": "Calendar year",
+    "prior_or_current_calendar_year": "Prior or current calendar year"
+  },
+  "coverage": {
+    "range": "Ledger covers paid invoices from {{from}} to {{to}}.",
+    "empty": "The ledger has no paid invoices yet.",
+    "gap": "{{count}} paid invoice(s) in billing events are not in the ledger. Figures may be incomplete; run nexus_backfill() and check the Stripe webhook."
+  },
+  "states": {
+    "loading": "Loading nexus data…",
+    "empty": "No rows match the current filters.",
+    "error": "Could not load nexus data.",
+    "forbidden": "Your account does not have staff access to this report.",
+    "retry": "Try again"
+  },
+  "seo": {
+    "title": "Nexus tracker — Staff",
+    "description": "Internal: sales-tax and VAT nexus tracking."
+  }
+}
