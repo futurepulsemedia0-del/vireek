@@ -4,6 +4,7 @@
  */
 
 import { CATEGORY_FOOTPRINT, deleteCookiesMatching, onCategoryChange } from '@/lib/consent/engine';
+import { clampPageTitle, sanitizePageUrl, sanitizeEvent, type EventArgs, type EventName, type EventProblem } from '@/lib/analyticsEvents';
 
 declare global {
   interface Window {
@@ -93,10 +94,10 @@ export function trackPageview(path: string, title?: string) {
   if (/^\/audit\/./.test(path)) return; // report/unsubscribe URLs carry private tokens
   if (!consentGranted || !GA_ID) return;
   ensureDataLayer();
+  const url = sanitizePageUrl(path, window.location.origin);
   window.gtag('event', 'page_view', {
-    page_path: path,
-    page_title: title ?? document.title,
-    page_location: window.location.href,
+    ...url,
+    page_title: clampPageTitle(title ?? document.title),
   });
 }
 
