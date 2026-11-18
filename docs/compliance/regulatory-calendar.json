@@ -1,0 +1,736 @@
+{
+  "schema": "vireek.regulatory-calendar/v1",
+  "disclaimer": "Reminder register, not legal advice. Every entry is [COUNSEL]; [VERIFY] marks unverified facts. Seeded only from laws already referenced in repo docs; absence of a law here does not mean it does not apply.",
+  "default_review_interval_days": 180,
+  "entries": [
+    {
+      "id": "gdpr-eu",
+      "regulation": "General Data Protection Regulation (GDPR)",
+      "category": "privacy",
+      "jurisdiction": "EU / EEA",
+      "applies_to_features": [
+        "Voice AI assistant (call data, transcripts)",
+        "DPA page /gdpr-dpa",
+        "Sub-processor transfers"
+      ],
+      "owner": "@OWNER_COMPLIANCE",
+      "flags": [
+        "[COUNSEL]"
+      ],
+      "last_reviewed": null,
+      "next_review": "2026-12-15",
+      "review_interval_days": 180,
+      "sources": [
+        {
+          "path": "docs/compliance/transfers-and-contracts.md",
+          "quote": "Art. 27 representative"
+        }
+      ],
+      "notes": "Repo docs assume Customer = controller and Vireek = processor (Art. 28); contracting entity and Art. 27 representative are open items [COUNSEL]."
+    },
+    {
+      "id": "uk-gdpr",
+      "regulation": "UK GDPR",
+      "category": "privacy",
+      "jurisdiction": "United Kingdom",
+      "applies_to_features": [
+        "Voice AI assistant (transparency, recording notice)"
+      ],
+      "owner": "@OWNER_COMPLIANCE",
+      "flags": [
+        "[COUNSEL]"
+      ],
+      "last_reviewed": null,
+      "next_review": "2026-12-15",
+      "review_interval_days": 180,
+      "sources": [
+        {
+          "path": "docs/compliance/voice-consent-and-ai-disclosure.md",
+          "quote": "UK GDPR transparency"
+        }
+      ],
+      "notes": "Repo doc cites only UK GDPR transparency; no other UK statute is claimed here."
+    },
+    {
+      "id": "gdpr-chapter-v-transfers",
+      "regulation": "International transfer mechanisms: SCCs, UK IDTA/Addendum, EU-US Data Privacy Framework",
+      "category": "privacy",
+      "jurisdiction": "EU / UK / CH",
+      "applies_to_features": [
+        "Vireek to US sub-processors (Vapi, Gemini, Twilio, ...)",
+        "DPA package"
+      ],
+      "owner": "@OWNER_COMPLIANCE",
+      "flags": [
+        "[COUNSEL]",
+        "[VERIFY]"
+      ],
+      "last_reviewed": null,
+      "next_review": "2026-12-15",
+      "review_interval_days": 180,
+      "sources": [
+        {
+          "path": "docs/compliance/transfers-and-contracts.md",
+          "quote": "SCC Module 2"
+        }
+      ],
+      "notes": "No executed SCC annexes exist in the repo; DPF status of each vendor is [VERIFY]."
+    },
+    {
+      "id": "eprivacy-ttdsg",
+      "regulation": "ePrivacy rules for cookies/analytics (TTDSG s.25 in Germany)",
+      "category": "privacy",
+      "jurisdiction": "EU; Germany",
+      "applies_to_features": [
+        "Analytics cookies and consent engine"
+      ],
+      "owner": "@OWNER_COMPLIANCE",
+      "flags": [
+        "[COUNSEL]"
+      ],
+      "last_reviewed": null,
+      "next_review": "2026-12-15",
+      "review_interval_days": 180,
+      "sources": [
+        {
+          "path": "docs/compliance/transfers-and-contracts.md",
+          "quote": "ePrivacy / TTDSG s.25 in DE"
+        }
+      ],
+      "notes": "Repo doc lists consent as the basis for analytics cookies."
+    },
+    {
+      "id": "ccpa-cpra",
+      "regulation": "California Consumer Privacy Act / CPRA",
+      "category": "privacy",
+      "jurisdiction": "US-CA",
+      "applies_to_features": [
+        "Privacy notices",
+        "Missed-call audit",
+        "Employee-monitoring notice (read-access logging)"
+      ],
+      "owner": "@OWNER_COMPLIANCE",
+      "flags": [
+        "[COUNSEL]"
+      ],
+      "last_reviewed": null,
+      "next_review": "2026-12-15",
+      "review_interval_days": 180,
+      "sources": [
+        {
+          "path": "docs/compliance/missed-call-audit.md",
+          "quote": "CCPA/CPRA"
+        },
+        {
+          "path": "docs/privacy/read-access-logging.md",
+          "quote": "CPRA employee-data notice"
+        }
+      ],
+      "notes": "Referenced for privacy notices and employee-data notice; thresholds and applicability not assessed."
+    },
+    {
+      "id": "pipeda-quebec-law25",
+      "regulation": "PIPEDA and Quebec Law 25",
+      "category": "privacy",
+      "jurisdiction": "Canada; Quebec",
+      "applies_to_features": [
+        "Voice AI assistant (notice/consent)",
+        "Cross-border processing in the US"
+      ],
+      "owner": "@OWNER_COMPLIANCE",
+      "flags": [
+        "[COUNSEL]"
+      ],
+      "last_reviewed": null,
+      "next_review": "2026-12-15",
+      "review_interval_days": 180,
+      "sources": [
+        {
+          "path": "docs/compliance/transfers-and-contracts.md",
+          "quote": "PIPEDA accountability principle"
+        }
+      ],
+      "notes": "Repo doc: Law 25 requires a privacy-impact assessment before communicating personal information outside Quebec [COUNSEL]."
+    },
+    {
+      "id": "au-privacy-act-app",
+      "regulation": "Australian Privacy Principles (APP 8, overseas disclosure)",
+      "category": "privacy",
+      "jurisdiction": "Australia",
+      "applies_to_features": [
+        "Cross-border processing in the US"
+      ],
+      "owner": "@OWNER_COMPLIANCE",
+      "flags": [
+        "[COUNSEL]"
+      ],
+      "last_reviewed": null,
+      "next_review": "2026-12-15",
+      "review_interval_days": 180,
+      "sources": [
+        {
+          "path": "docs/compliance/transfers-and-contracts.md",
+          "quote": "APP 8"
+        }
+      ],
+      "notes": "Only APP 8 is referenced in repo docs."
+    },
+    {
+      "id": "hipaa",
+      "regulation": "HIPAA",
+      "category": "privacy",
+      "jurisdiction": "US",
+      "applies_to_features": [
+        "Public compliance claims (complianceStatus.ts)"
+      ],
+      "owner": "@OWNER_COMPLIANCE",
+      "flags": [
+        "[COUNSEL]"
+      ],
+      "last_reviewed": null,
+      "next_review": "2026-12-15",
+      "review_interval_days": 180,
+      "sources": [
+        {
+          "path": "docs/compliance/PUBLIC_CLAIMS_INVENTORY.md",
+          "quote": "offers NO HIPAA BAA"
+        }
+      ],
+      "notes": "Tracked because public claims mention HIPAA; the platform offers no BAA per repo docs."
+    },
+    {
+      "id": "de-stgb-201-recording",
+      "regulation": "German Criminal Code s.201 (recording the spoken word)",
+      "category": "privacy",
+      "jurisdiction": "Germany",
+      "applies_to_features": [
+        "Voice AI assistant (call recording)"
+      ],
+      "owner": "@OWNER_COMPLIANCE",
+      "flags": [
+        "[COUNSEL]"
+      ],
+      "last_reviewed": null,
+      "next_review": "2026-12-15",
+      "review_interval_days": 180,
+      "sources": [
+        {
+          "path": "docs/compliance/voice-consent-and-ai-disclosure.md",
+          "quote": "StGB s.201"
+        }
+      ],
+      "notes": "Repo doc default: opt_in_strict recording mode for Germany [COUNSEL]."
+    },
+    {
+      "id": "uk-lawful-business-practice",
+      "regulation": "UK Lawful Business Practice regulations (business-call recording)",
+      "category": "privacy",
+      "jurisdiction": "United Kingdom",
+      "applies_to_features": [
+        "Voice AI assistant (call recording)"
+      ],
+      "owner": "@OWNER_COMPLIANCE",
+      "flags": [
+        "[COUNSEL]"
+      ],
+      "last_reviewed": null,
+      "next_review": "2026-12-15",
+      "review_interval_days": 180,
+      "sources": [
+        {
+          "path": "docs/compliance/voice-consent-and-ai-disclosure.md",
+          "quote": "Lawful Business Practice regs"
+        }
+      ],
+      "notes": "Repo doc marks the UK default as notice, counsel to confirm."
+    },
+    {
+      "id": "us-call-recording-consent",
+      "regulation": "US state call-recording (all-party / two-party consent) laws",
+      "category": "privacy",
+      "jurisdiction": "US (state by state)",
+      "applies_to_features": [
+        "Voice AI assistant (call recording)",
+        "Shadow mode"
+      ],
+      "owner": "@OWNER_COMPLIANCE",
+      "flags": [
+        "[COUNSEL]"
+      ],
+      "last_reviewed": null,
+      "next_review": "2026-12-15",
+      "review_interval_days": 180,
+      "sources": [
+        {
+          "path": "docs/compliance/missed-call-audit.md",
+          "quote": "two-party-consent recording laws"
+        },
+        {
+          "path": "docs/SHADOW_MODE.md",
+          "quote": "all-party-consent states"
+        }
+      ],
+      "notes": "Repo keeps an area-code list of 13 states, described as a heuristic and not a legal opinion [COUNSEL]."
+    },
+    {
+      "id": "eu-ai-act-art50",
+      "regulation": "EU AI Act Article 50 (transparency obligations)",
+      "category": "ai",
+      "jurisdiction": "EU",
+      "applies_to_features": [
+        "Voice AI assistant (AI disclosure)",
+        "clone-voice / synthetic speech"
+      ],
+      "owner": "@OWNER_COMPLIANCE",
+      "flags": [
+        "[COUNSEL]",
+        "[VERIFY]"
+      ],
+      "last_reviewed": "2026-11-02",
+      "next_review": "2026-12-02",
+      "review_interval_days": 90,
+      "sources": [
+        {
+          "path": "docs/compliance/voice-consent-and-ai-disclosure.md",
+          "quote": "Transparency obligations under Article 50 of the AI Act"
+        }
+      ],
+      "notes": "Repo doc researched 2026-11-02 by engineering, not counsel. It lists 2 Dec 2026 for Art. 50(2) on systems placed on the market before 2 Aug 2026 [VERIFY].",
+      "last_reviewed_by": "engineering research (not counsel)"
+    },
+    {
+      "id": "eu-ai-act-art5-annex3",
+      "regulation": "EU AI Act Art. 5(1)(f) (emotion inference in the workplace) and Annex III high-risk",
+      "category": "ai",
+      "jurisdiction": "EU",
+      "applies_to_features": [
+        "QA / coaching analytics on callers and staff"
+      ],
+      "owner": "@OWNER_COMPLIANCE",
+      "flags": [
+        "[COUNSEL]",
+        "[VERIFY]"
+      ],
+      "last_reviewed": null,
+      "next_review": "2026-12-15",
+      "review_interval_days": 90,
+      "sources": [
+        {
+          "path": "docs/compliance/voice-consent-and-ai-disclosure.md",
+          "quote": "Art. 5(1)(f)"
+        }
+      ],
+      "notes": "Repo doc: Annex III moved to 2 Dec 2027 per its sources [VERIFY]; confirm no employment-management use."
+    },
+    {
+      "id": "us-state-ai-disclosure",
+      "regulation": "US state AI / bot-disclosure laws (CA, UT, others)",
+      "category": "ai",
+      "jurisdiction": "US (state by state)",
+      "applies_to_features": [
+        "Voice AI assistant (AI disclosure)",
+        "Missed-call audit"
+      ],
+      "owner": "@OWNER_COMPLIANCE",
+      "flags": [
+        "[COUNSEL]",
+        "[VERIFY]"
+      ],
+      "last_reviewed": null,
+      "next_review": "2026-12-15",
+      "review_interval_days": 90,
+      "sources": [
+        {
+          "path": "docs/compliance/missed-call-audit.md",
+          "quote": "State AI-disclosure / bot-disclosure laws"
+        }
+      ],
+      "notes": "Repo doc names CA and UT as examples; the full state list is not established [VERIFY]."
+    },
+    {
+      "id": "wcag-2-2",
+      "regulation": "WCAG 2.2 (technical standard; no accessibility statute is cited in repo docs)",
+      "category": "accessibility",
+      "jurisdiction": "International (W3C)",
+      "applies_to_features": [
+        "Dashboard UI (target sizes, motion, contrast)"
+      ],
+      "owner": "@OWNER_COMPLIANCE",
+      "flags": [
+        "[COUNSEL]"
+      ],
+      "last_reviewed": null,
+      "next_review": "2026-12-15",
+      "review_interval_days": 180,
+      "sources": [
+        {
+          "path": "docs/design/ICON_SCALE.md",
+          "quote": "WCAG 2.2 SC 2.5.8"
+        },
+        {
+          "path": "docs/design/MOTION_POLICY.md",
+          "quote": "WCAG 2.2.2"
+        }
+      ],
+      "notes": "Which accessibility laws bind Vireek (for example in the EU or US) is not stated in repo docs, so none is seeded; add them once counsel confirms [COUNSEL]."
+    },
+    {
+      "id": "us-tcpa",
+      "regulation": "Telephone Consumer Protection Act (TCPA) and FCC Feb 2024 declaratory ruling on AI voices",
+      "category": "telecom",
+      "jurisdiction": "US",
+      "applies_to_features": [
+        "Outbound dialer",
+        "Speed-to-lead calls",
+        "SMS (sendCompliantSms)"
+      ],
+      "owner": "@OWNER_COMPLIANCE",
+      "flags": [
+        "[COUNSEL]",
+        "[VERIFY]"
+      ],
+      "last_reviewed": null,
+      "next_review": "2026-12-15",
+      "review_interval_days": 90,
+      "sources": [
+        {
+          "path": "docs/compliance/speed-to-lead-assumptions.md",
+          "quote": "FCC Declaratory Ruling, Feb 2024"
+        }
+      ],
+      "notes": "Repo assumption A1 treats AI voice as an artificial/prerecorded voice; reassigned-numbers database check is not implemented [VERIFY]."
+    },
+    {
+      "id": "us-dnc-registries",
+      "regulation": "US National and State Do-Not-Call registries",
+      "category": "telecom",
+      "jurisdiction": "US",
+      "applies_to_features": [
+        "Outbound dialer (internal DNC list)"
+      ],
+      "owner": "@OWNER_COMPLIANCE",
+      "flags": [
+        "[COUNSEL]"
+      ],
+      "last_reviewed": null,
+      "next_review": "2026-12-15",
+      "review_interval_days": 90,
+      "sources": [
+        {
+          "path": "docs/compliance/speed-to-lead-assumptions.md",
+          "quote": "National/State DNC registry"
+        }
+      ],
+      "notes": "Repo assumption A8 only; scope of registry rules not assessed."
+    },
+    {
+      "id": "us-can-spam",
+      "regulation": "CAN-SPAM Act",
+      "category": "telecom",
+      "jurisdiction": "US",
+      "applies_to_features": [
+        "Follow-up emails (missed-call audit)"
+      ],
+      "owner": "@OWNER_COMPLIANCE",
+      "flags": [
+        "[COUNSEL]"
+      ],
+      "last_reviewed": null,
+      "next_review": "2026-12-15",
+      "review_interval_days": 90,
+      "sources": [
+        {
+          "path": "docs/compliance/missed-call-audit.md",
+          "quote": "CAN-SPAM / CASL"
+        }
+      ],
+      "notes": "Repo treats the report email as transactional and follow-ups as needing separate opt-in [COUNSEL]."
+    },
+    {
+      "id": "ca-casl-crtc",
+      "regulation": "Canada's Anti-Spam Legislation (CASL) and CRTC rules",
+      "category": "telecom",
+      "jurisdiction": "Canada",
+      "applies_to_features": [
+        "SMS / email consent",
+        "Speed-to-lead calls"
+      ],
+      "owner": "@OWNER_COMPLIANCE",
+      "flags": [
+        "[COUNSEL]",
+        "[VERIFY]"
+      ],
+      "last_reviewed": null,
+      "next_review": "2026-12-15",
+      "review_interval_days": 90,
+      "sources": [
+        {
+          "path": "docs/compliance/speed-to-lead-assumptions.md",
+          "quote": "No Canadian (CRTC) rules"
+        },
+        {
+          "path": "docs/compliance/missed-call-audit.md",
+          "quote": "CAN-SPAM / CASL"
+        }
+      ],
+      "notes": "Repo doc states no CRTC rules are implemented for auto-dialing."
+    },
+    {
+      "id": "uk-pecr-au-spam-act",
+      "regulation": "UK PECR and Australian Spam Act (marketing consent)",
+      "category": "telecom",
+      "jurisdiction": "United Kingdom; Australia",
+      "applies_to_features": [
+        "Marketing SMS / email (consent ledger)"
+      ],
+      "owner": "@OWNER_COMPLIANCE",
+      "flags": [
+        "[COUNSEL]"
+      ],
+      "last_reviewed": null,
+      "next_review": "2026-12-15",
+      "review_interval_days": 90,
+      "sources": [
+        {
+          "path": "docs/compliance/transfers-and-contracts.md",
+          "quote": "Consent (CASL, PECR, Spam Act)"
+        }
+      ],
+      "notes": "Only named in the lawful-basis map of the transfers doc."
+    },
+    {
+      "id": "us-stir-shaken",
+      "regulation": "STIR/SHAKEN caller-ID authentication",
+      "category": "telecom",
+      "jurisdiction": "US",
+      "applies_to_features": [
+        "Caller ID on PBX legs"
+      ],
+      "owner": "@OWNER_COMPLIANCE",
+      "flags": [
+        "[COUNSEL]",
+        "[VERIFY]"
+      ],
+      "last_reviewed": null,
+      "next_review": "2026-12-15",
+      "review_interval_days": 180,
+      "sources": [
+        {
+          "path": "docs/security/FRAUD_ABUSE_PREVENTION.md",
+          "quote": "No STIR/SHAKEN work here"
+        }
+      ],
+      "notes": "Repo docs state no STIR/SHAKEN work exists; tracked so the gap is reviewed, not as a compliance claim [VERIFY]."
+    },
+    {
+      "id": "de-betrvg-87",
+      "regulation": "German Works Constitution Act (BetrVG s.87(1) no. 6, works-council co-determination)",
+      "category": "labor",
+      "jurisdiction": "Germany",
+      "applies_to_features": [
+        "Read-access logging (employee monitoring)",
+        "Technician/CSR analytics"
+      ],
+      "owner": "@OWNER_COMPLIANCE",
+      "flags": [
+        "[COUNSEL]"
+      ],
+      "last_reviewed": null,
+      "next_review": "2026-12-15",
+      "review_interval_days": 180,
+      "sources": [
+        {
+          "path": "docs/privacy/read-access-logging.md",
+          "quote": "BetrVG §87(1) no. 6"
+        }
+      ],
+      "notes": "Repo doc flags employee monitoring for counsel; it does not claim compliance."
+    },
+    {
+      "id": "us-eeoc-ofccp-retention",
+      "regulation": "EEOC / OFCCP and state hiring-record retention",
+      "category": "labor",
+      "jurisdiction": "US (federal and state)",
+      "applies_to_features": [
+        "Talent Network (hiring records)"
+      ],
+      "owner": "@OWNER_COMPLIANCE",
+      "flags": [
+        "[COUNSEL]"
+      ],
+      "last_reviewed": null,
+      "next_review": "2026-12-15",
+      "review_interval_days": 180,
+      "sources": [
+        {
+          "path": "docs/TALENT_NETWORK.md",
+          "quote": "EEOC/OFCCP and state retention periods"
+        }
+      ],
+      "notes": "Repo doc says retention periods must be confirmed."
+    },
+    {
+      "id": "us-fcra",
+      "regulation": "Fair Credit Reporting Act (consumer-reporting-agency risk)",
+      "category": "labor",
+      "jurisdiction": "US",
+      "applies_to_features": [
+        "Talent Network (worker data shared with businesses)"
+      ],
+      "owner": "@OWNER_COMPLIANCE",
+      "flags": [
+        "[COUNSEL]"
+      ],
+      "last_reviewed": null,
+      "next_review": "2026-12-15",
+      "review_interval_days": 180,
+      "sources": [
+        {
+          "path": "docs/TALENT_NETWORK.md",
+          "quote": "FCRA / consumer-reporting-agency risk"
+        }
+      ],
+      "notes": "Design keeps workers in control of sharing; applicability is a counsel question."
+    },
+    {
+      "id": "us-state-wage-payment",
+      "regulation": "State wage-payment timing laws",
+      "category": "labor",
+      "jurisdiction": "US (state by state)",
+      "applies_to_features": [
+        "Pay & Capital (worker payouts)"
+      ],
+      "owner": "@OWNER_COMPLIANCE",
+      "flags": [
+        "[COUNSEL]"
+      ],
+      "last_reviewed": null,
+      "next_review": "2026-12-15",
+      "review_interval_days": 180,
+      "sources": [
+        {
+          "path": "docs/PAY_AND_CAPITAL.md",
+          "quote": "state wage-payment timing laws"
+        }
+      ],
+      "notes": "Referenced only as a payout consideration."
+    },
+    {
+      "id": "us-reg-e-reg-z",
+      "regulation": "Regulation E and Regulation Z (applicability to business cards)",
+      "category": "financing",
+      "jurisdiction": "US",
+      "applies_to_features": [
+        "Pay & Capital (issued cards)"
+      ],
+      "owner": "@OWNER_COMPLIANCE",
+      "flags": [
+        "[COUNSEL]"
+      ],
+      "last_reviewed": null,
+      "next_review": "2026-12-15",
+      "review_interval_days": 90,
+      "sources": [
+        {
+          "path": "docs/PAY_AND_CAPITAL.md",
+          "quote": "Reg E/Reg Z applicability"
+        }
+      ],
+      "notes": "Repo doc: usually commercial, so applicability is [COUNSEL]."
+    },
+    {
+      "id": "us-ecoa-reg-b",
+      "regulation": "ECOA / Regulation B (fair lending, adverse-action notices)",
+      "category": "financing",
+      "jurisdiction": "US",
+      "applies_to_features": [
+        "Pay & Capital (capital pre-screen)"
+      ],
+      "owner": "@OWNER_COMPLIANCE",
+      "flags": [
+        "[COUNSEL]"
+      ],
+      "last_reviewed": null,
+      "next_review": "2026-12-15",
+      "review_interval_days": 90,
+      "sources": [
+        {
+          "path": "docs/PAY_AND_CAPITAL.md",
+          "quote": "ECOA/Reg B applies to business credit"
+        }
+      ],
+      "notes": "Repo doc: partner owns adverse-action notices; Vireek keeps pre-screen reason codes."
+    },
+    {
+      "id": "us-money-transmitter",
+      "regulation": "State money-transmitter licensing",
+      "category": "financing",
+      "jurisdiction": "US (state by state)",
+      "applies_to_features": [
+        "Pay & Capital (payouts)"
+      ],
+      "owner": "@OWNER_COMPLIANCE",
+      "flags": [
+        "[COUNSEL]"
+      ],
+      "last_reviewed": null,
+      "next_review": "2026-12-15",
+      "review_interval_days": 90,
+      "sources": [
+        {
+          "path": "docs/PAY_AND_CAPITAL.md",
+          "quote": "licensed money transmitter"
+        }
+      ],
+      "notes": "Repo doc relies on a licensed partner; Vireek licensing position is a counsel question."
+    },
+    {
+      "id": "us-nacha-card-network-rules",
+      "regulation": "NACHA and card-network rules (private-sector rules, not statutes)",
+      "category": "financing",
+      "jurisdiction": "US",
+      "applies_to_features": [
+        "Pay & Capital (payments, returns, chargebacks)"
+      ],
+      "owner": "@OWNER_COMPLIANCE",
+      "flags": [
+        "[COUNSEL]"
+      ],
+      "last_reviewed": null,
+      "next_review": "2026-12-15",
+      "review_interval_days": 90,
+      "sources": [
+        {
+          "path": "docs/PAY_AND_CAPITAL.md",
+          "quote": "NACHA/card-network rules"
+        }
+      ],
+      "notes": "Included because repo docs list them with payout obligations."
+    },
+    {
+      "id": "pci-dss",
+      "regulation": "PCI DSS (industry standard, not a statute)",
+      "category": "financing",
+      "jurisdiction": "Global (card networks)",
+      "applies_to_features": [
+        "Pay & Capital",
+        "Public compliance claims"
+      ],
+      "owner": "@OWNER_COMPLIANCE",
+      "flags": [
+        "[COUNSEL]",
+        "[VERIFY]"
+      ],
+      "last_reviewed": null,
+      "next_review": "2026-12-15",
+      "review_interval_days": 180,
+      "sources": [
+        {
+          "path": "docs/PAY_AND_CAPITAL.md",
+          "quote": "PCI DSS scope kept with the issuer"
+        }
+      ],
+      "notes": "Repo docs say Vireek never stores PAN/CVV and has no PCI DSS attestation of its own [VERIFY]."
+    }
+  ]
+}
