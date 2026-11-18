@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, CalendarPlus, CheckCircle2, PhoneCall } from 'lucide-react';
-import { hasAnalyticsConsent, onAnalyticsConsent, trackEvent } from '@/lib/analytics';
+import { hasAnalyticsConsent, onAnalyticsConsent, trackRegisteredEvent } from '@/lib/analytics';
 import { buildDemoBookingIcs } from '@/lib/enterpriseDemoBooking';
 import { EASE } from '@/lib/motion';
 import { SARAH_PHONE } from '@/lib/site';
@@ -76,7 +76,7 @@ export function ThankYouContent({ source, demoStart }: Props) {
     if (!source) return;
     return sendConversionOnce(source, demoStart, {
       // analytics-events: sign_up, generate_lead, demo_booked
-      track: trackEvent,
+      track: trackRegisteredEvent,
       hasConsent: hasAnalyticsConsent,
       onConsent: onAnalyticsConsent,
       storage: safeSessionStorage(),
