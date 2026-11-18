@@ -33,6 +33,8 @@ jobs:
           npm run test:scripts:acr
           npm run a11y:acr
         run: npm run lint:flags
+      - name: Analytics registry (unregistered events / PII properties)
+        run: npm run lint:analytics
        - name: Owners (warn-only until assigned)
         run: node scripts/governance/check-owners.mjs
       - name: Colour tokens (ratchet) + generated tokens up to date
