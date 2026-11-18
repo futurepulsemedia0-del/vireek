@@ -383,7 +383,7 @@ export function GlobalSearchPalette() {
         scope,
         kind: item.operator !== undefined ? 'operator' : item.id.split(':')[0],
         position,
-        search_ms: lastSearchMs.current,
+        ...(lastSearchMs.current !== null ? { search_ms: lastSearchMs.current } : {}),
       });
       if (item.operator !== undefined) {
         setOperatorQuery(item.operator);
