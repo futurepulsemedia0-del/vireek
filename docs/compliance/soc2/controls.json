@@ -21,7 +21,7 @@
       "ownerRole": "CEO / accountable security owner (proposed)",
       "frequencyDays": 365,
       "implementation": [
-        "docs/compliance/soc2/policies/01-information-security-policy.md"
+        "docs/compliance/policies/information-security.md"
       ],
       "collectors": [
         "repo.docs",
@@ -42,7 +42,7 @@
       "ownerRole": "CEO / People owner (proposed)",
       "frequencyDays": 365,
       "implementation": [
-        "docs/compliance/soc2/policies/11-onboarding-offboarding-policy.md",
+        "docs/compliance/policies/onboarding-offboarding.md",
         "docs/compliance/soc2/templates/training-records.csv"
       ],
       "collectors": [
@@ -128,7 +128,7 @@
       "ownerRole": "CEO / security owner (proposed)",
       "frequencyDays": 365,
       "implementation": [
-        "docs/compliance/soc2/policies/10-risk-assessment-policy.md"
+        "docs/compliance/policies/risk-assessment.md"
       ],
       "collectors": [
         "manual.risk_assessment"
@@ -445,7 +445,7 @@
       "frequencyDays": 365,
       "implementation": [
         "RUNBOOK.md",
-        "docs/compliance/soc2/policies/04-incident-response-policy.md"
+        "docs/compliance/policies/incident-response.md"
       ],
       "collectors": [
         "manual.tabletop"
@@ -545,7 +545,8 @@
       "ownerRole": "CEO / Engineering lead (proposed)",
       "frequencyDays": 365,
       "implementation": [
-        "docs/compliance/soc2/policies/05-business-continuity-dr-policy.md"
+        "docs/compliance/policies/business-continuity.md",
+        "docs/compliance/policies/backup-disaster-recovery.md"
       ],
       "collectors": [
         "manual.policy_approval"
@@ -584,7 +585,7 @@
         "supabase/functions/data-retention-sweep/index.ts",
         "supabase/functions/delete-account/index.ts",
         "supabase/migrations/20261121000000_disaster_recovery_data_governance.sql",
-        "docs/compliance/soc2/policies/07-data-retention-disposal-policy.md"
+        "docs/compliance/policies/data-classification-retention.md"
       ],
       "collectors": [
         "supabase.retention"
@@ -604,7 +605,7 @@
       "implementation": [
         "src/lib/subprocessors.ts",
         "src/pages/SubprocessorsPage.tsx",
-        "docs/compliance/soc2/policies/06-vendor-management-policy.md",
+        "docs/compliance/policies/vendor-management.md",
         "docs/compliance/soc2/templates/vendor-review-register.csv"
       ],
       "collectors": [
@@ -644,7 +645,7 @@
       "ownerRole": "Security owner (proposed)",
       "frequencyDays": 365,
       "implementation": [
-        "docs/compliance/soc2/policies/06-vendor-management-policy.md"
+        "docs/compliance/policies/vendor-management.md"
       ],
       "collectors": [
         "manual.vendor_review"
