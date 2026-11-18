@@ -5,6 +5,7 @@
 
 import { CATEGORY_FOOTPRINT, deleteCookiesMatching, onCategoryChange } from '@/lib/consent/engine';
 import { clampPageTitle, sanitizePageUrl, sanitizeEvent, type EventArgs, type EventName, type EventProblem } from '@/lib/analyticsEvents';
+import { sanitizeEvent, type EventArgs, type EventName, type EventProblem } from '@/lib/analyticsEvents';
 
 declare global {
   interface Window {
@@ -101,10 +102,28 @@ export function trackPageview(path: string, title?: string) {
   });
 }
 
-export function trackEvent(name: string, params: Record<string, unknown> = {}) {
+/**
+ * Sends a registered GA4 event. Names and parameters are checked against src/lib/analyticsEvents.ts at compile time
+ * and again at runtime: unregistered events are dropped, unregistered / mistyped / PII-looking parameters are stripped.
+ * Plan: docs/analytics/tracking-plan.md.
+ */
+export function trackEvent<N extends EventName>(name: N, ...args: EventArgs<N>): void {
+  sendEvent(name, args[0] as Record<string, unknown> | undefined);
+}
+
+/** Same runtime guard for callers whose event name is only known as data (the conversion helper). Prefer trackEvent(). */
+export function trackRegisteredEvent(name: string, params?: Record<string, unknown>): void {
+  sendEvent(name, params);
+}
+
+function sendEvent(name: string, params: Record<string, unknown> | undefined) {
   if (!consentGranted || !GA_ID) return;
+  const problems: EventProblem[] = [];
+  const event = sanitizeEvent(name, params, problems);
+  if (import.meta.env.DEV) for (const p of problems) console.error(`[analytics] ${p.event}: ${p.detail}`);
+  if (!event) return;
   ensureDataLayer();
-  window.gtag('event', name, params);
+  window.gtag('event', event.name, event.params);
 }
 
 /** Runs `cb` whenever analytics consent is granted (flushes one-off conversion events). Returns an unsubscribe fn. */
