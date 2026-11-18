@@ -43,6 +43,7 @@ import { ActivePlaybookBanner } from '@/components/playbooks/ActivePlaybookBanne
 import { PaymentFailedBanner } from '@/components/PaymentFailedBanner';
 import { UsageLimitBanner } from '@/components/UsageLimitBanner';
 import { TrialBanner } from '@/components/TrialBanner';
+import { ImpersonationBanner } from '@/components/staff/ImpersonationBanner';
 import { NotificationBell } from '@/components/NotificationBell';
 import { WhatsNewButton } from '@/components/whats-new/WhatsNewButton';
 import { ReplayTourMenu } from '@/components/tour/ReplayTourMenu';
@@ -894,6 +895,7 @@ export function DashboardLayout({
         <ChatUnreadProvider>
           <div className="min-h-screen bg-bg-primary">
             <DashboardNav activeLabel={activeLabel} />
+            <ImpersonationBanner />            
             <div className="lg:pl-60 print:pl-0">
               <main id="main-content" className="mx-auto max-w-7xl px-4 py-6 pb-24 lg:px-8 lg:py-8 print:max-w-none print:p-0">
                 <Breadcrumbs className="no-print mb-4" />
