@@ -1,0 +1,2405 @@
+--- a/package.json
++++ b/package.json
+@@ -20,6 +20,8 @@
+     "lint:motion": "node scripts/check-motion.mjs",
+     "test:motion": "node --test scripts/motion/codemod-lib.test.mjs && playwright test e2e/reduced-motion.spec.ts",
+     "compliance:check": "node scripts/compliance/validate-controls.mjs --check",
++    "compliance:calendar": "node scripts/compliance/calendar-check.mjs --check",
++    "compliance:calendar:write": "node scripts/compliance/calendar-check.mjs --write",
+     "compliance:map": "node scripts/compliance/validate-controls.mjs --write",
+     "a11y:targets": "node scripts/a11y/audit-targets.mjs",
+     "a11y:targets:check": "node scripts/a11y/audit-targets.mjs --check",
+--- a/.github/workflows/regulatory-calendar.yml
++++ b/.github/workflows/regulatory-calendar.yml
+@@ -0,0 +1,100 @@
++name: Regulatory calendar
++
++# Reminder system, not legal advice. Every entry in docs/compliance/regulatory-calendar.json is [COUNSEL].
++# - pull_request: validates the registry and that the .md rendering is current. Overdue reviews do NOT fail PRs.
++# - schedule (weekly) / workflow_dispatch: fails the run AND opens (or updates) one GitHub issue when a review is overdue.
++# Uses only the built-in GITHUB_TOKEN (issues: write); no extra secrets.
++
++on:
++  schedule:
++    - cron: '17 5 * * 1' # Mondays 05:17 UTC
++  workflow_dispatch:
++  pull_request:
++    paths:
++      - 'docs/compliance/regulatory-calendar.json'
++      - 'docs/compliance/regulatory-calendar.md'
++      - 'scripts/compliance/calendar-check.mjs'
++      - 'scripts/compliance/calendar-check.test.mjs'
++      - '.github/workflows/regulatory-calendar.yml'
++      # Cited docs: a changed quote must fail here, not weeks later.
++      - 'docs/compliance/**'
++      - 'docs/PAY_AND_CAPITAL.md'
++      - 'docs/TALENT_NETWORK.md'
++      - 'docs/SHADOW_MODE.md'
++      - 'docs/privacy/**'
++      - 'docs/design/ICON_SCALE.md'
++      - 'docs/design/MOTION_POLICY.md'
++      - 'docs/security/FRAUD_ABUSE_PREVENTION.md'
++
++concurrency:
++  group: regulatory-calendar-${{ github.ref }}
++  cancel-in-progress: false
++
++permissions:
++  contents: read
++
++jobs:
++  validate:
++    name: Validate calendar (pull requests)
++    if: github.event_name == 'pull_request'
++    runs-on: ubuntu-latest
++    timeout-minutes: 10
++    steps:
++      - uses: actions/checkout@v4
++      - uses: actions/setup-node@v4
++        with:
++          node-version: '20'
++      - name: Registry valid, .md current (overdue reviews are reported, not failed)
++        run: node scripts/compliance/calendar-check.mjs --allow-overdue
++      - name: Unit tests for the checker
++        run: |
++          npm ci --ignore-scripts
++          npx vitest run scripts/compliance/calendar-check.test.mjs
++
++  review-due:
++    name: Review-due check (scheduled)
++    if: github.event_name != 'pull_request'
++    runs-on: ubuntu-latest
++    timeout-minutes: 10
++    permissions:
++      contents: read
++      issues: write
++    env:
++      GH_TOKEN: ${{ github.token }}
++      ISSUE_TITLE: 'Regulatory calendar: reviews overdue'
++      ISSUE_LABEL: regulatory-calendar
++    steps:
++      - uses: actions/checkout@v4
++      - uses: actions/setup-node@v4
++        with:
++          node-version: '20'
++
++      - name: Check the calendar
++        id: check
++        run: |
++          set +e
++          node scripts/compliance/calendar-check.mjs --report-file "$RUNNER_TEMP/overdue.md"
++          code=$?
++          echo "code=$code" >> "$GITHUB_OUTPUT"
++          exit 0
++
++      - name: Open or update the overdue issue
++        if: steps.check.outputs.code == '3'
++        run: |
++          set -euo pipefail
++          gh label create "$ISSUE_LABEL" --color B60205 --description "Regulatory review overdue" 2>/dev/null || true
++          number=$(gh issue list --state open --label "$ISSUE_LABEL" --search "\"$ISSUE_TITLE\" in:title" --json number --jq '.[0].number // empty')
++          if [ -n "$number" ]; then
++            gh issue edit "$number" --body-file "$RUNNER_TEMP/overdue.md"
++            gh issue comment "$number" --body "Still overdue as of $(date -u +%F). Issue body updated."
++            echo "Updated issue #$number"
++          else
++            gh issue create --title "$ISSUE_TITLE" --label "$ISSUE_LABEL" --body-file "$RUNNER_TEMP/overdue.md"
++          fi
++
++      - name: Fail the run when anything is overdue or the registry is invalid
++        if: steps.check.outputs.code != '0'
++        run: |
++          code='${{ steps.check.outputs.code }}'
++          if [ "$code" = "3" ]; then echo "::error::One or more regulatory reviews are overdue (see the opened issue)."; else echo "::error::Regulatory calendar is invalid or its .md is stale (exit $code)."; fi
++          exit 1
+--- a/docs/compliance/regulatory-calendar.json
++++ b/docs/compliance/regulatory-calendar.json
+@@ -0,0 +1,736 @@
++{
++  "schema": "vireek.regulatory-calendar/v1",
++  "disclaimer": "Reminder register, not legal advice. Every entry is [COUNSEL]; [VERIFY] marks unverified facts. Seeded only from laws already referenced in repo docs; absence of a law here does not mean it does not apply.",
++  "default_review_interval_days": 180,
++  "entries": [
++    {
++      "id": "gdpr-eu",
++      "regulation": "General Data Protection Regulation (GDPR)",
++      "category": "privacy",
++      "jurisdiction": "EU / EEA",
++      "applies_to_features": [
++        "Voice AI assistant (call data, transcripts)",
++        "DPA page /gdpr-dpa",
++        "Sub-processor transfers"
++      ],
++      "owner": "@OWNER_COMPLIANCE",
++      "flags": [
++        "[COUNSEL]"
++      ],
++      "last_reviewed": null,
++      "next_review": "2026-12-15",
++      "review_interval_days": 180,
++      "sources": [
++        {
++          "path": "docs/compliance/transfers-and-contracts.md",
++          "quote": "Art. 27 representative"
++        }
++      ],
++      "notes": "Repo docs assume Customer = controller and Vireek = processor (Art. 28); contracting entity and Art. 27 representative are open items [COUNSEL]."
++    },
++    {
++      "id": "uk-gdpr",
++      "regulation": "UK GDPR",
++      "category": "privacy",
++      "jurisdiction": "United Kingdom",
++      "applies_to_features": [
++        "Voice AI assistant (transparency, recording notice)"
++      ],
++      "owner": "@OWNER_COMPLIANCE",
++      "flags": [
++        "[COUNSEL]"
++      ],
++      "last_reviewed": null,
++      "next_review": "2026-12-15",
++      "review_interval_days": 180,
++      "sources": [
++        {
++          "path": "docs/compliance/voice-consent-and-ai-disclosure.md",
++          "quote": "UK GDPR transparency"
++        }
++      ],
++      "notes": "Repo doc cites only UK GDPR transparency; no other UK statute is claimed here."
++    },
++    {
++      "id": "gdpr-chapter-v-transfers",
++      "regulation": "International transfer mechanisms: SCCs, UK IDTA/Addendum, EU-US Data Privacy Framework",
++      "category": "privacy",
++      "jurisdiction": "EU / UK / CH",
++      "applies_to_features": [
++        "Vireek to US sub-processors (Vapi, Gemini, Twilio, ...)",
++        "DPA package"
++      ],
++      "owner": "@OWNER_COMPLIANCE",
++      "flags": [
++        "[COUNSEL]",
++        "[VERIFY]"
++      ],
++      "last_reviewed": null,
++      "next_review": "2026-12-15",
++      "review_interval_days": 180,
++      "sources": [
++        {
++          "path": "docs/compliance/transfers-and-contracts.md",
++          "quote": "SCC Module 2"
++        }
++      ],
++      "notes": "No executed SCC annexes exist in the repo; DPF status of each vendor is [VERIFY]."
++    },
++    {
++      "id": "eprivacy-ttdsg",
++      "regulation": "ePrivacy rules for cookies/analytics (TTDSG s.25 in Germany)",
++      "category": "privacy",
++      "jurisdiction": "EU; Germany",
++      "applies_to_features": [
++        "Analytics cookies and consent engine"
++      ],
++      "owner": "@OWNER_COMPLIANCE",
++      "flags": [
++        "[COUNSEL]"
++      ],
++      "last_reviewed": null,
++      "next_review": "2026-12-15",
++      "review_interval_days": 180,
++      "sources": [
++        {
++          "path": "docs/compliance/transfers-and-contracts.md",
++          "quote": "ePrivacy / TTDSG s.25 in DE"
++        }
++      ],
++      "notes": "Repo doc lists consent as the basis for analytics cookies."
++    },
++    {
++      "id": "ccpa-cpra",
++      "regulation": "California Consumer Privacy Act / CPRA",
++      "category": "privacy",
++      "jurisdiction": "US-CA",
++      "applies_to_features": [
++        "Privacy notices",
++        "Missed-call audit",
++        "Employee-monitoring notice (read-access logging)"
++      ],
++      "owner": "@OWNER_COMPLIANCE",
++      "flags": [
++        "[COUNSEL]"
++      ],
++      "last_reviewed": null,
++      "next_review": "2026-12-15",
++      "review_interval_days": 180,
++      "sources": [
++        {
++          "path": "docs/compliance/missed-call-audit.md",
++          "quote": "CCPA/CPRA"
++        },
++        {
++          "path": "docs/privacy/read-access-logging.md",
++          "quote": "CPRA employee-data notice"
++        }
++      ],
++      "notes": "Referenced for privacy notices and employee-data notice; thresholds and applicability not assessed."
++    },
++    {
++      "id": "pipeda-quebec-law25",
++      "regulation": "PIPEDA and Quebec Law 25",
++      "category": "privacy",
++      "jurisdiction": "Canada; Quebec",
++      "applies_to_features": [
++        "Voice AI assistant (notice/consent)",
++        "Cross-border processing in the US"
++      ],
++      "owner": "@OWNER_COMPLIANCE",
++      "flags": [
++        "[COUNSEL]"
++      ],
++      "last_reviewed": null,
++      "next_review": "2026-12-15",
++      "review_interval_days": 180,
++      "sources": [
++        {
++          "path": "docs/compliance/transfers-and-contracts.md",
++          "quote": "PIPEDA accountability principle"
++        }
++      ],
++      "notes": "Repo doc: Law 25 requires a privacy-impact assessment before communicating personal information outside Quebec [COUNSEL]."
++    },
++    {
++      "id": "au-privacy-act-app",
++      "regulation": "Australian Privacy Principles (APP 8, overseas disclosure)",
++      "category": "privacy",
++      "jurisdiction": "Australia",
++      "applies_to_features": [
++        "Cross-border processing in the US"
++      ],
++      "owner": "@OWNER_COMPLIANCE",
++      "flags": [
++        "[COUNSEL]"
++      ],
++      "last_reviewed": null,
++      "next_review": "2026-12-15",
++      "review_interval_days": 180,
++      "sources": [
++        {
++          "path": "docs/compliance/transfers-and-contracts.md",
++          "quote": "APP 8"
++        }
++      ],
++      "notes": "Only APP 8 is referenced in repo docs."
++    },
++    {
++      "id": "hipaa",
++      "regulation": "HIPAA",
++      "category": "privacy",
++      "jurisdiction": "US",
++      "applies_to_features": [
++        "Public compliance claims (complianceStatus.ts)"
++      ],
++      "owner": "@OWNER_COMPLIANCE",
++      "flags": [
++        "[COUNSEL]"
++      ],
++      "last_reviewed": null,
++      "next_review": "2026-12-15",
++      "review_interval_days": 180,
++      "sources": [
++        {
++          "path": "docs/compliance/PUBLIC_CLAIMS_INVENTORY.md",
++          "quote": "offers NO HIPAA BAA"
++        }
++      ],
++      "notes": "Tracked because public claims mention HIPAA; the platform offers no BAA per repo docs."
++    },
++    {
++      "id": "de-stgb-201-recording",
++      "regulation": "German Criminal Code s.201 (recording the spoken word)",
++      "category": "privacy",
++      "jurisdiction": "Germany",
++      "applies_to_features": [
++        "Voice AI assistant (call recording)"
++      ],
++      "owner": "@OWNER_COMPLIANCE",
++      "flags": [
++        "[COUNSEL]"
++      ],
++      "last_reviewed": null,
++      "next_review": "2026-12-15",
++      "review_interval_days": 180,
++      "sources": [
++        {
++          "path": "docs/compliance/voice-consent-and-ai-disclosure.md",
++          "quote": "StGB s.201"
++        }
++      ],
++      "notes": "Repo doc default: opt_in_strict recording mode for Germany [COUNSEL]."
++    },
++    {
++      "id": "uk-lawful-business-practice",
++      "regulation": "UK Lawful Business Practice regulations (business-call recording)",
++      "category": "privacy",
++      "jurisdiction": "United Kingdom",
++      "applies_to_features": [
++        "Voice AI assistant (call recording)"
++      ],
++      "owner": "@OWNER_COMPLIANCE",
++      "flags": [
++        "[COUNSEL]"
++      ],
++      "last_reviewed": null,
++      "next_review": "2026-12-15",
++      "review_interval_days": 180,
++      "sources": [
++        {
++          "path": "docs/compliance/voice-consent-and-ai-disclosure.md",
++          "quote": "Lawful Business Practice regs"
++        }
++      ],
++      "notes": "Repo doc marks the UK default as notice, counsel to confirm."
++    },
++    {
++      "id": "us-call-recording-consent",
++      "regulation": "US state call-recording (all-party / two-party consent) laws",
++      "category": "privacy",
++      "jurisdiction": "US (state by state)",
++      "applies_to_features": [
++        "Voice AI assistant (call recording)",
++        "Shadow mode"
++      ],
++      "owner": "@OWNER_COMPLIANCE",
++      "flags": [
++        "[COUNSEL]"
++      ],
++      "last_reviewed": null,
++      "next_review": "2026-12-15",
++      "review_interval_days": 180,
++      "sources": [
++        {
++          "path": "docs/compliance/missed-call-audit.md",
++          "quote": "two-party-consent recording laws"
++        },
++        {
++          "path": "docs/SHADOW_MODE.md",
++          "quote": "all-party-consent states"
++        }
++      ],
++      "notes": "Repo keeps an area-code list of 13 states, described as a heuristic and not a legal opinion [COUNSEL]."
++    },
++    {
++      "id": "eu-ai-act-art50",
++      "regulation": "EU AI Act Article 50 (transparency obligations)",
++      "category": "ai",
++      "jurisdiction": "EU",
++      "applies_to_features": [
++        "Voice AI assistant (AI disclosure)",
++        "clone-voice / synthetic speech"
++      ],
++      "owner": "@OWNER_COMPLIANCE",
++      "flags": [
++        "[COUNSEL]",
++        "[VERIFY]"
++      ],
++      "last_reviewed": "2026-11-02",
++      "next_review": "2026-12-02",
++      "review_interval_days": 90,
++      "sources": [
++        {
++          "path": "docs/compliance/voice-consent-and-ai-disclosure.md",
++          "quote": "Transparency obligations under Article 50 of the AI Act"
++        }
++      ],
++      "notes": "Repo doc researched 2026-11-02 by engineering, not counsel. It lists 2 Dec 2026 for Art. 50(2) on systems placed on the market before 2 Aug 2026 [VERIFY].",
++      "last_reviewed_by": "engineering research (not counsel)"
++    },
++    {
++      "id": "eu-ai-act-art5-annex3",
++      "regulation": "EU AI Act Art. 5(1)(f) (emotion inference in the workplace) and Annex III high-risk",
++      "category": "ai",
++      "jurisdiction": "EU",
++      "applies_to_features": [
++        "QA / coaching analytics on callers and staff"
++      ],
++      "owner": "@OWNER_COMPLIANCE",
++      "flags": [
++        "[COUNSEL]",
++        "[VERIFY]"
++      ],
++      "last_reviewed": null,
++      "next_review": "2026-12-15",
++      "review_interval_days": 90,
++      "sources": [
++        {
++          "path": "docs/compliance/voice-consent-and-ai-disclosure.md",
++          "quote": "Art. 5(1)(f)"
++        }
++      ],
++      "notes": "Repo doc: Annex III moved to 2 Dec 2027 per its sources [VERIFY]; confirm no employment-management use."
++    },
++    {
++      "id": "us-state-ai-disclosure",
++      "regulation": "US state AI / bot-disclosure laws (CA, UT, others)",
++      "category": "ai",
++      "jurisdiction": "US (state by state)",
++      "applies_to_features": [
++        "Voice AI assistant (AI disclosure)",
++        "Missed-call audit"
++      ],
++      "owner": "@OWNER_COMPLIANCE",
++      "flags": [
++        "[COUNSEL]",
++        "[VERIFY]"
++      ],
++      "last_reviewed": null,
++      "next_review": "2026-12-15",
++      "review_interval_days": 90,
++      "sources": [
++        {
++          "path": "docs/compliance/missed-call-audit.md",
++          "quote": "State AI-disclosure / bot-disclosure laws"
++        }
++      ],
++      "notes": "Repo doc names CA and UT as examples; the full state list is not established [VERIFY]."
++    },
++    {
++      "id": "wcag-2-2",
++      "regulation": "WCAG 2.2 (technical standard; no accessibility statute is cited in repo docs)",
++      "category": "accessibility",
++      "jurisdiction": "International (W3C)",
++      "applies_to_features": [
++        "Dashboard UI (target sizes, motion, contrast)"
++      ],
++      "owner": "@OWNER_COMPLIANCE",
++      "flags": [
++        "[COUNSEL]"
++      ],
++      "last_reviewed": null,
++      "next_review": "2026-12-15",
++      "review_interval_days": 180,
++      "sources": [
++        {
++          "path": "docs/design/ICON_SCALE.md",
++          "quote": "WCAG 2.2 SC 2.5.8"
++        },
++        {
++          "path": "docs/design/MOTION_POLICY.md",
++          "quote": "WCAG 2.2.2"
++        }
++      ],
++      "notes": "Which accessibility laws bind Vireek (for example in the EU or US) is not stated in repo docs, so none is seeded; add them once counsel confirms [COUNSEL]."
++    },
++    {
++      "id": "us-tcpa",
++      "regulation": "Telephone Consumer Protection Act (TCPA) and FCC Feb 2024 declaratory ruling on AI voices",
++      "category": "telecom",
++      "jurisdiction": "US",
++      "applies_to_features": [
++        "Outbound dialer",
++        "Speed-to-lead calls",
++        "SMS (sendCompliantSms)"
++      ],
++      "owner": "@OWNER_COMPLIANCE",
++      "flags": [
++        "[COUNSEL]",
++        "[VERIFY]"
++      ],
++      "last_reviewed": null,
++      "next_review": "2026-12-15",
++      "review_interval_days": 90,
++      "sources": [
++        {
++          "path": "docs/compliance/speed-to-lead-assumptions.md",
++          "quote": "FCC Declaratory Ruling, Feb 2024"
++        }
++      ],
++      "notes": "Repo assumption A1 treats AI voice as an artificial/prerecorded voice; reassigned-numbers database check is not implemented [VERIFY]."
++    },
++    {
++      "id": "us-dnc-registries",
++      "regulation": "US National and State Do-Not-Call registries",
++      "category": "telecom",
++      "jurisdiction": "US",
++      "applies_to_features": [
++        "Outbound dialer (internal DNC list)"
++      ],
++      "owner": "@OWNER_COMPLIANCE",
++      "flags": [
++        "[COUNSEL]"
++      ],
++      "last_reviewed": null,
++      "next_review": "2026-12-15",
++      "review_interval_days": 90,
++      "sources": [
++        {
++          "path": "docs/compliance/speed-to-lead-assumptions.md",
++          "quote": "National/State DNC registry"
++        }
++      ],
++      "notes": "Repo assumption A8 only; scope of registry rules not assessed."
++    },
++    {
++      "id": "us-can-spam",
++      "regulation": "CAN-SPAM Act",
++      "category": "telecom",
++      "jurisdiction": "US",
++      "applies_to_features": [
++        "Follow-up emails (missed-call audit)"
++      ],
++      "owner": "@OWNER_COMPLIANCE",
++      "flags": [
++        "[COUNSEL]"
++      ],
++      "last_reviewed": null,
++      "next_review": "2026-12-15",
++      "review_interval_days": 90,
++      "sources": [
++        {
++          "path": "docs/compliance/missed-call-audit.md",
++          "quote": "CAN-SPAM / CASL"
++        }
++      ],
++      "notes": "Repo treats the report email as transactional and follow-ups as needing separate opt-in [COUNSEL]."
++    },
++    {
++      "id": "ca-casl-crtc",
++      "regulation": "Canada's Anti-Spam Legislation (CASL) and CRTC rules",
++      "category": "telecom",
++      "jurisdiction": "Canada",
++      "applies_to_features": [
++        "SMS / email consent",
++        "Speed-to-lead calls"
++      ],
++      "owner": "@OWNER_COMPLIANCE",
++      "flags": [
++        "[COUNSEL]",
++        "[VERIFY]"
++      ],
++      "last_reviewed": null,
++      "next_review": "2026-12-15",
++      "review_interval_days": 90,
++      "sources": [
++        {
++          "path": "docs/compliance/speed-to-lead-assumptions.md",
++          "quote": "No Canadian (CRTC) rules"
++        },
++        {
++          "path": "docs/compliance/missed-call-audit.md",
++          "quote": "CAN-SPAM / CASL"
++        }
++      ],
++      "notes": "Repo doc states no CRTC rules are implemented for auto-dialing."
++    },
++    {
++      "id": "uk-pecr-au-spam-act",
++      "regulation": "UK PECR and Australian Spam Act (marketing consent)",
++      "category": "telecom",
++      "jurisdiction": "United Kingdom; Australia",
++      "applies_to_features": [
++        "Marketing SMS / email (consent ledger)"
++      ],
++      "owner": "@OWNER_COMPLIANCE",
++      "flags": [
++        "[COUNSEL]"
++      ],
++      "last_reviewed": null,
++      "next_review": "2026-12-15",
++      "review_interval_days": 90,
++      "sources": [
++        {
++          "path": "docs/compliance/transfers-and-contracts.md",
++          "quote": "Consent (CASL, PECR, Spam Act)"
++        }
++      ],
++      "notes": "Only named in the lawful-basis map of the transfers doc."
++    },
++    {
++      "id": "us-stir-shaken",
++      "regulation": "STIR/SHAKEN caller-ID authentication",
++      "category": "telecom",
++      "jurisdiction": "US",
++      "applies_to_features": [
++        "Caller ID on PBX legs"
++      ],
++      "owner": "@OWNER_COMPLIANCE",
++      "flags": [
++        "[COUNSEL]",
++        "[VERIFY]"
++      ],
++      "last_reviewed": null,
++      "next_review": "2026-12-15",
++      "review_interval_days": 180,
++      "sources": [
++        {
++          "path": "docs/security/FRAUD_ABUSE_PREVENTION.md",
++          "quote": "No STIR/SHAKEN work here"
++        }
++      ],
++      "notes": "Repo docs state no STIR/SHAKEN work exists; tracked so the gap is reviewed, not as a compliance claim [VERIFY]."
++    },
++    {
++      "id": "de-betrvg-87",
++      "regulation": "German Works Constitution Act (BetrVG s.87(1) no. 6, works-council co-determination)",
++      "category": "labor",
++      "jurisdiction": "Germany",
++      "applies_to_features": [
++        "Read-access logging (employee monitoring)",
++        "Technician/CSR analytics"
++      ],
++      "owner": "@OWNER_COMPLIANCE",
++      "flags": [
++        "[COUNSEL]"
++      ],
++      "last_reviewed": null,
++      "next_review": "2026-12-15",
++      "review_interval_days": 180,
++      "sources": [
++        {
++          "path": "docs/privacy/read-access-logging.md",
++          "quote": "BetrVG §87(1) no. 6"
++        }
++      ],
++      "notes": "Repo doc flags employee monitoring for counsel; it does not claim compliance."
++    },
++    {
++      "id": "us-eeoc-ofccp-retention",
++      "regulation": "EEOC / OFCCP and state hiring-record retention",
++      "category": "labor",
++      "jurisdiction": "US (federal and state)",
++      "applies_to_features": [
++        "Talent Network (hiring records)"
++      ],
++      "owner": "@OWNER_COMPLIANCE",
++      "flags": [
++        "[COUNSEL]"
++      ],
++      "last_reviewed": null,
++      "next_review": "2026-12-15",
++      "review_interval_days": 180,
++      "sources": [
++        {
++          "path": "docs/TALENT_NETWORK.md",
++          "quote": "EEOC/OFCCP and state retention periods"
++        }
++      ],
++      "notes": "Repo doc says retention periods must be confirmed."
++    },
++    {
++      "id": "us-fcra",
++      "regulation": "Fair Credit Reporting Act (consumer-reporting-agency risk)",
++      "category": "labor",
++      "jurisdiction": "US",
++      "applies_to_features": [
++        "Talent Network (worker data shared with businesses)"
++      ],
++      "owner": "@OWNER_COMPLIANCE",
++      "flags": [
++        "[COUNSEL]"
++      ],
++      "last_reviewed": null,
++      "next_review": "2026-12-15",
++      "review_interval_days": 180,
++      "sources": [
++        {
++          "path": "docs/TALENT_NETWORK.md",
++          "quote": "FCRA / consumer-reporting-agency risk"
++        }
++      ],
++      "notes": "Design keeps workers in control of sharing; applicability is a counsel question."
++    },
++    {
++      "id": "us-state-wage-payment",
++      "regulation": "State wage-payment timing laws",
++      "category": "labor",
++      "jurisdiction": "US (state by state)",
++      "applies_to_features": [
++        "Pay & Capital (worker payouts)"
++      ],
++      "owner": "@OWNER_COMPLIANCE",
++      "flags": [
++        "[COUNSEL]"
++      ],
++      "last_reviewed": null,
++      "next_review": "2026-12-15",
++      "review_interval_days": 180,
++      "sources": [
++        {
++          "path": "docs/PAY_AND_CAPITAL.md",
++          "quote": "state wage-payment timing laws"
++        }
++      ],
++      "notes": "Referenced only as a payout consideration."
++    },
++    {
++      "id": "us-reg-e-reg-z",
++      "regulation": "Regulation E and Regulation Z (applicability to business cards)",
++      "category": "financing",
++      "jurisdiction": "US",
++      "applies_to_features": [
++        "Pay & Capital (issued cards)"
++      ],
++      "owner": "@OWNER_COMPLIANCE",
++      "flags": [
++        "[COUNSEL]"
++      ],
++      "last_reviewed": null,
++      "next_review": "2026-12-15",
++      "review_interval_days": 90,
++      "sources": [
++        {
++          "path": "docs/PAY_AND_CAPITAL.md",
++          "quote": "Reg E/Reg Z applicability"
++        }
++      ],
++      "notes": "Repo doc: usually commercial, so applicability is [COUNSEL]."
++    },
++    {
++      "id": "us-ecoa-reg-b",
++      "regulation": "ECOA / Regulation B (fair lending, adverse-action notices)",
++      "category": "financing",
++      "jurisdiction": "US",
++      "applies_to_features": [
++        "Pay & Capital (capital pre-screen)"
++      ],
++      "owner": "@OWNER_COMPLIANCE",
++      "flags": [
++        "[COUNSEL]"
++      ],
++      "last_reviewed": null,
++      "next_review": "2026-12-15",
++      "review_interval_days": 90,
++      "sources": [
++        {
++          "path": "docs/PAY_AND_CAPITAL.md",
++          "quote": "ECOA/Reg B applies to business credit"
++        }
++      ],
++      "notes": "Repo doc: partner owns adverse-action notices; Vireek keeps pre-screen reason codes."
++    },
++    {
++      "id": "us-money-transmitter",
++      "regulation": "State money-transmitter licensing",
++      "category": "financing",
++      "jurisdiction": "US (state by state)",
++      "applies_to_features": [
++        "Pay & Capital (payouts)"
++      ],
++      "owner": "@OWNER_COMPLIANCE",
++      "flags": [
++        "[COUNSEL]"
++      ],
++      "last_reviewed": null,
++      "next_review": "2026-12-15",
++      "review_interval_days": 90,
++      "sources": [
++        {
++          "path": "docs/PAY_AND_CAPITAL.md",
++          "quote": "licensed money transmitter"
++        }
++      ],
++      "notes": "Repo doc relies on a licensed partner; Vireek licensing position is a counsel question."
++    },
++    {
++      "id": "us-nacha-card-network-rules",
++      "regulation": "NACHA and card-network rules (private-sector rules, not statutes)",
++      "category": "financing",
++      "jurisdiction": "US",
++      "applies_to_features": [
++        "Pay & Capital (payments, returns, chargebacks)"
++      ],
++      "owner": "@OWNER_COMPLIANCE",
++      "flags": [
++        "[COUNSEL]"
++      ],
++      "last_reviewed": null,
++      "next_review": "2026-12-15",
++      "review_interval_days": 90,
++      "sources": [
++        {
++          "path": "docs/PAY_AND_CAPITAL.md",
++          "quote": "NACHA/card-network rules"
++        }
++      ],
++      "notes": "Included because repo docs list them with payout obligations."
++    },
++    {
++      "id": "pci-dss",
++      "regulation": "PCI DSS (industry standard, not a statute)",
++      "category": "financing",
++      "jurisdiction": "Global (card networks)",
++      "applies_to_features": [
++        "Pay & Capital",
++        "Public compliance claims"
++      ],
++      "owner": "@OWNER_COMPLIANCE",
++      "flags": [
++        "[COUNSEL]",
++        "[VERIFY]"
++      ],
++      "last_reviewed": null,
++      "next_review": "2026-12-15",
++      "review_interval_days": 180,
++      "sources": [
++        {
++          "path": "docs/PAY_AND_CAPITAL.md",
++          "quote": "PCI DSS scope kept with the issuer"
++        }
++      ],
++      "notes": "Repo docs say Vireek never stores PAN/CVV and has no PCI DSS attestation of its own [VERIFY]."
++    }
++  ]
++}
+--- a/docs/compliance/regulatory-calendar.md
++++ b/docs/compliance/regulatory-calendar.md
+@@ -0,0 +1,225 @@
++# Regulatory calendar
++
++<!-- GENERATED from docs/compliance/regulatory-calendar.json. Do not edit by hand: run `npm run compliance:calendar:write`. -->
++
++> Reminder register, not legal advice. Every entry is [COUNSEL]; [VERIFY] marks unverified facts. Seeded only from laws already referenced in repo docs; absence of a law here does not mean it does not apply.
++
++Every entry is **[COUNSEL]**: nothing here has been confirmed by a lawyer. Entries are seeded only from laws that are already referenced in repo docs (see *Sources*). `[VERIFY]` marks a fact that still needs checking. A review is overdue when `next_review` is before today; `scripts/compliance/calendar-check.mjs` and `.github/workflows/regulatory-calendar.yml` enforce that.
++
++Entries: 30. Owners that are still `@OWNER_*` placeholders must be replaced together with CODEOWNERS.
++
++## Privacy
++
++| ID | Regulation | Jurisdiction | Applies to feature | Owner | Last reviewed | Next review | Flags |
++| --- | --- | --- | --- | --- | --- | --- | --- |
++| `gdpr-eu` | General Data Protection Regulation (GDPR) | EU / EEA | Voice AI assistant (call data, transcripts); DPA page /gdpr-dpa; Sub-processor transfers | @OWNER_COMPLIANCE | never | 2026-12-15 | [COUNSEL] |
++| `uk-gdpr` | UK GDPR | United Kingdom | Voice AI assistant (transparency, recording notice) | @OWNER_COMPLIANCE | never | 2026-12-15 | [COUNSEL] |
++| `gdpr-chapter-v-transfers` | International transfer mechanisms: SCCs, UK IDTA/Addendum, EU-US Data Privacy Framework | EU / UK / CH | Vireek to US sub-processors (Vapi, Gemini, Twilio, ...); DPA package | @OWNER_COMPLIANCE | never | 2026-12-15 | [COUNSEL] [VERIFY] |
++| `eprivacy-ttdsg` | ePrivacy rules for cookies/analytics (TTDSG s.25 in Germany) | EU; Germany | Analytics cookies and consent engine | @OWNER_COMPLIANCE | never | 2026-12-15 | [COUNSEL] |
++| `ccpa-cpra` | California Consumer Privacy Act / CPRA | US-CA | Privacy notices; Missed-call audit; Employee-monitoring notice (read-access logging) | @OWNER_COMPLIANCE | never | 2026-12-15 | [COUNSEL] |
++| `pipeda-quebec-law25` | PIPEDA and Quebec Law 25 | Canada; Quebec | Voice AI assistant (notice/consent); Cross-border processing in the US | @OWNER_COMPLIANCE | never | 2026-12-15 | [COUNSEL] |
++| `au-privacy-act-app` | Australian Privacy Principles (APP 8, overseas disclosure) | Australia | Cross-border processing in the US | @OWNER_COMPLIANCE | never | 2026-12-15 | [COUNSEL] |
++| `hipaa` | HIPAA | US | Public compliance claims (complianceStatus.ts) | @OWNER_COMPLIANCE | never | 2026-12-15 | [COUNSEL] |
++| `de-stgb-201-recording` | German Criminal Code s.201 (recording the spoken word) | Germany | Voice AI assistant (call recording) | @OWNER_COMPLIANCE | never | 2026-12-15 | [COUNSEL] |
++| `uk-lawful-business-practice` | UK Lawful Business Practice regulations (business-call recording) | United Kingdom | Voice AI assistant (call recording) | @OWNER_COMPLIANCE | never | 2026-12-15 | [COUNSEL] |
++| `us-call-recording-consent` | US state call-recording (all-party / two-party consent) laws | US (state by state) | Voice AI assistant (call recording); Shadow mode | @OWNER_COMPLIANCE | never | 2026-12-15 | [COUNSEL] |
++
++## AI
++
++| ID | Regulation | Jurisdiction | Applies to feature | Owner | Last reviewed | Next review | Flags |
++| --- | --- | --- | --- | --- | --- | --- | --- |
++| `eu-ai-act-art50` | EU AI Act Article 50 (transparency obligations) | EU | Voice AI assistant (AI disclosure); clone-voice / synthetic speech | @OWNER_COMPLIANCE | 2026-11-02 (engineering research (not counsel)) | 2026-12-02 | [COUNSEL] [VERIFY] |
++| `eu-ai-act-art5-annex3` | EU AI Act Art. 5(1)(f) (emotion inference in the workplace) and Annex III high-risk | EU | QA / coaching analytics on callers and staff | @OWNER_COMPLIANCE | never | 2026-12-15 | [COUNSEL] [VERIFY] |
++| `us-state-ai-disclosure` | US state AI / bot-disclosure laws (CA, UT, others) | US (state by state) | Voice AI assistant (AI disclosure); Missed-call audit | @OWNER_COMPLIANCE | never | 2026-12-15 | [COUNSEL] [VERIFY] |
++
++## Accessibility
++
++| ID | Regulation | Jurisdiction | Applies to feature | Owner | Last reviewed | Next review | Flags |
++| --- | --- | --- | --- | --- | --- | --- | --- |
++| `wcag-2-2` | WCAG 2.2 (technical standard; no accessibility statute is cited in repo docs) | International (W3C) | Dashboard UI (target sizes, motion, contrast) | @OWNER_COMPLIANCE | never | 2026-12-15 | [COUNSEL] |
++
++## Telecom
++
++| ID | Regulation | Jurisdiction | Applies to feature | Owner | Last reviewed | Next review | Flags |
++| --- | --- | --- | --- | --- | --- | --- | --- |
++| `us-tcpa` | Telephone Consumer Protection Act (TCPA) and FCC Feb 2024 declaratory ruling on AI voices | US | Outbound dialer; Speed-to-lead calls; SMS (sendCompliantSms) | @OWNER_COMPLIANCE | never | 2026-12-15 | [COUNSEL] [VERIFY] |
++| `us-dnc-registries` | US National and State Do-Not-Call registries | US | Outbound dialer (internal DNC list) | @OWNER_COMPLIANCE | never | 2026-12-15 | [COUNSEL] |
++| `us-can-spam` | CAN-SPAM Act | US | Follow-up emails (missed-call audit) | @OWNER_COMPLIANCE | never | 2026-12-15 | [COUNSEL] |
++| `ca-casl-crtc` | Canada's Anti-Spam Legislation (CASL) and CRTC rules | Canada | SMS / email consent; Speed-to-lead calls | @OWNER_COMPLIANCE | never | 2026-12-15 | [COUNSEL] [VERIFY] |
++| `uk-pecr-au-spam-act` | UK PECR and Australian Spam Act (marketing consent) | United Kingdom; Australia | Marketing SMS / email (consent ledger) | @OWNER_COMPLIANCE | never | 2026-12-15 | [COUNSEL] |
++| `us-stir-shaken` | STIR/SHAKEN caller-ID authentication | US | Caller ID on PBX legs | @OWNER_COMPLIANCE | never | 2026-12-15 | [COUNSEL] [VERIFY] |
++
++## Labor
++
++| ID | Regulation | Jurisdiction | Applies to feature | Owner | Last reviewed | Next review | Flags |
++| --- | --- | --- | --- | --- | --- | --- | --- |
++| `de-betrvg-87` | German Works Constitution Act (BetrVG s.87(1) no. 6, works-council co-determination) | Germany | Read-access logging (employee monitoring); Technician/CSR analytics | @OWNER_COMPLIANCE | never | 2026-12-15 | [COUNSEL] |
++| `us-eeoc-ofccp-retention` | EEOC / OFCCP and state hiring-record retention | US (federal and state) | Talent Network (hiring records) | @OWNER_COMPLIANCE | never | 2026-12-15 | [COUNSEL] |
++| `us-fcra` | Fair Credit Reporting Act (consumer-reporting-agency risk) | US | Talent Network (worker data shared with businesses) | @OWNER_COMPLIANCE | never | 2026-12-15 | [COUNSEL] |
++| `us-state-wage-payment` | State wage-payment timing laws | US (state by state) | Pay & Capital (worker payouts) | @OWNER_COMPLIANCE | never | 2026-12-15 | [COUNSEL] |
++
++## Financing
++
++| ID | Regulation | Jurisdiction | Applies to feature | Owner | Last reviewed | Next review | Flags |
++| --- | --- | --- | --- | --- | --- | --- | --- |
++| `us-reg-e-reg-z` | Regulation E and Regulation Z (applicability to business cards) | US | Pay & Capital (issued cards) | @OWNER_COMPLIANCE | never | 2026-12-15 | [COUNSEL] |
++| `us-ecoa-reg-b` | ECOA / Regulation B (fair lending, adverse-action notices) | US | Pay & Capital (capital pre-screen) | @OWNER_COMPLIANCE | never | 2026-12-15 | [COUNSEL] |
++| `us-money-transmitter` | State money-transmitter licensing | US (state by state) | Pay & Capital (payouts) | @OWNER_COMPLIANCE | never | 2026-12-15 | [COUNSEL] |
++| `us-nacha-card-network-rules` | NACHA and card-network rules (private-sector rules, not statutes) | US | Pay & Capital (payments, returns, chargebacks) | @OWNER_COMPLIANCE | never | 2026-12-15 | [COUNSEL] |
++| `pci-dss` | PCI DSS (industry standard, not a statute) | Global (card networks) | Pay & Capital; Public compliance claims | @OWNER_COMPLIANCE | never | 2026-12-15 | [COUNSEL] [VERIFY] |
++
++## Sources and notes
++
++### `gdpr-eu`
++
++- Source: `docs/compliance/transfers-and-contracts.md` — "Art. 27 representative"
++- Note: Repo docs assume Customer = controller and Vireek = processor (Art. 28); contracting entity and Art. 27 representative are open items [COUNSEL].
++
++### `uk-gdpr`
++
++- Source: `docs/compliance/voice-consent-and-ai-disclosure.md` — "UK GDPR transparency"
++- Note: Repo doc cites only UK GDPR transparency; no other UK statute is claimed here.
++
++### `gdpr-chapter-v-transfers`
++
++- Source: `docs/compliance/transfers-and-contracts.md` — "SCC Module 2"
++- Note: No executed SCC annexes exist in the repo; DPF status of each vendor is [VERIFY].
++
++### `eprivacy-ttdsg`
++
++- Source: `docs/compliance/transfers-and-contracts.md` — "ePrivacy / TTDSG s.25 in DE"
++- Note: Repo doc lists consent as the basis for analytics cookies.
++
++### `ccpa-cpra`
++
++- Source: `docs/compliance/missed-call-audit.md` — "CCPA/CPRA"
++- Source: `docs/privacy/read-access-logging.md` — "CPRA employee-data notice"
++- Note: Referenced for privacy notices and employee-data notice; thresholds and applicability not assessed.
++
++### `pipeda-quebec-law25`
++
++- Source: `docs/compliance/transfers-and-contracts.md` — "PIPEDA accountability principle"
++- Note: Repo doc: Law 25 requires a privacy-impact assessment before communicating personal information outside Quebec [COUNSEL].
++
++### `au-privacy-act-app`
++
++- Source: `docs/compliance/transfers-and-contracts.md` — "APP 8"
++- Note: Only APP 8 is referenced in repo docs.
++
++### `hipaa`
++
++- Source: `docs/compliance/PUBLIC_CLAIMS_INVENTORY.md` — "offers NO HIPAA BAA"
++- Note: Tracked because public claims mention HIPAA; the platform offers no BAA per repo docs.
++
++### `de-stgb-201-recording`
++
++- Source: `docs/compliance/voice-consent-and-ai-disclosure.md` — "StGB s.201"
++- Note: Repo doc default: opt_in_strict recording mode for Germany [COUNSEL].
++
++### `uk-lawful-business-practice`
++
++- Source: `docs/compliance/voice-consent-and-ai-disclosure.md` — "Lawful Business Practice regs"
++- Note: Repo doc marks the UK default as notice, counsel to confirm.
++
++### `us-call-recording-consent`
++
++- Source: `docs/compliance/missed-call-audit.md` — "two-party-consent recording laws"
++- Source: `docs/SHADOW_MODE.md` — "all-party-consent states"
++- Note: Repo keeps an area-code list of 13 states, described as a heuristic and not a legal opinion [COUNSEL].
++
++### `eu-ai-act-art50`
++
++- Source: `docs/compliance/voice-consent-and-ai-disclosure.md` — "Transparency obligations under Article 50 of the AI Act"
++- Note: Repo doc researched 2026-11-02 by engineering, not counsel. It lists 2 Dec 2026 for Art. 50(2) on systems placed on the market before 2 Aug 2026 [VERIFY].
++
++### `eu-ai-act-art5-annex3`
++
++- Source: `docs/compliance/voice-consent-and-ai-disclosure.md` — "Art. 5(1)(f)"
++- Note: Repo doc: Annex III moved to 2 Dec 2027 per its sources [VERIFY]; confirm no employment-management use.
++
++### `us-state-ai-disclosure`
++
++- Source: `docs/compliance/missed-call-audit.md` — "State AI-disclosure / bot-disclosure laws"
++- Note: Repo doc names CA and UT as examples; the full state list is not established [VERIFY].
++
++### `wcag-2-2`
++
++- Source: `docs/design/ICON_SCALE.md` — "WCAG 2.2 SC 2.5.8"
++- Source: `docs/design/MOTION_POLICY.md` — "WCAG 2.2.2"
++- Note: Which accessibility laws bind Vireek (for example in the EU or US) is not stated in repo docs, so none is seeded; add them once counsel confirms [COUNSEL].
++
++### `us-tcpa`
++
++- Source: `docs/compliance/speed-to-lead-assumptions.md` — "FCC Declaratory Ruling, Feb 2024"
++- Note: Repo assumption A1 treats AI voice as an artificial/prerecorded voice; reassigned-numbers database check is not implemented [VERIFY].
++
++### `us-dnc-registries`
++
++- Source: `docs/compliance/speed-to-lead-assumptions.md` — "National/State DNC registry"
++- Note: Repo assumption A8 only; scope of registry rules not assessed.
++
++### `us-can-spam`
++
++- Source: `docs/compliance/missed-call-audit.md` — "CAN-SPAM / CASL"
++- Note: Repo treats the report email as transactional and follow-ups as needing separate opt-in [COUNSEL].
++
++### `ca-casl-crtc`
++
++- Source: `docs/compliance/speed-to-lead-assumptions.md` — "No Canadian (CRTC) rules"
++- Source: `docs/compliance/missed-call-audit.md` — "CAN-SPAM / CASL"
++- Note: Repo doc states no CRTC rules are implemented for auto-dialing.
++
++### `uk-pecr-au-spam-act`
++
++- Source: `docs/compliance/transfers-and-contracts.md` — "Consent (CASL, PECR, Spam Act)"
++- Note: Only named in the lawful-basis map of the transfers doc.
++
++### `us-stir-shaken`
++
++- Source: `docs/security/FRAUD_ABUSE_PREVENTION.md` — "No STIR/SHAKEN work here"
++- Note: Repo docs state no STIR/SHAKEN work exists; tracked so the gap is reviewed, not as a compliance claim [VERIFY].
++
++### `de-betrvg-87`
++
++- Source: `docs/privacy/read-access-logging.md` — "BetrVG §87(1) no. 6"
++- Note: Repo doc flags employee monitoring for counsel; it does not claim compliance.
++
++### `us-eeoc-ofccp-retention`
++
++- Source: `docs/TALENT_NETWORK.md` — "EEOC/OFCCP and state retention periods"
++- Note: Repo doc says retention periods must be confirmed.
++
++### `us-fcra`
++
++- Source: `docs/TALENT_NETWORK.md` — "FCRA / consumer-reporting-agency risk"
++- Note: Design keeps workers in control of sharing; applicability is a counsel question.
++
++### `us-state-wage-payment`
++
++- Source: `docs/PAY_AND_CAPITAL.md` — "state wage-payment timing laws"
++- Note: Referenced only as a payout consideration.
++
++### `us-reg-e-reg-z`
++
++- Source: `docs/PAY_AND_CAPITAL.md` — "Reg E/Reg Z applicability"
++- Note: Repo doc: usually commercial, so applicability is [COUNSEL].
++
++### `us-ecoa-reg-b`
++
++- Source: `docs/PAY_AND_CAPITAL.md` — "ECOA/Reg B applies to business credit"
++- Note: Repo doc: partner owns adverse-action notices; Vireek keeps pre-screen reason codes.
++
++### `us-money-transmitter`
++
++- Source: `docs/PAY_AND_CAPITAL.md` — "licensed money transmitter"
++- Note: Repo doc relies on a licensed partner; Vireek licensing position is a counsel question.
++
++### `us-nacha-card-network-rules`
++
++- Source: `docs/PAY_AND_CAPITAL.md` — "NACHA/card-network rules"
++- Note: Included because repo docs list them with payout obligations.
++
++### `pci-dss`
++
++- Source: `docs/PAY_AND_CAPITAL.md` — "PCI DSS scope kept with the issuer"
++- Note: Repo docs say Vireek never stores PAN/CVV and has no PCI DSS attestation of its own [VERIFY].
+--- a/scripts/compliance/calendar-check.mjs
++++ b/scripts/compliance/calendar-check.mjs
+@@ -0,0 +1,372 @@
++#!/usr/bin/env node
++// scripts/compliance/calendar-check.mjs
++//
++// Validates docs/compliance/regulatory-calendar.json, keeps its readable
++// rendering (docs/compliance/regulatory-calendar.md) in sync, and reports
++// reviews that are overdue or due soon.
++//
++//   node scripts/compliance/calendar-check.mjs                 validate + md in sync + overdue check (= --check)
++//   node scripts/compliance/calendar-check.mjs --write         regenerate the .md, then check
++//   node scripts/compliance/calendar-check.mjs --today 2027-03-01   pretend today is that UTC date
++//   node scripts/compliance/calendar-check.mjs --warn-days 30       "due soon" window (default 14)
++//   node scripts/compliance/calendar-check.mjs --allow-overdue      overdue is reported but is not a failure (PR validation)
++//   node scripts/compliance/calendar-check.mjs --strict             owner placeholders (@OWNER_*) become errors
++//   node scripts/compliance/calendar-check.mjs --report-file out.md write a GitHub-issue body when anything is overdue
++//   node scripts/compliance/calendar-check.mjs --json               machine-readable result on stdout
++//
++// Exit codes: 0 ok | 1 invalid registry / stale .md / bad usage | 3 at least one review overdue.
++//
++// What this proves: the registry is well formed, every entry cites text that
++// really exists in a repo doc, and no review date has passed. What it does NOT
++// prove: that any legal statement is correct. Every entry is [COUNSEL]; this
++// file is a reminder system, not legal advice.
++
++import { existsSync, readFileSync, writeFileSync } from 'node:fs';
++import { dirname, isAbsolute, join, resolve } from 'node:path';
++import { fileURLToPath } from 'node:url';
++
++const HERE = dirname(fileURLToPath(import.meta.url));
++export const REPO_ROOT = resolve(HERE, '..', '..');
++export const CALENDAR_PATH = 'docs/compliance/regulatory-calendar.json';
++export const CALENDAR_MD_PATH = 'docs/compliance/regulatory-calendar.md';
++export const CALENDAR_SCHEMA = 'vireek.regulatory-calendar/v1';
++
++export const CATEGORIES = Object.freeze(['privacy', 'ai', 'accessibility', 'telecom', 'labor', 'financing']);
++export const CATEGORY_TITLES = Object.freeze({
++  privacy: 'Privacy',
++  ai: 'AI',
++  accessibility: 'Accessibility',
++  telecom: 'Telecom',
++  labor: 'Labor',
++  financing: 'Financing',
++});
++
++export const EXIT_OK = 0;
++export const EXIT_INVALID = 1;
++export const EXIT_OVERDUE = 3;
++export const DEFAULT_WARN_DAYS = 14;
++
++const ID_RE = /^[a-z][a-z0-9-]{2,60}$/;
++const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
++const FLAGS = Object.freeze(['[COUNSEL]', '[VERIFY]']);
++const ENTRY_KEYS = new Set([
++  'id', 'regulation', 'category', 'jurisdiction', 'applies_to_features', 'owner', 'flags',
++  'last_reviewed', 'last_reviewed_by', 'next_review', 'review_interval_days', 'sources', 'notes',
++]);
++
++// ---------------------------------------------------------------- dates (UTC, day precision)
++
++/** 'YYYY-MM-DD' -> days since epoch, or null if it is not a real calendar date. */
++export function dayNumber(s) {
++  if (typeof s !== 'string' || !DATE_RE.test(s)) return null;
++  const [y, m, d] = s.split('-').map(Number);
++  const t = Date.UTC(y, m - 1, d);
++  const back = new Date(t);
++  if (back.getUTCFullYear() !== y || back.getUTCMonth() !== m - 1 || back.getUTCDate() !== d) return null;
++  return Math.round(t / 86_400_000);
++}
++
++export const todayUtc = () => new Date().toISOString().slice(0, 10);
++
++// ---------------------------------------------------------------- validation
++
++const isNonEmptyString = (v) => typeof v === 'string' && v.trim().length > 0;
++
++/** Repo-relative path, no traversal, no absolute path. */
++export function isSafeRelativePath(p) {
++  if (!isNonEmptyString(p) || isAbsolute(p) || p.includes('\\') || p.includes('\0')) return false;
++  return !p.split('/').some((seg) => seg === '..' || seg === '');
++}
++
++/**
++ * @param {any} cal parsed regulatory-calendar.json
++ * @param {{ readText?: (relPath: string) => string | null, today?: string, strict?: boolean }} [opts]
++ * @returns {{ errors: string[], warnings: string[] }}
++ */
++export function validateCalendar(cal, { readText = defaultReadText, today = todayUtc(), strict = false } = {}) {
++  const errors = [];
++  const warnings = [];
++  const todayN = dayNumber(today);
++
++  if (cal === null || typeof cal !== 'object' || Array.isArray(cal)) {
++    return { errors: ['calendar: root must be an object'], warnings };
++  }
++  if (cal.schema !== CALENDAR_SCHEMA) errors.push(`calendar: schema must be "${CALENDAR_SCHEMA}"`);
++  if (!isNonEmptyString(cal.disclaimer)) errors.push('calendar: disclaimer is required');
++  if (!Array.isArray(cal.entries) || cal.entries.length === 0) {
++    errors.push('calendar: entries must be a non-empty array');
++    return { errors, warnings };
++  }
++
++  const seen = new Set();
++  const perCategory = Object.fromEntries(CATEGORIES.map((c) => [c, 0]));
++  const placeholderOwners = [];
++
++  cal.entries.forEach((e, i) => {
++    const at = `entries[${i}]${e && typeof e.id === 'string' ? ` (${e.id})` : ''}`;
++    if (e === null || typeof e !== 'object' || Array.isArray(e)) {
++      errors.push(`${at}: must be an object`);
++      return;
++    }
++    for (const k of Object.keys(e)) if (!ENTRY_KEYS.has(k)) errors.push(`${at}: unknown field "${k}"`);
++
++    if (!ID_RE.test(e.id ?? '')) errors.push(`${at}: id must match ${ID_RE}`);
++    else if (seen.has(e.id)) errors.push(`${at}: duplicate id`);
++    else seen.add(e.id);
++
++    if (!isNonEmptyString(e.regulation)) errors.push(`${at}: regulation is required`);
++    if (!CATEGORIES.includes(e.category)) errors.push(`${at}: category must be one of ${CATEGORIES.join(', ')}`);
++    else perCategory[e.category] += 1;
++    if (!isNonEmptyString(e.jurisdiction)) errors.push(`${at}: jurisdiction is required`);
++
++    if (!Array.isArray(e.applies_to_features) || e.applies_to_features.length === 0 || !e.applies_to_features.every(isNonEmptyString)) {
++      errors.push(`${at}: applies_to_features must be a non-empty array of non-empty strings`);
++    }
++
++    if (!isNonEmptyString(e.owner)) errors.push(`${at}: owner is required`);
++    else if (/@OWNER_/.test(e.owner)) placeholderOwners.push(e.owner);
++
++    if (!Array.isArray(e.flags) || !e.flags.every((f) => FLAGS.includes(f)) || !e.flags.includes('[COUNSEL]')) {
++      errors.push(`${at}: flags must contain "[COUNSEL]" and only ${FLAGS.join(' / ')}`);
++    }
++
++    const lastN = e.last_reviewed === null ? null : dayNumber(e.last_reviewed);
++    if (e.last_reviewed !== null && lastN === null) errors.push(`${at}: last_reviewed must be null or a real YYYY-MM-DD date`);
++    if (e.last_reviewed === undefined) errors.push(`${at}: last_reviewed is required (use null if never reviewed)`);
++    if (lastN !== null) {
++      if (!isNonEmptyString(e.last_reviewed_by)) errors.push(`${at}: last_reviewed_by is required when last_reviewed is set`);
++      if (todayN !== null && lastN > todayN) errors.push(`${at}: last_reviewed is in the future`);
++    } else if (e.last_reviewed_by !== undefined && e.last_reviewed_by !== null) {
++      errors.push(`${at}: last_reviewed_by must be absent/null when last_reviewed is null`);
++    }
++
++    const nextN = dayNumber(e.next_review);
++    if (nextN === null) errors.push(`${at}: next_review must be a real YYYY-MM-DD date`);
++    else if (lastN !== null && nextN < lastN) errors.push(`${at}: next_review is before last_reviewed`);
++
++    if (e.review_interval_days !== undefined && !(Number.isInteger(e.review_interval_days) && e.review_interval_days >= 7 && e.review_interval_days <= 730)) {
++      errors.push(`${at}: review_interval_days must be an integer between 7 and 730`);
++    }
++
++    if (!Array.isArray(e.sources) || e.sources.length === 0) {
++      errors.push(`${at}: sources must be a non-empty array (the registry is seeded only from laws already referenced in repo docs)`);
++    } else {
++      e.sources.forEach((s, j) => {
++        const sat = `${at}.sources[${j}]`;
++        if (s === null || typeof s !== 'object') return errors.push(`${sat}: must be an object`);
++        if (!isSafeRelativePath(s.path)) return errors.push(`${sat}: path must be a safe repo-relative path`);
++        if (!isNonEmptyString(s.quote)) return errors.push(`${sat}: quote is required`);
++        const text = readText(s.path);
++        if (text === null) errors.push(`${sat}: ${s.path} does not exist`);
++        else if (!text.includes(s.quote)) errors.push(`${sat}: text "${s.quote}" not found in ${s.path} (doc changed? update the entry or the quote)`);
++      });
++    }
++
++    if (e.notes !== undefined && typeof e.notes !== 'string') errors.push(`${at}: notes must be a string`);
++  });
++
++  if (placeholderOwners.length > 0) {
++    (strict ? errors : warnings).push(`${placeholderOwners.length} entr${placeholderOwners.length === 1 ? 'y has' : 'ies have'} a placeholder owner (@OWNER_*); replace it together with CODEOWNERS (${[...new Set(placeholderOwners)].join(', ')})`);
++  }
++  for (const c of CATEGORIES) if (perCategory[c] === 0) errors.push(`calendar: no entry for category "${c}"`);
++  return { errors, warnings };
++}
++
++// ---------------------------------------------------------------- overdue logic
++
++/**
++ * An entry is overdue when next_review is strictly before today (a review
++ * due today is still on time).
++ * @returns {{ overdue: any[], dueSoon: any[] }} each sorted by next_review then id
++ */
++export function evaluateReviews(entries, today, warnDays = DEFAULT_WARN_DAYS) {
++  const todayN = dayNumber(today);
++  if (todayN === null) throw new Error(`evaluateReviews: invalid today "${today}"`);
++  const overdue = [];
++  const dueSoon = [];
++  for (const e of entries) {
++    const n = dayNumber(e.next_review);
++    if (n === null) continue; // reported by validateCalendar
++    if (n < todayN) overdue.push({ ...e, daysOverdue: todayN - n });
++    else if (n - todayN <= warnDays) dueSoon.push({ ...e, daysLeft: n - todayN });
++  }
++  const byDue = (a, b) => (a.next_review < b.next_review ? -1 : a.next_review > b.next_review ? 1 : a.id < b.id ? -1 : 1);
++  overdue.sort(byDue);
++  dueSoon.sort(byDue);
++  return { overdue, dueSoon };
++}
++
++// ---------------------------------------------------------------- rendering
++
++const esc = (s) => String(s).replace(/\\/g, '\\\\').replace(/\|/g, '\\|').replace(/\r?\n/g, ' ');
++
++/** Deterministic markdown (no timestamps, nothing relative to "today"). */
++export function renderMarkdown(cal) {
++  const out = [];
++  out.push('# Regulatory calendar');
++  out.push('');
++  out.push('<!-- GENERATED from docs/compliance/regulatory-calendar.json. Do not edit by hand: run `npm run compliance:calendar:write`. -->');
++  out.push('');
++  out.push(`> ${cal.disclaimer}`);
++  out.push('');
++  out.push('Every entry is **[COUNSEL]**: nothing here has been confirmed by a lawyer. Entries are seeded only from laws that are already referenced in repo docs (see *Sources*). `[VERIFY]` marks a fact that still needs checking. A review is overdue when `next_review` is before today; `scripts/compliance/calendar-check.mjs` and `.github/workflows/regulatory-calendar.yml` enforce that.');
++  out.push('');
++  out.push(`Entries: ${cal.entries.length}. Owners that are still \`@OWNER_*\` placeholders must be replaced together with CODEOWNERS.`);
++  out.push('');
++  for (const cat of CATEGORIES) {
++    const rows = cal.entries.filter((e) => e.category === cat);
++    if (rows.length === 0) continue;
++    out.push(`## ${CATEGORY_TITLES[cat]}`);
++    out.push('');
++    out.push('| ID | Regulation | Jurisdiction | Applies to feature | Owner | Last reviewed | Next review | Flags |');
++    out.push('| --- | --- | --- | --- | --- | --- | --- | --- |');
++    for (const e of rows) {
++      const last = e.last_reviewed ? `${e.last_reviewed} (${e.last_reviewed_by})` : 'never';
++      out.push(
++        `| \`${e.id}\` | ${esc(e.regulation)} | ${esc(e.jurisdiction)} | ${esc(e.applies_to_features.join('; '))} | ${esc(e.owner)} | ${esc(last)} | ${e.next_review} | ${e.flags.join(' ')} |`,
++      );
++    }
++    out.push('');
++  }
++  out.push('## Sources and notes');
++  out.push('');
++  for (const e of cal.entries) {
++    out.push(`### \`${e.id}\``);
++    out.push('');
++    for (const s of e.sources) out.push(`- Source: \`${s.path}\` — "${s.quote.replace(/\r?\n/g, ' ')}"`);
++    if (e.notes) out.push(`- Note: ${e.notes.replace(/\r?\n/g, ' ')}`);
++    out.push('');
++  }
++  return `${out.join('\n').replace(/\n+$/, '')}\n`;
++}
++
++/** GitHub issue body for the scheduled workflow. */
++export function renderIssueBody({ overdue, dueSoon }, today) {
++  const line = (e, tail) => `- \`${e.id}\` — ${e.regulation} (${e.jurisdiction}) · owner ${e.owner} · next review ${e.next_review} · ${tail}`;
++  const out = [];
++  out.push(`Regulatory calendar check on ${today} (UTC).`);
++  out.push('');
++  out.push(`**${overdue.length} review(s) overdue.** Each is [COUNSEL]: have counsel review it, then update \`last_reviewed\`, \`last_reviewed_by\` and \`next_review\` in \`docs/compliance/regulatory-calendar.json\` and run \`npm run compliance:calendar:write\`.`);
++  out.push('');
++  for (const e of overdue) out.push(line(e, `${e.daysOverdue} day(s) overdue`));
++  if (dueSoon.length > 0) {
++    out.push('');
++    out.push('Due soon:');
++    for (const e of dueSoon) out.push(line(e, `due in ${e.daysLeft} day(s)`));
++  }
++  out.push('');
++  out.push('_Opened by `.github/workflows/regulatory-calendar.yml`. This is a reminder, not legal advice._');
++  return `${out.join('\n')}\n`;
++}
++
++// ---------------------------------------------------------------- IO helpers
++
++function defaultReadText(relPath) {
++  if (!isSafeRelativePath(relPath)) return null;
++  const abs = join(REPO_ROOT, relPath);
++  return existsSync(abs) ? readFileSync(abs, 'utf8') : null;
++}
++
++export function loadCalendar(root = REPO_ROOT) {
++  return JSON.parse(readFileSync(join(root, CALENDAR_PATH), 'utf8'));
++}
++
++// ---------------------------------------------------------------- CLI
++
++export function parseArgs(argv) {
++  const o = { write: false, allowOverdue: false, strict: false, json: false, today: null, warnDays: DEFAULT_WARN_DAYS, reportFile: null, errors: [] };
++  const takeValue = (i, name) => {
++    const v = argv[i + 1];
++    if (v === undefined || v.startsWith('--')) {
++      o.errors.push(`${name} needs a value`);
++      return null;
++    }
++    return v;
++  };
++  for (let i = 0; i < argv.length; i += 1) {
++    const a = argv[i];
++    if (a === '--check') continue;
++    else if (a === '--write') o.write = true;
++    else if (a === '--allow-overdue') o.allowOverdue = true;
++    else if (a === '--strict') o.strict = true;
++    else if (a === '--json') o.json = true;
++    else if (a === '--today') {
++      o.today = takeValue(i, a);
++      i += 1;
++    } else if (a === '--warn-days') {
++      const v = takeValue(i, a);
++      i += 1;
++      const n = Number(v);
++      if (v !== null && (!Number.isInteger(n) || n < 0 || n > 365)) o.errors.push('--warn-days must be an integer 0-365');
++      else if (v !== null) o.warnDays = n;
++    } else if (a === '--report-file') {
++      o.reportFile = takeValue(i, a);
++      i += 1;
++    } else o.errors.push(`unknown argument ${a}`);
++  }
++  if (o.today !== null && dayNumber(o.today) === null) o.errors.push('--today must be a real YYYY-MM-DD date');
++  return o;
++}
++
++export function run(argv, { root = REPO_ROOT, log = console.log, err = console.error } = {}) {
++  const args = parseArgs(argv);
++  if (args.errors.length > 0) {
++    for (const m of args.errors) err(`calendar-check: ${m}`);
++    return EXIT_INVALID;
++  }
++  const today = args.today ?? todayUtc();
++  const readText = (p) => {
++    if (!isSafeRelativePath(p)) return null;
++    const abs = join(root, p);
++    return existsSync(abs) ? readFileSync(abs, 'utf8') : null;
++  };
++
++  let cal;
++  try {
++    cal = loadCalendar(root);
++  } catch (e) {
++    err(`calendar-check: cannot read ${CALENDAR_PATH}: ${e.message}`);
++    return EXIT_INVALID;
++  }
++
++  const { errors, warnings } = validateCalendar(cal, { readText, today, strict: args.strict });
++  for (const w of warnings) err(`warning: ${w}`);
++  if (errors.length > 0) {
++    for (const m of errors) err(`error: ${m}`);
++    err(`calendar-check: ${errors.length} error(s) in ${CALENDAR_PATH}`);
++    return EXIT_INVALID;
++  }
++
++  const md = renderMarkdown(cal);
++  const mdAbs = join(root, CALENDAR_MD_PATH);
++  if (args.write) writeFileSync(mdAbs, md);
++  else {
++    const current = existsSync(mdAbs) ? readFileSync(mdAbs, 'utf8') : null;
++    if (current !== md) {
++      err(`error: ${CALENDAR_MD_PATH} is ${current === null ? 'missing' : 'stale'}; run: npm run compliance:calendar:write`);
++      return EXIT_INVALID;
++    }
++  }
++
++  const result = evaluateReviews(cal.entries, today, args.warnDays);
++  if (args.json) {
++    log(JSON.stringify({
++      today,
++      entries: cal.entries.length,
++      overdue: result.overdue.map((e) => ({ id: e.id, next_review: e.next_review, daysOverdue: e.daysOverdue, owner: e.owner })),
++      dueSoon: result.dueSoon.map((e) => ({ id: e.id, next_review: e.next_review, daysLeft: e.daysLeft, owner: e.owner })),
++    }));
++  } else {
++    for (const e of result.dueSoon) log(`due soon: ${e.id} (${e.next_review}, in ${e.daysLeft} day(s)) owner ${e.owner}`);
++    for (const e of result.overdue) log(`OVERDUE: ${e.id} (${e.next_review}, ${e.daysOverdue} day(s) late) owner ${e.owner}`);
++    log(`calendar-check: ${cal.entries.length} entries, ${result.overdue.length} overdue, ${result.dueSoon.length} due within ${args.warnDays} day(s) (today ${today}).`);
++  }
++
++  if (result.overdue.length > 0 && args.reportFile) writeFileSync(args.reportFile, renderIssueBody(result, today));
++  if (result.overdue.length > 0 && !args.allowOverdue) return EXIT_OVERDUE;
++  return EXIT_OK;
++}
++
++if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
++  process.exitCode = run(process.argv.slice(2));
++}
+--- a/scripts/compliance/calendar-check.test.mjs
++++ b/scripts/compliance/calendar-check.test.mjs
+@@ -0,0 +1,288 @@
++import { spawnSync } from 'node:child_process';
++import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
++import { tmpdir } from 'node:os';
++import { join } from 'node:path';
++import { describe, expect, it } from 'vitest';
++import {
++  CATEGORIES,
++  EXIT_INVALID,
++  EXIT_OK,
++  EXIT_OVERDUE,
++  REPO_ROOT,
++  dayNumber,
++  evaluateReviews,
++  isSafeRelativePath,
++  loadCalendar,
++  parseArgs,
++  renderIssueBody,
++  renderMarkdown,
++  run,
++  validateCalendar,
++} from './calendar-check.mjs';
++
++const entry = (o = {}) => ({
++  id: 'sample-law',
++  regulation: 'Sample Law',
++  category: 'privacy',
++  jurisdiction: 'US',
++  applies_to_features: ['Feature A'],
++  owner: 'jane-doe',
++  flags: ['[COUNSEL]'],
++  last_reviewed: null,
++  next_review: '2026-12-15',
++  sources: [{ path: 'docs/x.md', quote: 'Sample Law' }],
++  ...o,
++});
++// One valid entry per category so the "every category covered" rule passes.
++const cal = (over = {}) => ({
++  schema: 'vireek.regulatory-calendar/v1',
++  disclaimer: 'Not legal advice.',
++  entries: CATEGORIES.map((c) => entry({ id: `law-${c}`, category: c })),
++  ...over,
++});
++const readText = (p) => (p === 'docs/x.md' ? 'text mentioning Sample Law here' : null);
++const check = (c, o = {}) => validateCalendar(c, { readText, today: '2026-11-12', ...o });
++const withEntry = (patch, i = 0) => {
++  const c = cal();
++  c.entries[i] = entry({ id: c.entries[i].id, category: c.entries[i].category, ...patch });
++  return c;
++};
++
++describe('dayNumber', () => {
++  it('accepts real dates and rejects impossible or malformed ones', () => {
++    expect(dayNumber('2026-11-12')).toBeGreaterThan(0);
++    expect(dayNumber('2028-02-29')).not.toBeNull();
++    for (const bad of ['2026-02-30', '2027-02-29', '2026-13-01', '2026-1-1', '26-11-12', '', null, undefined, 20261112]) {
++      expect(dayNumber(bad)).toBeNull();
++    }
++  });
++  it('is one apart for consecutive days across a month boundary', () => {
++    expect(dayNumber('2026-12-01') - dayNumber('2026-11-30')).toBe(1);
++  });
++});
++
++describe('validateCalendar', () => {
++  it('accepts a well-formed calendar', () => {
++    expect(check(cal()).errors).toEqual([]);
++  });
++  it('rejects a wrong schema, missing disclaimer and empty entries', () => {
++    expect(check(cal({ schema: 'x' })).errors.join('\n')).toContain('schema');
++    expect(check(cal({ disclaimer: '' })).errors.join('\n')).toContain('disclaimer');
++    expect(check(cal({ entries: [] })).errors.join('\n')).toContain('non-empty');
++    expect(check(null).errors).toHaveLength(1);
++  });
++  it('requires every category to be covered', () => {
++    const c = cal();
++    c.entries = c.entries.filter((e) => e.category !== 'labor');
++    expect(check(c).errors.join('\n')).toContain('category "labor"');
++  });
++  it('rejects duplicate ids, bad ids and unknown fields', () => {
++    const c = cal();
++    c.entries[1] = entry({ id: c.entries[0].id, category: 'ai' });
++    expect(check(c).errors.join('\n')).toContain('duplicate id');
++    expect(check(withEntry({ id: 'Bad_ID' })).errors.join('\n')).toContain('id must match');
++    expect(check(withEntry({ surprise: 1 })).errors.join('\n')).toContain('unknown field "surprise"');
++  });
++  it('requires [COUNSEL] in flags and rejects unknown flags', () => {
++    expect(check(withEntry({ flags: [] })).errors.join('\n')).toContain('[COUNSEL]');
++    expect(check(withEntry({ flags: ['[VERIFY]'] })).errors.join('\n')).toContain('[COUNSEL]');
++    expect(check(withEntry({ flags: ['[COUNSEL]', '[OK]'] })).errors.join('\n')).toContain('only');
++    expect(check(withEntry({ flags: ['[COUNSEL]', '[VERIFY]'] })).errors).toEqual([]);
++  });
++  it('validates dates, review ordering and last_reviewed_by', () => {
++    expect(check(withEntry({ next_review: '2026-02-30' })).errors.join('\n')).toContain('next_review');
++    expect(check(withEntry({ last_reviewed: 'yesterday' })).errors.join('\n')).toContain('last_reviewed');
++    const missing = withEntry({});
++    delete missing.entries[0].last_reviewed;
++    expect(check(missing).errors.join('\n')).toContain('last_reviewed is required');
++    expect(check(withEntry({ last_reviewed: '2026-11-01', next_review: '2026-10-01', last_reviewed_by: 'counsel' })).errors.join('\n')).toContain('before last_reviewed');
++    expect(check(withEntry({ last_reviewed: '2026-11-01', next_review: '2027-05-01' })).errors.join('\n')).toContain('last_reviewed_by');
++    expect(check(withEntry({ last_reviewed: '2027-01-01', next_review: '2027-05-01', last_reviewed_by: 'counsel' })).errors.join('\n')).toContain('in the future');
++    expect(check(withEntry({ last_reviewed: '2026-11-01', next_review: '2027-05-01', last_reviewed_by: 'counsel' })).errors).toEqual([]);
++    expect(check(withEntry({ last_reviewed_by: 'counsel' })).errors.join('\n')).toContain('last_reviewed_by must be absent');
++  });
++  it('validates review_interval_days and applies_to_features', () => {
++    expect(check(withEntry({ review_interval_days: 3 })).errors.join('\n')).toContain('review_interval_days');
++    expect(check(withEntry({ review_interval_days: 90 })).errors).toEqual([]);
++    expect(check(withEntry({ applies_to_features: [] })).errors.join('\n')).toContain('applies_to_features');
++  });
++  it('requires sources that really exist in repo docs', () => {
++    expect(check(withEntry({ sources: [] })).errors.join('\n')).toContain('sources');
++    expect(check(withEntry({ sources: [{ path: 'docs/missing.md', quote: 'x' }] })).errors.join('\n')).toContain('does not exist');
++    expect(check(withEntry({ sources: [{ path: 'docs/x.md', quote: 'Not In The Doc' }] })).errors.join('\n')).toContain('not found');
++    expect(check(withEntry({ sources: [{ path: 'docs/x.md', quote: '' }] })).errors.join('\n')).toContain('quote is required');
++  });
++  it('rejects unsafe source paths', () => {
++    for (const p of ['../secrets.env', '/etc/passwd', 'docs//x.md', 'docs\\x.md']) {
++      expect(isSafeRelativePath(p)).toBe(false);
++      expect(check(withEntry({ sources: [{ path: p, quote: 'x' }] })).errors.join('\n')).toContain('safe repo-relative path');
++    }
++    expect(isSafeRelativePath('docs/x.md')).toBe(true);
++  });
++  it('treats @OWNER_ placeholders as a warning, or an error with strict', () => {
++    const c = withEntry({ owner: '@OWNER_COMPLIANCE' });
++    expect(check(c).errors).toEqual([]);
++    expect(check(c).warnings.join('\n')).toContain('placeholder');
++    expect(check(c, { strict: true }).errors.join('\n')).toContain('placeholder');
++  });
++});
++
++describe('evaluateReviews', () => {
++  const mk = (id, next) => entry({ id, next_review: next });
++  it('is overdue only when next_review is strictly before today', () => {
++    const r = evaluateReviews([mk('a-law', '2026-11-11'), mk('b-law', '2026-11-12')], '2026-11-12');
++    expect(r.overdue.map((e) => e.id)).toEqual(['a-law']);
++    expect(r.overdue[0].daysOverdue).toBe(1);
++    expect(r.dueSoon.map((e) => e.id)).toEqual(['b-law']);
++  });
++  it('flags due-soon inside the window and ignores later reviews', () => {
++    const r = evaluateReviews([mk('a-law', '2026-11-26'), mk('b-law', '2026-11-27')], '2026-11-12', 14);
++    expect(r.dueSoon.map((e) => e.id)).toEqual(['a-law']);
++    expect(r.overdue).toEqual([]);
++  });
++  it('sorts by date then id and survives month/year boundaries', () => {
++    const r = evaluateReviews([mk('z-law', '2026-12-31'), mk('b-law', '2026-12-31'), mk('a-law', '2026-12-30')], '2027-01-02');
++    expect(r.overdue.map((e) => e.id)).toEqual(['a-law', 'b-law', 'z-law']);
++    expect(r.overdue[0].daysOverdue).toBe(3);
++  });
++  it('throws on an invalid today', () => {
++    expect(() => evaluateReviews([], 'nope')).toThrow();
++  });
++});
++
++describe('rendering', () => {
++  it('is deterministic and escapes table pipes', () => {
++    const c = cal();
++    c.entries[0].regulation = 'A | B';
++    expect(renderMarkdown(c)).toBe(renderMarkdown(c));
++    expect(renderMarkdown(c)).toContain('A \\| B');
++    expect(renderMarkdown(c)).toContain('GENERATED from docs/compliance/regulatory-calendar.json');
++  });
++  it('builds an issue body listing overdue and due-soon entries', () => {
++    const r = evaluateReviews([entry({ id: 'old-law', next_review: '2026-11-01' }), entry({ id: 'soon-law', next_review: '2026-11-20' })], '2026-11-12');
++    const body = renderIssueBody(r, '2026-11-12');
++    expect(body).toContain('1 review(s) overdue');
++    expect(body).toContain('old-law');
++    expect(body).toContain('11 day(s) overdue');
++    expect(body).toContain('soon-law');
++  });
++});
++
++describe('parseArgs', () => {
++  it('parses flags and reports bad input', () => {
++    expect(parseArgs(['--write', '--strict', '--today', '2026-11-12', '--warn-days', '30']).warnDays).toBe(30);
++    expect(parseArgs(['--today', '2026-02-30']).errors.join()).toContain('--today');
++    expect(parseArgs(['--warn-days', 'x']).errors.join()).toContain('--warn-days');
++    expect(parseArgs(['--report-file']).errors.join()).toContain('needs a value');
++    expect(parseArgs(['--nope']).errors.join()).toContain('unknown argument');
++  });
++});
++
++describe('the real registry in this repository', () => {
++  const real = loadCalendar();
++  it('validates (all sources exist in the docs, all six categories covered)', () => {
++    expect(validateCalendar(real, { today: '2026-11-12' }).errors).toEqual([]);
++  });
++  it('marks every entry [COUNSEL] and has no review in the past at seed time', () => {
++    expect(real.entries.every((e) => e.flags.includes('[COUNSEL]'))).toBe(true);
++    expect(evaluateReviews(real.entries, '2026-11-12').overdue).toEqual([]);
++  });
++  it('has a readable .md that is exactly the rendering of the JSON', () => {
++    expect(readFileSync(join(REPO_ROOT, 'docs/compliance/regulatory-calendar.md'), 'utf8')).toBe(renderMarkdown(real));
++  });
++});
++
++describe('CLI run() against a temp copy of the registry', () => {
++  const setup = () => {
++    const root = mkdtempSync(join(tmpdir(), 'calendar-'));
++    cpSync(join(REPO_ROOT, 'docs'), join(root, 'docs'), { recursive: true });
++    return root;
++  };
++  const exec = (root, args) => {
++    const out = [];
++    const errs = [];
++    const code = run(args, { root, log: (m) => out.push(m), err: (m) => errs.push(m) });
++    return { code, out: out.join('\n'), err: errs.join('\n') };
++  };
++
++  it('passes before the first review date', () => {
++    const root = setup();
++    try {
++      expect(exec(root, ['--today', '2026-11-12']).code).toBe(EXIT_OK);
++    } finally {
++      rmSync(root, { recursive: true, force: true });
++    }
++  });
++  it('exits 3 and writes an issue body once a review is overdue', () => {
++    const root = setup();
++    try {
++      const report = join(root, 'issue.md');
++      const r = exec(root, ['--today', '2026-12-03', '--report-file', report]);
++      expect(r.code).toBe(EXIT_OVERDUE);
++      expect(r.out).toContain('OVERDUE: eu-ai-act-art50');
++      expect(readFileSync(report, 'utf8')).toContain('eu-ai-act-art50');
++      expect(exec(root, ['--today', '2026-12-03', '--allow-overdue']).code).toBe(EXIT_OK);
++    } finally {
++      rmSync(root, { recursive: true, force: true });
++    }
++  });
++  it('--json reports overdue ids', () => {
++    const root = setup();
++    try {
++      const r = exec(root, ['--today', '2027-01-01', '--json']);
++      expect(r.code).toBe(EXIT_OVERDUE);
++      expect(JSON.parse(r.out).overdue.length).toBe(30);
++    } finally {
++      rmSync(root, { recursive: true, force: true });
++    }
++  });
++  it('exits 1 when the .md is stale, and --write repairs it', () => {
++    const root = setup();
++    try {
++      writeFileSync(join(root, 'docs/compliance/regulatory-calendar.md'), 'stale');
++      const stale = exec(root, ['--today', '2026-11-12']);
++      expect(stale.code).toBe(EXIT_INVALID);
++      expect(stale.err).toContain('stale');
++      expect(exec(root, ['--today', '2026-11-12', '--write']).code).toBe(EXIT_OK);
++      expect(exec(root, ['--today', '2026-11-12']).code).toBe(EXIT_OK);
++    } finally {
++      rmSync(root, { recursive: true, force: true });
++    }
++  });
++  it('exits 1 on a broken registry, a cited-text mismatch, and malformed JSON', () => {
++    const root = setup();
++    try {
++      const p = join(root, 'docs/compliance/regulatory-calendar.json');
++      const good = JSON.parse(readFileSync(p, 'utf8'));
++      good.entries[0].sources[0].quote = 'text that is not in the doc';
++      writeFileSync(p, JSON.stringify(good));
++      expect(exec(root, ['--today', '2026-11-12']).code).toBe(EXIT_INVALID);
++      writeFileSync(p, '{ not json');
++      const r = exec(root, ['--today', '2026-11-12']);
++      expect(r.code).toBe(EXIT_INVALID);
++      expect(r.err).toContain('cannot read');
++    } finally {
++      rmSync(root, { recursive: true, force: true });
++    }
++  });
++  it('exits 1 on bad usage and on --strict while owners are placeholders', () => {
++    const root = setup();
++    try {
++      expect(exec(root, ['--bogus']).code).toBe(EXIT_INVALID);
++      expect(exec(root, ['--today', '2026-11-12', '--strict']).code).toBe(EXIT_INVALID);
++    } finally {
++      rmSync(root, { recursive: true, force: true });
++    }
++  });
++});
++
++describe('executable entry point', () => {
++  it('runs as a script and returns the overdue exit code', () => {
++    const script = join(REPO_ROOT, 'scripts/compliance/calendar-check.mjs');
++    const ok = spawnSync(process.execPath, [script, '--today', '2026-11-12'], { encoding: 'utf8' });
++    expect(ok.status).toBe(EXIT_OK);
++    const late = spawnSync(process.execPath, [script, '--today', '2027-06-01'], { encoding: 'utf8' });
++    expect(late.status).toBe(EXIT_OVERDUE);
++    expect(late.stdout).toContain('OVERDUE');
++  });
++});
+--- a/docs/compliance/policies/business-continuity.md
++++ b/docs/compliance/policies/business-continuity.md
+@@ -2,11 +2,270 @@
+ 
+ > **DRAFT — not approved.** Owner: _to be assigned_ · Approved by: _pending_ · Last review: _pending_. Adopting this text is a company decision; it makes no compliance claim (see `src/lib/trust/claims.ts`).
+ 
++**Placeholders.** `[NAME: role]` = a named person the company must fill in. `[DECISION]` = a choice only the company can make. `[VERIFY]` = a fact not established by this repository. `[COUNSEL]` = a legal point that needs a lawyer. Nothing in square brackets has been filled in, and no person, vendor setting, objective or legal duty below should be read as already confirmed.
++
+ ## Purpose and scope
+ Keeping critical services (call answering, dashboard, billing) running through disruptions.
+ 
++This policy covers three things the technical runbooks do not: (1) what happens when a **person** who holds critical knowledge or access is unavailable, (2) how staff regain control of **provider and infrastructure accounts** without secrets being stored in documents, and (3) how the company **communicates** during a crisis. It extends, and does not replace, the technical procedures listed below.
++
+ ## Existing technical controls (evidence in this repository)
+ - Maintenance/degraded modes and live-call design: `RUNBOOK.md` §6.2; multi-provider AI fallback
++- Backups, restore drills and restore procedure: `RUNBOOK.md` §5; real state and limits (no RTO/RPO measured): `docs/DB_BACKUP_RESTORE.md`; `dr-backup-run`, `dr-restore-drill`
++- Incident severity, roles, on-call rotation, status-page automation: `docs/incident/incident-management.md` (SEV1–SEV4). `RUNBOOK.md` §6.1 uses P1–P3 for the same purpose; the owner must reconcile the two scales **[DECISION]**. This policy uses SEV1–SEV4.
++- Secret rotation and leak response: `RUNBOOK.md` §7
++- Voice resilience: `docs/runbooks/voice-resilience.md`
++- In-app owner break-glass (time-boxed, notifies another owner, mandatory review): `src/lib/authz/jitAccess.ts` (`breakGlass`, 5–60 min, `BREAK_GLASS_REVIEW_HOURS = 24`). Scope is **application permissions only**. `docs/security/identity-authz-audit.md` §8 records the SQL side as not executed and DB break-glass as not done, so this policy does not rely on it.
++
++## 1. Critical services and recovery objectives
++Targets are not defined anywhere in the repository and none has been measured (`docs/DB_BACKUP_RESTORE.md`). The company sets them; do not publish them as commitments until a drill has measured them.
++
++| Service | Depends on (from `RUNBOOK.md` §0, §6.3) | RTO | RPO | Degraded-mode fallback |
++|---|---|---|---|---|
++| Inbound call answering | Vapi, Twilio, `vapi-webhook` edge function, Supabase | [DECISION] | [DECISION] | Live-call path is served by Vapi + edge functions, not the SPA (`RUNBOOK.md` §6.2) |
++| Dashboard (SPA) | Vercel, Supabase Auth/Postgres | [DECISION] | [DECISION] | Maintenance/degraded screen (`RUNBOOK.md` §6.2) |
++| Billing | Stripe, `billing_events` webhooks | [DECISION] | [DECISION] | Failed Stripe events can be resent; ids are deduplicated (`RUNBOOK.md` §6.3) |
++| SMS / email | Twilio (A2P, DNC/STOP gating), Resend | [DECISION] | [DECISION] | [DECISION] |
++| Customer data | Supabase (PITR if the plan has it), `dr-backups` bucket | [DECISION] | [DECISION] | Restore procedure, `RUNBOOK.md` §5 |
++
++## 2. Role-criticality matrix
++**Tiers (proposed, [DECISION]).**
++- **Tier 1** — unavailability of the holder for more than [DECISION: hours] blocks declaring or leading a SEV1 response, restoring service, or reaching a Tier 1 system.
++- **Tier 2** — unavailability slows response or recovery, but a workaround exists.
++- **Tier 3** — affects business functions, not service continuity, within seven days.
++
++**Rules (proposed, [DECISION]).**
++1. Every Tier 1 and Tier 2 role has a primary and a **named backup**; the two are different people.
++2. The backup holds **their own** account and role in each system. Sharing a login is never a backup arrangement.
++3. One person is not the sole holder of two Tier 1 roles. Where the company is too small to avoid this, record it in the "Single point of failure" column and treat it as an open risk.
++4. The matrix is reviewed when someone joins, leaves or changes role (see `onboarding-offboarding.md`), after every SEV1 postmortem, and at least annually.
++
++| Role | Why it matters | Can unlock | Tier | Primary | Named backup | Single point of failure? |
++|---|---|---|---|---|---|---|
++| Executive owner | Authorises external statements, spend and legal contact; likely legal owner of provider accounts **[VERIFY]** | Provider ownership, contracts, press | 1 | [NAME: executive owner] | [NAME: backup executive] | [DECISION] |
++| Engineering lead | Architecture, deploy and database decisions | Repo, deploys, Supabase | 1 | [NAME: engineering lead] | [NAME: backup engineer] | [DECISION] |
++| Incident commander (on-call primary / secondary) | Owns severity and decisions during an incident (`docs/incident/incident-management.md`) | Incident channel, PagerDuty | 1 | [NAME: on-call primary] | [NAME: on-call secondary] | [DECISION] |
++| Release & CI owner | Rollback and deploy (`RUNBOOK.md` §2, §4) | GitHub, Vercel, edge-function deploy | 1 | [NAME: release owner] | [NAME: backup release owner] | [DECISION] |
++| Database & backup owner | Restore decisions; the repo leaves "who can trigger a restore" undecided (`RUNBOOK.md` §5) | Supabase, `dr-backups` | 1 | [NAME: database owner] | [NAME: backup database owner] | [DECISION] |
++| Telephony & voice owner | Live call answering, A2P registration | Twilio, Vapi | 1 | [NAME: telephony owner] | [NAME: backup telephony owner] | [DECISION] |
++| Security & compliance owner | Secret rotation, breach-notification decision owner (open gap in `incident-response.md`) | Secrets, audit logs | 1 | [NAME: security owner] | [NAME: backup security owner] | [DECISION] |
++| Domain, DNS & workforce identity admin | Loss of DNS or the identity/email provider stops the site and recovery emails. Registrar and identity provider are not named in the repo | Registrar, DNS, email/SSO | 1 | [NAME: DNS / identity admin] | [NAME: backup DNS / identity admin] | [DECISION] |
++| Billing & payments owner | Stripe, webhook secrets, refunds | Stripe | 2 | [NAME: billing owner] | [NAME: backup billing owner] | [DECISION] |
++| Communications lead | Status page and customer notices (`incident-management.md` roles) | Status provider, `notify-status-subscribers` | 2 | [NAME: comms lead] | [NAME: backup comms lead] | [DECISION] |
++| Customer support lead | Customer contact during outages | Support inbox | 2 | [NAME: support lead] | [NAME: backup support lead] | [DECISION] |
++| Finance / administrator | A lapsed payment can suspend a provider account **[VERIFY per provider]** | Provider billing, invoices | 2 | [NAME: finance owner] | [NAME: backup finance owner] | [DECISION] |
++| External legal counsel / privacy contact | Regulator and breach-notice advice | — | 2 | [NAME: counsel firm / contact] | [NAME: second contact] | [COUNSEL] |
++
++## 3. Named backup per critical system
++Each system needs two humans who can administer it under their own identities. Break-glass (section 4) is the last resort when both are unreachable, not a substitute for this table.
++
++| System | What stops without it (source) | Account owner role | Primary admin | Backup admin | Recovery / break-glass note |
++|---|---|---|---|---|---|
++| Supabase (Postgres, Auth, Realtime, Storage, Edge Functions, `pg_cron`) | Nearly everything (`RUNBOOK.md` §0) | Executive owner | [NAME] | [NAME] | Org/project owner transfer path **[VERIFY]**; service-role key leak = SEV1 (`RUNBOOK.md` §7) |
++| Vercel | Dashboard SPA, headers/rewrites (`vercel.json`) | Release owner | [NAME] | [NAME] | Team ownership transfer **[VERIFY]** |
++| GitHub (repo, Actions) | CI, security gates, edge deploy | Release owner | [NAME] | [NAME] | Org owner count and branch protection **[VERIFY]** |
++| Domain registrar and DNS | Site, email authentication, provider callbacks | DNS / identity admin | [NAME] | [NAME] | Registrar and DNS host **[VERIFY]**; registrar-lock and recovery contact **[VERIFY]** |
++| Workforce identity / email | Every provider's account-recovery email | DNS / identity admin | [NAME] | [NAME] | Provider not named in the repo **[VERIFY]** |
++| Stripe | Billing, checkout, webhooks | Billing owner | [NAME] | [NAME] | Resend failed events after recovery (`RUNBOOK.md` §6.3) |
++| Twilio | Telephony, SMS, A2P brand/campaign | Telephony owner | [NAME] | [NAME] | A2P registration is tied to the legal business name/EIN (`docs/brand/RESTRUCTURE_RUNBOOK.md`) |
++| Vapi | Voice assistant, call webhooks | Telephony owner | [NAME] | [NAME] | Server URL secret must match `VAPI_SERVER_SECRET` (`RUNBOOK.md` §6.3) |
++| Resend | Transactional email | Telephony owner | [NAME] | [NAME] | — |
++| Plaid | Bank connections (customer-optional) | Billing owner | [NAME] | [NAME] | — |
++| AI providers (Gemini, Groq, Cerebras, Cloudflare Workers AI, OpenRouter; others per `ARCHITECTURE.md`) | AI answers; chain falls back automatically (`RUNBOOK.md` §6.3) | Engineering lead | [NAME] | [NAME] | Keys held per `docs/generated/ENV_USAGE.md` |
++| Status page provider | Customer-facing incident status (`VITE_STATUS_API_URL`) | Comms lead | [NAME] | [NAME] | Provider not named in the repo **[VERIFY]** |
++| PagerDuty / chat | Paging (`incident-management.md` names PagerDuty and `#voice-alerts`) | Incident commander | [NAME] | [NAME] | Out-of-band contact list in section 5 |
++| Secret vault / password manager | Custody of break-glass credentials | Security owner | [NAME] | [NAME] | None is named in the repo **[DECISION]** |
++
++## 4. Break-glass access procedure for infrastructure and provider accounts
++**Purpose.** Regain control of a provider or infrastructure account when its named admins (section 3) cannot act and the action is needed to restore or protect service.
++
++**What this document must never contain:** passwords, API keys, recovery codes, MFA seeds, session tokens, or screenshots of any of them. It records only *who*, *where the sealed item is kept* and *how access is requested* (see `RUNBOOK.md` §7: never paste secrets into chats or tickets; gitleaks runs in `security.yml`).
++
++### 4.1 Custody (company decisions to fill in)
++| Item | Held by (role) | Location pointer (not the secret) | Second custodian |
++|---|---|---|---|
++| Break-glass account credentials per Tier 1 system | [NAME: security owner] | [DECISION: approved vault entry name or sealed envelope location] | [NAME: second custodian] |
++| Hardware MFA keys / recovery codes for those accounts | [NAME: custodian] | [DECISION: physical safe location] | [NAME: second custodian] |
++| Out-of-band contact list (phone numbers) | [NAME: executive owner] | [DECISION: location] | [NAME: second custodian] |
++
++Principles: two custodians in different places; the MFA factor and the password are not stored together; break-glass accounts are named and logged, never shared daily-use logins; MFA is never switched off to make access easier. Mandatory workforce MFA is an open gap in `access-control.md` and should be closed first.
++
++### 4.2 When it may be used
++All of the following:
++1. A SEV1 or SEV2 incident is declared, or a Tier 1 role is unavailable and a Tier 1 system is blocked.
++2. The primary **and** backup admin for that system have been tried by phone through the out-of-band list and cannot act within [DECISION: minutes].
++3. The needed action is specific (for example, rotate a leaked key, roll back a deploy, transfer account ownership), and the provider's normal account recovery would take too long.
++
++### 4.3 Steps
++1. **Declare.** Post in the incident channel: incident id, system, why admins are unreachable, intended action. Start the break-glass register entry (4.5).
++2. **Two-person rule.** A second authorised person — the incident commander or executive owner, and not the person who will use the access — approves in writing in the channel.
++3. **Retrieve.** The custodian releases the credential through the custody method in 4.1, with the second custodian present or informed. Record the time.
++4. **Use narrowly and briefly.** Do only the approved action. Keep the session within [DECISION: proposed ≤ 60 minutes, matching the in-app break-glass maximum in `jitAccess.ts`]. Narrate each action in the channel.
++5. **Do not widen.** No unrelated changes, no new permanent users, no weakened auth or RLS (`RUNBOOK.md` golden rules). If a permanent fix needs a new admin, create a normal named account afterwards.
++6. **End.** Sign out. **Rotate** the break-glass credential and any secret that was exposed (`RUNBOOK.md` §7), and re-seal the new credential with the custodians. Re-issue MFA recovery material if it was used.
++7. **Review within 24 hours** by someone who did not use the access (mirrors `BREAK_GLASS_REVIEW_HOURS`). Compare the register with the provider's own audit log where one exists **[VERIFY per provider]**. Open follow-ups with owners and dates.
++
++### 4.4 Provider-specific recovery notes
++Each provider has its own ownership-transfer and account-recovery process. This repository does not establish what those processes require, so each row is a task for the system's backup admin to verify and record **before** a crisis.
++
++| System | To record in advance (no secrets) |
++|---|---|
++| Supabase, Vercel, GitHub, Stripe, Twilio, Vapi, Resend, Plaid, registrar/DNS, identity/email | Who the account owner of record is; how many owners exist; what the provider requires to prove ownership or recover the account **[VERIFY]**; support contact path; whether a second owner is configured |
++
++### 4.5 Break-glass register (template; keep outside the repository)
++| Date (UTC) | Incident id | System | Used by | Approved by | Reason | Start–end | Actions taken (summary) | Credential rotated (Y/N, when) | Reviewer | Review date |
++|---|---|---|---|---|---|---|---|---|---|---|
++| | | | | | | | | | | |
++
++Register location: [DECISION: access-restricted location; never this repository if it would name accounts or hold secrets].
++
++## 5. Crisis plan
++
++### 5.1 Activation
++Activate the crisis plan when any of the following occurs:
++- A SEV1 is declared (`docs/incident/incident-management.md`).
++- A suspected data exposure, ransomware or account takeover.
++- A Tier 1 role holder or a Tier 1 provider account becomes unavailable for more than [DECISION: hours].
++- A provider outage or legal/regulatory action threatens continuity beyond [DECISION: hours].
++
++The incident commander activates; the executive owner is told immediately. The crisis team reuses the incident roles (incident commander, operations lead, comms lead, scribe) and adds an **executive sponsor** and a **counsel liaison**.
++
++### 5.2 Communication tree
++| Step | Who | How reached | Backup if unreachable |
++|---|---|---|---|
++| 1 | Incident commander | PagerDuty | [NAME: on-call secondary] |
++| 2 | Executive owner | [PHONE] | [NAME: backup executive] |
++| 3 | Security owner (if data or credentials) | [PHONE] | [NAME: backup security owner] |
++| 4 | Counsel / privacy contact | [PHONE / EMAIL] | [NAME: second counsel contact] |
++| 5 | Comms lead | [PHONE] | [NAME: backup comms lead] |
++| 6 | Affected provider support | [Support contact per provider] | — |
++
++The list must also exist **outside** the systems that may be down (for example paper or a personal-device copy held by two people) **[DECISION]**.
++
++### 5.3 Key-person unavailability playbook
++1. **Confirm** the person cannot be reached or acts for the company (phone via the out-of-band list; second attempt by their backup).
++2. **Activate the named backup** for each role and system the person held (sections 2–3). Announce it in the incident channel.
++3. **Regain access** through the backup's own accounts. Use break-glass (section 4) only if the backup lacks access.
++4. **Secure what the person held.** If departure is not routine or trust is in doubt, revoke their sessions and rotate secrets they could reach (`RUNBOOK.md` §7; `onboarding-offboarding.md`). Handle HR and legal aspects with counsel **[COUNSEL]**.
++5. **Record** gaps found (missing backup, missing documentation) as actions with owners and dates.
++6. **Update** the matrix; a backup who has taken over becomes primary or a new backup is named.
++
++### 5.4 First-hour checklist
++- [ ] Severity confirmed and incident channel open; scribe named
++- [ ] Executive sponsor informed; crisis team roles assigned
++- [ ] Containment decided (maintenance/degraded mode, unschedule a job, revoke a key — `RUNBOOK.md` §6.2)
++- [ ] First status-page / customer holding message approved by the executive sponsor (templates below)
++- [ ] Legal assessment started if personal data may be involved **[COUNSEL]**
++- [ ] Evidence preserved (logs, `audit_log`, provider logs) before changes are made
++- [ ] Next update time announced
++
++### 5.5 Approval of external statements
++Customer notices: comms lead drafts, executive sponsor approves. Regulator notices and anything about personal data: counsel reviews before sending **[COUNSEL]**. Press: only the named spokesperson [NAME: spokesperson], after executive approval. Statements must not contradict `src/lib/trust/claims.ts`, and must not state a security certification, attestation or audit result that the company does not hold.
++
++## 6. Crisis communication templates
++Replace every `[PLACEHOLDER]`. State only facts that have been confirmed; say "we are investigating" for the rest. Do not speculate about cause, do not say "no data was accessed" unless that has been verified, and do not promise a restoration time you cannot meet. Deliver customer notices through the mechanisms in `RUNBOOK.md` §6.2 (status page, `notify-status-subscribers`, maintenance message). Drill sends must use a test list only (section 7).
++
++### 6.1 Customers — service disruption (initial)
++> **Subject:** [Vireek] [Service affected] — we are investigating
++>
++> At [START_TIME_UTC] we identified a problem affecting [SERVICES_AFFECTED]. [Impact in plain words, e.g. "some inbound calls may not be answered by the assistant" — only if confirmed.] We are working on it and will update you by [NEXT_UPDATE_TIME_UTC].
++>
++> What you can do now: [WORKAROUND_OR_"nothing is needed from you"].
++>
++> Status: [STATUS_PAGE_URL] · Contact: [SUPPORT_CONTACT]
++
++### 6.2 Customers — update
++> **Subject:** [Vireek] Update on [SERVICES_AFFECTED]
++>
++> As of [TIME_UTC]: [CONFIRMED_FACTS]. [What changed since the last update.] Next update by [NEXT_UPDATE_TIME_UTC] or sooner if the situation changes.
++
++### 6.3 Customers — resolved
++> **Subject:** [Vireek] Resolved: [SERVICES_AFFECTED]
++>
++> The issue affecting [SERVICES_AFFECTED] was resolved at [END_TIME_UTC]. It began at [START_TIME_UTC]. [Confirmed impact.] [Any action the customer should take, e.g. review missed calls between X and Y.] We will publish a summary of what happened and what we are changing by [POSTMORTEM_DATE].
++
++### 6.4 Customers — data incident notice
++Send only after the legal assessment **[COUNSEL]**. Customers are usually controllers of their callers' data and Vireek their processor (`docs/compliance/transfers-and-contracts.md`); contractual and legal notice duties to customers **[COUNSEL]**.
++> **Subject:** Important: security incident affecting [DATA_CATEGORIES]
++>
++> On [DISCOVERY_DATE] we discovered [CONFIRMED_DESCRIPTION OF WHAT HAPPENED]. Based on our investigation so far, the following data was involved: [CONFIRMED_DATA_CATEGORIES AND, IF KNOWN, APPROXIMATE NUMBER OF RECORDS]. [What we have done to contain it.] [What we recommend you do.] Our investigation is ongoing and we will update you by [DATE]. Contact: [PRIVACY_CONTACT].
++
++### 6.5 Regulators — initial notification (skeleton)
++Which authorities, deadlines and formats apply depends on the jurisdictions, the data involved and Vireek's role as controller or processor. Deadlines and content requirements: **[COUNSEL][VERIFY]**. The text below is a fact skeleton for counsel, **not** a ready-to-send notice. Counsel decides whether notification is required and signs off the final text.
++> To: [AUTHORITY_AND_CHANNEL per counsel]
++> From: [LEGAL_ENTITY_NAME], [ADDRESS], contact [NAME, ROLE, EMAIL, PHONE]
++> 1. Nature of the incident: [CONFIRMED_DESCRIPTION]
++> 2. Date/time of occurrence and discovery: [DATES_UTC]
++> 3. Categories and approximate number of data subjects and records: [CONFIRMED_OR_"under investigation"]
++> 4. Likely consequences: [ASSESSMENT agreed with counsel]
++> 5. Measures taken or proposed: [CONTAINMENT_AND_REMEDIATION]
++> 6. Whether affected individuals / customers have been or will be notified, and when: [PLAN]
++> 7. Further updates: [PROMISED_DATE]
++>
++> Any item not yet known is stated as "under investigation", with the date the information will follow.
++
++### 6.6 Press — holding statement
++> [LEGAL_ENTITY_NAME] is aware of [CONFIRMED_ONE_LINE_DESCRIPTION]. Our teams are working to [restore service / investigate]. We will share verified updates at [STATUS_PAGE_URL]. For questions: [SPOKESPERSON_CONTACT].
++
++### 6.7 Press — statement after facts are confirmed
++> On [DATE], [LEGAL_ENTITY_NAME] [CONFIRMED_WHAT_HAPPENED]. [Confirmed impact on customers or data.] We [actions taken]. We have notified [customers / authorities — only if true and counsel-approved]. We are [next steps]. [SPOKESPERSON_CONTACT].
++
++**Press rules:** one spokesperson; no off-the-record comment; no blame on a named provider before facts are confirmed and the provider has been contacted; no number, cause or timeline that is not confirmed; hand every legal or regulatory question to counsel **[COUNSEL]**.
++
++## 7. Annual drill checklist
++Cadence: at least once every 12 months, and after any SEV1 that exposed a continuity gap. This matches the 365-day frequency proposed for control AVL-04 in `docs/compliance/soc2/controls.json`. A drill is evidence of an exercise, not of compliance.
++
++**Preparation**
++- [ ] Drill lead named [NAME: drill lead] (not the person being tested for the main scenario) and date set
++- [ ] Scenarios chosen, at minimum: (a) a Tier 1 key person unreachable, (b) a provider account locked out with admins unreachable, (c) suspected data exposure with external communication
++- [ ] Production data is not modified; any live test is on a test account, test list or sandbox; real subscribers are **not** notified
++- [ ] Observers and scribe assigned
++
++**Roles and backups**
++- [ ] Matrix (section 2) reviewed: every named person still works here and still holds the role
++- [ ] Each Tier 1 backup completes a defined task in their own account without the primary (for example a read-only login, a rollback rehearsal in a preview, a test status update)
++- [ ] Single points of failure counted; open ones have owners and dates
++
++**Break-glass**
++- [ ] Custody list reviewed; both custodians reachable; locations still correct
++- [ ] Dry run on a test account or sandbox: request, two-person approval, retrieval, narrow use, sign-out, rotation, 24-hour review
++- [ ] Register template used and stored in the restricted location; no secret appeared in chat, ticket or document
++
++**Recovery**
++- [ ] Latest `dr-backup-run` and `dr-restore-drill` rows checked in `platform_backup_runs` / `platform_restore_drills` (`RUNBOOK.md` §5)
++- [ ] Recovery time actually measured and written into section 1 (replacing [DECISION]) after management agrees the target
++- [ ] Rollback (`RUNBOOK.md` §4) rehearsed by the backup release owner
++
++**Communications**
++- [ ] Out-of-band contact list tested by phone (answered / not answered recorded)
++- [ ] Templates 6.1–6.7 filled in for the drill scenario by the comms lead; approvals followed section 5.5
++- [ ] Status-page and email delivery tested to a **test** audience only
++- [ ] Counsel confirmed the regulator skeleton (6.5) is still current for the jurisdictions served **[COUNSEL]**
++
++**After action**
++- [ ] Timeline, what worked, what failed, within five business days
++- [ ] Actions with owner and due date; tracked to done
++- [ ] This policy, `RUNBOOK.md` and `docs/incident/incident-management.md` updated where the drill showed a mismatch
++- [ ] Record stored at [DECISION: evidence location] and the next drill date set
++
++| Drill record | |
++|---|---|
++| Date / scenarios | |
++| Participants and roles | |
++| Measured times (declare, backup takes over, break-glass, first customer message, restore) | |
++| Findings | |
++| Actions (owner, due date) | |
++| Approved by | |
++
++## Document control
++Review at least annually, after every SEV1 postmortem, and when a named person leaves or a critical provider is added or replaced. Owner and approver are not yet assigned.
+ 
+ ## Gaps the owner must close before approval
+-- Continuity plan, critical-service list, communication tree
++- Continuity plan: names for every `[NAME: …]`, objectives for every `[DECISION]`, and the Tier definitions and thresholds adopted
++- Critical-service list and communication tree: confirm sections 1 and 5.2 with real people and reachable out-of-band contacts
++- Break-glass custody: choose the vault or sealed-envelope method, appoint two custodians, verify each provider's ownership-recovery process **[VERIFY]**
++- Mandatory MFA for workforce accounts (open in `access-control.md`)
++- Registrar/DNS, identity/email and status-page providers are not named anywhere in the repository **[VERIFY]**
++- Counsel review of notice duties, deadlines and all templates in section 6 **[COUNSEL]**
++- Reconcile severity scales (SEV1–SEV4 vs P1–P3)
++- Evidence pipeline: `docs/compliance/soc2/controls.json` now points to the policies that exist under `docs/compliance/policies/`, and `scripts/compliance/collect-repo.mjs` reads that directory; approval is still reported only as `draft`/`pending` until a human approves. Three evidence templates under `docs/compliance/soc2/templates/` are blank and are not evidence until filled in and signed
+--- a/docs/compliance/policies/README.md
++++ b/docs/compliance/policies/README.md
+@@ -8,14 +8,14 @@
+ | Access Control & Review Policy | `access-control.md` |
+ | Change Management Policy | `change-management.md` |
+ | Incident Response Policy | `incident-response.md` |
+-| Backup & Disaster Recovery Policy | `backup-and-disaster-recovery.md` |
++| Backup & Disaster Recovery Policy | `backup-disaster-recovery.md` |
+ | Vendor & Sub-processor Management Policy | `vendor-management.md` |
+ | Risk Assessment Policy | `risk-assessment.md` |
+-| Data Classification & Retention Policy | `data-classification-and-retention.md` |
+-| Logging & Monitoring Policy | `logging-and-monitoring.md` |
+-| Secrets & Key Rotation Policy | `secrets-and-key-rotation.md` |
++| Data Classification & Retention Policy | `data-classification-retention.md` |
++| Logging & Monitoring Policy | `logging-monitoring.md` |
++| Secrets & Key Rotation Policy | `secrets-key-rotation.md` |
+ | Acceptable Use Policy (internal) | `acceptable-use.md` |
+ | Business Continuity Policy | `business-continuity.md` |
+ | Vulnerability Management Policy | `vulnerability-management.md` |
+-| Onboarding & Offboarding Policy | `onboarding-and-offboarding.md` |
++| Onboarding & Offboarding Policy | `onboarding-offboarding.md` |
+ | Security Awareness Training Policy | `security-training.md` |
+--- a/docs/compliance/policies/incident-response.md
++++ b/docs/compliance/policies/incident-response.md
+@@ -6,7 +6,7 @@
+ How incidents are detected, classified, handled, communicated and reviewed.
+ 
+ ## Existing technical controls (evidence in this repository)
+-- Process and playbooks: `RUNBOOK.md` §6; templates: `docs/runbooks/incident-templates.md`
++- Process and playbooks: `RUNBOOK.md` §6; crisis communication templates: `business-continuity.md` §6
+ - Public disclosure channel: `SECURITY.md`
+ 
+ ## Gaps the owner must close before approval
+--- a/docs/compliance/soc2/controls.json
++++ b/docs/compliance/soc2/controls.json
+@@ -21,7 +21,7 @@
+       "ownerRole": "CEO / accountable security owner (proposed)",
+       "frequencyDays": 365,
+       "implementation": [
+-        "docs/compliance/soc2/policies/01-information-security-policy.md"
++        "docs/compliance/policies/information-security.md"
+       ],
+       "collectors": [
+         "repo.docs",
+@@ -42,7 +42,7 @@
+       "ownerRole": "CEO / People owner (proposed)",
+       "frequencyDays": 365,
+       "implementation": [
+-        "docs/compliance/soc2/policies/11-onboarding-offboarding-policy.md",
++        "docs/compliance/policies/onboarding-offboarding.md",
+         "docs/compliance/soc2/templates/training-records.csv"
+       ],
+       "collectors": [
+@@ -128,7 +128,7 @@
+       "ownerRole": "CEO / security owner (proposed)",
+       "frequencyDays": 365,
+       "implementation": [
+-        "docs/compliance/soc2/policies/10-risk-assessment-policy.md"
++        "docs/compliance/policies/risk-assessment.md"
+       ],
+       "collectors": [
+         "manual.risk_assessment"
+@@ -445,7 +445,7 @@
+       "frequencyDays": 365,
+       "implementation": [
+         "RUNBOOK.md",
+-        "docs/compliance/soc2/policies/04-incident-response-policy.md"
++        "docs/compliance/policies/incident-response.md"
+       ],
+       "collectors": [
+         "manual.tabletop"
+@@ -545,7 +545,8 @@
+       "ownerRole": "CEO / Engineering lead (proposed)",
+       "frequencyDays": 365,
+       "implementation": [
+-        "docs/compliance/soc2/policies/05-business-continuity-dr-policy.md"
++        "docs/compliance/policies/business-continuity.md",
++        "docs/compliance/policies/backup-disaster-recovery.md"
+       ],
+       "collectors": [
+         "manual.policy_approval"
+@@ -584,7 +585,7 @@
+         "supabase/functions/data-retention-sweep/index.ts",
+         "supabase/functions/delete-account/index.ts",
+         "supabase/migrations/20261121000000_disaster_recovery_data_governance.sql",
+-        "docs/compliance/soc2/policies/07-data-retention-disposal-policy.md"
++        "docs/compliance/policies/data-classification-retention.md"
+       ],
+       "collectors": [
+         "supabase.retention"
+@@ -604,7 +605,7 @@
+       "implementation": [
+         "src/lib/subprocessors.ts",
+         "src/pages/SubprocessorsPage.tsx",
+-        "docs/compliance/soc2/policies/06-vendor-management-policy.md",
++        "docs/compliance/policies/vendor-management.md",
+         "docs/compliance/soc2/templates/vendor-review-register.csv"
+       ],
+       "collectors": [
+@@ -644,7 +645,7 @@
+       "ownerRole": "Security owner (proposed)",
+       "frequencyDays": 365,
+       "implementation": [
+-        "docs/compliance/soc2/policies/06-vendor-management-policy.md"
++        "docs/compliance/policies/vendor-management.md"
+       ],
+       "collectors": [
+         "manual.vendor_review"
+--- a/docs/compliance/soc2/CONTROL_MAP.md
++++ b/docs/compliance/soc2/CONTROL_MAP.md
+@@ -14,12 +14,12 @@
+ 
+ | ID | Criteria | Control | Status | Proposed owner | Repo evidence of implementation | Evidence collectors | Gap / unverified |
+ |---|---|---|---|---|---|---|---|
+-| GOV-01 | CC1.1, CC1.3, CC5.3 | Information security policy set approved and communicated | 🔴 Missing | CEO / accountable security owner (proposed) | `docs/compliance/soc2/policies/01-information-security-policy.md` | `repo.docs`<br>`manual.policy_approval` | All eleven policies are DRAFTS. None is approved, versioned by management, or acknowledged by staff. |
+-| GOV-02 | CC1.4, CC1.5, CC2.2 | Workforce onboarding, offboarding, background checks and security-awareness training | 🔴 Missing | CEO / People owner (proposed) | `docs/compliance/soc2/policies/11-onboarding-offboarding-policy.md`<br>`docs/compliance/soc2/templates/training-records.csv` | `manual.training` | No training records, no offboarding checklist for GitHub / Vercel / Supabase / provider consoles. |
++| GOV-01 | CC1.1, CC1.3, CC5.3 | Information security policy set approved and communicated | 🔴 Missing | CEO / accountable security owner (proposed) | `docs/compliance/policies/information-security.md` | `repo.docs`<br>`manual.policy_approval` | All eleven policies are DRAFTS. None is approved, versioned by management, or acknowledged by staff. |
++| GOV-02 | CC1.4, CC1.5, CC2.2 | Workforce onboarding, offboarding, background checks and security-awareness training | 🔴 Missing | CEO / People owner (proposed) | `docs/compliance/policies/onboarding-offboarding.md`<br>`docs/compliance/soc2/templates/training-records.csv` | `manual.training` | No training records, no offboarding checklist for GitHub / Vercel / Supabase / provider consoles. |
+ | GOV-03 | CC2.1, CC2.2 | Security documentation available to internal and external users | 🟡 Partial | Engineering lead (proposed) | `RUNBOOK.md`<br>`ARCHITECTURE.md`<br>`src/lib/securityWhitepaper.ts`<br>`src/pages/SecurityWhitepaperPage.tsx` | `repo.docs` | Documentation exists but has no review cadence or named maintainer. |
+ | COM-01 | CC2.3 | Security commitments and incidents communicated to customers | 🟡 Partial | CEO (proposed) | `src/pages/TrustCenterPage.tsx`<br>`src/pages/ComplianceStatusPage.tsx`<br>`src/pages/SubprocessorsPage.tsx`<br>`supabase/functions/subprocessor-notice-dispatch/index.ts`<br>`supabase/functions/notify-status-subscribers/index.ts` | `repo.docs` | No breach-notification template or timeline. |
+ | COM-02 | CC2.3, CC7.1 | Public vulnerability-disclosure channel (security.txt + policy page) | 🟢 Met | Engineering lead (proposed) | `public/.well-known/security.txt`<br>`src/pages/VulnerabilityDisclosurePage.tsx` | `repo.security_txt` | security.txt carries an expiry date; evidence turns 'failing' when it is within 30 days of expiry or already expired. |
+-| RSK-01 | CC3.1, CC3.2, CC3.3, CC3.4 | Annual risk assessment and risk register | 🔴 Missing | CEO / security owner (proposed) | `docs/compliance/soc2/policies/10-risk-assessment-policy.md` | `manual.risk_assessment` | No risk register exists. |
++| RSK-01 | CC3.1, CC3.2, CC3.3, CC3.4 | Annual risk assessment and risk register | 🔴 Missing | CEO / security owner (proposed) | `docs/compliance/policies/risk-assessment.md` | `manual.risk_assessment` | No risk register exists. |
+ | MON-01 | CC4.1, CC4.2 | Ongoing evaluation of controls (this program) | 🟡 Partial | Security owner (proposed) | `docs/compliance/soc2/controls.json`<br>`scripts/compliance/validate-controls.mjs`<br>`scripts/compliance/collect-repo.mjs`<br>`.github/workflows/compliance-evidence.yml`<br>`supabase/functions/compliance-evidence/index.ts`<br>`src/pages/admin/StaffComplianceControlsPage.tsx` | `repo.registry` | Program is new: no scheduled run has produced evidence yet, and no owner reviews the dashboard on a cadence. |
+ | ACC-01 | CC6.1 | Tenant data isolation enforced by Postgres row-level security | 🟢 Met | Engineering lead (proposed) | `supabase/migrations/20260821101104_create_profiles_and_team_members.sql`<br>`scripts/lint-migrations.mjs`<br>`supabase/tests/database/calendar_feeds_rls.test.sql` | `supabase.rls_coverage` | Evidence reports public tables without RLS and permissive USING(true) SELECT policies; any listed table needs a documented reason or a fix (see SOC2_READINESS.md F3). |
+ | ACC-02 | CC6.1, CC6.2 | Authentication and multi-factor authentication | 🟡 Partial | Engineering lead (proposed) | `src/components/ProtectedRoute.tsx`<br>`src/lib/mfaChallenge.ts`<br>`supabase/functions/trusted-device/index.ts` | `supabase.access_review` | MFA is opt-in; it is not enforced for Vireek staff or tenant owners/admins. Evidence lists staff accounts without a verified MFA factor. |
+@@ -34,11 +34,11 @@
+ | ENV-01 | CC8.1, CC6.1 | Environment separation and no shared or demo credentials in production | 🟡 Partial | Engineering lead (proposed) | `supabase/migrations/20260821101216_seed_demo_data.sql`<br>`RUNBOOK.md` | — (verify outside repo) | A demo user with a known password is created by a migration (SOC2_READINESS.md F5). Whether it exists in production, and whether a separate staging project exists, must be verified outside the repository. |
+ | LOG-01 | CC7.2, CC4.1 | Application audit trail (audit_log) with tenant-scoped read access | 🟡 Partial | Engineering lead (proposed) | `supabase/migrations/20260831090000_notifications_and_audit_log.sql`<br>`supabase/migrations/20271215090000_audit_log_cross_tenant_guard.sql`<br>`src/pages/AuditLogPage.tsx`<br>`src/lib/auditLog.ts` | `supabase.audit_summary` | No immutability protection against the service role; log retention period is not defined. |
+ | LOG-02 | CC7.2 | Error and security-event monitoring | 🟡 Partial | Engineering lead (proposed) | `src/lib/sentry.ts`<br>`supabase/migrations/20280401000000_security_events.sql` | — (verify outside repo) | Sentry is active only when VITE_SENTRY_DSN is set in production (verify). No central log store or alert routing to a named on-call person. |
+-| INC-01 | CC7.3, CC7.4, CC7.5 | Incident response procedure with named roles and annual exercise | 🟡 Partial | CEO / incident commander (proposed) | `RUNBOOK.md`<br>`docs/compliance/soc2/policies/04-incident-response-policy.md` | `manual.tabletop` | Procedure exists in RUNBOOK section 6; no named incident commander, no tabletop exercise record, no breach-notification timeline. |
++| INC-01 | CC7.3, CC7.4, CC7.5 | Incident response procedure with named roles and annual exercise | 🟡 Partial | CEO / incident commander (proposed) | `RUNBOOK.md`<br>`docs/compliance/policies/incident-response.md` | `manual.tabletop` | Procedure exists in RUNBOOK section 6; no named incident commander, no tabletop exercise record, no breach-notification timeline. |
+ | INC-02 | CC7.4, CC2.3 | Public status page and subscriber notifications for incidents | 🟢 Met | Engineering lead (proposed) | `src/pages/StatusPage.tsx`<br>`supabase/functions/status-feed/index.ts`<br>`supabase/functions/notify-status-subscribers/index.ts` | `supabase.incidents` | Incident post-mortems are not stored in a structured register. |
+-| VND-01 | CC9.2 | Vendor inventory, sub-processor list and annual vendor review | 🟡 Partial | Security owner (proposed) | `src/lib/subprocessors.ts`<br>`src/pages/SubprocessorsPage.tsx`<br>`docs/compliance/soc2/policies/06-vendor-management-policy.md`<br>`docs/compliance/soc2/templates/vendor-review-register.csv` | `manual.vendor_review` | No vendor risk assessments or collected SOC 2 / ISO reports for Supabase, Vercel, Stripe, Twilio, Vapi, or AI providers. |
++| VND-01 | CC9.2 | Vendor inventory, sub-processor list and annual vendor review | 🟡 Partial | Security owner (proposed) | `src/lib/subprocessors.ts`<br>`src/pages/SubprocessorsPage.tsx`<br>`docs/compliance/policies/vendor-management.md`<br>`docs/compliance/soc2/templates/vendor-review-register.csv` | `manual.vendor_review` | No vendor risk assessments or collected SOC 2 / ISO reports for Supabase, Vercel, Stripe, Twilio, Vapi, or AI providers. |
+ | PEN-01 | CC4.1, CC7.1 | Independent penetration test (annual, third party) | 🔴 Missing | CEO / security owner (proposed) | `docs/compliance/soc2/PENTEST_SCOPE.md`<br>`src/pages/StaffTrustAdminPage.tsx` | `manual.pentest` | No third-party penetration test has been performed. The page that publishes pentest summaries exists; no summary exists. |
+-| PHY-01 | CC6.4, CC6.5 | Physical and environmental security (inherited from hosting sub-service organizations) | 🟡 Partial | Security owner (proposed) | `docs/compliance/soc2/policies/06-vendor-management-policy.md` | `manual.vendor_review` | Vireek operates no data centers. Reliance on Supabase / Vercel requires their current attestation reports, which have not been collected. |
++| PHY-01 | CC6.4, CC6.5 | Physical and environmental security (inherited from hosting sub-service organizations) | 🟡 Partial | Security owner (proposed) | `docs/compliance/policies/vendor-management.md` | `manual.vendor_review` | Vireek operates no data centers. Reliance on Supabase / Vercel requires their current attestation reports, which have not been collected. |
+ 
+ ## Availability
+ 
+@@ -47,14 +47,14 @@
+ | AVL-01 | A1.1 | Availability monitoring: synthetic probes and SLO evaluation | 🟢 Met | Engineering lead (proposed) | `supabase/functions/synthetic-probe/index.ts`<br>`supabase/functions/slo-evaluate/index.ts`<br>`supabase/migrations/20271102000000_synthetic_monitoring_slo.sql`<br>`docs/runbooks/synthetic-monitoring.md` | `supabase.slo` | Probe targets and the alert webhook must be configured in production (verify). Capacity planning is not documented. |
+ | AVL-02 | A1.2 | Scheduled logical backups to a private bucket with checksum | 🟡 Partial | Engineering lead (proposed) | `supabase/functions/dr-backup-run/index.ts`<br>`supabase/migrations/20261121000000_disaster_recovery_data_governance.sql` | `supabase.backups` | The scheduler, the private 'dr-backups' bucket and Supabase PITR/plan retention cannot be proven from the repository; the evidence shows only whether runs actually happened. |
+ | AVL-03 | A1.3, CC9.1 | Periodic restore drills with measured recovery time | 🟡 Partial | Engineering lead (proposed) | `supabase/functions/dr-restore-drill/index.ts`<br>`supabase/migrations/20261121000000_disaster_recovery_data_governance.sql` | `supabase.restore_drills` | RTO/RPO targets are not defined; no passed drill has been evidenced yet. platform_restore_drills / platform_backup_runs are readable by all authenticated tenants (SOC2_READINESS.md F3). |
+-| AVL-04 | A1.2, CC9.1 | Business continuity and disaster recovery plan with RTO/RPO | 🔴 Missing | CEO / Engineering lead (proposed) | `docs/compliance/soc2/policies/05-business-continuity-dr-policy.md` | `manual.policy_approval` | Policy is a draft; targets are proposals. |
++| AVL-04 | A1.2, CC9.1 | Business continuity and disaster recovery plan with RTO/RPO | 🔴 Missing | CEO / Engineering lead (proposed) | `docs/compliance/policies/business-continuity.md`<br>`docs/compliance/policies/backup-disaster-recovery.md` | `manual.policy_approval` | Policy is a draft; targets are proposals. |
+ 
+ ## Confidentiality
+ 
+ | ID | Criteria | Control | Status | Proposed owner | Repo evidence of implementation | Evidence collectors | Gap / unverified |
+ |---|---|---|---|---|---|---|---|
+ | CON-01 | C1.1 | Identification and classification of confidential data (PII registry, AI PII modes) | 🟡 Partial | Security owner (proposed) | `src/lib/dataGovernance.ts`<br>`src/lib/aiSecurity.ts`<br>`supabase/migrations/20261121000000_disaster_recovery_data_governance.sql` | — (verify outside repo) | No approved data-classification policy; pii_field_registry must be kept current by hand. |
+-| CON-02 | C1.2 | Data retention, legal hold and secure disposal (retention sweep, erasure workflow) | 🟡 Partial | Security owner (proposed) | `supabase/functions/data-retention-sweep/index.ts`<br>`supabase/functions/delete-account/index.ts`<br>`supabase/migrations/20261121000000_disaster_recovery_data_governance.sql`<br>`docs/compliance/soc2/policies/07-data-retention-disposal-policy.md` | `supabase.retention` | Retention periods for platform logs, backups and evidence are not defined in an approved policy. |
++| CON-02 | C1.2 | Data retention, legal hold and secure disposal (retention sweep, erasure workflow) | 🟡 Partial | Security owner (proposed) | `supabase/functions/data-retention-sweep/index.ts`<br>`supabase/functions/delete-account/index.ts`<br>`supabase/migrations/20261121000000_disaster_recovery_data_governance.sql`<br>`docs/compliance/policies/data-classification-retention.md` | `supabase.retention` | Retention periods for platform logs, backups and evidence are not defined in an approved policy. |
+ 
+ ## Criteria with no mapped control yet
+ 
+@@ -76,3 +76,4 @@
+ | `backup_and_restore_testing` | `AVL-02`, `AVL-03` |
+ | `enforced_mfa_for_staff` | `ACC-02` |
+ | `independent_penetration_test` | `PEN-01` |
++
+--- a/docs/compliance/soc2/templates/training-records.csv
++++ b/docs/compliance/soc2/templates/training-records.csv
+@@ -0,0 +1 @@
++person_role,training_name,completed_on_utc,evidence_pointer,recorded_by,recorded_on_utc
+--- a/docs/compliance/soc2/templates/vendor-review-register.csv
++++ b/docs/compliance/soc2/templates/vendor-review-register.csv
+@@ -0,0 +1 @@
++vendor,service,data_classes,dpa_status,attestation_collected,reviewed_on_utc,next_review_utc,reviewer_role,evidence_pointer
+--- a/docs/compliance/soc2/templates/access-review-signoff.md
++++ b/docs/compliance/soc2/templates/access-review-signoff.md
+@@ -0,0 +1,13 @@
++# Access review sign-off (blank template)
++
++> **Blank template. A hash of this file is not evidence that a review happened.** Copy it, fill it in, store the signed copy in the restricted evidence location, and record a pointer and hash with the `manual.access_review_signoff` collector. See `docs/compliance/policies/access-control.md`.
++
++| Field | Value |
++|---|---|
++| Review period | |
++| Reviewer (role, not the person being reviewed) | |
++| Systems covered (GitHub, Vercel, Supabase, Stripe, Twilio, Vapi, ...) | |
++| Export or screenshot pointers (no secrets) | |
++| Accounts reviewed / removed / role-changed | |
++| Exceptions and follow-ups (owner, due date) | |
++| Reviewer sign-off and date | |
+--- a/scripts/compliance/collect-repo.mjs
++++ b/scripts/compliance/collect-repo.mjs
+@@ -94,20 +94,34 @@
+   });
+ }
+ 
+-/** Reads the "Status:" line of each policy draft. Approval is a human act; this only reports what the file says. */
++/**
++ * Reads the approval state of each policy draft. Approval is a human act; this only reports what the file says.
++ * Two layouts are understood: a `| Status |` / `| Approved by |` table row, or the one-line DRAFT banner used by
++ * docs/compliance/policies/*.md ("DRAFT — not approved. ... Approved by: _pending_"). A file with neither is "unknown",
++ * never "approved".
++ */
++export const POLICY_DIRS = Object.freeze(['docs/compliance/soc2/policies', 'docs/compliance/policies']);
++
++export function parsePolicyApproval(text) {
++  const tableStatus = /^\|\s*Status\s*\|\s*([^|\s][^|]*?)\s*\|/im.exec(text)?.[1];
++  const tableBy = /^\|\s*Approved by\s*\|\s*([^|\s][^|]*?)\s*\|/im.exec(text)?.[1];
++  if (tableStatus || tableBy) return { status: tableStatus ?? 'unknown', approvedBy: tableBy ?? 'unknown' };
++  const banner = /DRAFT\s*[—-]+\s*not approved/i.test(text);
++  const by = /Approved by:\s*(?:_([^_\n]+)_|([^·\n]+?))\s*(?:·|\n|$)/i.exec(text);
++  const approvedBy = (by?.[1] ?? by?.[2] ?? 'unknown').trim();
++  return { status: banner ? 'draft' : 'unknown', approvedBy };
++}
++
+ export function collectDocs({ root, now = new Date(), ...rest }) {
+-  const dir = 'docs/compliance/soc2/policies';
+-  const policies = has(root, dir)
+-    ? readdirSync(join(root, dir))
+-        .filter((f) => f.endsWith('.md'))
+-        .sort()
+-        .map((f) => {
+-          const text = read(root, `${dir}/${f}`);
+-          const status = /^\|\s*Status\s*\|\s*([^|]+?)\s*\|/im.exec(text)?.[1] ?? 'unknown';
+-          const approvedBy = /^\|\s*Approved by\s*\|\s*([^|]+?)\s*\|/im.exec(text)?.[1] ?? 'unknown';
+-          return { file: f, status, approvedBy, sha256: sha256Hex(text) };
+-        })
+-    : [];
++  const policies = POLICY_DIRS.filter((d) => has(root, d)).flatMap((dir) =>
++    readdirSync(join(root, dir))
++      .filter((f) => f.endsWith('.md') && !/^readme\.md$/i.test(f))
++      .sort()
++      .map((f) => {
++        const text = read(root, `${dir}/${f}`);
++        return { file: f, dir, ...parsePolicyApproval(text), sha256: sha256Hex(text) };
++      }),
++  );
+   const docs = ['RUNBOOK.md', 'ARCHITECTURE.md', 'CONTRIBUTING.md', 'docs/compliance/SOC2_READINESS.md', 'docs/compliance/soc2/CONTROL_MAP.md'].map((p) => ({
+     path: p,
+     present: has(root, p),
+--- a/scripts/compliance/collect-repo.test.mjs
++++ b/scripts/compliance/collect-repo.test.mjs
+@@ -0,0 +1,59 @@
++import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
++import { tmpdir } from 'node:os';
++import { join } from 'node:path';
++import { describe, expect, it } from 'vitest';
++import { POLICY_DIRS, collectDocs, parsePolicyApproval } from './collect-repo.mjs';
++
++describe('parsePolicyApproval', () => {
++  it('reads the DRAFT banner used by docs/compliance/policies', () => {
++    const r = parsePolicyApproval('# P\n\n> **DRAFT — not approved.** Owner: _to be assigned_ · Approved by: _pending_ · Last review: _pending_.\n');
++    expect(r.status).toBe('draft');
++    expect(r.approvedBy).toBe('pending');
++  });
++  it('reads the table layout', () => {
++    const r = parsePolicyApproval('| Status | Approved |\n| Approved by | Jane Doe |\n');
++    expect(r.status).toBe('Approved');
++    expect(r.approvedBy).toBe('Jane Doe');
++  });
++  it('ignores blank table cells (e.g. an empty sign-off row in a drill record) and falls back to the banner', () => {
++    const r = parsePolicyApproval('> **DRAFT — not approved.** Approved by: _pending_ · x\n\n| Drill record | |\n|---|---|\n| Approved by | |\n');
++    expect(r.status).toBe('draft');
++    expect(r.approvedBy).toBe('pending');
++  });
++  it('never reports "approved" for a file with neither layout', () => {
++    expect(parsePolicyApproval('# Just a document\n')).toEqual({ status: 'unknown', approvedBy: 'unknown' });
++  });
++});
++
++describe('collectDocs', () => {
++  it('scans both policy directories, skips README, and counts drafts', () => {
++    const root = mkdtempSync(join(tmpdir(), 'collect-'));
++    try {
++      for (const d of POLICY_DIRS) mkdirSync(join(root, d), { recursive: true });
++      writeFileSync(join(root, POLICY_DIRS[1], 'README.md'), '# index');
++      writeFileSync(join(root, POLICY_DIRS[1], 'a.md'), '> **DRAFT — not approved.** Approved by: _pending_ ·');
++      writeFileSync(join(root, POLICY_DIRS[0], 'b.md'), '| Status | Approved |\n| Approved by | Jane |\n');
++      const env = collectDocs({ root, now: new Date('2026-11-12T00:00:00Z') });
++      expect(env.summary.policyCount).toBe(2);
++      expect(env.summary.approved).toBe(1);
++      expect(env.summary.draft).toBe(1);
++      expect(env.data.policies.map((p) => p.file)).toEqual(['b.md', 'a.md']);
++    } finally {
++      rmSync(root, { recursive: true, force: true });
++    }
++  });
++  it('reports zero policies when neither directory exists', () => {
++    const root = mkdtempSync(join(tmpdir(), 'collect-'));
++    try {
++      expect(collectDocs({ root }).summary.policyCount).toBe(0);
++    } finally {
++      rmSync(root, { recursive: true, force: true });
++    }
++  });
++  it('finds the 15 real policy drafts, none approved', () => {
++    const env = collectDocs({ root: process.cwd() });
++    expect(env.summary.policyCount).toBe(15);
++    expect(env.summary.approved).toBe(0);
++    expect(env.data.policies.every((p) => p.status === 'draft' && p.approvedBy === 'pending')).toBe(true);
++  });
++});
+--- a/scripts/compliance/business-continuity.test.mjs
++++ b/scripts/compliance/business-continuity.test.mjs
+@@ -0,0 +1,82 @@
++import { existsSync, readFileSync } from 'node:fs';
++import { join } from 'node:path';
++import { describe, expect, it } from 'vitest';
++
++const ROOT = process.cwd();
++const text = readFileSync(join(ROOT, 'docs/compliance/policies/business-continuity.md'), 'utf8');
++const lines = text.split('\n');
++
++describe('business-continuity.md structure', () => {
++  it('stays a draft and makes no approval claim', () => {
++    expect(text).toContain('**DRAFT — not approved.**');
++    expect(text).toContain('Approved by: _pending_');
++  });
++  it('contains every required section', () => {
++    for (const h of [
++      '## 1. Critical services and recovery objectives',
++      '## 2. Role-criticality matrix',
++      '## 3. Named backup per critical system',
++      '## 4. Break-glass access procedure',
++      '## 5. Crisis plan',
++      '## 6. Crisis communication templates',
++      '## 7. Annual drill checklist',
++    ]) expect(text).toContain(h);
++  });
++  it('has customer, regulator and press templates', () => {
++    for (const t of ['### 6.1 Customers', '### 6.4 Customers — data incident notice', '### 6.5 Regulators', '### 6.6 Press', '### 6.7 Press']) expect(text).toContain(t);
++  });
++  it('marks regulator and data-incident templates as needing counsel', () => {
++    const start = text.indexOf('### 6.4');
++    const end = text.indexOf('### 6.6');
++    expect(text.slice(start, end)).toContain('[COUNSEL]');
++  });
++  it('has an annual drill checklist with checkboxes and a record table', () => {
++    const drill = text.slice(text.indexOf('## 7. Annual drill checklist'));
++    expect((drill.match(/- \[ \]/g) ?? []).length).toBeGreaterThan(15);
++    expect(drill).toContain('| Drill record |');
++  });
++});
++
++describe('business-continuity.md safety and integrity', () => {
++  it('stores no secret-looking values', () => {
++    expect(text).not.toMatch(/\b(sk|rk|pk)_(live|test)_[A-Za-z0-9]{8,}/);
++    expect(text).not.toMatch(/-----BEGIN [A-Z ]*PRIVATE KEY-----/);
++    expect(text).not.toMatch(/\beyJ[A-Za-z0-9_-]{20,}\./);
++    expect(text).not.toMatch(/\b(password|apikey|api_key|secret|token)\s*[:=]\s*[A-Za-z0-9]{8,}/i);
++  });
++  it('every backticked repository path exists', () => {
++    const paths = new Set(text.match(/`(?:docs|src|scripts|supabase|\.github)\/[A-Za-z0-9_./-]+`|`(?:RUNBOOK|ARCHITECTURE)\.md`/g)?.map((p) => p.slice(1, -1)));
++    expect(paths.size).toBeGreaterThan(10);
++    const missing = [...paths].filter((p) => !existsSync(join(ROOT, p)));
++    expect(missing).toEqual([]);
++  });
++  it('has consistent column counts in every table', () => {
++    const bad = [];
++    for (let i = 0; i < lines.length; i += 1) {
++      if (!lines[i].startsWith('|')) continue;
++      const count = (l) => (l.match(/(?<!\\)\|/g) ?? []).length;
++      const head = count(lines[i]);
++      let j = i;
++      while (j < lines.length && lines[j].startsWith('|')) {
++        if (count(lines[j]) !== head) bad.push(j + 1);
++        j += 1;
++      }
++      i = j;
++    }
++    expect(bad).toEqual([]);
++  });
++  it('gives every Tier 1 and Tier 2 role a primary and a distinct backup placeholder', () => {
++    const rows = lines.filter((l) => /^\| .* \| [12] \| \[(NAME|COUNSEL)/.test(l) || /^\| .* \| [12] \| \[NAME/.test(l));
++    expect(rows.length).toBeGreaterThanOrEqual(12);
++    for (const r of rows) {
++      const names = r.match(/\[NAME: [^\]]+\]/g) ?? [];
++      expect(names.length).toBeGreaterThanOrEqual(2);
++      expect(new Set(names).size).toBe(names.length);
++    }
++  });
++  it('is registered as evidence for the continuity control', () => {
++    const controls = JSON.parse(readFileSync(join(ROOT, 'docs/compliance/soc2/controls.json'), 'utf8'));
++    const avl04 = (controls.controls ?? controls).find((c) => c.id === 'AVL-04');
++    expect(avl04.implementation).toContain('docs/compliance/policies/business-continuity.md');
++  });
++});
