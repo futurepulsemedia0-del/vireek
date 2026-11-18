@@ -4,14 +4,16 @@
 // never silently drift below AA. `npm run tokens:build` turns this file into CSS variables, Tailwind colours,
 // TS/Deno hex constants and the docs table; `npm run test` re-verifies every declared pair.
 //
-// "Aurora Clay" (v3) — Claude-first, brighter and more colourful. Every seed is a published or screenshot-sampled colour:
-//   ANTHROPIC (dominant): Ivory #FAF9F5, Slate #141413, Light Gray #E8E6DC, surface #F0EEE6, Clay hue (#D97757) pushed to a VIVID
-//                         coral-orange #F9774C (same hue 38.76°, chroma 0.131 -> 0.170, lightness 0.672 -> 0.715) = the brand/primary colour
+// "Signal Exact" (v4) — Anthropic-first, and every brand colour is used EXACTLY as the brand publishes it (nothing is pushed,
+// brightened or recoloured). The solver only moves LIGHTNESS (never hue) where a WCAG pair needs it, so each derived tone stays
+// the same hue as its brand seed. Seeds, in priority order:
+//   ANTHROPIC (dominant): Ivory #FAF9F5, Slate #141413, Light Gray #E8E6DC, Mid Gray #B0AEA5, surface #F0EEE6,
+//                         Clay #D97757 (brand + primary action), Sky #6A9BCC, Sage #788C5D (aurora + charts)
 //   APPLE (second):       Blue #0071E3 / #0091FF (info), Green #34C759 / #30D158, Red #FF383C / #FF4245, Yellow #FFCC00 / #FFD600
-//   STRIPE (third):       Blurple #533AFD / Lilac #7E6BFD (`cta`), orange->pink->lilac aurora (#FE8E22 / #FF88E9 / #BABAFE)
-//   chart hues also use: NVIDIA #76B900, SAP #9652D2 / #0256D2, Microsoft #8A2A8A.
-// No other hue is allowed anywhere in the product. Vivid Clay = brand/primary action (fill carries Slate text, like NVIDIA's
-// green + black); Blurple (cta) = LIVE / AI signal only.
+//   STRIPE (third):       Blurple #533AFD (`cta`; dark tone = same hue, lighter), orange #FF911E (aurora)
+//   charts also use:      NVIDIA #76B900, SAP #6C32A9 / #046C7A, Microsoft #882A8B / #F25022, Vercel black #000 (high-contrast dark).
+// No other hue is allowed anywhere in the product. Clay = brand/primary action (fill carries Slate text, like NVIDIA's green + black,
+// 5.9:1); Blurple (cta) = LIVE / AI signal only; status colours are Apple's, fill + Slate text (red 5.2:1).
 
 import { oklchToRgb, contrast, solveL, over, toHex, rgbToOklch } from './oklch.mjs';
 
@@ -20,7 +22,7 @@ export const THEMES = ['light', 'dark', 'light-hc', 'dark-hc'];
 // ---------------------------------------------------------------- thresholds
 export const MIN = { text: 4.5, textAAA: 7, ui: 3, large: 3 };
 // Solver targets carry a safety margin over the AA minimum (rounding to 8-bit, anti-aliasing, compositing).
-const T = { text: 4.8, strong: 7.0, ui: 3.3, secondary: 5.6, muted: 4.65, placeholder: 4.6, on: 4.8 };
+const T = { text: 4.8, strong: 7.0, ui: 3.3, secondary: 5.6, muted: 4.65, placeholder: 4.6, on: 4.65 }; // on: 4.65 keeps Apple's exact #0071E3 (white 4.70:1) un-deepened
 const HC = { text: 7.0, ui: 4.5, secondary: 7.0, muted: 7.0, placeholder: 7.0, on: 7.0 };
 
 // Peak alpha of the brand radial wash (.bg-gradient-mesh). Was .22/.16 — lowered so secondary text keeps AA
@@ -32,7 +34,7 @@ export const AURORA_ALPHA = { 'aurora-1': 0.22, 'aurora-2': 0.16, 'aurora-3': 0.
 // In the dark themes the same wash would lift the page surface and force every secondary text lighter, so index.css uses the
 // alphas scaled by this factor under `.dark` (and the solver uses the same scaled values there).
 export const AURORA_DARK_SCALE = 0.4;
-const AURORA_OKLCH = { 'aurora-1': [0.715, 0.17, 38.76], 'aurora-2': [0.74, 0.15, 5], 'aurora-3': [0.8132, 0.0954, 284.08], 'aurora-4': [0.5211, 0.2679, 277.43] };
+const AURORA_OKLCH = { 'aurora-1': [0.6724, 0.1308, 38.76], 'aurora-2': [0.7593, 0.1725, 58.85], 'aurora-3': [0.6742, 0.0901, 249.29], 'aurora-4': [0.6118, 0.0713, 127.12] }; // Clay / Stripe orange / Sky / Sage (no purple-pink wash)
 
 // ---------------------------------------------------------------- surfaces & neutrals (OKLCH)
 const SURFACE = {
@@ -48,15 +50,15 @@ const GRAPHITE = rgbOf([0.190839, 0.001983, 106.5859]); // Anthropic Slate #1414
 // text/fill/graphic seeds are the brand anchors; the solver only moves lightness (never hue) when needed.
 // `on` = text colour used on the family's solid fill, per theme.
 const FAMILIES = {
-  accent: { // VIVID CLAY #F9774C — Anthropic Clay hue, brighter + more saturated. Brand + primary action. Slate text (6.8:1).
-    seed: { light: [0.715, 0.17, 38.76], dark: [0.715, 0.17, 38.76] },
-    fillSeed: { light: [0.715, 0.17, 38.76], dark: [0.715, 0.17, 38.76] },
+  accent: { // CLAY #D97757 — Anthropic's exact primary accent. Brand + primary action. Slate text (5.9:1).
+    seed: { light: [0.6724, 0.1308, 38.76], dark: [0.6724, 0.1308, 38.76] },
+    fillSeed: { light: [0.6724, 0.1308, 38.76], dark: [0.6724, 0.1308, 38.76] },
     on: { light: 'ink', dark: 'ink' },
-    scale: { anchorStep: 500, anchorL: 0.715 },
+    scale: { anchorStep: 500, anchorL: 0.6724 },
   },
-  cta: { // Stripe BLURPLE #533AFD (light) / LILAC #7E6BFD (dark) — live / AI signal only
-    seed: { light: [0.5211, 0.2679, 277.43], dark: [0.622379, 0.208774, 284.4749] },
-    fillSeed: { light: [0.5211, 0.2679, 277.43], dark: [0.622379, 0.208774, 284.4749] },
+  cta: { // Stripe BLURPLE #533AFD (light); dark = the same hue (277.43°) lifted in lightness — live / AI signal only
+    seed: { light: [0.5211, 0.2679, 277.43], dark: [0.622379, 0.208774, 277.43] },
+    fillSeed: { light: [0.5211, 0.2679, 277.43], dark: [0.622379, 0.208774, 277.43] },
     on: { light: 'white', dark: 'ink' },
     scale: { anchorStep: 600, anchorL: 0.5211 },
   },
@@ -69,7 +71,7 @@ const FAMILIES = {
   danger: { // Apple RED #FF383C / #FF4245
     seed: { light: [0.64965, 0.23834, 17.89816], dark: [0.65772, 0.2317, 16.01796] }, // text/tints: Apple PINK #FF2D55 / #FF375F (hue 17°, further from Clay 39°)
     fillSeed: { light: [0.653197, 0.232821, 25.7394], dark: [0.662002, 0.224599, 25.1223] }, // fill/graphic: Apple RED
-    on: { light: 'white', dark: 'white' }, // white-on-red = the expected destructive look; fill is deepened to pass 4.8:1 AND to separate from Clay for deuteranopes
+    on: { light: 'ink', dark: 'ink' }, // Apple's exact red is kept as published; Slate text on it = 5.2:1 (white would be 3.6:1 and fail AA)
     scale: { anchorStep: 500, anchorL: 0.653197 },
   },
   warning: { // Apple YELLOW #FFCC00 / #FFD600
@@ -79,8 +81,8 @@ const FAMILIES = {
     scale: { anchorStep: 500, anchorL: 0.865209 },
   },
   info: { // APPLE BLUE #0071E3 (light) / #0091FF (dark) — the Apple pill-button blue
-    seed: { light: [0.5629, 0.1933, 256.16], dark: [0.6573, 0.2018, 252.5] },
-    fillSeed: { light: [0.5629, 0.1933, 256.16], dark: [0.6573, 0.2018, 252.5] },
+    seed: { light: [0.5629, 0.1933, 256.16], dark: [0.6515, 0.192, 251.47] },
+    fillSeed: { light: [0.5629, 0.1933, 256.16], dark: [0.6515, 0.192, 251.47] },
     on: { light: 'white', dark: 'ink' },
     scale: { anchorStep: 600, anchorL: 0.5629 },
   },
@@ -112,11 +114,11 @@ export const NEUTRAL_SCALE = (() => {
 // 8 categorical colours: hue + chroma are inherited from published colours of the three reference brands (Anthropic Clay /
 // Sky / Kraft / Fig / Mid Gray, Apple Blue / Purple / Cyan / Yellow / Brown, Stripe Blurple / Lilac / Navy-range); lightness was
 // then optimised by maximin search (OKLab ΔE under normal + protan + deutan + tritan vision, >=3:1 on every surface).
-// Hues: Vivid Clay, Stripe Blurple / pink / orange, SAP violet + blue, Microsoft magenta, NVIDIA lime, Anthropic Fig / Sky / Sage. Result: min pairwise ΔE 0.0975 (light) / 0.0959 (dark); gate is 0.09.
+// Hues (never moved): Anthropic Clay / Sky / Sage, Stripe Blurple, NVIDIA lime, SAP violet, Microsoft magenta / orange. Only lightness + chroma are tuned: eight EXACT brand colours cannot all be told apart under colour-blindness, so slot 1 stays Clay (dark = #D97757 exactly) and the rest are tuned to reach min pairwise ΔE 0.1006 (light) / 0.0967 (dark); gate is 0.09.
 // Series 1 is always brand Clay. Colour alone can NEVER carry meaning: charts must also use VIZ_PATTERNS + VIZ_MARKERS + direct labels.
 const VIZ_CAT_OKLCH = {
-  light: [[0.62, 0.17, 38.76], [0.5254, 0.2, 277.43], [0.6291, 0.1589, 260.37], [0.4205, 0.1897, 305.68], [0.6058, 0.1233, 334.51], [0.441, 0.1639, 57.22], [0.3709, 0.07, 249.29], [0.4913, 0.002, 106.59]],
-  dark: [[0.715, 0.17, 38.76], [0.6148, 0.1968, 277.43], [0.9, 0.2, 130.8], [0.7816, 0.2, 327.9], [0.6, 0.0999, 359.65], [0.8147, 0.0895, 127.12], [0.8761, 0.1878, 334.51], [0.697, 0.0129, 96.48]],
+  light: [[0.625, 0.1308, 38.76], [0.4304, 0.27, 277.43], [0.6291, 0.1589, 260.37], [0.3155, 0.1697, 305.68], [0.6058, 0.0533, 334.51], [0.366, 0.0939, 57.22], [0.2309, 0.01, 249.29], [0.4563, 0.022, 106.59]],
+  dark: [[0.6724, 0.1308, 38.76], [0.6148, 0.1968, 277.43], [0.9, 0.2, 130.8], [0.7816, 0.2, 327.9], [0.575, 0.0499, 359.65], [0.8147, 0.0895, 127.12], [0.8761, 0.1878, 334.51], [0.722, 0.002, 96.48]],
 };
 
 // ---------------------------------------------------------------- the solver
