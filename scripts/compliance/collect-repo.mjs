@@ -94,20 +94,34 @@ export function collectChangeConfig({ root, now = new Date(), ...rest }) {
   });
 }
 
-/** Reads the "Status:" line of each policy draft. Approval is a human act; this only reports what the file says. */
+/**
+ * Reads the approval state of each policy draft. Approval is a human act; this only reports what the file says.
+ * Two layouts are understood: a `| Status |` / `| Approved by |` table row, or the one-line DRAFT banner used by
+ * docs/compliance/policies/*.md ("DRAFT — not approved. ... Approved by: _pending_"). A file with neither is "unknown",
+ * never "approved".
+ */
+export const POLICY_DIRS = Object.freeze(['docs/compliance/soc2/policies', 'docs/compliance/policies']);
+
+export function parsePolicyApproval(text) {
+  const tableStatus = /^\|\s*Status\s*\|\s*([^|\s][^|]*?)\s*\|/im.exec(text)?.[1];
+  const tableBy = /^\|\s*Approved by\s*\|\s*([^|\s][^|]*?)\s*\|/im.exec(text)?.[1];
+  if (tableStatus || tableBy) return { status: tableStatus ?? 'unknown', approvedBy: tableBy ?? 'unknown' };
+  const banner = /DRAFT\s*[—-]+\s*not approved/i.test(text);
+  const by = /Approved by:\s*(?:_([^_\n]+)_|([^·\n]+?))\s*(?:·|\n|$)/i.exec(text);
+  const approvedBy = (by?.[1] ?? by?.[2] ?? 'unknown').trim();
+  return { status: banner ? 'draft' : 'unknown', approvedBy };
+}
+
 export function collectDocs({ root, now = new Date(), ...rest }) {
-  const dir = 'docs/compliance/soc2/policies';
-  const policies = has(root, dir)
-    ? readdirSync(join(root, dir))
-        .filter((f) => f.endsWith('.md'))
-        .sort()
-        .map((f) => {
-          const text = read(root, `${dir}/${f}`);
-          const status = /^\|\s*Status\s*\|\s*([^|]+?)\s*\|/im.exec(text)?.[1] ?? 'unknown';
-          const approvedBy = /^\|\s*Approved by\s*\|\s*([^|]+?)\s*\|/im.exec(text)?.[1] ?? 'unknown';
-          return { file: f, status, approvedBy, sha256: sha256Hex(text) };
-        })
-    : [];
+  const policies = POLICY_DIRS.filter((d) => has(root, d)).flatMap((dir) =>
+    readdirSync(join(root, dir))
+      .filter((f) => f.endsWith('.md') && !/^readme\.md$/i.test(f))
+      .sort()
+      .map((f) => {
+        const text = read(root, `${dir}/${f}`);
+        return { file: f, dir, ...parsePolicyApproval(text), sha256: sha256Hex(text) };
+      }),
+  );
   const docs = ['RUNBOOK.md', 'ARCHITECTURE.md', 'CONTRIBUTING.md', 'docs/compliance/SOC2_READINESS.md', 'docs/compliance/soc2/CONTROL_MAP.md'].map((p) => ({
     path: p,
     present: has(root, p),
