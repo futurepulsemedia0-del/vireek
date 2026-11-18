@@ -22,6 +22,8 @@
     "lint:motion": "node scripts/check-motion.mjs",
     "test:motion": "node --test scripts/motion/codemod-lib.test.mjs && playwright test e2e/reduced-motion.spec.ts",
     "compliance:check": "node scripts/compliance/validate-controls.mjs --check",
+    "compliance:calendar": "node scripts/compliance/calendar-check.mjs --check",
+    "compliance:calendar:write": "node scripts/compliance/calendar-check.mjs --write",
     "compliance:map": "node scripts/compliance/validate-controls.mjs --write",
     "a11y:targets": "node scripts/a11y/audit-targets.mjs",
     "audit:mobile": "node scripts/a11y/mobile-debt.mjs",
