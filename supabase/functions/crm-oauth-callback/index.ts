@@ -20,6 +20,7 @@ import {
   verifyOAuthState,
   type CrmProvider,
 } from "../_shared/crm/engine.ts";
+import { redeemIssuedState } from "../_shared/security/oauthStateBindingGuard.ts";
 
 Deno.serve(async (req: Request) => {
   const url = new URL(req.url);
@@ -35,6 +36,11 @@ Deno.serve(async (req: Request) => {
   const state = url.searchParams.get("state");
   const verified = state && stateSecret ? await verifyOAuthState(state, stateSecret) : null;
   if (!verified) return back({ crm: "error", reason: "invalid_state" });
+
+  // Single use + session bound: issued by crm-oauth-start, never redeemed before, minting session still alive,
+  // and the identity stored server-side must equal the one inside the signed state.
+  const redeemed = await redeemIssuedState(state as string, `crm:${verified.p}`);
+  if (!redeemed.ok || redeemed.userId !== verified.u || redeemed.ownerId !== verified.o) return back({ crm: "error", reason: "invalid_state" });
 
   const provider: CrmProvider = verified.p;
   const fail = (reason: string) => back({ crm: "error", provider, reason });
