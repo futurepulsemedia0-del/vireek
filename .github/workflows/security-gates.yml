@@ -53,6 +53,8 @@ jobs:
         run: node scripts/security/secret-compare.mjs --check
       - name: RLS audit (fails on stale artifacts and new RLS findings)
         run: node scripts/security/rls-audit.mjs --check
+      - name: Tenant isolation coverage (fails on a NEW tenant table without an isolation test)
+        run: node scripts/security/tenant-isolation.mjs --check
 
       - name: Unit tests (security tooling + shared HTTP middleware)
         run: npx vitest run scripts/security supabase/functions/_shared/http supabase/functions/send-payment-reminders
