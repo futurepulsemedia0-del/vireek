@@ -6,6 +6,7 @@
 // Deploy: supabase functions deploy video-ice --no-verify-jwt   (guests have no account)
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { guardPublic } from "../_shared/http/publicGuardDeno.ts";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -79,6 +80,9 @@ Deno.serve(async (req: Request) => {
     return json({ error: "Invalid JSON body" }, 400);
   }
   if (typeof token !== "string" || !TOKEN_RE.test(token)) return json({ error: "Invalid token" }, 400);
+  // TURN credentials cost money: limit per client AND per session token. Fail CLOSED.
+  const blocked = await guardPublic(req, { endpoint: "video-ice", limit: 30, windowSeconds: 60, failClosed: true, scope: token, headers: CORS });
+  if (blocked) return blocked;
 
   const db = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", {
     auth: { persistSession: false, autoRefreshToken: false },
