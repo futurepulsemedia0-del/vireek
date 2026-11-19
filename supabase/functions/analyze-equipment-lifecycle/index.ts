@@ -14,8 +14,10 @@
 // Deploy: supabase functions deploy analyze-equipment-lifecycle --no-verify-jwt
 // Schedule it the same way check-warranty-alerts is documented to be
 // scheduled (pg_cron or an external scheduler), once a day.
+// AUTH: the scheduler must send the header  x-cron-secret: <CRON_SECRET>  (supabase secrets set CRON_SECRET=...).
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { requireCronAuth } from "../_shared/http/cronAuth.ts";
 import { assessLifecycle, parseSignals, type PassportSignals } from "../_shared/equipment-lifecycle/score.ts";
 
 interface EquipmentRow {
@@ -32,7 +34,10 @@ interface EquipmentRow {
 
 const CHUNK = 200;
 
-Deno.serve(async (_req: Request) => {
+Deno.serve(async (req: Request) => {
+  // Scans EVERY account with the service role: scheduler-only. Fail closed (503 when CRON_SECRET is unset).
+  const auth = requireCronAuth(req);
+  if (!auth.ok) return auth.response;
   const admin = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", { auth: { persistSession: false } });
   const now = new Date();
 
