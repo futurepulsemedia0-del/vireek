@@ -1,0 +1,38 @@
+{
+  "title": "Number health",
+  "intro": "Whether callers may see a spam warning on your numbers, and how carriers sign your outbound calls.",
+  "noProvider": "No reputation provider is connected yet, so nothing has been checked and statuses show “Not checked”. Use the steps under each number in the meantime.",
+  "check": "Check now",
+  "checking": "Checking…",
+  "checkedCount": "Checked {{count}} number(s).",
+  "checkRecent": "Checked a moment ago. Try again in a few minutes.",
+  "checkFailed": "Could not check right now. Try again later.",
+  "load": { "loading": "Loading number health…", "error": "Could not load number health.", "retry": "Try again" },
+  "spam": { "label": "Spam label", "clean": "No spam label", "suspected": "Possible spam label", "flagged": "Flagged as spam", "unknown": "Not checked" },
+  "attestation": {
+    "label": "Call signing (STIR/SHAKEN)",
+    "A": "A – full: the carrier vouches for you and the number",
+    "B": "B – partial: the carrier knows you but cannot vouch for the number",
+    "C": "C – gateway: the carrier only passed the call on",
+    "unknown": "Not reported"
+  },
+  "severity": { "ok": "Looks good", "watch": "Needs attention", "action": "Action needed", "unknown": "Unknown" },
+  "sources": "Reported by: {{names}}",
+  "checkedAt": "Last checked {{time}}",
+  "never": "Never checked",
+  "stale": "This result is more than a day and a half old. Treat it as out of date.",
+  "lastError": "The last attempt failed; showing the last successful result.",
+  "remediation": { "title": "What to do", "progress": "{{done}} of {{total}} done", "show": "Show steps", "hide": "Hide steps", "saveFailed": "Could not save that tick. Try again." },
+  "steps": {
+    "pause_outbound": { "title": "Pause high-volume outbound calling from this number", "detail": "Until the label clears, use another registered number for bulk or campaign calls." },
+    "check_registration": { "title": "Check your caller-ID and registration", "detail": "Make sure your business name, caller-ID name and any SMS or toll-free registration match everywhere. The registration checklist is further down this page." },
+    "review_call_patterns": { "title": "Review recent calling patterns", "detail": "Carriers commonly pay attention to very short calls, high call volume and many unanswered calls. Look for anything unusual from this number." },
+    "ask_relabel": { "title": "Ask for the label to be reviewed", "detail": "Your carrier can tell you which analytics services label your calls and how each one takes review requests. The process differs by service." },
+    "contact_carrier": { "title": "Open a ticket with your carrier", "detail": "Give them the number, the label you see and the date. Keep the ticket reference." },
+    "verify_attestation": { "title": "Ask why calls are not fully signed (A)", "detail": "Ask your carrier what they need to confirm you own this number and your business." },
+    "register_cnam": { "title": "Register your caller-ID name", "detail": "Use the Caller-ID name section below. Display is not guaranteed on every network." },
+    "connect_provider": { "title": "Connect a reputation provider", "detail": "Until one is connected, Vireek cannot read spam labels or call signing for your numbers." },
+    "manual_check": { "title": "Check by calling from this number", "detail": "Call a phone on a different carrier and note what the screen shows. This is a manual spot check, not a measurement." },
+    "keep_monitoring": { "title": "Keep monitoring", "detail": "Nothing to fix now. Vireek re-checks on a schedule." }
+  }
+}
