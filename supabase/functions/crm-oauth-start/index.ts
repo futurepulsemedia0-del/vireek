@@ -31,6 +31,8 @@ import {
   type CrmProvider,
 } from "../_shared/crm/engine.ts";
 
+import { recordIssuedState } from "../_shared/security/oauthStateBindingGuard.ts";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -73,7 +75,11 @@ Deno.serve(async (req: Request) => {
 
     const redirectUri = `${Deno.env.get("SUPABASE_URL")}/functions/v1/crm-oauth-callback`;
     const { state, nonce } = await signOAuthState({ owner: ownerId as string, user: userData.user.id, provider }, stateSecret);
-
+    // Server-side, single-use, session-bound record of this state (see oauthStateBinding.ts). Fail closed.
+    if (!(await recordIssuedState({ state, provider: `crm:${provider}`, userId: userData.user.id, ownerId: ownerId as string, jwt: authHeader }))) {
+      return json({ error: "Could not start the connection. Please sign in again." }, 401);
+    }
+    
     const url = buildAuthorizeUrl(provider, {
       clientId,
       redirectUri,
