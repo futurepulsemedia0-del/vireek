@@ -1,0 +1,9 @@
+{
+  "timeStamp": "2026-11-18T09:00:00Z",
+  "availabilities": [
+    { "start": "2026-11-19T08:00:00", "end": "2026-11-19T12:00:00", "startUtc": "2026-11-19T13:00:00Z", "endUtc": "2026-11-19T17:00:00Z", "businessUnitIds": [7], "totalAvailability": 16, "openAvailability": 6, "technicians": [{ "id": 11, "name": "Tech A", "status": "Available", "hasRequiredSkills": true }], "isAvailable": true, "isExceedingIdealBookingPercentage": false },
+    { "start": "2026-11-19T12:00:00", "end": "2026-11-19T16:00:00", "startUtc": "2026-11-19T17:00:00Z", "endUtc": "2026-11-19T21:00:00Z", "businessUnitIds": [7], "totalAvailability": 16, "openAvailability": 0, "technicians": [], "isAvailable": false, "isExceedingIdealBookingPercentage": true },
+    { "start": "2026-11-20T08:00:00", "end": "2026-11-20T12:00:00", "startUtc": "2026-11-20T13:00:00Z", "endUtc": "2026-11-20T17:00:00Z", "businessUnitIds": [7], "totalAvailability": 8, "openAvailability": 2, "technicians": [], "isAvailable": true, "isExceedingIdealBookingPercentage": false },
+    { "start": "2026-11-20T12:00:00", "end": "2026-11-20T16:00:00", "totalAvailability": 8, "openAvailability": 8, "isAvailable": true }
+  ]
+}
