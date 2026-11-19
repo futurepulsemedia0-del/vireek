@@ -23,7 +23,9 @@ describe('sub-processor residency classification', () => {
   });
   it('separates optional and no-content vendors and leaves nothing unclassified', () => {
     const r = residencyImpact('eu');
-    expect(r.customerOptional.length).toBe(3);
+    expect(r.customerOptional.map((p) => p.name)).toEqual(
+      expect.arrayContaining(['Google LLC (Google Calendar)', 'Intuit Inc. (QuickBooks)', 'Zapier, Inc.', 'Xero Limited', 'Plaid Inc.']),
+    );
     expect(r.noCustomerContent.map((p) => p.name)).toContain('Vercel Inc.');
     expect(r.unclassified).toEqual([]);
   });
