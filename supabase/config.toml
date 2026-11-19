@@ -124,3 +124,7 @@ uri = "pg-functions://postgres/public/custom_access_token_hook"
 
 [functions.mcp-oauth]
 verify_jwt = false
+
+
+[functions.ai-batch-runner]
+verify_jwt = false
