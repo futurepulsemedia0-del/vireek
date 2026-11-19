@@ -156,3 +156,5 @@ verify_jwt = false
 verify_jwt = false
 [functions.dsar-request]
 verify_jwt = false
+[functions.gbp-oauth-callback]
+verify_jwt = false
