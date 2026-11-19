@@ -5,6 +5,7 @@ import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { IncidentReportForm } from '@/components/safety/IncidentReportForm';
+import { HeatSafetyCard } from '@/components/safety/HeatSafetyCard';
 import { EMERGENCY_SERVICES_NOTICE, fetchTransparency, setConsent, setMyPrefs, type Transparency } from '@/lib/siteSafety';
 
 const PHONE_RE = /^\+?[0-9 ()-]{6,20}$/;
@@ -157,7 +158,7 @@ export function TechnicianSafetyPage() {
             )}
           </>
         )}
-
+        <HeatSafetyCard />
         {ownerId ? <IncidentReportForm ownerId={ownerId} /> : null}
       </main>
     </div>
