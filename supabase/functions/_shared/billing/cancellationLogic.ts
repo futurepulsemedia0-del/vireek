@@ -20,7 +20,7 @@ export const MAX_DETAIL_LENGTH = 1000;
 
 export type CancellationRequest =
   | { action: "context" }
-  | { action: "cancel"; reason: CancelReason; detail: string }
+  | { action: "cancel"; reason: CancelReason | null; detail: string }
   | { action: "pause"; months: PauseMonths; reason: CancelReason | null; detail: string }
   | { action: "accept_offer"; reason: CancelReason | null; detail: string }
   | { action: "offers"; reason: CancelReason; detail: string }
