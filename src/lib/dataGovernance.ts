@@ -208,11 +208,10 @@ export interface BackupRun {
   started_at: string;
   completed_at: string | null;
   status: 'running' | 'completed' | 'failed';
-  storage_path: string | null;
   size_bytes: number | null;
-  table_row_counts: Record<string, number>;
-  error_message: string | null;
 }
+// storage_path, checksum_sha256, table_row_counts and error_message are staff/service-role only:
+// column-level SELECT is revoked for clients (migration 20290304000000), so never select('*') here.
 
 export interface RestoreDrill {
   id: string;
@@ -221,14 +220,13 @@ export interface RestoreDrill {
   completed_at: string | null;
   status: 'running' | 'passed' | 'failed';
   rto_seconds: number | null;
-  row_count_mismatches: Record<string, unknown>;
   notes: string | null;
 }
 
 export async function fetchRecentBackupRuns(limit = 10): Promise<BackupRun[]> {
   const { data, error } = await supabase
     .from('platform_backup_runs')
-    .select('*')
+    .select('id, started_at, completed_at, status, size_bytes')
     .order('started_at', { ascending: false })
     .limit(limit);
   if (error) throw error;
@@ -238,7 +236,7 @@ export async function fetchRecentBackupRuns(limit = 10): Promise<BackupRun[]> {
 export async function fetchRecentRestoreDrills(limit = 10): Promise<RestoreDrill[]> {
   const { data, error } = await supabase
     .from('platform_restore_drills')
-    .select('*')
+    .select('id, backup_run_id, started_at, completed_at, status, rto_seconds, notes')
     .order('started_at', { ascending: false })
     .limit(limit);
   if (error) throw error;
