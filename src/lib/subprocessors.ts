@@ -51,7 +51,7 @@ export const SUBPROCESSOR_CATEGORIES: ProcessorCategory[] = [
       { name: 'Cerebras Systems Inc.', purpose: 'AI inference (fallback provider in the model routing chain)', location: 'United States', dataTypes: 'Call transcripts and text prompts' },
       { name: 'Cloudflare, Inc. (Workers AI)', purpose: 'AI inference (fallback provider in the model routing chain)', location: 'United States', dataTypes: 'Call transcripts and text prompts' },
       { name: 'OpenRouter, Inc.', purpose: 'AI inference routing (fallback provider in the model routing chain)', location: 'United States', dataTypes: 'Call transcripts and text prompts' },
-      { name: 'Anthropic, PBC', purpose: 'AI inference (fallback provider in the model routing chain)', location: '[VERIFY] United States', dataTypes: 'Call transcripts and text prompts' },
+      { name: 'Anthropic, PBC', purpose: 'AI inference (optional provider; not in the default model routing chain, used only if enabled)', location: '[VERIFY] United States', dataTypes: 'Text prompts sent to the model when enabled' },
       { name: 'Cohere', purpose: 'Text embeddings and ranking for knowledge-base search', location: '[VERIFY]', dataTypes: 'Knowledge-base text and search queries' },
       { name: 'ElevenLabs', purpose: 'Text-to-speech voice synthesis', location: '[VERIFY]', dataTypes: 'Text to be spoken' },
       { name: 'Twilio Inc.', purpose: 'SMS, voice, and phone-number lookup', location: '[VERIFY] United States', dataTypes: 'Phone numbers, message content, call metadata' },
