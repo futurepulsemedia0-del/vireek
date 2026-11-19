@@ -68,6 +68,8 @@ export interface NormalizedChatRequest {
   temperature?: number;
   jsonMode?: boolean;
   timeoutMs?: number;
+  /** Leading characters of `system` that are identical across calls (cache breakpoint). Optional hint. */
+  stablePrefixChars?: number;
 }
 
 export interface NormalizedChatResponse {
@@ -77,7 +79,7 @@ export interface NormalizedChatResponse {
   latencyMs: number;
   wasFallback: boolean;
   /** Provider-REPORTED token counts when the response included them (non-streaming). Absent = cost is estimated from text length. */
-  usage?: { inputTokens: number; outputTokens: number };
+  usage?: { inputTokens: number; outputTokens: number; cacheReadTokens?: number; cacheWriteTokens?: number };
 }
 
 /**
