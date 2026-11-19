@@ -47,6 +47,7 @@
 /.github/                                      @OWNER_PLATFORM
 /scripts/governance/                           @OWNER_PLATFORM
 /scripts/supply-chain/                         @OWNER_PLATFORM
+/.github/workflows/sbom-provenance.yml         @OWNER_SECURITY
 /package.json                                  @OWNER_PLATFORM
 /package-lock.json                             @OWNER_PLATFORM
 /docs/adr/                                     @OWNER_PLATFORM
