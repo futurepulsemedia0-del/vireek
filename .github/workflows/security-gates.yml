@@ -49,6 +49,8 @@ jobs:
       - name: Function security matrix (fails on stale matrix, new functions without metadata, new violations)
         run: node scripts/security/function-matrix.mjs --check
 
+      - name: Constant-time secret comparison (no baseline: any ===/!== secret/token comparison fails)
+        run: node scripts/security/secret-compare.mjs --check
       - name: RLS audit (fails on stale artifacts and new RLS findings)
         run: node scripts/security/rls-audit.mjs --check
 
