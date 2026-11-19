@@ -33,6 +33,7 @@ import {
 } from "../_shared/agent-network/tools.ts";
 import { runCheckAvailability } from "../_shared/booking/mcpHandler.ts";
 import { batchCost, corsHeadersFor, originAllowed, parseAllowedOrigins, protocolHeaderValid } from "../_shared/agent-network/guards.ts";
+import { ACCESS_PREFIX, DEFAULT_SCOPES, protectedResourceMetadata, resourceMatches, wwwAuthenticate } from "../_shared/mcp-oauth/core.ts";
 
 const MAX_BODY_BYTES = 64 * 1024;
 const AGENT_SOURCE = "mcp-server";
@@ -700,6 +701,15 @@ async function handleRequest(req: Request): Promise<Response> {
     return json(buildAgentCard({ endpointUrl: `${supabaseUrl}/functions/v1/mcp-server/a2a`, siteUrl }), 200, { "Cache-Control": "public, max-age=300" });
   }
 
+  // RFC 9728 protected-resource metadata. "<root>/.well-known/oauth-protected-resource[/mcp]": the suffix selects which
+  // resource identifier (".../mcp-server" or ".../mcp-server/mcp") is echoed, because the metadata must match the URL the client used.
+  if (req.method === "GET" && /^\/\.well-known\/oauth-protected-resource(\/mcp)?$/.test(path)) {
+    const root = `${supabaseUrl}/functions/v1/mcp-server`;
+    return json(
+      protectedResourceMetadata(path.endsWith("/mcp") ? `${root}/mcp` : root, siteUrl),
+      200, { "Cache-Control": "public, max-age=300" },
+    );
+  }
   const protocol: "mcp" | "a2a" | null = path === "/" || path === "/mcp" ? "mcp" : path === "/a2a" ? "a2a" : null;
   if (!protocol) return json({ error: "Not found" }, 404);
   if (req.method !== "POST") return json({ error: "Method not allowed. POST JSON-RPC 2.0 messages." }, 405, { Allow: "POST, OPTIONS" });
@@ -715,24 +725,36 @@ async function handleRequest(req: Request): Promise<Response> {
   // ---- Authenticate ----
   const authHeader = req.headers.get("Authorization") ?? "";
   const rawKey = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : "";
-  const unauthorized = (msg: string) =>
-    json({ error: msg }, 401, { "WWW-Authenticate": 'Bearer realm="vireek-agent-network"' });
-  if (!rawKey.startsWith("vrk_agent_") || rawKey.length > 200) return unauthorized("Missing or invalid agent key. Use: Authorization: Bearer vrk_agent_...");
+  const serverRoot = `${supabaseUrl}/functions/v1/mcp-server`;
+  const resourceMetadataUrl = `${serverRoot}/.well-known/oauth-protected-resource${path === "/mcp" ? "/mcp" : ""}`;
+  const unauthorized = (msg: string, invalidToken = false) =>
+    json({ error: msg }, 401, {
+      "WWW-Authenticate": wwwAuthenticate({ resourceMetadataUrl, scope: invalidToken ? undefined : DEFAULT_SCOPES, error: invalidToken ? "invalid_token" : undefined }),
+    });
+  const isOAuth = rawKey.startsWith(ACCESS_PREFIX);
+  if (rawKey.length > 200 || (!rawKey.startsWith("vrk_agent_") && !isOAuth)) {
+    return unauthorized("Missing or invalid credentials. Use an OAuth access token or: Authorization: Bearer vrk_agent_...");
+  }
+  // OAuth access tokens are bound to the MCP resource (RFC 8707); they are never valid on the A2A endpoint.
+  if (isOAuth && protocol !== "mcp") return unauthorized("This token is not valid for this endpoint", true);
 
   const parsed = parseRpcBody(text);
   const cost = parsed.kind === "requests" ? batchCost(parsed.items.length) : 1;
   const keyHash = await sha256Hex(rawKey);
   const admin = createClient(supabaseUrl, serviceRoleKey, { auth: { autoRefreshToken: false, persistSession: false } });
-  const { data: gate, error: gateErr } = GATE_V2
-    ? await admin.rpc("agent_network_begin_v2", { p_key_hash: keyHash, p_cost: cost })
-    : await admin.rpc("agent_network_begin", { p_key_hash: keyHash });
+  const { data: gate, error: gateErr } = isOAuth
+    ? await admin.rpc("mcp_oauth_gate", { p_token_hash: keyHash, p_cost: cost, p_v2: GATE_V2 })
+    : GATE_V2
+      ? await admin.rpc("agent_network_begin_v2", { p_key_hash: keyHash, p_cost: cost })
+      : await admin.rpc("agent_network_begin", { p_key_hash: keyHash });
   if (gateErr || !gate) return json({ error: "Service unavailable" }, 503);
   if (!gate.ok) {
     if (gate.reason === "rate_limited" || gate.reason === "quota_exceeded" || gate.reason === "throttled") {
       return json({ error: gate.reason }, 429, { "Retry-After": String(gate.retry_after ?? 30) });
     }
-    return unauthorized("Invalid, revoked or expired agent key");
+    return unauthorized(isOAuth ? "Invalid, revoked or expired access token" : "Invalid, revoked or expired agent key", isOAuth);
   }
+  if (isOAuth && !resourceMatches(gate.resource, serverRoot)) return unauthorized("Token audience does not match this resource", true);
 
   const ctx: Ctx = {
     admin, ownerId: gate.user_id, clientId: gate.client_id, clientName: gate.name,
