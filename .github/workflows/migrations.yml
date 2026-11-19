@@ -3,12 +3,19 @@ name: Migrations
 on:
   push:
     branches: [main]
-    paths: ['supabase/migrations/**', 'scripts/migrations-dedupe.mjs', '.github/workflows/migrations.yml']
-    'supabase/tests/**'
+    paths:
+      - 'supabase/migrations/**'
+      - 'supabase/tests/**'
+      - 'scripts/migrations/**'
+      - 'scripts/migrations-dedupe.mjs'
+      - '.github/workflows/migrations.yml'
   pull_request:
-    paths: ['supabase/migrations/**', 'scripts/migrations-dedupe.mjs', '.github/workflows/migrations.yml']
-    'supabase/tests/**'
-
+    paths:
+      - 'supabase/migrations/**'
+      - 'supabase/tests/**'
+      - 'scripts/migrations/**'
+      - 'scripts/migrations-dedupe.mjs'
+      - '.github/workflows/migrations.yml'
 concurrency:
   group: migrations-${{ github.ref }}
   cancel-in-progress: true
@@ -20,12 +27,23 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # the guard diffs against the base ref
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Fail on duplicate / non-canonical / ignored migration files
+      - name: Checker unit tests
+        run: node --test scripts/migrations/check-migration-versioning.test.mjs
+      - name: Fail only on NEW versioning violations (legacy ones are baselined)
+        env:
+          BASE_REF: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || github.event.before }}
+          REPAIR_PR: ${{ contains(github.event.pull_request.labels.*.name, 'migration-repair') && '--repair-pr' || '' }}
+        run: |
+          if [ -z "$BASE_REF" ] || [ "$BASE_REF" = "0000000000000000000000000000000000000000" ]; then BASE_REF="HEAD~1"; fi
+          node scripts/migrations/check-migration-versioning.mjs check --base "$BASE_REF" $REPAIR_PR
+      - name: Legacy duplicate check (informational until the repair plan has run)
+        continue-on-error: true
         run: node scripts/migrations-dedupe.mjs check
-
   db-reset:
     name: supabase db reset (clean replay)
     runs-on: ubuntu-latest
