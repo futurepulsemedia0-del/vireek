@@ -7,6 +7,7 @@
 // The score is computed here and stored by the service role, so a client can never forge or edit a scan.
 import { createClient } from 'npm:@supabase/supabase-js@2.57.4';
 import { runAccountScan } from '../_shared/agent-readiness/runScan.ts';
+import { productionGbp } from '../_shared/agent-readiness/gbpStore.ts';
 import { corsHeaders, hashKey, json, productionDeps } from '../_shared/agent-readiness/edge.ts';
 
 Deno.serve(async (req: Request) => {
@@ -29,7 +30,7 @@ Deno.serve(async (req: Request) => {
   if (allowed.error) return json({ ok: false, code: 'unavailable' }, 503);
   if (allowed.data !== true) return json({ ok: false, code: 'rate_limited' }, 429, { 'Retry-After': '3600' });
 
-  const run = await runAccountScan(admin, ownerId, 'manual', productionDeps());
+  const run = await runAccountScan(admin, ownerId, 'manual', productionDeps(), productionGbp(admin));
   if (!run.ok) return json({ ok: false, code: run.code }, run.code === 'no_business_profile' ? 409 : 500);
   return json({ ok: true, scan_id: run.scanId, ...run.payload });
 });
