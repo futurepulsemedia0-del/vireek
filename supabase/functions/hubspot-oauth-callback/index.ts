@@ -2,6 +2,8 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { verifyState } from "../_shared/price-book/oauthState.ts";
+import { saveSecrets } from "../_shared/secrets/providerCredentials.ts";
+import { redeemIssuedState } from "../_shared/security/oauthStateBindingGuard.ts";
 
 Deno.serve(async (req: Request) => {
   const url = new URL(req.url);
@@ -19,6 +21,11 @@ Deno.serve(async (req: Request) => {
 
   const userId = await verifyState(state, stateSecret);
   if (!userId) return redirectTo({ hubspot: "error", reason: "invalid_state" });
+
+  // Replay protection: single use + session bound: the state must have been issued by hubspot-oauth-start, never redeemed before,
+  // and the session that minted it must still be alive. Redeeming burns it even if a later step fails.
+  const replayGuard = await redeemIssuedState(state, "hubspot");
+  if (!replayGuard.ok || replayGuard.userId !== userId) return redirectTo({ hubspot: "error", reason: "invalid_state" });
 
   const clientId = Deno.env.get("HUBSPOT_CLIENT_ID") ?? "";
   const clientSecret = Deno.env.get("HUBSPOT_CLIENT_SECRET") ?? "";
