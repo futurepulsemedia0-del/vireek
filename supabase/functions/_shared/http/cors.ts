@@ -22,7 +22,14 @@ export interface CorsOptions {
 function envGet(name: string): string {
   return (Deno.env.get(name) ?? "").trim();
 }
+// Native-app WebView origins (Capacitor iOS / Ionic). `new URL(...).origin` is "null" for these, so they are matched
+// literally and only when listed in CORS_ALLOWED_ORIGINS. (Capacitor Android uses https://localhost: list it as-is.)
+const NATIVE_ORIGINS = new Set(["capacitor://localhost", "ionic://localhost"]);
 
+function normalizeOrigin(raw: string): string | null {
+  const lit = raw.trim().toLowerCase();
+  if (NATIVE_ORIGINS.has(lit)) return lit;
+  try {
 function normalizeOrigin(raw: string): string | null {
   try {
     const u = new URL(raw.trim());
@@ -107,7 +114,19 @@ export function withCors(handler: (req: Request) => Response | Promise<Response>
     if (pre) return pre;
     const res = await handler(req);
     const extra = corsFor(req, opts);
-    for (const [k, v] of Object.entries(extra)) res.headers.set(k, v);
-    return res;
+    try {
+      for (const [k, v] of Object.entries(extra)) res.headers.set(k, v);
+      return res;
+    } catch {
+      // Responses produced by fetch() (proxied upstream bodies) have immutable headers: rebuild instead of failing.
+      const headers = new Headers(res.headers);
+      for (const [k, v] of Object.entries(extra)) headers.set(k, v);
+      return new Response(res.body, { status: res.status, statusText: res.statusText, headers });
+    }
   };
+}
+
+/** Drop-in for `Deno.serve(handler)` in browser-facing functions (used by scripts/security/cors-codemod.mjs). */
+export function serveWithCors(opts: CorsOptions, handler: (req: Request) => Response | Promise<Response>) {
+  return Deno.serve(withCors(handler, opts));
 }
