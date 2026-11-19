@@ -13,16 +13,22 @@ export interface CronAuthOptions {
   allowBearer?: boolean;
   /** Optional extra secret env names (e.g. rotation: CRON_SECRET_NEXT). */
   extraEnvNames?: readonly string[];
+  /** Status returned when NO secret is configured. Default 500 (server misconfiguration). */
+  misconfiguredStatus?: 500 | 503;
+  /** Extra headers merged into every denial response (e.g. the function's CORS headers). */
+  responseHeaders?: Readonly<Record<string, string>>;
+  /** Function name, only used to make the misconfiguration log line actionable. */
+  fn?: string;
 }
 
 export type CronAuthResult = { ok: true } | { ok: false; response: Response };
 
-function deny(status: number, error: string): CronAuthResult {
+function deny(status: number, error: string, extra?: Readonly<Record<string, string>>): CronAuthResult {
   return {
     ok: false,
     response: new Response(JSON.stringify({ error }), {
       status,
-      headers: { "Content-Type": "application/json" },
+      headers: { ...(extra ?? {}), "Content-Type": "application/json" },
     }),
   };
 }
@@ -35,8 +41,8 @@ export function requireCronAuth(req: Request, opts: CronAuthOptions = {}): CronA
   const names = [opts.envName ?? "CRON_SECRET", ...(opts.extraEnvNames ?? [])];
   const secrets = names.map((n) => Deno.env.get(n)).filter((s): s is string => !!s && s.length > 0);
   if (secrets.length === 0) {
-    console.error(JSON.stringify({ event: "cron_auth_misconfigured", env: names }));
-    return deny(503, "Service not configured.");
+    console.error(JSON.stringify({ event: "cron_auth_misconfigured", fn: opts.fn ?? null, env: names }));
+    return deny(opts.misconfiguredStatus ?? 500, "Service not configured.", opts.responseHeaders);
   }
   const headers = opts.headers ?? ["x-cron-secret"];
   const presented: string[] = headers.map((h) => req.headers.get(h) ?? "").filter(Boolean);
@@ -47,5 +53,5 @@ export function requireCronAuth(req: Request, opts: CronAuthOptions = {}): CronA
   for (const p of presented) {
     for (const s of secrets) if (checkSharedSecret(s, p)) return { ok: true };
   }
-  return deny(401, "Unauthorized");
+  return deny(401, "Unauthorized", opts.responseHeaders);
 }
