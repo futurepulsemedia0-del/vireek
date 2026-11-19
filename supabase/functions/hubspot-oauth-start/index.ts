@@ -8,6 +8,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { signState } from "../_shared/price-book/oauthState.ts";
+import { recordIssuedState } from "../_shared/security/oauthStateBindingGuard.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -36,6 +37,10 @@ Deno.serve(async (req: Request) => {
 
     const redirectUri = `${Deno.env.get("SUPABASE_URL")}/functions/v1/hubspot-oauth-callback`;
     const state = await signState(userData.user.id, stateSecret);
+      // Server-side, single-use, session-bound record of this state (see oauthStateBinding.ts). Fail closed.
+    if (!(await recordIssuedState({ state, provider: "hubspot", userId: userData.user.id, ownerId: userData.user.id, jwt }))) {
+      return jsonResponse({ error: "Could not start the connection. Please sign in again." }, 401);
+    }
 
     const authorizeUrl = new URL("https://app.hubspot.com/oauth/authorize");
     authorizeUrl.searchParams.set("client_id", clientId);
