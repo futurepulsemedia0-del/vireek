@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { SUPPORTED_LANGUAGES } from "../../i18n/languages";
 import { CATALOG } from "../../i18n/templates";
 import { PURCHASABLE_PLANS } from "../planCatalog";
-import { composeFraudNotice, composePaymentSuspended, composePriceChange, composeRenewal } from "./compose";
+import { composeCancellationScheduled, composeFraudNotice, composePaymentSuspended, composePriceChange, composeRenewal, composeSubscriptionStarted } from "./compose";
 
 const site = "https://vireek.com";
 const starter = PURCHASABLE_PLANS.find((p) => p.id === "starter")!;
