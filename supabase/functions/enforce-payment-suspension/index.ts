@@ -33,8 +33,12 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { runSuspensionSweep } from "../_shared/billing/suspensionSweep.ts";
 import { notifyPaymentSuspended } from "../_shared/billing/notices/dispatch.ts";
+import { requireServiceCaller } from "../_shared/http/serviceAuth.ts";
 
-Deno.serve(async (_req: Request) => {
+Deno.serve(async (req: Request) => {
+  // Service-role / cron callers only: the anon key passes verify_jwt but must never trigger account suspensions.
+  const caller = requireServiceCaller(req, { fn: "enforce-payment-suspension" });
+  if (!caller.ok) return caller.response;
   const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
   const admin = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
