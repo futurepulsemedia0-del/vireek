@@ -1,0 +1,502 @@
+--- a/supabase/functions/_shared/photo-provenance/handler.ts
++++ b/supabase/functions/_shared/photo-provenance/handler.ts
+@@ -9,6 +9,7 @@
+ //   record_capture      original + optional derivatives -> evp_record_capture()
+ //   register_derivative later derived copy (e.g. redacted) -> evp_register_derivative()
+ //   erase               delete on request: purge location, delete stored files, mark erased
++//   analyze_authenticity  read C2PA + metadata consistency of the sealed original -> evp_store_authenticity() (derived, re-runnable, not sealed)
+ //   maintenance         retention sweep; header x-cron-secret = PHOTO_PROVENANCE_CRON_SECRET (no JWT)
+ //
+ // I/O is injected so the handler is unit-tested without Deno or a network (see handler.test.ts).
+@@ -18,6 +19,9 @@
+   parseCaptureRequest, parseDerivative, sha256Hex, timingSafeEqual,
+   type StoredFile,
+ } from "./core.ts";
++import { analyzePhotoAuthenticity } from "../photo-authenticity/analyze.ts";
++import type { C2paDeps } from "../photo-authenticity/c2pa.ts";
++import { ANALYZER_VERSION, type CaptureContext } from "../photo-authenticity/types.ts";
+ 
+ const corsHeaders = {
+   "Access-Control-Allow-Origin": "*",
+@@ -32,6 +36,8 @@
+   // deno-lint-ignore no-explicit-any
+   createClient: (url: string, key: string, options?: any) => any;
+   env: (name: string) => string | undefined;
++  /** Lazily builds the C2PA reader (WASM compile is only paid by `analyze_authenticity`). null/absent: C2PA reported as unavailable. */
++  c2pa?: () => Promise<C2paDeps | null>;
+ }
+ 
+ function json(data: unknown, status = 200): Response {
+@@ -47,6 +53,16 @@
+   if ((await sha256Hex(buf)) !== file.sha256) throw new HttpError(422, "The uploaded file does not match its fingerprint.");
+ }
+ 
++/** Like verifyStored, but returns the bytes. Analysis only ever runs on bytes proven to equal the sealed original. */
++async function loadVerified(admin: Db, file: StoredFile): Promise<Uint8Array> {
++  const { data, error } = await admin.storage.from(BUCKET).download(file.path);
++  if (error || !data) throw new HttpError(422, "The uploaded file could not be found on the server.");
++  const buf = await data.arrayBuffer();
++  if (buf.byteLength > MAX_BYTES || buf.byteLength !== file.bytes) throw new HttpError(422, "The uploaded file size does not match.");
++  if ((await sha256Hex(buf)) !== file.sha256) throw new HttpError(422, "The stored file no longer matches its sealed fingerprint.");
++  return new Uint8Array(buf);
++}
++
+ async function eraseFiles(admin: Db, captureId: string): Promise<void> {
+   const { data: paths, error } = await admin.rpc("evp_capture_file_paths", { p_capture: captureId });
+   if (error) throw new HttpError(500, "Could not list the files to erase.");
+@@ -179,6 +195,43 @@
+       return json({ ok: true });
+     }
+ 
++    if (action === "analyze_authenticity") {
++      const captureId = String(body.capture_id ?? "");
++      if (!UUID_RE.test(captureId)) throw new HttpError(400, "Invalid capture id.");
++      // Read under the CALLER's JWT: RLS enforces account scope and the job's own visibility rules.
++      const { data: cap } = await userClient.from("evidence_photo_captures")
++        .select("id,job_id,user_id,original_sha256,original_path,original_bytes,original_mime,capture_source,device_captured_at,device_time_status,offline_queued,server_received_at,files_erased_at")
++        .eq("id", captureId).maybeSingle();
++      if (!cap || cap.user_id !== ownerId) throw new HttpError(403, "You do not have access to this photo.");
++      if (cap.files_erased_at) throw new HttpError(410, "The photo files were erased, so there is nothing left to analyse.");
++
++      // Idempotent: an up-to-date report is returned as is. A new analyzer version recomputes it.
++      const { data: existing } = await userClient.from("evidence_photo_authenticity")
++        .select("analyzer_version,report").eq("capture_id", captureId).maybeSingle();
++      if (existing && existing.analyzer_version === ANALYZER_VERSION) return json({ ok: true, cached: true, report: existing.report });
++
++      const file: StoredFile = { path: cap.original_path as string, sha256: cap.original_sha256 as string, mime: cap.original_mime as string, bytes: Number(cap.original_bytes) };
++      const bytes = await loadVerified(admin, file);
++      const { data: job } = await admin.from("jobs").select("arrived_at,started_at,completed_at").eq("id", cap.job_id).eq("user_id", ownerId).maybeSingle();
++      const context: CaptureContext = {
++        captureSource: cap.capture_source as CaptureContext["captureSource"],
++        serverReceivedAt: cap.server_received_at as string,
++        deviceCapturedAt: (cap.device_captured_at as string | null) ?? null,
++        deviceTimeStatus: cap.device_time_status as CaptureContext["deviceTimeStatus"],
++        offlineQueued: cap.offline_queued === true,
++        job: job ? { arrivedAt: (job.arrived_at as string | null) ?? null, startedAt: (job.started_at as string | null) ?? null, completedAt: (job.completed_at as string | null) ?? null } : null,
++      };
++      let c2pa: C2paDeps | null = null;
++      try { c2pa = deps.c2pa ? await deps.c2pa() : null; } catch { c2pa = null; }
++      const report = await analyzePhotoAuthenticity({ bytes, mime: file.mime, sha256: file.sha256, context, c2pa });
++
++      const { error } = await admin.rpc("evp_store_authenticity", {
++        p_owner: ownerId, p_capture: captureId, p_sha256: file.sha256, p_version: ANALYZER_VERSION, p_report: report,
++      });
++      if (error) throw sqlError(error);
++      return json({ ok: true, cached: false, report });
++    }
++
+     throw new HttpError(400, "Unknown action.");
+   } catch (e) {
+     if (e instanceof HttpError) return json({ error: e.message }, e.status);
+--- a/supabase/functions/photo-provenance/index.ts
++++ b/supabase/functions/photo-provenance/index.ts
+@@ -1,6 +1,34 @@
+ // supabase/functions/photo-provenance/index.ts
+ // Thin Deno entry point; all logic is in ../_shared/photo-provenance/handler.ts (unit-tested).
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
++// Pinned, MIT-licensed C2PA reader from the Content Authenticity Initiative. READ-ONLY use: we never sign.
++import { initSync, WasmReader } from "npm:@contentauth/c2pa-wasm@0.13.4";
+ import { handlePhotoProvenance } from "../_shared/photo-provenance/handler.ts";
++import type { C2paDeps } from "../_shared/photo-authenticity/c2pa.ts";
+ 
+-Deno.serve((req: Request) => handlePhotoProvenance(req, { createClient, env: (name) => Deno.env.get(name) }));
++let wasmReady = false;
++
++/** Compiles the WASM once per isolate, on first use. Any failure degrades to "C2PA unavailable"; metadata checks still run. */
++async function c2pa(): Promise<C2paDeps | null> {
++  try {
++    if (!wasmReady) {
++      // [VERIFY] reading the package asset after Supabase's bundling is untested on the hosted runtime; see docs/photo-provenance.md.
++      const bytes = await Deno.readFile(new URL(import.meta.resolve("npm:@contentauth/c2pa-wasm@0.13.4/c2pa.wasm")));
++      initSync({ module: bytes });
++      wasmReady = true;
++    }
++  } catch (e) {
++    console.error("[photo-provenance] c2pa wasm unavailable", e instanceof Error ? e.message.slice(0, 120) : "unknown");
++    return null;
++  }
++  return {
++    // Public certificates only (not a secret). Unset: signer trust is reported as "not evaluated".
++    trustAnchorsPem: Deno.env.get("C2PA_TRUST_ANCHORS_PEM") ?? null,
++    async readManifestStore(mime, bytes, contextJson) {
++      const reader = await WasmReader.fromBytes(mime, bytes, contextJson);
++      try { return reader.manifestStore(); } finally { reader.free(); }
++    },
++  };
++}
++
++Deno.serve((req: Request) => handlePhotoProvenance(req, { createClient, env: (name) => Deno.env.get(name), c2pa }));
+--- a/src/components/disputes/DisputeDetailPanel.tsx
++++ b/src/components/disputes/DisputeDetailPanel.tsx
+@@ -7,6 +7,7 @@
+ import { CircleAlert, CircleCheck, ExternalLink, FileText, Loader2, RefreshCw, Trash2, Upload, X } from 'lucide-react';
+ import { Button } from '@/components/ui/Button';
+ import { InsertPhotoSummaryButton } from '@/components/photoProvenance/InsertPhotoSummaryButton';
++import { PhotoAuthenticityPanel } from '@/components/photoProvenance/PhotoAuthenticityPanel';
+ import { ConfirmDialog } from '@/components/ConfirmDialog';
+ import { EmptyStateError } from '@/components/EmptyState';
+ import { Skeleton } from '@/components/Skeleton';
+@@ -264,6 +265,7 @@
+                       onInsert={(next) => setField('uncategorized_text', next)}
+                     />
+                   )}
++                  {dispute.job_id && <PhotoAuthenticityPanel jobId={dispute.job_id} />}
+                   {otherFields.length > 0 && (
+                     <button type="button" onClick={() => setShowAllFields((v) => !v)} className="focus-ring rounded text-xs font-semibold text-accent">
+                       {showAllFields ? 'Show fewer fields' : `Show ${otherFields.length} more fields`}
+--- a/src/components/warranty/ClaimWorkflowPanel.tsx
++++ b/src/components/warranty/ClaimWorkflowPanel.tsx
+@@ -3,6 +3,7 @@
+ import { useToast } from '@/contexts/ToastContext';
+ import { ConfirmDialog } from '@/components/ConfirmDialog';
+ import type { WarrantyClaim } from '@/lib/supabase';
++import { PhotoAuthenticityPanel } from '@/components/photoProvenance/PhotoAuthenticityPanel';
+ import {
+   CLAIM_ACTION_LABELS,
+   CREDIT_METHOD_LABELS,
+@@ -162,6 +163,7 @@
+                 <p>Parts: {packet.parts.length ? packet.parts.map((p) => `${p.quantity}× ${p.name}`).join(', ') : 'none recorded'} · Labor: {packet.labor.hours != null ? `${packet.labor.hours} h` : 'none recorded'} · Photos: {packet.photos.length}</p>
+                 {packet.failure_notes.text && <p>Notes ({(packet.failure_notes.source ?? '').replace(/_/g, ' ')}): {packet.failure_notes.text}</p>}
+               </div>
++              {claim.job_id && <div className="mt-3"><PhotoAuthenticityPanel jobId={claim.job_id} /></div>}
+               {claim.status === 'needs_review' || claim.status === 'eligible' || claim.status === 'packet_pending' ? (
+                 <div className="mt-3 border-t border-border/60 pt-3">
+                   {!packet.complete && (
+--- a/src/locales/en/photoProvenance.json
++++ b/src/locales/en/photoProvenance.json
+@@ -192,5 +192,90 @@
+     "none": "This job has no sealed photos yet.",
+     "tooLong": "The summary does not fit in this field. Shorten the text first.",
+     "failed": "Could not load the photo summary."
++  },
++  "authenticity": {
++    "title": "Photo authenticity checks",
++    "intro": "Reads Content Credentials (C2PA) and checks whether the photo's metadata contradicts itself or the capture record.",
++    "notVerdict": "This is a confidence with reasons, not a verdict. It does not prove a photo is genuine or edited. Metadata can be changed by anyone, and missing metadata is common and proves nothing.",
++    "loading": "Loading photo checks…",
++    "empty": "This job has no sealed photos yet.",
++    "loadFailed": "Could not load the photo checks.",
++    "retry": "Try again",
++    "run": "Run check",
++    "runAll": "Run check for {{count}} photos",
++    "running": "Checking…",
++    "analyzeFailed": "The check could not be completed for this photo.",
++    "erased": "The photo file was erased, so it cannot be checked.",
++    "notChecked": "Not checked yet.",
++    "photo": "Photo {{id}}",
++    "scoreLabel": "Metadata consistency",
++    "score": "{{score}} out of 100",
++    "level": {
++      "strong": "Mostly consistent",
++      "moderate": "Mixed",
++      "weak": "Several inconsistencies",
++      "insufficient": "Not enough metadata to assess"
++    },
++    "insufficientHelp": "No score is shown because there was nothing reliable to compare. Missing metadata is not a sign of tampering.",
++    "reasonsTitle": "Why",
++    "effect": {
++      "supports": "Consistent",
++      "weakens": "Look closer",
++      "info": "Note"
++    },
++    "c2pa": {
++      "title": "Content Credentials (C2PA)",
++      "line": {
++        "not_present": "No Content Credentials found. Most cameras and phones do not add them and the in-app camera removes them, so this says nothing about authenticity.",
++        "valid_not_evaluated": "Content Credentials found and intact. The signer was not checked against a trust list, so who signed them is unverified.",
++        "valid_untrusted_signer": "Content Credentials found and intact, but the signer is not on the configured trust list.",
++        "valid_trusted": "Content Credentials found and intact, signed by a signer on the configured trust list.",
++        "invalid": "Content Credentials found but they fail validation ({{problems}}). The file changed after signing or the signature is not valid.",
++        "unknown": "Content Credentials found but could not be validated.",
++        "unsupported_format": "This file type could not be read for Content Credentials.",
++        "too_large": "The file is too large to check for Content Credentials here.",
++        "unavailable": "Content Credentials reading is not available in this environment.",
++        "error": "Content Credentials could not be read because of a technical error."
++      },
++      "problem": {
++        "asset_changed_after_signing": "file changed after signing",
++        "signature_invalid": "signature not valid",
++        "manifest_malformed": "manifest malformed",
++        "certificate_expired": "certificate expired",
++        "certificate_invalid": "certificate not valid",
++        "timestamp_invalid": "timestamp not valid",
++        "other": "other validation problem"
++      },
++      "declaresGenerated": "The signer declares this image as generated or synthetic.",
++      "declaresEdits": "The signer declares that the image was edited after capture.",
++      "signedBy": "Signed by {{name}}"
++    },
++    "reason": {
++      "c2pa_validation_failed": "Content Credentials are present but fail validation.",
++      "c2pa_declares_generated": "The Content Credentials declare the image as generated or synthetic.",
++      "c2pa_valid_capture_claim": "Valid Content Credentials declare a camera capture.",
++      "c2pa_valid_intact": "Valid Content Credentials show the file is unchanged since signing.",
++      "c2pa_edits_declared": "The Content Credentials declare edits (which is normal and honest, but the photo was processed).",
++      "generator_software": "The file names an image generator as its software: {{software}}.",
++      "xmp_declares_generated": "The embedded metadata declares the image as generated.",
++      "png_generator_chunks": "The file contains metadata blocks that image generators write.",
++      "editing_software": "The file names photo-editing software: {{software}}.",
++      "xmp_edit_history": "The file contains an edit history.",
++      "dimensions_mismatch": "The size recorded in the metadata ({{exif}}) differs from the real image size ({{actual}}).",
++      "thumbnail_mismatch": "The embedded preview has a different shape than the image, which can happen when an editor does not update it.",
++      "modified_after_capture": "The file was last modified {{minutes}} minutes after the recorded capture time.",
++      "camera_tags_present": "Camera make and model and several capture settings are recorded ({{make}} {{model}}). These are easy to edit.",
++      "maker_note_present": "A manufacturer note is present.",
++      "capture_time_in_future": "The recorded capture time is later than when the server received the photo.",
++      "capture_time_matches_device": "The recorded capture time matches the device clock at capture.",
++      "capture_time_differs_from_device": "The recorded capture time differs from the device clock at capture by about {{minutes}} minutes.",
++      "predates_job": "The recorded capture time is about {{days}} days before the job started.",
++      "capture_time_in_job_window": "The recorded capture time falls inside the job's time window.",
++      "exif_gps_present": "The original file contains a GPS location. Consider this before sharing the original file.",
++      "no_metadata": "The file has no readable metadata. Messaging apps and screenshots remove it, so this proves nothing.",
++      "no_metadata_expected_in_app": "No metadata, which is expected for photos taken with the in-app camera.",
++      "metadata_partially_read": "Some of the file's metadata could not be read.",
++      "unknown": "A check was recorded that this version of the app cannot describe."
++    }
+   }
+ }
+--- a/src/locales/fa/photoProvenance.json
++++ b/src/locales/fa/photoProvenance.json
+@@ -192,5 +192,90 @@
+     "none": "این کار هنوز عکس مهرشده‌ای ندارد.",
+     "tooLong": "خلاصه در این فیلد جا نمی‌شود. ابتدا متن را کوتاه کنید.",
+     "failed": "بارگذاری خلاصهٔ عکس‌ها ممکن نشد."
++  },
++  "authenticity": {
++    "title": "بررسی اصالت عکس",
++    "intro": "اعتبارنامه‌های محتوا (C2PA) را می‌خواند و بررسی می‌کند که متادیتای عکس با خودش یا با سابقه‌ی ثبت تناقض دارد یا نه.",
++    "notVerdict": "این یک میزان اطمینان همراه با دلایل است، نه حکم نهایی. ثابت نمی‌کند عکس واقعی است یا ویرایش شده. متادیتا را هر کسی می‌تواند تغییر دهد و نبودنش هم رایج است و چیزی را ثابت نمی‌کند.",
++    "loading": "در حال بارگذاری بررسی‌های عکس…",
++    "empty": "این کار هنوز عکسِ مهروموم‌شده‌ای ندارد.",
++    "loadFailed": "بررسی‌های عکس بارگذاری نشد.",
++    "retry": "تلاش دوباره",
++    "run": "اجرای بررسی",
++    "runAll": "اجرای بررسی برای {{count}} عکس",
++    "running": "در حال بررسی…",
++    "analyzeFailed": "بررسی این عکس کامل نشد.",
++    "erased": "فایل این عکس پاک شده است و قابل بررسی نیست.",
++    "notChecked": "هنوز بررسی نشده است.",
++    "photo": "عکس {{id}}",
++    "scoreLabel": "سازگاری متادیتا",
++    "score": "{{score}} از ۱۰۰",
++    "level": {
++      "strong": "عمدتاً سازگار",
++      "moderate": "ترکیبی",
++      "weak": "چند ناسازگاری",
++      "insufficient": "متادیتا برای ارزیابی کافی نیست"
++    },
++    "insufficientHelp": "امتیازی نمایش داده نمی‌شود چون چیز قابل‌اتکایی برای مقایسه نبود. نبودن متادیتا نشانه‌ی دستکاری نیست.",
++    "reasonsTitle": "دلیل",
++    "effect": {
++      "supports": "سازگار",
++      "weakens": "دقیق‌تر ببینید",
++      "info": "نکته"
++    },
++    "c2pa": {
++      "title": "اعتبارنامه‌های محتوا (C2PA)",
++      "line": {
++        "not_present": "اعتبارنامه‌ی محتوا پیدا نشد. بیشتر دوربین‌ها و گوشی‌ها آن را اضافه نمی‌کنند و دوربین داخل برنامه آن را حذف می‌کند، پس این موضوع چیزی درباره‌ی اصالت نمی‌گوید.",
++        "valid_not_evaluated": "اعتبارنامه‌ی محتوا پیدا شد و دست‌نخورده است. امضاکننده با هیچ فهرست اعتمادی سنجیده نشده، پس هویت امضاکننده تأییدنشده است.",
++        "valid_untrusted_signer": "اعتبارنامه‌ی محتوا پیدا شد و دست‌نخورده است، اما امضاکننده در فهرست اعتماد پیکربندی‌شده نیست.",
++        "valid_trusted": "اعتبارنامه‌ی محتوا پیدا شد و دست‌نخورده است و امضاکننده در فهرست اعتماد پیکربندی‌شده است.",
++        "invalid": "اعتبارنامه‌ی محتوا پیدا شد اما در اعتبارسنجی ناموفق است ({{problems}}). فایل بعد از امضا تغییر کرده یا امضا معتبر نیست.",
++        "unknown": "اعتبارنامه‌ی محتوا پیدا شد اما اعتبارسنجی آن ممکن نبود.",
++        "unsupported_format": "این نوع فایل برای خواندن اعتبارنامه‌ی محتوا پشتیبانی نمی‌شود.",
++        "too_large": "فایل برای بررسی اعتبارنامه‌ی محتوا در اینجا بیش از حد بزرگ است.",
++        "unavailable": "خواندن اعتبارنامه‌ی محتوا در این محیط در دسترس نیست.",
++        "error": "به دلیل خطای فنی، اعتبارنامه‌ی محتوا خوانده نشد."
++      },
++      "problem": {
++        "asset_changed_after_signing": "فایل بعد از امضا تغییر کرده",
++        "signature_invalid": "امضا معتبر نیست",
++        "manifest_malformed": "مانیفست خراب است",
++        "certificate_expired": "گواهی منقضی شده",
++        "certificate_invalid": "گواهی معتبر نیست",
++        "timestamp_invalid": "مهر زمانی معتبر نیست",
++        "other": "مشکل اعتبارسنجی دیگر"
++      },
++      "declaresGenerated": "امضاکننده اعلام کرده این تصویر تولیدشده یا مصنوعی است.",
++      "declaresEdits": "امضاکننده اعلام کرده تصویر پس از ثبت ویرایش شده است.",
++      "signedBy": "امضاشده توسط {{name}}"
++    },
++    "reason": {
++      "c2pa_validation_failed": "اعتبارنامه‌ی محتوا وجود دارد اما در اعتبارسنجی ناموفق است.",
++      "c2pa_declares_generated": "اعتبارنامه‌ی محتوا تصویر را تولیدشده یا مصنوعی اعلام می‌کند.",
++      "c2pa_valid_capture_claim": "اعتبارنامه‌ی معتبر، ثبت با دوربین را اعلام می‌کند.",
++      "c2pa_valid_intact": "اعتبارنامه‌ی معتبر نشان می‌دهد فایل از زمان امضا تغییر نکرده است.",
++      "c2pa_edits_declared": "اعتبارنامه‌ی محتوا ویرایش را اعلام می‌کند (این عادی و صادقانه است، اما عکس پردازش شده است).",
++      "generator_software": "فایل نرم‌افزار تولید تصویر را نام برده است: {{software}}.",
++      "xmp_declares_generated": "متادیتای داخل فایل، تصویر را تولیدشده اعلام می‌کند.",
++      "png_generator_chunks": "فایل شامل بلوک‌های متادیتایی است که ابزارهای تولید تصویر می‌نویسند.",
++      "editing_software": "فایل نرم‌افزار ویرایش عکس را نام برده است: {{software}}.",
++      "xmp_edit_history": "فایل شامل تاریخچه‌ی ویرایش است.",
++      "dimensions_mismatch": "اندازه‌ی ثبت‌شده در متادیتا ({{exif}}) با اندازه‌ی واقعی تصویر ({{actual}}) فرق دارد.",
++      "thumbnail_mismatch": "پیش‌نمایش داخل فایل شکلی متفاوت از تصویر دارد؛ این وقتی پیش می‌آید که ویرایشگر آن را به‌روز نکند.",
++      "modified_after_capture": "آخرین تغییر فایل {{minutes}} دقیقه بعد از زمان ثبت‌شده‌ی عکس‌برداری است.",
++      "camera_tags_present": "سازنده و مدل دوربین و چند تنظیم عکس‌برداری ثبت شده است ({{make}} {{model}}). ویرایش این‌ها آسان است.",
++      "maker_note_present": "یادداشت سازنده وجود دارد.",
++      "capture_time_in_future": "زمان ثبت‌شده‌ی عکس‌برداری دیرتر از زمان دریافت عکس توسط سرور است.",
++      "capture_time_matches_device": "زمان ثبت‌شده‌ی عکس‌برداری با ساعت دستگاه هنگام ثبت می‌خواند.",
++      "capture_time_differs_from_device": "زمان ثبت‌شده‌ی عکس‌برداری حدود {{minutes}} دقیقه با ساعت دستگاه هنگام ثبت فرق دارد.",
++      "predates_job": "زمان ثبت‌شده‌ی عکس‌برداری حدود {{days}} روز پیش از شروع کار است.",
++      "capture_time_in_job_window": "زمان ثبت‌شده‌ی عکس‌برداری در بازه‌ی زمانی کار قرار می‌گیرد.",
++      "exif_gps_present": "فایل اصلی شامل موقعیت GPS است. پیش از اشتراک‌گذاری فایل اصلی به این موضوع توجه کنید.",
++      "no_metadata": "فایل متادیتای قابل‌خواندن ندارد. پیام‌رسان‌ها و اسکرین‌شات آن را حذف می‌کنند، پس این چیزی را ثابت نمی‌کند.",
++      "no_metadata_expected_in_app": "متادیتا ندارد، که برای عکس‌های دوربین داخل برنامه انتظار می‌رود.",
++      "metadata_partially_read": "بخشی از متادیتای فایل خوانده نشد.",
++      "unknown": "بررسی‌ای ثبت شده که این نسخه‌ی برنامه نمی‌تواند توضیح دهد."
++    }
+   }
+ }
+--- a/docs/photo-provenance.md
++++ b/docs/photo-provenance.md
+@@ -5,7 +5,7 @@
+ ## What it proves — and what it does not (shown in the UI as well)
+ - **Proves:** the photo file is byte-identical to what the server received, and records when (server receipt time + device clock), how (in-app camera / gallery import / browser upload / offline) and — only if allowed — where (accuracy class) it was captured.
+ - **Does not prove:** that the work was done correctly, or that the photo shows what it is claimed to show.
+-- **Limits:** the device clock and GPS can be spoofed (rooted/emulated devices, mock-location apps). Photos not taken with the in-app camera carry no capture guarantee. "Original bytes" means the bytes the capture API delivered to the app; the Capacitor camera plugin may already have re-encoded them (quality 85, max 2048 px). Hardware-backed capture attestation and C2PA signing at capture are **not** implemented (see Decision memo).
++- **Limits:** the device clock and GPS can be spoofed (rooted/emulated devices, mock-location apps). Photos not taken with the in-app camera carry no capture guarantee. "Original bytes" means the bytes the capture API delivered to the app; the Capacitor camera plugin may already have re-encoded them (quality 85, max 2048 px). Hardware-backed capture attestation and C2PA *signing* at capture are **not** implemented (see Decision memo). C2PA *reading* and metadata consistency checks exist, with their own limits below.
+ 
+ ## Data flow
+ 1. Device fingerprints (SHA-256) the original bytes, stores blob + metadata in an IndexedDB queue (`vireek-photo-provenance`).
+@@ -16,6 +16,25 @@
+ 
+ Verification (`evp_capture_view`) recomputes the commitment from the row, compares it with the sealed ledger payload and the file hash in `media[0]`, and requires the existing `job_evidence_chain_verify()` to be valid up to that entry. Statuses: `unmodified` · `imported` · `offline` · `integrity_failed`.
+ 
++## Photo authenticity checks (C2PA reading + metadata consistency)
++Added on top of the sealed capture. It is **derived and re-runnable**, stored in `evidence_photo_authenticity` (one row per capture), and deliberately **not** sealed in the hash chain: the chain commits to bytes, times and source; this is an opinion computed by versioned code (`ANALYZER_VERSION`).
++
++**Flow.** UI button → edge action `analyze_authenticity` → capture read under the caller's JWT (RLS: account + job visibility) → original re-downloaded and re-hashed against the sealed `original_sha256` (mismatch = 422, nothing stored) → `analyzePhotoAuthenticity()` → service-role `evp_store_authenticity()`. An up-to-date stored report is returned without recomputation; a new analyzer version recomputes. Checks run only on request. Results appear in the job's dispute evidence panel and in the warranty claim packet (`PhotoAuthenticityPanel`).
++
++**C2PA (read only).** Parsed with `@contentauth/c2pa-wasm` (pinned `0.13.4`, MIT, Content Authenticity Initiative). Nothing is signed. Reported separately: validation (valid / invalid), signer trust, declared actions, declared generated/synthetic media.
++
++**Metadata consistency.** A bounded in-repo parser reads EXIF/XMP/dimensions (JPEG, PNG, WebP). Heuristics produce a **confidence 0-100 with reasons**, or `insufficient` (no number) when nothing reliable can be compared. It is never a verdict, the UI says so, and the copy avoids "authentic", "fake" and "forged". Weights live in `heuristics.ts` (`WEIGHTS`).
++
++### Limits of the authenticity checks (read before relying on them)
++- **Not a forgery detector.** A high number means "nothing here contradicts the capture record", not "genuine". A low number means "look closer", not "edited". EXIF/XMP can be rewritten by anyone, so metadata that agrees is weak evidence; this cannot detect a careful forgery that also rewrites metadata, nor AI-generated or screen-recaptured images that carry no tell-tale metadata.
++- **Weights are judgement, not statistics.** They have not been calibrated on real data (no labelled corpus, false-positive/false-negative rates unknown). Treat the number as an ordering aid. **[VERIFY]** before quoting it to a third party; **[COUNSEL]** before using it as evidence in a formal proceeding.
++- **Absence proves nothing.** Messaging apps, screenshots and the in-app camera (which re-encodes at quality 85 / 2048 px) strip EXIF and C2PA. "No metadata" is reported as information, and as `insufficient` when it is all there is.
++- **C2PA validity is not trust.** "Valid" means the signed claim is intact and the file matches what was signed. Without trust anchors (`C2PA_TRUST_ANCHORS_PEM`, public certificates, operator supplied) the signer is reported as **not evaluated**, never as verified. Vireek does not bundle a trust list; obtain the current list from the C2PA conformance programme **[VERIFY]**. A valid manifest can still declare edits or generated media, and the signer's claim is only as good as the signer.
++- **Clocks.** EXIF time has no zone unless `OffsetTime*` exists; the comparison infers a plausible zone and tolerates ambiguity, and device time can be wrong or spoofed. The job-window check uses job timestamps as recorded.
++- **Size and formats.** C2PA is skipped above 12 MB (edge CPU budget). HEIC is detected and C2PA-read, but its EXIF/XMP is not parsed.
++- **Privacy.** GPS is reported as present/absent only; coordinates, serial numbers, names, comments and thumbnails are never extracted or stored. The original file itself may contain a location: consider that before sharing it. Results are not exposed on public verification links and are not added to the text inserted into dispute explanations, so a reviewer cannot mistake a heuristic for a sealed fact.
++- **Runtime [VERIFY].** The WASM asset is read at start-up through `import.meta.resolve`. This works under Deno locally; it has not been verified on the hosted Supabase edge runtime. If it fails, C2PA is reported as `unavailable` and metadata checks still run.
++
+ ## Location privacy
+ Coordinates are stored only in `evidence_photo_locations` (no policy, no grants: unreadable to clients) and never in the chain. The chain holds a **salted commitment**; deleting the row (purge/retention) destroys the salt, so the chain stays valid and the commitment links to nothing.
+ A coordinate is accepted only if **all** hold: account switch `evidence_photo_policies.capture_location`; `location_privacy_policies.require_consent = true` and `location_tracking_gate()` = `allowed` for the technician; photo device time within `arrived_at|started_at − 15 min … completed_at|now + 60 min`. Otherwise coordinates are discarded and the reason is recorded (`no_consent`, `off_duty`, `outside_job_window`, …). Rounded to 4 decimals (~11 m). Managers only can read coordinates (`evp_coordinates`).
+@@ -41,9 +60,9 @@
+ `/verify/photo/:token` (no login). Token = 64 hex chars (≈ 244 random bits), only its SHA-256 is stored; links expire (1–365 days) and can be revoked. The RPC returns fingerprints, times, source flags, location accuracy class, derivative fingerprints. It never returns images, names, addresses, job labels or coordinates. Visitors can check a file locally (hash computed in the browser).
+ 
+ ## Operations
+-- Deploy order: migration `20281103000000_photo_provenance.sql` → `supabase functions deploy photo-provenance` → front-end.
++- Deploy order: migration `20281103000000_photo_provenance.sql` → migration `20290306000000_photo_authenticity.sql` → `supabase functions deploy photo-provenance` (optional secret `C2PA_TRUST_ANCHORS_PEM`) → front-end.
+ - Regenerate generated docs: `node scripts/security/function-matrix.mjs --write` and `node scripts/security/rls-audit.mjs --write` (the two new service-role-only tables are intentional: `evidence_photo_locations`, `evidence_photo_shares`).
+-- Tests: `node --experimental-strip-types --test supabase/functions/_shared/photo-provenance/handler.test.ts`; `npx vitest run src/lib/photoProvenance.test.ts`; `npx playwright test e2e/photo-provenance.spec.ts`.
++- Tests: `node --experimental-strip-types --test supabase/functions/_shared/photo-provenance/handler.test.ts`; `npx vitest run src/lib/photoProvenance.test.ts`; `npx playwright test e2e/photo-provenance.spec.ts`. Authenticity: `npx vitest run supabase/functions/_shared/photo-authenticity supabase/functions/_shared/photo-provenance/authenticity.handler.test.ts src/lib/photoAuthenticity.test.ts src/components/photoProvenance/PhotoAuthenticityPanel.test.tsx`; `supabase test db` (`photo_authenticity.test.sql`). Regenerate the notices with `node scripts/supply-chain/license-check.mjs --write-notices` after installing the new devDependency. Sample files: `supabase/functions/_shared/photo-authenticity/fixtures/README.md`.
+ 
+ ## Rollback (data-destroying; only if the feature is abandoned)
+ ```sql
+--- a/config/license-policy.json
++++ b/config/license-policy.json
+@@ -64,6 +64,7 @@
+     "npm:postgres": { "license": "Unlicense", "verified": false },
+     "npm:ssh2": { "license": "MIT", "verified": false },
+     "npm:@resvg/resvg-wasm": { "license": "MPL-2.0", "verified": false },
++    "npm:@contentauth/c2pa-wasm": { "license": "MIT", "verified": true },
+     "https://deno.land/std": { "license": "MIT", "verified": false },
+     "jsr:@std/assert": { "license": "MIT", "verified": false },
+     "https://esm.sh/@supabase/supabase-js": { "license": "MIT", "verified": false }
+--- a/package.json
++++ b/package.json
+@@ -190,6 +190,7 @@
+   },
+   "devDependencies": {
+     "@axe-core/playwright": "^4.10.1",
++    "@contentauth/c2pa-wasm": "0.13.4",
+     "@eslint/js": "^9.9.1",
+     "@playwright/test": "^1.49.1",
+     "@testing-library/jest-dom": "^6.6.3",
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -60,6 +60,7 @@
+       },
+       "devDependencies": {
+         "@axe-core/playwright": "^4.10.1",
++        "@contentauth/c2pa-wasm": "0.13.4",
+         "@eslint/js": "^9.9.1",
+         "@playwright/test": "^1.49.1",
+         "@testing-library/jest-dom": "^6.6.3",
+@@ -738,6 +739,13 @@
+         "@capacitor/core": ">=8.0.0"
+       }
+     },
++    "node_modules/@contentauth/c2pa-wasm": {
++      "version": "0.13.4",
++      "resolved": "https://registry.npmjs.org/@contentauth/c2pa-wasm/-/c2pa-wasm-0.13.4.tgz",
++      "integrity": "sha512-5phokb41zgnT+doDfB4K1oddwJtzJaZ2FoTE6OjNGTHDKA8uQRLUwMs7fJv3nYj21rTbZQ3qaOkhpNdHkrORlQ==",
++      "dev": true,
++      "license": "MIT"
++    },
+     "node_modules/@csstools/color-helpers": {
+       "version": "5.1.0",
+       "resolved": "https://registry.npmjs.org/@csstools/color-helpers/-/color-helpers-5.1.0.tgz",
+--- a/THIRD_PARTY_NOTICES.md
++++ b/THIRD_PARTY_NOTICES.md
+@@ -6,17 +6,17 @@
+ It is an **inventory generated from `package-lock.json` and the edge-function imports**; it is not legal advice and not a substitute for the licence texts.
+ The full licence text and copyright notice of each npm package is distributed inside the package itself (`node_modules/<name>/LICENSE*`) and must be preserved wherever that package is redistributed. **[COUNSEL]** confirm that the shipped web bundle and mobile apps satisfy attribution obligations (see `docs/compliance/oss-license-policy.md` §6).
+ 
+-- Source lockfile SHA-256: `ff1e434fe23ed23212a25dfbf49a88d587e9f1ea2014166101836390eaed71f2`
+-- Policy file SHA-256: `24cfb471a39e397eb74206a37718e4ee7dc4cb09c10653a48b642971ac7d69a3`
++- Source lockfile SHA-256: `de58578ba64b13e1a8e9d987a7fd064b6a065d6804f4d6ecdac3c0f51649de52`
++- Policy file SHA-256: `4ca90e8b9a8a77e330b13ae77afdf33eda9bda900115812f075861021275f131`
+ - Scope: production npm dependencies + edge-function imports
+-- npm packages: 433 · edge-function imports: 13
++- npm packages: 437 · edge-function imports: 14
+ 
+ ## Licence summary
+ 
+ | Licence (as elected) | Count |
+ |---|---:|
+-| MIT | 317 |
+-| Apache-2.0 | 60 |
++| MIT | 321 |
++| Apache-2.0 | 61 |
+ | ISC | 35 |
+ | BSD-3-Clause | 22 |
+ | MPL-2.0 | 4 |
+@@ -171,7 +171,9 @@
+ | @types/geojson | 7946.0.16 | MIT | https://www.npmjs.com/package/@types/geojson/v/7946.0.16 |
+ | @types/node | 14.18.63 | MIT | https://www.npmjs.com/package/@types/node/v/14.18.63 |
+ | @types/node | 26.6.6 | MIT | https://www.npmjs.com/package/@types/node/v/26.6.6 |
++| @types/prop-types | 15.7.15 | MIT | https://www.npmjs.com/package/@types/prop-types/v/15.7.15 |
+ | @types/raf | 3.4.3 | MIT | https://www.npmjs.com/package/@types/raf/v/3.4.3 |
++| @types/react | 18.3.31 | MIT | https://www.npmjs.com/package/@types/react/v/18.3.31 |
+ | @types/trusted-types | 2.0.7 | MIT | https://www.npmjs.com/package/@types/trusted-types/v/2.0.7 |
+ | @types/web-bluetooth | 0.0.20 | MIT | https://www.npmjs.com/package/@types/web-bluetooth/v/0.0.20 |
+ | @vapi-ai/web | 2.7.0 | MIT | https://www.npmjs.com/package/@vapi-ai/web/v/2.7.0 |
+@@ -222,6 +224,7 @@
+ | crc-32 | 1.2.2 | Apache-2.0 | https://www.npmjs.com/package/crc-32/v/1.2.2 |
+ | crc32-stream | 4.0.3 | MIT | https://www.npmjs.com/package/crc32-stream/v/4.0.3 |
+ | css-line-break | 2.1.0 | MIT | https://www.npmjs.com/package/css-line-break/v/2.1.0 |
++| csstype | 3.2.3 | MIT | https://www.npmjs.com/package/csstype/v/3.2.3 |
+ | data-view-buffer | 1.0.2 | MIT | https://www.npmjs.com/package/data-view-buffer/v/1.0.2 |
+ | data-view-byte-length | 1.0.2 | MIT | https://www.npmjs.com/package/data-view-byte-length/v/1.0.2 |
+ | data-view-byte-offset | 1.0.1 | MIT | https://www.npmjs.com/package/data-view-byte-offset/v/1.0.1 |
+@@ -441,6 +444,7 @@
+ | typed-array-byte-offset | 1.0.5 | MIT | https://www.npmjs.com/package/typed-array-byte-offset/v/1.0.5 |
+ | typed-array-length | 1.0.8 | MIT | https://www.npmjs.com/package/typed-array-length/v/1.0.8 |
+ | typedarray.prototype.slice | 1.0.6 | MIT | https://www.npmjs.com/package/typedarray.prototype.slice/v/1.0.6 |
++| typescript | 5.9.3 | Apache-2.0 | https://www.npmjs.com/package/typescript/v/5.9.3 |
+ | unbox-primitive | 1.1.0 | MIT | https://www.npmjs.com/package/unbox-primitive/v/1.1.0 |
+ | undici-types | 8.9.0 | MIT | https://www.npmjs.com/package/undici-types/v/8.9.0 |
+ | universalify | 2.0.1 | MIT | https://www.npmjs.com/package/universalify/v/2.0.1 |
+@@ -479,6 +483,7 @@
+ | Import | Version | Licence | Source of licence data |
+ |---|---|---|---|
+ | https://esm.sh/@supabase/supabase-js | 2 | MIT | policy.externalImports (UNVERIFIED) **[VERIFY]** |
++| npm:@contentauth/c2pa-wasm | 0.13.4 | MIT | policy.externalImports (verified) |
+ | npm:@resvg/resvg-wasm | 2.6.2 | MPL-2.0 | policy.externalImports (UNVERIFIED) **[VERIFY]** |
+ | npm:@supabase/supabase-js | 2.57.4 | MIT | package-lock.json (lock has 2.112.4) |
+ | npm:fflate | 0.8.2 | MIT | package-lock.json (lock has 0.8.3, 0.7.5) |
