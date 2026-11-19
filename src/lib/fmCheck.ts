@@ -277,3 +277,11 @@ export function suggestRuleCandidates(orders: readonly WorkOrder[], catalog: rea
     }))
     .sort((a, b) => b.evidenceCount - a.evidenceCount || a.candidateKey.localeCompare(b.candidateKey));
 }
+
+/** RPC payload for saving a candidate as an account-level DRAFT (wog_rule_suggestion_save). Not a rule; never enforced. */
+export function candidateToDraftPayload(c: RuleCandidate): { candidate_key: string; kind: FmKind; suggested_params: Record<string, unknown>; evidence_count: number; example_reasons: string[] } {
+  return {
+    candidate_key: c.candidateKey, kind: c.kind, suggested_params: c.suggestedParams,
+    evidence_count: Math.max(1, Math.min(100000, Math.trunc(c.evidenceCount))), example_reasons: c.exampleReasons.slice(0, 3),
+  };
+}
