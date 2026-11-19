@@ -9,6 +9,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { buildFeed, isFeedBoard, type FeedPosting } from "../_shared/job-feeds/engine.ts";
+import { guardPublic } from "../_shared/http/publicGuardDeno.ts";
 
 const SITE = "https://vireek.com";
 const COMPANY = "Vireek";
@@ -31,6 +32,10 @@ Deno.serve(async (req: Request) => {
   if (!isFeedBoard(raw)) return text("Unknown feed", 404);
   const board = raw;
 
+  // Public + cached (job boards crawl it): rate limit per client, fail OPEN.
+  const blocked = await guardPublic(req, { endpoint: "job-feeds", limit: 60, windowSeconds: 60, failClosed: false, scope: board });
+  if (blocked) return blocked;
+  
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const service = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
   if (!supabaseUrl || !service) return text("Feed not configured", 503, { "Retry-After": "300" });
