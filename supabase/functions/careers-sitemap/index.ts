@@ -7,6 +7,7 @@
 //   supabase functions deploy careers-sitemap --no-verify-jwt
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { guardPublic } from "../_shared/http/publicGuardDeno.ts";
 
 const SITE = "https://vireek.com";
 
@@ -16,6 +17,11 @@ const esc = (s: string) =>
 Deno.serve(async (req: Request) => {
   if (req.method !== "GET" && req.method !== "HEAD") {
     return new Response("Method not allowed", { status: 405 });
+  // Input validation: this endpoint takes no input, so an oversized query string is never legitimate.
+  if (new URL(req.url).search.length > 256) return new Response("URI too large", { status: 414 });
+  // Public + cacheable: rate limit per client, fail OPEN (a limiter outage must not take the sitemap down).
+  const blocked = await guardPublic(req, { endpoint: "careers-sitemap", limit: 60, windowSeconds: 60, failClosed: false });
+  if (blocked) return blocked;
   }
 
   const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!);
