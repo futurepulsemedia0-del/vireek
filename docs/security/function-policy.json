@@ -2,6 +2,7 @@
   "version": 1,
   "note": "Required metadata for every function that is NOT in function-baseline.json (i.e. every NEW function). Legacy functions are classified by the analyzer; add an entry here when you want to override their risk tier. 'auth' must be backed by the code (see docs/security/function-matrix.md). Public functions need a justification.",
 "declared": {
+    "dsar-request": { "auth": "public", "risk": "high", "owner": "privacy", "justification": "Public /data-request form used by people who may have no account. Identity is proven by a one-time email code (HMAC-hashed, 15 min TTL, 5 attempts); atomic IP/email rate limits; honeypot; 16 KB body cap. Requiring a session would block the legal right of access." },
     "careers-sitemap": {"auth": "public", "risk": "medium", "owner": "platform-security", "justification": "Public SEO sitemap; reads only OPEN postings through RLS with the anon key. No input. Rate limited (fail-open) and query length bounded."},
     "status-feed": {"auth": "public", "risk": "medium", "owner": "platform-security", "justification": "Public status page feed; public_status_feed() exposes no phones, tenants or regions. ?format validated. Rate limited (fail-open)."},
     "job-feeds": {"auth": "public", "risk": "medium", "owner": "platform-security", "justification": "Public XML feeds crawled by Indeed/ZipRecruiter/LinkedIn; 404 until staff enable a board; board name allow-listed. Rate limited (fail-open)."},
