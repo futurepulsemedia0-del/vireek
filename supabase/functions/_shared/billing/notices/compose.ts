@@ -21,12 +21,15 @@ export function planLabel(planId: string): string {
   return planId ? planId.charAt(0).toUpperCase() + planId.slice(1) : planId;
 }
 
-function layout(lang: LanguageCode, heading: string, bodyHtml: string, cta?: { label: string; url: string }): string {
+function layout(lang: LanguageCode, heading: string, bodyHtml: string, cta?: { label: string; url: string }, secondary?: { label: string; url: string }): string {
   const align = textAlignStart(lang);
   const button = cta
     ? `<p style="margin:24px 0 0;"><a href="${escapeHtml(cta.url)}" style="display:inline-block;padding:12px 24px;background:#111827;color:#ffffff;text-decoration:none;border-radius:10px;font-weight:600;font-size:14px;">${escapeHtml(cta.label)}</a></p>`
     : "";
-  return `<div ${htmlLangAttrs(lang)} style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;color:#1a1a1a;text-align:${align};"><h1 style="font-size:20px;margin:0 0 16px;">${escapeHtml(heading)}</h1><p style="font-size:15px;line-height:1.6;color:#374151;margin:0;">${bodyHtml}</p>${button}</div>`;
+  const second = secondary
+    ? `<p style="margin:16px 0 0;font-size:13px;"><a href="${escapeHtml(secondary.url)}" style="color:#374151;text-decoration:underline;">${escapeHtml(secondary.label)}</a></p>`
+    : "";
+  return `<div ${htmlLangAttrs(lang)} style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;color:#1a1a1a;text-align:${align};"><h1 style="font-size:20px;margin:0 0 16px;">${escapeHtml(heading)}</h1><p style="font-size:15px;line-height:1.6;color:#374151;margin:0;">${bodyHtml}</p>${button}${second}</div>`;
 }
 
 const htmlBody = (s: string) => s.replace(/\n/g, "<br>");
@@ -56,7 +59,9 @@ export function composeRenewal(languageRaw: unknown, d: RenewalData): ComposedNo
   const text = renderTemplate("billing.renewal.body", lang, vars);
   const body = renderTemplate("billing.renewal.body", lang, vars, { escape: escapeHtml });
   const cta = { label: renderTemplate("billing.notice.cta_billing", lang), url: `${d.siteUrl}/dashboard/billing` };
-  return { subject, text: `${text}\n\n${cta.url}`, html: layout(lang, subject, htmlBody(body), cta) };
+  // Cancelling must be one click away from the reminder itself.
+  const cancel = { label: renderTemplate("billing.notice.cta_cancel", lang), url: `${d.siteUrl}/dashboard/billing/cancel` };
+  return { subject, text: `${text}\n\n${cta.url}\n${cancel.label}: ${cancel.url}`, html: layout(lang, subject, htmlBody(body), cta, cancel) };
 }
 
 export interface PriceChangeData {
