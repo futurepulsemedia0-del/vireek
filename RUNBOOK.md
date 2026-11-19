@@ -229,8 +229,9 @@ and update this runbook.
 
 1. No `supabase/config.toml` → function `verify_jwt` flags are only in deploy commands (§2.3). Add one before enabling CI deploys.
 2. Duplicate/invalid migration versions (§3.3).
-3. **`20260821101216_seed_demo_data.sql` creates `demo@vireek.com` with a password written in the file (and a "professional" profile) in whatever project the migrations are applied to.**
-   On production this is a known-credential account. *Decide:* remove/disable that user in production (needs a reviewed, non-destructive procedure) and move demo seeding to an opt-in script — see [docs/LOCAL_SEED.md](docs/LOCAL_SEED.md).
+3. **Legacy demo account (code fixed; production state unverified).** The old `20260821101216_seed_demo_data.sql` created `demo@vireek.com` with a password written in the repository.
+   The migration is now a no-op, `scripts/demo/seed.mjs` seeds demo data explicitly (random password, needs `DEMO_ENV`), and `20290307000000_neutralize_demo_account.sql` bans that fixed user
+   unless the database is marked `app.settings.vireek_environment = demo|staging`. **Run the read-only audit in [docs/runbooks/demo-account-audit.md](docs/runbooks/demo-account-audit.md) on production before and after `db push`** — until you have, treat it as open. [VERIFY]
 4. `ci.yml` does not pass `E2E_TEST_EMAIL`/`E2E_TEST_PASSWORD`, so authenticated E2E specs are skipped in CI.
 5. `scripts/ingest-brand-knowledge.mjs` writes to `brand_knowledge`, but no migration in the repo creates that table (the script header cites `20260915010000_brand_knowledge_rag.sql`, which does not exist here) — verify the table exists in your database.
 6. `esbuild` is required by `generate-rss.mjs` / `ingest-brand-knowledge.mjs` but is not in `package.json`.
