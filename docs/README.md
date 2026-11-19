@@ -13,5 +13,6 @@
 | Security & compliance | `../SECURITY.md`, `security/*`, `compliance/SOC2_READINESS.md`, `compliance/policies/`, `compliance/PUBLIC_CLAIMS_INVENTORY.md`, `claims-register.json`, `ai-governance/*` |
 | Brand / design | `brand/BRAND_ARCHITECTURE.md`, `../BRAND_GOVERNANCE.md`, `../BRAND_MOTION.md`, `design/*`, `brand/`, `voice-and-tone.md`, `VOICE_PERSONA_BIBLE.md` |
 | Platform / M&A | `platform/18-ma-readiness.md` |
+| Pricing research | `pricing/wtp-study.md` (Van Westendorp willingness-to-pay kit: method only, no results), `../scripts/pricing/van-westendorp.mjs` |
 | Planning | `ROADMAP.md`, `../CHANGELOG.md`, `_audit/DOCUMENTATION_GAP_REPORT.md` |
 | Regenerate catalogs | `python3 scripts/docs/gen-catalogs.py && python3 scripts/docs/gen-routes.py` |
