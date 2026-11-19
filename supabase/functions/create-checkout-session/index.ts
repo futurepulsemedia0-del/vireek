@@ -102,6 +102,12 @@ Deno.serve(async (req: Request) => {
       success_url: `${siteUrl}/dashboard/billing?checkout=success`,
       cancel_url: `${siteUrl}/dashboard/billing?checkout=cancelled`,
       allow_promotion_codes: true,
+      // Renewal terms next to the pay button. [COUNSEL] approve wording.
+      custom_text: {
+        submit: {
+          message: `Your subscription renews automatically every billing period at the price shown until you cancel. You can cancel any time at ${siteUrl}/dashboard/billing/cancel; cancelling stops future renewals and you keep access until the end of the period you have paid for.`,
+        },
+      },
       ...checkoutTaxParams(taxEnabled, { hasCustomer: true }),
       metadata: { supabase_user_id: userData.user.id, plan_id: planId },
       subscription_data: { metadata: { supabase_user_id: userData.user.id, plan_id: planId } },
