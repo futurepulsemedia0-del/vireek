@@ -34,7 +34,7 @@ const P = {
   cronSecret: [/CRON_SECRET/, /x-cron-secret/i, /CRON_AUTH/],
   // Custom shared-secret header between Postgres/pg_net/vendors and the function (e.g. x-push-dispatch-secret, x-ovb-secret).
   sharedSecret: [/PUSH_DISPATCH_SECRET/, /headers\.get\(\s*["']x-[\w-]*secret["']/i, /[A-Z_]*WEBHOOK_SECRET/],
-  apiKey: [/headers\.get\(\s*["'](?:x-api-key|apikey|x-vireek-key|x-device-key|x-[\w-]*-key)["']/i, /\bvrk_agent_/, /\bdevice_key(?:_hash)?\b/i, /\bapi_keys\b/, /\bbi_tokens\b/, /\bhashApiKey\b/, /\bverifyApiKey\b/, /\bkey_hash\b/, /\btoken_hash\b/, /startsWith\(\s*["']Bearer\s?["']\s*\)[\s\S]{0,200}sha256/i],
+    apiKey: [/headers\.get\(\s*["'](?:x-api-key|apikey|x-vireek-key|x-device-key|x-[\w-]*-key)["']/i, /\bvrk_agent_/, /\bdevice_key(?:_hash)?\b/i, /\bingest_key_hash\b/, /\bapi_keys\b/, /\bbi_tokens\b/, /\bhashApiKey\b/, /\bverifyApiKey\b/, /\bkey_hash\b/, /\btoken_hash\b/, /startsWith\(\s*["']Bearer\s?["']\s*\)[\s\S]{0,200}sha256/i],
   // Unguessable capability in the URL/body (signed OAuth state, quote/portal/sink token). Not a session, still a credential.
   capabilityToken: [
     /\bSTATE_SECRET\b/, /\bverify\w*State\b/, /\bquote_token\b/, /\bsink_token\b/, /\bportal_token\b/, /\bshare_token\b/, /\.eq\(\s*["']\w*token\w*["']/, /\bUUID(?:_RE)?\.test\(\s*(?:token|id|plan\w*|link\w*)/,
@@ -42,11 +42,11 @@ const P = {
   ],
   webhookSignature: [
     // Verification only. Plain "hmac"/"crypto.subtle.sign" are deliberately NOT matched: they also appear in OUTBOUND signing.
-    /timingSafeEqual/, /\bverify\w*Signature\b/, /\bverify\w*Secret\b/, /\bverifyHmac\b/i, /constructEvent(?:Async)?\s*\(/,
+    /timingSafeEqual/, /\bverify\w*Signature\b/, /\bverify(?:OAuth)?State\b/, /\bverify\w*Secret\b/, /\bverifyHmac\b/i, /constructEvent(?:Async)?\s*\(/,
     /headers\.get\(\s*["'](?:stripe-signature|x-twilio-signature|x-hub-signature(?:-256)?|x-slack-signature|x-signature|svix-signature|x-vapi-secret|x-webhook-secret|x-[\w-]*-signature)["']/i,
     /\bcrypto\.subtle\.verify\b/, /\bvalidateRequest\b/,
   ],
-  webhookTimestamp: [/tolerance/i, /timestamp/i, /Math\.abs\([^)]*Date\.now\(\)/, /\bt=\d/],
+  webhookTimestamp: [/\bSTATE_TTL/, /tolerance/i, /timestamp/i, /Math\.abs\([^)]*Date\.now\(\)/, /\bt=\d/],
   webhookReplay: [/\bnonce\b/i, /webhook_events?\b/, /\breplay\b/i, /\bprocessed_events?\b/, /\bevent_id\b/, /\bdedupe/i, /idempotency_key/i],
  /\bclaim_billing_event\b/, /\b(?:begin|claim)_webhook_event\b/,
   rateLimit: [/\brate[_-]?limit/i, /\bcheckRate/i, /\bbi_begin_request\b/, /\bthrottle/i],
