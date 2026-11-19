@@ -349,7 +349,7 @@ export function buildFixes(s: Snapshot, checks: Check[]): Fix[] {
   }
   if (!s.booking.feed_enabled) fixes.push({ key: 'publish_feed', kind: 'link', ruleIds: ['booking_feed'], impact: lostFor(checks, ['booking_feed']), href: '/dashboard/google-booking' });
   if (checks.some((c) => c.ruleId === 'gbp_categories_photos' && c.fixKey === 'gbp_connect')) {
-    fixes.push({ key: 'gbp_connect', kind: 'link', ruleIds: ['gbp_categories_photos'], impact: 0, href: '/dashboard/integrations' });
+     fixes.push({ key: 'gbp_connect', kind: 'task', ruleIds: ['gbp_categories_photos'], impact: 0 });
   } 
   fixes.push({ key: 'gbp_manual_checks', kind: 'task', ruleIds: ['gbp_categories_photos', 'nap_directories'], impact: 0 });
   return fixes.sort((a, b) => b.impact - a.impact);
