@@ -61,6 +61,10 @@ Deno.serve(async (req: Request) => {
   });
   const admin = createClient(url, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", { auth: { persistSession: false } });
 
+  // ---- identity: a real signed-in user (the public anon key is a valid JWT but has no user) ------
+  const { data: userData, error: userErr } = await caller.auth.getUser(jwt);
+  if (userErr || !userData?.user) return json({ error: "Invalid or expired session." }, 401);
+  
   // ---- gate (fails closed) --------------------------------------------------
   const { data: accessData, error: accessErr } = await caller.rpc("dispatch_optimizer_access");
   if (accessErr) return json({ error: "Could not verify access." }, 500);
