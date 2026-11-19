@@ -26,6 +26,8 @@ export const NAMESPACE_SURFACE: Readonly<Record<string, SurfaceId>> = {
   capacityGuard: 'S4',
   voiceLog: 'S4',
   agentReadiness: 'S4',
+  safetyHeat: 'S4',
+  numberHealth: 'S4',
 };
 
 export interface LocaleConfig {
