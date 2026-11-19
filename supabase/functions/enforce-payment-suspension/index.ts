@@ -31,6 +31,8 @@
 //       );
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { rejectPreflight } from "../_shared/http/cors.ts";
+import { requireCronAuth } from "../_shared/http/cronAuth.ts";
 import { runSuspensionSweep } from "../_shared/billing/suspensionSweep.ts";
 import { notifyPaymentSuspended } from "../_shared/billing/notices/dispatch.ts";
 import { requireServiceCaller } from "../_shared/http/serviceAuth.ts";
@@ -55,7 +57,7 @@ Deno.serve(async (req: Request) => {
     );
   } catch (err) {
     console.error("enforce-payment-suspension failed:", err);
-    return new Response(JSON.stringify({ error: err instanceof Error ? err.message : String(err) }), {
+    return new Response(JSON.stringify({ error: "Sweep failed." }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
