@@ -16,6 +16,9 @@ import type {
   NormalizedChatResponse,
 } from "../types.ts";
 import { AiCoreError } from "../types.ts";
+import { anthropicUsage } from "./usage.ts";
+import { buildAnthropicSystem } from "../promptCache.ts";
+import { readCostFlags } from "../llmCost.ts";
 
 const DEFAULT_MODEL = "claude-sonnet-5";
 const API_URL = "https://api.anthropic.com/v1/messages";
@@ -24,7 +27,7 @@ function getApiKey(): string | undefined {
   return Deno.env.get("ANTHROPIC_API_KEY");
 }
 
-function getModel(): string {
+export function getModel(): string {
   return Deno.env.get("ANTHROPIC_MODEL") || DEFAULT_MODEL;
 }
 
@@ -50,9 +53,17 @@ export const anthropicAdapter: ProviderAdapter = {
     // The Messages API has no `response_format` knob like the OpenAI-style
     // providers. The closest equivalent is instructing it in the system
     // prompt and nudging the model with a strict rule.
-    const system = req.jsonMode
-      ? `${req.system}\n\nRespond with ONLY a single valid JSON object. No prose, no markdown code fences, no explanation before or after it.`
-      : req.system;
+    // With AI_PROMPT_CACHE=1 the stable prefix becomes a cache breakpoint; the JSON rule stays in the
+    // uncached tail. Flag off => identical string as before.
+    const system = buildAnthropicSystem({
+      system: req.system,
+      stablePrefixChars: req.stablePrefixChars,
+      suffix: req.jsonMode
+        ? "Respond with ONLY a single valid JSON object. No prose, no markdown code fences, no explanation before or after it."
+        : undefined,
+      enabled: readCostFlags((n) => Deno.env.get(n)).promptCache,
+      model,
+    });
 
     let res: Response;
     try {
@@ -115,6 +126,7 @@ export const anthropicAdapter: ProviderAdapter = {
       model,
       latencyMs: Date.now() - start,
       wasFallback: false, // set by the router, not the adapter
+      usage: anthropicUsage(data),
     };
   },
 };
