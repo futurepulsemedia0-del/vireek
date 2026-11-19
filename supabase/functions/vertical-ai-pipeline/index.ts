@@ -44,7 +44,8 @@ Deno.serve(async (req: Request) => {
     { auth: { persistSession: false } },
   );
 
-  const triggeredBy = req.headers.get("X-Cron-Secret") ? "cron" : "manual";
+  // The cron secret is mandatory above, so every run that reaches this point was triggered by the scheduler.
+  const triggeredBy = "cron";
 
   const { data: run, error: runInsertError } = await admin
     .from("vertical_pipeline_runs")
