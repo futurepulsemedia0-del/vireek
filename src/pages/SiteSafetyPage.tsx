@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { useToast } from '@/contexts/ToastContext';
+import { HeatSettingsCard } from '@/components/safety/HeatSettingsCard';
 import {
   EMERGENCY_SERVICES_NOTICE,
   PRECAUTIONS,
@@ -470,7 +471,7 @@ function SettingsTab() {
         {problems.length > 0 && <ul role="alert" className="mt-3 list-disc space-y-0.5 ps-5 text-xs text-danger">{problems.map((p) => <li key={p}>{VALIDATION_TEXT[p] ?? p}</li>)}</ul>}
         <div className="mt-4"><button type="button" className={primary} disabled={!canSave} onClick={() => void save()}>{saving ? 'Saving…' : 'Save settings'}</button></div>
       </section>
-
+      <HeatSettingsCard />
       <section className={card} aria-labelledby="ss-pol">
         <h2 id="ss-pol" className="text-base font-semibold text-text-primary">Precautions by risk level</h2>
         <p className="mt-1 text-xs text-text-secondary">Shown to technicians in the pre-job brief. Changes save as you tick.</p>
