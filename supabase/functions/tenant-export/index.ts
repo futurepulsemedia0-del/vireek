@@ -1,38 +1,45 @@
 // supabase/functions/tenant-export/index.ts
-// GET -> application/x-tar "vireek-export/1" bundle (NDJSON + manifest) of the caller's whole account:
-// customers, jobs, invoices, price book, call transcripts, audit log. Owner/admin only; rows are
-// always filtered by the server-resolved account owner, never by anything the client sends.
+// Whole-account export for the caller's account. Owner/admin only; every query is filtered by the
+// server-resolved account owner, never by anything the client sends.
+//
+//   GET                       "vireek-export/1" tar for small accounts. If any table has more than 100 000 rows
+//                             (or the bundle would be too big for one request) it answers 413 export_too_large —
+//                             it never returns a silently truncated archive.
+//   GET  ?mode=plan           "vireek-export/2": exact row counts at a snapshot instant
+//   GET  ?mode=chunk&table=&snapshot=&after=&limit=   one resumable NDJSON chunk + sha256 headers
+//   POST {mode:"finalize"}    completeness gate: 200 + manifest only if every row is accounted for, else 409
+//
+// Protocol, limits and failure modes: docs/INTEROP.md ("Large-account export"). Logic lives in
+// _shared/tenant-export/handler.ts (unit-tested); this file only connects the database.
 // Deploy: supabase functions deploy tenant-export   (JWT verification stays ON)
-import { buildBundle, tarPack, TABLES, MAX_ROWS_PER_TABLE, type Row, type TableName } from "../_shared/tenant-export/bundle.ts";
-import { CORS, authorizeOwner, jsonRes } from "../_shared/tenant-export/auth.ts";
+import type { Row, TableName } from "../_shared/tenant-export/bundle.ts";
+import { authorizeOwner } from "../_shared/tenant-export/auth.ts";
+import { handleExport, type Authorized, type ExportDb } from "../_shared/tenant-export/handler.ts";
+import type { SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 
-const PAGE = 1000;
+function dbFor(admin: SupabaseClient): ExportDb {
+  return {
+    async count(table: TableName, ownerId: string, snapshotAt: string | null): Promise<number> {
+      let q = admin.from(table).select("id", { count: "exact", head: true }).eq("user_id", ownerId);
+      if (snapshotAt) q = q.lte("created_at", snapshotAt);
+      const { count, error } = await q;
+      if (error || count === null) throw new Error(`count_failed:${table}`);
+      return count;
+    },
+    async page(table: TableName, ownerId: string, snapshotAt: string | null, after: string | null, limit: number): Promise<Row[]> {
+      let q = admin.from(table).select("*").eq("user_id", ownerId);
+      if (snapshotAt) q = q.lte("created_at", snapshotAt);
+      if (after) q = q.gt("id", after);
+      const { data, error } = await q.order("id", { ascending: true }).limit(limit);
+      if (error) throw new Error(`page_failed:${table}`);
+      return (data ?? []) as Row[];
+    },
+  };
+}
 
-Deno.serve(async (req: Request) => {
-  if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
-  if (req.method !== "GET") return jsonRes({ error: "method_not_allowed" }, 405);
+async function authorize(req: Request): Promise<Authorized> {
   const a = await authorizeOwner(req);
-  if (!a.ok) return a.res;
+  return a.ok ? { ok: true, ownerId: a.ownerId, actorId: a.actorId, db: dbFor(a.admin) } : a;
+}
 
-  const rows: Partial<Record<TableName, Row[]>> = {};
-  for (const t of TABLES) {
-    const acc: Row[] = [];
-    for (let from = 0; acc.length <= MAX_ROWS_PER_TABLE; from += PAGE) {
-      const { data, error } = await a.admin.from(t).select("*").eq("user_id", a.ownerId).order("id").range(from, from + PAGE - 1);
-      if (error) {
-        console.error(JSON.stringify({ event: "tenant_export_failed", table: t, error: error.message }));
-        return jsonRes({ error: "export_failed", table: t }, 500);
-      }
-      acc.push(...((data ?? []) as Row[]));
-      if (!data || data.length < PAGE) break;
-    }
-    rows[t] = acc;
-  }
-  const exportedAt = new Date().toISOString();
-  const tar = tarPack(await buildBundle(rows, exportedAt), Math.floor(Date.now() / 1000));
-  console.log(JSON.stringify({ event: "tenant_export", owner: a.ownerId, actor: a.actorId, bytes: tar.length }));
-  return new Response(tar, {
-    status: 200,
-    headers: { ...CORS, "Content-Type": "application/x-tar", "Content-Disposition": `attachment; filename="vireek-export-${exportedAt.slice(0, 10)}.tar"`, "Cache-Control": "no-store" },
-  });
-});
+Deno.serve((req: Request) => handleExport(req, { authorize }));
