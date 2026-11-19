@@ -9,6 +9,7 @@ import { supabase, Job } from '@/lib/supabase';
 import { useKeyboardShortcut } from '@/lib/hooks';
 import { formatMoney } from '@/lib/currency';
 import { calculateVat } from '@/lib/tax';
+import { RenewalDisclosure } from '@/components/billing/RenewalDisclosure';
 import type { CurrencyCode } from '@/lib/currency';
 
 // ============================================================
