@@ -19,6 +19,7 @@ import { runAutoReplyInBackground } from "../_shared/autoReply/runtime.ts";
 import { handleMarketplaceEmail } from "../_shared/lead-marketplace/emailEntry.ts";
 import { createDeps } from "../_shared/lead-marketplace/runtime.ts";
 import { handleThirdPartyEmail } from "../_shared/third-party-intake/emailEntry.ts";
+import { handleFmPortalEmail } from "../_shared/fm-ingest/emailEntry.ts";
 import { recordLanguageFromMessage } from "../_shared/i18n/customerLanguage.ts";
 
 function json(body: unknown, status = 200) {
@@ -77,7 +78,10 @@ Deno.serve(async (req: Request) => {
       html,
     });
     if (thirdParty.handled) return json({ received: true });
-    
+
+    const fmPortal = await handleFmPortalEmail(admin, { userId: profile.id, toLocalPart: localPart, from, subject, text: text || null, html });
+    if (fmPortal.handled) return json({ received: true });
+
     const marketplace = await handleMarketplaceEmail(createDeps(admin), {
       userId: profile.id,
       toLocalPart: localPart,
