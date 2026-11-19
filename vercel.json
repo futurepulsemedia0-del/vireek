@@ -2,6 +2,22 @@
   "installCommand": "npm ci && npx playwright install chromium",
   "rewrites": [
     {
+      "source": "/.well-known/oauth-authorization-server",
+      "destination": "https://tagpfcwwxnmsmjneciqh.supabase.co/functions/v1/mcp-oauth/metadata"
+    },
+    {
+      "source": "/oauth/register",
+      "destination": "https://tagpfcwwxnmsmjneciqh.supabase.co/functions/v1/mcp-oauth/register"
+    },
+    {
+      "source": "/oauth/token",
+      "destination": "https://tagpfcwwxnmsmjneciqh.supabase.co/functions/v1/mcp-oauth/token"
+    },
+    {
+      "source": "/oauth/revoke",
+      "destination": "https://tagpfcwwxnmsmjneciqh.supabase.co/functions/v1/mcp-oauth/revoke"
+    },
+    {
       "source": "/.well-known/agent-card.json",
       "destination": "https://tagpfcwwxnmsmjneciqh.supabase.co/functions/v1/mcp-server/a2a/agent-card"
     },
