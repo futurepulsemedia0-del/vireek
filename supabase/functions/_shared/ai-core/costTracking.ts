@@ -15,6 +15,7 @@ import { AiCoreError } from "./types.ts";
 import type { RouteChatResult } from "./router.ts";
 import { isOptionalAiTask } from "../billing/costPolicy.ts";
 import { appendCostEvent, usdEvent, type LedgerCorrelation } from "../economics/ledgerWriter.ts";
+import { computeCost, multipliersFor } from "./llmCost.ts";
   cohere: {
     // command-r-plus (آداپتور پیش‌فرض). منابع عمومی قیمت‌ها را متفاوت گزارش می‌کنند؛ پیش‌فرض محافظه‌کارانه.
     // قبل از اتکا، cohere.com/pricing را بررسی و در صورت نیاز با AI_PRICE_OVERRIDES_JSON اصلاح کنید.
@@ -55,6 +56,9 @@ const PRICE_TABLE: Record<ProviderId, ProviderPriceMap> = {
   cerebras: {
     default: { inputPer1M: 0.6, outputPer1M: 0.6 },
   },
+  cohere: {
+    default: { inputPer1M: 2.5, outputPer1M: 10.0 },
+  },
   cloudflare: {
     // Workers AI بر اساس "neuron" قیمت‌گذاری می‌شه نه $/token، پس تبدیل دقیقی
     // وجود نداره — این‌جا صفر می‌ذاریم تا هزینه‌ی ساختگی نمایش داده نشه.
@@ -87,6 +91,16 @@ export function estimateCost(provider: ProviderId, model: string, inputTokens: n
   return (inputTokens / 1_000_000) * price.inputPer1M + (outputTokens / 1_000_000) * price.outputPer1M;
 }
 
+/** Cache- and batch-aware cost. `usage.inputTokens` is the fresh (non-cached) input. */
+export function estimateCostDetailed(
+  provider: ProviderId,
+  model: string,
+  usage: { inputTokens: number; outputTokens: number; cacheReadTokens?: number; cacheWriteTokens?: number },
+  batched = false,
+) {
+  return computeCost(getPrice(provider, model), usage, multipliersFor(provider, Deno.env.get("AI_COST_MULTIPLIERS_JSON")), batched);
+}
+
 // ---------------------------------------------------------------------
 // Token usage — واقعی وقتی پروایدر برمی‌گردونه، تخمینی در غیر این صورت
 // ---------------------------------------------------------------------
@@ -100,6 +114,8 @@ function estimateTokens(text: string): number {
 }
 
 export interface ResolvedUsage {
+  cacheReadTokens?: number;
+  cacheWriteTokens?: number;
   inputTokens: number;
   outputTokens: number;
   estimated: boolean;
@@ -122,6 +138,10 @@ export function resolveUsage(req: NormalizedChatRequest, response: NormalizedCha
 // ---------------------------------------------------------------------
 
 let cachedClient: ReturnType<typeof createClient> | null = null;
+/** Service-role client shared by the AI Core (cost log, response cache). Edge-function runtime only. */
+export function getAiCoreDb() {
+  return db();
+}
 function db() {
   if (cachedClient) return cachedClient;
   const url = Deno.env.get("SUPABASE_URL") ?? "";
@@ -145,17 +165,18 @@ export interface LogUsageInput {
   traceId?: string;
   /** Correlation ids for the cost ledger (call / job / workflow run / agent action / marketplace run). */
   correlation?: LedgerCorrelation;
+  /** Served from ai_response_cache: no provider call; cost 0, avoided list cost recorded as saved_usd. */
+  cacheHit?: boolean;
+  /** Executed through a provider batch API (discounted). */
+  batched?: boolean;
 }
 
 // هیچ‌وقت throw نمی‌کنه — یک لاگ هزینه‌ی خراب نباید جوابی که داره ثبتش
 // می‌کنه رو خراب کنه. خطا فقط console.error می‌شه.
 export async function logUsage(input: LogUsageInput): Promise<number> {
-  const cost = estimateCost(
-    input.response.provider,
-    input.response.model,
-    input.usage.inputTokens,
-    input.usage.outputTokens,
-  );
+  const detail = estimateCostDetailed(input.response.provider, input.response.model, input.usage, input.batched === true);
+  const cost = input.cacheHit ? 0 : detail.costUsd;
+  const saved = input.cacheHit ? detail.listCostUsd : detail.savedUsd;
   try {
     await db().from("ai_usage_logs").insert({
       account_id: input.accountId ?? null,
@@ -165,6 +186,11 @@ export async function logUsage(input: LogUsageInput): Promise<number> {
       model: input.response.model,
       input_tokens: input.usage.inputTokens,
       output_tokens: input.usage.outputTokens,
+      cache_read_tokens: input.usage.cacheReadTokens ?? 0,
+      cache_write_tokens: input.usage.cacheWriteTokens ?? 0,
+      cache_hit: input.cacheHit === true,
+      batched: input.batched === true,
+      saved_usd: saved,
       tokens_estimated: input.usage.estimated,
       cost_usd: cost,
       latency_ms: input.response.latencyMs,
@@ -178,28 +204,17 @@ export async function logUsage(input: LogUsageInput): Promise<number> {
   } catch (err) {
     console.error("[ai-core] failed to write ai_usage_logs:", err);
   }
+  if (input.cacheHit) return 0;
+  // ONE ledger event per call (two events with different `ref`s used to double-count every LLM call).
   await appendCostEvent(db(), usdEvent({
     accountId: input.accountId ?? null,
     provider: input.response.provider,
     resourceType: "llm_tokens",
     component: "llm",
-    quantity: input.usage.inputTokens + input.usage.outputTokens,
+    quantity: input.usage.inputTokens + input.usage.outputTokens + (input.usage.cacheReadTokens ?? 0) + (input.usage.cacheWriteTokens ?? 0),
     unit: "tokens",
     costUsd: cost,
-    basis: "estimated", // list-price table in this file, not provider-reported
-    taskType: input.task,
-    source: "ai_core",
-    ref: crypto.randomUUID(),
-  }));
-  await appendCostEvent(db(), usdEvent({
-    accountId: input.accountId ?? null,
-    provider: input.response.provider,
-    resourceType: "llm_tokens",
-    component: "llm",
-    quantity: input.usage.inputTokens + input.usage.outputTokens,
-    unit: "tokens",
-    costUsd: cost,
-    basis: "estimated", // list-price table in this file, not provider-reported
+    basis: input.usage.estimated ? "estimated" : "provider_reported",
     taskType: input.task,
     source: "ai_core",
     ref: crypto.randomUUID(),
