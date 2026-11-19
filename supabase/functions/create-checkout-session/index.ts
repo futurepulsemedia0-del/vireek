@@ -13,6 +13,7 @@
 
 import Stripe from "npm:stripe@17.4.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { withCors } from "../_shared/http/cors.ts";
 import { checkoutTaxParams, isAutomaticTaxEnabled, priceTaxVerdict } from "../_shared/billing/stripeTax.ts";
 
 const corsHeaders = {
