@@ -140,7 +140,34 @@ describe('CancelSubscriptionPage — states', () => {
 });
 
 describe('CancelSubscriptionPage — survey', () => {
-  it('requires a reason before continuing', async () => {
+  it('never blocks cancelling behind the survey: the reason is optional', async () => {
+    renderPage();
+    await screen.findByRole('heading', { name: /sorry to see you go/i });
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByText(/\(optional\)/i)).toBeInTheDocument();
+    clickBtn(/^continue$/i);
+    expect(await screen.findByRole('heading', { name: /review and confirm/i })).toBeInTheDocument();
+  });
+
+  it('offers a skip button that goes straight to the confirm step', async () => {
+    renderPage();
+    await screen.findByRole('heading', { name: /sorry to see you go/i });
+    clickBtn(/skip and cancel now/i);
+    expect(await screen.findByRole('heading', { name: /review and confirm/i })).toBeInTheDocument();
+  });
+
+  it('cancels with no reason at all (reason: null)', async () => {
+    respond({ cancel: ok({ ...CTX, cancel_at_period_end: true, offer: null }) });
+    renderPage();
+    await screen.findByRole('heading', { name: /sorry to see you go/i });
+    clickBtn(/skip and cancel now/i);
+    await screen.findByRole('heading', { name: /review and confirm/i });
+    clickBtn(/^cancel subscription$/i);
+    const dialog = await screen.findByRole('alertdialog');
+    fireEvent.click(within(dialog).getByRole('button', { name: /cancel my subscription/i }));
+    expect(await screen.findByRole('heading', { name: /your cancellation is scheduled/i })).toBeInTheDocument();
+    expect(invoke).toHaveBeenCalledWith('manage-subscription-cancellation', { body: { action: 'cancel', reason: null, detail: '' } });
+  });
     renderPage();
     await screen.findByRole('heading', { name: /sorry to see you go/i });
     clickBtn(/^continue$/i);
