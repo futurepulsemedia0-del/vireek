@@ -11,6 +11,7 @@
 // Can also be invoked on demand from the Fleet Economics page's "Refresh" button.
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { requireCronAuth } from "../_shared/http/cronAuth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -58,13 +59,14 @@ const LOOKBACK_DAYS = 90;
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: corsHeaders });
 
-  const cronSecret = Deno.env.get("FLEET_ECONOMICS_CRON_SECRET");
-  if (cronSecret && req.headers.get("X-Cron-Secret") !== cronSecret) {
-    // Allow authenticated dashboard users to trigger a refresh too — the
-    // frontend calls this with the user's own JWT rather than the cron
-    // secret, so only hard-block requests carrying neither.
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) return jsonResponse({ error: "Unauthorized." }, 401);
+  // Two callers, two credentials — both fail closed:
+  //   • scheduler: X-Cron-Secret must equal FLEET_ECONOMICS_CRON_SECRET (unset => 500, wrong => 401)
+  //   • dashboard "Refresh" button: a real signed-in user's JWT, verified with auth.getUser().
+  //     A bare Authorization header is NOT enough: the public anon key is a valid JWT too.
+  const isCronCall = !!req.headers.get("X-Cron-Secret");
+  if (isCronCall) {
+    const cronAuth = requireCronAuth(req, { envName: "FLEET_ECONOMICS_CRON_SECRET", fn: "compute-fleet-economics", responseHeaders: corsHeaders });
+    if (!cronAuth.ok) return cronAuth.response;
   }
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
@@ -75,6 +77,13 @@ Deno.serve(async (req: Request) => {
   }
 
   const admin = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
+
+  if (!isCronCall) {
+    const jwt = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "").trim();
+    if (!jwt) return jsonResponse({ error: "Unauthorized." }, 401);
+    const { data: authData, error: authError } = await admin.auth.getUser(jwt);
+    if (authError || !authData?.user) return jsonResponse({ error: "Unauthorized." }, 401);
+  }
   const now = new Date();
   const periodStart = new Date(now.getTime() - LOOKBACK_DAYS * 86400000);
 
