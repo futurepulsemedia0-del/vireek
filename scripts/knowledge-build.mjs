@@ -29,6 +29,7 @@
 
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { registryModelId } from './lib/modelRegistry.mjs';
 import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync, statSync } from 'node:fs';
 import {
   extractJsxText, buildChunks, estimateTokens, extractFeatureCatalog, extractPublicRoutes, parseMarkdownDoc, sha256, slugify, toPath,
@@ -502,7 +503,7 @@ function driftChecks({ pricing, industries, chunks, routes }) {
 // ---------------------------------------------------------------------
 async function embedAndUpsert(chunks) {
   const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, COHERE_API_KEY } = process.env;
-  const MODEL = process.env.COHERE_EMBED_MODEL || 'embed-multilingual-v3.0';
+  const MODEL = process.env.COHERE_EMBED_MODEL || registryModelId('COHERE_EMBED_MULTILINGUAL');
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) throw new Error('SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set.');
   if (!COHERE_API_KEY) throw new Error('COHERE_API_KEY must be set.');
   if (/english/i.test(MODEL)) console.warn(`WARNING: ${MODEL} is English-only; visitors writing in other languages will retrieve poorly. Use embed-multilingual-v3.0 (also 1024-dim).`);
