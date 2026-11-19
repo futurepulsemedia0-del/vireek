@@ -128,3 +128,29 @@ verify_jwt = false
 
 [functions.ai-batch-runner]
 verify_jwt = false
+
+# Public / provider-called endpoints (auth is enforced inside the function; see docs/security/public-endpoints.md)
+[functions.analyze-equipment-lifecycle]
+verify_jwt = false
+[functions.business-immune-scan]
+verify_jwt = false
+[functions.careers-sitemap]
+verify_jwt = false
+[functions.email-campaign-dispatcher]
+verify_jwt = false
+[functions.event-register]
+verify_jwt = false
+[functions.exit-dataroom-public]
+verify_jwt = false
+[functions.fabric-ingest]
+verify_jwt = false
+[functions.membership-join-checkout]
+verify_jwt = false
+[functions.warranty-register]
+verify_jwt = false
+[functions.crm-oauth-callback]
+verify_jwt = false
+[functions.google-calendar-oauth-callback]
+verify_jwt = false
+[functions.hubspot-oauth-callback]
+verify_jwt = false
