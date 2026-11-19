@@ -110,7 +110,7 @@
     "gbp_categories_photos": {
       "title": "Google categories, photos and attributes",
       "why": "Complete Google Business Profile details are the main data agents read about local businesses.",
-      "fix": "Check categories, photos and attributes in Google Business Profile. Vireek cannot read them yet."
+      "fix": "Complete the categories, description and photos in Google Business Profile. Connect it so Vireek can read them."
     },
     "site_https": {
       "title": "Website uses HTTPS",
@@ -242,6 +242,16 @@
     "areas": "{{count}} active area(s).",
     "faq_count": "{{count}} Q&A pair(s).",
     "needs_gbp_read": "Needs a Google Business Profile read, which is not connected yet.",
+    "gbp_not_connected": "Google Business Profile is not connected.",
+    "gbp_no_location": "Google Business Profile is connected but no location is selected.",
+    "gbp_token_invalid": "Google no longer accepts the saved connection. Reconnect to read your profile.",
+    "gbp_location_missing": "The connected Google location was not found. Reconnect and choose it again.",
+    "gbp_no_access": "Google has not granted Vireek access to read Business Profile data yet.",
+    "gbp_unavailable": "Google could not be reached, so the profile was not read. It will be tried again.",
+    "gbp_closed": "Google lists this business as permanently closed.",
+    "gbp_not_verified": "Google reports this listing cannot be managed, which usually means it is unverified or suspended.",
+    "gbp_read": "{{found}} of {{total}} profile elements are complete (category, extra category, description, photos).",
+    "gbp_read_no_photos": "{{found}} of {{total}} profile elements are complete. The photo count could not be read.",
     "ai_number_ok": "A Vireek phone number is connected.",
     "ai_number_missing": "No Vireek phone number connected.",
     "after_hours_unknown": "No primary location found.",
@@ -287,6 +297,10 @@
     "publish_feed": {
       "title": "Publish your availability feed",
       "desc": "Open Google Booking to switch on verified availability."
+    },
+      "gbp_connect": {
+      "title": "Connect Google Business Profile",
+      "desc": "Connect your profile so Vireek can read your categories, description and photo count. Vireek only reads; it changes nothing on Google."
     },
     "gbp_manual_checks": {
       "title": "Check Google and directories by hand",
