@@ -1,0 +1,96 @@
+name: SBOM and build provenance
+
+# On every published release: generate the CycloneDX SBOM from package-lock.json, upload it as a
+# workflow artifact and create a signed build-provenance attestation for it.
+# How to verify: docs/security/supply-chain.md
+#
+# ACTION PINS: every third-party action must be a full commit SHA. The `PIN-ME` placeholders below
+# are resolved by `node scripts/supply-chain/pin-actions.mjs --write` (needs network). The step
+# "Verify action pins" fails the run while any placeholder remains.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sbom-provenance-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  sbom:
+    name: Generate SBOM and attest
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read       # checkout
+      id-token: write      # OIDC token for Sigstore signing
+      attestations: write  # store the attestation
+    steps:
+      - uses: actions/checkout@PIN-ME # v4.2.2
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@PIN-ME # v4.4.0
+        with:
+          node-version-file: .nvmrc
+
+      - name: Verify action pins
+        run: node scripts/supply-chain/pin-actions.mjs --check .github/workflows/sbom-provenance.yml
+
+      - name: SBOM unit tests
+        run: node --test scripts/supply-chain/sbom.test.mjs scripts/supply-chain/pin-actions.test.mjs
+
+      - name: Generate SBOM (CycloneDX 1.5)
+        # No `npm ci`: the generator only reads package-lock.json, so no dependency
+        # install scripts run in this privileged (id-token: write) job.
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          set -eu
+          export SOURCE_DATE_EPOCH="$(git log -1 --format=%ct)"
+          mkdir -p sbom
+          node scripts/supply-chain/sbom.mjs --out sbom/vireek.cdx.json
+          test -s sbom/vireek.cdx.json
+          (cd sbom && sha256sum vireek.cdx.json | tee vireek.cdx.json.sha256)
+
+      - name: Validate SBOM structure
+        run: node scripts/supply-chain/sbom.mjs --verify sbom/vireek.cdx.json
+
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@PIN-ME # v4.6.2
+        with:
+          name: sbom-${{ github.sha }}
+          path: |
+            sbom/vireek.cdx.json
+            sbom/vireek.cdx.json.sha256
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@PIN-ME # v2.4.0
+        with:
+          subject-path: sbom/vireek.cdx.json
+
+  publish:
+    name: Attach SBOM to the release
+    if: github.event_name == 'release'
+    needs: sbom
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write # upload release assets only; no id-token here
+    steps:
+      - uses: actions/download-artifact@PIN-ME # v4.3.0
+        with:
+          name: sbom-${{ github.sha }}
+          path: sbom
+
+      - name: Upload to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+          REPO: ${{ github.repository }}
+        run: gh release upload "$TAG" sbom/vireek.cdx.json sbom/vireek.cdx.json.sha256 --repo "$REPO" --clobber
