@@ -1,0 +1,64 @@
+name: Sub-processor Reconciliation
+
+# Fails when a provider env var / domain / SDK is found in code but its provider is neither on the public
+# sub-processor list (src/lib/subprocessors.ts) nor explicitly exempt (scripts/compliance/subprocessor-exempt.json).
+# Standalone workflow on purpose: it needs no npm install and must not depend on other workflow files.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/functions/**'
+      - 'src/**'
+      - 'api/**'
+      - 'worker/**'
+      - 'vercel.json'
+      - 'package.json'
+      - 'ENVIRONMENT.md'
+      - '.env.example'
+      - 'scripts/compliance/**'
+      - 'docs/compliance/**'
+      - '.github/workflows/subprocessor-reconciliation.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'supabase/functions/**'
+      - 'src/**'
+      - 'api/**'
+      - 'worker/**'
+      - 'vercel.json'
+      - 'package.json'
+      - 'ENVIRONMENT.md'
+      - '.env.example'
+      - 'scripts/compliance/**'
+      - 'docs/compliance/**'
+      - '.github/workflows/subprocessor-reconciliation.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: subprocessor-reconciliation-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  reconcile:
+    name: Sub-processor list vs code
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Scanner unit tests (including failing fixtures)
+        run: node --test scripts/compliance/subprocessor-reconcile.test.mjs
+
+      - name: Fail when a provider in code is not on the public list
+        run: node scripts/compliance/subprocessor-reconcile.mjs --check
+
+      - name: Fail when the by-region data map is stale or a used provider is unlisted
+        run: node scripts/compliance/gen-subprocessors-by-region.mjs --check
