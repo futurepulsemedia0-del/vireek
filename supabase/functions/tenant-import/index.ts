@@ -6,7 +6,8 @@
 //  * upsert by id => re-running the same bundle is idempotent
 // Writes are batched per table in dependency order and are NOT one transaction: on a mid-way failure the
 // response says which table stopped, and re-running the same bundle completes it.
-import { MAX_IMPORT_BYTES, TABLES, parseBundle, tarUnpack, type Row } from "../_shared/tenant-export/bundle.ts";
+import { MAX_IMPORT_BYTES, TABLES, tarUnpack, type Row } from "../_shared/tenant-export/bundle.ts";
+import { parseAnyBundle } from "../_shared/tenant-export/chunks.ts";
 import { CORS, authorizeOwner, jsonRes } from "../_shared/tenant-export/auth.ts";
 
 const BATCH = 500;
@@ -21,7 +22,8 @@ Deno.serve(async (req: Request) => {
   const buf = new Uint8Array(await req.arrayBuffer());
   const files = tarUnpack(buf);
   if (!files) return jsonRes({ error: "invalid_archive" }, 400);
-  const parsed = await parseBundle(files);
+  // Accepts v1 and chunked v2 bundles; a bundle that is not provably complete (or exceeds the single-request cap) is refused.
+  const parsed = await parseAnyBundle(files);
   if (!parsed.ok) return jsonRes({ error: "invalid_bundle", detail: parsed.error }, 422);
 
   // Preflight: refuse if any id is owned by someone else.
