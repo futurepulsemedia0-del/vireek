@@ -1,5 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { verifyStripeSignature } from "../_shared/stripe/client.ts";
+import { dbWebhookEventStore, runOnce } from "../_shared/http/webhookGuard.ts";
 import { stripe } from "../_shared/paymentPlans/stripe.ts";
 import { processBankStripeEvent } from "../_shared/bankPayments/runtime.ts";
 
@@ -24,6 +25,9 @@ Deno.serve(async (req: Request) => {
   const secretKey = Deno.env.get("STRIPE_SECRET_KEY") ?? "";
   const admin = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", { auth: { persistSession: false } });
 
+  if (typeof event.id !== "string" || event.id.length === 0 || event.id.length > 200) return new Response("Invalid event", { status: 400 });
+
+  return await runOnce({ store: dbWebhookEventStore(admin), provider: "stripe-payment-plan", eventId: event.id }, async () => {
   try {
     const installmentId = obj.metadata?.installment_id as string | undefined;
     if (event.type.startsWith("payment_intent.")) {
