@@ -2,6 +2,8 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { verifyState } from "../_shared/price-book/oauthState.ts";
+import { saveSecrets } from "../_shared/secrets/providerCredentials.ts";
+import { redeemIssuedState } from "../_shared/security/oauthStateBindingGuard.ts";
 
 Deno.serve(async (req: Request) => {
   const url = new URL(req.url);
@@ -19,6 +21,10 @@ Deno.serve(async (req: Request) => {
 
   const userId = await verifyState(state, stateSecret);
   if (!userId) return redirectTo({ google_calendar: "error", reason: "invalid_state" });
+
+  // Replay protection: single use + session bound (see hubspot-oauth-callback). Burns the state even if a later step fails.
+  const replayGuard = await redeemIssuedState(state, "google_calendar");
+  if (!replayGuard.ok || replayGuard.userId !== userId) return redirectTo({ google_calendar: "error", reason: "invalid_state" });
 
   const clientId = Deno.env.get("GOOGLE_CALENDAR_CLIENT_ID") ?? "";
   const clientSecret = Deno.env.get("GOOGLE_CALENDAR_CLIENT_SECRET") ?? "";
