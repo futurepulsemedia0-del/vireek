@@ -110,3 +110,80 @@ const SKIP_RE = [
 export const isExempt = (rel) => SKIP_RE.some((re) => re.test(rel));
 export const isScannableSource = (rel) => /\.(ts|tsx|mjs|cjs|js)$/.test(rel) && !/\.d\.ts$/.test(rel);
 export const isScannableYaml = (rel) => /\.ya?ml$/.test(rel);
+
+
+/** id -> MODELS key, e.g. "gemini-2.5-flash" -> "GEMINI_FLASH". */
+export function parseModelKeys(registryText) {
+  const m = registryText.match(/export const MODELS\s*=\s*\{([\s\S]*?)\}\s*as const/);
+  if (!m) throw new Error(`MODELS block not found in ${REGISTRY_PATH}`);
+  return new Map([...m[1].matchAll(/([A-Z0-9_]+)\s*:\s*"([^"]+)"/g)].map((x) => [x[2], x[1]]));
+}
+
+/**
+ * Registered ids must not be re-hardcoded in shipping code: use MODELS.<KEY> (edge) or
+ * registryModelId('<KEY>') from scripts/lib/modelRegistry.mjs (plain Node scripts).
+ */
+export function scanHardcodedRegistered(text, file, idToKey) {
+  const raw = text.split('\n');
+  const clean = stripComments(text).split('\n');
+  const out = [];
+  clean.forEach((ln, i) => {
+    if (raw[i].includes('model-registry-ignore')) return;
+    LITERAL.lastIndex = 0;
+    let m;
+    while ((m = LITERAL.exec(ln))) {
+      if (idToKey.has(m[2])) out.push({ file, line: i + 1, model: m[2], key: idToKey.get(m[2]) });
+    }
+  });
+  return out;
+}
+
+/** Parse MODEL_REGISTRY entries: key, status, sunsetDate, replacedBy (MODELS key or literal id). */
+export function parseEntries(registryText) {
+  const out = [];
+  for (const m of registryText.matchAll(/\{\s*id:\s*MODELS\.([A-Z0-9_]+),([\s\S]*?)\},\n/g)) {
+    const body = m[2];
+    const rep = body.match(/replacedBy:\s*(?:MODELS\.([A-Z0-9_]+)|"([^"]+)")/);
+    out.push({
+      key: m[1],
+      status: (body.match(/status:\s*"(\w+)"/) ?? [])[1],
+      sunsetDate: (body.match(/sunsetDate:\s*"([^"]+)"/) ?? [])[1],
+      replacedByKey: rep?.[1],
+      replacedById: rep?.[2],
+    });
+  }
+  return out;
+}
+
+const DAY = 86_400_000;
+/**
+ * Lifecycle gate. errors fail CI; warnings are printed.
+ *  - deprecated/retired needs sunsetDate (YYYY-MM-DD) and a replacedBy that is registered and not itself retired
+ *  - deprecated and past its sunset date -> error (retire it or fix the date)
+ *  - deprecated and sunset within `warnDays` -> warning
+ */
+export function checkLifecycle(entries, keys, ids, today = new Date(), warnDays = 30) {
+  const errors = [];
+  const warnings = [];
+  const byKey = new Map(entries.map((e) => [e.key, e]));
+  for (const e of entries) {
+    if (e.status !== 'deprecated' && e.status !== 'retired') continue;
+    const tag = `MODELS.${e.key} (${e.status})`;
+    const okRep = (e.replacedByKey && keys.has(e.replacedByKey)) || (e.replacedById && ids.has(e.replacedById));
+    if (!okRep) errors.push(`${tag}: replacedBy must reference a registered model`);
+    else {
+      const target = byKey.get(e.replacedByKey ?? [...byKey.keys()].find((k) => keys.get?.(k) === e.replacedById));
+      if (target?.status === 'retired') errors.push(`${tag}: replacement is itself retired`);
+    }
+    if (!e.sunsetDate || !/^\d{4}-\d{2}-\d{2}$/.test(e.sunsetDate) || Number.isNaN(Date.parse(e.sunsetDate))) {
+      errors.push(`${tag}: sunsetDate must be YYYY-MM-DD`);
+      continue;
+    }
+    if (e.status === 'deprecated') {
+      const days = Math.floor((Date.parse(e.sunsetDate) - today.getTime()) / DAY);
+      if (days < 0) errors.push(`${tag}: sunset ${e.sunsetDate} has passed; finish the switch and mark it retired`);
+      else if (days <= warnDays) warnings.push(`${tag}: sunset in ${days} day(s) (${e.sunsetDate}); complete docs/runbooks/model-change.md`);
+    }
+  }
+  return { errors, warnings };
+}
