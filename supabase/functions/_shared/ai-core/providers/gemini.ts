@@ -12,6 +12,7 @@ import type {
 } from "../types.ts";
 import { AiCoreError } from "../types.ts";
 import { readSseEvents } from "../sse.ts";
+import { geminiUsage } from "./usage.ts";
 import { createKeyPool, parseKeyEntries, withKeyFailover } from "../keyPool.ts";
 import type { KeyPool } from "../keyPool.ts";
 import { recordKeyEvent } from "../keyHealthStore.ts";
