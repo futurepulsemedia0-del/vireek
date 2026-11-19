@@ -1,5 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { sendEmail } from "../_shared/notify/deliver.ts";
+import { requireSignedInUser } from "../_shared/http/userAuth.ts";
 
 // Emails a lien-waiver signing link (kind = "request") or the signed copy (kind = "copy").
 // Runs AS THE CALLER (their JWT), so RLS decides which waivers they can read — no service role needed.
@@ -25,8 +26,10 @@ Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
   try {
-    const authHeader = req.headers.get("Authorization") ?? "";
-    if (!/^Bearer\s+\S+/i.test(authHeader)) return json({ error: "Missing Authorization header." }, 401);
+    // The anon key passes verify_jwt; require a real signed-in user. RLS (below) then decides which waivers they own.
+    const authn = await requireSignedInUser(req, { fn: "lien-waiver-email", responseHeaders: corsHeaders });
+    if (!authn.ok) return authn.response;
+    const authHeader = authn.authHeader;
 
     const supabase = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_ANON_KEY") ?? "", {
       global: { headers: { Authorization: authHeader } },
