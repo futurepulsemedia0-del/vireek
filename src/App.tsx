@@ -82,6 +82,7 @@ const AgentGovernancePage = lazy(() => import('@/pages/AgentGovernancePage').the
 const AgentActionsPage = lazy(() => import('@/pages/AgentActionsPage').then((m) => ({ default: m.AgentActionsPage })));
 const AgentCompanyPage = lazy(() => import('@/pages/AgentCompanyPage').then((m) => ({ default: m.AgentCompanyPage })));
 const AgentNetworkPage = lazy(() => import('@/pages/AgentNetworkPage').then((m) => ({ default: m.AgentNetworkPage })));
+const OAuthAuthorizePage = lazy(() => import('@/pages/OAuthAuthorizePage').then((m) => ({ default: m.OAuthAuthorizePage })));
 const EvaluationPlanePage = lazy(() => import('@/pages/EvaluationPlanePage').then((m) => ({ default: m.EvaluationPlanePage })));
 const AgentMarketplacePage = lazy(() => import('@/pages/AgentMarketplacePage').then((m) => ({ default: m.AgentMarketplacePage })));
 const AutonomyBudgetPage = lazy(() => import('@/pages/AutonomyBudgetPage').then((m) => ({ default: m.AutonomyBudgetPage })));
@@ -3035,6 +3036,7 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+        <Route path="/oauth/authorize" element={<OAuthAuthorizePage />} />
         <Route
           path="/dashboard/evaluation-plane"
           element={
