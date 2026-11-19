@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/Button';
 import { CopyButton } from '@/components/ui/CopyButton';
 import { EmptyState } from '@/components/EmptyState';
 import { Stat } from '@/components/workorderguard/shared';
+import { RuleDraftButton } from '@/components/workorderguard/RuleDraftButton';
 import { fetchCatalog, type RuleVersion } from '@/lib/complianceRules';
 import {
   applyLineFix,
@@ -230,7 +231,10 @@ function CandidatesView({ orders, catalog }: { orders: WorkOrder[]; catalog: Rul
             <li key={c.candidateKey} className="rounded-xl border border-border bg-bg-secondary px-3 py-3 text-sm">
               <p className="flex flex-wrap items-center justify-between gap-2">
                 <span className="font-semibold text-text-primary">{c.kind} · {t('candidates.evidence', { count: c.evidenceCount })}</span>
-                <CopyButton text={() => JSON.stringify({ kind: c.kind, suggestedParams: c.suggestedParams, evidenceCount: c.evidenceCount, exampleReasons: c.exampleReasons }, null, 2)} label={t('candidates.copy')} copiedLabel={t('candidates.copied')} />
+                <span className="inline-flex flex-wrap items-center gap-2">
+                  <RuleDraftButton candidate={c} />
+                  <CopyButton text={() => JSON.stringify({ kind: c.kind, suggestedParams: c.suggestedParams, evidenceCount: c.evidenceCount, exampleReasons: c.exampleReasons }, null, 2)} label={t('candidates.copy')} copiedLabel={t('candidates.copied')} />
+                </span>
               </p>
               <p className="text-xs text-text-secondary">{c.alreadyCovered ? t('candidates.covered') : t('candidates.notCovered')}</p>
               <p className="mt-1 text-xs text-text-secondary">{t('candidates.examples')}: {c.exampleReasons.join(' · ')}</p>
