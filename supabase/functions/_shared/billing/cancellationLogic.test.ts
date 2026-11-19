@@ -15,8 +15,9 @@ describe('parseRequest', () => {
     expect(parseRequest({ action: 'resume' })).toEqual({ ok: true, request: { action: 'resume' } });
   });
 
-  it('requires a reason to cancel', () => {
-    expect(parseRequest({ action: 'cancel' }).ok).toBe(false);
+  it('does not require a reason to cancel (cancelling is never gated behind a survey)', () => {
+    expect(parseRequest({ action: 'cancel' })).toEqual({ ok: true, request: { action: 'cancel', reason: null, detail: '' } });
+    expect(parseRequest({ action: 'cancel', reason: '' })).toEqual({ ok: true, request: { action: 'cancel', reason: null, detail: '' } });
     const ok = parseRequest({ action: 'cancel', reason: 'too_expensive', detail: '  pricey  ' });
     expect(ok).toEqual({ ok: true, request: { action: 'cancel', reason: 'too_expensive', detail: 'pricey' } });
   });
