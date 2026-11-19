@@ -66,6 +66,8 @@ const P = {
   tenantScope: [
     /\.eq\(\s*["'](?:user_id|account_owner_id|owner_id|tenant_id|organization_id|org_id|company_id)["']/, /\.match\(\s*\{\s*(?:user_id|account_owner_id|owner_id)/,
     /\bp_(?:user|owner|tenant|org)_id\b/, /\baccount_owner_id\b/,
+    // profiles keyed by the VERIFIED caller: .eq("id", userData.user.id) / .eq("id", user.id) (never a request-supplied id).
+    /\.eq\(\s*["']id["']\s*,\s*(?:userData\??\.user|user|caller|authUser|staffId)\??\.?(?:id)?\s*\)/,
   ],
   userScopedClient: [/createClient\([^)]*SUPABASE_ANON_KEY/s, /global\s*:\s*\{\s*headers\s*:\s*\{\s*Authorization/s],
   serviceRole: [/SUPABASE_SERVICE_ROLE_KEY/, /SERVICE_ROLE/],
