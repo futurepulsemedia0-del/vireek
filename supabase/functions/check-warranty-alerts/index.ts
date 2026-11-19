@@ -22,7 +22,9 @@ Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 200, headers: corsHeaders });
   }
-
+  // Scheduler only: the anon key passes verify_jwt but must not trigger this cross-tenant sweep.
+  const caller = requireServiceCaller(req, { fn: "check-warranty-alerts", responseHeaders: corsHeaders });
+  if (!caller.ok) return caller.response;
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
