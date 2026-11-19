@@ -11,6 +11,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { CxmlError, parseOrderMessage } from "../_shared/punchout/cxml.ts";
 import { sha256Hex } from "../_shared/punchout/security.ts";
+import { guardPublic } from "../_shared/http/publicGuardDeno.ts";
 
 const MAX_BODY_BYTES = 1_000_000;
 
@@ -29,6 +30,11 @@ Deno.serve(async (req: Request) => {
   const site = (Deno.env.get("SITE_URL") ?? "https://app.vireek.com").replace(/\/$/, "");
   const supabaseUrl = Deno.env.get("SUPABASE_URL"), serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
   if (!supabaseUrl || !serviceKey) return textResponse("Server not configured", 500);
+
+  // Public write endpoint: rate limit per client BEFORE parsing XML. Fail CLOSED (the cart RPC needs the same DB anyway).
+  // The caller is a user's browser mid-redirect, so a block is answered with a redirect, not JSON.
+  const blocked = await guardPublic(req, { endpoint: "punchout-return", limit: 30, windowSeconds: 60, failClosed: true });
+  if (blocked) return back(site, { error: blocked.status === 429 ? "rate_limited" : "failed" });
 
   try {
     const declared = Number(req.headers.get("content-length") || 0);
