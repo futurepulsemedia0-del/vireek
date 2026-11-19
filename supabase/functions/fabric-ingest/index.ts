@@ -9,8 +9,17 @@
 // idempotently in `fabric_records`, then identity-resolved and projected into
 // the canonical service graph by the `fabric_apply_record` database function.
 //
-// Auth: per-connection ingest key (Authorization: Bearer vfk_...). Only the
-// SHA-256 hash of the key is stored (see fabric_connections.ingest_key_hash).
+// Auth (two layers):
+//   1. per-connection ingest key (Authorization: Bearer vfk_...). Only the SHA-256 hash of the key is stored
+//      (see fabric_connections.ingest_key_hash).
+//   2. HMAC request signature, so a leaked ingest key alone cannot forge or replay traffic:
+//        X-Vireek-Timestamp: <unix seconds>
+//        X-Vireek-Signature: sha256=<hex HMAC-SHA256(connectionSecret, `${timestamp}.${rawBody}`)>
+//      connectionSecret = HMAC-SHA256(FABRIC_SIGNING_KEY, "vireek-signed-inbound-v1:" + connection id).
+//      Timestamp tolerance 300 s; an identical signed request is accepted once (claim_webhook_event).
+//      FABRIC_SIG_MODE=shadow (default) logs would-be rejections and lets the request through;
+//      FABRIC_SIG_MODE=enforce rejects (401). Optional FABRIC_SIGNING_KEY_NEXT supports key rotation.
+// Rate limits (edge_rate_limit_hit): per client IP before any lookup, and per connection after authentication.
 //
 // Request body:
 //   { "records": [
@@ -28,11 +37,13 @@
 //   supabase functions deploy fabric-ingest --no-verify-jwt
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+// Server-to-server ingest (ingest key + HMAC): no browser origin is ever allowed (no Access-Control-Allow-Origin).
+import { guardPublic } from "../_shared/http/publicGuardDeno.ts";
+import { dbRateLimiter, dbReplayStore } from "../_shared/http/rateLimit.ts";
+import { applySignedInboundPolicy, deriveSigningSecret, parseMode, verifyInboundSignature } from "../_shared/http/signedInbound.ts";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Authorization, Content-Type",
 };
 
 const ENTITIES = [
@@ -215,6 +226,9 @@ interface ResultItem {
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
+  // Cheap pre-auth limit per client IP so invalid-key floods never reach the database lookup. Fail closed.
+  const ipBlocked = await guardPublic(req, { endpoint: "fabric-ingest", limit: 300, windowSeconds: 60, failClosed: true, headers: corsHeaders });
+  if (ipBlocked) return ipBlocked;
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -241,12 +255,32 @@ Deno.serve(async (req: Request) => {
     if (!connData) return json({ error: "Invalid ingest key." }, 401);
     const conn = connData as ConnectionRow;
     if (conn.status !== "active") return json({ error: "This connection is paused." }, 403);
+    // Per-connection limit (a legitimate batch is up to 200 records, so 120 requests/min is generous). Fail closed.
+    try {
+      const rl = await dbRateLimiter({ rpc: (fn, args) => admin.rpc(fn, args) }).hit(`fabric-conn:${conn.id}`, 120, 60);
+      if (!rl.allowed) return new Response(JSON.stringify({ error: "Too many requests." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": String(Math.max(1, rl.retryAfter)) } });
+    } catch {
+      return json({ error: "Service temporarily unavailable." }, 503);
+    }
 
     // ---- Parse + bound the body --------------------------------------------
     const declared = Number(req.headers.get("content-length") ?? 0);
     if (declared > MAX_BODY_BYTES) return json({ error: "Payload too large (max 1 MB)." }, 413);
     const text = await req.text();
     if (text.length > MAX_BODY_BYTES) return json({ error: "Payload too large (max 1 MB)." }, 413);
+
+    // ---- HMAC signature over the RAW body (before any parsing) -----------------------------------
+    const masterKey = Deno.env.get("FABRIC_SIGNING_KEY") ?? "";
+    const nextKey = Deno.env.get("FABRIC_SIGNING_KEY_NEXT") ?? "";
+    const sigVerdict = await verifyInboundSignature({
+      provider: `fabric:${conn.id}`,
+      rawBody: text,
+      headers: req.headers,
+      secrets: [masterKey ? await deriveSigningSecret(masterKey, conn.id) : null, nextKey ? await deriveSigningSecret(nextKey, conn.id) : null],
+      replay: dbReplayStore({ rpc: (fn, args) => admin.rpc(fn, args) }),
+    });
+    const sigBlocked = applySignedInboundPolicy("fabric-ingest", sigVerdict, parseMode(Deno.env.get("FABRIC_SIG_MODE")));
+    if (sigBlocked) return sigBlocked;
 
     let body: unknown;
     try {
