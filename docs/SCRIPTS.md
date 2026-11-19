@@ -37,6 +37,8 @@ Run from the repo root. "CI" = run by a workflow in `.github/workflows` (verify 
 | `migrations:plan` | Plan for resolving duplicate versions | when repairing history (see `docs/runbooks/migration-version-repair.md`) |
 | `report:board-pack` | Monthly board pack (markdown) from existing SQL views; missing data shown as "not available". Needs `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`; `--dry-run` needs none. See `docs/finance/board-pack-template.md` | monthly, after month end |
 | `test:scripts:board-pack` | Tests for the board pack generator (no database) | changes to the generator |
+| `product:trace` | Strategy-to-roadmap trace: flags shipped routes/functions with no linked goal and goals with no shipped work (`docs/product/okrs.json`). `--check` = fail on structural errors, `--strict` = also fail on orphans/placeholders. See `docs/product/okrs.md` | after editing okrs.json; optional CI |
+| `test:scripts:product` | Tests for the trace script (no database, no network) | changes to the script |
 | `db:audit` | DB hygiene check vs `scripts/db-audit.baseline.json` | after migrations; CI (`db-perf.yml`) |
 | `openapi:generate` / `openapi:check` | Regenerate / verify `public/openapi.json` | API changes |
 | `check:bundle` | Bundle-size budget | before release |
