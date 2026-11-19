@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { TriangleAlert as AlertTriangle, Radar } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -10,8 +11,10 @@ import { Switch } from '@/components/ui/Switch';
 import { ProgressRing } from '@/components/agentReadiness/ProgressRing';
 import { ScoreChecklist } from '@/components/agentReadiness/ScoreChecklist';
 import { FixCard } from '@/components/agentReadiness/FixCard';
+import { GbpConnectCard } from '@/components/agentReadiness/GbpConnectCard';
 import { HistoryChart } from '@/components/agentReadiness/HistoryChart';
 import { formatDateTime } from '@/lib/format';
+import { parseGbpReturn } from '@/lib/gbpConnectCore';
 import { useAgentReadinessT } from '@/i18n/agentReadinessNamespace';
 import {
   ackAlert, applyDescriptions, coveragePct, loadActions, loadAlerts, loadHistory, loadLatestScan, loadMonitoring,
@@ -25,6 +28,8 @@ export function AgentReadinessPage() {
   const { profile, teamMember, isOwner, permissions, profileLoading } = useAuth();
   const { toast } = useToast();
   const { t } = useAgentReadinessT();
+  const { search } = useLocation();
+  const gbpReturn = useMemo(() => parseGbpReturn(search), [search]);
   const ownerId = isOwner ? (profile?.id ?? null) : (teamMember?.account_owner_id ?? null);
   const canManage = isOwner || permissions.can_manage_team || teamMember?.role === 'admin';
   const canView = canManage || permissions.can_edit_business_profile;
@@ -108,6 +113,7 @@ export function AgentReadinessPage() {
         <h1 className="text-2xl font-bold text-text-primary">{t('title')}</h1>
         <p className="mt-1 max-w-2xl text-sm text-text-secondary">{t('subtitle')}</p>
         {!canManage && <p className="mt-2 text-xs text-text-secondary">{t('viewOnly')}</p>}
+      <GbpConnectCard canManage={canManage} returned={gbpReturn} />
       </header>
 
       {status === 'loading' && <SkeletonCardList count={4} rows={3} />}
