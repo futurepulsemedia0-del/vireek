@@ -1,3 +1,4 @@
+import { registryModelId } from './lib/modelRegistry.mjs';
 #!/usr/bin/env node
 // scripts/ingest-brand-knowledge.mjs
 //
@@ -40,7 +41,7 @@ const ROOT = path.resolve(__dirname, '..');
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const COHERE_API_KEY = process.env.COHERE_API_KEY;
-const COHERE_EMBED_MODEL = process.env.COHERE_EMBED_MODEL || 'embed-english-v3.0';
+const COHERE_EMBED_MODEL = process.env.COHERE_EMBED_MODEL || registryModelId('COHERE_EMBED_EN');
 
 // Cohere's embed endpoint accepts a batch of texts per call — keep well
 // under its limit so one big content update never needs pagination logic.
