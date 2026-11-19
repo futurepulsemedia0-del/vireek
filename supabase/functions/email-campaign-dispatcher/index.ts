@@ -10,6 +10,8 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { Campaign, reclaimStale, runCampaign, startCampaign } from "../_shared/email-campaigns/engine.ts";
+import { requireCronAuth } from "../_shared/http/cronAuth.ts";
+import { secretEquals } from "../_shared/security/secretEquals.ts";
 
 const BUDGET_MS = 110_000; // stay inside the edge-function wall-clock limit
 const BATCHES_PER_CAMPAIGN = 20; // 2,000 emails per campaign per tick
@@ -19,9 +21,16 @@ function json(body: unknown, status = 200) {
 }
 
 Deno.serve(async (req: Request) => {
+  // Two accepted credentials, both compared in constant time and both fail closed:
+  //   1. x-cron-secret: <CRON_SECRET>                       (preferred)
+  //   2. Authorization: Bearer <service-role key>           (what the documented pg_cron job already sends)
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-  const auth = (req.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "");
-  if (!serviceKey || auth !== serviceKey) return json({ error: "Unauthorized" }, 401);
+  const bearer = (req.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "");
+  const viaServiceKey = await secretEquals(bearer, serviceKey);
+  if (!viaServiceKey) {
+    const cron = requireCronAuth(req);
+    if (!cron.ok) return cron.response.status === 503 ? json({ error: "Unauthorized" }, 401) : cron.response;
+  }
 
   const admin = createClient(Deno.env.get("SUPABASE_URL") ?? "", serviceKey, { auth: { persistSession: false } });
   const deadline = Date.now() + BUDGET_MS;
