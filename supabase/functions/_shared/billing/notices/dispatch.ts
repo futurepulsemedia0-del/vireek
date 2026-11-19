@@ -9,10 +9,14 @@ import {
   composeFraudNotice,
   composePaymentSuspended,
   composePriceChange,
+  composeCancellationScheduled,
   composeRenewal,
+  composeSubscriptionStarted, 
+  type CancellationScheduledData,
   type ComposedNotice,
   type PriceChangeData,
   type RenewalData,
+  type SubscriptionStartedData,
 } from "./compose.ts";
 import { sendNoticeOnce, type NoticeClient, type NoticeKind, type NoticeOutcome, type SendResult } from "./noticeLog.ts";
 import { safeTimeZone } from "./schedule.ts";
@@ -79,6 +83,19 @@ export function sendRenewalNotice(admin: SupabaseClient, owner: OwnerProfile, da
   );
 }
 
+/** Purchase confirmation with renewal terms. Key = Stripe subscription id: once per subscription, replay-safe. */
+export function sendSubscriptionStartedNotice(admin: SupabaseClient, owner: OwnerProfile, data: Omit<SubscriptionStartedData, "name" | "siteUrl">, key: string): Promise<NoticeOutcome> {
+  return sendNoticeOnce(asClient(admin), owner.id, "subscription_started", key, () =>
+    deliverEmail(owner, composeSubscriptionStarted(owner.language, { ...data, name: owner.name, siteUrl: siteUrl() })),
+  );
+}
+
+/** Cancellation confirmation. Key = subscription + period end. */
+export function sendCancellationScheduledNotice(admin: SupabaseClient, owner: OwnerProfile, data: Omit<CancellationScheduledData, "name" | "siteUrl">, key: string): Promise<NoticeOutcome> {
+  return sendNoticeOnce(asClient(admin), owner.id, "cancellation_scheduled", key, () =>
+    deliverEmail(owner, composeCancellationScheduled(owner.language, { ...data, name: owner.name, siteUrl: siteUrl() })),
+  );
+}
 export function sendPriceChangeNotice(admin: SupabaseClient, owner: OwnerProfile, data: Omit<PriceChangeData, "name" | "siteUrl">, key: string): Promise<NoticeOutcome> {
   return sendNoticeOnce(asClient(admin), owner.id, "price_change", key, () =>
     deliverEmail(owner, composePriceChange(owner.language, { ...data, name: owner.name, siteUrl: siteUrl() })),
