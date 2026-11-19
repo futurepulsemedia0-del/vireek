@@ -10,6 +10,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { verifySvix } from "../_shared/email-campaigns/svix.ts";
+import { dbWebhookEventStore, runOnce } from "../_shared/http/webhookGuard.ts";
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
@@ -47,6 +48,9 @@ Deno.serve(async (req: Request) => {
     auth: { persistSession: false },
   });
 
+  const svixId = req.headers.get("svix-id") ?? "";
+  if (svixId.length === 0 || svixId.length > 200) return json({ error: "Invalid message id" }, 400);
+  return await runOnce({ store: dbWebhookEventStore(admin), provider: "resend", eventId: svixId }, async () => {
   try {
     const { data: r } = await admin
       .from("email_campaign_recipients")
