@@ -1,0 +1,46 @@
+{
+  "title": "Heat reminders",
+  "intro": "Optional reminders to drink water and take a rest break when the heat index is high. Only you see them.",
+  "notice": "Heat reminders are estimates from the weather forecast, not medical advice. Stop and rest any time you feel unwell. Vireek does not contact emergency services. If someone may be in danger, call your local emergency number first.",
+  "load": { "loading": "Loading…", "error": "Could not load heat reminders.", "retry": "Try again" },
+  "off": "Your company has not turned heat reminders on.",
+  "optIn": { "label": "Send me heat reminders", "hint": "Your choice. You can turn this off at any time and nobody is told either way." },
+  "start": { "zipLabel": "ZIP code where you are working", "zipHint": "5-digit US ZIP. Used only to look up the weather; your phone location is not used.", "zipInvalid": "Enter a 5-digit ZIP code.", "button": "Start heat reminders", "starting": "Starting…" },
+  "errors": { "bad_zip": "Enter a 5-digit ZIP code.", "heat_disabled": "Your company has not turned heat reminders on.", "not_opted_in": "Turn on heat reminders for yourself first.", "generic": "Could not save. Try again." },
+  "live": {
+    "heading": "Right now near {{zip}}",
+    "heatIndex": "Heat index about {{value}}°F",
+    "details": "Air {{temp}}°F, humidity {{rh}}%",
+    "source": "Estimated from the National Weather Service hourly forecast, not a sensor reading.",
+    "updated": "Updated {{time}}",
+    "waiting": "Getting the first reading…",
+    "stale": "This reading is out of date, so no new reminders are being sent. Check conditions yourself.",
+    "weatherError": "Could not get the weather just now. Reminders pause until it is back.",
+    "end": "Stop heat reminders",
+    "ending": "Stopping…",
+    "official": "Official weather alert in effect: {{event}}"
+  },
+  "tier": { "low": "Low", "caution": "Caution", "high": "High", "very_high": "Very high", "extreme": "Extreme" },
+  "prompt": {
+    "water": "Time to drink some water.",
+    "rest": "Time for a rest break in the shade or a cool spot.",
+    "tierChange": "Heat level is now {{tier}}.",
+    "done": "Done",
+    "none": "No reminders right now."
+  },
+  "incident": "If something happens, log it with the incident form below.",
+  "settings": {
+    "title": "Heat reminders",
+    "intro": "Reminders go to the technician only, and only technicians who turn them on. Nobody else is alerted and emergency services are never contacted. The lone-worker check-in is separate.",
+    "enable": "Turn on heat reminders for my team",
+    "enableHint": "Each technician still has to opt in for themselves.",
+    "waterHeading": "Water reminder every (minutes, 0 = off)",
+    "restHeading": "Rest reminder every (minutes, 0 = off)",
+    "invalid": "Each level needs 0 (off) or a whole number from 5 to 480.",
+    "defaultsNote": "These starting values are conservative company defaults, not a standard. Confirm them with your safety officer.",
+    "save": "Save heat settings",
+    "saving": "Saving…",
+    "saved": "Heat settings saved.",
+    "reset": "Reset to defaults"
+  }
+}
