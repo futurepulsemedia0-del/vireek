@@ -154,3 +154,5 @@ verify_jwt = false
 verify_jwt = false
 [functions.hubspot-oauth-callback]
 verify_jwt = false
+[functions.dsar-request]
+verify_jwt = false
