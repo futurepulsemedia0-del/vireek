@@ -32,6 +32,9 @@ jobs:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: node scripts/lint-migrations.mjs
 
+      - name: Product traceability (okrs.json structure)
+        run: node scripts/product/trace.mjs --check
+
   openapi-drift:
     name: OpenAPI drift (api-v1 routes vs published spec)
     runs-on: ubuntu-latest
