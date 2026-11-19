@@ -1,0 +1,47 @@
+{
+  "_readme": "Explicit exemptions for scripts/compliance/subprocessor-reconcile.mjs. An exemption means: this provider id / host / env var is seen in code but is intentionally NOT on the public sub-processor list. Every entry needs a concrete reason (20+ chars) and a review flag containing [VERIFY] or [COUNSEL]. Do not add an entry just to make CI green - a provider that receives customer or end-user personal data belongs on the public list instead. Stale entries (matching nothing in code) produce a warning.",
+  "entries": [
+    {
+      "type": "provider",
+      "value": "package-cdns",
+      "reason": "esm.sh / jsDelivr serve code imported by edge functions at runtime; no customer data is sent to them (supply-chain dependency, not a data processor).",
+      "review": "[VERIFY] confirm no customer data is ever placed in URLs or headers sent to these hosts"
+    },
+    {
+      "type": "provider",
+      "value": "public-data-apis",
+      "reason": "Public open-data endpoints (NWS, Census, FEMA, NASA, EIA, USGS, Open-Meteo, OSM Nominatim/OSRM, zippopotam, ipwho.is, FX). No account or contract with Vireek. Some receive addresses, coordinates or IP addresses.",
+      "review": "[COUNSEL] decide whether address/coordinate/IP lookups to these services make them sub-processors or require a documented exception; [VERIFY] which endpoints receive end-customer data"
+    },
+    {
+      "type": "provider",
+      "value": "google-fonts",
+      "reason": "fonts.googleapis.com / fonts.gstatic.com appear only in the CSP allowlist; no source file or index.html references them.",
+      "review": "[VERIFY] confirm no page loads Google Fonts; if one does, add it to the public list (browser IP address is disclosed to Google) or self-host the fonts"
+    },
+    {
+      "type": "provider",
+      "value": "glitchtip",
+      "reason": "app.glitchtip.com appears only in the CSP; src/lib/sentry.ts treats the DSN as Sentry-compatible. It is used only if VITE_SENTRY_DSN points at GlitchTip.",
+      "review": "[VERIFY] confirm production DSN host; if GlitchTip is used it must be listed"
+    },
+    {
+      "type": "provider",
+      "value": "banuba",
+      "reason": "*.banuba.cloud appears only in the CSP; no source file references Banuba.",
+      "review": "[VERIFY] confirm whether any feature loads Banuba; otherwise remove it from the CSP"
+    },
+    {
+      "type": "provider",
+      "value": "pluot",
+      "reason": "*.pluot.blue appears only in the CSP; the vendor is unidentified and no source file references it.",
+      "review": "[VERIFY] identify the vendor and the feature that needed it; otherwise remove it from the CSP"
+    },
+    {
+      "type": "provider",
+      "value": "embedded-video",
+      "reason": "YouTube (nocookie) and Vimeo players are allowed as embeds in help-center content; they load only when an article containing an embed is opened.",
+      "review": "[COUNSEL] decide whether optional embeds need a public-list entry; [VERIFY] which articles embed video"
+    }
+  ]
+}
