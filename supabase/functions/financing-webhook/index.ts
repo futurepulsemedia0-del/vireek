@@ -7,6 +7,7 @@
 // for audit/debugging.
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { dbWebhookEventStore, runOnce, sha256Hex } from "../_shared/http/webhookGuard.ts";
 import { getFinancingProvider } from "../_shared/financing/registry.ts";
 
 const corsHeaders = {
@@ -29,6 +30,8 @@ Deno.serve(async (req: Request) => {
 
   const admin = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", { auth: { persistSession: false } });
 
+  // [VERIFY] key on the provider's own event id / signed timestamp once its webhook contract is confirmed.
+  return await runOnce({ store: dbWebhookEventStore(admin), provider: "financing", eventId: await sha256Hex(`wisetack:${payload}`), headers: corsHeaders }, async () => {
   try {
     const { data: offer } = await admin
       .from("financing_offers")
