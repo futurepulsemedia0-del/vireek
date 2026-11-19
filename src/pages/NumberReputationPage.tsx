@@ -13,6 +13,7 @@ import { Link } from 'react-router-dom';
 import { ShieldCheck } from 'lucide-react';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { useAuth } from '@/contexts/AuthContext';
+import { NumberHealthCard } from '@/components/numbers/NumberHealthCard';
 import { fetchPhoneNumbers, type PhoneNumber } from '@/lib/phoneNumbers';
 import { A2P_CHECKLIST, CNAM_MAX, checklistProgress, suggestCnam, validateCnam } from '@/lib/telephonyBrand';
 
@@ -82,7 +83,7 @@ export function NumberReputationPage() {
     <DashboardLayout activeLabel="Number Reputation">
       <div className="mb-6">
         <h1 className="flex items-center gap-2 text-2xl font-bold text-text-primary"><ShieldCheck size={22} aria-hidden="true" /> Number reputation</h1>
-        <p className="mt-1 text-sm text-text-secondary">Help callers recognise you and keep your texts from being filtered. This page shows the steps that protect your numbers; it does not read carrier spam labels.</p>
+        <p className="mt-1 text-sm text-text-secondary">Help callers recognise you and keep your texts from being filtered. This page shows the steps that protect your numbers; spam-label status appears in the Number health card once a reputation provider is connected.</p>
       </div>
 
       <section className={card} aria-labelledby="nr-numbers">
@@ -106,7 +107,7 @@ export function NumberReputationPage() {
           </>
         )}
       </section>
-
+      {numbers && numbers.length > 0 && <NumberHealthCard numbers={numbers} />}
       <section className={`${card} mt-4`} aria-labelledby="nr-cnam">
         <h2 id="nr-cnam" className="text-base font-semibold text-text-primary">Caller-ID name</h2>
         <p className="mt-0.5 text-xs text-text-secondary">Caller-ID names are at most {CNAM_MAX} letters and numbers. Display is not guaranteed on every network.</p>
