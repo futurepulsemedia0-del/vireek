@@ -13,6 +13,7 @@ import type {
 } from "../types.ts";
 import { AiCoreError } from "../types.ts";
 import { readSseEvents } from "../sse.ts";
+import { openAiUsage } from "./usage.ts";
 
 interface OpenAiCompatConfig {
   id: ProviderId;
@@ -102,6 +103,7 @@ function makeOpenAiCompatAdapter(cfg: OpenAiCompatConfig): ProviderAdapter {
         model,
         latencyMs: Date.now() - start,
         wasFallback: false,
+        usage: openAiUsage(data),
       };
     },
 
