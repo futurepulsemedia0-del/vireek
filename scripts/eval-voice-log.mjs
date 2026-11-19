@@ -16,11 +16,12 @@ import { DICTATIONS } from '../src/lib/voiceLog/eval/dictations.ts';
 import { THRESHOLDS, aggregate, scoreCase } from '../src/lib/voiceLog/eval/scoring.ts';
 import { RESPONSE_SCHEMA, SYSTEM_PROMPT, mimeFromExt, normalizeExtraction } from '../supabase/functions/_shared/voice-log/extract.ts';
 import { mixNoise } from './voice-log-noise.mjs';
+import { registryModelId } from './lib/modelRegistry.mjs';
 
 const args = process.argv.slice(2);
 const flag = (n) => args.includes(n);
 const val = (n) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : undefined; };
-const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+const model = process.env.GEMINI_MODEL || registryModelId('GEMINI_FLASH');
 const key = process.env.GEMINI_API_KEY;
 
 if (flag('--dry-run')) {
