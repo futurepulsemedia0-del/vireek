@@ -1,0 +1,63 @@
+{
+  "_note": "Workload FIXTURES, not production traffic. Token counts for prompt prefixes are measured from supabase/functions/_shared/ai-core/index.ts at run time; everything else below is an explicit assumption you should replace with your own usage_logs numbers. Prices must equal PRICE_TABLE in costTracking.ts (enforced by benchmark.test.mjs).",
+  "prices": {
+    "anthropic": { "inputPer1M": 3.0, "outputPer1M": 15.0 },
+    "gemini": { "inputPer1M": 0.3, "outputPer1M": 2.5 }
+  },
+  "scenarios": [
+    {
+      "id": "prompt-cache-static-brief-chat",
+      "feature": "prompt_cache",
+      "description": "Short chat turns (demo_chat) whose system prompt = identity + task rules + the STATIC knowledge brief (the RAG-empty fallback path). Prefix is identical on every call.",
+      "provider": "anthropic",
+      "model": "claude-sonnet-5",
+      "task": "demo_chat",
+      "includeStaticBrief": true,
+      "calls": 2000,
+      "intervalSec": 20,
+      "variableInputTokens": 180,
+      "outputTokens": 90
+    },
+    {
+      "id": "prompt-cache-call-intelligence-as-is",
+      "feature": "prompt_cache",
+      "description": "call_intelligence exactly as the code builds it today: identity + task rules only (no brief). Prefix is shorter than Anthropic's cacheable minimum, so the marker must NOT be sent.",
+      "provider": "anthropic",
+      "model": "claude-sonnet-5",
+      "task": "call_intelligence",
+      "includeStaticBrief": false,
+      "calls": 2000,
+      "intervalSec": 20,
+      "variableInputTokens": 1500,
+      "outputTokens": 350
+    },
+    {
+      "id": "response-cache-bank-recategorisation",
+      "feature": "response_cache",
+      "description": "Nightly bank re-sync re-submits transaction batches; ASSUMED 35% of batches are byte-identical to an earlier one within the TTL (same account, same chart of accounts, same lines).",
+      "provider": "gemini",
+      "model": "gemini-2.5-flash",
+      "task": "bank_categorization",
+      "accounts": 40,
+      "requestsPerAccount": 50,
+      "duplicateRate": 0.35,
+      "ttlSeconds": 86400,
+      "systemTokens": 700,
+      "variableInputTokens": 900,
+      "outputTokens": 400,
+      "seed": 7
+    },
+    {
+      "id": "batch-weekly-executive-commentary",
+      "feature": "batch",
+      "description": "Weekly executive_report_commentary for every account: nobody waits for it, so it is batch-eligible.",
+      "provider": "anthropic",
+      "model": "claude-sonnet-5",
+      "task": "executive_report_commentary",
+      "jobs": 500,
+      "systemTokens": 800,
+      "variableInputTokens": 2500,
+      "outputTokens": 700
+    }
+  ]
+}
