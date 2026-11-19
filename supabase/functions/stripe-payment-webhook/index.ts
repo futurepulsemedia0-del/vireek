@@ -4,6 +4,7 @@ import { applyPaymentIntentResult, stripeGet } from "../_shared/stripe/terminalP
 import { finalizePaymentRequestFromIntent } from "../_shared/payments/finalizeIntent.ts";
 import { finalizeSplitPaymentFromIntent } from "../_shared/payments/finalizeSplit.ts";
 import { processBankStripeEvent } from "../_shared/bankPayments/runtime.ts";
+import { dbWebhookEventStore, runOnce } from "../_shared/http/webhookGuard.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -56,6 +57,11 @@ Deno.serve(async (req: Request) => {
   const event = JSON.parse(payload);
   const admin = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", { auth: { persistSession: false } });
 
+  if (typeof event?.id !== "string" || event.id.length === 0 || event.id.length > 200) {
+    return new Response("Invalid event.", { status: 400, headers: corsHeaders });
+  }
+
+  return await runOnce({ store: dbWebhookEventStore(admin), provider: "stripe-payment", eventId: event.id, headers: corsHeaders }, async () => {
   try {
     switch (event.type) {
       case "checkout.session.async_payment_succeeded":
@@ -181,4 +187,5 @@ Deno.serve(async (req: Request) => {
     console.error(JSON.stringify({ event: "stripe_webhook_failed", type: event?.type, error: error instanceof Error ? error.message : String(error) }));
     return new Response(JSON.stringify({ error: "Webhook handling failed." }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
+  });
 });
