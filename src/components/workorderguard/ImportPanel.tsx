@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/Button';
+import { FmIngestPanel } from '@/components/workorderguard/FmIngestPanel';
 import { useToast } from '@/contexts/ToastContext';
 import { importOrders, undoImport } from '@/lib/workOrderGuardApi';
 import {
@@ -10,7 +11,7 @@ interface Props { profileId: string; timezone: string; onImported: () => void }
 
 export function ImportPanel({ profileId, timezone, onImported }: Props) {
   const { toast } = useToast();
-  const [mode, setMode] = useState<'csv' | 'email'>('csv');
+  const [mode, setMode] = useState<'csv' | 'email' | 'ingest'>('csv');
   const [text, setText] = useState('');
   const [fileName, setFileName] = useState('');
   const [mapping, setMapping] = useState<ColumnMapping | undefined>(undefined);
@@ -18,6 +19,7 @@ export function ImportPanel({ profileId, timezone, onImported }: Props) {
   const [lastBatches, setLastBatches] = useState<string[]>([]);
 
   const result: ImportResult | null = useMemo(() => {
+  if (mode === 'ingest') return null;
     if (!text.trim()) return null;
     return mode === 'csv' ? parseWorkOrderCsv(text, { timezone, mapping }) : parseForwardedEmail(text, { timezone });
   }, [text, mode, timezone, mapping]);
@@ -57,15 +59,16 @@ export function ImportPanel({ profileId, timezone, onImported }: Props) {
   return (
     <div className="space-y-4">
       <div className="flex gap-2" role="tablist" aria-label="Import source">
-        {(['csv', 'email'] as const).map((m) => (
+        {(['csv', 'email', 'ingest'] as const).map((m) => (
           <button key={m} role="tab" aria-selected={mode === m} onClick={() => { setMode(m); setText(''); setMapping(undefined); }}
             className={`focus-ring min-h-[40px] rounded-full border px-4 text-sm font-medium ${mode === m ? 'border-accent bg-accent/10 text-accent' : 'border-border text-text-secondary'}`}>
-            {m === 'csv' ? 'CSV export' : 'Forwarded email'}
+            {m === 'csv' ? 'CSV export' : m === 'email' ? 'Forwarded email' : 'PDF / inbox'}
           </button>
         ))}
       </div>
 
-      <section className="rounded-2xl border border-border bg-bg-secondary p-4">
+      {mode === 'ingest' && <FmIngestPanel profileId={profileId} timezone={timezone} onImported={onImported} />}
+      {mode !== 'ingest' && <section className="rounded-2xl border border-border bg-bg-secondary p-4">
         {mode === 'csv' ? (
           <>
             <p className="text-sm text-text-secondary">Export work orders from your portal and upload the CSV. Re-importing the same file updates existing orders — it never duplicates them. <a className="text-accent underline" href="/samples/work-orders-sample.csv" download>Download a sample file</a>.</p>
