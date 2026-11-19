@@ -27,6 +27,7 @@
 //   supabase functions deploy dispatch-webhook --no-verify-jwt
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { signRequest } from "../_shared/http/signedInbound.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -109,12 +110,20 @@ Deno.serve(async (req: Request) => {
   // ---- Send the actual POST to the customer's endpoint -------------------
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+    // Additive: when the integration has config.signing_secret (>= 32 chars) the delivery is HMAC-signed so the
+    // receiver can verify it (X-Vireek-Timestamp / X-Vireek-Signature). Without it the request is byte-for-byte as before.
+    const payloadText = JSON.stringify({ event: event_type, data: record ?? null });
+    const signingSecret = (integration?.config as Record<string, unknown> | null)?.signing_secret;
+    const outHeaders: Record<string, string> = { "Content-Type": "application/json" };
+    if (typeof signingSecret === "string" && signingSecret.length >= 32) {
+      Object.assign(outHeaders, await signRequest(signingSecret, payloadText, Math.floor(Date.now() / 1000)));
+    }
 
   try {
     const res = await fetch(targetUrl, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ event: event_type, data: record ?? null }),
+      headers: outHeaders,
+      body: payloadText,
       signal: controller.signal,
     });
     clearTimeout(timeout);
