@@ -14,6 +14,7 @@ import { defaultSettings, encryptSecret, parseTokenResponse, verifyOAuthState, t
 import { PROVIDERS } from "../_shared/accounting/registry.ts";
 import { XERO_CONNECTIONS_URL, jwtClaims, parseConnections } from "../_shared/accounting/xero.ts";
 import { isZohoRegion, parseOrganizations, regionFromAccountsServer, zohoOrganizationsUrl } from "../_shared/accounting/zoho.ts";
+import { redeemIssuedState } from "../_shared/security/oauthStateBindingGuard.ts";
 
 const SLUG: Record<AcctProvider, string> = { xero: "xero", zoho_books: "zoho-books", netsuite: "netsuite" };
 
@@ -31,6 +32,11 @@ Deno.serve(async (req: Request) => {
   const state = url.searchParams.get("state");
   const verified = state && stateSecret ? await verifyOAuthState(state, stateSecret) : null;
   if (!verified || verified.p === "netsuite") return back(null, { acct: "error", reason: "invalid_state" });
+
+  // Single use + session bound: issued by acct-oauth-start, never redeemed before, minting session still alive,
+  // and the identity stored server-side must equal the one inside the signed state.
+  const redeemed = await redeemIssuedState(state as string, `acct:${verified.p}`);
+  if (!redeemed.ok || redeemed.userId !== verified.u || redeemed.ownerId !== verified.o) return back(null, { acct: "error", reason: "invalid_state" });
   const provider = verified.p;
   const p = PROVIDERS[provider];
   const fail = (reason: string) => back(provider, { acct: "error", reason });
