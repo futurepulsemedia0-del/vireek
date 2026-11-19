@@ -7,6 +7,7 @@
 //  * AI-visibility results are SAMPLES; the check is flagged `sampled` and never claims a ranking.
 import { RULES, SUBSCORE_ORDER, SUBSCORE_WEIGHTS, type RuleId, type SubscoreId } from './rules.ts';
 import { normalizePhone, type SiteAudit } from './siteAudit.ts';
+import type { GbpResult } from './gbp.ts';
 
 export type Hours = Record<string, { open: string; close: string; closed?: boolean }>;
 export interface PriceBookRow {
@@ -117,7 +118,37 @@ export function websiteChecks(a: SiteAudit | null, profilePhone: string | null):
   return checks;
 }
 
-export function profileChecks(s: Snapshot): Check[] {
+/** Google Business Profile completeness. null/disabled keeps the old "needs a read" state. */
+export function gbpCheck(g: GbpResult | null): Check {
+  const id = 'gbp_categories_photos' as const;
+  if (!g || g.status === 'disabled') return mk(id, null, { k: 'needs_gbp_read' }, 'gbp_manual_checks');
+  const f = g.facts;
+  if (!f) {
+    switch (g.status) {
+      case 'not_connected': return mk(id, null, { k: 'gbp_not_connected' }, 'gbp_connect');
+      case 'no_location': return mk(id, null, { k: 'gbp_no_location' }, 'gbp_connect');
+      case 'unauthorized': return mk(id, null, { k: 'gbp_token_invalid' }, 'gbp_connect');
+      case 'not_found': return mk(id, null, { k: 'gbp_location_missing' }, 'gbp_connect');
+      case 'forbidden': return mk(id, null, { k: 'gbp_no_access' }, 'gbp_manual_checks');
+      default: return mk(id, null, { k: 'gbp_unavailable' }, 'gbp_manual_checks');
+    }
+  }
+  if (f.openStatus === 'CLOSED_PERMANENTLY') return mk(id, 0, { k: 'gbp_closed' }, 'gbp_manual_checks');
+  if (f.voiceOfMerchant === false) return mk(id, 0, { k: 'gbp_not_verified' }, 'gbp_manual_checks');
+  const parts: [number, number][] = [
+    [4, f.primaryCategory ? 1 : 0],
+    [1, f.additionalCategories >= 1 ? 1 : 0],
+    [2, Math.min(1, f.descriptionLength / 250)],
+  ];
+  if (f.photoCount !== null) parts.push([3, Math.min(1, f.photoCount / 5)]);
+  const weight = parts.reduce((n, [w]) => n + w, 0);
+  const frac = parts.reduce((n, [w, v]) => n + w * v, 0) / weight;
+  const p = { found: parts.filter(([, v]) => v >= 1).length, total: parts.length };
+  const fix = frac < 1 ? 'gbp_manual_checks' : undefined;
+  return f.photoCount === null ? mk(id, frac, { k: 'gbp_read_no_photos', p }, fix) : mk(id, frac, { k: 'gbp_read', p }, fix);
+}
+
+export function profileChecks(s: Snapshot, gbp: GbpResult | null = null): Check[] {
   const b = s.business;
   const napMissing = [!filled(b.name) && 'name', !filled(b.phone) && 'phone', !(filled(b.address) && filled(b.city) && filled(b.state)) && 'address'].filter((x): x is string => !!x);
   const days = validDays(s.hours);
@@ -136,7 +167,7 @@ export function profileChecks(s: Snapshot): Check[] {
     mk('services_described', active.length === 0 ? 0 : described / active.length, { k: 'services_described', p: { described, total: active.length } }, 'service_descriptions'),
     mk('service_areas', s.service_areas.length > 0 ? 1 : 0, { k: 'areas', p: { count: s.service_areas.length } }),
     mk('faq_qa', faqCount >= 3 ? 1 : faqCount / 3, { k: 'faq_count', p: { count: faqCount } }),
-    mk('gbp_categories_photos', null, { k: 'needs_gbp_read' }, 'gbp_manual_checks'),
+    gbpCheck(gbp),
   ];
 }
 
@@ -186,8 +217,8 @@ export function summarize(checks: Check[]): ScanResult {
   return { score, coverage: Math.round(wSum) / 100, subscores, checks };
 }
 
-export function scoreAccount(s: Snapshot, audit: SiteAudit | null, samples: AiSample[] | null = null): ScanResult {
-  return summarize([...profileChecks(s), ...websiteChecks(audit, s.business.phone), ...otherChecks(s, samples)]);
+export function scoreAccount(s: Snapshot, audit: SiteAudit | null, samples: AiSample[] | null = null, gbp: GbpResult | null = null): ScanResult {
+  return summarize([...profileChecks(s, gbp), ...websiteChecks(audit, s.business.phone), ...otherChecks(s, samples)]);
 }
 
 /** Public tool: only the website can be measured. Returns the score plus the 5 biggest point losses. */
@@ -317,6 +348,9 @@ export function buildFixes(s: Snapshot, checks: Check[]): Fix[] {
     fixes.push({ key: 'review_backlog', kind: 'link', ruleIds: ['reviews_response'], impact: lostFor(checks, ['reviews_response']), href: '/dashboard/reputation' });
   }
   if (!s.booking.feed_enabled) fixes.push({ key: 'publish_feed', kind: 'link', ruleIds: ['booking_feed'], impact: lostFor(checks, ['booking_feed']), href: '/dashboard/google-booking' });
+  if (checks.some((c) => c.ruleId === 'gbp_categories_photos' && c.fixKey === 'gbp_connect')) {
+    fixes.push({ key: 'gbp_connect', kind: 'link', ruleIds: ['gbp_categories_photos'], impact: 0, href: '/dashboard/integrations' });
+  } 
   fixes.push({ key: 'gbp_manual_checks', kind: 'task', ruleIds: ['gbp_categories_photos', 'nap_directories'], impact: 0 });
   return fixes.sort((a, b) => b.impact - a.impact);
 }
