@@ -1,0 +1,8 @@
+{
+  "title": "How billing works",
+  "renews": "Every plan renews automatically each month at the price shown above, plus any applicable tax, until you cancel. Each renewal is charged to your payment method on file.",
+  "switch": "If you already have a subscription, changing plans takes effect right away and the price difference is prorated on your next invoice.",
+  "cancel": "You can cancel at any time. Cancelling stops future renewals, and you keep access until the end of the period you have already paid for.",
+  "confirmation": "After you subscribe we email you a confirmation that repeats these terms.",
+  "cancelLink": "Cancel subscription"
+}
