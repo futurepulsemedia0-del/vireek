@@ -62,6 +62,7 @@ jobs:
           npm run lint:locale
           npm run lint:regional
           npm run test:scripts:regional
+          npm run test:scripts:outcome-chain
           npm run check:models
           npm run test:scripts:models
           npm run lint:voice
