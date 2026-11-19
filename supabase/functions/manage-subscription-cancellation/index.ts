@@ -37,6 +37,8 @@
 
 import Stripe from "npm:stripe@17.4.0";
 import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
+import { loadOwner, sendCancellationScheduledNotice } from "../_shared/billing/notices/dispatch.ts";
+import { localYmd } from "../_shared/billing/notices/schedule.ts";
 import { getPlanDef } from "../_shared/billing/planCatalog.ts";
 import { schedulePhaseTax, subscriptionHasAutomaticTax } from "../_shared/billing/stripeTax.ts";
 import {
@@ -260,7 +262,7 @@ Deno.serve(async (req: Request) => {
         sub = await stripe.subscriptions.update(subscriptionId, {
           cancel_at_period_end: true,
           cancellation_details: {
-            feedback: STRIPE_FEEDBACK[request.reason],
+            feedback: request.reason ? STRIPE_FEEDBACK[request.reason] : undefined,
             comment: request.detail ? request.detail.slice(0, 500) : undefined,
           },
           // A pause on a cancelling subscription would be confusing; end it.
@@ -270,6 +272,20 @@ Deno.serve(async (req: Request) => {
           reason: request.reason,
           detail: request.detail,
         });
+        // Written confirmation (best effort: Stripe is already changed, never fail the request over an email).
+        try {
+          const owner = await loadOwner(admin, user.id);
+          if (owner?.email && profile.plan && sub.current_period_end) {
+            await sendCancellationScheduledNotice(
+              admin,
+              owner,
+              { planId: profile.plan as string, accessUntilYmd: localYmd(new Date(sub.current_period_end * 1000), owner.timeZone) },
+              `cancel:${subscriptionId}:${sub.current_period_end}`,
+            );
+          }
+        } catch (err) {
+          console.error(JSON.stringify({ event: "cancellation_confirmation_failed", error: err instanceof Error ? err.message : String(err) }));
+        }
         if (saveActive) {
           // Outcome tracking: offers shown in the last 24h that got no answer = declined. Best effort.
           try {
