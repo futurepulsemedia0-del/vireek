@@ -35,8 +35,9 @@ Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
 
   const url = Deno.env.get("SUPABASE_URL") ?? "";
-  const authHeader = req.headers.get("Authorization") ?? "";
-  if (!authHeader) return json({ error: "not_authenticated" }, 401);
+   const authn = await requireSignedInUser(req, { fn: "direct-mail-settings", responseHeaders: cors });
+  if (!authn.ok) return authn.response;
+  const authHeader = authn.authHeader;
 
   const userClient = createClient(url, Deno.env.get("SUPABASE_ANON_KEY") ?? "", {
     global: { headers: { Authorization: authHeader } },
