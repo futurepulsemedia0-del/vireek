@@ -1,14 +1,8 @@
 // Shared caller check for tenant-export / tenant-import: signed-in user, account owner/admin only.
 import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 
-export const CORS = {
-  "Access-Control-Allow-Origin": "*", // bearer-JWT endpoint; no cookies are involved
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Authorization, Content-Type",
-};
-export const jsonRes = (b: unknown, status = 200) =>
-  new Response(JSON.stringify(b), { status, headers: { ...CORS, "Content-Type": "application/json" } });
-
+import { CORS, jsonRes } from "./http.ts";
+export { CORS, jsonRes };
 export async function authorizeOwner(req: Request): Promise<
   { ok: true; ownerId: string; actorId: string; admin: SupabaseClient } | { ok: false; res: Response }
 > {
