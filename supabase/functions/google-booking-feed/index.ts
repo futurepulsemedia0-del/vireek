@@ -12,6 +12,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { computeFeedAvailability, sha256Hex, type FeedSnapshot } from "../_shared/google-booking/availability.ts";
+import { guardPublic } from "../_shared/http/publicGuardDeno.ts";
 
 const SLUG_RE = /^[a-z0-9-]{3,60}$/;
 const TTL_SECONDS = 120;
@@ -72,6 +73,10 @@ Deno.serve(async (req: Request) => {
     const slug = (url.searchParams.get("slug") ?? "").toLowerCase();
     const format = url.searchParams.get("format") ?? "bundle";
     if (!SLUG_RE.test(slug) || !["bundle", "availability", "services"].includes(format)) {
+
+    // Public read endpoint: rate limit per client and per slug, fail OPEN so a limiter outage never unpublishes the feed.
+    const blocked = await guardPublic(req, { endpoint: "google-booking-feed", limit: 120, windowSeconds: 60, failClosed: false, scope: slug, headers: cors });
+    if (blocked) return blocked;
       return json({ status: "not_published" }, 404);
     }
 
