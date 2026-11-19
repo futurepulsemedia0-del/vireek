@@ -6,6 +6,7 @@
 // Deploy: supabase functions deploy status-feed --no-verify-jwt
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { guardPublic } from "../_shared/http/publicGuardDeno.ts";
 
 const cors = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "GET, OPTIONS", "Access-Control-Allow-Headers": "Content-Type" };
 
@@ -34,6 +35,12 @@ function atom(incidents: FeedIncident[], siteUrl: string): string {
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
   if (req.method !== "GET") return new Response("Method not allowed", { status: 405, headers: cors });
+  // Input validation: the only parameter is ?format=atom|json.
+  const format = new URL(req.url).searchParams.get("format");
+  if (format !== null && format !== "atom" && format !== "json") return new Response("Unknown format", { status: 400, headers: cors });
+  // Public + cached: rate limit per client, fail OPEN.
+  const blocked = await guardPublic(req, { endpoint: "status-feed", limit: 120, windowSeconds: 60, failClosed: false, headers: cors });
+  if (blocked) return blocked;
 
   const url = Deno.env.get("SUPABASE_URL");
   const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -44,7 +51,7 @@ Deno.serve(async (req: Request) => {
   if (error || !data) return new Response(JSON.stringify({ error: "Status temporarily unavailable" }), { status: 503, headers: { ...cors, "Content-Type": "application/json" } });
 
   const headers = { ...cors, "Cache-Control": "public, max-age=60, s-maxage=60" };
-  if (new URL(req.url).searchParams.get("format") === "atom") {
+  if (format === "atom") {
     const site = Deno.env.get("SITE_URL") ?? "https://vireek.com";
     return new Response(atom((data as { incidents: FeedIncident[] }).incidents ?? [], site), { headers: { ...headers, "Content-Type": "application/atom+xml; charset=utf-8" } });
   }
