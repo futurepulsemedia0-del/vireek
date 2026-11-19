@@ -3,6 +3,7 @@
 // Business Immune System — deterministic anomaly scanner.
 //
 // Runs on a schedule (external cron, --no-verify-jwt, service role).
+// AUTH: the scheduler must send the header  x-cron-secret: <CRON_SECRET>.
 // For every account: computes a trailing baseline from that account's
 // own history for each category, compares it against the last 24h,
 // and opens/updates a business_immune_signals row when the deviation
@@ -14,11 +15,11 @@
 
 import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { sendSms } from "../_shared/notify/deliver.ts";
+// Scheduler-only endpoint: no browser origin is ever allowed (no Access-Control-Allow-Origin).
+import { requireCronAuth } from "../_shared/http/cronAuth.ts";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
 const SENSITIVITY_MULTIPLIER: Record<string, number> = { low: 1.5, standard: 1.0, high: 0.65 };
@@ -304,6 +305,9 @@ async function notify(
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: corsHeaders });
+  // Scheduler-only: scans every account and can send SMS. Fail closed (503 when CRON_SECRET is unset).
+  const cronAuth = requireCronAuth(req);
+  if (!cronAuth.ok) return cronAuth.response;
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
