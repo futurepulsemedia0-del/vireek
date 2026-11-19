@@ -11,6 +11,7 @@ import { adminClient, corsHeaders, json, logPay } from "../_shared/pay/http.ts";
 import { getCardIssuer, getPayoutProvider } from "../_shared/pay/registry.ts";
 import { CARD_COLUMNS, processCardAuthorization, type CardRow } from "../_shared/pay/cardAuth.ts";
 import type { PayMode } from "../_shared/pay/types.ts";
+import { dbWebhookEventStore, runOnce, sha256Hex } from "../_shared/http/webhookGuard.ts";
 
 const MODES: PayMode[] = ["live", "sandbox"];
 
@@ -30,6 +31,8 @@ Deno.serve(async (req: Request) => {
         if (!provider.isConfigured() || !(await provider.verifyWebhookSignature(payload, req.headers))) continue;
         const ev = provider.parseWebhookEvent(payload);
         if (!ev) return new Response("Unrecognized payload", { status: 400 });
+        // [VERIFY] a live payout adapter must supply the provider's own event id + signed timestamp; use those instead of the body digest.
+        return await runOnce({ store: dbWebhookEventStore(db), provider: "pay-payout", eventId: await sha256Hex(`${provider.id}:${mode}:${payload}`), headers: corsHeaders }, async () => {
         const { data: t } = await db.from("pay_transfers").select("id, sandbox").eq("provider", provider.id).eq("external_id", ev.externalId).maybeSingle();
         if (!t) return new Response("ok", { status: 200 });                      // ack: nothing to retry against
         if (t.sandbox !== (mode === "sandbox")) return new Response("mode mismatch", { status: 400 });
