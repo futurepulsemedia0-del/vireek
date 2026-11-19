@@ -1,0 +1,11 @@
+{
+  "_note": "Payload shapes copied from Google's published v3 sample payloads (int64 as strings). Values are placeholders. SYNTHETIC with respect to our tenant data.",
+  "batch_request": { "merchant_id": "acme-hvac", "slot_time": [ { "availability_tag": "5042328", "duration_sec": "3600", "service_id": "svc_ac-repair", "start_sec": "__START__" } ] },
+  "create_request": {
+    "idempotency_token": "13490670332760737439",
+    "payment_information": { "prepayment_status": "PREPAYMENT_NOT_PROVIDED" },
+    "slot": { "availability_tag": "5042328", "confirmation_mode": "CONFIRMATION_MODE_SYNCHRONOUS", "duration_sec": "3600", "merchant_id": "acme-hvac", "service_id": "svc_ac-repair", "start_sec": "__START__" },
+    "user_information": { "email": "john.smith@example.com", "family_name": "Smith", "given_name": "John", "telephone": "+12091111111", "user_id": "1111111111111111111" }
+  },
+  "update_request": { "booking": { "booking_id": "__ID__", "status": "CANCELED" } }
+}
