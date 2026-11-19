@@ -12,7 +12,11 @@ import { AiCoreError } from "./types.ts";
 import { runInputGuardrails, runOutputGuardrails, createStreamGuard } from "./guardrails.ts";
 import { secureInput, secureOutput, createRehydrator, rehydrate, type AiSecurityContext } from "./aiSecurity.ts";
 import { routeChat, routeChatStream, type RouteChatResult } from "./router.ts";
-import { checkBudget, logUsage, resolveUsage } from "./costTracking.ts";
+import { checkBudget, logUsage, resolveUsage, getAiCoreDb } from "./costTracking.ts";
+import { getRouteForTask } from "./registry.ts";
+import { readCostFlags } from "./llmCost.ts";
+import { buildCacheKey, cacheEligibility, cacheLookup, cacheStore, type ResponseCacheOptions } from "./responseCache.ts";
+import { createSupabaseResponseCacheStore, type CacheDbClient } from "./responseCacheStore.ts";
 import type { LedgerCorrelation } from "../economics/ledgerWriter.ts";
 import { REMOTE_RESOLUTION_INSTRUCTIONS } from "./remoteResolutionPrompt.ts";
 
@@ -428,6 +432,11 @@ export interface AskVireekAiOptions {
   /** Edge function name for the cost log. Defaults to security.agentSource. */
   source?: string;
   correlation?: LedgerCorrelation;
+  /**
+   * Opt in to the response cache (needs temperature: 0 and an accountId; ignored unless AI_RESPONSE_CACHE=1).
+   * Deterministic prompts only. Never set it on conversational tasks.
+   */
+  cache?: ResponseCacheOptions;
 }
 
 export interface AskVireekAiResult {
@@ -438,9 +447,13 @@ export interface AskVireekAiResult {
     latencyMs: number;
     wasFallback: boolean;
     attempts: RouteChatResult["attempts"];
+    cacheHit?: boolean;
   };
 }
-
+/** Leading part of the system prompt that is identical for every call of a task (identity + task rules). */
+function stablePrefixLength(task: TaskType): number {
+  return [BASE_IDENTITY, TASK_INSTRUCTIONS[task]].filter(Boolean).join("\n\n").length;
+}
 export async function askVireekAi(
   opts: AskVireekAiOptions,
 ): Promise<AskVireekAiResult> {
@@ -459,6 +472,48 @@ export async function askVireekAi(
 
   const result = await routeChat(
     opts.task,
+  // ---- Response cache (AI_RESPONSE_CACHE=1, per-call opt-in, deterministic requests only) ----
+  const eligibility = cacheEligibility({
+    flagOn: readCostFlags((n) => Deno.env.get(n)).responseCache,
+    cache: opts.cache,
+    accountId,
+    temperature: opts.temperature,
+    hasSecurityContext: !!opts.security,
+    streaming: false,
+  });
+  const cacheStoreImpl = eligibility.ok ? createSupabaseResponseCacheStore(getAiCoreDb() as unknown as CacheDbClient) : null;
+  const cacheKey =
+    eligibility.ok && accountId
+      ? await buildCacheKey({
+          accountId,
+          task: opts.task,
+          system,
+          messages: guardedMessages,
+          maxTokens: opts.maxTokens,
+          temperature: 0,
+          jsonMode: opts.jsonMode === true,
+          route: getRouteForTask(opts.task),
+        })
+      : null;
+  if (cacheStoreImpl && cacheKey && accountId) {
+    const hit = await cacheLookup(cacheStoreImpl, accountId, cacheKey);
+    if (hit) {
+      void logUsage({
+        accountId,
+        task: opts.task,
+        source: opts.source ?? opts.security?.agentSource,
+        response: { text: hit.text, provider: hit.provider as never, model: hit.model, latencyMs: 0, wasFallback: false },
+        usage: { inputTokens: hit.inputTokens, outputTokens: hit.outputTokens, estimated: false },
+        attempts: [],
+        cacheHit: true,
+      });
+      const guardedHit = runOutputGuardrails(hit.text, guardCtx);
+      return {
+        text: guardedHit.text,
+        meta: { provider: hit.provider, model: hit.model, latencyMs: 0, wasFallback: false, attempts: [], cacheHit: true },
+      };
+    }
+  }
     {
       system,
       messages: guardedMessages,
@@ -482,7 +537,17 @@ export async function askVireekAi(
 
   const safeText = sec ? await secureOutput(sec.secured, result.response.text) : result.response.text;
   const guardedOutput = runOutputGuardrails(safeText, guardCtx);
-
+  if (cacheStoreImpl && cacheKey && accountId && eligibility.ok) {
+    const u = resolveUsage({ system, messages: guardedMessages, maxTokens: opts.maxTokens }, result.response);
+    void cacheStore(cacheStoreImpl, accountId, cacheKey, opts.task, {
+      text: result.response.text,
+      provider: result.response.provider,
+      model: result.response.model,
+      inputTokens: u.inputTokens + (u.cacheReadTokens ?? 0) + (u.cacheWriteTokens ?? 0),
+      outputTokens: u.outputTokens,
+    }, eligibility.ttlSeconds);
+  }
+  
   return {
     text: guardedOutput.text,
     meta: {
