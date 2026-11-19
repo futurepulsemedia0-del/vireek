@@ -58,7 +58,8 @@ import {
   type TopupReversalDeps,
   type TopupSessionLike,
 } from "../_shared/billing/topup.ts";
-import { notifyPaymentSuspended } from "../_shared/billing/notices/dispatch.ts";
+import { loadOwner, notifyPaymentSuspended, sendSubscriptionStartedNotice } from "../_shared/billing/notices/dispatch.ts";
+import { localYmd } from "../_shared/billing/notices/schedule.ts";
 import {
   chargeRefundToClawbackArgs,
   disputeToClawbackArgs,
@@ -452,6 +453,41 @@ Deno.serve(async (req: Request) => {
           break;
         }
         if (session.mode !== "subscription" || !session.subscription) break;
+        {
+          // Written purchase confirmation with the renewal terms. Best effort: never fail/retry the webhook over an email.
+          try {
+            const startedSubId = typeof session.subscription === "string" ? session.subscription : session.subscription.id;
+            const buyerId = session.metadata?.supabase_user_id ?? session.client_reference_id;
+            if (buyerId && session.metadata?.results_plan !== "1") {
+              const buyer = await loadOwner(admin, buyerId);
+              const startedSub = await stripe.subscriptions.retrieve(startedSubId);
+              const startedItem = startedSub.items.data[0];
+              const startedInterval = startedItem?.price.recurring?.interval;
+              const startedPlan = session.metadata?.plan_id ?? buyer?.plan ?? null;
+              if (buyer?.email && startedItem && startedPlan && (startedInterval === "month" || startedInterval === "year")) {
+                let renewalCents = startedItem.price.unit_amount ?? 0;
+                try {
+                  const upcoming = await stripe.invoices.retrieveUpcoming({ subscription: startedSubId });
+                  if (upcoming.amount_due > 0) renewalCents = upcoming.amount_due;
+                } catch { /* fall back to the list price */ }
+                const inTrial = startedSub.status === "trialing" && !!startedSub.trial_end;
+                const nextChargeSec = inTrial ? (startedSub.trial_end as number) : startedSub.current_period_end;
+                if (renewalCents > 0) {
+                  await sendSubscriptionStartedNotice(admin, buyer, {
+                    planId: startedPlan,
+                    interval: startedInterval,
+                    amountCents: renewalCents,
+                    currency: startedItem.price.currency,
+                    nextChargeYmd: localYmd(new Date(nextChargeSec * 1000), buyer.timeZone),
+                    trial: inTrial,
+                  }, `started:${startedSubId}`);
+                }
+              }
+            }
+          } catch (err) {
+            console.error(JSON.stringify({ event: "subscription_started_notice_failed", error: err instanceof Error ? err.message : String(err) }));
+          }
+        }
         {
           const r = await applyCheckoutSession(admin, stripe as unknown as StripeClientLike, session as unknown as Parameters<typeof applyCheckoutSession>[2], event.created, (k) => Deno.env.get(k));
           if (r.handled) break;
