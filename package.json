@@ -118,6 +118,8 @@
     "test:fairness": "node --experimental-strip-types --no-warnings --test scripts/fairness/audit.test.mjs",
     "fairness:audit": "node --experimental-strip-types --no-warnings scripts/fairness/audit.mjs",
     "check:direct-llm": "node scripts/check-direct-llm-calls.mjs",
+    "llm-cost:bench": "node --experimental-strip-types --no-warnings scripts/llm-cost/benchmark.mjs",
+    "llm-cost:test": "node --experimental-strip-types --no-warnings --test scripts/llm-cost/benchmark.test.mjs",
     "check:models": "node scripts/check-model-registry.mjs",
     "test:scripts:models": "node --test scripts/lib/modelRegistryScan.test.mjs",
     "codemod:models": "node scripts/codemod-model-registry.mjs",
