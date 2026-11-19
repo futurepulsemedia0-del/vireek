@@ -48,6 +48,7 @@ const P = {
   ],
   webhookTimestamp: [/tolerance/i, /timestamp/i, /Math\.abs\([^)]*Date\.now\(\)/, /\bt=\d/],
   webhookReplay: [/\bnonce\b/i, /webhook_events?\b/, /\breplay\b/i, /\bprocessed_events?\b/, /\bevent_id\b/, /\bdedupe/i, /idempotency_key/i],
+ /\bclaim_billing_event\b/, /\b(?:begin|claim)_webhook_event\b/,
   rateLimit: [/\brate[_-]?limit/i, /\bcheckRate/i, /\bbi_begin_request\b/, /\bthrottle/i],
   zod: [/\bz\.object\s*\(/, /\.safeParse\s*\(/, /from\s+["'](?:npm:)?zod/, /from\s+["'](?:npm:)?valibot/],
   manualValidation: [
