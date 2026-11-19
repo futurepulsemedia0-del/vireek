@@ -3,6 +3,8 @@
 
 export type NoticeKind =
   | "renewal_30d"
+  | "subscription_started"
+  | "cancellation_scheduled"
   | "price_change"
   | "payment_suspended"
   | "fraud_throttled"
