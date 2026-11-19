@@ -12,6 +12,9 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { computeFeedAvailability, sha256Hex, type FeedSnapshot } from "../_shared/google-booking/availability.ts";
+import { serviceIdFor } from "../_shared/google-booking/ids.ts";
+import { resolveFsmGate } from "../_shared/fsm-availability/gate.ts";
+import { supabaseGateDeps } from "../_shared/fsm-availability/gateDeps.ts";
 import { guardPublic } from "../_shared/http/publicGuardDeno.ts";
 
 const SLUG_RE = /^[a-z0-9-]{3,60}$/;
@@ -30,8 +33,7 @@ function json(data: unknown, status = 200, cache = "no-store"): Response {
   });
 }
 
-const serviceId = (name: string) =>
-  "svc_" + name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60);
+const serviceId = serviceIdFor; // single source of truth shared with google-booking-server
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: cors });
@@ -93,7 +95,23 @@ Deno.serve(async (req: Request) => {
     const snap = data as FeedSnapshot;
     const result = computeFeedAvailability(snap, new Date(), { requirePublished: true });
     if (result.blocked) return json({ status: "not_published" }, 404);
-
+    if (result.slots.length > 0) {
+      try {
+        const { data: bp } = await admin.from("business_profile").select("user_id").eq("booking_slug", slug).maybeSingle();
+        if (bp?.user_id) {
+          const first = result.slots[0].start_sec * 1000;
+          const last = result.slots[result.slots.length - 1];
+          const gate = await resolveFsmGate(supabaseGateDeps(admin), bp.user_id as string, {
+            fromMs: first,
+            toMs: (last.start_sec + last.duration_sec) * 1000,
+          });
+          result.slots = result.slots.filter((s) => gate.allows(s.start_sec * 1000));
+        }
+      } catch (e) {
+        console.error(JSON.stringify({ event: "google_feed_fsm_unavailable", reason: e instanceof Error ? e.message : "unknown" }));
+        return json({ status: "unavailable" }, 503);
+      }
+    }
     const generatedAt = new Date();
     const bookingUrl = `${siteUrl}/book/${slug}`;
     const merchant = {
