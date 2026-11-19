@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it vi } from "vitest";
 import { requireCronAuth } from "./cronAuth.ts";
 
 // vitest runs on Node: provide a minimal Deno.env when the real one is absent.
@@ -12,7 +12,27 @@ const req = (h?: string) => new Request("https://x.test/", { headers: h ? { "x-c
 describe("requireCronAuth (fail closed)", () => {
   beforeEach(() => { Deno.env.delete("CRON_SECRET"); Deno.env.delete("CRON_SECRET_NEXT"); });
 
-  it("rejects with 503 when the secret is unset, even with no header", () => {
+  it("rejects with 500 when the secret is unset, even with no header", () => {
+    const r = requireCronAuth(req());
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.response.status).toBe(500);
+  });
+  it("honours misconfiguredStatus, merges responseHeaders and logs without leaking secrets", () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const r = requireCronAuth(req("x"), { envName: "MY_CRON_SECRET", fn: "demo-fn", misconfiguredStatus: 503, responseHeaders: { "Access-Control-Allow-Origin": "*" } });
+    expect(r.ok).toBe(false);
+    if (!r.ok) {
+      expect(r.response.status).toBe(503);
+      expect(r.response.headers.get("Access-Control-Allow-Origin")).toBe("*");
+      expect(r.response.headers.get("Content-Type")).toBe("application/json");
+    }
+    const line = String(spy.mock.calls[0]?.[0]);
+    expect(line).toContain("cron_auth_misconfigured");
+    expect(line).toContain("demo-fn");
+    expect(line).toContain("MY_CRON_SECRET");
+    expect(line).not.toContain('"x"');
+    spy.mockRestore();
+  });
     const r = requireCronAuth(req());
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.response.status).toBe(503);
