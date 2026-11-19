@@ -5,6 +5,7 @@
     "xero-oauth-start": { "auth": "jwt", "risk": "high", "owner": "finance-integrations" },
     "xero-oauth-callback": { "auth": "capability-token", "risk": "high", "owner": "finance-integrations" },
     "xero-webhook": { "auth": "webhook-signature", "risk": "high", "owner": "finance-integrations" },
-    "xero-sync-run": { "auth": "jwt", "risk": "medium", "owner": "finance-integrations" }
+    "xero-sync-run": { "auth": "jwt", "risk": "medium", "owner": "finance-integrations" },
+    "ai-batch-runner": { "auth": "cron-secret", "risk": "medium", "owner": "ai-platform" }
   }
 }
