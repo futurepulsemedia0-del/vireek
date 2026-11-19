@@ -32,6 +32,7 @@ import { PROVIDERS } from "../_shared/accounting/registry.ts";
 import { nsBase, nsNormalizeAccountId } from "../_shared/accounting/netsuite.ts";
 import { isZohoRegion, ZOHO_DEFAULT_SCOPES } from "../_shared/accounting/zoho.ts";
 import { XERO_DEFAULT_SCOPES } from "../_shared/accounting/xero.ts";
+import { recordIssuedState } from "../_shared/security/oauthStateBindingGuard.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -103,7 +104,10 @@ Deno.serve(async (req: Request) => {
     // ---- Xero / Zoho Books: OAuth redirect -----------------------------------
     if (!clientId || !Deno.env.get(`${p.auth.envPrefix}_CLIENT_SECRET`)) return notConfigured();
     const region = provider === "zoho_books" ? (isZohoRegion(body.region) ? body.region : "com") : null;
-    const state = await signOAuthState({ owner: ownerId as string, user: userData.user.id, provider, region }, stateSecret);
+    // Server-side, single-use, session-bound record of this state (see oauthStateBinding.ts). Fail closed.
+    if (!(await recordIssuedState({ state, provider: `acct:${provider}`, userId: userData.user.id, ownerId: ownerId as string, jwt: authHeader }))) {
+      return json({ error: "Could not start the connection. Please sign in again." }, 401);
+    }
     const scopes = provider === "xero" ? Deno.env.get("XERO_SCOPES") || XERO_DEFAULT_SCOPES : ZOHO_DEFAULT_SCOPES;
     const url = p.auth.authorizeUrl!({ clientId, redirectUri: `${Deno.env.get("SUPABASE_URL")}/functions/v1/acct-oauth-callback`, state, region, scopes });
     return json({ url });
