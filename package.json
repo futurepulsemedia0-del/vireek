@@ -72,6 +72,7 @@
     "security:matrix:check": "node scripts/security/function-matrix.mjs --check",
     "security:rls": "node scripts/security/rls-audit.mjs --write",
     "security:rls:check": "node scripts/security/rls-audit.mjs --check",
+    "test:security:permissive": "node --test scripts/security/permissive-allowlist.test.mjs",
     "security:check": "node scripts/security/function-matrix.mjs --check && node scripts/security/rls-audit.mjs --check",
     "check:bundle": "node scripts/check-bundle-size.mjs",
     "images:build": "node scripts/optimize-images.mjs",
@@ -138,6 +139,7 @@
     "licenses:check": "node scripts/supply-chain/license-check.mjs --check-notices",
     "licenses:notices": "node scripts/supply-chain/license-check.mjs --write-notices",
     "sbom": "node scripts/supply-chain/sbom.mjs",
+    "test:supply-chain": "node --test scripts/supply-chain/sbom.test.mjs scripts/supply-chain/pin-actions.test.mjs",
     "assets:check": "node scripts/supply-chain/asset-inventory.mjs --check",
     "registers:check": "node scripts/registers/check-registers.mjs",
     "owners:check": "node scripts/governance/check-codeowners.mjs"
