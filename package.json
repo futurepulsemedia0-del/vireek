@@ -78,6 +78,8 @@
     "naming:screen": "node scripts/naming/screen.mjs",
     "security:matrix": "node scripts/security/function-matrix.mjs --write",
     "security:matrix:check": "node scripts/security/function-matrix.mjs --check",
+    "security:cors:codemod": "node scripts/security/cors-codemod.mjs",
+    "test:scripts:cors-codemod": "node --test scripts/security/cors-codemod.test.mjs",
     "security:secret-compare": "node scripts/security/secret-compare.mjs --check",
     "security:rls": "node scripts/security/rls-audit.mjs --write",
     "security:rls:check": "node scripts/security/rls-audit.mjs --check",
