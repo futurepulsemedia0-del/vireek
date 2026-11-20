@@ -158,7 +158,7 @@ function AudioPlayer({ url }: { url: string }) {
       <button
         type="button"
         onClick={toggle}
-        className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-on-accent transition-transform hover:scale-105"
+        className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-on-accent transition-colors hover:brightness-110"
       >
         {playing ? <Pause size={18} /> : <Play size={18} className="ml-0.5" />}
       </button>
@@ -228,7 +228,7 @@ function CallDetailPanel({
         {/* Caller info */}
         <div>
           <div className="flex items-center gap-3">
-            <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/10 text-accent">
+            <span className="flex h-8 w-8 items-center justify-center text-text-muted">
               <Phone size={22} />
             </span>
             <div>
@@ -793,7 +793,7 @@ const updateCall = useCallback(
           </button>
           <div>
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-2xl font-semibold tracking-tight text-text-primary md:text-3xl">Call History</h1>
+              <h1 className="text-xl font-semibold tracking-tight text-text-primary md:text-2xl">Call History</h1>
               <LiveIndicator status={callsLiveStatus} />
             </div>
             <p className="mt-1 text-sm text-text-secondary">
@@ -956,7 +956,7 @@ const updateCall = useCallback(
         ) : (
           <>
             {/* Desktop table */}
-            <div className="hidden overflow-hidden rounded-xl border border-border bg-bg-secondary shadow-card md:block dark:shadow-card-dark">
+            <div className="hidden overflow-hidden rounded-xl border border-border bg-bg-secondary md:block">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-border bg-bg-tertiary/50">
@@ -1074,7 +1074,7 @@ const updateCall = useCallback(
                     key={call.id}
                     type="button"
                     onClick={() => setSelectedCall(call)}
-                    className={`focus-ring w-full rounded-xl border border-border bg-bg-secondary p-4 text-left shadow-card transition-colors hover:border-accent/40 dark:shadow-card-dark ${
+                    className={`focus-ring w-full rounded-xl border border-border bg-bg-secondary p-4 text-left transition-colors hover:border-accent/40 ${
                       newlyArrivedId === call.id ? 'border-accent/40 bg-accent/5' : ''
                     }`}
                   >
