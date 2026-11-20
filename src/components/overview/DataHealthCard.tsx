@@ -29,13 +29,13 @@ export function DataHealthCard() {
   return (
     <Link
       to="/dashboard/data-quality"
-      className="focus-ring flex h-full items-center gap-4 rounded-xl border border-border bg-bg-secondary p-5 shadow-card transition-colors hover:border-accent/40 dark:shadow-card-dark"
+      className="focus-ring flex h-full items-center gap-4 rounded-xl border border-border bg-bg-secondary p-5 transition-colors hover:border-accent/40"
     >
-      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent"><DatabaseZap size={20} /></span>
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center text-text-muted"><DatabaseZap size={20} /></span>
       <div className="min-w-0 flex-1">
-        <p className="text-xs font-medium uppercase tracking-wide text-text-secondary">Data health</p>
+        <p className="text-xs font-medium text-text-secondary">Data health</p>
         <p className="mt-0.5 flex items-baseline gap-2">
-          <span className={`text-3xl font-semibold ${gradeTone(health.grade)}`}>{health.score}</span>
+          <span className={`text-2xl font-semibold tabular-nums ${gradeTone(health.grade)}`}>{health.score}</span>
           <span className="text-sm text-text-secondary">{GRADE_LABELS[health.grade]}</span>
         </p>
         <p className="mt-1 truncate text-xs text-text-secondary">
