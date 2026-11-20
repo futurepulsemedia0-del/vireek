@@ -895,7 +895,7 @@ function CreateJobModal({
 // ============================================================
 
 const NO_ROWS: Job[] = [];
-export function JobsPage() {
+export function LeadsPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, profile, isOwner, permissions, teamMember } = useAuth();
