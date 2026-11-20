@@ -49,7 +49,7 @@ export function OverviewCustomizeBar({
   }
 
   return (
-    <section aria-label="Customize overview" className="mb-5 rounded-2xl border border-accent/30 bg-bg-secondary p-4">
+    <section aria-label="Customize overview" className="mb-5 rounded-xl border border-accent/30 bg-bg-secondary p-4">
       <div className="flex flex-wrap items-center gap-3">
         <label className="flex items-center gap-2 text-sm font-medium text-text-secondary">
           Layout preset
