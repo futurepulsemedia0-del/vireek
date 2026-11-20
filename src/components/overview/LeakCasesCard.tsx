@@ -30,10 +30,10 @@ export function LeakCasesCard() {
   return (
     <Link
       to="/dashboard/refrigerant-leaks"
-      className={`focus-ring flex h-full items-center gap-4 rounded-xl border p-5 shadow-card transition-colors dark:shadow-card-dark ${overdue ? 'border-danger/40 bg-danger/5 hover:border-danger' : 'border-border bg-bg-secondary hover:border-accent/40'}`}
+      className={`focus-ring flex h-full items-center gap-4 rounded-xl border p-5 transition-colors ${overdue ? 'border-danger/40 bg-danger/5 hover:border-danger' : 'border-border bg-bg-secondary hover:border-accent/40'}`}
     >
       <span
-        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${overdue ? 'bg-danger/10 text-danger' : 'bg-accent/10 text-accent'}`}
+        className={`flex h-8 w-8 shrink-0 items-center justify-center ${overdue ? 'text-danger' : 'text-text-muted'}`}
       >
         {overdue ? (
           <AlertTriangle size={20} aria-hidden="true" />
@@ -42,11 +42,11 @@ export function LeakCasesCard() {
         )}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="text-xs font-medium uppercase tracking-wide text-text-secondary">
+        <p className="text-xs font-medium text-text-secondary">
           Refrigerant leak cases
         </p>
         <p className="mt-0.5 flex items-baseline gap-2">
-          <span className={`text-3xl font-semibold ${overdue ? 'text-danger' : 'text-text-primary'}`}>
+          <span className={`text-2xl font-semibold tabular-nums ${overdue ? 'text-danger' : 'text-text-primary'}`}>
             {overdue ? s.overdue : s.active}
           </span>
           <span className="text-sm text-text-secondary">{overdue ? 'overdue' : 'active'}</span>
