@@ -23,19 +23,19 @@ export function DataHealthCard() {
   }, []);
 
   if (failed) return null;
-  if (!health) return <div className="h-28 w-full animate-pulse rounded-2xl bg-bg-tertiary" />;
+  if (!health) return <div className="h-28 w-full vrk-skel rounded-xl bg-bg-tertiary" />;
 
   const worst = health.checks[0];
   return (
     <Link
       to="/dashboard/data-quality"
-      className="focus-ring flex h-full items-center gap-4 rounded-2xl border border-border bg-bg-secondary p-5 shadow-card transition-colors hover:border-accent/40 dark:shadow-card-dark"
+      className="focus-ring flex h-full items-center gap-4 rounded-xl border border-border bg-bg-secondary p-5 shadow-card transition-colors hover:border-accent/40 dark:shadow-card-dark"
     >
       <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent"><DatabaseZap size={20} /></span>
       <div className="min-w-0 flex-1">
         <p className="text-xs font-medium uppercase tracking-wide text-text-secondary">Data health</p>
         <p className="mt-0.5 flex items-baseline gap-2">
-          <span className={`text-3xl font-bold ${gradeTone(health.grade)}`}>{health.score}</span>
+          <span className={`text-3xl font-semibold ${gradeTone(health.grade)}`}>{health.score}</span>
           <span className="text-sm text-text-secondary">{GRADE_LABELS[health.grade]}</span>
         </p>
         <p className="mt-1 truncate text-xs text-text-secondary">
