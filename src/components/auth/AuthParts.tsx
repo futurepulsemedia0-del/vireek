@@ -129,7 +129,6 @@ export const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
                   : 'border-border focus-visible:border-accent focus-visible:shadow-[0_0_0_3px_rgb(var(--accent-primary)/0.08)]'
             } ${className}`}
             aria-invalid={showError || undefined}
-            aria-describedby={error ? `${id}-error` : undefined}
             aria-describedby={describedBy}
             autoFocus={autoFocus && !isTouchPrimary()}
             {...(type === 'email' ? { inputMode: 'email' as const, autoCapitalize: 'none', autoCorrect: 'off', spellCheck: false } : {})}
