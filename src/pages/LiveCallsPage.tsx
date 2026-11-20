@@ -214,10 +214,10 @@ export function LiveCallsPage() {
           </button>
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10 text-accent">
+              <span className="flex h-8 w-8 items-center justify-center text-text-muted">
                 <Radio size={16} />
               </span>
-              <h1 className="text-2xl font-semibold tracking-tight text-text-primary md:text-3xl">Live Calls</h1>
+              <h1 className="text-xl font-semibold tracking-tight text-text-primary md:text-2xl">Live Calls</h1>
               <LiveIndicator status={callsStatus} />
             </div>
             <p className="mt-1 text-sm text-text-secondary">
