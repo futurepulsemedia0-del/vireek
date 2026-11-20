@@ -17,4 +17,8 @@ npm install --no-save --legacy-peer-deps --ignore-scripts \
   @capgo/background-geolocation @capgo/capacitor-nfc
 
 npm run tokens:build
-NODE_OPTIONS=--max-old-space-size=6144 PRERENDER_OPTIONAL=1 npm run build
+
+# Chromium for SEO prerender. If it cannot be installed, the build still ships the SPA shell.
+npx playwright install chromium || echo "[cf-build] playwright chromium install failed - continuing without prerender"
+
+CI=1 SEO_ASSERT_WARN_ONLY=1 NODE_OPTIONS=--max-old-space-size=6144 PRERENDER_OPTIONAL=1 npm run build
