@@ -28,6 +28,7 @@ import { BackButton } from '@/components/ui/BackButton';
 import { CookieConsent } from '@/components/CookieConsent';
 import { CurrencySwitcher } from '@/components/CurrencySwitcher';
 import { PricingModeSwitch } from '@/components/pricing/PricingModeSwitch';
+import { useAuth } from '@/contexts/AuthContext';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { useExperiment } from '@/contexts/ExperimentContext';
 import { formatPrice } from '@/lib/currency';
