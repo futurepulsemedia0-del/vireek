@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { usePartsSourcingEnabled } from '@/hooks/usePartsSourcingEnabled';
@@ -11,10 +11,10 @@ import { useLandscapingAccess } from '@/lib/landscapingApi';
 import {
   BarChart3, Ruler, FileUp, LayoutTemplate, Globe, Globe2, BookOpen, BookMarked, ClipboardCheck, Link2, QrCode,
   ScrollText, Home, Phone, LogOut, Menu, X, LayoutDashboard, Calendar, TrendingUp, TrendingDown, Radio, PhoneCall,
-  PhoneMissed, Inbox, Target, Users, Wrench, Medal, BookUser, Brain, Settings, Lightbulb, GraduationCap,
+  PhoneMissed, Inbox, Target, Users, Wrench, Medal, BookUser, Settings, Lightbulb, GraduationCap,
   BookOpenCheck, Gauge, Compass, Hourglass, Waves, ShieldCheck, Scale, BadgePercent, Tags, TicketPercent,
-  FlaskConical, FolderLock, Bot, Ban, Users2, CreditCard, MessagesSquare, Plug, PlugZap, ChevronDown, Sparkles,
-  BrainCircuit, Headset, BadgeCheck, Rocket, Timer, Star, Smile, Voicemail, PhoneOutgoing, Gift, AudioLines,
+  FlaskConical, FolderLock, Ban, Users2, CreditCard, MessagesSquare, Plug, PlugZap, ChevronDown, ChevronRight, ChevronLeft, ChevronsUpDown, Search, Keyboard,
+  Headset, BadgeCheck, Rocket, Timer, Star, Smile, Voicemail, PhoneOutgoing, Gift, AudioLines,
   Volume2, Megaphone, MailPlus, Mail, Filter, Award, RotateCcw, DollarSign, Calculator, Route, AlertOctagon,
   GitBranch, FileText, FileBarChart, CalendarClock, ShieldAlert, HeartHandshake, SearchCheck, FileClock,
   HandHelping, FileSignature, Zap, Building2, Webhook, Lock, LockKeyhole, History, Activity, CloudLightning, User,
@@ -29,6 +29,9 @@ import {
   DoorOpen, CalendarRange, Warehouse, PencilRuler, Languages, Smartphone, Briefcase, Repeat, Video, RefreshCw,
   Gavel,
 } from 'lucide-react';
+import '@/components/loading/loading.css';
+import { Logo } from '@/components/brand/Logo';
+import { ImpersonationBanner } from '@/components/staff/ImpersonationBanner';
 import { useAuth } from '@/contexts/AuthContext';
 import { rememberDashboardPath } from '@/lib/helpCenter';
 import { useToast } from '@/contexts/ToastContext';
@@ -43,14 +46,13 @@ import { ActivePlaybookBanner } from '@/components/playbooks/ActivePlaybookBanne
 import { PaymentFailedBanner } from '@/components/PaymentFailedBanner';
 import { UsageLimitBanner } from '@/components/UsageLimitBanner';
 import { TrialBanner } from '@/components/TrialBanner';
-import { ImpersonationBanner } from '@/components/staff/ImpersonationBanner';
 import { NotificationBell } from '@/components/NotificationBell';
 import { WhatsNewButton } from '@/components/whats-new/WhatsNewButton';
 import { ReplayTourMenu } from '@/components/tour/ReplayTourMenu';
 import { WhatsNewProvider } from '@/contexts/WhatsNewContext';
 import { LocationSwitcher } from '@/components/locations/LocationSwitcher';
 import { AiAssistant } from '@/components/AiAssistant';
-import { GlobalSearchPalette } from '@/components/GlobalSearchPalette';
+import { GlobalSearchPalette, openPalette } from '@/components/GlobalSearchPalette';
 import { NpsPrompt } from '@/components/success/NpsPrompt';
 import { FeedbackButton } from '@/components/feedback/FeedbackButton';
 import { FeedbackDialog } from '@/components/feedback/FeedbackDialog';
@@ -61,15 +63,17 @@ import { ChatUnreadProvider } from '@/contexts/ChatUnreadContext';
 import { ChatNavBadge } from '@/components/teamchat/ChatNavBadge';
 import { navigationHandlers } from '@/lib/shortcuts/definitions';
 import { useShortcutContext, useShortcutHandlers, useShortcutScope } from '@/lib/shortcuts/useShortcuts';
-import { Accessibility as AccessibilityIcon, MessageCircle as AskDataIcon } from 'lucide-react';
-import { openAccessibilityCenter, openAskData } from '@/lib/uiEvents';
 import { KeyboardShortcutsModal } from '@/components/KeyboardShortcutsModal';
 import { useTranslation } from 'react-i18next';
 import { useDirection } from '@/hooks/useDirection';
 import { useEntitlements } from '@/hooks/useEntitlement';
 import { passesModuleGate } from '@/lib/entitlements';
 import { navLabelKey } from '@/lib/navLabel';
-import { PILLARS, audienceFor, groupByPillar, isLab, plainLabel } from '@/lib/surface/surface';
+import { PILLARS, audienceFor, groupByPillar, isLab, pillarFor, plainLabel, searchTerms } from '@/lib/surface/surface';
+import type { PillarId } from '@/lib/surface/surface';
+import { Accessibility as AccessibilityIcon, MessageCircle as AskDataIcon } from 'lucide-react';
+import { openAccessibilityCenter, openAskData } from '@/lib/uiEvents';
+import { groupByHub } from '@/lib/surface/navHubs';
 import { useSimpleMode } from '@/hooks/useSimpleMode';
 import { filterToSimpleNav } from '@/lib/simpleMode';
 import { MobileBottomNav } from '@/components/mobile/MobileBottomNav';
@@ -145,20 +149,20 @@ export const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Customers', href: '/dashboard/customers', icon: BookUser },
   { label: 'Equipment Intelligence', href: '/dashboard/equipment', icon: Wrench },
   { label: 'Building Telemetry', href: '/dashboard/building-telemetry', icon: Cpu },
-  { label: 'Customer Intelligence', href: '/dashboard/customer-intelligence', icon: Brain, requiresPermission: 'can_view_billing' },
+  { label: 'Customer Intelligence', href: '/dashboard/customer-intelligence', icon: SearchCheck, requiresPermission: 'can_view_billing' },
   { label: 'Quotes', href: '/dashboard/quotes', icon: FileText },
   { label: 'Outbound Campaigns', href: '/dashboard/outbound-campaigns', icon: PhoneOutgoing },
   { label: 'Voice Brand', href: '/dashboard/voice-brand', icon: Volume2, requiresPermission: 'can_view_billing' },
   { label: 'Voicemail Drops', href: '/dashboard/voicemail-drops', icon: AudioLines, requiresPermission: 'can_view_billing' },
   { label: 'Power Dialer', href: '/dashboard/power-dialer', icon: PhoneOutgoing, requiresPermission: 'can_view_all_jobs' },
   { label: 'Call Masking', href: '/dashboard/call-masking', icon: ShieldCheck },
-  { label: 'AI Agent Callers', href: '/dashboard/ai-agent-callers', icon: Bot },
+  { label: 'AI Agent Callers', href: '/dashboard/ai-agent-callers', icon: Headset },
   { label: 'Speed to Lead', href: '/dashboard/speed-to-lead', icon: Zap, requiresPermission: 'can_view_billing' },
   { label: 'Leak Report', href: '/dashboard/leak-report', icon: PhoneMissed, requiresPermission: 'can_view_billing' },
   { label: 'Neighborhood Revenue', href: '/dashboard/neighborhood-revenue', icon: MapPinned, requiresPermission: 'can_view_billing' },
   { label: 'Marketing Automation', href: '/dashboard/marketing', icon: Megaphone },
   { label: 'Content Calendar', href: '/dashboard/marketing/calendar', icon: CalendarRange, requiresPermission: 'can_edit_business_profile' },
-  { label: 'Creative Studio', href: '/dashboard/marketing/creative', icon: Sparkles, requiresPermission: 'can_edit_business_profile' },
+  { label: 'Creative Studio', href: '/dashboard/marketing/creative', icon: Paintbrush, requiresPermission: 'can_edit_business_profile' },
   { label: 'Lifecycle Touches', href: '/dashboard/lifecycle', icon: CalendarHeart },
   { label: 'Referrals', href: '/dashboard/referrals', icon: Gift, requiresPermission: 'can_view_billing' },
   { label: 'Loyalty', href: '/dashboard/loyalty', icon: Crown, requiresPermission: 'can_view_billing' },
@@ -193,13 +197,13 @@ export const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Insights', href: '/dashboard/insights', icon: Lightbulb },
   { label: 'Chief of Staff', href: '/dashboard/chief-of-staff', icon: Compass },
   { label: 'Decision Engine', href: '/dashboard/decision-engine', icon: Cpu, requiresPermission: 'can_view_billing' },
-  { label: 'Ask Vireek', href: '/dashboard/ask-vireek', icon: BrainCircuit, requiresPermission: 'can_view_billing' },
+  { label: 'Ask Vireek', href: '/dashboard/ask-vireek', icon: MessageSquareText, requiresPermission: 'can_view_billing' },
   { label: 'Causal World Simulator', href: '/dashboard/causal-simulator', icon: GitBranch, requiresPermission: 'can_view_billing' },
   { label: 'Continual Identity Learner', href: '/dashboard/identity-learner', icon: Radar, requiresPermission: 'can_view_billing' },
   { label: 'Regret Console', href: '/dashboard/regret-console', icon: Scale, requiresPermission: 'can_view_billing' },
   { label: 'Business Scientist', href: '/dashboard/business-scientist', icon: FlaskConical, requiresPermission: 'can_view_billing' },
   { label: 'AI Field Scientist', href: '/dashboard/field-scientist', icon: Microscope, requiresPermission: 'can_view_billing' },
-  { label: 'Self-Evolving Operating Model', href: '/dashboard/operating-model', icon: Sparkles, requiresPermission: 'can_view_billing' },
+  { label: 'Self-Evolving Operating Model', href: '/dashboard/operating-model', icon: Workflow, requiresPermission: 'can_view_billing' },
   { label: 'Decision Debt', href: '/dashboard/decision-debt', icon: Hourglass, requiresPermission: 'can_view_billing' },
   { label: 'Operations Center', href: '/dashboard/operations-center', icon: Radar, requiresPermission: 'can_view_billing' },
   { label: 'Decision Ledger', href: '/dashboard/decision-ledger', icon: ScrollText, requiresPermission: 'can_view_billing' },
@@ -273,15 +277,15 @@ export const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Install Closeout', href: '/dashboard/install-closeout', icon: ClipboardCheck, requiresPermission: 'can_view_all_jobs' },
   { label: 'Protection Plans', href: '/dashboard/protection-plans', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
   { label: 'Business Immune System', href: '/dashboard/immune-system', icon: Siren },
-  { label: 'Compounding Flywheel', href: '/dashboard/flywheel', icon: Sparkles },
-  { label: 'Adaptive Diagnostic', href: '/dashboard/adaptive-diagnostics', icon: BrainCircuit },
+  { label: 'Compounding Flywheel', href: '/dashboard/flywheel', icon: RefreshCw },
+  { label: 'Adaptive Diagnostic', href: '/dashboard/adaptive-diagnostics', icon: Stethoscope },
   { label: 'Predictive Failure', href: '/dashboard/predictive-failure', icon: Radar },
   { label: 'Preventive Maintenance', href: '/dashboard/preventive-maintenance', icon: CalendarClock, requiresPermission: 'can_view_all_jobs' },
   { label: 'Verification Network', href: '/dashboard/verification-network', icon: BadgeCheck },
   { label: 'Physical Economy Network', href: '/dashboard/physical-economy-network', icon: Network },
   { label: 'Service Recovery', href: '/dashboard/service-recovery', icon: HeartHandshake },
   { label: 'Surveys', href: '/dashboard/surveys', icon: MessageSquareHeart, requiresPermission: 'can_view_billing' },
-  { label: 'Self-Healing', href: '/dashboard/self-healing', icon: Bot },
+  { label: 'Self-Healing', href: '/dashboard/self-healing', icon: HeartPulse },
   { label: 'Regulation Graph', href: '/dashboard/regulation-graph', icon: Landmark },
   { label: 'Permit Intelligence', href: '/dashboard/permit-intelligence', icon: ClipboardCheck },
   { label: 'Switching Shield', href: '/dashboard/switching-shield', icon: UserMinus },
@@ -329,7 +333,7 @@ export const PRIMARY_ITEMS: NavItem[] = [
   { label: 'OEM Intelligence Graph', href: '/dashboard/oem-graph', icon: Network },
   { label: 'Recall Center', href: '/dashboard/recalls', icon: ShieldAlert, requiresPermission: 'can_view_all_jobs' },
   { label: 'Universal Identity', href: '/dashboard/identity-graph', icon: Fingerprint },
-  { label: 'Field Intelligence', href: '/dashboard/field-intelligence', icon: Brain },
+  { label: 'Field Intelligence', href: '/dashboard/field-intelligence', icon: Satellite },
   { label: 'Home Health', href: '/dashboard/home-health', icon: Activity },
   { label: 'Home Service Passport', href: '/dashboard/home-passport', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
   { label: 'Home Passport Pilot', href: '/dashboard/home-passport/pilot', icon: ShieldCheck, requiresPermission: 'can_view_billing', requiresFlag: 'home_passport_pilot' },
@@ -353,7 +357,7 @@ export const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Service Intelligence Loop', href: '/dashboard/service-intelligence-loop', icon: Network },
   { label: 'Duration Intelligence', href: '/dashboard/duration-intelligence', icon: Gauge },
   { label: 'Failure Genome', href: '/dashboard/failure-genome', icon: Dna },
-  { label: 'Adaptive Diagnostics', href: '/dashboard/adaptive-diagnostics', icon: BrainCircuit },
+  { label: 'Adaptive Diagnostics', href: '/dashboard/adaptive-diagnostics', icon: Stethoscope },
   { label: 'Live Copilot', href: '/dashboard/live-copilot', icon: Radio },
   { label: 'Margin Guardrails', href: '/dashboard/margin-guardrails', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
   { label: 'Promo Codes', href: '/dashboard/promo-codes', icon: TicketPercent, requiresPermission: 'can_view_billing' },
@@ -367,7 +371,7 @@ export const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Automation Marketplace', href: '/dashboard/automation-marketplace', icon: Zap },
   { label: 'Company Reflexes', href: '/dashboard/reflexes', icon: Zap },
   { label: 'Workflows', href: '/dashboard/workflows', icon: Workflow },
-  { label: 'Workflow Compiler', href: '/dashboard/workflow-compiler', icon: Sparkles },
+  { label: 'Workflow Compiler', href: '/dashboard/workflow-compiler', icon: GitMerge },
   { label: 'Franchise Command Center', href: '/dashboard/franchise', icon: Building2 },
   { label: 'Franchise Governance', href: '/dashboard/franchise/governance', icon: Gavel },
   { label: 'Event Bus', href: '/dashboard/event-bus', icon: Webhook },
@@ -406,7 +410,7 @@ export const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Emergency Operations', href: '/dashboard/emergency-ops', icon: Siren },
   { label: 'Profitability', href: '/dashboard/profitability', icon: Calculator, requiresPermission: 'can_view_billing' },
   { label: 'Knowledge', href: '/dashboard/knowledge', icon: BookOpen },
-  { label: 'Knowledge Capture', href: '/dashboard/knowledge-capture', icon: Brain },
+  { label: 'Knowledge Capture', href: '/dashboard/knowledge-capture', icon: BookMarked },
   { label: 'Revenue Protection', href: '/dashboard/revenue-protection', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
   { label: 'Recovery Ledger', href: '/dashboard/recovery', icon: TrendingUp, requiresPermission: 'can_view_billing' },
   { label: 'Money Recovered', href: '/dashboard/recovery/statements', icon: Receipt, requiresPermission: 'can_view_billing' },
@@ -448,15 +452,15 @@ export const PRIMARY_ITEMS: NavItem[] = [
   { label: 'LTV Autopilot', href: '/dashboard/ltv-autopilot', icon: Rocket, requiresPermission: 'can_view_billing' },
   { label: 'Bottleneck Market Maker', href: '/dashboard/bottleneck-market', icon: Crosshair, requiresPermission: 'can_view_billing' },
   { label: 'Uncertainty & Evidence Map', href: '/dashboard/uncertainty-map', icon: Fingerprint, requiresPermission: 'can_view_billing' },
-  { label: 'Unknowns Engine', href: '/dashboard/unknowns', icon: Brain, requiresPermission: 'can_view_billing' },
+  { label: 'Unknowns Engine', href: '/dashboard/unknowns', icon: Telescope, requiresPermission: 'can_view_billing' },
   { label: 'Playbooks', href: '/dashboard/playbooks', icon: BookMarked, requiresPermission: 'can_edit_business_profile' },
   { label: 'Playbook Library', href: '/dashboard/playbook-library', icon: BookMarked, requiresPermission: 'can_edit_business_profile' },
   { label: 'Templates', href: '/dashboard/templates', icon: MessageSquareText, requiresPermission: 'can_edit_business_profile' },
   { label: 'Document Templates', href: '/dashboard/document-templates', icon: ScrollText, requiresPermission: 'can_edit_business_profile' },
   { label: 'Local Rank Grid', href: '/dashboard/geo-grid', icon: MapPin, requiresPermission: 'can_edit_business_profile' },
   { label: 'Trade Playbooks', href: '/dashboard/trade-playbooks', icon: ClipboardCheck, requiresPermission: 'can_edit_business_profile' },
-  { label: 'Agent Governance', href: '/dashboard/agent-governance', icon: Bot, requiresPermission: 'can_manage_security' },
-  { label: 'Agent Actions', href: '/dashboard/agent-actions', icon: Bot, requiresPermission: 'can_manage_security', requiresFlag: 'agent_action_framework' },
+  { label: 'Agent Governance', href: '/dashboard/agent-governance', icon: ShieldCheck, requiresPermission: 'can_manage_security' },
+  { label: 'Agent Actions', href: '/dashboard/agent-actions', icon: MousePointerClick, requiresPermission: 'can_manage_security', requiresFlag: 'agent_action_framework' },
   { label: 'AI Security Center', href: '/dashboard/security-center', icon: LockKeyhole, requiresPermission: 'can_manage_security' },
   { label: 'AI Reliability', href: '/dashboard/ai-reliability', icon: ShieldCheck, requiresPermission: 'can_manage_security' },
   { label: 'AI Transparency', href: '/dashboard/ai-transparency', icon: Fingerprint, requiresPermission: 'can_manage_security' },
@@ -498,7 +502,7 @@ export const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'Payment Pricing', href: '/dashboard/payment-pricing', icon: BadgePercent, requiresPermission: 'can_edit_business_profile' },
   { label: 'Google Booking', href: '/dashboard/google-booking', icon: Globe, requiresPermission: 'can_edit_business_profile' },
   { label: 'Agent Readiness', href: '/dashboard/agent-readiness', icon: Radar, requiresPermission: 'can_edit_business_profile' },
-  { label: 'AI Agent Requests', href: '/dashboard/consumer-agent', icon: Bot, requiresPermission: 'can_manage_team' },
+  { label: 'AI Agent Requests', href: '/dashboard/consumer-agent', icon: MessageSquareText, requiresPermission: 'can_manage_team' },
   { label: 'Locations', href: '/dashboard/settings/locations', icon: Building2, requiresPermission: 'can_edit_business_profile' },
   { label: 'Acquisitions', href: '/dashboard/acquisitions', icon: Building2, requiresPermission: 'can_edit_business_profile' },
   { label: 'Regional Packs', href: '/dashboard/settings/regional-packs', icon: Globe, requiresPermission: 'can_edit_business_profile' },
@@ -547,12 +551,166 @@ export const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'Website Widgets', href: '/dashboard/settings/website-widgets', icon: Globe, requiresPermission: 'can_edit_business_profile' },
   { label: 'Trust Badge', href: '/dashboard/settings/trust-badge', icon: Globe, requiresPermission: 'can_edit_business_profile' },
   { label: 'Call Tracking', href: '/dashboard/settings/call-tracking', icon: PhoneCall, requiresPermission: 'can_edit_business_profile' },
-  { label: 'What’s New', href: '/dashboard/whats-new', icon: Sparkles },
+  { label: 'What’s New', href: '/dashboard/whats-new', icon: FileClock },
   { label: 'Help', href: '/dashboard/help', icon: LifeBuoy },
 ];
 
 type NavGates = Partial<Record<'landscaping', boolean>>;
 const NO_MODULES: ReadonlySet<string> = new Set();
+const PILLAR_ICONS: Record<PillarId, typeof LayoutDashboard> = {
+  answer: PhoneCall,
+  dispatch: Calendar,
+  grow: TrendingUp,
+  settings: Settings,
+  labs: FlaskConical,
+};
+
+/** Always-visible entry to the global command palette (⌘K / Ctrl K). */
+function SidebarSearchButton() {
+  const { t } = useTranslation('dashboard');
+  const isMac = typeof navigator !== 'undefined' && /mac|iphone|ipad/i.test(navigator.platform || navigator.userAgent);
+  return (
+    <button
+      type="button"
+      onClick={() => openPalette()}
+      className="focus-ring flex w-full items-center gap-2 rounded-lg border border-border bg-bg-primary px-2.5 py-1.5 text-[13px] text-text-secondary transition-colors hover:text-text-primary"
+    >
+      <Icon icon={Search} size="sm" className="text-text-muted" />
+      <span className="flex-1 text-start">{t('nav.search', { defaultValue: 'Search' })}</span>
+      <kbd className="rounded border border-border px-1.5 text-[11px] font-medium text-text-muted">{isMac ? '⌘K' : 'Ctrl K'}</kbd>
+    </button>
+  );
+}
+
+const MENU_ITEM =
+  'focus-ring flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-start text-[13px] text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary';
+
+/**
+ * Account switcher at the foot of the sidebar: who is signed in, appearance, account links, sign out.
+ * Disclosure pattern (button + panel), not role="menu": the panel holds a radio group (theme) next to links,
+ * which a menu role cannot contain. Closes on Escape (focus returns to the trigger), outside pointer and focus leaving.
+ */
+function AccountMenu({
+  email,
+  roleLabel,
+  onNavigate,
+  onShortcuts,
+  onAccessibility,
+  onSignOut,
+}: {
+  email: string;
+  roleLabel: string;
+  onNavigate: () => void;
+  onShortcuts: () => void;
+  onAccessibility: () => void;
+  onSignOut: () => void;
+}) {
+  const { t } = useTranslation('dashboard');
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const panelId = useId();
+  const themeLabelId = `${panelId}-theme`;
+  const name = email || t('nav.account.fallback', { defaultValue: 'Account' });
+  const initial = (email.trim()[0] ?? 'V').toUpperCase();
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (e: PointerEvent) => {
+      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setOpen(false);
+        triggerRef.current?.focus();
+      }
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [open]);
+
+  const close = () => setOpen(false);
+
+  return (
+    <div
+      ref={rootRef}
+      className="relative"
+      onBlur={(e) => {
+        const next = e.relatedTarget as Node | null;
+        if (next && !rootRef.current?.contains(next)) setOpen(false);
+      }}
+    >
+      {open && (
+        <div
+          id={panelId}
+          role="group"
+          aria-label={t('nav.account.label', { defaultValue: 'Account' })}
+          className="absolute inset-x-0 bottom-full mb-1.5 rounded-xl border border-border bg-bg-secondary p-1.5 shadow-elevation-3"
+        >
+          <div className="px-2.5 pb-2 pt-1.5">
+            <p className="truncate text-[13px] font-medium text-text-primary">{name}</p>
+            <p className="text-xs text-text-muted">{roleLabel}</p>
+          </div>
+          <div className="border-t border-border pt-1.5">
+            <p id={themeLabelId} className="px-2.5 pb-1.5 text-xs text-text-muted">
+              {t('nav.appearance')}
+            </p>
+            <div className="px-1 pb-1.5">
+              <ThemeSegmentedControl labelledBy={themeLabelId} />
+            </div>
+          </div>
+          <div className="border-t border-border pt-1.5">
+            <Link to="/dashboard/account" onClick={() => { close(); onNavigate(); }} className={MENU_ITEM}>
+              <Icon icon={User} size="sm" className="text-text-muted" />
+              {t('nav.account.myAccount', { defaultValue: 'My account' })}
+            </Link>
+            <Link to="/dashboard/settings" onClick={() => { close(); onNavigate(); }} className={MENU_ITEM}>
+              <Icon icon={Settings} size="sm" className="text-text-muted" />
+              {t('nav.account.settings', { defaultValue: 'Settings' })}
+            </Link>
+            <button type="button" onClick={() => { close(); onShortcuts(); }} className={MENU_ITEM}>
+              <Icon icon={Keyboard} size="sm" className="text-text-muted" />
+              {t('nav.account.shortcuts', { defaultValue: 'Keyboard shortcuts' })}
+            </button>
+            <button type="button" onClick={() => { close(); onAccessibility(); }} className={MENU_ITEM}>
+              <Icon icon={AccessibilityIcon} size="sm" className="text-text-muted" />
+              {t('nav.accessibility', { defaultValue: 'Accessibility' })}
+            </button>
+          </div>
+          <div className="mt-1.5 border-t border-border pt-1.5">
+            <button type="button" onClick={() => { close(); onSignOut(); }} className={MENU_ITEM}>
+              <Icon icon={LogOut} size="sm" className="text-text-muted" />
+              {t('nav.signOut')}
+            </button>
+          </div>
+        </div>
+      )}
+      <button
+        ref={triggerRef}
+        type="button"
+        data-testid="account-menu-trigger"
+        aria-expanded={open}
+        aria-controls={open ? panelId : undefined}
+        onClick={() => setOpen((v) => !v)}
+        className="focus-ring flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-start transition-colors hover:bg-bg-tertiary"
+      >
+        <span aria-hidden="true" className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-bg-tertiary text-xs font-semibold text-text-primary">
+          {initial}
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-[13px] font-medium leading-4 text-text-primary">{name}</span>
+          <span className="block truncate text-xs leading-4 text-text-muted">{roleLabel}</span>
+        </span>
+        <Icon icon={ChevronsUpDown} size="micro" className="text-text-muted" />
+      </button>
+    </div>
+  );
+}
+
 export function filterItems(
   items: NavItem[],
   isOwner: boolean,
@@ -640,7 +798,29 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
       return next;
     });
   const labsVisible = showLabs || isLab(location.pathname);
-  const [openPillars, setOpenPillars] = useState<Record<string, boolean>>({});
+  // Two-level menu: level 1 lists the pillars, level 2 (`panel`) drills into one pillar's hubs.
+  const [panel, setPanel] = useState<PillarId | null>(() => {
+    return pillarFor(location.pathname);
+  });
+  const [openHubs, setOpenHubs] = useState<Record<string, boolean>>({});
+  const [query, setQuery] = useState('');
+  const backRef = useRef<HTMLButtonElement>(null);
+  const rowRefs = useRef<Partial<Record<PillarId, HTMLButtonElement | null>>>({});
+  const focusIntent = useRef<'back' | PillarId | null>(null);
+  useEffect(() => {
+    if (location.pathname === '/dashboard') setPanel(null);
+    else {
+      const p = pillarFor(location.pathname);
+      if (p) setPanel(p);
+    }
+  }, [location.pathname]);
+  useEffect(() => {
+    const intent = focusIntent.current;
+    if (!intent) return;
+    focusIntent.current = null;
+    if (intent === 'back') backRef.current?.focus();
+    else rowRefs.current[intent]?.focus();
+  }, [panel]);
   const simpleMode = useSimpleMode();
   const allVisible = [...visiblePrimary, ...visibleAccount];
   const pillarGroups = groupByPillar(simpleMode.active ? filterToSimpleNav(allVisible) : allVisible, { audience, showLabs: labsVisible && !simpleMode.active });
@@ -660,65 +840,69 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
         to={item.href}
         onClick={() => setDrawerOpen(false)}
         aria-current={active ? 'page' : undefined}
-        className={`focus-ring flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+        className={`focus-ring group relative flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-[13px] leading-5 transition-colors ${
           active
-            ? 'bg-accent/10 text-accent ring-1 ring-accent/15'
-            : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'
+            ? 'bg-bg-tertiary font-medium text-text-primary'
+            : 'text-text-secondary hover:bg-bg-tertiary/70 hover:text-text-primary'
         }`}
       >
-        <Icon icon={item.icon} size="md" className={active ? 'text-accent' : 'text-text-secondary'} />
-        {label(plainLabel(item.href, item.label))}
+        {active && <span aria-hidden="true" className="absolute inset-y-1.5 start-0 w-0.5 rounded-full bg-accent" />}
+        <Icon icon={item.icon} size="sm" className={active ? 'text-accent' : 'text-text-muted group-hover:text-text-secondary'} />
+        <span className="min-w-0 flex-1 truncate">{label(plainLabel(item.href, item.label))}</span>
         {item.href === '/dashboard/team-chat' && <ChatNavBadge />}
       </Link>
     );
   }
 
-  const navContent = (
-    <nav aria-label={t('nav.mainNavigation')} className="flex flex-col gap-1">
-      <button
-        type="button"
-        data-tour="ask-data"
-        onClick={() => { setDrawerOpen(false); openAskData(); }}
-        className="focus-ring mb-2 flex w-full items-center gap-3 rounded-xl border border-accent/20 bg-accent/5 px-3 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-accent/10"
-      >
-        <AskDataIcon size={18} className="text-accent" aria-hidden="true" />
-        <span className="flex-1 text-left">{t('nav.askData', { defaultValue: 'Ask your data' })}</span>
-      </button>
+  const q = query.trim().toLowerCase();
+  const panelGroup = panel ? pillarGroups.find((g) => g.pillar === panel) : undefined;
+  const panelMeta = panel ? PILLARS.find((p) => p.id === panel) : undefined;
+  const pillarTitle = (id: PillarId, fallback: string) => t(`nav.pillars.${id}`, { defaultValue: fallback });
+
+  const openPanel = (id: PillarId) => {
+    focusIntent.current = 'back';
+    setQuery('');
+    setPanel(id);
+  };
+  const closePanel = () => {
+    focusIntent.current = panel;
+    setQuery('');
+    setPanel(null);
+  };
+
+  const levelOne = (
+    <nav aria-label={t('nav.mainNavigation')} className="flex flex-col gap-0.5">
       {overview && <NavLink item={overview} />}
-      {pillarGroups.map(({ pillar, items }) => {
-        const meta = PILLARS.find((p) => p.id === pillar)!;
-        const open = openPillars[pillar] ?? items.some((i) => isActive(i.href));
-        return (
-          <div key={pillar} className="mt-2">
+      <div className="mt-3 flex flex-col gap-0.5">
+        {pillarGroups.map(({ pillar, items }) => {
+          const meta = PILLARS.find((p) => p.id === pillar)!;
+          const hasActive = items.some((i) => isActive(i.href));
+          return (
             <button
+              key={pillar}
+              ref={(el) => {
+                rowRefs.current[pillar] = el;
+              }}
               type="button"
-              aria-expanded={open}
-              onClick={() => setOpenPillars((v) => ({ ...v, [pillar]: !open }))}
-              className="focus-ring flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-wider text-text-muted hover:text-text-secondary"
+              onClick={() => openPanel(pillar)}
+              className={`focus-ring group flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-start text-[13px] leading-5 transition-colors hover:bg-bg-tertiary/70 hover:text-text-primary ${
+                hasActive ? 'font-medium text-text-primary' : 'text-text-secondary'
+              }`}
             >
-              <span>
-                {t(`nav.pillars.${pillar}`, { defaultValue: meta.label })}
-                {pillar === 'labs' && (
-                  <span className="ml-2 rounded bg-accent/10 px-1.5 py-0.5 text-[10px] text-accent">Beta</span>
-                )}
-              </span>
-              <ChevronDown size={16} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
+              <Icon icon={PILLAR_ICONS[pillar]} size="sm" className={hasActive ? 'text-accent' : 'text-text-muted group-hover:text-text-secondary'} />
+              <span className="min-w-0 flex-1 truncate">{pillarTitle(pillar, meta.label)}</span>
+              {pillar === 'labs' && <span className="rounded bg-bg-tertiary px-1.5 text-[11px] font-medium text-text-secondary">Beta</span>}
+              <span className="text-xs tabular-nums text-text-muted">{items.length}</span>
+              <Icon icon={ChevronRight} size="micro" className="text-text-muted rtl:rotate-180" />
             </button>
-            {open && (
-              <div className="flex flex-col gap-1 pt-1">
-                {items.map((item) => (
-                  <NavLink key={item.href} item={item} />
-                ))}
-              </div>
-            )}
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
       {simpleMode.eligible && (
         <button
           type="button"
           onClick={() => simpleMode.setShowEverything(!simpleMode.showEverything)}
-          className="focus-ring mt-2 rounded-xl px-3 py-2 text-left text-xs font-medium text-accent hover:underline"
+          className="focus-ring mt-3 rounded-lg px-2.5 py-1.5 text-start text-xs font-medium text-accent hover:underline"
         >
           {simpleMode.showEverything ? t('nav.simple.hide', { defaultValue: 'Show simple menu' }) : t('nav.simple.show', { defaultValue: 'Show all features' })}
         </button>
@@ -727,82 +911,149 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
         type="button"
         onClick={toggleLabs}
         hidden={simpleMode.active}
-        className="focus-ring mt-2 rounded-xl px-3 py-2 text-left text-xs text-text-muted hover:text-text-secondary"
+        className="focus-ring mt-1 rounded-lg px-2.5 py-1.5 text-start text-xs text-text-muted transition-colors hover:text-text-primary"
       >
         {showLabs ? t('nav.labs.hide', { defaultValue: 'Hide Labs (Beta)' }) : t('nav.labs.show', { defaultValue: 'Show Labs (Beta)' })}
       </button>
-
-      <div className="mt-3 border-t border-border/60 px-1 pt-3">
-        <p
-          id="theme-seg-label"
-          className="px-2 pb-2 text-xs font-semibold uppercase tracking-wider text-text-secondary/70"
-        >
-          {t('nav.appearance')}
-        </p>
-        <ThemeSegmentedControl labelledBy="theme-seg-label" />
-        <button
-          type="button"
-          onClick={() => { setDrawerOpen(false); openAccessibilityCenter(); }}
-          className="focus-ring mt-2 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
-        >
-          <AccessibilityIcon size={18} aria-hidden="true" />
-          {t('nav.accessibility', { defaultValue: 'Accessibility' })}
-        </button>
-      </div>
     </nav>
+  );
+
+  const levelTwo =
+    panel && panelGroup && panelMeta ? (
+      <nav aria-label={pillarTitle(panel, panelMeta.label)} className="flex flex-col gap-0.5">
+        <button
+          ref={backRef}
+          type="button"
+          onClick={closePanel}
+          className="focus-ring flex items-center gap-2 rounded-lg px-2 py-1.5 text-start text-[13px] font-medium text-text-primary transition-colors hover:bg-bg-tertiary/70"
+        >
+          <Icon icon={ChevronLeft} size="sm" className="text-text-muted rtl:rotate-180" />
+          <span className="min-w-0 flex-1 truncate">{pillarTitle(panel, panelMeta.label)}</span>
+          <span className="sr-only">{t('nav.backToMenu', { defaultValue: 'Back to main menu' })}</span>
+        </button>
+        <p className="px-2.5 pb-2 pt-0.5 text-xs leading-4 text-text-muted">{panelMeta.blurb}</p>
+        <div className="relative pb-2">
+          <Icon icon={Search} size="sm" className="pointer-events-none absolute start-2.5 top-2 text-text-muted" />
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            aria-label={t('nav.filter', { defaultValue: 'Filter pages' })}
+            placeholder={t('nav.filter', { defaultValue: 'Filter pages' })}
+            className="focus-ring w-full rounded-lg border border-border bg-bg-primary py-1.5 pe-2.5 ps-8 text-[13px] text-text-primary placeholder:text-text-muted"
+          />
+        </div>
+        {(() => {
+          const hubs = groupByHub(panel, panelGroup.items)
+            .map(({ hub, items }) => ({
+              hub,
+              all: items,
+              items: q
+                ? items.filter((i) => `${label(plainLabel(i.href, i.label))} ${i.label} ${searchTerms(i.href)}`.toLowerCase().includes(q))
+                : items,
+            }))
+            .filter((h) => h.items.length > 0);
+          if (hubs.length === 0) {
+            return (
+              <p role="status" className="px-2.5 py-2 text-xs text-text-muted">
+                {t('nav.noMatches', { defaultValue: 'No pages match your filter.' })}
+              </p>
+            );
+          }
+          return hubs.map(({ hub, all, items }) => {
+            const hasActive = all.some((i) => isActive(i.href));
+            const open = q ? true : (openHubs[hub.id] ?? (hasActive || hubs.length === 1));
+            return (
+              <div key={hub.id} className="mt-1">
+                <button
+                  type="button"
+                  aria-expanded={open}
+                  onClick={() => setOpenHubs((v) => ({ ...v, [hub.id]: !open }))}
+                  className={`focus-ring flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-start text-[13px] font-medium transition-colors hover:bg-bg-tertiary/70 ${
+                    hasActive ? 'text-text-primary' : 'text-text-secondary'
+                  }`}
+                >
+                  <span className="min-w-0 flex-1 truncate">{t(`nav.hubs.${hub.id}`, { defaultValue: hub.label })}</span>
+                  <span className="text-xs font-normal tabular-nums text-text-muted">{items.length}</span>
+                  <Icon icon={ChevronDown} size="micro" className={`text-text-muted transition-transform duration-fast motion-reduce:transition-none ${open ? '' : '-rotate-90 rtl:rotate-90'}`} />
+                </button>
+                {open && (
+                  <div className="ms-4 mt-0.5 flex flex-col gap-0.5 border-s border-border ps-1.5">
+                    {items.map((item) => (
+                      <NavLink key={item.href} item={item} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          });
+        })()}
+      </nav>
+    ) : null;
+
+  const navContent = levelTwo ?? levelOne;
+
+  const askDataButton = (
+    <button
+      type="button"
+      data-tour="ask-data"
+      onClick={() => { setDrawerOpen(false); openAskData(); }}
+      className="focus-ring mt-1 flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-start text-[13px] font-medium text-text-secondary transition-colors hover:bg-bg-tertiary/70 hover:text-text-primary"
+    >
+      <Icon icon={AskDataIcon} size="sm" className="text-text-muted" />
+      <span className="flex-1">{t('nav.askData', { defaultValue: 'Ask your data' })}</span>
+    </button>
+  );
+
+  const accountMenu = (
+    <AccountMenu
+      email={user?.email ?? ''}
+      roleLabel={isOwner ? t('nav.account.owner', { defaultValue: 'Owner' }) : t('nav.account.member', { defaultValue: 'Team member' })}
+      onNavigate={() => setDrawerOpen(false)}
+      onShortcuts={() => setShortcutsHelpOpen(true)}
+      onAccessibility={() => openAccessibilityCenter()}
+      onSignOut={handleSignOut}
+    />
   );
 
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="fixed left-0 top-0 z-30 hidden h-full w-60 flex-col border-r border-border/80 bg-bg-secondary/95 shadow-sm lg:flex print:hidden">
-        <div className="flex items-center justify-between gap-2.5 px-5 py-5">
-          <Link to="/dashboard" className="flex items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-on-accent shadow-glow-accent">
-              <Phone size={16} strokeWidth={2.5} />
-            </span>
-            <span className="text-lg font-bold tracking-tight text-text-primary">Vireek</span>
+      <aside
+        data-active-label={activeLabel}
+        className="fixed left-0 top-0 z-30 hidden h-full w-60 flex-col border-r border-border bg-bg-secondary [--icon-stroke:1.5] lg:flex print:hidden"
+      >
+        <div className="flex h-14 shrink-0 items-center justify-between gap-1 px-3">
+          <Link to="/dashboard" aria-label="Vireek" className="focus-ring flex shrink-0 items-center rounded-lg px-1.5 py-1">
+            <Logo variant="symbol" size={22} decorative />
           </Link>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center">
             <ReplayTourMenu align="start" />
             <FeedbackButton />
             <WhatsNewButton />
             <NotificationBell />
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto px-3 py-4">
-          <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-text-muted">
-            {activeLabel}
-          </p>
-          {navContent}
+        <div className="shrink-0 px-3 pb-2">
+          <SidebarSearchButton />
+          {askDataButton}
         </div>
-        <div className="border-t border-border px-3 py-4">
-          <button
-            type="button"
-            onClick={handleSignOut}
-            className="focus-ring flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
-          >
-            <Icon icon={LogOut} size="md" />
-            {t('nav.signOut')}
-          </button>
-        </div>
+        <div className="flex-1 overflow-y-auto px-3 pb-4 pt-1">{navContent}</div>
+        <div className="shrink-0 border-t border-border p-3">{accountMenu}</div>
       </aside>
 
       {/* Mobile header */}
-      <header className="sticky top-0 z-40 border-b border-border/80 bg-bg-secondary/85 shadow-sm backdrop-blur-xl lg:hidden print:hidden">
-        <div className="flex items-center justify-between px-4 py-3">
-          <Link to="/dashboard" className="flex items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-on-accent shadow-glow-accent">
-              <Phone size={16} strokeWidth={2.5} />
-            </span>
-            <span className="text-lg font-bold tracking-tight text-text-primary">Vireek</span>
+      <header className="sticky top-0 z-40 border-b border-border bg-bg-secondary lg:hidden print:hidden">
+        <div className="flex h-14 items-center justify-between px-4">
+          <Link to="/dashboard" aria-label="Vireek" className="focus-ring flex items-center rounded-lg">
+            <Logo variant="wordmark" size={18} decorative />
           </Link>
           <div className="flex items-center gap-2">
             <ReplayTourMenu align="end" />
             <FeedbackButton />
             <WhatsNewButton />
             <NotificationBell />
-                        <IconButton
+            <IconButton
               label={t('nav.openMenu')}
               icon={Menu}
               variant="secondary"
@@ -824,22 +1075,17 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               onClick={() => setDrawerOpen(false)}
-              className="fixed inset-0 z-50 bg-overlay/40 backdrop-blur-sm lg:hidden"
+              className="fixed inset-0 z-50 bg-overlay/40 lg:hidden"
             />
             <motion.aside
               initial={{ x: isRtl ? '100%' : '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: isRtl ? '100%' : '-100%' }}
               transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-              className="fixed left-0 top-0 z-50 flex h-full w-72 max-w-[85vw] flex-col border-r border-border bg-bg-secondary lg:hidden"
+              className="fixed left-0 top-0 z-50 flex h-full w-72 max-w-[85vw] flex-col border-r border-border bg-bg-secondary [--icon-stroke:1.5] lg:hidden"
             >
-              <div className="flex items-center justify-between px-5 py-4">
-                <div className="flex items-center gap-2.5">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-on-accent shadow-glow-accent">
-                    <Phone size={16} strokeWidth={2.5} />
-                  </span>
-                  <span className="text-lg font-bold tracking-tight text-text-primary">Vireek</span>
-                </div>
+              <div className="flex h-14 shrink-0 items-center justify-between px-4">
+                <Logo variant="wordmark" size={18} />
                 <IconButton
                   label={t('nav.closeMenu')}
                   icon={X}
@@ -848,19 +1094,12 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
                   onClick={() => setDrawerOpen(false)}
                 />
               </div>
-              <div className="flex-1 overflow-y-auto px-3 py-4">
-                {navContent}
+              <div className="shrink-0 px-3 pb-2">
+                <SidebarSearchButton />
+                {askDataButton}
               </div>
-              <div className="border-t border-border px-3 py-4">
-                <button
-                  type="button"
-                  onClick={handleSignOut}
-                  className="focus-ring flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
-                >
-                  <LogOut size={18} />
-                  {t('nav.signOut')}
-                </button>
-              </div>
+              <div className="flex-1 overflow-y-auto px-3 pb-4 pt-1">{navContent}</div>
+              <div className="shrink-0 border-t border-border p-3">{accountMenu}</div>
             </motion.aside>
           </>
         )}
@@ -894,7 +1133,7 @@ export function DashboardLayout({
         <ChatUnreadProvider>
           <div className="min-h-screen bg-bg-primary">
             <DashboardNav activeLabel={activeLabel} />
-            <ImpersonationBanner />            
+            <ImpersonationBanner />
             <div className="lg:pl-60 print:pl-0">
               <main id="main-content" className="mx-auto max-w-7xl px-4 py-6 pb-[calc(var(--vk-bottom-nav-h,0px)+var(--vk-bottom-bar-h,0px)+2rem)] lg:px-8 lg:py-8 print:max-w-none print:p-0">
                 <Breadcrumbs className="no-print mb-4" />
