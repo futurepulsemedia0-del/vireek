@@ -52,6 +52,25 @@ html {
     overflow-x: hidden;
   }
 
+  /* Prevent horizontal scroll on mobile */
+  body {
+    overflow-x: hidden;
+  }
+
+  /* Real clipping: `hidden` on body alone lets mobile browsers widen the layout viewport (pinch-out reveals hidden content). */
+  html,
+  body {
+    max-width: 100%;
+  }
+  @supports (overflow: clip) {
+    html,
+    body {
+      overflow-x: clip;
+    }
+  }
+
+  /* Minimum touch target size for interactive elements on mobile */
+  @media (max-width: 768px) {
   /* Minimum touch target size for interactive elements on mobile */
   @media (max-width: 768px) {
     button,
