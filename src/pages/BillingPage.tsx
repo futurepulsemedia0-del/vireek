@@ -92,7 +92,7 @@ export function UsageAlertBanner({ onUpgrade }: { onUpgrade?: () => void }) {
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-      className="mb-6 flex items-center gap-4 rounded-2xl border border-warning/30 bg-warning-subtle p-4"
+      className="mb-6 flex items-center gap-4 rounded-xl border border-warning/30 bg-warning-subtle p-4"
     >
       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-warning-subtle text-warning">
         <AlertTriangle size={20} />
@@ -133,8 +133,8 @@ export function UsageAlertBanner({ onUpgrade }: { onUpgrade?: () => void }) {
 function NoAccess() {
   return (
     <DashboardLayout activeLabel="Billing">
-      <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-bg-secondary/50 px-6 py-20 text-center">
-        <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-bg-tertiary text-text-secondary">
+      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-bg-secondary/50 px-6 py-20 text-center">
+        <span className="flex h-14 w-14 items-center justify-center rounded-xl bg-bg-tertiary text-text-secondary">
           <Lock size={26} />
         </span>
         <h3 className="mt-4 text-lg font-semibold text-text-primary">You don't have access to this page</h3>
@@ -299,11 +299,11 @@ export function BillingPage() {
 
       {/* Page header */}
       <div className="mb-6 flex items-center gap-3">
-        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent/10 text-accent">
+        <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/10 text-accent">
           <CreditCard size={24} />
         </span>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-text-primary md:text-3xl">Billing</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-text-primary md:text-3xl">Billing</h1>
           <p className="mt-1 text-sm text-text-secondary">
             Manage your Vireek subscription and track customer payments.
           </p>
@@ -324,12 +324,12 @@ export function BillingPage() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark"
+          className="rounded-xl border border-border bg-bg-secondary p-6"
         >
           <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-3">
-                <h3 className="text-xl font-bold text-text-primary">{currentPlan.name}</h3>
+                <h3 className="text-xl font-semibold text-text-primary">{currentPlan.name}</h3>
                 <span className="rounded-full bg-success-subtle px-2.5 py-1 text-xs font-medium text-success">
                   Active
                 </span>
@@ -402,7 +402,7 @@ export function BillingPage() {
         </motion.div>
 
         {/* Billing history */}
-        <div className="mt-4 rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
+        <div className="mt-4 rounded-xl border border-border bg-bg-secondary p-6">
           <div className="flex items-center gap-2">
             <Receipt size={18} className="text-text-secondary" />
             <h3 className="text-sm font-semibold text-text-primary">Billing History</h3>
@@ -449,22 +449,22 @@ export function BillingPage() {
 
   {/* Summary cards */}
         <div className="mb-4 grid gap-4 sm:grid-cols-2">
-          <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
+          <div className="rounded-xl border border-border bg-bg-secondary p-5">
             <div className="flex items-center gap-2">
               <Clock size={16} className="text-warning" />
               <span className="text-xs font-medium text-text-secondary">Outstanding</span>
             </div>
-            <p className="mt-2 text-2xl font-bold tracking-tight text-text-primary">
+            <p className="mt-2 text-2xl font-semibold tracking-tight text-text-primary">
               {formatMoney(totalOwed, invoiceCurrency)}
             </p>
             <p className="mt-0.5 text-xs text-text-secondary">Awaiting payment from customers</p>
           </div>
-          <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
+          <div className="rounded-xl border border-border bg-bg-secondary p-5">
             <div className="flex items-center gap-2">
               <Check size={16} className="text-success" />
               <span className="text-xs font-medium text-text-secondary">Collected</span>
             </div>
-            <p className="mt-2 text-2xl font-bold tracking-tight text-text-primary">
+            <p className="mt-2 text-2xl font-semibold tracking-tight text-text-primary">
               {formatMoney(totalCollected, invoiceCurrency)}
             </p>
             <p className="mt-0.5 text-xs text-text-secondary">Paid by customers</p>
@@ -472,14 +472,14 @@ export function BillingPage() {
         </div>
 
         {/* Invoice list */}
-        <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
+        <div className="rounded-xl border border-border bg-bg-secondary p-6">
           {loadingJobs ? (
             <div className="space-y-3">
               {Array.from({ length: 3 }).map((_, i) => (
                 <div key={i} className="flex items-center gap-4">
-                  <div className="h-5 w-24 animate-pulse rounded bg-bg-tertiary" />
-                  <div className="h-5 w-32 animate-pulse rounded bg-bg-tertiary" />
-                  <div className="h-5 w-16 animate-pulse rounded bg-bg-tertiary" />
+                  <div className="h-5 w-24 vrk-skel rounded bg-bg-tertiary" />
+                  <div className="h-5 w-32 vrk-skel rounded bg-bg-tertiary" />
+                  <div className="h-5 w-16 vrk-skel rounded bg-bg-tertiary" />
                 </div>
               ))}
             </div>
@@ -546,15 +546,15 @@ export function BillingPage() {
       {/* Plan selection modal */}
       {showPlans && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-overlay/30 backdrop-blur-sm" onClick={() => setShowPlans(false)} />
+          <div className="absolute inset-0 bg-overlay/30" onClick={() => setShowPlans(false)} />
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="relative w-full max-w-2xl rounded-2xl border border-border bg-bg-secondary p-6 shadow-card-hover dark:shadow-card-hover-dark"
+            className="relative w-full max-w-2xl rounded-xl border border-border bg-bg-secondary p-6 shadow-card-hover dark:shadow-card-hover-dark"
           >
             <div className="mb-5 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-text-primary">Choose Your Plan</h2>
+              <h2 className="text-lg font-semibold text-text-primary">Choose Your Plan</h2>
               <button
                 type="button"
                 onClick={() => setShowPlans(false)}
@@ -570,21 +570,21 @@ export function BillingPage() {
                 return (
                   <div
                     key={plan.id}
-                    className={`rounded-2xl border p-5 ${
+                    className={`rounded-xl border p-5 ${
                       isCurrent
                         ? 'border-accent bg-accent/5'
                         : 'border-border bg-bg-primary'
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <h3 className="text-base font-bold text-text-primary">{plan.name}</h3>
+                      <h3 className="text-base font-semibold text-text-primary">{plan.name}</h3>
                       {isCurrent && (
                         <span className="rounded-full bg-accent/10 px-2.5 py-1 text-xs font-medium text-accent">
                           Current
                         </span>
                       )}
                     </div>
-                    <p className="mt-1 text-2xl font-bold tracking-tight text-text-primary">
+                    <p className="mt-1 text-2xl font-semibold tracking-tight text-text-primary">
                       ${plan.price}
                       <span className="text-sm font-normal text-text-secondary">/mo</span>
                     </p>
