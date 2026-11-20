@@ -24,13 +24,10 @@ export function initSentry() {
       'ResizeObserver loop limit exceeded',
       'Non-Error promise rejection captured',
     ],
-    beforeSend(event) {
-      // Strip anything that could carry PII before it leaves the browser.
+    // Strip anything that could carry PII before it leaves the browser.
     sendDefaultPii: false,
     beforeBreadcrumb: (b) => scrubBreadcrumb(b),
     beforeSend: (event) => scrubSentryEvent(event),
-      return event;
-    },
   });
 }
 
