@@ -896,7 +896,7 @@ export function DashboardLayout({
             <DashboardNav activeLabel={activeLabel} />
             <ImpersonationBanner />            
             <div className="lg:pl-60 print:pl-0">
-              <main id="main-content" className="mx-auto max-w-7xl px-4 py-6 pb-24 lg:px-8 lg:py-8 print:max-w-none print:p-0">
+              <main id="main-content" className="mx-auto max-w-7xl px-4 py-6 pb-[calc(var(--vk-bottom-nav-h,0px)+var(--vk-bottom-bar-h,0px)+2rem)] lg:px-8 lg:py-8 print:max-w-none print:p-0">
                 <Breadcrumbs className="no-print mb-4" />
                 <div className="no-print">
                   <UpgradeBanner />
