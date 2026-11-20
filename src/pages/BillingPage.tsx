@@ -109,7 +109,7 @@ export function UsageAlertBanner({ onUpgrade }: { onUpgrade?: () => void }) {
         <button
           type="button"
           onClick={onUpgrade}
-          className="focus-ring flex shrink-0 items-center gap-1.5 rounded-xl bg-cta px-4 py-2 text-sm font-semibold text-on-cta transition-all hover:brightness-110"
+          className="focus-ring flex shrink-0 items-center gap-1.5 rounded-xl bg-cta px-4 py-2 text-sm font-semibold text-on-cta transition-interactive hover:brightness-110"
         >
           Upgrade Now <ArrowUpRight size={14} />
         </button>
@@ -299,11 +299,11 @@ export function BillingPage() {
 
       {/* Page header */}
       <div className="mb-6 flex items-center gap-3">
-        <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/10 text-accent">
+        <span className="flex h-8 w-8 items-center justify-center text-text-muted">
           <CreditCard size={24} />
         </span>
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-text-primary md:text-3xl">Billing</h1>
+          <h1 className="text-xl font-semibold tracking-tight text-text-primary md:text-2xl">Billing</h1>
           <p className="mt-1 text-sm text-text-secondary">
             Manage your Vireek subscription and track customer payments.
           </p>
@@ -384,7 +384,7 @@ export function BillingPage() {
             <button
               type="button"
               onClick={() => navigate('/dashboard/billing/plans')}
-              className="focus-ring flex shrink-0 items-center gap-2 rounded-xl bg-cta px-5 py-2.5 text-sm font-semibold text-on-cta transition-all hover:brightness-110"
+              className="focus-ring flex shrink-0 items-center gap-2 rounded-xl bg-cta px-5 py-2.5 text-sm font-semibold text-on-cta transition-interactive hover:brightness-110"
             >
               <TrendingUp size={16} />
               {profile?.plan && profile.plan !== PLANS[0].id ? 'Change Plan' : 'Upgrade'}
@@ -602,7 +602,7 @@ export function BillingPage() {
                       type="button"
                       onClick={() => handleSelectPlan(plan.id)}
                       disabled={isCurrent || processingPlan !== null}
-                      className={`focus-ring mt-4 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all disabled:opacity-50 ${
+                      className={`focus-ring mt-4 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-interactive disabled:opacity-50 ${
                         isCurrent
                           ? 'border border-border text-text-secondary'
                           : 'bg-cta text-on-cta hover:brightness-110'
