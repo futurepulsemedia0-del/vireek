@@ -14,7 +14,7 @@ import { KeyboardEvent as ReactKeyboardEvent, useCallback, useEffect, useRef, us
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { Copy, MessageCircle, RotateCcw, Sparkles, Wrench, X } from 'lucide-react';
+import { Copy, MessageCircle, RotateCcw, Send, Sparkles, Wrench, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { streamAiChat } from '@/lib/aiStream';
 import { clearChat, getSessionStore, loadChat, saveChat } from '@/lib/supportAgent/chatMemory';
