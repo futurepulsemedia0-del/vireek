@@ -273,8 +273,8 @@ export function useOnboardingWizard() {
 
   const skip = useCallback(() => {
     const next = STEPS[stepIndex + 1];
- (next) goTo(next.id, false);
- }, [stepIndex, stepId, goTo]);
+    if (next) goTo(next.id, false);
+  }, [stepIndex, stepId, goTo]);
 
   // ------------------------------------------------------------
   // Launch: the one step that actually flips onboarding_completed.
