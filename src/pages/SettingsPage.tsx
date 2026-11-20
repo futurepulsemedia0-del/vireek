@@ -87,7 +87,7 @@ function PushNotificationsCard() {
   };
 
   return (
-    <div className="mt-4 rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
+    <div className="mt-4 rounded-xl border border-border bg-bg-secondary p-6">
       <h2 className="text-base font-semibold text-text-primary">Push notifications</h2>
       <p className="mt-1 text-sm text-text-secondary">
         Get a real notification on this device the moment a new lead or missed call comes in —
@@ -171,16 +171,16 @@ export function SettingsPage() {
   return (
     <DashboardLayout activeLabel="Settings">
       <div className="mb-6 flex items-center gap-3">
-        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent/10 text-accent">
+        <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/10 text-accent">
           <SettingsIcon size={24} />
         </span>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-text-primary md:text-3xl">Settings</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-text-primary md:text-3xl">Settings</h1>
           <p className="mt-1 text-sm text-text-secondary">Notification preferences and account security.</p>
         </div>
       </div>
 
-      <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
+      <div className="rounded-xl border border-border bg-bg-secondary p-6">
         <h2 className="text-base font-semibold text-text-primary">Notification preferences</h2>
         <p className="mt-1 text-sm text-text-secondary">
           Choose which events create a notification. Turning one off stops it from being created at all — not
@@ -267,7 +267,7 @@ export function SettingsPage() {
       <button
         type="button"
         onClick={() => navigate('/dashboard/settings/assistant')}
-        className="focus-ring mt-4 flex w-full items-center justify-between rounded-2xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
+        className="focus-ring mt-4 flex w-full items-center justify-between rounded-xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
       >
         <div className="flex items-center gap-3">
           <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
@@ -286,7 +286,7 @@ export function SettingsPage() {
         <button
           type="button"
           onClick={() => navigate('/dashboard/settings/api-keys')}
-          className="focus-ring mt-4 flex w-full items-center justify-between rounded-2xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
+          className="focus-ring mt-4 flex w-full items-center justify-between rounded-xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
         >
           <div className="flex items-center gap-3">
             <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
@@ -306,7 +306,7 @@ export function SettingsPage() {
         <button
           type="button"
           onClick={() => navigate('/dashboard/settings/oauth-apps')}
-          className="focus-ring mt-4 flex w-full items-center justify-between rounded-2xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
+          className="focus-ring mt-4 flex w-full items-center justify-between rounded-xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
         >
           <div className="flex items-center gap-3">
             <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
@@ -326,7 +326,7 @@ export function SettingsPage() {
         <button
           type="button"
           onClick={() => navigate('/dashboard/settings/security')}
-          className="focus-ring mt-4 flex w-full items-center justify-between rounded-2xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
+          className="focus-ring mt-4 flex w-full items-center justify-between rounded-xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
         >
           <div className="flex items-center gap-3">
             <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
@@ -345,7 +345,7 @@ export function SettingsPage() {
       <button
         type="button"
         onClick={() => navigate('/dashboard/settings/sessions')}
-        className="focus-ring mt-4 flex w-full items-center justify-between rounded-2xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
+        className="focus-ring mt-4 flex w-full items-center justify-between rounded-xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
       >
         <div className="flex items-center gap-3">
           <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
@@ -364,7 +364,7 @@ export function SettingsPage() {
         <button
           type="button"
           onClick={() => navigate('/dashboard/settings/audit-log')}
-          className="focus-ring mt-4 flex w-full items-center justify-between rounded-2xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
+          className="focus-ring mt-4 flex w-full items-center justify-between rounded-xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
         >
           <div className="flex items-center gap-3">
             <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
@@ -384,7 +384,7 @@ export function SettingsPage() {
         <button
           type="button"
           onClick={() => navigate('/dashboard/settings/siem-streaming')}
-          className="focus-ring mt-4 flex w-full items-center justify-between rounded-2xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
+          className="focus-ring mt-4 flex w-full items-center justify-between rounded-xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
         >
           <div className="flex items-center gap-3">
             <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
@@ -404,7 +404,7 @@ export function SettingsPage() {
         <button
           type="button"
           onClick={() => navigate('/dashboard/settings/sms-compliance')}
-          className="focus-ring mt-4 flex w-full items-center justify-between rounded-2xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
+          className="focus-ring mt-4 flex w-full items-center justify-between rounded-xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
         >
           <div className="flex items-center gap-3">
             <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
@@ -424,7 +424,7 @@ export function SettingsPage() {
         <button
           type="button"
           onClick={() => navigate('/dashboard/settings/enterprise-security')}
-          className="focus-ring mt-4 flex w-full items-center justify-between rounded-2xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
+          className="focus-ring mt-4 flex w-full items-center justify-between rounded-xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
         >
           <div className="flex items-center gap-3">
             <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
@@ -444,7 +444,7 @@ export function SettingsPage() {
         <button
           type="button"
           onClick={() => navigate('/dashboard/settings/data-governance')}
-          className="focus-ring mt-4 flex w-full items-center justify-between rounded-2xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
+          className="focus-ring mt-4 flex w-full items-center justify-between rounded-xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
         >
           <div className="flex items-center gap-3">
             <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
@@ -464,7 +464,7 @@ export function SettingsPage() {
         <button
           type="button"
           onClick={() => navigate('/dashboard/settings/email')}
-          className="focus-ring mt-4 flex w-full items-center justify-between rounded-2xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
+          className="focus-ring mt-4 flex w-full items-center justify-between rounded-xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
         >
           <div className="flex items-center gap-3">
             <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
