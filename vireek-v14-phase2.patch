@@ -1,0 +1,2482 @@
+diff -ruN -x node_modules -x .git a/e2e/navigation-auth.spec.ts b/e2e/navigation-auth.spec.ts
+--- a/e2e/navigation-auth.spec.ts	2026-11-20 09:04:07.000000000 +0000
++++ b/e2e/navigation-auth.spec.ts	2026-11-20 09:08:50.933095210 +0000
+@@ -104,6 +104,7 @@
+     const b = await ctx.newPage();
+     await login(a, EMAIL!, PASSWORD!);
+     await b.goto('/dashboard');
++    await a.getByTestId('account-menu-trigger').first().click();
+     await a.getByRole('button', { name: /sign out/i }).first().click();
+     await expect(b).toHaveURL(/\/login/, { timeout: 10_000 });
+     await ctx.close();
+diff -ruN -x node_modules -x .git a/src/components/DashboardNav.tsx b/src/components/DashboardNav.tsx
+--- a/src/components/DashboardNav.tsx	2026-11-20 09:04:07.000000000 +0000
++++ b/src/components/DashboardNav.tsx	2026-11-20 09:08:50.930480416 +0000
+@@ -1,4 +1,4 @@
+-import { useEffect, useState } from 'react';
++import { useEffect, useId, useRef, useState } from 'react';
+ import { Link, useLocation, useNavigate } from 'react-router-dom';
+ import { AnimatePresence, motion } from 'framer-motion';
+ import { usePartsSourcingEnabled } from '@/hooks/usePartsSourcingEnabled';
+@@ -11,10 +11,10 @@
+ import {
+   BarChart3, Ruler, FileUp, LayoutTemplate, Globe, Globe2, BookOpen, BookMarked, ClipboardCheck, Link2, QrCode,
+   ScrollText, Home, Phone, LogOut, Menu, X, LayoutDashboard, Calendar, TrendingUp, TrendingDown, Radio, PhoneCall,
+-  PhoneMissed, Inbox, Target, Users, Wrench, Medal, BookUser, Brain, Settings, Lightbulb, GraduationCap,
++  PhoneMissed, Inbox, Target, Users, Wrench, Medal, BookUser, Settings, Lightbulb, GraduationCap,
+   BookOpenCheck, Gauge, Compass, Hourglass, Waves, ShieldCheck, Scale, BadgePercent, Tags, TicketPercent,
+-  FlaskConical, FolderLock, Bot, Ban, Users2, CreditCard, MessagesSquare, Plug, PlugZap, ChevronDown, Sparkles,
+-  BrainCircuit, Headset, BadgeCheck, Rocket, Timer, Star, Smile, Voicemail, PhoneOutgoing, Gift, AudioLines,
++  FlaskConical, FolderLock, Ban, Users2, CreditCard, MessagesSquare, Plug, PlugZap, ChevronDown, ChevronRight, ChevronLeft, ChevronsUpDown, Search, Keyboard,
++  Headset, BadgeCheck, Rocket, Timer, Star, Smile, Voicemail, PhoneOutgoing, Gift, AudioLines,
+   Volume2, Megaphone, MailPlus, Mail, Filter, Award, RotateCcw, DollarSign, Calculator, Route, AlertOctagon,
+   GitBranch, FileText, FileBarChart, CalendarClock, ShieldAlert, HeartHandshake, SearchCheck, FileClock,
+   HandHelping, FileSignature, Zap, Building2, Webhook, Lock, LockKeyhole, History, Activity, CloudLightning, User,
+@@ -29,6 +29,9 @@
+   DoorOpen, CalendarRange, Warehouse, PencilRuler, Languages, Smartphone, Briefcase, Repeat, Video, RefreshCw,
+   Gavel,
+ } from 'lucide-react';
++import '@/components/loading/loading.css';
++import { Logo } from '@/components/brand/Logo';
++import { ImpersonationBanner } from '@/components/staff/ImpersonationBanner';
+ import { useAuth } from '@/contexts/AuthContext';
+ import { rememberDashboardPath } from '@/lib/helpCenter';
+ import { useToast } from '@/contexts/ToastContext';
+@@ -43,14 +46,13 @@
+ import { PaymentFailedBanner } from '@/components/PaymentFailedBanner';
+ import { UsageLimitBanner } from '@/components/UsageLimitBanner';
+ import { TrialBanner } from '@/components/TrialBanner';
+-import { ImpersonationBanner } from '@/components/staff/ImpersonationBanner';
+ import { NotificationBell } from '@/components/NotificationBell';
+ import { WhatsNewButton } from '@/components/whats-new/WhatsNewButton';
+ import { ReplayTourMenu } from '@/components/tour/ReplayTourMenu';
+ import { WhatsNewProvider } from '@/contexts/WhatsNewContext';
+ import { LocationSwitcher } from '@/components/locations/LocationSwitcher';
+ import { AiAssistant } from '@/components/AiAssistant';
+-import { GlobalSearchPalette } from '@/components/GlobalSearchPalette';
++import { GlobalSearchPalette, openPalette } from '@/components/GlobalSearchPalette';
+ import { NpsPrompt } from '@/components/success/NpsPrompt';
+ import { FeedbackButton } from '@/components/feedback/FeedbackButton';
+ import { FeedbackDialog } from '@/components/feedback/FeedbackDialog';
+@@ -61,15 +63,17 @@
+ import { ChatNavBadge } from '@/components/teamchat/ChatNavBadge';
+ import { navigationHandlers } from '@/lib/shortcuts/definitions';
+ import { useShortcutContext, useShortcutHandlers, useShortcutScope } from '@/lib/shortcuts/useShortcuts';
+-import { Accessibility as AccessibilityIcon, MessageCircle as AskDataIcon } from 'lucide-react';
+-import { openAccessibilityCenter, openAskData } from '@/lib/uiEvents';
+ import { KeyboardShortcutsModal } from '@/components/KeyboardShortcutsModal';
+ import { useTranslation } from 'react-i18next';
+ import { useDirection } from '@/hooks/useDirection';
+ import { useEntitlements } from '@/hooks/useEntitlement';
+ import { passesModuleGate } from '@/lib/entitlements';
+ import { navLabelKey } from '@/lib/navLabel';
+-import { PILLARS, audienceFor, groupByPillar, isLab, plainLabel } from '@/lib/surface/surface';
++import { PILLARS, audienceFor, groupByPillar, isLab, pillarFor, plainLabel, searchTerms } from '@/lib/surface/surface';
++import type { PillarId } from '@/lib/surface/surface';
++import { Accessibility as AccessibilityIcon, MessageCircle as AskDataIcon } from 'lucide-react';
++import { openAccessibilityCenter, openAskData } from '@/lib/uiEvents';
++import { groupByHub } from '@/lib/surface/navHubs';
+ import { useSimpleMode } from '@/hooks/useSimpleMode';
+ import { filterToSimpleNav } from '@/lib/simpleMode';
+ import { MobileBottomNav } from '@/components/mobile/MobileBottomNav';
+@@ -145,20 +149,20 @@
+   { label: 'Customers', href: '/dashboard/customers', icon: BookUser },
+   { label: 'Equipment Intelligence', href: '/dashboard/equipment', icon: Wrench },
+   { label: 'Building Telemetry', href: '/dashboard/building-telemetry', icon: Cpu },
+-  { label: 'Customer Intelligence', href: '/dashboard/customer-intelligence', icon: Brain, requiresPermission: 'can_view_billing' },
++  { label: 'Customer Intelligence', href: '/dashboard/customer-intelligence', icon: SearchCheck, requiresPermission: 'can_view_billing' },
+   { label: 'Quotes', href: '/dashboard/quotes', icon: FileText },
+   { label: 'Outbound Campaigns', href: '/dashboard/outbound-campaigns', icon: PhoneOutgoing },
+   { label: 'Voice Brand', href: '/dashboard/voice-brand', icon: Volume2, requiresPermission: 'can_view_billing' },
+   { label: 'Voicemail Drops', href: '/dashboard/voicemail-drops', icon: AudioLines, requiresPermission: 'can_view_billing' },
+   { label: 'Power Dialer', href: '/dashboard/power-dialer', icon: PhoneOutgoing, requiresPermission: 'can_view_all_jobs' },
+   { label: 'Call Masking', href: '/dashboard/call-masking', icon: ShieldCheck },
+-  { label: 'AI Agent Callers', href: '/dashboard/ai-agent-callers', icon: Bot },
++  { label: 'AI Agent Callers', href: '/dashboard/ai-agent-callers', icon: Headset },
+   { label: 'Speed to Lead', href: '/dashboard/speed-to-lead', icon: Zap, requiresPermission: 'can_view_billing' },
+   { label: 'Leak Report', href: '/dashboard/leak-report', icon: PhoneMissed, requiresPermission: 'can_view_billing' },
+   { label: 'Neighborhood Revenue', href: '/dashboard/neighborhood-revenue', icon: MapPinned, requiresPermission: 'can_view_billing' },
+   { label: 'Marketing Automation', href: '/dashboard/marketing', icon: Megaphone },
+   { label: 'Content Calendar', href: '/dashboard/marketing/calendar', icon: CalendarRange, requiresPermission: 'can_edit_business_profile' },
+-  { label: 'Creative Studio', href: '/dashboard/marketing/creative', icon: Sparkles, requiresPermission: 'can_edit_business_profile' },
++  { label: 'Creative Studio', href: '/dashboard/marketing/creative', icon: Paintbrush, requiresPermission: 'can_edit_business_profile' },
+   { label: 'Lifecycle Touches', href: '/dashboard/lifecycle', icon: CalendarHeart },
+   { label: 'Referrals', href: '/dashboard/referrals', icon: Gift, requiresPermission: 'can_view_billing' },
+   { label: 'Loyalty', href: '/dashboard/loyalty', icon: Crown, requiresPermission: 'can_view_billing' },
+@@ -193,13 +197,13 @@
+   { label: 'Insights', href: '/dashboard/insights', icon: Lightbulb },
+   { label: 'Chief of Staff', href: '/dashboard/chief-of-staff', icon: Compass },
+   { label: 'Decision Engine', href: '/dashboard/decision-engine', icon: Cpu, requiresPermission: 'can_view_billing' },
+-  { label: 'Ask Vireek', href: '/dashboard/ask-vireek', icon: BrainCircuit, requiresPermission: 'can_view_billing' },
++  { label: 'Ask Vireek', href: '/dashboard/ask-vireek', icon: MessageSquareText, requiresPermission: 'can_view_billing' },
+   { label: 'Causal World Simulator', href: '/dashboard/causal-simulator', icon: GitBranch, requiresPermission: 'can_view_billing' },
+   { label: 'Continual Identity Learner', href: '/dashboard/identity-learner', icon: Radar, requiresPermission: 'can_view_billing' },
+   { label: 'Regret Console', href: '/dashboard/regret-console', icon: Scale, requiresPermission: 'can_view_billing' },
+   { label: 'Business Scientist', href: '/dashboard/business-scientist', icon: FlaskConical, requiresPermission: 'can_view_billing' },
+   { label: 'AI Field Scientist', href: '/dashboard/field-scientist', icon: Microscope, requiresPermission: 'can_view_billing' },
+-  { label: 'Self-Evolving Operating Model', href: '/dashboard/operating-model', icon: Sparkles, requiresPermission: 'can_view_billing' },
++  { label: 'Self-Evolving Operating Model', href: '/dashboard/operating-model', icon: Workflow, requiresPermission: 'can_view_billing' },
+   { label: 'Decision Debt', href: '/dashboard/decision-debt', icon: Hourglass, requiresPermission: 'can_view_billing' },
+   { label: 'Operations Center', href: '/dashboard/operations-center', icon: Radar, requiresPermission: 'can_view_billing' },
+   { label: 'Decision Ledger', href: '/dashboard/decision-ledger', icon: ScrollText, requiresPermission: 'can_view_billing' },
+@@ -273,15 +277,15 @@
+   { label: 'Install Closeout', href: '/dashboard/install-closeout', icon: ClipboardCheck, requiresPermission: 'can_view_all_jobs' },
+   { label: 'Protection Plans', href: '/dashboard/protection-plans', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
+   { label: 'Business Immune System', href: '/dashboard/immune-system', icon: Siren },
+-  { label: 'Compounding Flywheel', href: '/dashboard/flywheel', icon: Sparkles },
+-  { label: 'Adaptive Diagnostic', href: '/dashboard/adaptive-diagnostics', icon: BrainCircuit },
++  { label: 'Compounding Flywheel', href: '/dashboard/flywheel', icon: RefreshCw },
++  { label: 'Adaptive Diagnostic', href: '/dashboard/adaptive-diagnostics', icon: Stethoscope },
+   { label: 'Predictive Failure', href: '/dashboard/predictive-failure', icon: Radar },
+   { label: 'Preventive Maintenance', href: '/dashboard/preventive-maintenance', icon: CalendarClock, requiresPermission: 'can_view_all_jobs' },
+   { label: 'Verification Network', href: '/dashboard/verification-network', icon: BadgeCheck },
+   { label: 'Physical Economy Network', href: '/dashboard/physical-economy-network', icon: Network },
+   { label: 'Service Recovery', href: '/dashboard/service-recovery', icon: HeartHandshake },
+   { label: 'Surveys', href: '/dashboard/surveys', icon: MessageSquareHeart, requiresPermission: 'can_view_billing' },
+-  { label: 'Self-Healing', href: '/dashboard/self-healing', icon: Bot },
++  { label: 'Self-Healing', href: '/dashboard/self-healing', icon: HeartPulse },
+   { label: 'Regulation Graph', href: '/dashboard/regulation-graph', icon: Landmark },
+   { label: 'Permit Intelligence', href: '/dashboard/permit-intelligence', icon: ClipboardCheck },
+   { label: 'Switching Shield', href: '/dashboard/switching-shield', icon: UserMinus },
+@@ -329,7 +333,7 @@
+   { label: 'OEM Intelligence Graph', href: '/dashboard/oem-graph', icon: Network },
+   { label: 'Recall Center', href: '/dashboard/recalls', icon: ShieldAlert, requiresPermission: 'can_view_all_jobs' },
+   { label: 'Universal Identity', href: '/dashboard/identity-graph', icon: Fingerprint },
+-  { label: 'Field Intelligence', href: '/dashboard/field-intelligence', icon: Brain },
++  { label: 'Field Intelligence', href: '/dashboard/field-intelligence', icon: Satellite },
+   { label: 'Home Health', href: '/dashboard/home-health', icon: Activity },
+   { label: 'Home Service Passport', href: '/dashboard/home-passport', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
+   { label: 'Home Passport Pilot', href: '/dashboard/home-passport/pilot', icon: ShieldCheck, requiresPermission: 'can_view_billing', requiresFlag: 'home_passport_pilot' },
+@@ -353,7 +357,7 @@
+   { label: 'Service Intelligence Loop', href: '/dashboard/service-intelligence-loop', icon: Network },
+   { label: 'Duration Intelligence', href: '/dashboard/duration-intelligence', icon: Gauge },
+   { label: 'Failure Genome', href: '/dashboard/failure-genome', icon: Dna },
+-  { label: 'Adaptive Diagnostics', href: '/dashboard/adaptive-diagnostics', icon: BrainCircuit },
++  { label: 'Adaptive Diagnostics', href: '/dashboard/adaptive-diagnostics', icon: Stethoscope },
+   { label: 'Live Copilot', href: '/dashboard/live-copilot', icon: Radio },
+   { label: 'Margin Guardrails', href: '/dashboard/margin-guardrails', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
+   { label: 'Promo Codes', href: '/dashboard/promo-codes', icon: TicketPercent, requiresPermission: 'can_view_billing' },
+@@ -367,7 +371,7 @@
+   { label: 'Automation Marketplace', href: '/dashboard/automation-marketplace', icon: Zap },
+   { label: 'Company Reflexes', href: '/dashboard/reflexes', icon: Zap },
+   { label: 'Workflows', href: '/dashboard/workflows', icon: Workflow },
+-  { label: 'Workflow Compiler', href: '/dashboard/workflow-compiler', icon: Sparkles },
++  { label: 'Workflow Compiler', href: '/dashboard/workflow-compiler', icon: GitMerge },
+   { label: 'Franchise Command Center', href: '/dashboard/franchise', icon: Building2 },
+   { label: 'Franchise Governance', href: '/dashboard/franchise/governance', icon: Gavel },
+   { label: 'Event Bus', href: '/dashboard/event-bus', icon: Webhook },
+@@ -406,7 +410,7 @@
+   { label: 'Emergency Operations', href: '/dashboard/emergency-ops', icon: Siren },
+   { label: 'Profitability', href: '/dashboard/profitability', icon: Calculator, requiresPermission: 'can_view_billing' },
+   { label: 'Knowledge', href: '/dashboard/knowledge', icon: BookOpen },
+-  { label: 'Knowledge Capture', href: '/dashboard/knowledge-capture', icon: Brain },
++  { label: 'Knowledge Capture', href: '/dashboard/knowledge-capture', icon: BookMarked },
+   { label: 'Revenue Protection', href: '/dashboard/revenue-protection', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
+   { label: 'Recovery Ledger', href: '/dashboard/recovery', icon: TrendingUp, requiresPermission: 'can_view_billing' },
+   { label: 'Money Recovered', href: '/dashboard/recovery/statements', icon: Receipt, requiresPermission: 'can_view_billing' },
+@@ -448,15 +452,15 @@
+   { label: 'LTV Autopilot', href: '/dashboard/ltv-autopilot', icon: Rocket, requiresPermission: 'can_view_billing' },
+   { label: 'Bottleneck Market Maker', href: '/dashboard/bottleneck-market', icon: Crosshair, requiresPermission: 'can_view_billing' },
+   { label: 'Uncertainty & Evidence Map', href: '/dashboard/uncertainty-map', icon: Fingerprint, requiresPermission: 'can_view_billing' },
+-  { label: 'Unknowns Engine', href: '/dashboard/unknowns', icon: Brain, requiresPermission: 'can_view_billing' },
++  { label: 'Unknowns Engine', href: '/dashboard/unknowns', icon: Telescope, requiresPermission: 'can_view_billing' },
+   { label: 'Playbooks', href: '/dashboard/playbooks', icon: BookMarked, requiresPermission: 'can_edit_business_profile' },
+   { label: 'Playbook Library', href: '/dashboard/playbook-library', icon: BookMarked, requiresPermission: 'can_edit_business_profile' },
+   { label: 'Templates', href: '/dashboard/templates', icon: MessageSquareText, requiresPermission: 'can_edit_business_profile' },
+   { label: 'Document Templates', href: '/dashboard/document-templates', icon: ScrollText, requiresPermission: 'can_edit_business_profile' },
+   { label: 'Local Rank Grid', href: '/dashboard/geo-grid', icon: MapPin, requiresPermission: 'can_edit_business_profile' },
+   { label: 'Trade Playbooks', href: '/dashboard/trade-playbooks', icon: ClipboardCheck, requiresPermission: 'can_edit_business_profile' },
+-  { label: 'Agent Governance', href: '/dashboard/agent-governance', icon: Bot, requiresPermission: 'can_manage_security' },
+-  { label: 'Agent Actions', href: '/dashboard/agent-actions', icon: Bot, requiresPermission: 'can_manage_security', requiresFlag: 'agent_action_framework' },
++  { label: 'Agent Governance', href: '/dashboard/agent-governance', icon: ShieldCheck, requiresPermission: 'can_manage_security' },
++  { label: 'Agent Actions', href: '/dashboard/agent-actions', icon: MousePointerClick, requiresPermission: 'can_manage_security', requiresFlag: 'agent_action_framework' },
+   { label: 'AI Security Center', href: '/dashboard/security-center', icon: LockKeyhole, requiresPermission: 'can_manage_security' },
+   { label: 'AI Reliability', href: '/dashboard/ai-reliability', icon: ShieldCheck, requiresPermission: 'can_manage_security' },
+   { label: 'AI Transparency', href: '/dashboard/ai-transparency', icon: Fingerprint, requiresPermission: 'can_manage_security' },
+@@ -498,7 +502,7 @@
+   { label: 'Payment Pricing', href: '/dashboard/payment-pricing', icon: BadgePercent, requiresPermission: 'can_edit_business_profile' },
+   { label: 'Google Booking', href: '/dashboard/google-booking', icon: Globe, requiresPermission: 'can_edit_business_profile' },
+   { label: 'Agent Readiness', href: '/dashboard/agent-readiness', icon: Radar, requiresPermission: 'can_edit_business_profile' },
+-  { label: 'AI Agent Requests', href: '/dashboard/consumer-agent', icon: Bot, requiresPermission: 'can_manage_team' },
++  { label: 'AI Agent Requests', href: '/dashboard/consumer-agent', icon: MessageSquareText, requiresPermission: 'can_manage_team' },
+   { label: 'Locations', href: '/dashboard/settings/locations', icon: Building2, requiresPermission: 'can_edit_business_profile' },
+   { label: 'Acquisitions', href: '/dashboard/acquisitions', icon: Building2, requiresPermission: 'can_edit_business_profile' },
+   { label: 'Regional Packs', href: '/dashboard/settings/regional-packs', icon: Globe, requiresPermission: 'can_edit_business_profile' },
+@@ -547,12 +551,166 @@
+   { label: 'Website Widgets', href: '/dashboard/settings/website-widgets', icon: Globe, requiresPermission: 'can_edit_business_profile' },
+   { label: 'Trust Badge', href: '/dashboard/settings/trust-badge', icon: Globe, requiresPermission: 'can_edit_business_profile' },
+   { label: 'Call Tracking', href: '/dashboard/settings/call-tracking', icon: PhoneCall, requiresPermission: 'can_edit_business_profile' },
+-  { label: 'What’s New', href: '/dashboard/whats-new', icon: Sparkles },
++  { label: 'What’s New', href: '/dashboard/whats-new', icon: FileClock },
+   { label: 'Help', href: '/dashboard/help', icon: LifeBuoy },
+ ];
+ 
+ type NavGates = Partial<Record<'landscaping', boolean>>;
+ const NO_MODULES: ReadonlySet<string> = new Set();
++const PILLAR_ICONS: Record<PillarId, typeof LayoutDashboard> = {
++  answer: PhoneCall,
++  dispatch: Calendar,
++  grow: TrendingUp,
++  settings: Settings,
++  labs: FlaskConical,
++};
++
++/** Always-visible entry to the global command palette (⌘K / Ctrl K). */
++function SidebarSearchButton() {
++  const { t } = useTranslation('dashboard');
++  const isMac = typeof navigator !== 'undefined' && /mac|iphone|ipad/i.test(navigator.platform || navigator.userAgent);
++  return (
++    <button
++      type="button"
++      onClick={() => openPalette()}
++      className="focus-ring flex w-full items-center gap-2 rounded-lg border border-border bg-bg-primary px-2.5 py-1.5 text-[13px] text-text-secondary transition-colors hover:text-text-primary"
++    >
++      <Icon icon={Search} size="sm" className="text-text-muted" />
++      <span className="flex-1 text-start">{t('nav.search', { defaultValue: 'Search' })}</span>
++      <kbd className="rounded border border-border px-1.5 text-[11px] font-medium text-text-muted">{isMac ? '⌘K' : 'Ctrl K'}</kbd>
++    </button>
++  );
++}
++
++const MENU_ITEM =
++  'focus-ring flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-start text-[13px] text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary';
++
++/**
++ * Account switcher at the foot of the sidebar: who is signed in, appearance, account links, sign out.
++ * Disclosure pattern (button + panel), not role="menu": the panel holds a radio group (theme) next to links,
++ * which a menu role cannot contain. Closes on Escape (focus returns to the trigger), outside pointer and focus leaving.
++ */
++function AccountMenu({
++  email,
++  roleLabel,
++  onNavigate,
++  onShortcuts,
++  onAccessibility,
++  onSignOut,
++}: {
++  email: string;
++  roleLabel: string;
++  onNavigate: () => void;
++  onShortcuts: () => void;
++  onAccessibility: () => void;
++  onSignOut: () => void;
++}) {
++  const { t } = useTranslation('dashboard');
++  const [open, setOpen] = useState(false);
++  const rootRef = useRef<HTMLDivElement>(null);
++  const triggerRef = useRef<HTMLButtonElement>(null);
++  const panelId = useId();
++  const themeLabelId = `${panelId}-theme`;
++  const name = email || t('nav.account.fallback', { defaultValue: 'Account' });
++  const initial = (email.trim()[0] ?? 'V').toUpperCase();
++
++  useEffect(() => {
++    if (!open) return;
++    const onPointerDown = (e: PointerEvent) => {
++      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
++    };
++    const onKeyDown = (e: KeyboardEvent) => {
++      if (e.key === 'Escape') {
++        setOpen(false);
++        triggerRef.current?.focus();
++      }
++    };
++    document.addEventListener('pointerdown', onPointerDown);
++    document.addEventListener('keydown', onKeyDown);
++    return () => {
++      document.removeEventListener('pointerdown', onPointerDown);
++      document.removeEventListener('keydown', onKeyDown);
++    };
++  }, [open]);
++
++  const close = () => setOpen(false);
++
++  return (
++    <div
++      ref={rootRef}
++      className="relative"
++      onBlur={(e) => {
++        const next = e.relatedTarget as Node | null;
++        if (next && !rootRef.current?.contains(next)) setOpen(false);
++      }}
++    >
++      {open && (
++        <div
++          id={panelId}
++          role="group"
++          aria-label={t('nav.account.label', { defaultValue: 'Account' })}
++          className="absolute inset-x-0 bottom-full mb-1.5 rounded-xl border border-border bg-bg-secondary p-1.5 shadow-elevation-3"
++        >
++          <div className="px-2.5 pb-2 pt-1.5">
++            <p className="truncate text-[13px] font-medium text-text-primary">{name}</p>
++            <p className="text-xs text-text-muted">{roleLabel}</p>
++          </div>
++          <div className="border-t border-border pt-1.5">
++            <p id={themeLabelId} className="px-2.5 pb-1.5 text-xs text-text-muted">
++              {t('nav.appearance')}
++            </p>
++            <div className="px-1 pb-1.5">
++              <ThemeSegmentedControl labelledBy={themeLabelId} />
++            </div>
++          </div>
++          <div className="border-t border-border pt-1.5">
++            <Link to="/dashboard/account" onClick={() => { close(); onNavigate(); }} className={MENU_ITEM}>
++              <Icon icon={User} size="sm" className="text-text-muted" />
++              {t('nav.account.myAccount', { defaultValue: 'My account' })}
++            </Link>
++            <Link to="/dashboard/settings" onClick={() => { close(); onNavigate(); }} className={MENU_ITEM}>
++              <Icon icon={Settings} size="sm" className="text-text-muted" />
++              {t('nav.account.settings', { defaultValue: 'Settings' })}
++            </Link>
++            <button type="button" onClick={() => { close(); onShortcuts(); }} className={MENU_ITEM}>
++              <Icon icon={Keyboard} size="sm" className="text-text-muted" />
++              {t('nav.account.shortcuts', { defaultValue: 'Keyboard shortcuts' })}
++            </button>
++            <button type="button" onClick={() => { close(); onAccessibility(); }} className={MENU_ITEM}>
++              <Icon icon={AccessibilityIcon} size="sm" className="text-text-muted" />
++              {t('nav.accessibility', { defaultValue: 'Accessibility' })}
++            </button>
++          </div>
++          <div className="mt-1.5 border-t border-border pt-1.5">
++            <button type="button" onClick={() => { close(); onSignOut(); }} className={MENU_ITEM}>
++              <Icon icon={LogOut} size="sm" className="text-text-muted" />
++              {t('nav.signOut')}
++            </button>
++          </div>
++        </div>
++      )}
++      <button
++        ref={triggerRef}
++        type="button"
++        data-testid="account-menu-trigger"
++        aria-expanded={open}
++        aria-controls={open ? panelId : undefined}
++        onClick={() => setOpen((v) => !v)}
++        className="focus-ring flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-start transition-colors hover:bg-bg-tertiary"
++      >
++        <span aria-hidden="true" className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-bg-tertiary text-xs font-semibold text-text-primary">
++          {initial}
++        </span>
++        <span className="min-w-0 flex-1">
++          <span className="block truncate text-[13px] font-medium leading-4 text-text-primary">{name}</span>
++          <span className="block truncate text-xs leading-4 text-text-muted">{roleLabel}</span>
++        </span>
++        <Icon icon={ChevronsUpDown} size="micro" className="text-text-muted" />
++      </button>
++    </div>
++  );
++}
++
+ export function filterItems(
+   items: NavItem[],
+   isOwner: boolean,
+@@ -640,7 +798,29 @@
+       return next;
+     });
+   const labsVisible = showLabs || isLab(location.pathname);
+-  const [openPillars, setOpenPillars] = useState<Record<string, boolean>>({});
++  // Two-level menu: level 1 lists the pillars, level 2 (`panel`) drills into one pillar's hubs.
++  const [panel, setPanel] = useState<PillarId | null>(() => {
++    return pillarFor(location.pathname);
++  });
++  const [openHubs, setOpenHubs] = useState<Record<string, boolean>>({});
++  const [query, setQuery] = useState('');
++  const backRef = useRef<HTMLButtonElement>(null);
++  const rowRefs = useRef<Partial<Record<PillarId, HTMLButtonElement | null>>>({});
++  const focusIntent = useRef<'back' | PillarId | null>(null);
++  useEffect(() => {
++    if (location.pathname === '/dashboard') setPanel(null);
++    else {
++      const p = pillarFor(location.pathname);
++      if (p) setPanel(p);
++    }
++  }, [location.pathname]);
++  useEffect(() => {
++    const intent = focusIntent.current;
++    if (!intent) return;
++    focusIntent.current = null;
++    if (intent === 'back') backRef.current?.focus();
++    else rowRefs.current[intent]?.focus();
++  }, [panel]);
+   const simpleMode = useSimpleMode();
+   const allVisible = [...visiblePrimary, ...visibleAccount];
+   const pillarGroups = groupByPillar(simpleMode.active ? filterToSimpleNav(allVisible) : allVisible, { audience, showLabs: labsVisible && !simpleMode.active });
+@@ -660,65 +840,69 @@
+         to={item.href}
+         onClick={() => setDrawerOpen(false)}
+         aria-current={active ? 'page' : undefined}
+-        className={`focus-ring flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
++        className={`focus-ring group relative flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-[13px] leading-5 transition-colors ${
+           active
+-            ? 'bg-accent/10 text-accent ring-1 ring-accent/15'
+-            : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'
++            ? 'bg-bg-tertiary font-medium text-text-primary'
++            : 'text-text-secondary hover:bg-bg-tertiary/70 hover:text-text-primary'
+         }`}
+       >
+-        <Icon icon={item.icon} size="md" className={active ? 'text-accent' : 'text-text-secondary'} />
+-        {label(plainLabel(item.href, item.label))}
++        {active && <span aria-hidden="true" className="absolute inset-y-1.5 start-0 w-0.5 rounded-full bg-accent" />}
++        <Icon icon={item.icon} size="sm" className={active ? 'text-accent' : 'text-text-muted group-hover:text-text-secondary'} />
++        <span className="min-w-0 flex-1 truncate">{label(plainLabel(item.href, item.label))}</span>
+         {item.href === '/dashboard/team-chat' && <ChatNavBadge />}
+       </Link>
+     );
+   }
+ 
+-  const navContent = (
+-    <nav aria-label={t('nav.mainNavigation')} className="flex flex-col gap-1">
+-      <button
+-        type="button"
+-        data-tour="ask-data"
+-        onClick={() => { setDrawerOpen(false); openAskData(); }}
+-        className="focus-ring mb-2 flex w-full items-center gap-3 rounded-xl border border-accent/20 bg-accent/5 px-3 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-accent/10"
+-      >
+-        <AskDataIcon size={18} className="text-accent" aria-hidden="true" />
+-        <span className="flex-1 text-left">{t('nav.askData', { defaultValue: 'Ask your data' })}</span>
+-      </button>
++  const q = query.trim().toLowerCase();
++  const panelGroup = panel ? pillarGroups.find((g) => g.pillar === panel) : undefined;
++  const panelMeta = panel ? PILLARS.find((p) => p.id === panel) : undefined;
++  const pillarTitle = (id: PillarId, fallback: string) => t(`nav.pillars.${id}`, { defaultValue: fallback });
++
++  const openPanel = (id: PillarId) => {
++    focusIntent.current = 'back';
++    setQuery('');
++    setPanel(id);
++  };
++  const closePanel = () => {
++    focusIntent.current = panel;
++    setQuery('');
++    setPanel(null);
++  };
++
++  const levelOne = (
++    <nav aria-label={t('nav.mainNavigation')} className="flex flex-col gap-0.5">
+       {overview && <NavLink item={overview} />}
+-      {pillarGroups.map(({ pillar, items }) => {
+-        const meta = PILLARS.find((p) => p.id === pillar)!;
+-        const open = openPillars[pillar] ?? items.some((i) => isActive(i.href));
+-        return (
+-          <div key={pillar} className="mt-2">
++      <div className="mt-3 flex flex-col gap-0.5">
++        {pillarGroups.map(({ pillar, items }) => {
++          const meta = PILLARS.find((p) => p.id === pillar)!;
++          const hasActive = items.some((i) => isActive(i.href));
++          return (
+             <button
++              key={pillar}
++              ref={(el) => {
++                rowRefs.current[pillar] = el;
++              }}
+               type="button"
+-              aria-expanded={open}
+-              onClick={() => setOpenPillars((v) => ({ ...v, [pillar]: !open }))}
+-              className="focus-ring flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-wider text-text-muted hover:text-text-secondary"
++              onClick={() => openPanel(pillar)}
++              className={`focus-ring group flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-start text-[13px] leading-5 transition-colors hover:bg-bg-tertiary/70 hover:text-text-primary ${
++                hasActive ? 'font-medium text-text-primary' : 'text-text-secondary'
++              }`}
+             >
+-              <span>
+-                {t(`nav.pillars.${pillar}`, { defaultValue: meta.label })}
+-                {pillar === 'labs' && (
+-                  <span className="ml-2 rounded bg-accent/10 px-1.5 py-0.5 text-[10px] text-accent">Beta</span>
+-                )}
+-              </span>
+-              <ChevronDown size={16} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
++              <Icon icon={PILLAR_ICONS[pillar]} size="sm" className={hasActive ? 'text-accent' : 'text-text-muted group-hover:text-text-secondary'} />
++              <span className="min-w-0 flex-1 truncate">{pillarTitle(pillar, meta.label)}</span>
++              {pillar === 'labs' && <span className="rounded bg-bg-tertiary px-1.5 text-[11px] font-medium text-text-secondary">Beta</span>}
++              <span className="text-xs tabular-nums text-text-muted">{items.length}</span>
++              <Icon icon={ChevronRight} size="micro" className="text-text-muted rtl:rotate-180" />
+             </button>
+-            {open && (
+-              <div className="flex flex-col gap-1 pt-1">
+-                {items.map((item) => (
+-                  <NavLink key={item.href} item={item} />
+-                ))}
+-              </div>
+-            )}
+-          </div>
+-        );
+-      })}
++          );
++        })}
++      </div>
+       {simpleMode.eligible && (
+         <button
+           type="button"
+           onClick={() => simpleMode.setShowEverything(!simpleMode.showEverything)}
+-          className="focus-ring mt-2 rounded-xl px-3 py-2 text-left text-xs font-medium text-accent hover:underline"
++          className="focus-ring mt-3 rounded-lg px-2.5 py-1.5 text-start text-xs font-medium text-accent hover:underline"
+         >
+           {simpleMode.showEverything ? t('nav.simple.hide', { defaultValue: 'Show simple menu' }) : t('nav.simple.show', { defaultValue: 'Show all features' })}
+         </button>
+@@ -727,82 +911,149 @@
+         type="button"
+         onClick={toggleLabs}
+         hidden={simpleMode.active}
+-        className="focus-ring mt-2 rounded-xl px-3 py-2 text-left text-xs text-text-muted hover:text-text-secondary"
++        className="focus-ring mt-1 rounded-lg px-2.5 py-1.5 text-start text-xs text-text-muted transition-colors hover:text-text-primary"
+       >
+         {showLabs ? t('nav.labs.hide', { defaultValue: 'Hide Labs (Beta)' }) : t('nav.labs.show', { defaultValue: 'Show Labs (Beta)' })}
+       </button>
++    </nav>
++  );
+ 
+-      <div className="mt-3 border-t border-border/60 px-1 pt-3">
+-        <p
+-          id="theme-seg-label"
+-          className="px-2 pb-2 text-xs font-semibold uppercase tracking-wider text-text-secondary/70"
+-        >
+-          {t('nav.appearance')}
+-        </p>
+-        <ThemeSegmentedControl labelledBy="theme-seg-label" />
++  const levelTwo =
++    panel && panelGroup && panelMeta ? (
++      <nav aria-label={pillarTitle(panel, panelMeta.label)} className="flex flex-col gap-0.5">
+         <button
++          ref={backRef}
+           type="button"
+-          onClick={() => { setDrawerOpen(false); openAccessibilityCenter(); }}
+-          className="focus-ring mt-2 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
++          onClick={closePanel}
++          className="focus-ring flex items-center gap-2 rounded-lg px-2 py-1.5 text-start text-[13px] font-medium text-text-primary transition-colors hover:bg-bg-tertiary/70"
+         >
+-          <AccessibilityIcon size={18} aria-hidden="true" />
+-          {t('nav.accessibility', { defaultValue: 'Accessibility' })}
++          <Icon icon={ChevronLeft} size="sm" className="text-text-muted rtl:rotate-180" />
++          <span className="min-w-0 flex-1 truncate">{pillarTitle(panel, panelMeta.label)}</span>
++          <span className="sr-only">{t('nav.backToMenu', { defaultValue: 'Back to main menu' })}</span>
+         </button>
+-      </div>
+-    </nav>
++        <p className="px-2.5 pb-2 pt-0.5 text-xs leading-4 text-text-muted">{panelMeta.blurb}</p>
++        <div className="relative pb-2">
++          <Icon icon={Search} size="sm" className="pointer-events-none absolute start-2.5 top-2 text-text-muted" />
++          <input
++            type="search"
++            value={query}
++            onChange={(e) => setQuery(e.target.value)}
++            aria-label={t('nav.filter', { defaultValue: 'Filter pages' })}
++            placeholder={t('nav.filter', { defaultValue: 'Filter pages' })}
++            className="focus-ring w-full rounded-lg border border-border bg-bg-primary py-1.5 pe-2.5 ps-8 text-[13px] text-text-primary placeholder:text-text-muted"
++          />
++        </div>
++        {(() => {
++          const hubs = groupByHub(panel, panelGroup.items)
++            .map(({ hub, items }) => ({
++              hub,
++              all: items,
++              items: q
++                ? items.filter((i) => `${label(plainLabel(i.href, i.label))} ${i.label} ${searchTerms(i.href)}`.toLowerCase().includes(q))
++                : items,
++            }))
++            .filter((h) => h.items.length > 0);
++          if (hubs.length === 0) {
++            return (
++              <p role="status" className="px-2.5 py-2 text-xs text-text-muted">
++                {t('nav.noMatches', { defaultValue: 'No pages match your filter.' })}
++              </p>
++            );
++          }
++          return hubs.map(({ hub, all, items }) => {
++            const hasActive = all.some((i) => isActive(i.href));
++            const open = q ? true : (openHubs[hub.id] ?? (hasActive || hubs.length === 1));
++            return (
++              <div key={hub.id} className="mt-1">
++                <button
++                  type="button"
++                  aria-expanded={open}
++                  onClick={() => setOpenHubs((v) => ({ ...v, [hub.id]: !open }))}
++                  className={`focus-ring flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-start text-[13px] font-medium transition-colors hover:bg-bg-tertiary/70 ${
++                    hasActive ? 'text-text-primary' : 'text-text-secondary'
++                  }`}
++                >
++                  <span className="min-w-0 flex-1 truncate">{t(`nav.hubs.${hub.id}`, { defaultValue: hub.label })}</span>
++                  <span className="text-xs font-normal tabular-nums text-text-muted">{items.length}</span>
++                  <Icon icon={ChevronDown} size="micro" className={`text-text-muted transition-transform duration-fast motion-reduce:transition-none ${open ? '' : '-rotate-90 rtl:rotate-90'}`} />
++                </button>
++                {open && (
++                  <div className="ms-4 mt-0.5 flex flex-col gap-0.5 border-s border-border ps-1.5">
++                    {items.map((item) => (
++                      <NavLink key={item.href} item={item} />
++                    ))}
++                  </div>
++                )}
++              </div>
++            );
++          });
++        })()}
++      </nav>
++    ) : null;
++
++  const navContent = levelTwo ?? levelOne;
++
++  const askDataButton = (
++    <button
++      type="button"
++      data-tour="ask-data"
++      onClick={() => { setDrawerOpen(false); openAskData(); }}
++      className="focus-ring mt-1 flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-start text-[13px] font-medium text-text-secondary transition-colors hover:bg-bg-tertiary/70 hover:text-text-primary"
++    >
++      <Icon icon={AskDataIcon} size="sm" className="text-text-muted" />
++      <span className="flex-1">{t('nav.askData', { defaultValue: 'Ask your data' })}</span>
++    </button>
++  );
++
++  const accountMenu = (
++    <AccountMenu
++      email={user?.email ?? ''}
++      roleLabel={isOwner ? t('nav.account.owner', { defaultValue: 'Owner' }) : t('nav.account.member', { defaultValue: 'Team member' })}
++      onNavigate={() => setDrawerOpen(false)}
++      onShortcuts={() => setShortcutsHelpOpen(true)}
++      onAccessibility={() => openAccessibilityCenter()}
++      onSignOut={handleSignOut}
++    />
+   );
+ 
+   return (
+     <>
+       {/* Desktop sidebar */}
+-      <aside className="fixed left-0 top-0 z-30 hidden h-full w-60 flex-col border-r border-border/80 bg-bg-secondary/95 shadow-sm lg:flex print:hidden">
+-        <div className="flex items-center justify-between gap-2.5 px-5 py-5">
+-          <Link to="/dashboard" className="flex items-center gap-2.5">
+-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-on-accent shadow-glow-accent">
+-              <Phone size={16} strokeWidth={2.5} />
+-            </span>
+-            <span className="text-lg font-bold tracking-tight text-text-primary">Vireek</span>
++      <aside
++        data-active-label={activeLabel}
++        className="fixed left-0 top-0 z-30 hidden h-full w-60 flex-col border-r border-border bg-bg-secondary [--icon-stroke:1.5] lg:flex print:hidden"
++      >
++        <div className="flex h-14 shrink-0 items-center justify-between gap-1 px-3">
++          <Link to="/dashboard" aria-label="Vireek" className="focus-ring flex shrink-0 items-center rounded-lg px-1.5 py-1">
++            <Logo variant="symbol" size={22} decorative />
+           </Link>
+-          <div className="flex items-center gap-1">
++          <div className="flex items-center">
+             <ReplayTourMenu align="start" />
+             <FeedbackButton />
+             <WhatsNewButton />
+             <NotificationBell />
+           </div>
+         </div>
+-        <div className="flex-1 overflow-y-auto px-3 py-4">
+-          <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-text-muted">
+-            {activeLabel}
+-          </p>
+-          {navContent}
+-        </div>
+-        <div className="border-t border-border px-3 py-4">
+-          <button
+-            type="button"
+-            onClick={handleSignOut}
+-            className="focus-ring flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+-          >
+-            <Icon icon={LogOut} size="md" />
+-            {t('nav.signOut')}
+-          </button>
++        <div className="shrink-0 px-3 pb-2">
++          <SidebarSearchButton />
++          {askDataButton}
+         </div>
++        <div className="flex-1 overflow-y-auto px-3 pb-4 pt-1">{navContent}</div>
++        <div className="shrink-0 border-t border-border p-3">{accountMenu}</div>
+       </aside>
+ 
+       {/* Mobile header */}
+-      <header className="sticky top-0 z-40 border-b border-border/80 bg-bg-secondary/85 shadow-sm backdrop-blur-xl lg:hidden print:hidden">
+-        <div className="flex items-center justify-between px-4 py-3">
+-          <Link to="/dashboard" className="flex items-center gap-2.5">
+-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-on-accent shadow-glow-accent">
+-              <Phone size={16} strokeWidth={2.5} />
+-            </span>
+-            <span className="text-lg font-bold tracking-tight text-text-primary">Vireek</span>
++      <header className="sticky top-0 z-40 border-b border-border bg-bg-secondary lg:hidden print:hidden">
++        <div className="flex h-14 items-center justify-between px-4">
++          <Link to="/dashboard" aria-label="Vireek" className="focus-ring flex items-center rounded-lg">
++            <Logo variant="wordmark" size={18} decorative />
+           </Link>
+           <div className="flex items-center gap-2">
+             <ReplayTourMenu align="end" />
+             <FeedbackButton />
+             <WhatsNewButton />
+             <NotificationBell />
+-                        <IconButton
++            <IconButton
+               label={t('nav.openMenu')}
+               icon={Menu}
+               variant="secondary"
+@@ -824,22 +1075,17 @@
+               exit={{ opacity: 0 }}
+               transition={{ duration: 0.2 }}
+               onClick={() => setDrawerOpen(false)}
+-              className="fixed inset-0 z-50 bg-overlay/40 backdrop-blur-sm lg:hidden"
++              className="fixed inset-0 z-50 bg-overlay/40 lg:hidden"
+             />
+             <motion.aside
+               initial={{ x: isRtl ? '100%' : '-100%' }}
+               animate={{ x: 0 }}
+               exit={{ x: isRtl ? '100%' : '-100%' }}
+               transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+-              className="fixed left-0 top-0 z-50 flex h-full w-72 max-w-[85vw] flex-col border-r border-border bg-bg-secondary lg:hidden"
++              className="fixed left-0 top-0 z-50 flex h-full w-72 max-w-[85vw] flex-col border-r border-border bg-bg-secondary [--icon-stroke:1.5] lg:hidden"
+             >
+-              <div className="flex items-center justify-between px-5 py-4">
+-                <div className="flex items-center gap-2.5">
+-                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-on-accent shadow-glow-accent">
+-                    <Phone size={16} strokeWidth={2.5} />
+-                  </span>
+-                  <span className="text-lg font-bold tracking-tight text-text-primary">Vireek</span>
+-                </div>
++              <div className="flex h-14 shrink-0 items-center justify-between px-4">
++                <Logo variant="wordmark" size={18} />
+                 <IconButton
+                   label={t('nav.closeMenu')}
+                   icon={X}
+@@ -848,19 +1094,12 @@
+                   onClick={() => setDrawerOpen(false)}
+                 />
+               </div>
+-              <div className="flex-1 overflow-y-auto px-3 py-4">
+-                {navContent}
+-              </div>
+-              <div className="border-t border-border px-3 py-4">
+-                <button
+-                  type="button"
+-                  onClick={handleSignOut}
+-                  className="focus-ring flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+-                >
+-                  <LogOut size={18} />
+-                  {t('nav.signOut')}
+-                </button>
++              <div className="shrink-0 px-3 pb-2">
++                <SidebarSearchButton />
++                {askDataButton}
+               </div>
++              <div className="flex-1 overflow-y-auto px-3 pb-4 pt-1">{navContent}</div>
++              <div className="shrink-0 border-t border-border p-3">{accountMenu}</div>
+             </motion.aside>
+           </>
+         )}
+@@ -894,7 +1133,7 @@
+         <ChatUnreadProvider>
+           <div className="min-h-screen bg-bg-primary">
+             <DashboardNav activeLabel={activeLabel} />
+-            <ImpersonationBanner />            
++            <ImpersonationBanner />
+             <div className="lg:pl-60 print:pl-0">
+               <main id="main-content" className="mx-auto max-w-7xl px-4 py-6 pb-[calc(var(--vk-bottom-nav-h,0px)+var(--vk-bottom-bar-h,0px)+2rem)] lg:px-8 lg:py-8 print:max-w-none print:p-0">
+                 <Breadcrumbs className="no-print mb-4" />
+diff -ruN -x node_modules -x .git a/src/components/overview/DataHealthCard.tsx b/src/components/overview/DataHealthCard.tsx
+--- a/src/components/overview/DataHealthCard.tsx	2026-11-20 09:04:07.000000000 +0000
++++ b/src/components/overview/DataHealthCard.tsx	2026-11-20 09:22:04.038699661 +0000
+@@ -23,19 +23,19 @@
+   }, []);
+ 
+   if (failed) return null;
+-  if (!health) return <div className="h-28 w-full animate-pulse rounded-2xl bg-bg-tertiary" />;
++  if (!health) return <div className="h-28 w-full vrk-skel rounded-xl bg-bg-tertiary" />;
+ 
+   const worst = health.checks[0];
+   return (
+     <Link
+       to="/dashboard/data-quality"
+-      className="focus-ring flex h-full items-center gap-4 rounded-2xl border border-border bg-bg-secondary p-5 shadow-card transition-colors hover:border-accent/40 dark:shadow-card-dark"
++      className="focus-ring flex h-full items-center gap-4 rounded-xl border border-border bg-bg-secondary p-5 transition-colors hover:border-accent/40"
+     >
+-      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent"><DatabaseZap size={20} /></span>
++      <span className="flex h-8 w-8 shrink-0 items-center justify-center text-text-muted"><DatabaseZap size={20} /></span>
+       <div className="min-w-0 flex-1">
+-        <p className="text-xs font-medium uppercase tracking-wide text-text-secondary">Data health</p>
++        <p className="text-xs font-medium text-text-secondary">Data health</p>
+         <p className="mt-0.5 flex items-baseline gap-2">
+-          <span className={`text-3xl font-bold ${gradeTone(health.grade)}`}>{health.score}</span>
++          <span className={`text-2xl font-semibold tabular-nums ${gradeTone(health.grade)}`}>{health.score}</span>
+           <span className="text-sm text-text-secondary">{GRADE_LABELS[health.grade]}</span>
+         </p>
+         <p className="mt-1 truncate text-xs text-text-secondary">
+diff -ruN -x node_modules -x .git a/src/components/overview/LeakCasesCard.tsx b/src/components/overview/LeakCasesCard.tsx
+--- a/src/components/overview/LeakCasesCard.tsx	2026-11-20 09:04:07.000000000 +0000
++++ b/src/components/overview/LeakCasesCard.tsx	2026-11-20 09:22:04.034562233 +0000
+@@ -23,17 +23,17 @@
+   }, []);
+ 
+   if (failed) return null;
+-  if (!s) return <div className="h-28 w-full animate-pulse rounded-2xl bg-bg-tertiary" />;
++  if (!s) return <div className="h-28 w-full vrk-skel rounded-xl bg-bg-tertiary" />;
+   if (s.active === 0) return null;
+ 
+   const overdue = s.overdue > 0;
+   return (
+     <Link
+       to="/dashboard/refrigerant-leaks"
+-      className={`focus-ring flex h-full items-center gap-4 rounded-2xl border p-5 shadow-card transition-colors dark:shadow-card-dark ${overdue ? 'border-danger/40 bg-danger/5 hover:border-danger' : 'border-border bg-bg-secondary hover:border-accent/40'}`}
++      className={`focus-ring flex h-full items-center gap-4 rounded-xl border p-5 transition-colors ${overdue ? 'border-danger/40 bg-danger/5 hover:border-danger' : 'border-border bg-bg-secondary hover:border-accent/40'}`}
+     >
+       <span
+-        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${overdue ? 'bg-danger/10 text-danger' : 'bg-accent/10 text-accent'}`}
++        className={`flex h-8 w-8 shrink-0 items-center justify-center ${overdue ? 'text-danger' : 'text-text-muted'}`}
+       >
+         {overdue ? (
+           <AlertTriangle size={20} aria-hidden="true" />
+@@ -42,11 +42,11 @@
+         )}
+       </span>
+       <div className="min-w-0 flex-1">
+-        <p className="text-xs font-medium uppercase tracking-wide text-text-secondary">
++        <p className="text-xs font-medium text-text-secondary">
+           Refrigerant leak cases
+         </p>
+         <p className="mt-0.5 flex items-baseline gap-2">
+-          <span className={`text-3xl font-bold ${overdue ? 'text-danger' : 'text-text-primary'}`}>
++          <span className={`text-2xl font-semibold tabular-nums ${overdue ? 'text-danger' : 'text-text-primary'}`}>
+             {overdue ? s.overdue : s.active}
+           </span>
+           <span className="text-sm text-text-secondary">{overdue ? 'overdue' : 'active'}</span>
+diff -ruN -x node_modules -x .git a/src/components/overview/OverviewCustomizeBar.tsx b/src/components/overview/OverviewCustomizeBar.tsx
+--- a/src/components/overview/OverviewCustomizeBar.tsx	2026-11-20 09:04:07.000000000 +0000
++++ b/src/components/overview/OverviewCustomizeBar.tsx	2026-11-20 09:09:01.833344439 +0000
+@@ -49,7 +49,7 @@
+   }
+ 
+   return (
+-    <section aria-label="Customize overview" className="mb-5 rounded-2xl border border-accent/30 bg-bg-secondary p-4">
++    <section aria-label="Customize overview" className="mb-5 rounded-xl border border-accent/30 bg-bg-secondary p-4">
+       <div className="flex flex-wrap items-center gap-3">
+         <label className="flex items-center gap-2 text-sm font-medium text-text-secondary">
+           Layout preset
+diff -ruN -x node_modules -x .git a/src/components/overview/OverviewGrid.tsx b/src/components/overview/OverviewGrid.tsx
+--- a/src/components/overview/OverviewGrid.tsx	2026-11-20 09:04:07.000000000 +0000
++++ b/src/components/overview/OverviewGrid.tsx	2026-11-20 09:09:01.835187184 +0000
+@@ -153,7 +153,7 @@
+           <div
+             key={i}
+             style={{ gridColumn: `span ${spanFor(w, bp)} / span ${spanFor(w, bp)}` }}
+-            className="h-36 animate-pulse rounded-2xl bg-bg-tertiary"
++            className="h-36 vrk-skel rounded-xl bg-bg-tertiary"
+           />
+         ))}
+       </div>
+@@ -177,7 +177,7 @@
+                 height: item.h > 0 ? item.h * ROW_UNIT_PX : undefined,
+               }}
+               className={`relative min-w-0 ${
+-                editing ? 'rounded-2xl outline-dashed outline-2 outline-offset-2 outline-accent/40' : ''
++                editing ? 'rounded-xl outline-dashed outline-2 outline-offset-2 outline-accent/40' : ''
+               } ${dragId === item.id ? 'z-10 opacity-60 outline-accent' : ''}`}
+             >
+               <div
+@@ -187,7 +187,7 @@
+                 {...(editing ? ({ inert: '' } as object) : {})}
+               >
+                 {node ?? (
+-                  <div className="flex h-full min-h-[96px] items-center justify-center rounded-2xl border border-dashed border-border bg-bg-secondary/50 p-4 text-center text-sm text-text-secondary">
++                  <div className="flex h-full min-h-[96px] items-center justify-center rounded-xl border border-dashed border-border bg-bg-secondary/50 p-4 text-center text-sm text-text-secondary">
+                     {title} appears here once there is data to show.
+                   </div>
+                 )}
+diff -ruN -x node_modules -x .git a/src/components/overview/RenewalRateCard.tsx b/src/components/overview/RenewalRateCard.tsx
+--- a/src/components/overview/RenewalRateCard.tsx	2026-11-20 09:04:07.000000000 +0000
++++ b/src/components/overview/RenewalRateCard.tsx	2026-11-20 09:22:04.037305501 +0000
+@@ -22,7 +22,7 @@
+   const coverage = kpis ? autoChargeCoverage(kpis) : null;
+ 
+   return (
+-    <div className="h-full rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
++    <div className="h-full rounded-xl border border-border bg-bg-secondary p-6">
+       <div className="flex items-center justify-between">
+         <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-success-subtle text-success">
+           <RotateCcw size={20} />
+@@ -36,11 +36,11 @@
+       </div>
+ 
+       <p className="mt-4 text-sm text-text-secondary">Agreement renewal rate</p>
+-      {!kpis && !failed && <div className="mt-2 h-9 w-24 animate-pulse rounded bg-bg-tertiary" aria-label="Loading renewal rate" />}
++      {!kpis && !failed && <div className="mt-2 h-9 w-24 vrk-skel rounded bg-bg-tertiary" aria-label="Loading renewal rate" />}
+       {failed && <p className="mt-2 text-sm text-text-secondary">Couldn’t load renewal data right now.</p>}
+       {kpis && (
+         <>
+-          <p className="mt-1 text-3xl font-bold text-text-primary">{formatRate(kpis.renewal_rate)}</p>
++          <p className="mt-1 text-2xl font-semibold tabular-nums text-text-primary">{formatRate(kpis.renewal_rate)}</p>
+           <p className="mt-1 text-xs text-text-secondary">
+             {decided === 0 ? 'No renewals decided yet — last 90 days' : `${kpis.renewed} of ${decided} renewed · last ${kpis.window_days} days`}
+           </p>
+diff -ruN -x node_modules -x .git a/src/components/overview/SystemHealthStrip.tsx b/src/components/overview/SystemHealthStrip.tsx
+--- a/src/components/overview/SystemHealthStrip.tsx	2026-11-20 09:04:07.000000000 +0000
++++ b/src/components/overview/SystemHealthStrip.tsx	2026-11-20 09:09:01.838622538 +0000
+@@ -120,7 +120,7 @@
+       {status === 'loading' && (
+         <ul className="flex flex-wrap gap-2" aria-hidden="true">
+           {Array.from({ length: 7 }, (_, i) => (
+-            <li key={i} className="h-[74px] min-w-[11rem] flex-1 animate-pulse rounded-xl border border-border bg-bg-secondary" />
++            <li key={i} className="h-[74px] min-w-[11rem] flex-1 vrk-skel rounded-xl border border-border bg-bg-secondary" />
+           ))}
+         </ul>
+       )}
+diff -ruN -x node_modules -x .git a/src/components/whats-new/WhatsNewButton.tsx b/src/components/whats-new/WhatsNewButton.tsx
+--- a/src/components/whats-new/WhatsNewButton.tsx	2026-11-20 09:04:07.000000000 +0000
++++ b/src/components/whats-new/WhatsNewButton.tsx	2026-11-20 09:08:50.934408133 +0000
+@@ -1,5 +1,5 @@
+ import { Link } from 'react-router-dom';
+-import { Sparkles } from 'lucide-react';
++import { Megaphone } from 'lucide-react';
+ import { useWhatsNew } from '@/contexts/WhatsNewContext';
+ import { badgeLabel } from '@/lib/whatsNew';
+ 
+@@ -14,7 +14,7 @@
+       aria-label={unreadCount > 0 ? `What’s new, ${unreadCount} unread` : 'What’s new'}
+       className="focus-ring relative flex h-10 w-10 items-center justify-center rounded-xl text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+     >
+-      <Sparkles size={18} aria-hidden="true" />
++      <Megaphone size={18} aria-hidden="true" />
+       {label && (
+         <span
+           data-testid="whats-new-badge"
+diff -ruN -x node_modules -x .git a/src/lib/surface/navHubs.test.ts b/src/lib/surface/navHubs.test.ts
+--- a/src/lib/surface/navHubs.test.ts	1970-01-01 00:00:00.000000000 +0000
++++ b/src/lib/surface/navHubs.test.ts	2026-11-20 09:08:50.939633493 +0000
+@@ -0,0 +1,29 @@
++import { describe, expect, it } from 'vitest';
++import { ACCOUNT_ITEMS, PRIMARY_ITEMS } from '@/components/DashboardNav';
++import { HUBS, groupByHub } from './navHubs';
++import { PILLARS, audienceFor, groupByPillar } from './surface';
++
++const all = [...PRIMARY_ITEMS, ...ACCOUNT_ITEMS];
++const pillarGroups = groupByPillar(all, { audience: audienceFor(true, true), showLabs: true });
++
++describe('nav hubs', () => {
++  it('has unique hub ids and only known pillars', () => {
++    const ids = HUBS.map((h) => h.id);
++    expect(new Set(ids).size).toBe(ids.length);
++    for (const h of HUBS) expect(PILLARS.some((p) => p.id === h.pillar)).toBe(true);
++  });
++
++  it('never drops or duplicates a route when splitting a pillar into hubs', () => {
++    for (const { pillar, items } of pillarGroups) {
++      const grouped = groupByHub(pillar, items).flatMap((g) => g.items);
++      expect(grouped).toHaveLength(items.length);
++      expect(new Set(grouped.map((i) => i.href)).size).toBe(new Set(items.map((i) => i.href)).size);
++    }
++  });
++
++  it('keeps every pillar to a handful of hubs', () => {
++    for (const { pillar, items } of pillarGroups) {
++      expect(groupByHub(pillar, items).length).toBeLessThanOrEqual(9);
++    }
++  });
++});
+diff -ruN -x node_modules -x .git a/src/lib/surface/navHubs.ts b/src/lib/surface/navHubs.ts
+--- a/src/lib/surface/navHubs.ts	1970-01-01 00:00:00.000000000 +0000
++++ b/src/lib/surface/navHubs.ts	2026-11-20 09:08:50.939459999 +0000
+@@ -0,0 +1,75 @@
++import type { PillarId } from './surface';
++
++/**
++ * Second level of the sidebar. The 5 pillars hold ~430 routes, so each pillar is split into a few
++ * task-shaped hubs (one collapsible group each). A route is placed by the FIRST hub in its pillar whose
++ * `test` matches its original nav label; anything unmatched lands in that pillar's "More" hub, so
++ * no route can ever disappear from the menu.
++ */
++export interface HubDef {
++  id: string;
++  pillar: PillarId;
++  label: string;
++  test: RegExp;
++}
++
++const NEVER = /$^/;
++
++export const HUBS: HubDef[] = [
++  // ── Answer ────────────────────────────────────────────────────────────────
++  { id: 'answer-calls', pillar: 'answer', label: 'Calls & inbox', test: /^(live calls|wallboard|call history|call queue|live copilot|csr phone desk|inbox|voicemails|team chat)/i },
++  { id: 'answer-leads', pillar: 'answer', label: 'Leads & outreach', test: /lead|outbound|dialer|voicemail drops|agent callers|widget|call tracking/i },
++  { id: 'answer-phone', pillar: 'answer', label: 'Phone system', test: /phone|number|voice platform|blocklist|routing|call flows|call masking|notification/i },
++  { id: 'answer-insights', pillar: 'answer', label: 'Insights', test: /quality|leak|command center|insights|ask vireek|intelligence/i },
++
++  // ── Book & Dispatch ───────────────────────────────────────────────────────
++  { id: 'dispatch-network', pillar: 'dispatch', label: 'Network & marketplace', test: /contractor|emergency network|mutual aid|exchange|skill market|labor marketplace|talent network|third-party|open job board|trust passport|ai parts market/i },
++  { id: 'dispatch-fleet', pillar: 'dispatch', label: 'Fleet & vehicles', test: /fleet|vehicle|fuel cards|card purchases|telematics|live map|truck operations/i },
++  { id: 'dispatch-inventory', pillar: 'dispatch', label: 'Parts & suppliers', test: /parts|inventory|cycle counts|vendor|tool crib|supplier|procurement/i },
++  { id: 'dispatch-compliance', pillar: 'dispatch', label: 'Compliance & risk', test: /compliance|permit|refrigerant|insurance|risk|privacy|safety data|break compliance|recall|evidence chain/i },
++  { id: 'dispatch-workforce', pillar: 'dispatch', label: 'Technicians & training', test: /technician|capacity|staffing|retention|apprentice|sop|time off|knowledge|trade (packs|playbooks)|expert assist|video sessions/i },
++  { id: 'dispatch-equipment', pillar: 'dispatch', label: 'Equipment & properties', test: /equipment|passport|tags|home|property|oem|building telemetry|service twins|predictive|preventive|energy|adaptive diagnostic|diagnosis|repair vs replace|field intelligence|regional demand|weather surge/i },
++  { id: 'dispatch-field', pillar: 'dispatch', label: 'Field work & reports', test: /inspection|summar|findings|sketch|install|change orders|closeout|form builder|templates|gallery|documents|field|evidence|callback|autopsy|first-time-fix|remote resolution|service catalog|trade/i },
++  { id: 'dispatch-schedule', pillar: 'dispatch', label: 'Schedule & dispatch', test: /calendar|jobs?\b|dispatch|routing|service areas|on-call|tasks|my day|weekly schedule|recurring|work orders|handoff|emergency operations/i },
++
++  // ── Grow & Get Paid ───────────────────────────────────────────────────────
++  { id: 'grow-money', pillar: 'grow', label: 'Billing & payments', test: /invoic|receivable|collections|statements|payment|pay by bank|disputes|financ|vireek pay|refunds|duplicates|hours audit|hidden technician/i },
++  { id: 'grow-finance', pillar: 'grow', label: 'Accounting & payroll', test: /accounting|budgets|per diem|prevailing|chart of accounts|multi-entity|fixed assets|payroll|tax center|expenses|commissions|cash flow|bank intelligence|profitability|revenue map|business forecast|valuation|exit readiness|acquisitions/i },
++  { id: 'grow-sales', pillar: 'grow', label: 'Sales & pricing', test: /in-home sales|call scripts|leaderboard|goals|coaching|price|pricing|quote|takeoff|margin|promo|underpriced|incentive|rebate|canvass|lead marketplaces|work-order guard|commercial contracts|neighborhood revenue/i },
++  { id: 'grow-marketing', pillar: 'grow', label: 'Marketing & reputation', test: /reputation|listings|marketing|content calendar|creative|lifecycle|referral|loyalty|email campaigns|direct mail|audiences|landing|reviews|local rank|verified service|trust pack|community|surveys|customer feedback|^feedback/i },
++  { id: 'grow-customers', pillar: 'grow', label: 'Customers & retention', test: /customer|memberships|renewals|gift cards|wallet|protection plans|service recovery|warranty|service agreements|contract|promise tracker/i },
++  { id: 'grow-reports', pillar: 'grow', label: 'Reports & analytics', test: /analytics|snapshots|reports|usage dashboard|data quality|benchmarks|results|executive|franchise|market intelligence|recover|revenue protection|data exchange|job quality gate/i },
++  { id: 'grow-automation', pillar: 'grow', label: 'Automation & templates', test: /workflows|automation|playbooks|templates|compliance rules|job quality/i },
++
++  // ── Settings ──────────────────────────────────────────────────────────────
++  { id: 'settings-help', pillar: 'settings', label: 'Help & updates', test: /^(overview|support|getting started|success center|what.s new|help|settings|settings center)$/i },
++  { id: 'settings-account', pillar: 'settings', label: 'Account & team', test: /my account|business profile|branding|^billing|plans|locations|regional packs|^team$|org chart|hr &|email settings|trash|trust badge|dashboard builder/i },
++  { id: 'settings-integrations', pillar: 'settings', label: 'Integrations & data', test: /integrations|data imports|crm sync|netsuite|sage|xero|custom fields|exports|bi |data platform|api usage|webhook|slack|payroll (sync|connectors)|calendar feeds|google booking|mobile alerts/i },
++  { id: 'settings-ai', pillar: 'settings', label: 'AI & governance', test: /sarah|shadow|\bai\b|agent|voice brand|interpreter|governance|decision ledger|chief of staff|security center|reliability|transparency|execution|playbook library/i },
++  { id: 'settings-operations', pillar: 'settings', label: 'Operations setup', test: /booking settings|job statuses|scorecard|landscaping|pest ops|commercial|operating cadence|mass incidents|site safety|operations center|activity ledger|workflow health|capacity guard|revenue radar|fair sale|win cards|review shield|phone resilience/i },
++
++  // ── Labs ──────────────────────────────────────────────────────────────────
++  { id: 'labs-agents', pillar: 'labs', label: 'Agents & autonomy', test: /agent|autonomy|evaluation plane|multi-agent|marketplace|procurement network|supply chain|outcome|truck-roll/i },
++  { id: 'labs-decisions', pillar: 'labs', label: 'Decisions & simulation', test: /decision|causal|simulator|regret|counterfactual|scientist|autopilot|value at risk|opportunity cost|drift|experiment|resolution probability|roadmap|stabilizer|equilibrium|ltv|pricing/i },
++  { id: 'labs-graphs', pillar: 'labs', label: 'Graphs & memory', test: /graph|memory|identity|genome|atlas|truth|constitution|commitment|fabric|context|negative knowledge|contradictions|evidence map|unknowns|trust|reality|twin|world model/i },
++];
++
++const FALLBACK: Record<PillarId, HubDef> = {
++  answer: { id: 'answer-more', pillar: 'answer', label: 'More', test: NEVER },
++  dispatch: { id: 'dispatch-more', pillar: 'dispatch', label: 'More', test: NEVER },
++  grow: { id: 'grow-more', pillar: 'grow', label: 'More', test: NEVER },
++  settings: { id: 'settings-more', pillar: 'settings', label: 'More', test: NEVER },
++  labs: { id: 'labs-more', pillar: 'labs', label: 'Systems & operations', test: NEVER },
++};
++
++export function hubFor(pillar: PillarId, label: string): HubDef {
++  return HUBS.find((h) => h.pillar === pillar && h.test.test(label)) ?? FALLBACK[pillar];
++}
++
++/** Splits one pillar's items into hubs, keeping HUBS order (More last) and the items' own order. Never drops an item. */
++export function groupByHub<T extends { label: string }>(pillar: PillarId, items: T[]): { hub: HubDef; items: T[] }[] {
++  const order = [...HUBS.filter((h) => h.pillar === pillar), FALLBACK[pillar]];
++  const buckets = new Map<string, T[]>(order.map((h) => [h.id, []]));
++  for (const it of items) buckets.get(hubFor(pillar, it.label).id)!.push(it);
++  return order.map((hub) => ({ hub, items: buckets.get(hub.id)! })).filter((g) => g.items.length > 0);
++}
+diff -ruN -x node_modules -x .git a/src/lib/technicianSchedule.test.ts b/src/lib/technicianSchedule.test.ts
+--- a/src/lib/technicianSchedule.test.ts	2026-11-20 09:04:07.000000000 +0000
++++ b/src/lib/technicianSchedule.test.ts	1970-01-01 00:00:00.000000000 +0000
+@@ -1,167 +0,0 @@
+-import { beforeEach, describe, expect, it, vi } from 'vitest';
+-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+-import { MemoryRouter } from 'react-router-dom';
+-
+-const { rpcMock } = vi.hoisted(() => ({ rpcMock: vi.fn() }));
+-vi.mock('@/lib/supabase', () => ({ supabase: { rpc: rpcMock } }));
+-vi.mock('@/contexts/AuthContext', () => ({ useAuth: () => ({ user: { id: 'user-1' } }) }));
+-
+-import { TechnicianSchedulePage } from '@/pages/TechnicianSchedulePage';
+-import {
+-  clearScheduleCache, dayKey, groupByDay, normalizeJobs, orderStops, readScheduleCache, routeNavUrl,
+-  stopNavUrl, summarizeDay, weekDays, weekStart, writeScheduleCache, type ScheduleJob,
+-} from '@/lib/technicianSchedule';
+-
+-let seq = 0;
+-function job(over: Partial<ScheduleJob> = {}): ScheduleJob {
+-  seq += 1;
+-  return {
+-    id: `job-${seq}`,
+-    customer_name: `Customer ${seq}`,
+-    address: `${seq} Main St`,
+-    service_type: 'Repair',
+-    scheduled_datetime: new Date(2026, 9, 5, 9).toISOString(),
+-    job_status: 'scheduled',
+-    expected_duration_minutes: 60,
+-    safety_flag: false,
+-    latitude: null,
+-    longitude: null,
+-    route_sequence: null,
+-    ...over,
+-  };
+-}
+-
+-describe('week math', () => {
+-  it('starts the week on Monday (Sunday belongs to the previous Monday)', () => {
+-    expect(dayKey(weekStart(new Date(2026, 9, 11)))).toBe('2026-10-05'); // Sunday
+-    expect(dayKey(weekStart(new Date(2026, 9, 5)))).toBe('2026-10-05'); // Monday
+-    expect(dayKey(weekStart(new Date(2026, 9, 9), 1))).toBe('2026-10-12');
+-  });
+-
+-  it('returns 7 distinct consecutive days, also across a DST change', () => {
+-    const days = weekDays(weekStart(new Date(2026, 10, 1))); // week containing US DST end
+-    expect(new Set(days.map(dayKey)).size).toBe(7);
+-  });
+-});
+-
+-describe('route order', () => {
+-  it('orders by route_sequence (nulls last), then time', () => {
+-    const a = job({ id: 'a', route_sequence: 2, scheduled_datetime: new Date(2026, 9, 5, 8).toISOString() });
+-    const b = job({ id: 'b', route_sequence: 1, scheduled_datetime: new Date(2026, 9, 5, 14).toISOString() });
+-    const c = job({ id: 'c', route_sequence: null, scheduled_datetime: new Date(2026, 9, 5, 7).toISOString() });
+-    expect(orderStops([a, b, c]).map((j) => j.id)).toEqual(['b', 'a', 'c']);
+-  });
+-
+-  it('buckets jobs by local day and summarizes remaining work', () => {
+-    const days = weekDays(weekStart(new Date(2026, 9, 5)));
+-    const mon = job({ job_status: 'completed' });
+-    const tue = job({ scheduled_datetime: new Date(2026, 9, 6, 23, 30).toISOString(), expected_duration_minutes: 90 });
+-    const map = groupByDay([mon, tue], days);
+-    expect(map.get('2026-10-05')).toHaveLength(1);
+-    expect(map.get('2026-10-06')).toHaveLength(1);
+-    expect(summarizeDay([mon, tue])).toEqual({ total: 2, remaining: 1, plannedMinutes: 90 });
+-  });
+-});
+-
+-describe('navigation links', () => {
+-  it('prefers coordinates, falls back to the address, returns null with neither', () => {
+-    expect(stopNavUrl({ address: '1 A St', latitude: 40.1, longitude: -74.2 })).toContain(encodeURIComponent('40.1,-74.2'));
+-    expect(stopNavUrl({ address: '1 A St', latitude: null, longitude: null })).toContain(encodeURIComponent('1 A St'));
+-    expect(stopNavUrl({ address: null, latitude: null, longitude: null })).toBeNull();
+-    expect(stopNavUrl({ address: 'x', latitude: null, longitude: null }, 'waze')).toBeNull();
+-  });
+-
+-  it('builds a multi-stop route over remaining stops only, capped at 10', () => {
+-    const done = job({ job_status: 'completed', address: 'Done Rd' });
+-    const open = Array.from({ length: 12 }, (_, i) => job({ address: `Stop ${i}` }));
+-    const nav = routeNavUrl([done, ...open])!;
+-    expect(nav.stops).toBe(10);
+-    expect(nav.truncated).toBe(true);
+-    expect(decodeURIComponent(nav.url)).not.toContain('Done Rd');
+-    expect(routeNavUrl([done])).toBeNull();
+-  });
+-});
+-
+-describe('data hygiene', () => {
+-  beforeEach(() => localStorage.clear());
+-
+-  it('drops malformed rows and coerces numerics', () => {
+-    const rows = normalizeJobs([
+-      { id: 'ok', scheduled_datetime: '2026-10-05T09:00:00Z', latitude: '40.5', job_status: 'weird' },
+-      { id: 'bad-date', scheduled_datetime: 'nope' },
+-      { scheduled_datetime: '2026-10-05T09:00:00Z' },
+-    ]);
+-    expect(rows).toHaveLength(1);
+-    expect(rows[0].latitude).toBe(40.5);
+-    expect(rows[0].job_status).toBe('scheduled');
+-  });
+-
+-  it('caches per user and clears on sign-out', () => {
+-    const start = weekStart(new Date(2026, 9, 5));
+-    writeScheduleCache('user-1', start, [job()]);
+-    expect(readScheduleCache('user-1', start)?.jobs).toHaveLength(1);
+-    expect(readScheduleCache('user-2', start)).toBeNull();
+-    clearScheduleCache();
+-    expect(readScheduleCache('user-1', start)).toBeNull();
+-  });
+-});
+-
+-describe('TechnicianSchedulePage', () => {
+-  const todayAt = (h: number) => {
+-    const n = new Date();
+-    return new Date(n.getFullYear(), n.getMonth(), n.getDate(), h).toISOString();
+-  };
+-  const renderPage = () =>
+-    render(
+-      <MemoryRouter>
+-        <TechnicianSchedulePage />
+-      </MemoryRouter>,
+-    );
+-
+-  beforeEach(() => {
+-    localStorage.clear();
+-    rpcMock.mockReset();
+-    Object.defineProperty(window.navigator, 'onLine', { value: true, configurable: true });
+-  });
+-
+-  it('shows today\'s stops in route order with navigation links', async () => {
+-    rpcMock.mockResolvedValue({
+-      data: [
+-        { ...job({ id: 'late', customer_name: 'Second Stop', route_sequence: 2, scheduled_datetime: todayAt(9) }) },
+-        { ...job({ id: 'early', customer_name: 'First Stop', route_sequence: 1, scheduled_datetime: todayAt(15) }) },
+-      ],
+-      error: null,
+-    });
+-    renderPage();
+-    const cards = await screen.findAllByTestId('stop-card');
+-    expect(cards[0]).toHaveTextContent('First Stop');
+-    expect(cards[1]).toHaveTextContent('Second Stop');
+-    expect(screen.getByRole('link', { name: /navigate full route/i })).toBeInTheDocument();
+-    expect(screen.getByRole('link', { name: 'Navigate to First Stop' })).toHaveAttribute('href', expect.stringContaining('google.com/maps'));
+-  });
+-
+-  it('shows the empty state when the week has no jobs', async () => {
+-    rpcMock.mockResolvedValue({ data: [], error: null });
+-    renderPage();
+-    expect(await screen.findByText('No jobs this week')).toBeInTheDocument();
+-  });
+-
+-  it('shows an error state and retries', async () => {
+-    rpcMock.mockRejectedValueOnce(new Error('boom')).mockResolvedValueOnce({ data: [], error: null });
+-    renderPage();
+-    fireEvent.click(await screen.findByRole('button', { name: 'Try again' }));
+-    await waitFor(() => expect(rpcMock).toHaveBeenCalledTimes(2));
+-    expect(await screen.findByText('No jobs this week')).toBeInTheDocument();
+-  });
+-
+-  it('works offline from the saved copy without calling the server', async () => {
+-    writeScheduleCache('user-1', weekStart(new Date()), [
+-      job({ customer_name: 'Saved Customer', scheduled_datetime: todayAt(10) }),
+-    ]);
+-    Object.defineProperty(window.navigator, 'onLine', { value: false, configurable: true });
+-    renderPage();
+-    expect(await screen.findByText('Saved Customer')).toBeInTheDocument();
+-    expect(screen.getByRole('status')).toHaveTextContent(/offline/i);
+-    expect(rpcMock).not.toHaveBeenCalled();
+-  });
+-});
+diff -ruN -x node_modules -x .git a/src/lib/technicianSchedule.test.tsx b/src/lib/technicianSchedule.test.tsx
+--- a/src/lib/technicianSchedule.test.tsx	1970-01-01 00:00:00.000000000 +0000
++++ b/src/lib/technicianSchedule.test.tsx	2026-11-20 09:08:51.140591279 +0000
+@@ -0,0 +1,167 @@
++import { beforeEach, describe, expect, it, vi } from 'vitest';
++import { fireEvent, render, screen, waitFor } from '@testing-library/react';
++import { MemoryRouter } from 'react-router-dom';
++
++const { rpcMock } = vi.hoisted(() => ({ rpcMock: vi.fn() }));
++vi.mock('@/lib/supabase', () => ({ supabase: { rpc: rpcMock } }));
++vi.mock('@/contexts/AuthContext', () => ({ useAuth: () => ({ user: { id: 'user-1' } }) }));
++
++import { TechnicianSchedulePage } from '@/pages/TechnicianSchedulePage';
++import {
++  clearScheduleCache, dayKey, groupByDay, normalizeJobs, orderStops, readScheduleCache, routeNavUrl,
++  stopNavUrl, summarizeDay, weekDays, weekStart, writeScheduleCache, type ScheduleJob,
++} from '@/lib/technicianSchedule';
++
++let seq = 0;
++function job(over: Partial<ScheduleJob> = {}): ScheduleJob {
++  seq += 1;
++  return {
++    id: `job-${seq}`,
++    customer_name: `Customer ${seq}`,
++    address: `${seq} Main St`,
++    service_type: 'Repair',
++    scheduled_datetime: new Date(2026, 9, 5, 9).toISOString(),
++    job_status: 'scheduled',
++    expected_duration_minutes: 60,
++    safety_flag: false,
++    latitude: null,
++    longitude: null,
++    route_sequence: null,
++    ...over,
++  };
++}
++
++describe('week math', () => {
++  it('starts the week on Monday (Sunday belongs to the previous Monday)', () => {
++    expect(dayKey(weekStart(new Date(2026, 9, 11)))).toBe('2026-10-05'); // Sunday
++    expect(dayKey(weekStart(new Date(2026, 9, 5)))).toBe('2026-10-05'); // Monday
++    expect(dayKey(weekStart(new Date(2026, 9, 9), 1))).toBe('2026-10-12');
++  });
++
++  it('returns 7 distinct consecutive days, also across a DST change', () => {
++    const days = weekDays(weekStart(new Date(2026, 10, 1))); // week containing US DST end
++    expect(new Set(days.map(dayKey)).size).toBe(7);
++  });
++});
++
++describe('route order', () => {
++  it('orders by route_sequence (nulls last), then time', () => {
++    const a = job({ id: 'a', route_sequence: 2, scheduled_datetime: new Date(2026, 9, 5, 8).toISOString() });
++    const b = job({ id: 'b', route_sequence: 1, scheduled_datetime: new Date(2026, 9, 5, 14).toISOString() });
++    const c = job({ id: 'c', route_sequence: null, scheduled_datetime: new Date(2026, 9, 5, 7).toISOString() });
++    expect(orderStops([a, b, c]).map((j) => j.id)).toEqual(['b', 'a', 'c']);
++  });
++
++  it('buckets jobs by local day and summarizes remaining work', () => {
++    const days = weekDays(weekStart(new Date(2026, 9, 5)));
++    const mon = job({ job_status: 'completed' });
++    const tue = job({ scheduled_datetime: new Date(2026, 9, 6, 23, 30).toISOString(), expected_duration_minutes: 90 });
++    const map = groupByDay([mon, tue], days);
++    expect(map.get('2026-10-05')).toHaveLength(1);
++    expect(map.get('2026-10-06')).toHaveLength(1);
++    expect(summarizeDay([mon, tue])).toEqual({ total: 2, remaining: 1, plannedMinutes: 90 });
++  });
++});
++
++describe('navigation links', () => {
++  it('prefers coordinates, falls back to the address, returns null with neither', () => {
++    expect(stopNavUrl({ address: '1 A St', latitude: 40.1, longitude: -74.2 })).toContain(encodeURIComponent('40.1,-74.2'));
++    expect(stopNavUrl({ address: '1 A St', latitude: null, longitude: null })).toContain(encodeURIComponent('1 A St'));
++    expect(stopNavUrl({ address: null, latitude: null, longitude: null })).toBeNull();
++    expect(stopNavUrl({ address: 'x', latitude: null, longitude: null }, 'waze')).toBeNull();
++  });
++
++  it('builds a multi-stop route over remaining stops only, capped at 10', () => {
++    const done = job({ job_status: 'completed', address: 'Done Rd' });
++    const open = Array.from({ length: 12 }, (_, i) => job({ address: `Stop ${i}` }));
++    const nav = routeNavUrl([done, ...open])!;
++    expect(nav.stops).toBe(10);
++    expect(nav.truncated).toBe(true);
++    expect(decodeURIComponent(nav.url)).not.toContain('Done Rd');
++    expect(routeNavUrl([done])).toBeNull();
++  });
++});
++
++describe('data hygiene', () => {
++  beforeEach(() => localStorage.clear());
++
++  it('drops malformed rows and coerces numerics', () => {
++    const rows = normalizeJobs([
++      { id: 'ok', scheduled_datetime: '2026-10-05T09:00:00Z', latitude: '40.5', job_status: 'weird' },
++      { id: 'bad-date', scheduled_datetime: 'nope' },
++      { scheduled_datetime: '2026-10-05T09:00:00Z' },
++    ]);
++    expect(rows).toHaveLength(1);
++    expect(rows[0].latitude).toBe(40.5);
++    expect(rows[0].job_status).toBe('scheduled');
++  });
++
++  it('caches per user and clears on sign-out', () => {
++    const start = weekStart(new Date(2026, 9, 5));
++    writeScheduleCache('user-1', start, [job()]);
++    expect(readScheduleCache('user-1', start)?.jobs).toHaveLength(1);
++    expect(readScheduleCache('user-2', start)).toBeNull();
++    clearScheduleCache();
++    expect(readScheduleCache('user-1', start)).toBeNull();
++  });
++});
++
++describe('TechnicianSchedulePage', () => {
++  const todayAt = (h: number) => {
++    const n = new Date();
++    return new Date(n.getFullYear(), n.getMonth(), n.getDate(), h).toISOString();
++  };
++  const renderPage = () =>
++    render(
++      <MemoryRouter>
++        <TechnicianSchedulePage />
++      </MemoryRouter>,
++    );
++
++  beforeEach(() => {
++    localStorage.clear();
++    rpcMock.mockReset();
++    Object.defineProperty(window.navigator, 'onLine', { value: true, configurable: true });
++  });
++
++  it('shows today\'s stops in route order with navigation links', async () => {
++    rpcMock.mockResolvedValue({
++      data: [
++        { ...job({ id: 'late', customer_name: 'Second Stop', route_sequence: 2, scheduled_datetime: todayAt(9) }) },
++        { ...job({ id: 'early', customer_name: 'First Stop', route_sequence: 1, scheduled_datetime: todayAt(15) }) },
++      ],
++      error: null,
++    });
++    renderPage();
++    const cards = await screen.findAllByTestId('stop-card');
++    expect(cards[0]).toHaveTextContent('First Stop');
++    expect(cards[1]).toHaveTextContent('Second Stop');
++    expect(screen.getByRole('link', { name: /navigate full route/i })).toBeInTheDocument();
++    expect(screen.getByRole('link', { name: 'Navigate to First Stop' })).toHaveAttribute('href', expect.stringContaining('google.com/maps'));
++  });
++
++  it('shows the empty state when the week has no jobs', async () => {
++    rpcMock.mockResolvedValue({ data: [], error: null });
++    renderPage();
++    expect(await screen.findByText('No jobs this week')).toBeInTheDocument();
++  });
++
++  it('shows an error state and retries', async () => {
++    rpcMock.mockRejectedValueOnce(new Error('boom')).mockResolvedValueOnce({ data: [], error: null });
++    renderPage();
++    fireEvent.click(await screen.findByRole('button', { name: 'Try again' }));
++    await waitFor(() => expect(rpcMock).toHaveBeenCalledTimes(2));
++    expect(await screen.findByText('No jobs this week')).toBeInTheDocument();
++  });
++
++  it('works offline from the saved copy without calling the server', async () => {
++    writeScheduleCache('user-1', weekStart(new Date()), [
++      job({ customer_name: 'Saved Customer', scheduled_datetime: todayAt(10) }),
++    ]);
++    Object.defineProperty(window.navigator, 'onLine', { value: false, configurable: true });
++    renderPage();
++    expect(await screen.findByText('Saved Customer')).toBeInTheDocument();
++    expect(screen.getByRole('status')).toHaveTextContent(/offline/i);
++    expect(rpcMock).not.toHaveBeenCalled();
++  });
++});
+diff -ruN -x node_modules -x .git a/src/locales/fa/dashboard.json b/src/locales/fa/dashboard.json
+--- a/src/locales/fa/dashboard.json	2026-11-20 09:04:07.000000000 +0000
++++ b/src/locales/fa/dashboard.json	2026-11-20 09:08:51.148799297 +0000
+@@ -223,7 +223,45 @@
+     "signedOut": "با موفقیت از حساب خارج شدید.",
+     "openMenu": "باز کردن منو",
+     "closeMenu": "بستن منو",
+-    "mainNavigation": "ناوبری اصلی"
++    "mainNavigation": "ناوبری اصلی",
++    "search": "جستجو",
++    "filter": "فیلتر صفحه‌ها",
++    "noMatches": "صفحه‌ای با این فیلتر پیدا نشد.",
++    "backToMenu": "بازگشت به منوی اصلی",
++    "hubs": {
++      "answer-calls": "تماس‌ها و صندوق ورودی",
++      "answer-leads": "سرنخ‌ها و تماس خروجی",
++      "answer-phone": "سیستم تلفن",
++      "answer-insights": "بینش‌ها",
++      "answer-more": "بیشتر",
++      "dispatch-network": "شبکه و بازارچه",
++      "dispatch-fleet": "ناوگان و خودروها",
++      "dispatch-inventory": "قطعات و تأمین‌کنندگان",
++      "dispatch-compliance": "انطباق و ریسک",
++      "dispatch-workforce": "تکنسین‌ها و آموزش",
++      "dispatch-equipment": "تجهیزات و ملک‌ها",
++      "dispatch-field": "کار میدانی و گزارش‌ها",
++      "dispatch-schedule": "زمان‌بندی و اعزام",
++      "dispatch-more": "بیشتر",
++      "grow-money": "صورتحساب و پرداخت",
++      "grow-finance": "حسابداری و حقوق",
++      "grow-sales": "فروش و قیمت‌گذاری",
++      "grow-marketing": "بازاریابی و اعتبار",
++      "grow-customers": "مشتریان و نگهداشت",
++      "grow-reports": "گزارش‌ها و تحلیل",
++      "grow-automation": "اتوماسیون و قالب‌ها",
++      "grow-more": "بیشتر",
++      "settings-help": "راهنما و تازه‌ها",
++      "settings-account": "حساب و تیم",
++      "settings-integrations": "یکپارچه‌سازی و داده",
++      "settings-ai": "هوش مصنوعی و حاکمیت",
++      "settings-operations": "راه‌اندازی عملیات",
++      "settings-more": "بیشتر",
++      "labs-agents": "عامل‌ها و خودمختاری",
++      "labs-decisions": "تصمیم و شبیه‌سازی",
++      "labs-graphs": "گراف و حافظه",
++      "labs-more": "سیستم‌ها و عملیات"
++    }
+   },
+   "account": {
+     "subtitle": "پروفایل، ایمیل ورود و رمز عبور شما.",
+diff -ruN -x node_modules -x .git a/src/pages/AnalyticsPage.tsx b/src/pages/AnalyticsPage.tsx
+--- a/src/pages/AnalyticsPage.tsx	2026-11-20 09:04:07.000000000 +0000
++++ b/src/pages/AnalyticsPage.tsx	2026-11-20 09:22:04.028929305 +0000
+@@ -49,7 +49,7 @@
+ // ============================================================
+ 
+ function SkeletonBlock({ className }: { className: string }) {
+-  return <div className={`animate-pulse rounded bg-bg-tertiary ${className}`} />;
++  return <div className={`vrk-skel rounded bg-bg-tertiary ${className}`} />;
+ }
+ 
+ function ChartCard({
+@@ -64,7 +64,7 @@
+   rightContent?: React.ReactNode;
+ }) {
+   return (
+-    <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
++    <div className="rounded-xl border border-border bg-bg-secondary p-6">
+       <div className="flex items-start justify-between gap-4">
+         <div className="flex-1 min-w-0">
+           <h3 className="text-sm font-semibold text-text-primary">{title}</h3>
+@@ -84,7 +84,7 @@
+ 
+ function ChartSkeleton({ height = 200 }: { height?: number }) {
+   return (
+-    <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
++    <div className="rounded-xl border border-border bg-bg-secondary p-6">
+       <SkeletonBlock className="h-5 w-40" />
+       <SkeletonBlock className="mt-3 h-4 w-60" />
+       <div className="mt-6" style={{ height }}>
+@@ -243,7 +243,7 @@
+           </g>
+         </svg>
+         <div className="absolute inset-0 flex flex-col items-center justify-center">
+-          <span className="text-2xl font-bold text-text-primary">{total}</span>
++          <span className="text-2xl font-semibold text-text-primary">{total}</span>
+           <span className="text-xs text-text-secondary">total calls</span>
+         </div>
+       </div>
+@@ -332,7 +332,7 @@
+                   style={{ backgroundColor: stage.color, minWidth: 80 }}
+                 >
+                   <span className="text-sm font-medium text-white">{stage.label}</span>
+-                  <span className="text-sm font-bold text-white">{stage.value}</span>
++                  <span className="text-sm font-semibold text-white">{stage.value}</span>
+                 </motion.div>
+               </div>
+             </div>
+@@ -417,7 +417,7 @@
+                   title={`${day} ${h}:00 — ${count} ${count === 1 ? 'call' : 'calls'}`}
+                 >
+                   <div
+-                    className="h-6 rounded-sm transition-transform hover:scale-110"
++                    className="h-6 rounded-sm transition-opacity hover:opacity-80"
+                     style={{ backgroundColor: getColor(count) }}
+                   />
+                 </div>
+@@ -850,8 +850,8 @@
+   if (!canAccess) {
+     return (
+       <DashboardLayout activeLabel="Analytics">
+-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-bg-secondary/50 px-6 py-20 text-center">
+-          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-bg-tertiary text-text-secondary">
++        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-bg-secondary/50 px-6 py-20 text-center">
++          <span className="flex h-14 w-14 items-center justify-center rounded-xl bg-bg-tertiary text-text-secondary">
+             <Lock size={26} />
+           </span>
+           <h3 className="mt-4 text-lg font-semibold text-text-primary">You don't have access to this page</h3>
+@@ -877,7 +877,7 @@
+               <ArrowLeft size={18} />
+             </button>
+             <div>
+-              <h1 className="text-2xl font-bold tracking-tight text-text-primary md:text-3xl">Analytics</h1>
++              <h1 className="text-xl font-semibold tracking-tight text-text-primary md:text-2xl">Analytics</h1>
+               <p className="mt-1 text-sm text-text-secondary">
+                 {formatDateLabel(rangeState.start)} — {formatDateLabel(rangeState.end)}
+               </p>
+@@ -915,40 +915,40 @@
+         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+           {dataLoading ? (
+             Array.from({ length: 4 }).map((_, i) => (
+-              <div key={i} className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
++              <div key={i} className="rounded-xl border border-border bg-bg-secondary p-5">
+                 <SkeletonBlock className="h-4 w-24" />
+                 <SkeletonBlock className="mt-3 h-8 w-16" />
+               </div>
+             ))
+           ) : (
+             <>
+-              <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
++              <div className="rounded-xl border border-border bg-bg-secondary p-5">
+                 <div className="flex items-start justify-between gap-2">
+                   <p className="text-xs font-medium text-text-secondary">Total Calls</p>
+                   {kpiBadge('totalCalls')}
+                 </div>
+-                <p className="mt-2 text-3xl font-bold text-text-primary">{metrics.totalCalls}</p>
++                <p className="mt-2 text-2xl font-semibold tabular-nums text-text-primary">{metrics.totalCalls}</p>
+               </div>
+-              <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
++              <div className="rounded-xl border border-border bg-bg-secondary p-5">
+                 <div className="flex items-start justify-between gap-2">
+                   <p className="text-xs font-medium text-text-secondary">Emergency Calls</p>
+                   {kpiBadge('emergencyCalls')}
+                 </div>
+-                <p className="mt-2 text-3xl font-bold text-danger">{metrics.emergencyCalls}</p>
++                <p className="mt-2 text-2xl font-semibold tabular-nums text-danger">{metrics.emergencyCalls}</p>
+               </div>
+-              <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
++              <div className="rounded-xl border border-border bg-bg-secondary p-5">
+                 <div className="flex items-start justify-between gap-2">
+                   <p className="text-xs font-medium text-text-secondary">Conversion Rate</p>
+                   {kpiBadge('conversionRate', (n) => `${n}%`)}
+                 </div>
+-                <p className="mt-2 text-3xl font-bold text-text-primary">{metrics.conversionRate}%</p>
++                <p className="mt-2 text-2xl font-semibold tabular-nums text-text-primary">{metrics.conversionRate}%</p>
+               </div>
+-              <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
++              <div className="rounded-xl border border-border bg-bg-secondary p-5">
+                 <div className="flex items-start justify-between gap-2">
+                   <p className="text-xs font-medium text-text-secondary">Revenue</p>
+                   {kpiBadge('revenue', formatCurrency)}
+                 </div>
+-                <p className="mt-2 text-3xl font-bold text-cta">{formatCurrency(metrics.revenue)}</p>
++                <p className="mt-2 text-2xl font-semibold tabular-nums text-cta">{formatCurrency(metrics.revenue)}</p>
+               </div>
+             </>
+           )}
+diff -ruN -x node_modules -x .git a/src/pages/BillingPage.tsx b/src/pages/BillingPage.tsx
+--- a/src/pages/BillingPage.tsx	2026-11-20 09:04:07.000000000 +0000
++++ b/src/pages/BillingPage.tsx	2026-11-20 09:22:04.024652909 +0000
+@@ -92,7 +92,7 @@
+       initial={{ opacity: 0, y: -8 }}
+       animate={{ opacity: 1, y: 0 }}
+       transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+-      className="mb-6 flex items-center gap-4 rounded-2xl border border-warning/30 bg-warning-subtle p-4"
++      className="mb-6 flex items-center gap-4 rounded-xl border border-warning/30 bg-warning-subtle p-4"
+     >
+       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-warning-subtle text-warning">
+         <AlertTriangle size={20} />
+@@ -109,7 +109,7 @@
+         <button
+           type="button"
+           onClick={onUpgrade}
+-          className="focus-ring flex shrink-0 items-center gap-1.5 rounded-xl bg-cta px-4 py-2 text-sm font-semibold text-on-cta transition-all hover:brightness-110"
++          className="focus-ring flex shrink-0 items-center gap-1.5 rounded-xl bg-cta px-4 py-2 text-sm font-semibold text-on-cta transition-interactive hover:brightness-110"
+         >
+           Upgrade Now <ArrowUpRight size={14} />
+         </button>
+@@ -133,8 +133,8 @@
+ function NoAccess() {
+   return (
+     <DashboardLayout activeLabel="Billing">
+-      <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-bg-secondary/50 px-6 py-20 text-center">
+-        <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-bg-tertiary text-text-secondary">
++      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-bg-secondary/50 px-6 py-20 text-center">
++        <span className="flex h-14 w-14 items-center justify-center rounded-xl bg-bg-tertiary text-text-secondary">
+           <Lock size={26} />
+         </span>
+         <h3 className="mt-4 text-lg font-semibold text-text-primary">You don't have access to this page</h3>
+@@ -299,11 +299,11 @@
+ 
+       {/* Page header */}
+       <div className="mb-6 flex items-center gap-3">
+-        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent/10 text-accent">
++        <span className="flex h-8 w-8 items-center justify-center text-text-muted">
+           <CreditCard size={24} />
+         </span>
+         <div>
+-          <h1 className="text-2xl font-bold tracking-tight text-text-primary md:text-3xl">Billing</h1>
++          <h1 className="text-xl font-semibold tracking-tight text-text-primary md:text-2xl">Billing</h1>
+           <p className="mt-1 text-sm text-text-secondary">
+             Manage your Vireek subscription and track customer payments.
+           </p>
+@@ -324,12 +324,12 @@
+           initial={{ opacity: 0, y: 12 }}
+           animate={{ opacity: 1, y: 0 }}
+           transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+-          className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark"
++          className="rounded-xl border border-border bg-bg-secondary p-6"
+         >
+           <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+             <div className="flex-1">
+               <div className="flex items-center gap-3">
+-                <h3 className="text-xl font-bold text-text-primary">{currentPlan.name}</h3>
++                <h3 className="text-xl font-semibold text-text-primary">{currentPlan.name}</h3>
+                 <span className="rounded-full bg-success-subtle px-2.5 py-1 text-xs font-medium text-success">
+                   Active
+                 </span>
+@@ -384,7 +384,7 @@
+             <button
+               type="button"
+               onClick={() => navigate('/dashboard/billing/plans')}
+-              className="focus-ring flex shrink-0 items-center gap-2 rounded-xl bg-cta px-5 py-2.5 text-sm font-semibold text-on-cta transition-all hover:brightness-110"
++              className="focus-ring flex shrink-0 items-center gap-2 rounded-xl bg-cta px-5 py-2.5 text-sm font-semibold text-on-cta transition-interactive hover:brightness-110"
+             >
+               <TrendingUp size={16} />
+               {profile?.plan && profile.plan !== PLANS[0].id ? 'Change Plan' : 'Upgrade'}
+@@ -402,7 +402,7 @@
+         </motion.div>
+ 
+         {/* Billing history */}
+-        <div className="mt-4 rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
++        <div className="mt-4 rounded-xl border border-border bg-bg-secondary p-6">
+           <div className="flex items-center gap-2">
+             <Receipt size={18} className="text-text-secondary" />
+             <h3 className="text-sm font-semibold text-text-primary">Billing History</h3>
+@@ -449,22 +449,22 @@
+ 
+   {/* Summary cards */}
+         <div className="mb-4 grid gap-4 sm:grid-cols-2">
+-          <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
++          <div className="rounded-xl border border-border bg-bg-secondary p-5">
+             <div className="flex items-center gap-2">
+               <Clock size={16} className="text-warning" />
+               <span className="text-xs font-medium text-text-secondary">Outstanding</span>
+             </div>
+-            <p className="mt-2 text-2xl font-bold tracking-tight text-text-primary">
++            <p className="mt-2 text-2xl font-semibold tracking-tight text-text-primary">
+               {formatMoney(totalOwed, invoiceCurrency)}
+             </p>
+             <p className="mt-0.5 text-xs text-text-secondary">Awaiting payment from customers</p>
+           </div>
+-          <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
++          <div className="rounded-xl border border-border bg-bg-secondary p-5">
+             <div className="flex items-center gap-2">
+               <Check size={16} className="text-success" />
+               <span className="text-xs font-medium text-text-secondary">Collected</span>
+             </div>
+-            <p className="mt-2 text-2xl font-bold tracking-tight text-text-primary">
++            <p className="mt-2 text-2xl font-semibold tracking-tight text-text-primary">
+               {formatMoney(totalCollected, invoiceCurrency)}
+             </p>
+             <p className="mt-0.5 text-xs text-text-secondary">Paid by customers</p>
+@@ -472,14 +472,14 @@
+         </div>
+ 
+         {/* Invoice list */}
+-        <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
++        <div className="rounded-xl border border-border bg-bg-secondary p-6">
+           {loadingJobs ? (
+             <div className="space-y-3">
+               {Array.from({ length: 3 }).map((_, i) => (
+                 <div key={i} className="flex items-center gap-4">
+-                  <div className="h-5 w-24 animate-pulse rounded bg-bg-tertiary" />
+-                  <div className="h-5 w-32 animate-pulse rounded bg-bg-tertiary" />
+-                  <div className="h-5 w-16 animate-pulse rounded bg-bg-tertiary" />
++                  <div className="h-5 w-24 vrk-skel rounded bg-bg-tertiary" />
++                  <div className="h-5 w-32 vrk-skel rounded bg-bg-tertiary" />
++                  <div className="h-5 w-16 vrk-skel rounded bg-bg-tertiary" />
+                 </div>
+               ))}
+             </div>
+@@ -546,15 +546,15 @@
+       {/* Plan selection modal */}
+       {showPlans && (
+         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+-          <div className="absolute inset-0 bg-overlay/30 backdrop-blur-sm" onClick={() => setShowPlans(false)} />
++          <div className="absolute inset-0 bg-overlay/30" onClick={() => setShowPlans(false)} />
+           <motion.div
+             initial={{ opacity: 0, scale: 0.95, y: 10 }}
+             animate={{ opacity: 1, scale: 1, y: 0 }}
+             transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+-            className="relative w-full max-w-2xl rounded-2xl border border-border bg-bg-secondary p-6 shadow-card-hover dark:shadow-card-hover-dark"
++            className="relative w-full max-w-2xl rounded-xl border border-border bg-bg-secondary p-6 shadow-card-hover dark:shadow-card-hover-dark"
+           >
+             <div className="mb-5 flex items-center justify-between">
+-              <h2 className="text-lg font-bold text-text-primary">Choose Your Plan</h2>
++              <h2 className="text-lg font-semibold text-text-primary">Choose Your Plan</h2>
+               <button
+                 type="button"
+                 onClick={() => setShowPlans(false)}
+@@ -570,21 +570,21 @@
+                 return (
+                   <div
+                     key={plan.id}
+-                    className={`rounded-2xl border p-5 ${
++                    className={`rounded-xl border p-5 ${
+                       isCurrent
+                         ? 'border-accent bg-accent/5'
+                         : 'border-border bg-bg-primary'
+                     }`}
+                   >
+                     <div className="flex items-center justify-between">
+-                      <h3 className="text-base font-bold text-text-primary">{plan.name}</h3>
++                      <h3 className="text-base font-semibold text-text-primary">{plan.name}</h3>
+                       {isCurrent && (
+                         <span className="rounded-full bg-accent/10 px-2.5 py-1 text-xs font-medium text-accent">
+                           Current
+                         </span>
+                       )}
+                     </div>
+-                    <p className="mt-1 text-2xl font-bold tracking-tight text-text-primary">
++                    <p className="mt-1 text-2xl font-semibold tracking-tight text-text-primary">
+                       ${plan.price}
+                       <span className="text-sm font-normal text-text-secondary">/mo</span>
+                     </p>
+@@ -602,7 +602,7 @@
+                       type="button"
+                       onClick={() => handleSelectPlan(plan.id)}
+                       disabled={isCurrent || processingPlan !== null}
+-                      className={`focus-ring mt-4 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all disabled:opacity-50 ${
++                      className={`focus-ring mt-4 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-interactive disabled:opacity-50 ${
+                         isCurrent
+                           ? 'border border-border text-text-secondary'
+                           : 'bg-cta text-on-cta hover:brightness-110'
+diff -ruN -x node_modules -x .git a/src/pages/CallsPage.tsx b/src/pages/CallsPage.tsx
+--- a/src/pages/CallsPage.tsx	2026-11-20 09:04:07.000000000 +0000
++++ b/src/pages/CallsPage.tsx	2026-11-20 09:22:04.008964042 +0000
+@@ -90,7 +90,7 @@
+ // ============================================================
+ 
+ function SkeletonBlock({ className }: { className: string }) {
+-  return <div className={`animate-pulse rounded bg-bg-tertiary ${className}`} />;
++  return <div className={`vrk-skel rounded bg-bg-tertiary ${className}`} />;
+ }
+ 
+ function StatusBadge({ status }: { status: string }) {
+@@ -158,7 +158,7 @@
+       <button
+         type="button"
+         onClick={toggle}
+-        className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-on-accent transition-transform hover:scale-105"
++        className="focus-ring flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-on-accent transition-colors hover:brightness-110"
+       >
+         {playing ? <Pause size={18} /> : <Play size={18} className="ml-0.5" />}
+       </button>
+@@ -212,7 +212,7 @@
+       transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+       className="fixed right-0 top-0 z-50 h-full w-full max-w-md overflow-y-auto border-l border-border bg-bg-secondary shadow-card-hover dark:shadow-card-hover-dark"
+     >
+-      <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-bg-secondary/95 px-6 py-4 backdrop-blur-md">
++      <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-bg-secondary px-6 py-4">
+         <h2 className="text-base font-semibold text-text-primary">Call Details</h2>
+         <button
+           type="button"
+@@ -228,11 +228,11 @@
+         {/* Caller info */}
+         <div>
+           <div className="flex items-center gap-3">
+-            <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/10 text-accent">
++            <span className="flex h-8 w-8 items-center justify-center text-text-muted">
+               <Phone size={22} />
+             </span>
+             <div>
+-              <h3 className="text-lg font-bold text-text-primary">{call.caller_name || 'Unknown caller'}</h3>
++              <h3 className="text-lg font-semibold text-text-primary">{call.caller_name || 'Unknown caller'}</h3>
+               <p className="text-sm text-text-secondary">{call.caller_phone || 'No phone on file'}</p>
+             </div>
+           </div>
+@@ -333,11 +333,11 @@
+             <p className="text-xs font-medium text-text-secondary">Call Intelligence</p>
+             <div className="grid grid-cols-2 gap-3">
+               <div>
+-                <p className="text-2xl font-bold text-text-primary">{call.call_score}<span className="text-sm text-text-secondary">/100</span></p>
++                <p className="text-2xl font-semibold text-text-primary">{call.call_score}<span className="text-sm text-text-secondary">/100</span></p>
+                 <p className="text-xs text-text-secondary">Call Score</p>
+               </div>
+               <div>
+-                <p className="text-2xl font-bold text-text-primary">{call.lead_score}<span className="text-sm text-text-secondary">/100</span></p>
++                <p className="text-2xl font-semibold text-text-primary">{call.lead_score}<span className="text-sm text-text-secondary">/100</span></p>
+                 <p className="text-xs text-text-secondary">Lead Score</p>
+               </div>
+             </div>
+@@ -793,7 +793,7 @@
+           </button>
+           <div>
+             <div className="flex flex-wrap items-center gap-3">
+-              <h1 className="text-2xl font-bold tracking-tight text-text-primary md:text-3xl">Call History</h1>
++              <h1 className="text-xl font-semibold tracking-tight text-text-primary md:text-2xl">Call History</h1>
+               <LiveIndicator status={callsLiveStatus} />
+             </div>
+             <p className="mt-1 text-sm text-text-secondary">
+@@ -926,7 +926,7 @@
+ 
+         {/* Table */}
+         {dataLoading ? (
+-          <div className="rounded-2xl border border-border bg-bg-secondary shadow-card dark:shadow-card-dark">
++          <div className="rounded-xl border border-border bg-bg-secondary">
+             <div className="space-y-px">
+               {Array.from({ length: 8 }).map((_, i) => (
+                 <div key={i} className="flex items-center gap-4 p-4">
+@@ -940,8 +940,8 @@
+             </div>
+           </div>
+         ) : paginatedCalls.length === 0 ? (
+-          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-bg-secondary/50 px-6 py-16 text-center">
+-            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-bg-tertiary text-text-secondary">
++          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-bg-secondary/50 px-6 py-16 text-center">
++            <span className="flex h-14 w-14 items-center justify-center rounded-xl bg-bg-tertiary text-text-secondary">
+               <Phone size={26} />
+             </span>
+             <h3 className="mt-4 text-base font-semibold text-text-primary">
+@@ -956,7 +956,7 @@
+         ) : (
+           <>
+             {/* Desktop table */}
+-            <div className="hidden overflow-hidden rounded-2xl border border-border bg-bg-secondary shadow-card md:block dark:shadow-card-dark">
++            <div className="hidden overflow-hidden rounded-xl border border-border bg-bg-secondary md:block">
+               <table className="w-full">
+                 <thead>
+                   <tr className="border-b border-border bg-bg-tertiary/50">
+@@ -1074,7 +1074,7 @@
+                     key={call.id}
+                     type="button"
+                     onClick={() => setSelectedCall(call)}
+-                    className={`focus-ring w-full rounded-2xl border border-border bg-bg-secondary p-4 text-left shadow-card transition-colors hover:border-accent/40 dark:shadow-card-dark ${
++                    className={`focus-ring w-full rounded-xl border border-border bg-bg-secondary p-4 text-left transition-colors hover:border-accent/40 ${
+                       newlyArrivedId === call.id ? 'border-accent/40 bg-accent/5' : ''
+                     }`}
+                   >
+@@ -1136,7 +1136,7 @@
+         {selectedCall && (
+           <>
+             <div
+-              className="fixed inset-0 z-40 bg-overlay/20 backdrop-blur-sm"
++              className="fixed inset-0 z-40 bg-overlay/20"
+               onClick={() => setSelectedCall(null)}
+             />
+             <CallDetailPanel
+diff -ruN -x node_modules -x .git a/src/pages/CancelSubscriptionPage.test.tsx b/src/pages/CancelSubscriptionPage.test.tsx
+--- a/src/pages/CancelSubscriptionPage.test.tsx	2026-11-20 09:04:07.000000000 +0000
++++ b/src/pages/CancelSubscriptionPage.test.tsx	2026-11-20 09:09:16.074436656 +0000
+@@ -168,6 +168,8 @@
+     expect(await screen.findByRole('heading', { name: /your cancellation is scheduled/i })).toBeInTheDocument();
+     expect(invoke).toHaveBeenCalledWith('manage-subscription-cancellation', { body: { action: 'cancel', reason: null, detail: '' } });
+   });
++
++  it('asks for a reason before continuing', async () => {
+     renderPage();
+     await screen.findByRole('heading', { name: /sorry to see you go/i });
+     clickBtn(/^continue$/i);
+diff -ruN -x node_modules -x .git a/src/pages/CustomersPage.tsx b/src/pages/CustomersPage.tsx
+--- a/src/pages/CustomersPage.tsx	2026-11-20 09:04:07.000000000 +0000
++++ b/src/pages/CustomersPage.tsx	2026-11-20 09:22:04.021900628 +0000
+@@ -199,7 +199,7 @@
+             className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col overflow-y-auto border-l border-border bg-bg-primary p-6 shadow-2xl"
+           >
+             <div className="mb-6 flex items-center justify-between">
+-              <h2 className="text-lg font-bold text-text-primary">{customer ? 'Edit Customer' : 'New Customer'}</h2>
++              <h2 className="text-lg font-semibold text-text-primary">{customer ? 'Edit Customer' : 'New Customer'}</h2>
+               <button
+                 type="button"
+                 onClick={onClose}
+@@ -482,7 +482,7 @@
+           <ArrowLeft size={18} />
+         </button>
+         <div className="min-w-0 flex-1">
+-          <h1 className="text-2xl font-bold tracking-tight text-text-primary md:text-3xl">Customers</h1>
++          <h1 className="text-xl font-semibold tracking-tight text-text-primary md:text-2xl">Customers</h1>
+           <p className="mt-1 text-sm text-text-secondary">
+             {filteredCustomers.length} {filteredCustomers.length === 1 ? 'customer' : 'customers'}
+             {isFiltered && ' (filtered)'}
+@@ -556,10 +556,10 @@
+           action={{ label: 'Add customer', onClick: openNewDrawer }}
+         />
+       ) : (
+-        <div className="overflow-x-auto rounded-2xl border border-border bg-bg-secondary shadow-card dark:shadow-card-dark">
++        <div className="overflow-x-auto rounded-xl border border-border bg-bg-secondary">
+           <table className="w-full min-w-[720px] text-left text-sm">
+             <thead>
+-              <tr className="border-b border-border text-xs uppercase tracking-wide text-text-secondary">
++              <tr className="border-b border-border text-xs text-text-secondary">
+                 <th className="w-10 px-4 py-3">{bulk.headerCheckbox()}</th>
+                 <th className="px-4 py-3 font-medium">Customer</th>
+                 <th className="px-4 py-3 font-medium">Contact</th>
+diff -ruN -x node_modules -x .git a/src/pages/DashboardPage.tsx b/src/pages/DashboardPage.tsx
+--- a/src/pages/DashboardPage.tsx	2026-11-20 09:04:07.000000000 +0000
++++ b/src/pages/DashboardPage.tsx	2026-11-20 09:22:04.040056853 +0000
+@@ -37,7 +37,7 @@
+ // ============================================================
+ 
+ function SkeletonBlock({ className }: { className: string }) {
+-  return <div className={`animate-pulse rounded bg-bg-tertiary ${className}`} />;
++  return <div className={`vrk-skel rounded bg-bg-tertiary ${className}`} />;
+ }
+ 
+ function EmptyState({
+@@ -50,8 +50,8 @@
+   body: string;
+ }) {
+   return (
+-    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-bg-secondary/50 px-6 py-12 text-center">
+-      <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-bg-tertiary text-text-secondary">
++    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-bg-secondary/50 px-6 py-12 text-center">
++      <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-bg-tertiary text-text-secondary">
+         <Icon size={22} />
+       </span>
+       <h3 className="mt-4 text-base font-semibold text-text-primary">{title}</h3>
+@@ -65,12 +65,10 @@
+ // ============================================================
+ 
+ function KpiCard({
+-  icon: Icon,
+   label,
+   value,
+   sub,
+   delta,
+-  accentColor,
+   delay,
+ }: {
+   icon: typeof Phone;
+@@ -78,38 +76,32 @@
+   value: string;
+   sub: string;
+   delta?: React.ReactNode;
+-  accentColor: string;
++  accentColor?: string;
+   delay: number;
+ }) {
+   return (
+     <motion.div
+-      initial={{ opacity: 0, y: 20 }}
++      initial={{ opacity: 0, y: 6 }}
+       animate={{ opacity: 1, y: 0 }}
+-      transition={{ duration: 0.4, delay, ease: [0.16, 1, 0.3, 1] }}
+-      className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card transition-[transform,box-shadow,border-color] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
++      transition={{ duration: 0.25, delay: Math.min(delay, 0.1), ease: [0.16, 1, 0.3, 1] }}
++      className="rounded-xl border border-border bg-bg-secondary p-5"
+     >
+-      <div className="flex items-center justify-between">
+-        <span className={`flex h-11 w-11 items-center justify-center rounded-xl ${accentColor}`}>
+-          <Icon size={22} />
+-        </span>
+-      </div>
+-      <p className="mt-5 text-4xl font-bold tracking-tight text-text-primary">{value}</p>
+-      <div className="mt-1 flex flex-wrap items-center gap-2">
+-        <p className="text-sm font-medium text-text-secondary">{label}</p>
++      <p className="text-sm font-medium text-text-secondary">{label}</p>
++      <div className="mt-2 flex flex-wrap items-baseline gap-2">
++        <p className="text-3xl font-semibold tracking-tight tabular-nums text-text-primary">{value}</p>
+         {delta}
+       </div>
+-      <p className="mt-0.5 text-xs text-text-muted">{sub}</p>
++      <p className="mt-1 text-xs text-text-muted">{sub}</p>
+     </motion.div>
+   );
+ }
+ 
+ function KpiSkeleton() {
+   return (
+-    <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
+-      <SkeletonBlock className="h-11 w-11" />
+-      <SkeletonBlock className="mt-5 h-10 w-24" />
+-      <SkeletonBlock className="mt-2 h-4 w-32" />
+-      <SkeletonBlock className="mt-1 h-3 w-24" />
++    <div className="rounded-xl border border-border bg-bg-secondary p-5">
++      <SkeletonBlock className="h-4 w-28" />
++      <SkeletonBlock className="mt-3 h-9 w-24" />
++      <SkeletonBlock className="mt-2 h-3 w-32" />
+     </div>
+   );
+ }
+@@ -138,14 +130,14 @@
+       initial={{ opacity: 0, y: 16 }}
+       animate={{ opacity: 1, y: 0 }}
+       transition={{ duration: 0.35, delay, ease: [0.16, 1, 0.3, 1] }}
+-      className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark"
++      className="rounded-xl border border-border bg-bg-secondary p-5"
+     >
+       <div className="flex items-center gap-2.5">
+         <Icon size={18} className="text-text-secondary" />
+         <span className="text-sm font-medium text-text-secondary">{label}</span>
+       </div>
+       <div className="mt-3 flex flex-wrap items-center gap-2">
+-        <p className="text-2xl font-bold tracking-tight text-text-primary">{value}</p>
++        <p className="text-2xl font-semibold tracking-tight text-text-primary">{value}</p>
+         {delta}
+       </div>
+       {children}
+@@ -155,7 +147,7 @@
+ 
+ function MetricSkeleton() {
+   return (
+-    <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
++    <div className="rounded-xl border border-border bg-bg-secondary p-5">
+       <SkeletonBlock className="h-5 w-28" />
+       <SkeletonBlock className="mt-3 h-8 w-20" />
+     </div>
+@@ -179,7 +171,7 @@
+   const chartHeight = 160;
+ 
+   return (
+-    <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
++    <div className="rounded-xl border border-border bg-bg-secondary p-6">
+       <div className="flex items-center justify-between">
+         <h3 className="text-sm font-semibold text-text-primary">{title}{bucketDays > 1 ? ' · weekly' : ''}</h3>
+         <span className="text-xs text-text-secondary">
+@@ -230,7 +222,7 @@
+ 
+ function ChartSkeleton() {
+   return (
+-    <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
++    <div className="rounded-xl border border-border bg-bg-secondary p-6">
+       <SkeletonBlock className="h-5 w-48" />
+       <div className="mt-6 flex items-end gap-1" style={{ height: 160 }}>
+         {Array.from({ length: 14 }).map((_, i) => (
+@@ -264,13 +256,13 @@
+   };
+ 
+   return (
+-    <div className="rounded-2xl border-2 border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
++    <div className="rounded-xl border-2 border-border bg-bg-secondary p-6">
+       <div className="flex items-center gap-2.5">
+         <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-warning-subtle text-warning">
+           <Bell size={20} />
+         </span>
+         <div>
+-          <h3 className="text-base font-bold text-text-primary">Needs Your Attention</h3>
++          <h3 className="text-base font-semibold text-text-primary">Needs Your Attention</h3>
+           <p className="text-xs text-text-secondary">
+             {items.length === 0 ? 'All clear — nothing needs your attention right now.' : `${items.length} item${items.length !== 1 ? 's' : ''} require action`}
+           </p>
+@@ -332,7 +324,7 @@
+ 
+ function RecentActivity({ items, highlightId }: { items: ActivityItem[]; highlightId?: string | null }) {
+   return (
+-    <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
++    <div className="rounded-xl border border-border bg-bg-secondary p-6">
+       <h3 className="text-base font-semibold text-text-primary">Recent Activity</h3>
+       {items.length === 0 ? (
+         <div className="mt-4">
+@@ -959,7 +951,7 @@
+           ) : (
+             <>
+               <div className="flex flex-wrap items-center gap-3">
+-                <h1 className="text-2xl font-bold tracking-tight text-text-primary md:text-3xl">
++                <h1 className="text-xl font-semibold tracking-tight text-text-primary md:text-2xl">
+                   Welcome back, {profile?.company_name || profile?.full_name?.split(' ')[0] || 'there'}
+                 </h1>
+                 <LiveIndicator status={callsLiveStatus} />
+diff -ruN -x node_modules -x .git a/src/pages/JobsPage.tsx b/src/pages/JobsPage.tsx
+--- a/src/pages/JobsPage.tsx	2026-11-20 09:04:07.000000000 +0000
++++ b/src/pages/JobsPage.tsx	2026-11-20 09:22:04.019007782 +0000
+@@ -160,7 +160,7 @@
+ // ============================================================
+ 
+ function SkeletonBlock({ className }: { className: string }) {
+-  return <div className={`animate-pulse rounded bg-bg-tertiary ${className}`} />;
++  return <div className={`vrk-skel rounded bg-bg-tertiary ${className}`} />;
+ }
+ 
+ function InvoiceBadge({ status }: { status: InvoiceStatus }) {
+@@ -206,7 +206,7 @@
+       onDragStart={onDragStart}
+       onDragEnd={onDragEnd}
+       onClick={onClick}
+-      className={`group cursor-pointer rounded-xl border border-border bg-bg-primary p-3.5 shadow-sm transition-all hover:border-accent/40 hover:shadow-card ${
++      className={`group cursor-pointer rounded-xl border border-border bg-bg-primary p-3.5 transition-interactive hover:border-accent/40 ${
+         isDragging ? 'opacity-40' : ''
+       }`}
+     >
+@@ -271,7 +271,7 @@
+               type="button"
+               onClick={() => onAdvance(step)}
+               disabled={isCancelled}
+-              className={`focus-ring flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold transition-all disabled:cursor-not-allowed ${
++              className={`focus-ring flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold transition-interactive disabled:cursor-not-allowed ${
+                 isCancelled
+                   ? 'bg-bg-tertiary text-text-muted'
+                   : isDone
+@@ -338,7 +338,7 @@
+       transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+       className="fixed right-0 top-0 z-50 h-full w-full max-w-md overflow-y-auto border-l border-border bg-bg-secondary shadow-card-hover dark:shadow-card-hover-dark"
+     >
+-      <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-bg-secondary/95 px-6 py-4 backdrop-blur-md">
++      <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-bg-secondary px-6 py-4">
+        <div className="flex items-center gap-3">
+   <h2 className="text-base font-semibold text-text-primary">Job Details</h2>
+   <Link
+@@ -362,11 +362,11 @@
+         {/* Customer */}
+         <div>
+           <div className="flex items-center gap-3">
+-            <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/10 text-accent">
++            <span className="flex h-8 w-8 items-center justify-center text-text-muted">
+               <Wrench size={22} />
+             </span>
+             <div>
+-              <h3 className="text-lg font-bold text-text-primary">{job.customer_name}</h3>
++              <h3 className="text-lg font-semibold text-text-primary">{job.customer_name}</h3>
+               {job.service_type && <p className="text-sm text-text-secondary">{job.service_type}</p>}
+             </div>
+           </div>
+@@ -578,7 +578,7 @@
+           ) : (
+             <div className="flex items-center justify-between">
+               <div>
+-                <p className="text-2xl font-bold text-text-primary">{formatCurrency(job.invoice_amount)}</p>
++                <p className="text-2xl font-semibold text-text-primary">{formatCurrency(job.invoice_amount)}</p>
+                 <div className="mt-1"><InvoiceBadge status={job.invoice_status} /></div>
+               </div>
+               {job.invoice_amount != null && job.invoice_status !== 'paid' && (
+@@ -639,7 +639,7 @@
+               type="button"
+               onClick={() => onRequestReview(job)}
+               disabled={!job.customer_phone}
+-              className="focus-ring mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-cta px-4 py-2.5 text-sm font-semibold text-on-cta transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
++              className="focus-ring mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-cta px-4 py-2.5 text-sm font-semibold text-on-cta transition-interactive hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+             >
+               <Star size={16} /> Request a Review
+             </button>
+@@ -754,15 +754,15 @@
+ 
+   return (
+     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+-      <div className="absolute inset-0 bg-overlay/30 backdrop-blur-sm" onClick={onClose} />
++      <div className="absolute inset-0 bg-overlay/30" onClick={onClose} />
+       <motion.div
+         initial={{ opacity: 0, scale: 0.95, y: 10 }}
+         animate={{ opacity: 1, scale: 1, y: 0 }}
+         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+-        className="relative w-full max-w-lg rounded-2xl border border-border bg-bg-secondary p-6 shadow-card-hover dark:shadow-card-hover-dark"
++        className="relative w-full max-w-lg rounded-xl border border-border bg-bg-secondary p-6 shadow-card-hover dark:shadow-card-hover-dark"
+       >
+         <div className="mb-5 flex items-center justify-between">
+-          <h2 className="text-lg font-bold text-text-primary">Create Job</h2>
++          <h2 className="text-lg font-semibold text-text-primary">Create Job</h2>
+           <button
+             type="button"
+             onClick={onClose}
+@@ -910,7 +910,7 @@
+             <button
+               type="submit"
+               disabled={submitting || !customerName.trim()}
+-              className="focus-ring flex flex-1 items-center justify-center gap-2 rounded-xl bg-cta px-4 py-3 text-sm font-semibold text-on-cta transition-all hover:brightness-110 disabled:opacity-50"
++              className="focus-ring flex flex-1 items-center justify-center gap-2 rounded-xl bg-cta px-4 py-3 text-sm font-semibold text-on-cta transition-interactive hover:brightness-110 disabled:opacity-50"
+             >
+               <Wrench size={16} />
+               {submitting ? 'Creating…' : 'Create Job'}
+@@ -1472,7 +1472,7 @@
+             </button>
+             <div>
+               <div className="flex flex-wrap items-center gap-3">
+-                <h1 className="text-2xl font-bold tracking-tight text-text-primary md:text-3xl">{canViewAll ? 'Jobs' : 'My Jobs'}</h1>
++                <h1 className="text-xl font-semibold tracking-tight text-text-primary md:text-2xl">{canViewAll ? 'Jobs' : 'My Jobs'}</h1>
+                 <LiveIndicator status={jobsLiveStatus} />
+               </div>
+               <p className="mt-1 text-sm text-text-secondary">{canViewAll ? 'Track every job from scheduled to paid.' : 'Your assigned jobs, from scheduled to paid.'}</p>
+@@ -1506,7 +1506,7 @@
+                 setPrefill(null);
+                 setShowCreateModal(true);
+               }}
+-              className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-on-cta shadow-sm transition-all hover:brightness-110 hover:shadow-glow-cta"
++              className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-on-cta shadow-sm transition-interactive hover:brightness-110"
+             >
+               <Plus size={16} /> Create Job
+             </button>
+@@ -1583,7 +1583,7 @@
+           viewMode === 'board' ? (
+             <div className="grid gap-4 lg:grid-cols-4">
+               {BOARD_STAGES.map((s) => (
+-                <div key={s.key} className="rounded-2xl border border-border bg-bg-secondary p-4 shadow-card dark:shadow-card-dark">
++                <div key={s.key} className="rounded-xl border border-border bg-bg-secondary p-4">
+                   <SkeletonBlock className="h-5 w-24" />
+                   <div className="mt-4 space-y-3">
+                     {Array.from({ length: 2 }).map((_, i) => (
+@@ -1594,7 +1594,7 @@
+               ))}
+             </div>
+           ) : (
+-            <div className="rounded-2xl border border-border bg-bg-secondary shadow-card dark:shadow-card-dark">
++            <div className="rounded-xl border border-border bg-bg-secondary">
+               {Array.from({ length: 6 }).map((_, i) => (
+                 <div key={i} className="flex items-center gap-4 border-b border-border p-4 last:border-0">
+                   <SkeletonBlock className="h-5 w-32" />
+@@ -1607,8 +1607,8 @@
+             </div>
+           )
+         ) : filteredJobs.length === 0 ? (
+-          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-bg-secondary/50 px-6 py-16 text-center">
+-            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-bg-tertiary text-text-secondary">
++          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-bg-secondary/50 px-6 py-16 text-center">
++            <span className="flex h-14 w-14 items-center justify-center rounded-xl bg-bg-tertiary text-text-secondary">
+               <Wrench size={26} />
+             </span>
+             <h3 className="mt-4 text-base font-semibold text-text-primary">
+@@ -1623,7 +1623,7 @@
+               <button
+                 type="button"
+                 onClick={() => setShowCreateModal(true)}
+-                className="focus-ring mt-4 flex items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-on-cta transition-all hover:brightness-110"
++                className="focus-ring mt-4 flex items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-on-cta transition-interactive hover:brightness-110"
+               >
+                 <Plus size={16} /> Create your first job
+               </button>
+@@ -1638,7 +1638,7 @@
+                 onDragOver={(e) => handleDragOver(e, stage.key)}
+                 onDragLeave={() => setDragOverStage(null)}
+                 onDrop={(e) => handleDrop(e, stage.key)}
+-                className={`rounded-2xl border-t-4 ${stage.borderColor} border-x border-b border-border bg-bg-secondary p-4 shadow-card transition-colors dark:shadow-card-dark ${
++                className={`rounded-xl border-t-4 ${stage.borderColor} border-x border-b border-border bg-bg-secondary p-4 transition-colors ${
+                   dragOverStage === stage.key ? 'ring-2 ring-accent/40' : ''
+                 }`}
+               >
+@@ -1676,7 +1676,7 @@
+         {viewMode === 'board' && !dataLoading && filteredJobs.length > 0 && (
+           <div className="space-y-4 lg:hidden">
+             {BOARD_STAGES.map((stage) => (
+-              <div key={stage.key} className="rounded-2xl border border-border bg-bg-secondary p-4 shadow-card dark:shadow-card-dark">
++              <div key={stage.key} className="rounded-xl border border-border bg-bg-secondary p-4">
+                 <div className="mb-3 flex items-center gap-2">
+                   <span className={`h-2.5 w-2.5 rounded-full ${stage.dotColor}`} />
+                   <h2 className="text-sm font-semibold text-text-primary">{stage.label}</h2>
+@@ -1723,7 +1723,7 @@
+ 
+         {/* List view */}
+         {viewMode === 'list' && !dataLoading && filteredJobs.length > 0 && (
+-          <div className="overflow-x-auto rounded-2xl border border-border bg-bg-secondary shadow-card dark:shadow-card-dark">
++          <div className="overflow-x-auto rounded-xl border border-border bg-bg-secondary">
+             <table className="w-full min-w-[640px]">
+               <thead>
+                 <tr className="border-b border-border bg-bg-tertiary/50">
+@@ -1815,7 +1815,7 @@
+         {selectedJob && (
+           <>
+             <div
+-              className="fixed inset-0 z-40 bg-overlay/20 backdrop-blur-sm"
++              className="fixed inset-0 z-40 bg-overlay/20"
+               onClick={() => setSelectedJob(null)}
+             />
+             <JobDetailPanel
+diff -ruN -x node_modules -x .git a/src/pages/LiveCallsPage.tsx b/src/pages/LiveCallsPage.tsx
+--- a/src/pages/LiveCallsPage.tsx	2026-11-20 09:04:07.000000000 +0000
++++ b/src/pages/LiveCallsPage.tsx	2026-11-20 09:22:04.033151442 +0000
+@@ -184,8 +184,8 @@
+   if (!canAccess) {
+     return (
+       <DashboardLayout activeLabel="Live Calls">
+-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-bg-secondary/50 px-6 py-20 text-center">
+-          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-bg-tertiary text-text-secondary">
++        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-bg-secondary/50 px-6 py-20 text-center">
++          <span className="flex h-14 w-14 items-center justify-center rounded-xl bg-bg-tertiary text-text-secondary">
+             <Lock size={26} />
+           </span>
+           <h3 className="mt-4 text-lg font-semibold text-text-primary">You don't have access to this page</h3>
+@@ -214,10 +214,10 @@
+           </button>
+           <div>
+             <div className="flex flex-wrap items-center gap-2">
+-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10 text-accent">
++              <span className="flex h-8 w-8 items-center justify-center text-text-muted">
+                 <Radio size={16} />
+               </span>
+-              <h1 className="text-2xl font-bold tracking-tight text-text-primary md:text-3xl">Live Calls</h1>
++              <h1 className="text-xl font-semibold tracking-tight text-text-primary md:text-2xl">Live Calls</h1>
+               <LiveIndicator status={callsStatus} />
+             </div>
+             <p className="mt-1 text-sm text-text-secondary">
+@@ -242,7 +242,7 @@
+           </div>
+         </div>
+       ) : loadError ? (
+-        <div role="alert" className="flex flex-col items-center rounded-2xl border border-dashed border-border bg-bg-secondary/50 px-6 py-16 text-center">
++        <div role="alert" className="flex flex-col items-center rounded-xl border border-dashed border-border bg-bg-secondary/50 px-6 py-16 text-center">
+           <p className="text-base font-semibold text-text-primary">Couldn't load live calls</p>
+           <p className="mt-1 text-sm text-text-secondary">Check your connection and try again.</p>
+           <Button type="button" variant="secondary" size="sm" className="mt-4" onClick={() => void loadRows(false)}>
+@@ -298,7 +298,7 @@
+             </div>
+ 
+             {/* ---------- detail ---------- */}
+-            <section className={`${selected ? '' : 'hidden lg:flex'} min-w-0 flex-col rounded-2xl border border-border bg-bg-secondary`}>
++            <section className={`${selected ? '' : 'hidden lg:flex'} min-w-0 flex-col rounded-xl border border-border bg-bg-secondary`}>
+               {!selected ? (
+                 <div className="flex flex-1 flex-col items-center justify-center px-6 py-20 text-center">
+                   <PhoneCall size={26} className="text-text-secondary" />
+diff -ruN -x node_modules -x .git a/src/pages/SettingsPage.tsx b/src/pages/SettingsPage.tsx
+--- a/src/pages/SettingsPage.tsx	2026-11-20 09:04:07.000000000 +0000
++++ b/src/pages/SettingsPage.tsx	2026-11-20 09:22:04.031248942 +0000
+@@ -87,7 +87,7 @@
+   };
+ 
+   return (
+-    <div className="mt-4 rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
++    <div className="mt-4 rounded-xl border border-border bg-bg-secondary p-6">
+       <h2 className="text-base font-semibold text-text-primary">Push notifications</h2>
+       <p className="mt-1 text-sm text-text-secondary">
+         Get a real notification on this device the moment a new lead or missed call comes in —
+@@ -171,16 +171,16 @@
+   return (
+     <DashboardLayout activeLabel="Settings">
+       <div className="mb-6 flex items-center gap-3">
+-        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent/10 text-accent">
++        <span className="flex h-8 w-8 items-center justify-center text-text-muted">
+           <SettingsIcon size={24} />
+         </span>
+         <div>
+-          <h1 className="text-2xl font-bold tracking-tight text-text-primary md:text-3xl">Settings</h1>
++          <h1 className="text-xl font-semibold tracking-tight text-text-primary md:text-2xl">Settings</h1>
+           <p className="mt-1 text-sm text-text-secondary">Notification preferences and account security.</p>
+         </div>
+       </div>
+ 
+-      <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
++      <div className="rounded-xl border border-border bg-bg-secondary p-6">
+         <h2 className="text-base font-semibold text-text-primary">Notification preferences</h2>
+         <p className="mt-1 text-sm text-text-secondary">
+           Choose which events create a notification. Turning one off stops it from being created at all — not
+@@ -267,10 +267,10 @@
+       <button
+         type="button"
+         onClick={() => navigate('/dashboard/settings/assistant')}
+-        className="focus-ring mt-4 flex w-full items-center justify-between rounded-2xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
++        className="focus-ring mt-4 flex w-full items-center justify-between rounded-xl border border-border bg-bg-secondary p-6 text-left transition-interactive hover:border-accent/25"
+       >
+         <div className="flex items-center gap-3">
+-          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
++          <span className="flex h-8 w-8 items-center justify-center text-text-muted">
+             <Mic size={20} />
+           </span>
+           <div>
+@@ -286,10 +286,10 @@
+         <button
+           type="button"
+           onClick={() => navigate('/dashboard/settings/api-keys')}
+-          className="focus-ring mt-4 flex w-full items-center justify-between rounded-2xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
++          className="focus-ring mt-4 flex w-full items-center justify-between rounded-xl border border-border bg-bg-secondary p-6 text-left transition-interactive hover:border-accent/25"
+         >
+           <div className="flex items-center gap-3">
+-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
++            <span className="flex h-8 w-8 items-center justify-center text-text-muted">
+               <KeyRound size={20} />
+             </span>
+             <div>
+@@ -306,10 +306,10 @@
+         <button
+           type="button"
+           onClick={() => navigate('/dashboard/settings/oauth-apps')}
+-          className="focus-ring mt-4 flex w-full items-center justify-between rounded-2xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
++          className="focus-ring mt-4 flex w-full items-center justify-between rounded-xl border border-border bg-bg-secondary p-6 text-left transition-interactive hover:border-accent/25"
+         >
+           <div className="flex items-center gap-3">
+-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
++            <span className="flex h-8 w-8 items-center justify-center text-text-muted">
+               <AppWindow size={20} />
+             </span>
+             <div>
+@@ -326,10 +326,10 @@
+         <button
+           type="button"
+           onClick={() => navigate('/dashboard/settings/security')}
+-          className="focus-ring mt-4 flex w-full items-center justify-between rounded-2xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
++          className="focus-ring mt-4 flex w-full items-center justify-between rounded-xl border border-border bg-bg-secondary p-6 text-left transition-interactive hover:border-accent/25"
+         >
+           <div className="flex items-center gap-3">
+-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
++            <span className="flex h-8 w-8 items-center justify-center text-text-muted">
+               <ShieldCheck size={20} />
+             </span>
+             <div>
+@@ -345,10 +345,10 @@
+       <button
+         type="button"
+         onClick={() => navigate('/dashboard/settings/sessions')}
+-        className="focus-ring mt-4 flex w-full items-center justify-between rounded-2xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
++        className="focus-ring mt-4 flex w-full items-center justify-between rounded-xl border border-border bg-bg-secondary p-6 text-left transition-interactive hover:border-accent/25"
+       >
+         <div className="flex items-center gap-3">
+-          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
++          <span className="flex h-8 w-8 items-center justify-center text-text-muted">
+             <ShieldAlert size={20} />
+           </span>
+           <div>
+@@ -364,10 +364,10 @@
+         <button
+           type="button"
+           onClick={() => navigate('/dashboard/settings/audit-log')}
+-          className="focus-ring mt-4 flex w-full items-center justify-between rounded-2xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
++          className="focus-ring mt-4 flex w-full items-center justify-between rounded-xl border border-border bg-bg-secondary p-6 text-left transition-interactive hover:border-accent/25"
+         >
+           <div className="flex items-center gap-3">
+-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
++            <span className="flex h-8 w-8 items-center justify-center text-text-muted">
+               <ScrollText size={20} />
+             </span>
+             <div>
+@@ -384,10 +384,10 @@
+         <button
+           type="button"
+           onClick={() => navigate('/dashboard/settings/siem-streaming')}
+-          className="focus-ring mt-4 flex w-full items-center justify-between rounded-2xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
++          className="focus-ring mt-4 flex w-full items-center justify-between rounded-xl border border-border bg-bg-secondary p-6 text-left transition-interactive hover:border-accent/25"
+         >
+           <div className="flex items-center gap-3">
+-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
++            <span className="flex h-8 w-8 items-center justify-center text-text-muted">
+               <ShieldAlert size={20} />
+             </span>
+             <div>
+@@ -404,10 +404,10 @@
+         <button
+           type="button"
+           onClick={() => navigate('/dashboard/settings/sms-compliance')}
+-          className="focus-ring mt-4 flex w-full items-center justify-between rounded-2xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
++          className="focus-ring mt-4 flex w-full items-center justify-between rounded-xl border border-border bg-bg-secondary p-6 text-left transition-interactive hover:border-accent/25"
+         >
+           <div className="flex items-center gap-3">
+-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
++            <span className="flex h-8 w-8 items-center justify-center text-text-muted">
+               <MessageSquareText size={20} />
+             </span>
+             <div>
+@@ -424,10 +424,10 @@
+         <button
+           type="button"
+           onClick={() => navigate('/dashboard/settings/enterprise-security')}
+-          className="focus-ring mt-4 flex w-full items-center justify-between rounded-2xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
++          className="focus-ring mt-4 flex w-full items-center justify-between rounded-xl border border-border bg-bg-secondary p-6 text-left transition-interactive hover:border-accent/25"
+         >
+           <div className="flex items-center gap-3">
+-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
++            <span className="flex h-8 w-8 items-center justify-center text-text-muted">
+               <Building2 size={20} />
+             </span>
+             <div>
+@@ -444,10 +444,10 @@
+         <button
+           type="button"
+           onClick={() => navigate('/dashboard/settings/data-governance')}
+-          className="focus-ring mt-4 flex w-full items-center justify-between rounded-2xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
++          className="focus-ring mt-4 flex w-full items-center justify-between rounded-xl border border-border bg-bg-secondary p-6 text-left transition-interactive hover:border-accent/25"
+         >
+           <div className="flex items-center gap-3">
+-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
++            <span className="flex h-8 w-8 items-center justify-center text-text-muted">
+               <DatabaseBackup size={20} />
+             </span>
+             <div>
+@@ -464,10 +464,10 @@
+         <button
+           type="button"
+           onClick={() => navigate('/dashboard/settings/email')}
+-          className="focus-ring mt-4 flex w-full items-center justify-between rounded-2xl border border-border bg-bg-secondary p-6 text-left shadow-card transition-all hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
++          className="focus-ring mt-4 flex w-full items-center justify-between rounded-xl border border-border bg-bg-secondary p-6 text-left transition-interactive hover:border-accent/25"
+         >
+           <div className="flex items-center gap-3">
+-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
++            <span className="flex h-8 w-8 items-center justify-center text-text-muted">
+               <Mail size={20} />
+             </span>
+             <div>
