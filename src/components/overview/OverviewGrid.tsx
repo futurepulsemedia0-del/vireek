@@ -153,7 +153,7 @@ export function OverviewGrid({ items, editing, loading, renderWidget, onMove, on
           <div
             key={i}
             style={{ gridColumn: `span ${spanFor(w, bp)} / span ${spanFor(w, bp)}` }}
-            className="h-36 animate-pulse rounded-2xl bg-bg-tertiary"
+            className="h-36 vrk-skel rounded-xl bg-bg-tertiary"
           />
         ))}
       </div>
@@ -177,7 +177,7 @@ export function OverviewGrid({ items, editing, loading, renderWidget, onMove, on
                 height: item.h > 0 ? item.h * ROW_UNIT_PX : undefined,
               }}
               className={`relative min-w-0 ${
-                editing ? 'rounded-2xl outline-dashed outline-2 outline-offset-2 outline-accent/40' : ''
+                editing ? 'rounded-xl outline-dashed outline-2 outline-offset-2 outline-accent/40' : ''
               } ${dragId === item.id ? 'z-10 opacity-60 outline-accent' : ''}`}
             >
               <div
@@ -187,7 +187,7 @@ export function OverviewGrid({ items, editing, loading, renderWidget, onMove, on
                 {...(editing ? ({ inert: '' } as object) : {})}
               >
                 {node ?? (
-                  <div className="flex h-full min-h-[96px] items-center justify-center rounded-2xl border border-dashed border-border bg-bg-secondary/50 p-4 text-center text-sm text-text-secondary">
+                  <div className="flex h-full min-h-[96px] items-center justify-center rounded-xl border border-dashed border-border bg-bg-secondary/50 p-4 text-center text-sm text-text-secondary">
                     {title} appears here once there is data to show.
                   </div>
                 )}
