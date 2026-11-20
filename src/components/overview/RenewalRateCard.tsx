@@ -40,7 +40,7 @@ export function RenewalRateCard() {
       {failed && <p className="mt-2 text-sm text-text-secondary">Couldn’t load renewal data right now.</p>}
       {kpis && (
         <>
-          <p className="mt-1 text-3xl font-semibold text-text-primary">{formatRate(kpis.renewal_rate)}</p>
+          <p className="mt-1 text-2xl font-semibold tabular-nums text-text-primary">{formatRate(kpis.renewal_rate)}</p>
           <p className="mt-1 text-xs text-text-secondary">
             {decided === 0 ? 'No renewals decided yet — last 90 days' : `${kpis.renewed} of ${decided} renewed · last ${kpis.window_days} days`}
           </p>
