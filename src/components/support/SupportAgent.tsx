@@ -278,7 +278,7 @@ export function SupportAgent() {
   return (
     <>
       {/* Launcher rail: the only floating launcher in the bottom-right corner (public site). */}
-      <div data-floating-launcher className={`fixed right-5 bottom-[calc(1.25rem_+_var(--vk-bottom-nav-h,0px)_+_var(--vk-consent-lift,0px))] z-overlay print:hidden [html[data-a11y-open=true]_&]:hidden ${open ? 'max-sm:hidden' : ''}`}>
+      <div data-floating-launcher className={`fixed right-5 bottom-[calc(1.25rem_+_var(--vk-bottom-nav-h,0px)_+_var(--vk-consent-lift,0px)_+_var(--vk-bottom-bar-h,0px))] transition-[bottom] duration-300 ease-out motion-reduce:transition-none z-overlay print:hidden [html[data-a11y-open=true]_&]:hidden ${open ? 'max-sm:hidden' : ''}`}>
         <AnimatePresence>
           {d.nudge && !open && (
             <motion.div
