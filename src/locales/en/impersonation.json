@@ -1,0 +1,7 @@
+{
+  "title": "Vireek Support session",
+  "detail": "You’re viewing this account as Vireek Support. Access ends automatically in {{time}}.",
+  "expiring": "This support session ends in {{time}}.",
+  "end": "End session",
+  "ending": "Ending…"
+}
