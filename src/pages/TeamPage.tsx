@@ -726,22 +726,26 @@ export function TeamPage() {
         <div className="space-y-3">
           {/* Owner row (the account owner themselves) */}
           {profile && (
-            <div className="flex items-center gap-4 rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent/15 font-semibold text-accent">
-                {(profile.full_name ?? profile.email ?? '?')[0]?.toUpperCase()}
-              </span>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-text-primary">
-                  {profile.full_name ?? 'Account Owner'}
-                </p>
-                <p className="text-xs text-text-secondary">{profile.email}</p>
+            <div className="flex flex-col gap-3 rounded-2xl border border-border bg-bg-secondary p-4 shadow-card dark:shadow-card-dark sm:flex-row sm:items-center sm:gap-4 sm:p-5">
+              <div className="flex min-w-0 items-center gap-3 sm:flex-1 sm:gap-4">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent/15 font-semibold text-accent">
+                  {(profile.full_name ?? profile.email ?? '?')[0]?.toUpperCase()}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold text-text-primary">
+                    {profile.full_name ?? 'Account Owner'}
+                  </p>
+                  <p className="truncate text-xs text-text-secondary">{profile.email}</p>
+                </div>
               </div>
-              <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${ROLE_TAGS.owner.color}`}>
-                {ROLE_TAGS.owner.label}
-              </span>
-              <span className="inline-flex rounded-full bg-success-subtle px-2.5 py-1 text-xs font-medium text-success">
-                Active
-              </span>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${ROLE_TAGS.owner.color}`}>
+                  {ROLE_TAGS.owner.label}
+                </span>
+                <span className="inline-flex rounded-full bg-success-subtle px-2.5 py-1 text-xs font-medium text-success">
+                  Active
+                </span>
+              </div>
             </div>
           )}
 
@@ -752,54 +756,58 @@ export function TeamPage() {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, delay: i * 0.04, ease: [0.16, 1, 0.3, 1] }}
-              className="flex items-center gap-4 rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark"
+              className="flex flex-col gap-3 rounded-2xl border border-border bg-bg-secondary p-4 shadow-card dark:shadow-card-dark sm:flex-row sm:items-center sm:gap-4 sm:p-5"
             >
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-bg-tertiary font-semibold text-text-secondary">
-                {(member.member_name ?? member.member_email ?? '?')[0]?.toUpperCase()}
-              </span>
-              <div className="flex-1 min-w-0">
-                <Link to={`/dashboard/team/${member.id}`} className="focus-ring rounded text-sm font-semibold text-text-primary hover:text-accent">
-                  {member.member_name ?? member.member_email}
-                </Link>
-                <p className="text-xs text-text-secondary">{member.member_email}</p>
+              <div className="flex min-w-0 items-center gap-3 sm:flex-1 sm:gap-4">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-bg-tertiary font-semibold text-text-secondary">
+                  {(member.member_name ?? member.member_email ?? '?')[0]?.toUpperCase()}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <Link to={`/dashboard/team/${member.id}`} className="focus-ring block truncate rounded text-sm font-semibold text-text-primary hover:text-accent">
+                    {member.member_name ?? member.member_email}
+                  </Link>
+                  <p className="truncate text-xs text-text-secondary">{member.member_email}</p>
+                </div>
               </div>
-              <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium capitalize ${ROLE_TAGS[member.role]?.color ?? ROLE_TAGS.member.color}`}>
-                {ROLE_TAGS[member.role]?.label ?? member.role}
-              </span>
-              <span
-                className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
-                  member.invite_status === 'active'
-                    ? 'bg-success-subtle text-success'
-                    : 'bg-warning-subtle text-warning'
-                }`}
-              >
-                {member.invite_status === 'active' ? 'Active' : 'Pending'}
-              </span>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium capitalize ${ROLE_TAGS[member.role]?.color ?? ROLE_TAGS.member.color}`}>
+                  {ROLE_TAGS[member.role]?.label ?? member.role}
+                </span>
+                <span
+                  className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
+                    member.invite_status === 'active'
+                      ? 'bg-success-subtle text-success'
+                      : 'bg-warning-subtle text-warning'
+                  }`}
+                >
+                  {member.invite_status === 'active' ? 'Active' : 'Pending'}
+                </span>
+              </div>
               {isOwner && (
-                <div className="flex items-center gap-1">
+                <div className="flex flex-wrap items-center gap-2 border-t border-border pt-3 sm:border-t-0 sm:pt-0">
                   {member.invite_status === 'pending' && (
                     <button
                       type="button"
                       onClick={() => handleResendInvite(member)}
-                      className="focus-ring flex h-9 items-center gap-1.5 rounded-lg border border-border px-3 text-xs font-medium text-text-secondary transition-colors hover:text-text-primary"
+                      className="focus-ring flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border border-border px-3 text-xs font-medium text-text-secondary transition-colors hover:text-text-primary"
                     >
-                      <Mail size={14} /> Resend invite
+                      <Mail size={14} aria-hidden="true" /> Resend invite
                     </button>
                   )}
                   <button
                     type="button"
                     onClick={() => setEditingMember(member)}
-                    className="focus-ring flex h-9 items-center gap-1.5 rounded-lg border border-border px-3 text-xs font-medium text-text-secondary transition-colors hover:text-text-primary"
+                    className="focus-ring flex h-9 shrink-0 items-center gap-1.5 rounded-lg border border-border px-3 text-xs font-medium text-text-secondary transition-colors hover:text-text-primary"
                   >
-                    <Settings size={14} /> Edit
+                    <Settings size={14} aria-hidden="true" /> Edit
                   </button>
                   <button
                     type="button"
                     onClick={() => handleRemove(member)}
-                    className="focus-ring flex h-9 w-9 items-center justify-center rounded-lg border border-border text-text-secondary transition-colors hover:border-danger/40 hover:text-danger"
+                    className="focus-ring ms-auto flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border text-text-secondary transition-colors hover:border-danger/40 hover:text-danger sm:ms-0"
                     aria-label="Remove member"
                   >
-                    <Trash2 size={15} />
+                    <Trash2 size={15} aria-hidden="true" />
                   </button>
                 </div>
               )}
