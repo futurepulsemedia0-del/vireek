@@ -1,17 +1,22 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import {
   Bell,
+  BellOff,
+  BellRing,
   PhoneCall,
   Gauge,
   Lightbulb,
   Wrench,
   Info,
   CheckCheck,
+  Check,
+  CircleDot,
   Settings,
+  SlidersHorizontal,
   Trash2,
-  X,
   Volume2,
   VolumeX,
   RotateCw,
@@ -20,6 +25,7 @@ import {
   Eye,
   AtSign,
   MessageSquare,
+  ArrowRight,
 } from 'lucide-react';
 import { useNotifications } from '@/contexts/NotificationsContext';
 import type { NotificationRow } from '@/contexts/NotificationsContext';
