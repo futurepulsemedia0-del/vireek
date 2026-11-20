@@ -120,7 +120,7 @@ export function SystemHealthStrip() {
       {status === 'loading' && (
         <ul className="flex flex-wrap gap-2" aria-hidden="true">
           {Array.from({ length: 7 }, (_, i) => (
-            <li key={i} className="h-[74px] min-w-[11rem] flex-1 animate-pulse rounded-xl border border-border bg-bg-secondary" />
+            <li key={i} className="h-[74px] min-w-[11rem] flex-1 vrk-skel rounded-xl border border-border bg-bg-secondary" />
           ))}
         </ul>
       )}
