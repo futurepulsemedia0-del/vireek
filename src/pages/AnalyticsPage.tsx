@@ -417,7 +417,7 @@ function Heatmap({ data }: { data: { day: number; hour: number; count: number }[
                   title={`${day} ${h}:00 — ${count} ${count === 1 ? 'call' : 'calls'}`}
                 >
                   <div
-                    className="h-6 rounded-sm transition-transform hover:scale-110"
+                    className="h-6 rounded-sm transition-opacity hover:opacity-80"
                     style={{ backgroundColor: getColor(count) }}
                   />
                 </div>
@@ -877,7 +877,7 @@ export function AnalyticsPage() {
               <ArrowLeft size={18} />
             </button>
             <div>
-              <h1 className="text-2xl font-semibold tracking-tight text-text-primary md:text-3xl">Analytics</h1>
+              <h1 className="text-xl font-semibold tracking-tight text-text-primary md:text-2xl">Analytics</h1>
               <p className="mt-1 text-sm text-text-secondary">
                 {formatDateLabel(rangeState.start)} — {formatDateLabel(rangeState.end)}
               </p>
@@ -927,28 +927,28 @@ export function AnalyticsPage() {
                   <p className="text-xs font-medium text-text-secondary">Total Calls</p>
                   {kpiBadge('totalCalls')}
                 </div>
-                <p className="mt-2 text-3xl font-semibold text-text-primary">{metrics.totalCalls}</p>
+                <p className="mt-2 text-2xl font-semibold tabular-nums text-text-primary">{metrics.totalCalls}</p>
               </div>
               <div className="rounded-xl border border-border bg-bg-secondary p-5">
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-xs font-medium text-text-secondary">Emergency Calls</p>
                   {kpiBadge('emergencyCalls')}
                 </div>
-                <p className="mt-2 text-3xl font-semibold text-danger">{metrics.emergencyCalls}</p>
+                <p className="mt-2 text-2xl font-semibold tabular-nums text-danger">{metrics.emergencyCalls}</p>
               </div>
               <div className="rounded-xl border border-border bg-bg-secondary p-5">
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-xs font-medium text-text-secondary">Conversion Rate</p>
                   {kpiBadge('conversionRate', (n) => `${n}%`)}
                 </div>
-                <p className="mt-2 text-3xl font-semibold text-text-primary">{metrics.conversionRate}%</p>
+                <p className="mt-2 text-2xl font-semibold tabular-nums text-text-primary">{metrics.conversionRate}%</p>
               </div>
               <div className="rounded-xl border border-border bg-bg-secondary p-5">
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-xs font-medium text-text-secondary">Revenue</p>
                   {kpiBadge('revenue', formatCurrency)}
                 </div>
-                <p className="mt-2 text-3xl font-semibold text-cta">{formatCurrency(metrics.revenue)}</p>
+                <p className="mt-2 text-2xl font-semibold tabular-nums text-cta">{formatCurrency(metrics.revenue)}</p>
               </div>
             </>
           )}
