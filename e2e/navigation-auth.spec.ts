@@ -104,6 +104,7 @@ test.describe('Authenticated navigation', () => {
     const b = await ctx.newPage();
     await login(a, EMAIL!, PASSWORD!);
     await b.goto('/dashboard');
+    await a.getByTestId('account-menu-trigger').first().click();
     await a.getByRole('button', { name: /sign out/i }).first().click();
     await expect(b).toHaveURL(/\/login/, { timeout: 10_000 });
     await ctx.close();
