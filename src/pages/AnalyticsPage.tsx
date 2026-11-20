@@ -49,7 +49,7 @@ function formatCurrency(amount: number): string {
 // ============================================================
 
 function SkeletonBlock({ className }: { className: string }) {
-  return <div className={`animate-pulse rounded bg-bg-tertiary ${className}`} />;
+  return <div className={`vrk-skel rounded bg-bg-tertiary ${className}`} />;
 }
 
 function ChartCard({
@@ -64,7 +64,7 @@ function ChartCard({
   rightContent?: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
+    <div className="rounded-xl border border-border bg-bg-secondary p-6">
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
           <h3 className="text-sm font-semibold text-text-primary">{title}</h3>
@@ -84,7 +84,7 @@ function ChartCard({
 
 function ChartSkeleton({ height = 200 }: { height?: number }) {
   return (
-    <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
+    <div className="rounded-xl border border-border bg-bg-secondary p-6">
       <SkeletonBlock className="h-5 w-40" />
       <SkeletonBlock className="mt-3 h-4 w-60" />
       <div className="mt-6" style={{ height }}>
@@ -243,7 +243,7 @@ function DonutChart({ data }: { data: { label: string; value: number; color: str
           </g>
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-2xl font-bold text-text-primary">{total}</span>
+          <span className="text-2xl font-semibold text-text-primary">{total}</span>
           <span className="text-xs text-text-secondary">total calls</span>
         </div>
       </div>
@@ -332,7 +332,7 @@ function LeadFunnel({ stages }: { stages: { label: string; value: number; color:
                   style={{ backgroundColor: stage.color, minWidth: 80 }}
                 >
                   <span className="text-sm font-medium text-white">{stage.label}</span>
-                  <span className="text-sm font-bold text-white">{stage.value}</span>
+                  <span className="text-sm font-semibold text-white">{stage.value}</span>
                 </motion.div>
               </div>
             </div>
@@ -850,8 +850,8 @@ export function AnalyticsPage() {
   if (!canAccess) {
     return (
       <DashboardLayout activeLabel="Analytics">
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-bg-secondary/50 px-6 py-20 text-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-bg-tertiary text-text-secondary">
+        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-bg-secondary/50 px-6 py-20 text-center">
+          <span className="flex h-14 w-14 items-center justify-center rounded-xl bg-bg-tertiary text-text-secondary">
             <Lock size={26} />
           </span>
           <h3 className="mt-4 text-lg font-semibold text-text-primary">You don't have access to this page</h3>
@@ -877,7 +877,7 @@ export function AnalyticsPage() {
               <ArrowLeft size={18} />
             </button>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-text-primary md:text-3xl">Analytics</h1>
+              <h1 className="text-2xl font-semibold tracking-tight text-text-primary md:text-3xl">Analytics</h1>
               <p className="mt-1 text-sm text-text-secondary">
                 {formatDateLabel(rangeState.start)} — {formatDateLabel(rangeState.end)}
               </p>
@@ -915,40 +915,40 @@ export function AnalyticsPage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {dataLoading ? (
             Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
+              <div key={i} className="rounded-xl border border-border bg-bg-secondary p-5">
                 <SkeletonBlock className="h-4 w-24" />
                 <SkeletonBlock className="mt-3 h-8 w-16" />
               </div>
             ))
           ) : (
             <>
-              <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
+              <div className="rounded-xl border border-border bg-bg-secondary p-5">
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-xs font-medium text-text-secondary">Total Calls</p>
                   {kpiBadge('totalCalls')}
                 </div>
-                <p className="mt-2 text-3xl font-bold text-text-primary">{metrics.totalCalls}</p>
+                <p className="mt-2 text-3xl font-semibold text-text-primary">{metrics.totalCalls}</p>
               </div>
-              <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
+              <div className="rounded-xl border border-border bg-bg-secondary p-5">
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-xs font-medium text-text-secondary">Emergency Calls</p>
                   {kpiBadge('emergencyCalls')}
                 </div>
-                <p className="mt-2 text-3xl font-bold text-danger">{metrics.emergencyCalls}</p>
+                <p className="mt-2 text-3xl font-semibold text-danger">{metrics.emergencyCalls}</p>
               </div>
-              <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
+              <div className="rounded-xl border border-border bg-bg-secondary p-5">
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-xs font-medium text-text-secondary">Conversion Rate</p>
                   {kpiBadge('conversionRate', (n) => `${n}%`)}
                 </div>
-                <p className="mt-2 text-3xl font-bold text-text-primary">{metrics.conversionRate}%</p>
+                <p className="mt-2 text-3xl font-semibold text-text-primary">{metrics.conversionRate}%</p>
               </div>
-              <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
+              <div className="rounded-xl border border-border bg-bg-secondary p-5">
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-xs font-medium text-text-secondary">Revenue</p>
                   {kpiBadge('revenue', formatCurrency)}
                 </div>
-                <p className="mt-2 text-3xl font-bold text-cta">{formatCurrency(metrics.revenue)}</p>
+                <p className="mt-2 text-3xl font-semibold text-cta">{formatCurrency(metrics.revenue)}</p>
               </div>
             </>
           )}
