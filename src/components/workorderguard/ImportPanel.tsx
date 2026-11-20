@@ -85,7 +85,7 @@ export function ImportPanel({ profileId, timezone, onImported }: Props) {
               className="focus-ring mt-3 w-full rounded-xl border border-border bg-bg-primary p-3 text-base text-text-primary" placeholder={'Work Order: 12345\nPriority: Emergency\nNTE: $450.00\nDate Received: 9/2/2026 7:15 AM'} />
           </>
         )}
-      </section>
+      </section>}
 
       {result && (
         <section className="space-y-3 rounded-2xl border border-border bg-bg-secondary p-4" aria-live="polite">
