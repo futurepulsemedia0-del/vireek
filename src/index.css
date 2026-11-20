@@ -416,6 +416,20 @@ html:lang(ar) *, html:lang(fa) *, html:lang(hi) *, html:lang(ja) *, html:lang(zh
 @media (min-width: 640px) {
   :root[dir='rtl'] { --vk-consent-lift: var(--vk-consent-h); }
 }
+/* ---- Content never hides under the mobile bottom nav ----
+   1) scroll-padding: focus, anchors and scrollIntoView stop above the bar instead of landing under it.
+   2) Page-level save/action bars that are pinned to the bottom are lifted above the nav. */
+html {
+  scroll-padding-bottom: calc(var(--vk-bottom-nav-h, 0px) + var(--vk-bottom-bar-h, 0px) + 1rem);
+}
+@media (max-width: 1023.98px) {
+  html[data-bottom-nav] #main-content .fixed.bottom-0:is(.z-10, .z-20, .z-30, .z-40, :not([class*='z-'])) {
+    bottom: var(--vk-bottom-nav-h);
+  }
+  html[data-bottom-nav] #main-content .sticky:is(.bottom-0, .bottom-3, .bottom-4) {
+    bottom: calc(var(--vk-bottom-nav-h) + 0.75rem);
+  }
+}
 /* ---- LogoMarquee ---- */
 .logo-marquee {
   --marquee-duration: 40s;
