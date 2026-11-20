@@ -17,6 +17,7 @@ import { CookieConsent } from '@/components/CookieConsent';
 import { Button } from '@/components/ui/Button';
 import { EASE, viewport } from '@/lib/motion';
 import { CHANGELOG_RELEASES, type EntryType } from '@/lib/changelog';
+import { useTrustSEO } from '@/lib/trust/useTrustSEO';
 
 const TYPE_META: Record<EntryType, { label: string; icon: typeof Sparkles; text: string; ring: string }> = {
   new: { label: 'New', icon: Sparkles, text: 'text-accent', ring: 'border-accent/25 bg-accent/10' },
