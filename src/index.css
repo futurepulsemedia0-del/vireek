@@ -47,10 +47,7 @@ html {
     }
   }
 
-  /* Prevent horizontal scroll on mobile */
-  body {
-    overflow-x: hidden;
-  }
+ 
 
   /* Prevent horizontal scroll on mobile */
   body {
@@ -69,8 +66,6 @@ html {
     }
   }
 
-  /* Minimum touch target size for interactive elements on mobile */
-  @media (max-width: 768px) {
   /* Minimum touch target size for interactive elements on mobile */
   @media (max-width: 768px) {
     button,
