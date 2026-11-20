@@ -482,7 +482,7 @@ export function CustomersPage() {
           <ArrowLeft size={18} />
         </button>
         <div className="min-w-0 flex-1">
-          <h1 className="text-2xl font-semibold tracking-tight text-text-primary md:text-3xl">Customers</h1>
+          <h1 className="text-xl font-semibold tracking-tight text-text-primary md:text-2xl">Customers</h1>
           <p className="mt-1 text-sm text-text-secondary">
             {filteredCustomers.length} {filteredCustomers.length === 1 ? 'customer' : 'customers'}
             {isFiltered && ' (filtered)'}
@@ -559,7 +559,7 @@ export function CustomersPage() {
         <div className="overflow-x-auto rounded-xl border border-border bg-bg-secondary">
           <table className="w-full min-w-[720px] text-left text-sm">
             <thead>
-              <tr className="border-b border-border text-xs uppercase tracking-wide text-text-secondary">
+              <tr className="border-b border-border text-xs text-text-secondary">
                 <th className="w-10 px-4 py-3">{bulk.headerCheckbox()}</th>
                 <th className="px-4 py-3 font-medium">Customer</th>
                 <th className="px-4 py-3 font-medium">Contact</th>
