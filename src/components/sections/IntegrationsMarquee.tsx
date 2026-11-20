@@ -11,6 +11,12 @@ import {
   SlackMark,
   StripeMark,
 } from '@/components/brand/thirdPartyLogos';
+import {
+  HousecallProMark,
+  JobberMark,
+  Microsoft365Mark,
+  ServiceTitanMark,
+} from '@/components/brand/fieldServiceMarks';
 import { LogoMarquee, type MarqueeItem } from '@/components/ui/LogoMarquee';
 import { TRADES } from '@/lib/homeContent';
 import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion';
@@ -24,9 +30,9 @@ import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion';
  * `logo` (see the brand guidelines of each vendor).
  */
 const ROW_A: readonly MarqueeItem[] = [
-  { id: 'servicetitan', name: 'ServiceTitan', href: '/integrations/servicetitan', showName: true, logo: <InitialMark name="ServiceTitan" /> },
-  { id: 'jobber', name: 'Jobber', href: '/integrations/jobber', showName: true, logo: <InitialMark name="Jobber" /> },
-  { id: 'housecall-pro', name: 'Housecall Pro', href: '/integrations', showName: true, logo: <InitialMark name="Housecall Pro" /> },
+  { id: 'servicetitan', name: 'ServiceTitan', href: '/integrations/servicetitan', showName: true, logo: <ServiceTitanMark /> },
+  { id: 'jobber', name: 'Jobber', href: '/integrations/jobber', showName: true, logo: <JobberMark /> },
+  { id: 'housecall-pro', name: 'Housecall Pro', href: '/integrations', showName: true, logo: <HousecallProMark /> },
   { id: 'hubspot', name: 'HubSpot', href: '/integrations/hubspot', showName: true, logo: <HubSpotMark /> },
   { id: 'salesforce', name: 'Salesforce', href: '/integrations/salesforce', showName: true, logo: <SalesforceMark /> },
   { id: 'quickbooks', name: 'QuickBooks', href: '/integrations/quickbooks', showName: true, logo: <QuickBooksMark /> },
@@ -34,7 +40,7 @@ const ROW_A: readonly MarqueeItem[] = [
 
 const ROW_B: readonly MarqueeItem[] = [
   { id: 'google-calendar', name: 'Google Calendar', href: '/integrations/google-calendar', showName: true, logo: <GoogleCalendarMark /> },
-  { id: 'microsoft-365', name: 'Microsoft 365', href: '/integrations/microsoft-365', showName: true, logo: <InitialMark name="Microsoft 365" /> },
+  { id: 'microsoft-365', name: 'Microsoft 365', href: '/integrations/microsoft-365', showName: true, logo: <Microsoft365Mark /> },
   { id: 'slack', name: 'Slack', href: '/integrations/slack', showName: true, logo: <SlackMark /> },
   { id: 'microsoft-teams', name: 'Microsoft Teams', href: '/integrations', showName: true, logo: <MicrosoftTeamsMark /> },
   { id: 'stripe', name: 'Stripe', href: '/integrations/stripe', showName: true, logo: <StripeMark /> },
