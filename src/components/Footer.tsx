@@ -1,9 +1,9 @@
 
 
-import { useState, useRef, type FormEvent } from 'react';
+import { useId, useState, useRef, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Linkedin, Phone, Facebook, Instagram, ArrowRight, CheckCircle2, Loader2, ShieldCheck, Sparkles, CreditCard } from 'lucide-react';
+import { Mail, Linkedin, Phone, Facebook, Instagram, ArrowRight, CheckCircle2, Loader2, ShieldCheck, CreditCard } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { SARAH_PHONE } from '@/lib/site';
@@ -233,42 +233,45 @@ const EASE = [0.16, 1, 0.0, 1] as const;
 
 type NewsletterState = 'idle' | 'loading' | 'success' | 'error';
 
-function NewsletterSection() {
+function FooterNewsletter() {
   const { t } = useTranslation();
+  const statusId = useId();
   const [emailValue, setEmailValue] = useState('');
+  const [trap, setTrap] = useState('');
   const [state, setState] = useState<NewsletterState>('idle');
   const [message, setMessage] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const validateEmail = (email: string): boolean => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const busy = state === 'loading' || state === 'success';
+
+  const fail = (text: string) => {
+    setState('error');
+    setMessage(text);
+    inputRef.current?.focus();
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (state === 'loading' || state === 'success') return;
+    if (busy) return;
 
-    if (!emailValue.trim()) {
-      setState('error');
-      setMessage('Please enter your email address.');
-      inputRef.current?.focus();
-      return;
+    const email = emailValue.trim().toLowerCase();
+    if (!email) return fail('Please enter your email address.');
+    if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return fail('Please enter a valid email address.');
     }
 
-    if (!validateEmail(emailValue)) {
-      setState('error');
-      setMessage('Please enter a valid email address.');
-      inputRef.current?.focus();
+    // Honeypot: real visitors never see or fill this field. Bots get a fake success.
+    if (trap) {
+      setState('success');
+      setMessage(t('footer.newsletterSuccess'));
+      setEmailValue('');
       return;
     }
 
     setState('loading');
     setMessage('');
-
     try {
-      const { error } = await supabase
-        .from('newsletter_subscribers')
-        .insert({ email: emailValue.trim().toLowerCase() });
+      const { error } = await supabase.from('newsletter_subscribers').insert({ email });
       if (error && error.code !== '23505') throw error;
       setState('success');
       setMessage(t('footer.newsletterSuccess'));
@@ -279,188 +282,124 @@ function NewsletterSection() {
     }
   };
 
-  const handleReset = () => {
-    if (state === 'success' || state === 'error') {
-      setState('idle');
-      setMessage('');
-    }
-  };
-
-  const inputBorderClass =
+  const frameClass =
     state === 'error'
       ? 'border-danger/60 focus-within:border-danger focus-within:shadow-[0_0_0_3px_rgb(var(--danger)/0.12)]'
       : state === 'success'
-        ? 'border-success/50 focus-within:border-success'
-        : 'border-border focus-within:border-accent/60 focus-within:shadow-[0_0_0_3px_rgb(var(--accent-primary)/0.12)]';
+        ? 'border-success/50'
+        : 'border-border hover:border-border focus-within:border-accent/60 focus-within:shadow-[0_0_0_3px_rgb(var(--accent-primary)/0.12)]';
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-60px' }}
-      transition={{ duration: 0.6, ease: EASE }}
-      className="relative overflow-hidden rounded-2xl border border-border bg-bg-secondary shadow-card"
-    >
-      {/* Ambient gradient backdrop */}
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.5]"
-        style={{
-          background:
-            'radial-gradient(circle at 20% 0%, rgb(var(--accent-primary) / 0.10), transparent 55%), radial-gradient(circle at 80% 100%, rgb(var(--accent-secondary) / 0.08), transparent 50%)',
-        }}
-      />
-      {/* Subtle top highlight line */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
+    <div className="w-full">
+      <h3 className="text-sm font-semibold tracking-tight text-text-primary">{t('footer.newsletterTitle')}</h3>
+      <p className="mt-1 text-sm leading-relaxed text-text-secondary">{t('footer.newsletterSubtitle')}</p>
 
-      <div className="relative p-5 sm:p-7 md:p-10">
-        {/* Header */}
-        <div className="flex items-start gap-4">
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            whileInView={{ scale: 1, opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, ease: EASE, delay: 0.05 }}
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent/10 ring-1 ring-accent/20"
+      <form onSubmit={handleSubmit} noValidate className="mt-4">
+        <div
+          className={`flex items-center gap-1 rounded-xl border bg-bg-primary p-1 shadow-sm transition-[border-color,box-shadow] duration-200 ${frameClass}`}
+        >
+          <Mail className="ml-2.5 h-4 w-4 shrink-0 text-graphic-muted" aria-hidden="true" />
+          <input
+            ref={inputRef}
+            type="email"
+            name="email"
+            inputMode="email"
+            autoComplete="email"
+            maxLength={254}
+            value={emailValue}
+            onChange={(e) => {
+              setEmailValue(e.target.value);
+              if (state === 'error') {
+                setState('idle');
+                setMessage('');
+              }
+            }}
+            placeholder={t('footer.newsletterPlaceholder')}
+            disabled={busy}
+            aria-label="Email address"
+            aria-invalid={state === 'error'}
+            aria-describedby={statusId}
+            className="min-w-0 flex-1 bg-transparent px-2 py-2 text-sm text-text-primary placeholder:text-text-placeholder focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+          />
+          <button
+            type="submit"
+            disabled={busy}
+            className="focus-ring inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-accent px-4 text-sm font-semibold text-on-accent transition-all duration-200 ease-out hover:brightness-110 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-80"
           >
-            <Mail className="h-5 w-5 text-accent" />
-          </motion.div>
-          <div>
-            <h3 className="text-xl font-bold tracking-tight text-text-primary sm:text-2xl">
-              {t('footer.newsletterTitle')}
-            </h3>
-            <p className="mt-1.5 text-sm leading-relaxed text-text-secondary sm:text-[0.925rem]">
-              {t('footer.newsletterSubtitle')}
-            </p>
-          </div>
+            <AnimatePresence mode="wait" initial={false}>
+              {state === 'loading' ? (
+                <motion.span
+                  key="loading"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className="flex items-center gap-1.5"
+                >
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  <span>Subscribing…</span>
+                </motion.span>
+              ) : state === 'success' ? (
+                <motion.span
+                  key="success"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2, ease: EASE }}
+                  className="flex items-center gap-1.5"
+                >
+                  <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+                  <span>Subscribed</span>
+                </motion.span>
+              ) : (
+                <motion.span
+                  key="idle"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className="group flex items-center gap-1.5"
+                >
+                  <span>{t('footer.newsletterButton')}</span>
+                  <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </button>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="mt-7" noValidate>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            {/* Input wrapper */}
-            <div className={`group relative flex flex-1 items-center rounded-xl border bg-bg-primary/60 transition-all duration-200 ${inputBorderClass}`}>
-              <Mail
-                className={`pointer-events-none ml-3.5 h-4 w-4 shrink-0 transition-colors duration-200 ${
-                  state === 'error'
-                    ? 'text-danger'
-                    : state === 'success'
-                      ? 'text-success'
-                      : 'text-graphic-muted group-focus-within:text-accent'
-                }`}
-              />
-              <input
-                ref={inputRef}
-                type="email"
-                value={emailValue}
-                onChange={(e) => {
-                  setEmailValue(e.target.value);
-                  if (state === 'error' || state === 'success') handleReset();
-                }}
-                placeholder={t('footer.newsletterPlaceholder')}
-                disabled={state === 'loading' || state === 'success'}
-                aria-label="Email address"
-                aria-invalid={state === 'error'}
-                className="w-full bg-transparent py-3.5 pl-3 pr-3 text-[0.95rem] text-text-primary placeholder:text-text-placeholder focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
-              />
-            </div>
+        {/* Honeypot — hidden from people and assistive tech */}
+        <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
+          <input type="text" name="website" tabIndex={-1} autoComplete="off" value={trap} onChange={(e) => setTrap(e.target.value)} />
+        </div>
 
-            {/* Subscribe button */}
-            <button
-              type="submit"
-              disabled={state === 'loading' || state === 'success'}
-              className="group relative inline-flex h-[52px] items-center justify-center gap-2 overflow-hidden rounded-xl bg-accent px-6 font-semibold text-on-accent shadow-glow-accent transition-all duration-200 ease-out hover:brightness-110 hover:shadow-[0_10px_30px_-8px_rgb(var(--accent-primary)/0.5)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-80 sm:px-7"
-            >
-              {/* Shimmer sweep on hover */}
-              <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full" />
-
-              <AnimatePresence mode="wait" initial={false}>
-                {state === 'loading' ? (
-                  <motion.span
-                    key="loading"
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    transition={{ duration: 0.2 }}
-                    className="flex items-center gap-2"
-                  >
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>Subscribing…</span>
-                  </motion.span>
-                ) : state === 'success' ? (
-                  <motion.span
-                    key="success"
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    transition={{ duration: 0.25, ease: EASE }}
-                    className="flex items-center gap-2"
-                  >
-                    <CheckCircle2 className="h-4 w-4" />
-                    <span>Subscribed</span>
-                  </motion.span>
-                ) : (
-                  <motion.span
-                    key="idle"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.15 }}
-                    className="flex items-center gap-2"
-                  >
-                    <span>{t('footer.newsletterButton')}</span>
-                    <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
-                  </motion.span>
-                )}
-              </AnimatePresence>
-            </button>
-          </div>
-
-          {/* Feedback messages */}
-          <AnimatePresence mode="wait">
-            {state === 'error' && message && (
+        <div id={statusId} className="mt-2 min-h-[1.25rem]">
+          <AnimatePresence mode="wait" initial={false}>
+            {message && (
               <motion.p
-                key="error-msg"
-                initial={{ opacity: 0, y: -4 }}
+                key={state}
+                role={state === 'error' ? 'alert' : 'status'}
+                initial={{ opacity: 0, y: -3 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -4 }}
-                transition={{ duration: 0.2 }}
-                className="mt-3 flex items-center gap-1.5 text-sm font-medium text-danger"
-                role="alert"
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2, ease: EASE }}
+                className={`flex items-center gap-1.5 text-xs font-medium ${state === 'error' ? 'text-danger' : 'text-success'}`}
               >
-                <span className="inline-block h-1.5 w-1.5 rounded-full bg-danger" />
-                {message}
-              </motion.p>
-            )}
-            {state === 'success' && message && (
-              <motion.p
-                key="success-msg"
-                initial={{ opacity: 0, y: -4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -4 }}
-                transition={{ duration: 0.2 }}
-                className="mt-3 flex items-center gap-1.5 text-sm font-medium text-success"
-                role="status"
-              >
-                <CheckCircle2 className="h-3.5 w-3.5" />
+                {state === 'success' && <CheckCircle2 className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />}
                 {message}
               </motion.p>
             )}
           </AnimatePresence>
-        </form>
-
-        {/* Trust indicators */}
-        <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-text-muted">
-          <span className="flex items-center gap-1.5">
-            <ShieldCheck className="h-3.5 w-3.5 text-graphic-muted" />
-            No spam, unsubscribe anytime
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Sparkles className="h-3.5 w-3.5 text-graphic-muted" />
-            Join 2,000+ contractors
-          </span>
         </div>
-      </div>
-    </motion.div>
+      </form>
+
+      <p className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-text-muted">
+        <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-graphic-muted" aria-hidden="true" />
+        <span>No spam, unsubscribe anytime</span>
+        <span aria-hidden="true">·</span>
+        <span>Join 2,000+ contractors</span>
+      </p>
+    </div>
   );
 }
 
@@ -471,13 +410,12 @@ const { t } = useTranslation();
   return (
     <footer className="border-t border-border bg-bg-tertiary">
       <div className="mx-auto max-w-7xl px-6 py-16">
-        {/* Newsletter */}
-        <NewsletterSection />
 
         {/* Brand band — full width, sits above the nav links as its own row
             instead of squeezed into the first grid track, so it reads
             cleanly at every breakpoint including mobile. */}
-        <div className="mt-12 max-w-sm sm:mt-16">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,24rem)] lg:items-start lg:gap-20">
+        <div className="max-w-sm">
           <span className="text-xl font-bold tracking-tight text-accent">Vireek</span>
           <p className="mt-4 text-sm leading-relaxed text-text-secondary">
             An AI voice receptionist for home-service businesses. Sarah answers every call, 24/7,
@@ -514,6 +452,8 @@ const { t } = useTranslation();
               </a>
             ))}
           </div>
+        </div>
+          <FooterNewsletter />
         </div>
 
         {/* Navigation columns — a balanced CSS multi-column flow (2 columns
