@@ -184,8 +184,8 @@ export function LiveCallsPage() {
   if (!canAccess) {
     return (
       <DashboardLayout activeLabel="Live Calls">
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-bg-secondary/50 px-6 py-20 text-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-bg-tertiary text-text-secondary">
+        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-bg-secondary/50 px-6 py-20 text-center">
+          <span className="flex h-14 w-14 items-center justify-center rounded-xl bg-bg-tertiary text-text-secondary">
             <Lock size={26} />
           </span>
           <h3 className="mt-4 text-lg font-semibold text-text-primary">You don't have access to this page</h3>
@@ -217,7 +217,7 @@ export function LiveCallsPage() {
               <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10 text-accent">
                 <Radio size={16} />
               </span>
-              <h1 className="text-2xl font-bold tracking-tight text-text-primary md:text-3xl">Live Calls</h1>
+              <h1 className="text-2xl font-semibold tracking-tight text-text-primary md:text-3xl">Live Calls</h1>
               <LiveIndicator status={callsStatus} />
             </div>
             <p className="mt-1 text-sm text-text-secondary">
@@ -242,7 +242,7 @@ export function LiveCallsPage() {
           </div>
         </div>
       ) : loadError ? (
-        <div role="alert" className="flex flex-col items-center rounded-2xl border border-dashed border-border bg-bg-secondary/50 px-6 py-16 text-center">
+        <div role="alert" className="flex flex-col items-center rounded-xl border border-dashed border-border bg-bg-secondary/50 px-6 py-16 text-center">
           <p className="text-base font-semibold text-text-primary">Couldn't load live calls</p>
           <p className="mt-1 text-sm text-text-secondary">Check your connection and try again.</p>
           <Button type="button" variant="secondary" size="sm" className="mt-4" onClick={() => void loadRows(false)}>
@@ -298,7 +298,7 @@ export function LiveCallsPage() {
             </div>
 
             {/* ---------- detail ---------- */}
-            <section className={`${selected ? '' : 'hidden lg:flex'} min-w-0 flex-col rounded-2xl border border-border bg-bg-secondary`}>
+            <section className={`${selected ? '' : 'hidden lg:flex'} min-w-0 flex-col rounded-xl border border-border bg-bg-secondary`}>
               {!selected ? (
                 <div className="flex flex-1 flex-col items-center justify-center px-6 py-20 text-center">
                   <PhoneCall size={26} className="text-text-secondary" />
