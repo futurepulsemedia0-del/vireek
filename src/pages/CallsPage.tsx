@@ -90,7 +90,7 @@ const sentimentConfig: Record<string, { label: string; color: string }> = {
 // ============================================================
 
 function SkeletonBlock({ className }: { className: string }) {
-  return <div className={`animate-pulse rounded bg-bg-tertiary ${className}`} />;
+  return <div className={`vrk-skel rounded bg-bg-tertiary ${className}`} />;
 }
 
 function StatusBadge({ status }: { status: string }) {
@@ -212,7 +212,7 @@ function CallDetailPanel({
       transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
       className="fixed right-0 top-0 z-50 h-full w-full max-w-md overflow-y-auto border-l border-border bg-bg-secondary shadow-card-hover dark:shadow-card-hover-dark"
     >
-      <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-bg-secondary/95 px-6 py-4 backdrop-blur-md">
+      <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-bg-secondary px-6 py-4">
         <h2 className="text-base font-semibold text-text-primary">Call Details</h2>
         <button
           type="button"
@@ -232,7 +232,7 @@ function CallDetailPanel({
               <Phone size={22} />
             </span>
             <div>
-              <h3 className="text-lg font-bold text-text-primary">{call.caller_name || 'Unknown caller'}</h3>
+              <h3 className="text-lg font-semibold text-text-primary">{call.caller_name || 'Unknown caller'}</h3>
               <p className="text-sm text-text-secondary">{call.caller_phone || 'No phone on file'}</p>
             </div>
           </div>
@@ -333,11 +333,11 @@ function CallDetailPanel({
             <p className="text-xs font-medium text-text-secondary">Call Intelligence</p>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <p className="text-2xl font-bold text-text-primary">{call.call_score}<span className="text-sm text-text-secondary">/100</span></p>
+                <p className="text-2xl font-semibold text-text-primary">{call.call_score}<span className="text-sm text-text-secondary">/100</span></p>
                 <p className="text-xs text-text-secondary">Call Score</p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-text-primary">{call.lead_score}<span className="text-sm text-text-secondary">/100</span></p>
+                <p className="text-2xl font-semibold text-text-primary">{call.lead_score}<span className="text-sm text-text-secondary">/100</span></p>
                 <p className="text-xs text-text-secondary">Lead Score</p>
               </div>
             </div>
@@ -793,7 +793,7 @@ const updateCall = useCallback(
           </button>
           <div>
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-2xl font-bold tracking-tight text-text-primary md:text-3xl">Call History</h1>
+              <h1 className="text-2xl font-semibold tracking-tight text-text-primary md:text-3xl">Call History</h1>
               <LiveIndicator status={callsLiveStatus} />
             </div>
             <p className="mt-1 text-sm text-text-secondary">
@@ -926,7 +926,7 @@ const updateCall = useCallback(
 
         {/* Table */}
         {dataLoading ? (
-          <div className="rounded-2xl border border-border bg-bg-secondary shadow-card dark:shadow-card-dark">
+          <div className="rounded-xl border border-border bg-bg-secondary">
             <div className="space-y-px">
               {Array.from({ length: 8 }).map((_, i) => (
                 <div key={i} className="flex items-center gap-4 p-4">
@@ -940,8 +940,8 @@ const updateCall = useCallback(
             </div>
           </div>
         ) : paginatedCalls.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-bg-secondary/50 px-6 py-16 text-center">
-            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-bg-tertiary text-text-secondary">
+          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-bg-secondary/50 px-6 py-16 text-center">
+            <span className="flex h-14 w-14 items-center justify-center rounded-xl bg-bg-tertiary text-text-secondary">
               <Phone size={26} />
             </span>
             <h3 className="mt-4 text-base font-semibold text-text-primary">
@@ -956,7 +956,7 @@ const updateCall = useCallback(
         ) : (
           <>
             {/* Desktop table */}
-            <div className="hidden overflow-hidden rounded-2xl border border-border bg-bg-secondary shadow-card md:block dark:shadow-card-dark">
+            <div className="hidden overflow-hidden rounded-xl border border-border bg-bg-secondary shadow-card md:block dark:shadow-card-dark">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-border bg-bg-tertiary/50">
@@ -1074,7 +1074,7 @@ const updateCall = useCallback(
                     key={call.id}
                     type="button"
                     onClick={() => setSelectedCall(call)}
-                    className={`focus-ring w-full rounded-2xl border border-border bg-bg-secondary p-4 text-left shadow-card transition-colors hover:border-accent/40 dark:shadow-card-dark ${
+                    className={`focus-ring w-full rounded-xl border border-border bg-bg-secondary p-4 text-left shadow-card transition-colors hover:border-accent/40 dark:shadow-card-dark ${
                       newlyArrivedId === call.id ? 'border-accent/40 bg-accent/5' : ''
                     }`}
                   >
@@ -1136,7 +1136,7 @@ const updateCall = useCallback(
         {selectedCall && (
           <>
             <div
-              className="fixed inset-0 z-40 bg-overlay/20 backdrop-blur-sm"
+              className="fixed inset-0 z-40 bg-overlay/20"
               onClick={() => setSelectedCall(null)}
             />
             <CallDetailPanel
