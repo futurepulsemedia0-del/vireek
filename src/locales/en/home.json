@@ -1,0 +1,255 @@
+{
+  "common": {
+    "example": "Example",
+    "exampleNote": "Illustration with made-up data. Your own calls and customers will look different.",
+    "startTrial": "Start free trial",
+    "trial": "{{days}}-day free trial · {{cardPolicy}} · Cancel anytime"
+  },
+  "hero": {
+    "eyebrow": "AI receptionist for home service businesses",
+    "headlineControl1": "Every missed call is a lost job.",
+    "headlineControl2": "Sarah answers all of them.",
+    "headlineB1": "Never miss another job.",
+    "headlineB2": "Sarah answers instead.",
+    "sub": "Sarah is an AI voice receptionist for plumbers, HVAC, electrical and roofing companies. She answers every call, captures the job and puts it on your schedule, day or night.",
+    "demo": "Hear Sarah live",
+    "visualLabel": "Example of a call answered by Sarah",
+    "visualTitle": "Incoming call",
+    "callerLine": "“Hi, my water heater is leaking all over the garage.”",
+    "sarahLine": "“I’m sorry to hear that. I’m marking this as an emergency and finding you a time right now. Can I confirm your address?”",
+    "emergency": "Flagged as an emergency",
+    "booked": "Booked for today, 4:30 PM",
+    "assigned": "Assigned to a technician",
+    "texted": "Confirmation texted",
+    "proofAnswers": "Answers",
+    "proofAnswersValue": "24/7",
+    "proofAnswersDetail": "Nights, weekends and holidays",
+    "proofSetup": "Setup",
+    "proofSetupValue": "~{{setupMinutes}} min",
+    "proofSetupDetail": "Forward your number, add your services",
+    "proofTrial": "Trial",
+    "proofTrialValue": "{{days}} days",
+    "proofTrialDetail": "{{cardDetail}}"
+  },
+  "trust": {
+    "heading": "Works with the tools you already use",
+    "note": "Integrations connect through each provider’s own sign-in. Price-book connectors import your pricing; they do not sync jobs.",
+    "tradesHeading": "Built for the trades",
+    "trades": [
+      "Plumbing",
+      "HVAC",
+      "Electrical",
+      "Roofing"
+    ],
+    "allIntegrations": "All integrations",
+    "allIndustries": "All industries"
+  },
+  "problem": {
+    "eyebrow": "The problem",
+    "title": "Missed calls are missed money",
+    "lead": "A homeowner with a leaking pipe won’t wait for a callback. They call the next company on the list.",
+    "problemLabel": "Today",
+    "solutionLabel": "With Vireek",
+    "items": [
+      {
+        "pain": "You’re on a roof or under a sink when the phone rings.",
+        "fix": "Sarah answers, asks the right questions and books the job."
+      },
+      {
+        "pain": "Nights and weekends go to voicemail, which is when emergencies happen.",
+        "fix": "Sarah picks up around the clock and flags urgent calls as they come in."
+      },
+      {
+        "pain": "Details from phone calls get lost before they reach a quote or an invoice.",
+        "fix": "Every call becomes a record: summary, job and customer history in one place."
+      }
+    ]
+  },
+  "calculatorCta": "Estimate what missed calls cost your business",
+  "how": {
+    "eyebrow": "How it works",
+    "title": "Up and running in three steps",
+    "stepLabel": "Step {{n}}",
+    "steps": [
+      {
+        "title": "Forward your number",
+        "body": "Keep the number your customers already know and forward calls to Sarah. You can stop forwarding whenever you like."
+      },
+      {
+        "title": "Sarah answers every call",
+        "body": "She greets the caller, asks what’s wrong, flags emergencies and collects the name, address and job details in a natural conversation."
+      },
+      {
+        "title": "You get a job, not a voicemail",
+        "body": "Each call becomes a summary and a booked or pending job, and the caller gets a text so they know what happens next."
+      }
+    ],
+    "mockForward": "Call forwarding",
+    "mockLine": "Forward unanswered calls to",
+    "mockCall": "Incoming call",
+    "mockBooked": "Booked job"
+  },
+  "bento": {
+    "eyebrow": "Around the call",
+    "title": "More than an answering service",
+    "more": "See the full platform",
+    "items": [
+      {
+        "title": "Texts and follow-ups",
+        "body": "Confirmations, reminders and follow-up messages go out on their own so customers always know what happens next."
+      },
+      {
+        "title": "Email that sends itself",
+        "body": "Quotes, invoices and receipts reach your customers by email without anyone retyping them."
+      },
+      {
+        "title": "Review requests",
+        "body": "Ask happy customers for a review right after the job, while the visit is still fresh in their mind."
+      },
+      {
+        "title": "Repeat business",
+        "body": "Remind customers about maintenance and service anniversaries so the next job comes to you."
+      },
+      {
+        "title": "Campaigns",
+        "body": "Reach past customers with a seasonal offer, using the customer list Vireek already keeps."
+      },
+      {
+        "title": "Photo-backed work",
+        "body": "Attach job photos to the record so the work is documented when it’s time to invoice."
+      },
+      {
+        "title": "Transcripts and summaries",
+        "body": "Every call gets a summary, and paid plans keep the transcript, so you can see exactly what was said."
+      }
+    ]
+  },
+  "showcase": {
+    "eyebrow": "The platform",
+    "title": "From the first ring to the final invoice",
+    "lead": "Vireek connects the phone, the schedule and the money, so nothing falls between tools.",
+    "blocks": [
+      {
+        "title": "Every call answered, every job captured",
+        "body": "Sarah picks up each call, works out what the caller needs and records it as a job. No hold music, no voicemail tag.",
+        "bullets": [
+          "Emergencies flagged as they happen",
+          "Names, addresses and job details captured",
+          "Works nights, weekends and holidays"
+        ]
+      },
+      {
+        "title": "A schedule that fills itself",
+        "body": "Booked jobs land on your board with the details your technicians need before they arrive.",
+        "bullets": [
+          "One view of the whole team’s day",
+          "Call summary and job details together",
+          "Optional Google Calendar connection"
+        ]
+      },
+      {
+        "title": "Quotes and invoices without the paperwork",
+        "body": "Turn finished work into an invoice and get paid, with your own pricing behind every line.",
+        "bullets": [
+          "Import your price book from ServiceTitan, Housecall Pro or Jobber",
+          "Online card payments through Stripe",
+          "Clear status from sent to paid"
+        ]
+      },
+      {
+        "title": "See what’s working",
+        "body": "Know how many calls came in, how many turned into jobs and where revenue slips away.",
+        "bullets": [
+          "Call and booking history in one place",
+          "Trends in call volume and booked jobs",
+          "Customer history from every call"
+        ]
+      }
+    ],
+    "mock": {
+      "callTitle": "Incoming call",
+      "callRows": [
+        "Caller: Dana R.",
+        "Issue: No heat, furnace won’t start",
+        "Address: 118 Maple Street"
+      ],
+      "callChip": "Emergency flagged",
+      "boardTitle": "Today’s schedule",
+      "boardRows": [
+        {
+          "tech": "Marcus",
+          "job": "Furnace repair · 9:00 AM"
+        },
+        {
+          "tech": "Priya",
+          "job": "Water heater · 11:30 AM"
+        },
+        {
+          "tech": "Leo",
+          "job": "Panel upgrade · 2:00 PM"
+        }
+      ],
+      "boardChip": "3 jobs booked",
+      "invoiceTitle": "Invoice",
+      "invoiceRows": [
+        "Diagnostic visit",
+        "Igniter replacement",
+        "Parts"
+      ],
+      "invoiceTotal": "Total",
+      "invoiceAmount": "$412.00",
+      "invoiceChip": "Sent to customer",
+      "unitTitle": "This week",
+      "unitRows": [
+        "Calls answered: 42",
+        "Jobs booked: 17",
+        "Emergencies flagged: 3"
+      ],
+      "unitChip": "Weekly summary"
+    }
+  },
+  "proof": {
+    "eyebrow": "Built to be trusted",
+    "title": "Try Sarah on your own calls",
+    "lead": "Forward your line, see how Sarah handles real callers and decide from your own results. There is no long-term contract.",
+    "quoteLabel": "Customer quotes",
+    "securityTitle": "How we protect your business and your customers",
+    "securityLink": "Read about security",
+    "securityItems": [
+      {
+        "title": "Isolated accounts",
+        "body": "Your data lives in your own account and is kept separate from every other business with row-level security."
+      },
+      {
+        "title": "Encrypted in transit and at rest",
+        "body": "Connections use TLS and stored data is encrypted at rest."
+      },
+      {
+        "title": "Audit trail",
+        "body": "Sensitive actions are written to an audit log so you can see who did what and when."
+      },
+      {
+        "title": "Payments through Stripe",
+        "body": "Card details go straight to Stripe. Vireek never stores full card numbers."
+      },
+      {
+        "title": "Upfront about AI",
+        "body": "Sarah tells callers she is an AI at the start of the call."
+      }
+    ]
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "title": "Straight answers",
+    "more": "More questions",
+    "security": "Security",
+    "privacy": "Privacy"
+  },
+  "final": {
+    "title": "Stop losing jobs to voicemail",
+    "call": "Or call Sarah and hear her for yourself",
+    "aiNote": "Sarah is an AI assistant and says so on every call.",
+    "security": "Security",
+    "cancellation": "Cancellation policy"
+  }
+}
