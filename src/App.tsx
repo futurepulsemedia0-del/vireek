@@ -45,6 +45,8 @@ const SignupPage = lazy(() => import('@/pages/SignupPage').then((m) => ({ defaul
 const OnboardingWizard = lazy(() => import('@/pages/onboarding/OnboardingWizard').then((m) => ({ default: m.OnboardingWizard })));
 const WelcomeQualifyPage = lazy(() => import('@/pages/WelcomeQualifyPage').then((m) => ({ default: m.WelcomeQualifyPage })));
 const SarahKnowledgePage = lazy(() => import('@/pages/SarahKnowledgePage').then((m) => ({ default: m.SarahKnowledgePage })));
+const OnboardingPage = lazy(() => import('@/pages/OnboardingPage').then((m) => ({ default: m.OnboardingPage })));
+const DashboardPage = lazy(() => import('@/pages/DashboardPage').then((m) => ({ default: m.DashboardPage })));
 const OnboardingConciergePage = lazy(() => import('@/pages/OnboardingConciergePage').then((m) => ({ default: m.OnboardingConciergePage })));
 const OnboardingGuidePage = lazy(() => import('@/pages/OnboardingGuidePage').then((m) => ({ default: m.OnboardingGuidePage })));
 const AcademyPage = lazy(() => import('@/pages/AcademyPage').then((m) => ({ default: m.AcademyPage })));
