@@ -160,7 +160,7 @@ function formatCurrency(amount: number | null): string {
 // ============================================================
 
 function SkeletonBlock({ className }: { className: string }) {
-  return <div className={`animate-pulse rounded bg-bg-tertiary ${className}`} />;
+  return <div className={`vrk-skel rounded bg-bg-tertiary ${className}`} />;
 }
 
 function InvoiceBadge({ status }: { status: InvoiceStatus }) {
@@ -338,7 +338,7 @@ function JobDetailPanel({
       transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
       className="fixed right-0 top-0 z-50 h-full w-full max-w-md overflow-y-auto border-l border-border bg-bg-secondary shadow-card-hover dark:shadow-card-hover-dark"
     >
-      <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-bg-secondary/95 px-6 py-4 backdrop-blur-md">
+      <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-bg-secondary px-6 py-4">
        <div className="flex items-center gap-3">
   <h2 className="text-base font-semibold text-text-primary">Job Details</h2>
   <Link
@@ -366,7 +366,7 @@ function JobDetailPanel({
               <Wrench size={22} />
             </span>
             <div>
-              <h3 className="text-lg font-bold text-text-primary">{job.customer_name}</h3>
+              <h3 className="text-lg font-semibold text-text-primary">{job.customer_name}</h3>
               {job.service_type && <p className="text-sm text-text-secondary">{job.service_type}</p>}
             </div>
           </div>
@@ -578,7 +578,7 @@ function JobDetailPanel({
           ) : (
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-2xl font-bold text-text-primary">{formatCurrency(job.invoice_amount)}</p>
+                <p className="text-2xl font-semibold text-text-primary">{formatCurrency(job.invoice_amount)}</p>
                 <div className="mt-1"><InvoiceBadge status={job.invoice_status} /></div>
               </div>
               {job.invoice_amount != null && job.invoice_status !== 'paid' && (
@@ -754,15 +754,15 @@ function CreateJobModal({
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-overlay/30 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-overlay/30" onClick={onClose} />
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-        className="relative w-full max-w-lg rounded-2xl border border-border bg-bg-secondary p-6 shadow-card-hover dark:shadow-card-hover-dark"
+        className="relative w-full max-w-lg rounded-xl border border-border bg-bg-secondary p-6 shadow-card-hover dark:shadow-card-hover-dark"
       >
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-text-primary">Create Job</h2>
+          <h2 className="text-lg font-semibold text-text-primary">Create Job</h2>
           <button
             type="button"
             onClick={onClose}
@@ -1472,7 +1472,7 @@ export function JobsPage() {
             </button>
             <div>
               <div className="flex flex-wrap items-center gap-3">
-                <h1 className="text-2xl font-bold tracking-tight text-text-primary md:text-3xl">{canViewAll ? 'Jobs' : 'My Jobs'}</h1>
+                <h1 className="text-2xl font-semibold tracking-tight text-text-primary md:text-3xl">{canViewAll ? 'Jobs' : 'My Jobs'}</h1>
                 <LiveIndicator status={jobsLiveStatus} />
               </div>
               <p className="mt-1 text-sm text-text-secondary">{canViewAll ? 'Track every job from scheduled to paid.' : 'Your assigned jobs, from scheduled to paid.'}</p>
@@ -1506,7 +1506,7 @@ export function JobsPage() {
                 setPrefill(null);
                 setShowCreateModal(true);
               }}
-              className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-on-cta shadow-sm transition-all hover:brightness-110 hover:shadow-glow-cta"
+              className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-on-cta shadow-sm transition-all hover:brightness-110"
             >
               <Plus size={16} /> Create Job
             </button>
@@ -1583,7 +1583,7 @@ export function JobsPage() {
           viewMode === 'board' ? (
             <div className="grid gap-4 lg:grid-cols-4">
               {BOARD_STAGES.map((s) => (
-                <div key={s.key} className="rounded-2xl border border-border bg-bg-secondary p-4 shadow-card dark:shadow-card-dark">
+                <div key={s.key} className="rounded-xl border border-border bg-bg-secondary p-4">
                   <SkeletonBlock className="h-5 w-24" />
                   <div className="mt-4 space-y-3">
                     {Array.from({ length: 2 }).map((_, i) => (
@@ -1594,7 +1594,7 @@ export function JobsPage() {
               ))}
             </div>
           ) : (
-            <div className="rounded-2xl border border-border bg-bg-secondary shadow-card dark:shadow-card-dark">
+            <div className="rounded-xl border border-border bg-bg-secondary">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="flex items-center gap-4 border-b border-border p-4 last:border-0">
                   <SkeletonBlock className="h-5 w-32" />
@@ -1607,8 +1607,8 @@ export function JobsPage() {
             </div>
           )
         ) : filteredJobs.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-bg-secondary/50 px-6 py-16 text-center">
-            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-bg-tertiary text-text-secondary">
+          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-bg-secondary/50 px-6 py-16 text-center">
+            <span className="flex h-14 w-14 items-center justify-center rounded-xl bg-bg-tertiary text-text-secondary">
               <Wrench size={26} />
             </span>
             <h3 className="mt-4 text-base font-semibold text-text-primary">
@@ -1638,7 +1638,7 @@ export function JobsPage() {
                 onDragOver={(e) => handleDragOver(e, stage.key)}
                 onDragLeave={() => setDragOverStage(null)}
                 onDrop={(e) => handleDrop(e, stage.key)}
-                className={`rounded-2xl border-t-4 ${stage.borderColor} border-x border-b border-border bg-bg-secondary p-4 shadow-card transition-colors dark:shadow-card-dark ${
+                className={`rounded-xl border-t-4 ${stage.borderColor} border-x border-b border-border bg-bg-secondary p-4 shadow-card transition-colors dark:shadow-card-dark ${
                   dragOverStage === stage.key ? 'ring-2 ring-accent/40' : ''
                 }`}
               >
@@ -1676,7 +1676,7 @@ export function JobsPage() {
         {viewMode === 'board' && !dataLoading && filteredJobs.length > 0 && (
           <div className="space-y-4 lg:hidden">
             {BOARD_STAGES.map((stage) => (
-              <div key={stage.key} className="rounded-2xl border border-border bg-bg-secondary p-4 shadow-card dark:shadow-card-dark">
+              <div key={stage.key} className="rounded-xl border border-border bg-bg-secondary p-4">
                 <div className="mb-3 flex items-center gap-2">
                   <span className={`h-2.5 w-2.5 rounded-full ${stage.dotColor}`} />
                   <h2 className="text-sm font-semibold text-text-primary">{stage.label}</h2>
@@ -1723,7 +1723,7 @@ export function JobsPage() {
 
         {/* List view */}
         {viewMode === 'list' && !dataLoading && filteredJobs.length > 0 && (
-          <div className="overflow-x-auto rounded-2xl border border-border bg-bg-secondary shadow-card dark:shadow-card-dark">
+          <div className="overflow-x-auto rounded-xl border border-border bg-bg-secondary">
             <table className="w-full min-w-[640px]">
               <thead>
                 <tr className="border-b border-border bg-bg-tertiary/50">
@@ -1815,7 +1815,7 @@ export function JobsPage() {
         {selectedJob && (
           <>
             <div
-              className="fixed inset-0 z-40 bg-overlay/20 backdrop-blur-sm"
+              className="fixed inset-0 z-40 bg-overlay/20"
               onClick={() => setSelectedJob(null)}
             />
             <JobDetailPanel
