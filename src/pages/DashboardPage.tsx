@@ -65,12 +65,10 @@ function EmptyState({
 // ============================================================
 
 function KpiCard({
-  icon: Icon,
   label,
   value,
   sub,
   delta,
-  accentColor,
   delay,
 }: {
   icon: typeof Phone;
@@ -78,38 +76,32 @@ function KpiCard({
   value: string;
   sub: string;
   delta?: React.ReactNode;
-  accentColor: string;
+  accentColor?: string;
   delay: number;
 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay, ease: [0.16, 1, 0.3, 1] }}
-      className="rounded-xl border border-border bg-bg-secondary p-6 shadow-card transition-[transform,box-shadow,border-color] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
+      transition={{ duration: 0.25, delay: Math.min(delay, 0.1), ease: [0.16, 1, 0.3, 1] }}
+      className="rounded-xl border border-border bg-bg-secondary p-5"
     >
-      <div className="flex items-center justify-between">
-        <span className={`flex h-11 w-11 items-center justify-center rounded-xl ${accentColor}`}>
-          <Icon size={22} />
-        </span>
-      </div>
-      <p className="mt-5 text-4xl font-semibold tracking-tight text-text-primary">{value}</p>
-      <div className="mt-1 flex flex-wrap items-center gap-2">
-        <p className="text-sm font-medium text-text-secondary">{label}</p>
+      <p className="text-sm font-medium text-text-secondary">{label}</p>
+      <div className="mt-2 flex flex-wrap items-baseline gap-2">
+        <p className="text-3xl font-semibold tracking-tight tabular-nums text-text-primary">{value}</p>
         {delta}
       </div>
-      <p className="mt-0.5 text-xs text-text-muted">{sub}</p>
+      <p className="mt-1 text-xs text-text-muted">{sub}</p>
     </motion.div>
   );
 }
 
 function KpiSkeleton() {
   return (
-    <div className="rounded-xl border border-border bg-bg-secondary p-6">
-      <SkeletonBlock className="h-11 w-11" />
-      <SkeletonBlock className="mt-5 h-10 w-24" />
-      <SkeletonBlock className="mt-2 h-4 w-32" />
-      <SkeletonBlock className="mt-1 h-3 w-24" />
+    <div className="rounded-xl border border-border bg-bg-secondary p-5">
+      <SkeletonBlock className="h-4 w-28" />
+      <SkeletonBlock className="mt-3 h-9 w-24" />
+      <SkeletonBlock className="mt-2 h-3 w-32" />
     </div>
   );
 }
@@ -959,7 +951,7 @@ export function DashboardPage() {
           ) : (
             <>
               <div className="flex flex-wrap items-center gap-3">
-                <h1 className="text-2xl font-semibold tracking-tight text-text-primary md:text-3xl">
+                <h1 className="text-xl font-semibold tracking-tight text-text-primary md:text-2xl">
                   Welcome back, {profile?.company_name || profile?.full_name?.split(' ')[0] || 'there'}
                 </h1>
                 <LiveIndicator status={callsLiveStatus} />
