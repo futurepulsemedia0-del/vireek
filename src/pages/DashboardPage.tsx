@@ -37,7 +37,7 @@ import { hiddenItems, resolveRolePreset, visibleItems, type OverviewWidgetId, ty
 // ============================================================
 
 function SkeletonBlock({ className }: { className: string }) {
-  return <div className={`animate-pulse rounded bg-bg-tertiary ${className}`} />;
+  return <div className={`vrk-skel rounded bg-bg-tertiary ${className}`} />;
 }
 
 function EmptyState({
@@ -50,8 +50,8 @@ function EmptyState({
   body: string;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-bg-secondary/50 px-6 py-12 text-center">
-      <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-bg-tertiary text-text-secondary">
+    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-bg-secondary/50 px-6 py-12 text-center">
+      <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-bg-tertiary text-text-secondary">
         <Icon size={22} />
       </span>
       <h3 className="mt-4 text-base font-semibold text-text-primary">{title}</h3>
@@ -86,14 +86,14 @@ function KpiCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay, ease: [0.16, 1, 0.3, 1] }}
-      className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card transition-[transform,box-shadow,border-color] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
+      className="rounded-xl border border-border bg-bg-secondary p-6 shadow-card transition-[transform,box-shadow,border-color] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-card-hover dark:shadow-card-dark dark:hover:shadow-card-hover-dark"
     >
       <div className="flex items-center justify-between">
         <span className={`flex h-11 w-11 items-center justify-center rounded-xl ${accentColor}`}>
           <Icon size={22} />
         </span>
       </div>
-      <p className="mt-5 text-4xl font-bold tracking-tight text-text-primary">{value}</p>
+      <p className="mt-5 text-4xl font-semibold tracking-tight text-text-primary">{value}</p>
       <div className="mt-1 flex flex-wrap items-center gap-2">
         <p className="text-sm font-medium text-text-secondary">{label}</p>
         {delta}
@@ -105,7 +105,7 @@ function KpiCard({
 
 function KpiSkeleton() {
   return (
-    <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
+    <div className="rounded-xl border border-border bg-bg-secondary p-6">
       <SkeletonBlock className="h-11 w-11" />
       <SkeletonBlock className="mt-5 h-10 w-24" />
       <SkeletonBlock className="mt-2 h-4 w-32" />
@@ -138,14 +138,14 @@ function MetricCard({
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay, ease: [0.16, 1, 0.3, 1] }}
-      className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark"
+      className="rounded-xl border border-border bg-bg-secondary p-5"
     >
       <div className="flex items-center gap-2.5">
         <Icon size={18} className="text-text-secondary" />
         <span className="text-sm font-medium text-text-secondary">{label}</span>
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        <p className="text-2xl font-bold tracking-tight text-text-primary">{value}</p>
+        <p className="text-2xl font-semibold tracking-tight text-text-primary">{value}</p>
         {delta}
       </div>
       {children}
@@ -155,7 +155,7 @@ function MetricCard({
 
 function MetricSkeleton() {
   return (
-    <div className="rounded-2xl border border-border bg-bg-secondary p-5 shadow-card dark:shadow-card-dark">
+    <div className="rounded-xl border border-border bg-bg-secondary p-5">
       <SkeletonBlock className="h-5 w-28" />
       <SkeletonBlock className="mt-3 h-8 w-20" />
     </div>
@@ -179,7 +179,7 @@ function CallVolumeChart({
   const chartHeight = 160;
 
   return (
-    <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
+    <div className="rounded-xl border border-border bg-bg-secondary p-6">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-text-primary">{title}{bucketDays > 1 ? ' · weekly' : ''}</h3>
         <span className="text-xs text-text-secondary">
@@ -230,7 +230,7 @@ function CallVolumeChart({
 
 function ChartSkeleton() {
   return (
-    <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
+    <div className="rounded-xl border border-border bg-bg-secondary p-6">
       <SkeletonBlock className="h-5 w-48" />
       <div className="mt-6 flex items-end gap-1" style={{ height: 160 }}>
         {Array.from({ length: 14 }).map((_, i) => (
@@ -264,13 +264,13 @@ function NeedsAttention({ items, onInsightClick }: { items: AttentionItem[]; onI
   };
 
   return (
-    <div className="rounded-2xl border-2 border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
+    <div className="rounded-xl border-2 border-border bg-bg-secondary p-6">
       <div className="flex items-center gap-2.5">
         <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-warning-subtle text-warning">
           <Bell size={20} />
         </span>
         <div>
-          <h3 className="text-base font-bold text-text-primary">Needs Your Attention</h3>
+          <h3 className="text-base font-semibold text-text-primary">Needs Your Attention</h3>
           <p className="text-xs text-text-secondary">
             {items.length === 0 ? 'All clear — nothing needs your attention right now.' : `${items.length} item${items.length !== 1 ? 's' : ''} require action`}
           </p>
@@ -332,7 +332,7 @@ interface ActivityItem {
 
 function RecentActivity({ items, highlightId }: { items: ActivityItem[]; highlightId?: string | null }) {
   return (
-    <div className="rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
+    <div className="rounded-xl border border-border bg-bg-secondary p-6">
       <h3 className="text-base font-semibold text-text-primary">Recent Activity</h3>
       {items.length === 0 ? (
         <div className="mt-4">
@@ -959,7 +959,7 @@ export function DashboardPage() {
           ) : (
             <>
               <div className="flex flex-wrap items-center gap-3">
-                <h1 className="text-2xl font-bold tracking-tight text-text-primary md:text-3xl">
+                <h1 className="text-2xl font-semibold tracking-tight text-text-primary md:text-3xl">
                   Welcome back, {profile?.company_name || profile?.full_name?.split(' ')[0] || 'there'}
                 </h1>
                 <LiveIndicator status={callsLiveStatus} />
