@@ -168,6 +168,8 @@ describe('CancelSubscriptionPage — survey', () => {
     expect(await screen.findByRole('heading', { name: /your cancellation is scheduled/i })).toBeInTheDocument();
     expect(invoke).toHaveBeenCalledWith('manage-subscription-cancellation', { body: { action: 'cancel', reason: null, detail: '' } });
   });
+
+  it('asks for a reason before continuing', async () => {
     renderPage();
     await screen.findByRole('heading', { name: /sorry to see you go/i });
     clickBtn(/^continue$/i);
