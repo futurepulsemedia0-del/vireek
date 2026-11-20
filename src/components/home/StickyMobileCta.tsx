@@ -73,7 +73,7 @@ export function StickyMobileCta() {
   const reduce = useReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
   const heroVisible = useAnyVisible('[data-hero-cta]', true);
-  const footerVisible = useAnyVisible('footer', false);
+  const footerVisible = useAnyVisible('#contact, footer', false);
   const cookieOpen = useConsentBannerOpen();
   const keyboardOpen = useKeyboardOpen();
 
