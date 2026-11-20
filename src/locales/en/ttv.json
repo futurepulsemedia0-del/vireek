@@ -1,0 +1,61 @@
+{
+  "loading": "Loading onboarding time-to-value…",
+  "forbidden": "Onboarding time-to-value is available to Vireek staff only.",
+  "loadError": "Couldn’t load onboarding time-to-value.",
+  "retry": "Retry",
+  "title": "Onboarding time-to-value",
+  "subtitle": "How long new accounts take to reach each milestone, and who is stuck.",
+  "window": "Signed up in the last",
+  "windowDays_one": "{{count}} day",
+  "windowDays_other": "{{count}} days",
+  "stats": {
+    "signups": "Signups",
+    "stalled": "Stalled now",
+    "openAlerts": "Open alerts"
+  },
+  "truncated": "This cohort is larger than the 5,000 accounts the card can read, so the numbers are a minimum.",
+  "emptyCohort": "No accounts signed up in this window.",
+  "table": {
+    "caption": "Accounts that reached each onboarding milestone, with median and 90th-percentile time from signup",
+    "milestone": "Milestone",
+    "reached": "Reached",
+    "median": "Median",
+    "p90": "90th percentile",
+    "unknown": "—"
+  },
+  "milestone": {
+    "setup_completed": "Setup completed",
+    "number_connected": "Number connected",
+    "first_test_call": "First test call",
+    "first_real_call": "First real call",
+    "first_job_booked": "First job booked"
+  },
+  "duration": {
+    "minutes": "{{value}} min",
+    "hours": "{{value}} h",
+    "days": "{{value}} d"
+  },
+  "alerts": {
+    "title": "Stalled accounts",
+    "none": "No accounts are stalled right now.",
+    "unnamed": "Unnamed business",
+    "stalledAt": "Stalled before: {{milestone}}",
+    "overdue": "{{hours}} h without progress (limit {{limit}} h)",
+    "open": "Open account",
+    "acknowledge": "Acknowledge",
+    "acknowledged": "Acknowledged",
+    "ackError": "Couldn’t acknowledge the alert. Try again."
+  },
+  "config": {
+    "title": "Alert thresholds",
+    "toggle": "Edit",
+    "hours": "hours",
+    "enabled": "Alert",
+    "watchDays": "Watch new accounts for (days)",
+    "save": "Save changes",
+    "saved": "Saved.",
+    "saveError": "Couldn’t save. Nothing was changed.",
+    "invalidHours": "Enter whole hours from 1 to 2160 for every milestone.",
+    "invalidDays": "Enter whole days from 7 to 365."
+  }
+}
