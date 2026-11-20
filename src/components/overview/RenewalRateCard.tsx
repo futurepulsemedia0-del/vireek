@@ -22,7 +22,7 @@ export function RenewalRateCard() {
   const coverage = kpis ? autoChargeCoverage(kpis) : null;
 
   return (
-    <div className="h-full rounded-2xl border border-border bg-bg-secondary p-6 shadow-card dark:shadow-card-dark">
+    <div className="h-full rounded-xl border border-border bg-bg-secondary p-6">
       <div className="flex items-center justify-between">
         <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-success-subtle text-success">
           <RotateCcw size={20} />
@@ -36,11 +36,11 @@ export function RenewalRateCard() {
       </div>
 
       <p className="mt-4 text-sm text-text-secondary">Agreement renewal rate</p>
-      {!kpis && !failed && <div className="mt-2 h-9 w-24 animate-pulse rounded bg-bg-tertiary" aria-label="Loading renewal rate" />}
+      {!kpis && !failed && <div className="mt-2 h-9 w-24 vrk-skel rounded bg-bg-tertiary" aria-label="Loading renewal rate" />}
       {failed && <p className="mt-2 text-sm text-text-secondary">Couldn’t load renewal data right now.</p>}
       {kpis && (
         <>
-          <p className="mt-1 text-3xl font-bold text-text-primary">{formatRate(kpis.renewal_rate)}</p>
+          <p className="mt-1 text-3xl font-semibold text-text-primary">{formatRate(kpis.renewal_rate)}</p>
           <p className="mt-1 text-xs text-text-secondary">
             {decided === 0 ? 'No renewals decided yet — last 90 days' : `${kpis.renewed} of ${decided} renewed · last ${kpis.window_days} days`}
           </p>
