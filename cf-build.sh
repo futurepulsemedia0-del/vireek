@@ -14,9 +14,18 @@ npm install --no-save --legacy-peer-deps --ignore-scripts \
   @capacitor-community/bluetooth-le @capacitor-community/in-app-review \
   @capacitor-community/stripe-terminal @capacitor-firebase/messaging \
   @capacitor-mlkit/barcode-scanning @capawesome/capacitor-badge \
-  @capgo/background-geolocation @capgo/capacitor-nfc
+  @capgo/background-geolocation @capgo/capacitor-nfc \
+  @fontsource-variable/inter @fontsource-variable/source-serif-4 \
+  @fontsource/dancing-script @fontsource/caveat @fontsource/great-vibes
 
 npm run tokens:build
+
+mkdir -p public/fonts
+for f in inter-latin-wght-normal inter-latin-ext-wght-normal; do cp "node_modules/@fontsource-variable/inter/files/$f.woff2" public/fonts/; done
+for f in source-serif-4-latin-wght-normal source-serif-4-latin-ext-wght-normal; do cp "node_modules/@fontsource-variable/source-serif-4/files/$f.woff2" public/fonts/; done
+cp node_modules/@fontsource/dancing-script/files/dancing-script-latin-400-normal.woff2 public/fonts/
+cp node_modules/@fontsource/caveat/files/caveat-latin-400-normal.woff2 public/fonts/
+cp node_modules/@fontsource/great-vibes/files/great-vibes-latin-400-normal.woff2 public/fonts/
 
 # Chromium for SEO prerender. If it cannot be installed, the build still ships the SPA shell.
 npx playwright install chromium || echo "[cf-build] playwright chromium install failed - continuing without prerender"
