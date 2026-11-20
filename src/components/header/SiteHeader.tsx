@@ -4,12 +4,12 @@ import { Link, useLocation } from 'react-router-dom';
 import { ArrowRight, LayoutDashboard, LogIn, Phone } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDirection } from '@/hooks/useDirection';
 import { SARAH_PHONE } from '@/lib/site';
 import { DesktopMegaNav } from '@/components/header/MegaMenu';
 import { MobileNav } from '@/components/header/MobileNav';
+import { Logo as BrandLogo } from '@/components/brand/Logo';
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -17,36 +17,8 @@ const EASE = [0.16, 1, 0.3, 1] as const;
 /*  Logo (mark + wordmark)                                             */
 /* ------------------------------------------------------------------ */
 
-function Logo({ size = 'h-9 w-9' }: { size?: string }) {
-  const { theme } = useTheme();
-  return (
-    <span className={`relative block shrink-0 ${size}`}>
-      <img
-        src="/assets/logos/logo-dark.png"
-        alt=""
-        aria-hidden="true"
-        width={36}
-        height={36}
-        decoding="async"
-        loading="eager"
-        className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-200 ${
-          theme === 'light' ? 'opacity-100' : 'opacity-0'
-        }`}
-      />
-      <img
-        src="/assets/logos/logo-light.png"
-        alt=""
-        aria-hidden="true"
-        width={36}
-        height={36}
-        decoding="async"
-        loading="eager"
-        className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-200 ${
-          theme === 'dark' ? 'opacity-100' : 'opacity-0'
-        }`}
-      />
-    </span>
-  );
+function Logo({ px = 36 }: { px?: number }) {
+  return <BrandLogo variant="tile" size={px} decorative />;
 }
 
 /* ------------------------------------------------------------------ */
@@ -327,7 +299,7 @@ export function SiteHeader() {
             >
               <div className="flex items-center justify-between border-b border-border px-5 py-4">
                 <Link to="/" className="focus-ring flex items-center gap-2.5 rounded-lg" onClick={() => closeDrawer()} aria-label="Vireek home">
-                  <Logo size="h-8 w-8" />
+                  <Logo px={32} />
                   <span className="text-base font-bold tracking-tight text-text-primary">Vireek</span>
                 </Link>
                 <button
