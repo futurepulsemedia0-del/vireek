@@ -15,6 +15,20 @@ interface TranscriptLine {
 // Raised from 6 → 50 now that the transcript panel actually scrolls inside
 // its own box instead of growing the whole card (see min-h-0 fix below).
 const MAX_TRANSCRIPT_LINES = 50;
+function describeError(err: unknown): string {
+  try {
+    const e = err as any;
+    return (
+      e?.error?.message?.message ??
+      e?.error?.message ??
+      e?.errorMsg ??
+      e?.message ??
+      JSON.stringify(e, Object.getOwnPropertyNames(e ?? {}))
+    );
+  } catch {
+    return String(err);
+  }
+}
 const GENERIC_ERROR =
   "Couldn't start the voice demo — check that your microphone is allowed for this site, then try again.";
 
@@ -115,7 +129,7 @@ export function VoiceDemoWidget() {
     vapi.on('error', (err) => {
       console.error('Vapi error:', err);
       setState('error');
-      setErrorMessage(GENERIC_ERROR);
+      setErrorMessage(`${GENERIC_ERROR} [${describeError(err)}]`);
       if (timerRef.current) window.clearInterval(timerRef.current);
     });
 
@@ -131,7 +145,7 @@ export function VoiceDemoWidget() {
     } catch (err) {
       console.error(err);
       setState('error');
-      setErrorMessage(GENERIC_ERROR);
+      setErrorMessage(`${GENERIC_ERROR} [${describeError(err)}]`);
     }
   }, []);
 
