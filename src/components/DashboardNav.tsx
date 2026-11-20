@@ -645,7 +645,6 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
   const allVisible = [...visiblePrimary, ...visibleAccount];
   const pillarGroups = groupByPillar(simpleMode.active ? filterToSimpleNav(allVisible) : allVisible, { audience, showLabs: labsVisible && !simpleMode.active });
   const overview = visiblePrimary.find((i) => i.href === '/dashboard');
-  = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
