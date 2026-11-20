@@ -1,0 +1,34 @@
+{
+  "title": "Export all your data",
+  "description": "Download a complete copy of your account in open formats: a tar archive of NDJSON files plus a manifest that proves every record is included. Available to account owners and admins.",
+  "actions": {
+    "download": "Download export",
+    "resume": "Resume export",
+    "startOver": "Start over",
+    "cancel": "Cancel"
+  },
+  "status": {
+    "preparing": "Preparing your export…",
+    "progressLabel": "Export progress",
+    "downloading": "Downloading {{table}}: {{rows}} of {{total}} records",
+    "verifying": "Verifying every record…",
+    "paused": "Paused at {{rows}} of {{total}} records. Resume to continue where you left off.",
+    "done": "Export complete. {{rows}} records verified. Fingerprint: {{fingerprint}}"
+  },
+  "errors": {
+    "auth": "Your session expired. Sign in again, then resume the export.",
+    "generic": "The export was interrupted. Check your connection and try again.",
+    "forbidden": "Only account owners and admins can export account data.",
+    "incomplete": "The server couldn’t confirm that every record was included, so no file was kept. Please try again.",
+    "integrity": "A data check failed, so the export was discarded. Please try again.",
+    "sink": "The file couldn’t be written to your device. Free up some space and try again."
+  },
+  "tables": {
+    "customers": "customers",
+    "price_book_items": "price book",
+    "jobs": "jobs",
+    "invoices": "invoices",
+    "calls": "calls",
+    "audit_log": "audit log"
+  }
+}
