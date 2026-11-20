@@ -16,6 +16,7 @@ import { RouteEffects } from '@/components/nav/RouteEffects';
 import { RouteProgressBar } from '@/components/nav/RouteProgress';
 import { SessionGuard } from '@/components/session/SessionGuard';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { WidgetBoundary } from '@/components/system/WidgetBoundary';
 import { ProductTourProvider } from '@/contexts/ProductTourContext';
 import { AnalyticsListener } from '@/components/AnalyticsListener';
 import { ConsentManager } from '@/components/consent/ConsentManager';
@@ -80,13 +81,23 @@ createRoot(document.getElementById('root')!).render(
                               <App />
                             </ConnectivityShell>
                           </AppLockGate>
-                          <AccessibilityWidget />
+                                                   <WidgetBoundary>
+                            <AccessibilityWidget />
+                          </WidgetBoundary>
                           <LanguagePersistenceSync />
-                          <Suspense fallback={null}>
-                            <LiveChatWidget />
-                            <SupportAgent />
-                          </Suspense>
-                          <ConsentManager />
+                          <WidgetBoundary>
+                            <Suspense fallback={null}>
+                              <LiveChatWidget />
+                            </Suspense>
+                          </WidgetBoundary>
+                          <WidgetBoundary>
+                            <Suspense fallback={null}>
+                              <SupportAgent />
+                            </Suspense>
+                          </WidgetBoundary>
+                          <WidgetBoundary>
+                            <ConsentManager />
+                          </WidgetBoundary>
                         </ErrorBoundary>
                       </RegionalProvider>
                     </AuthProvider>
