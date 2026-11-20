@@ -23,14 +23,14 @@ export function LeakCasesCard() {
   }, []);
 
   if (failed) return null;
-  if (!s) return <div className="h-28 w-full animate-pulse rounded-2xl bg-bg-tertiary" />;
+  if (!s) return <div className="h-28 w-full vrk-skel rounded-xl bg-bg-tertiary" />;
   if (s.active === 0) return null;
 
   const overdue = s.overdue > 0;
   return (
     <Link
       to="/dashboard/refrigerant-leaks"
-      className={`focus-ring flex h-full items-center gap-4 rounded-2xl border p-5 shadow-card transition-colors dark:shadow-card-dark ${overdue ? 'border-danger/40 bg-danger/5 hover:border-danger' : 'border-border bg-bg-secondary hover:border-accent/40'}`}
+      className={`focus-ring flex h-full items-center gap-4 rounded-xl border p-5 shadow-card transition-colors dark:shadow-card-dark ${overdue ? 'border-danger/40 bg-danger/5 hover:border-danger' : 'border-border bg-bg-secondary hover:border-accent/40'}`}
     >
       <span
         className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${overdue ? 'bg-danger/10 text-danger' : 'bg-accent/10 text-accent'}`}
@@ -46,7 +46,7 @@ export function LeakCasesCard() {
           Refrigerant leak cases
         </p>
         <p className="mt-0.5 flex items-baseline gap-2">
-          <span className={`text-3xl font-bold ${overdue ? 'text-danger' : 'text-text-primary'}`}>
+          <span className={`text-3xl font-semibold ${overdue ? 'text-danger' : 'text-text-primary'}`}>
             {overdue ? s.overdue : s.active}
           </span>
           <span className="text-sm text-text-secondary">{overdue ? 'overdue' : 'active'}</span>
