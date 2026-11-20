@@ -470,8 +470,6 @@ export function CancelSubscriptionPage() {
               {busy === 'offers' && <Loader2 size={16} className="animate-spin" aria-hidden="true" />}
               Continue
             </Button>
-              Continue
-            </Button>
           </div>
         </div>
       );
@@ -588,9 +586,7 @@ export function CancelSubscriptionPage() {
               <Button type="button" variant="ghost" onClick={goBack}>
                 Keep my subscription
               </Button>
-              onClick={() =>
-              <Button type="button" variant="ghost" onClick={() => setStep(reasonSkipsAlternatives(reason) || (ctx.save_offers_enabled && saveOffers.length === 0) ? 'survey' : 'alternatives')
-              }
+              <Button type="button" variant="ghost" onClick={() => setStep(reasonSkipsAlternatives(reason) || (ctx.save_offers_enabled && saveOffers.length === 0) ? 'survey' : 'alternatives')}>
                 Back
               </Button>
             </div>
