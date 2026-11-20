@@ -53,6 +53,9 @@ export const QUALIFICATION_QUESTIONS: readonly QualQuestion[] = [
   },
 ];
 
+/** Route of WelcomeQualifyPage (must match the <Route path> in src/App.tsx). */
+export const QUALIFICATION_ROUTE = '/welcome-setup';
+
 export const QUALIFICATION_WINDOW_MS = 72 * 60 * 60 * 1000;
 export const SARAH_CARD_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
 
