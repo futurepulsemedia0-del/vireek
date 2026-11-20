@@ -169,15 +169,6 @@ export async function collectRoutes() {
     /* no lastmod for /changelog */
   }
 
-/** Written to dist/app-routes.json; the Cloudflare worker uses it to answer unknown URLs with a real 404. */
-export function appRoutesManifest() {
-  return {
-    patterns: appRoutePaths().filter((x) => x !== '*'),
-    passthroughPrefixes: PRIVATE_PREFIXES,
-    prerenderedPatterns: PRERENDERED_PATTERNS,
-  };
-}
-
   let locations = [];
   if (existsSync(path.join(ROOT, 'src/lib/locations.ts'))) {
     const mod = await loadTsModule('src/lib/locations.ts');
@@ -242,6 +233,13 @@ dynamic(usedCategories, '/blog/category', 'blog-category', (c) =>
   );
   return [...entries.values()];
 }
-
+/** Written to dist/app-routes.json; the Cloudflare worker uses it to answer unknown URLs with a real 404. */
+export function appRoutesManifest() {
+  return {
+    patterns: appRoutePaths().filter((x) => x !== '*'),
+    passthroughPrefixes: PRIVATE_PREFIXES,
+    prerenderedPatterns: PRERENDERED_PATTERNS,
+  };
+}
 
 
