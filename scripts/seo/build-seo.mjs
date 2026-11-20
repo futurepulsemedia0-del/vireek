@@ -4,7 +4,7 @@
 import { copyFileSync, existsSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
-import { ROOT, SITE_URL, canonicalFor, collectRoutes, robotsDisallowRules } from './routes.mjs';
+import { ROOT, SITE_URL, appRoutesManifest, canonicalFor, collectRoutes, robotsDisallowRules } from './routes.mjs';
 
 const DIST = path.join(ROOT, 'dist');
 const fail = (msg) => {
