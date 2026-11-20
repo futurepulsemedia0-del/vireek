@@ -206,7 +206,7 @@ function JobCard({
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
       onClick={onClick}
-      className={`group cursor-pointer rounded-xl border border-border bg-bg-primary p-3.5 shadow-sm transition-all hover:border-accent/40 hover:shadow-card ${
+      className={`group cursor-pointer rounded-xl border border-border bg-bg-primary p-3.5 transition-interactive hover:border-accent/40 ${
         isDragging ? 'opacity-40' : ''
       }`}
     >
@@ -271,7 +271,7 @@ function StatusStepper({
               type="button"
               onClick={() => onAdvance(step)}
               disabled={isCancelled}
-              className={`focus-ring flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold transition-all disabled:cursor-not-allowed ${
+              className={`focus-ring flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold transition-interactive disabled:cursor-not-allowed ${
                 isCancelled
                   ? 'bg-bg-tertiary text-text-muted'
                   : isDone
@@ -362,7 +362,7 @@ function JobDetailPanel({
         {/* Customer */}
         <div>
           <div className="flex items-center gap-3">
-            <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/10 text-accent">
+            <span className="flex h-8 w-8 items-center justify-center text-text-muted">
               <Wrench size={22} />
             </span>
             <div>
@@ -639,7 +639,7 @@ function JobDetailPanel({
               type="button"
               onClick={() => onRequestReview(job)}
               disabled={!job.customer_phone}
-              className="focus-ring mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-cta px-4 py-2.5 text-sm font-semibold text-on-cta transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+              className="focus-ring mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-cta px-4 py-2.5 text-sm font-semibold text-on-cta transition-interactive hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Star size={16} /> Request a Review
             </button>
@@ -910,7 +910,7 @@ function CreateJobModal({
             <button
               type="submit"
               disabled={submitting || !customerName.trim()}
-              className="focus-ring flex flex-1 items-center justify-center gap-2 rounded-xl bg-cta px-4 py-3 text-sm font-semibold text-on-cta transition-all hover:brightness-110 disabled:opacity-50"
+              className="focus-ring flex flex-1 items-center justify-center gap-2 rounded-xl bg-cta px-4 py-3 text-sm font-semibold text-on-cta transition-interactive hover:brightness-110 disabled:opacity-50"
             >
               <Wrench size={16} />
               {submitting ? 'Creating…' : 'Create Job'}
@@ -1472,7 +1472,7 @@ export function JobsPage() {
             </button>
             <div>
               <div className="flex flex-wrap items-center gap-3">
-                <h1 className="text-2xl font-semibold tracking-tight text-text-primary md:text-3xl">{canViewAll ? 'Jobs' : 'My Jobs'}</h1>
+                <h1 className="text-xl font-semibold tracking-tight text-text-primary md:text-2xl">{canViewAll ? 'Jobs' : 'My Jobs'}</h1>
                 <LiveIndicator status={jobsLiveStatus} />
               </div>
               <p className="mt-1 text-sm text-text-secondary">{canViewAll ? 'Track every job from scheduled to paid.' : 'Your assigned jobs, from scheduled to paid.'}</p>
@@ -1506,7 +1506,7 @@ export function JobsPage() {
                 setPrefill(null);
                 setShowCreateModal(true);
               }}
-              className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-on-cta shadow-sm transition-all hover:brightness-110"
+              className="focus-ring flex items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-on-cta shadow-sm transition-interactive hover:brightness-110"
             >
               <Plus size={16} /> Create Job
             </button>
@@ -1623,7 +1623,7 @@ export function JobsPage() {
               <button
                 type="button"
                 onClick={() => setShowCreateModal(true)}
-                className="focus-ring mt-4 flex items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-on-cta transition-all hover:brightness-110"
+                className="focus-ring mt-4 flex items-center gap-2 rounded-xl bg-cta px-4 py-2.5 text-sm font-semibold text-on-cta transition-interactive hover:brightness-110"
               >
                 <Plus size={16} /> Create your first job
               </button>
@@ -1638,7 +1638,7 @@ export function JobsPage() {
                 onDragOver={(e) => handleDragOver(e, stage.key)}
                 onDragLeave={() => setDragOverStage(null)}
                 onDrop={(e) => handleDrop(e, stage.key)}
-                className={`rounded-xl border-t-4 ${stage.borderColor} border-x border-b border-border bg-bg-secondary p-4 shadow-card transition-colors dark:shadow-card-dark ${
+                className={`rounded-xl border-t-4 ${stage.borderColor} border-x border-b border-border bg-bg-secondary p-4 transition-colors ${
                   dragOverStage === stage.key ? 'ring-2 ring-accent/40' : ''
                 }`}
               >
