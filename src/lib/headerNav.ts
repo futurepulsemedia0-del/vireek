@@ -1,24 +1,37 @@
 import {
   Activity,
   BookOpen,
+  Braces,
+  Briefcase,
   Building2,
   Calculator,
-  Code2,
+  FileText,
+  FlaskConical,
   GraduationCap,
+  HelpCircle,
+  History,
+  Layers,
   LifeBuoy,
   Lock,
   MessageCircle,
+  MessagesSquare,
   Mic,
   Newspaper,
   Phone,
   PhoneForwarded,
   Plug,
+  Quote,
   Rocket,
+  Scale,
   ShieldCheck,
   Sparkles,
   Star,
   Store,
+  Tag,
+  Terminal,
+  TrendingUp,
   Users,
+  Video,
   Workflow,
   type LucideIcon,
 } from 'lucide-react';
@@ -61,6 +74,8 @@ export interface NavItem {
   labelKey: string;
   /** Extra path prefixes that should mark this item as the active one. */
   activePrefixes?: string[];
+  /** Leading icon, shown on the top-level rows of the mobile menu. */
+  icon?: LucideIcon;
   panel?: MegaPanel;
 }
 
@@ -70,13 +85,14 @@ const industryLink = (i: (typeof INDUSTRIES)[number]): MegaLink => ({
   icon: i.icon,
 });
 
-const vs = (label: string, slug: string): MegaLink => ({ label, href: `/compare/${slug}` });
+const vs = (label: string, slug: string): MegaLink => ({ label, href: `/compare/${slug}`, icon: Scale });
 
 export const NAV_ITEMS: NavItem[] = [
   {
     id: 'sarah',
     href: '/features',
     labelKey: 'nav.features',
+    icon: Sparkles,
     panel: {
       overview: { label: 'See all features', href: '/features' },
       groups: [
@@ -111,6 +127,7 @@ export const NAV_ITEMS: NavItem[] = [
     id: 'platform',
     href: '/platform',
     labelKey: 'nav.platform',
+    icon: Layers,
     activePrefixes: ['/integrations', '/marketplace', '/docs', '/sdks', '/sandbox', '/developers', '/security', '/trust', '/enterprise', '/onboarding-guide'],
     panel: {
       overview: { label: 'See how it works', href: '/platform' },
@@ -127,19 +144,19 @@ export const NAV_ITEMS: NavItem[] = [
         {
           title: 'Developers',
           links: [
-            { label: 'Developer Docs', href: '/docs', icon: BookOpen },
-            { label: 'API Reference', href: '/developers/api-reference', icon: Code2 },
-            { label: 'SDKs (Node.js & Python)', href: '/sdks', icon: Code2 },
-            { label: 'Sandbox', href: '/sandbox', icon: Code2 },
-            { label: 'Developer Changelog', href: '/developers/changelog', icon: Activity },
+            { label: 'Developer Docs', href: '/docs', icon: BookOpen, description: 'Endpoints and scopes for calls and leads.' },
+            { label: 'API Reference', href: '/developers/api-reference', icon: Braces, description: 'OpenAPI spec, Postman collection, live playground.' },
+            { label: 'SDKs (Node.js & Python)', href: '/sdks', icon: Terminal, description: 'Official client libraries for Node.js and Python.' },
+            { label: 'Sandbox', href: '/sandbox', icon: FlaskConical, description: 'Test integrations with synthetic webhook payloads.' },
+            { label: 'Developer Changelog', href: '/developers/changelog', icon: History, description: 'Release notes for the API, SDKs and webhooks.' },
           ],
         },
         {
           title: 'Trust & security',
           links: [
-            { label: 'Security', href: '/security', icon: ShieldCheck },
-            { label: 'Trust Center', href: '/trust', icon: Lock },
-            { label: 'Enterprise', href: '/enterprise', icon: Building2 },
+            { label: 'Security', href: '/security', icon: ShieldCheck, description: 'Encryption, account isolation and role-based access.' },
+            { label: 'Trust Center', href: '/trust', icon: Lock, description: 'Data handling, sub-processors and compliance docs.' },
+            { label: 'Enterprise', href: '/enterprise', icon: Building2, description: 'Custom seats, locations, SLA and dedicated onboarding.' },
           ],
         },
       ],
@@ -149,6 +166,7 @@ export const NAV_ITEMS: NavItem[] = [
     id: 'industries',
     href: '/industries',
     labelKey: 'nav.industries',
+    icon: Briefcase,
     panel: {
       overview: { label: 'See all industries', href: '/industries' },
       groups: [
@@ -164,11 +182,12 @@ export const NAV_ITEMS: NavItem[] = [
       },
     },
   },
-  { id: 'pricing', href: '/pricing', labelKey: 'nav.pricing' },
+  { id: 'pricing', href: '/pricing', labelKey: 'nav.pricing', icon: Tag },
   {
     id: 'compare',
     href: '/compare',
     labelKey: 'nav.compare',
+    icon: Scale,
     activePrefixes: ['/switch'],
     panel: {
       overview: { label: 'Compare all tools', href: '/compare' },
@@ -216,40 +235,38 @@ export const NAV_ITEMS: NavItem[] = [
     id: 'resources',
     href: '/resources',
     labelKey: 'footer.resources',
+    icon: BookOpen,
     activePrefixes: ['/blog', '/faq', '/customers', '/case-studies', '/academy', '/podcast', '/glossary', '/webinars', '/help', '/community', '/changelog', '/report', '/roi', '/testimonials', '/status'],
     panel: {
       overview: { label: 'Browse all resources', href: '/resources' },
       groups: [
         {
           title: 'Learn',
-          compact: true,
           links: [
-            { label: 'Blog', href: '/blog', icon: Newspaper },
-            { label: 'Podcast', href: '/podcast', icon: Mic },
-            { label: 'Academy', href: '/academy', icon: GraduationCap },
-            { label: 'Glossary', href: '/glossary', icon: BookOpen },
-            { label: 'Webinars & Events', href: '/webinars', icon: Users },
+            { label: 'Blog', href: '/blog', icon: Newspaper, description: 'Guides on missed calls, scripts and dispatch.' },
+            { label: 'Podcast', href: '/podcast', icon: Mic, description: 'Conversations with home-service owners. Coming soon.' },
+            { label: 'Academy', href: '/academy', icon: GraduationCap, description: 'Self-paced lessons with a completion certificate.' },
+            { label: 'Glossary', href: '/glossary', icon: BookOpen, description: 'AI voice and trade terms in plain language.' },
+            { label: 'Webinars & Events', href: '/webinars', icon: Video, description: 'A 30-minute walkthrough with live Q&A.' },
           ],
         },
         {
           title: 'Proof',
-          compact: true,
           links: [
-            { label: 'Customer Stories', href: '/customers', icon: Star },
-            { label: 'Case Studies', href: '/case-studies', icon: BookOpen },
-            { label: 'Customer ROI', href: '/roi', icon: Calculator },
-            { label: 'Testimonials', href: '/testimonials', icon: Star },
+            { label: 'Customer Stories', href: '/customers', icon: Star, description: 'How other contractors use Sarah.' },
+            { label: 'Case Studies', href: '/case-studies', icon: FileText, description: 'Missed calls recovered and revenue saved.' },
+            { label: 'Customer ROI', href: '/roi', icon: TrendingUp, description: 'Verified revenue recovered by real customers.' },
+            { label: 'Testimonials', href: '/testimonials', icon: Quote, description: 'Quotes from early-access contractors.' },
           ],
         },
         {
           title: 'Support',
-          compact: true,
           links: [
-            { label: 'Help Center', href: '/help', icon: LifeBuoy },
-            { label: 'FAQ', href: '/faq', icon: LifeBuoy },
-            { label: 'Community', href: '/community', icon: Users },
-            { label: 'Changelog', href: '/changelog', icon: Activity },
-            { label: 'Status', href: '/status', icon: Activity },
+            { label: 'Help Center', href: '/help', icon: LifeBuoy, description: 'Setup, billing, integrations and troubleshooting.' },
+            { label: 'FAQ', href: '/faq', icon: HelpCircle, description: 'The essentials about Vireek, answered.' },
+            { label: 'Community', href: '/community', icon: MessagesSquare, description: 'Talk with other home-service owners.' },
+            { label: 'Changelog', href: '/changelog', icon: History, description: 'New features, improvements and security updates.' },
+            { label: 'Status', href: '/status', icon: Activity, description: 'Service health for calls, dashboard and alerts.' },
           ],
         },
       ],
