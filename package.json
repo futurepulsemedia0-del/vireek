@@ -50,6 +50,7 @@
     "test:scripts:migrations": "node --test scripts/migrations/check-migration-versioning.test.mjs",
     "test:scripts:insurance": "node --test scripts/compliance/insurance-program.test.mjs",
     "test:scripts:cross-tenant": "node --test scripts/compliance/cross-tenant-consent.test.mjs",
+    "test:scripts:antitrust": "node --test scripts/compliance/antitrust-info-exchange.test.mjs",
     "test:scripts:outcome-chain": "node --experimental-strip-types --no-warnings --test supabase/functions/_shared/outcomes/outcomeLearningChain.test.mjs",
     "test:scripts:licenses": "node --test scripts/supply-chain/license-check.test.mjs",
     "test:scripts:vendor-exit": "node --test scripts/compliance/gen-vendor-exit.test.mjs",
