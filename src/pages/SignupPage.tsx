@@ -334,13 +334,13 @@ export function SignupPage() {
           <div className="mt-8">
             <AuthBackLink onClick={() => setStep('form')} label="Wrong email? Go back" />
           </div>
-      {/* Mobile / tablet brand mark (the side panel is desktop-only) */}
-      <div className="mb-6 flex justify-center lg:hidden [@media(max-height:560px)]:hidden">
-        <VireekMark size={72} intro="once" decorative />
-      </div>
         </div>
       ) : (
         <>
+      {/* Mobile / tablet brand mark (the side panel is desktop-only) */}
+      <div className="mb-8 flex justify-center lg:hidden [@media(max-height:560px)]:hidden">
+        <VireekMark size={220} className="h-auto w-[clamp(150px,52vw,230px)]" intro="once" decorative />
+      </div>
       {/* Heading */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold tracking-tight text-text-primary">Create your account</h1>
