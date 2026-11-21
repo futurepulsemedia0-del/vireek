@@ -29,7 +29,7 @@ export function StaffActivationFunnelPage() {
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold">Activation funnel</h1>
-          <p className="text-sm text-gray-600">Platform staff only. New owners who signed up in the selected window, and how far they got.</p>
+          <p className="text-sm text-text-secondary">Platform staff only. New owners who signed up in the selected window, and how far they got.</p>
         </div>
         <div role="group" aria-label="Time window" className="flex gap-2">
           {RANGES.map((d) => (
@@ -41,16 +41,16 @@ export function StaffActivationFunnelPage() {
       {state === 'error' && (
         <Card><div role="alert" className="space-y-3 p-4"><p className="text-sm">{msg}</p><Button onClick={() => void load()}>Try again</Button></div></Card>
       )}
-      {state === 'loading' && <Card><p className="p-4 text-sm text-gray-600" role="status">Loading…</p></Card>}
+      {state === 'loading' && <Card><p className="p-4 text-sm text-text-secondary" role="status">Loading…</p></Card>}
       {state === 'ready' && rows && signups === 0 && (
-        <Card><div className="space-y-2 p-4"><p className="font-medium">No signups in the last {days} days.</p><p className="text-sm text-gray-600">Try a longer window.</p><Button variant="secondary" onClick={() => setDays(90)}>Show 90 days</Button></div></Card>
+        <Card><div className="space-y-2 p-4"><p className="font-medium">No signups in the last {days} days.</p><p className="text-sm text-text-secondary">Try a longer window.</p><Button variant="secondary" onClick={() => setDays(90)}>Show 90 days</Button></div></Card>
       )}
       {state === 'ready' && rows && signups > 0 && (
         <Card>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <caption className="sr-only">Activation funnel for the last {days} days</caption>
-              <thead><tr className="text-left text-gray-600"><th scope="col" className="p-3">Milestone</th><th scope="col" className="p-3 text-right">Accounts</th><th scope="col" className="p-3 text-right">% of signups</th><th scope="col" className="p-3 text-right">Median time from signup</th></tr></thead>
+              <thead><tr className="text-left text-text-secondary"><th scope="col" className="p-3">Milestone</th><th scope="col" className="p-3 text-right">Accounts</th><th scope="col" className="p-3 text-right">% of signups</th><th scope="col" className="p-3 text-right">Median time from signup</th></tr></thead>
               <tbody>
                 {rows.map((r) => (
                   <tr key={r.event} className="border-t">
@@ -63,7 +63,7 @@ export function StaffActivationFunnelPage() {
               </tbody>
             </table>
           </div>
-          <p className="border-t p-3 text-xs text-gray-600">“First call logged” counts the first row in the calls table and may include test calls (unverified). Medians are computed only over accounts that reached the milestone.</p>
+          <p className="border-t p-3 text-xs text-text-secondary">“First call logged” counts the first row in the calls table and may include test calls (unverified). Medians are computed only over accounts that reached the milestone.</p>
         </Card>
       )}
     </main>
