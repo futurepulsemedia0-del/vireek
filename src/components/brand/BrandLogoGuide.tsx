@@ -18,10 +18,10 @@ const MIN_SIZES: { label: string; node: JSX.Element; digital: string; print: str
 ];
 
 const COLOR_SPECS: { name: string; hex: string; rgb: string; use: string }[] = [
-  { name: 'Slate', hex: '#141413', rgb: '20 20 19', use: 'Letters on light backgrounds (17.5:1 on Ivory #FAF9F5); V on the app tile (6.8:1); one-color black version' },
+  { name: 'Slate', hex: '#141413', rgb: '20 20 19', use: 'Letters on light backgrounds (17.5:1 on Ivory #FAF9F5); V on the app tile (5.9:1); one-color black version' },
   { name: 'Ivory', hex: '#FAF9F5', rgb: '250 249 245', use: 'Letters on dark backgrounds (17.5:1 on Slate #141413); dot on the app tile; one-color white version' },
-  { name: 'Vivid Clay', hex: '#F9774C', rgb: '249 119 76', use: 'App tile fill and the pulse dot on dark backgrounds (6.8:1 on Slate). The brand colour: Anthropic Clay hue, brighter and more saturated' },
-  { name: 'Clay — logo dot (light)', hex: '#D95A2E', rgb: '217 90 46', use: 'The pulse dot on light backgrounds, in the static SVG files and in the app (3.7:1 on Ivory, graphic)' },
+  { name: 'Clay', hex: '#D97757', rgb: '217 119 87', use: 'App tile fill and the pulse dot on dark backgrounds (5.9:1 on Slate). The brand colour: Anthropic Clay, used exactly as published' },
+  { name: 'Clay — logo dot (light)', hex: '#D97757', rgb: '217 119 87', use: 'The pulse dot on light backgrounds, in the static SVG files and in the app (2.96:1 on Ivory; logotypes are exempt from the 3:1 non-text rule)' },
 ];
 
 const SWATCH_TEXT = 'text-text-secondary';
@@ -155,7 +155,7 @@ export function BrandLogoGuide() {
           </table>
         </div>
         <p className="mt-4 text-xs leading-relaxed text-text-secondary">
-          The app tile is a fixed-color asset (Vivid Clay #F9774C, Slate V, Ivory dot) in both themes,
+          The app tile is a fixed-color asset (Clay #D97757, Slate V, Ivory dot) in both themes,
           like any app icon. The wordmark switches between Slate and Ivory letters (with the Clay dot) automatically
           when drawn with the in-app component.
         </p>
@@ -202,7 +202,7 @@ export function BrandLogoGuide() {
           <Example ok={false} caption="Effects such as shadows and glows.">
             <img src="/brand/vireek-wordmark-color.svg" alt="" aria-hidden="true" className="h-10 w-auto" style={{ filter: 'drop-shadow(4px 6px 3px rgba(0,0,0,.45))' }} />
           </Example>
-          <Example ok={false} caption="Low contrast on a busy background." bg="bg-[conic-gradient(at_30%_40%,#1F92FF,#34C759,#FFCC00,#F9774C,#1F92FF)]">
+          <Example ok={false} caption="Low contrast on a busy background." bg="bg-[conic-gradient(at_30%_40%,#0091FF,#34C759,#FFCC00,#D97757,#0091FF)]">
             <img src="/brand/vireek-wordmark-color.svg" alt="" aria-hidden="true" className="h-10 w-auto" />
           </Example>
         </div>
