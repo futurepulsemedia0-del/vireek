@@ -250,8 +250,8 @@ export function BrandGuidelinesPage() {
               </p>
             </motion.div>
 
-            <ColorSection eyebrow="Primary" title="Signal Cobalt — Accent" tokens={ACCENT_COLORS} />
-            <ColorSection eyebrow="Reserved" title="Signal Copper — Live &amp; urgent moments only" tokens={CTA_COLORS} />
+            <ColorSection eyebrow="Primary" title="Signal Clay — Accent" tokens={ACCENT_COLORS} />
+            <ColorSection eyebrow="Reserved" title="Signal Blurple — Live &amp; AI moments only" tokens={CTA_COLORS} />
             <ColorSection eyebrow="Semantic" title="Success, danger &amp; warning" tokens={SEMANTIC_COLORS} />
             <ColorSection eyebrow="Neutrals" title="Backgrounds, text &amp; borders" tokens={NEUTRAL_COLORS} />
 
@@ -281,7 +281,7 @@ export function BrandGuidelinesPage() {
             </div>
 
             <p className="mt-8 text-center text-sm text-text-secondary">
-              Signal Copper is reserved for active-call and emergency-detection states across the
+              Signal Blurple is reserved for active-call and emergency-detection states across the
               product — please don&apos;t use it as a generic call-to-action color in your own
               materials.
             </p>
