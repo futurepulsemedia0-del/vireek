@@ -30,13 +30,17 @@ describe('presets', () => {
     expect(layout.preset).toBe(preset);
   });
 
-  it('technician hides financial widgets by default; owner shows them', () => {
+  it('technician hides financial widgets by default; owner shows the core ones and keeps the rest one click away', () => {
     const hidden = (p: 'owner' | 'technician') =>
       buildPresetLayout(p).items.filter((i) => i.hidden).map((i) => i.id);
     expect(hidden('technician')).toEqual(expect.arrayContaining(['kpi_revenue', 'revenue_recovered']));
-    expect(hidden('owner')).toEqual([]);
+    const shown = buildPresetLayout('owner').items.filter((i) => !i.hidden).map((i) => i.id);
+    expect(shown).toEqual([
+      'since_yesterday', 'kpi_calls', 'kpi_emergency', 'kpi_jobs', 'kpi_revenue', 'needs_attention', 'call_volume', 'recent_activity',
+    ]);
+    // Nothing is removed: every widget stays in the layout, so "Customize" can bring any of them back.
+    expect(buildPresetLayout('owner').items.length).toBe(WIDGET_IDS.length);
   });
-});
 
 describe('resolveRolePreset', () => {
   it('maps roles to presets', () => {
