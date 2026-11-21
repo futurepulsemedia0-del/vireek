@@ -16,7 +16,7 @@
 //   endCall              POST monitor.controlUrl {type:"end-call"} — transfer uses the same channel with type:"transfer"
 //                        (live-call-control); the "end-call" message type is UNVERIFIED against live Vapi.
 
-import { parseVapiBody, verifyVapiSecret } from "../voice-hardening/webhookAuth.ts";
+import { parseVapiBody, verifyVapiRequestSecret } from "../voice-hardening/webhookAuth.ts";
 import { VapiEngine } from "../voice-engine/vapiEngine.ts";
 import {
   errResult, errorFromStatus, errorFromThrown, notConfigured, okResult,
@@ -34,7 +34,7 @@ type FetchLike = (input: string, init?: RequestInit) => Promise<Response>;
 
 export interface VapiProviderOptions {
   apiKey: string | null | undefined;
-  /** Shared secret expected in the `x-vapi-secret` header. Missing => every webhook is rejected (fail closed). */
+  /** Shared secret expected in `Authorization: Bearer` or the legacy `x-vapi-secret` header. Missing => every webhook is rejected (fail closed). */
   webhookSecret: string | null | undefined;
   fetchImpl?: FetchLike;
   baseUrl?: string;
@@ -261,6 +261,7 @@ export class VapiProvider implements VoiceProvider {
   }
 
   verifyWebhookSignature(req: WebhookRequestMeta): boolean {
-    return verifyVapiSecret(req.headers["x-vapi-secret"], this.webhookSecret);
+    // Accepts the current `Authorization: Bearer <secret>` and the legacy `x-vapi-secret` header (see webhookAuth.ts).
+    return verifyVapiRequestSecret(req.headers, this.webhookSecret).ok;
   }
 }
