@@ -7,7 +7,7 @@ import { money, pct, signedPct, signedPts } from "./format.ts";
 export const esc = (s: unknown): string =>
   String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 
-const INK = "#141413", MUTED = "#73726c", LINE = "#e8e6dc", ACCENT = "#ae3600";
+const INK = "#141413", MUTED = "#73726c", LINE = "#e8e6dc", ACCENT = "#9f4223";
 const STATUS_COLOR: Record<string, string> = { achieved: "#007C2C", near: "#987900", behind: "#d4222a", no_data: MUTED };
 const STATUS_LABEL: Record<string, string> = { achieved: "Achieved", near: "Near goal", behind: "Behind", no_data: "No data" };
 
