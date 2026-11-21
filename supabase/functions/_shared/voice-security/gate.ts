@@ -10,6 +10,7 @@
 import { scoreCall, type CallSignals } from "./anomaly.ts";
 import { CANARY_TOKEN_RE, filterToolResult, type FilterOptions, type InjectionScanner } from "./outputFilter.ts";
 import { computeLevel } from "./stepUp.ts";
+import { applyTierPolicy, DEFAULT_TIER_CONFIG, shouldAuditAllow, spokenForMethods, type TierConfig } from "./riskTiers.ts";
 import {
   getToolSpec, levelAtLeast, samePhone, sanitizeArgs, SPOKEN, stricterMode, tierAllowedInMode, type ToolSpec,
 } from "./toolPolicy.ts";
@@ -41,6 +42,10 @@ export interface VoiceSecurityPorts {
   isCanary(tenantId: string, values: readonly string[]): Promise<boolean>;
   pendingCreate(tenantId: string, callId: string, tool: string, paramsHash: string, summary: string, ttlSeconds: number): Promise<string>;
   pendingConsume(tenantId: string, callId: string, tool: string, paramsHash: string, id: string, minAgeMs: number): Promise<PendingResult>;
+  /** Optional per-tenant / per-deployment risk-tier config (tighten-only, see riskTiers.ts). Absent = built-in defaults. */
+  tierConfig?(tenantId: string): Promise<TierConfig>;
+  /** Optional: when present, the model is told it may offer a callback (request_callback) as a step-up alternative. */
+  callbackCreate?: unknown;
 }
 
 export interface GateInput {
@@ -88,11 +93,15 @@ export async function guardToolCall(p: VoiceSecurityPorts, input: GateInput): Pr
       const { args } = sanitizeArgs(spec.args, input.rawArgs, p.nowMs());
       return { allow: true, args, level: "none", minimal: true, spec, filter: { level: "none", allowPhones: [input.call.callerNumber] } };
     }
+    // Best-effort: every refusal is audited, even a fail-closed one (the audit backend may be the thing that is down).
+    try {
+      await p.audit(input.tenantId, { kind: "tool_denied", severity: "high", callId: input.call.callId, tool: input.tool.slice(0, 40), decision: "deny", code: "security_unavailable" });
+    } catch { /* nothing else to do */ }
     return deny("security_unavailable", SPOKEN.unavailable);
   }
 }
 
-async function evaluate(p: VoiceSecurityPorts, input: GateInput, spec: ToolSpec | null): Promise<GateResult> {
+async function evaluate(p: VoiceSecurityPorts, input: GateInput, catalogSpec: ToolSpec | null): Promise<GateResult> {
   const { tenantId, call } = input;
   const now = p.nowMs();
   const state = await p.getCallState(tenantId, call);
@@ -114,17 +123,26 @@ async function evaluate(p: VoiceSecurityPorts, input: GateInput, spec: ToolSpec 
   const rec = (kind: string, severity: Severity, decision: AuditRecord["decision"], code: string, detail?: AuditRecord["detail"]): AuditRecord =>
     ({ kind, severity, callId: call.callId, tool: input.tool.slice(0, 40), decision, code, detail });
 
-  if (!spec) {
+  if (!catalogSpec) {
     await signal("unknown_tool", rec("tool_denied", "medium", "deny", "unknown_tool"));
     return deny("unknown_tool", SPOKEN.deny);
   }
-  if (spec.tier === "voice_never") {
+  if (catalogSpec.tier === "voice_never") {
     await signal("unknown_tool", rec("tool_denied", "high", "deny", "voice_never"), 40);
     return deny("voice_never", SPOKEN.voiceNever);
   }
-  if (!spec.kinds.includes(call.kind)) {
+  if (!catalogSpec.kinds.includes(call.kind)) {
     await signal("denied", rec("tool_denied", "low", "deny", "kind_not_allowed", { kind: call.kind }));
     return deny("kind_not_allowed", SPOKEN.deny);
+  }
+
+  // ---- config-driven risk tier (tighten-only over the catalog; see riskTiers.ts) ---------------
+  const tierCfg = (await p.tierConfig?.(tenantId)) ?? DEFAULT_TIER_CONFIG;
+  const policy = applyTierPolicy(input.tool, catalogSpec, tierCfg);
+  const spec = policy.spec;
+  if (policy.disabled) {
+    await p.audit(tenantId, rec("tool_denied", "low", "deny", "class_disabled", { class: policy.actionClass }));
+    return deny("class_disabled", SPOKEN.unavailable);
   }
 
   // ---- kill switch / call restriction -------------------------------------------------------
@@ -182,10 +200,16 @@ async function evaluate(p: VoiceSecurityPorts, input: GateInput, spec: ToolSpec 
   if (!levelAtLeast(level, spec.min)) {
     if (spec.below === "deny") {
       const needs = level === "none" ? "no_caller_id" : "needs_step_up";
-      await p.audit(tenantId, rec("verification_required", "info", "challenge", needs));
-      return deny(needs, level === "none" ? SPOKEN.deny : SPOKEN.needsVerification);
+      await p.audit(tenantId, rec("verification_required", "info", "challenge", needs, { class: policy.actionClass, level }));
+      const spokenStepUp = p.callbackCreate ? spokenForMethods(policy.methods, policy.callbackOnly) : SPOKEN.needsVerification;
+      return deny(needs, level === "none" ? SPOKEN.deny : spokenStepUp);
     }
     minimal = spec.min !== "none";
+  }
+  // Callback-only classes (config removed sms_otp): in-call step-up never unlocks them, whatever the level.
+  if (policy.callbackOnly) {
+    await p.audit(tenantId, rec("verification_required", "info", "challenge", "callback_only", { class: policy.actionClass, level }));
+    return deny("callback_only", p.callbackCreate ? spokenForMethods(policy.methods, true) : SPOKEN.deny);
   }
 
   // ---- rate limits (per call, per caller, per tenant). Evaluated AFTER identity so a refused unverified attempt
@@ -229,8 +253,9 @@ async function evaluate(p: VoiceSecurityPorts, input: GateInput, spec: ToolSpec 
     delete args.confirmation_id;
   }
 
-  if (spec.tier === "sensitive_read" || spec.tier === "record_write" || spec.tier === "money") {
-    await p.audit(tenantId, rec("tool_allowed", "info", minimal ? "minimal" : "allow", minimal ? "minimal_unverified" : "ok", { level }));
+  // Audit EVERY decision: refusals are recorded above; allows are recorded here (all classes by default, see TierConfig.auditAllows).
+  if (shouldAuditAllow(tierCfg, policy.actionClass)) {
+    await p.audit(tenantId, rec("tool_allowed", "info", minimal ? "minimal" : "allow", minimal ? "minimal_unverified" : "ok", { level, class: policy.actionClass }));
   }
   return {
     allow: true, args, level, minimal, spec,
