@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PulseMark } from './PulseMark';
+import { BrandLoader } from './BrandLoader';
 import { TopProgressBar } from './TopProgressBar';
 import { useStagedReveal } from './useDelayedLoading';
 import './loading.css';
@@ -39,7 +39,7 @@ export function RouteFallback({ variant = 'marketing' }: RouteFallbackProps) {
       {stage >= 1 && <TopProgressBar />}
       {stage >= 2 && (
         <div className="vrk-fade-in">
-          <PulseMark size="md" />
+          <BrandLoader variant={variant === 'marketing' ? 'signal' : 'pulse'} size="md" />
         </div>
       )}
       {showCopy && (
