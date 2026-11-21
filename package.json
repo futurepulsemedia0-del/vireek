@@ -99,6 +99,7 @@
     "security:secret-compare": "node scripts/security/secret-compare.mjs --check",
     "security:rls": "node scripts/security/rls-audit.mjs --write",
     "security:rls:check": "node scripts/security/rls-audit.mjs --check",
+    "security:rls:baseline": "node scripts/security/rls-audit.mjs --update-baseline",
     "security:tenant": "node scripts/security/tenant-isolation.mjs --write",
     "security:tenant:check": "node scripts/security/tenant-isolation.mjs --check",
     "test:security:permissive": "node --test scripts/security/permissive-allowlist.test.mjs",
