@@ -38,7 +38,7 @@ function DesktopActions() {
   const { t } = useTranslation();
   const signedIn = useIsSignedIn();
   const primary =
-    'focus-ring group relative hidden h-9 items-center gap-1.5 overflow-hidden rounded-xl bg-accent px-4 text-sm font-semibold text-on-accent shadow-sm transition-all duration-200 hover:shadow-glow-accent active:scale-95 xl:flex';
+    'focus-ring group relative hidden h-9 items-center gap-1.5 overflow-hidden rounded-xl bg-accent px-4 text-sm font-semibold text-on-accent shadow-sm transition-all duration-200 hover:shadow-glow-accent active:scale-95 lg:flex';
 
   if (signedIn) {
     return (
@@ -114,7 +114,7 @@ const HamburgerButton = forwardRef<HTMLButtonElement, { open: boolean; onClick: 
       onClick={onClick}
       aria-label={open ? t('menu.close') : t('menu.open')}
       aria-expanded={open}
-      className="focus-ring relative flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-bg-secondary/80 text-text-primary transition-colors hover:bg-bg-tertiary xl:hidden"
+      className="focus-ring relative flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-bg-secondary/80 text-text-primary transition-colors hover:bg-bg-tertiary lg:hidden"
     >
       <div className="relative flex h-4 w-5 flex-col justify-between">
         <motion.span
@@ -192,7 +192,7 @@ export function SiteHeader() {
   // Close if the viewport grows into the desktop layout (the drawer is hidden there).
   useEffect(() => {
     if (typeof window.matchMedia !== 'function') return;
-    const mq = window.matchMedia('(min-width: 1280px)');
+    const mq = window.matchMedia('(min-width: 1024px)');
     const onChange = (e: MediaQueryListEvent) => {
       if (e.matches) setDrawerOpen(false);
     };
@@ -290,7 +290,7 @@ export function SiteHeader() {
               transition={{ duration: 0.2 }}
               onClick={() => closeDrawer()}
               aria-hidden="true"
-              className="fixed inset-0 z-overlay bg-overlay/60 backdrop-blur-md xl:hidden"
+              className="fixed inset-0 z-overlay bg-overlay/60 backdrop-blur-md lg:hidden"
             />
             <motion.aside
               ref={drawerRef}
@@ -301,7 +301,7 @@ export function SiteHeader() {
               animate={{ x: 0 }}
               exit={{ x: isRtl ? '-100%' : '100%' }}
               transition={{ duration: reduce ? 0 : 0.35, ease: EASE }}
-              className="fixed inset-y-0 end-0 z-modal flex w-11/12 max-w-sm flex-col border-s border-border bg-bg-secondary shadow-elevation-4 xl:hidden"
+              className="fixed inset-y-0 end-0 z-modal flex w-11/12 max-w-sm flex-col border-s border-border bg-bg-secondary shadow-elevation-4 lg:hidden"
             >
               <div className="flex items-center justify-between border-b border-border px-5 py-4">
                 <Link to="/" className="focus-ring flex items-center gap-2.5 rounded-lg" onClick={() => closeDrawer()} aria-label="Vireek home">
