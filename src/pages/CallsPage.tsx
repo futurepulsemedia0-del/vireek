@@ -285,7 +285,7 @@ function CallDetailPanel({
         {/* Emergency badge */}
         {call.is_emergency && (
           <div className="rounded-xl border border-danger/30 bg-danger/5 px-4 py-3">
-            <div className="flex items-center gap-2">
+            <div className="grid w-full min-w-0 grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:items-center [&>select]:w-full [&>select]:min-w-0 sm:[&>select]:w-auto [&>button]:justify-center sm:[&>button]:justify-start">
               <AlertTriangle size={18} className="text-danger" />
               <span className="text-sm font-medium text-danger">🚨 Emergency call</span>
             </div>
@@ -863,7 +863,9 @@ const updateCall = useCallback(
                 <option value="direct">Direct Call</option>
                 <option value="other">Other</option>
               </select>
-              <SavedViewsBar page="calls" currentFilters={currentFilters} onApply={applyFilters} />
+              <div className="order-last flex justify-end sm:contents">
+                <SavedViewsBar page="calls" currentFilters={currentFilters} onApply={applyFilters} />
+              </div>
               <button
                 type="button"
                 onClick={handleExportCsv}
@@ -896,7 +898,7 @@ const updateCall = useCallback(
                 🚨 Emergency Only
               </button>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex w-full items-center gap-2 sm:w-auto [&>input]:min-w-0 [&>input]:flex-1 sm:[&>input]:flex-none">
               <input
                 type="date"
                 value={dateFrom}
