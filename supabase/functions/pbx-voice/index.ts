@@ -10,6 +10,7 @@
 
 import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { checkInboundBlock } from "../_shared/compliance/callBlockCheck.ts";
+import { EMERGENCY_BLOCK_SPOKEN } from "../_shared/telecom/emergencyNumbers.ts";
 import {
   estimateWaitSeconds, isOpenNow, orderCandidates, parseDialString, queueAnnouncement,
   shouldRecord, toE164, xml, type Destination, type Schedule, type Strategy,
@@ -514,6 +515,11 @@ Deno.serve(async (req: Request) => {
         if (!ext?.user_id) return twiml("<Reject/>");
         const owner = ext.account_owner_id as string;
         const target = parseDialString(params.To ?? "");
+        if (target?.kind === "emergency") {
+          // No call row, no leg, no provider request. The number is not logged, only the fact and who tried.
+          console.warn(JSON.stringify({ event: "pbx_emergency_dial_blocked", owner, extension_id: ext.id }));
+          return twiml(`<Say>${xml(EMERGENCY_BLOCK_SPOKEN)}</Say><Hangup/>`);
+        }
         if (!target) return twiml("<Say>That number is not valid.</Say><Hangup/>");
         const settings = await loadSettings(admin, owner);
         const id = crypto.randomUUID();
