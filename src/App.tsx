@@ -766,11 +766,7 @@ const DesignSystemPage = import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEV_
 const InterpreterPlayground = import.meta.env.DEV ? lazy(() => import('@/pages/dev/InterpreterPlayground')) : null; // dev-only
 
 function RouteLoadingFallback() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-bg-primary">
-      <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent border-t-transparent" />
-    </div>
-  );
+  return <RouteFallback variant="app" />;
 }
 
 function AppRoutes() {
