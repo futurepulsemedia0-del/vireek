@@ -195,7 +195,7 @@ Layers:
 |---|---|---|
 | Blank page / "missing-env" errors | Vercel env vars `VITE_SUPABASE_*` present for that environment? Console shows `[Vireek] VITE_SUPABASE_URL / … missing` | Set vars, redeploy |
 | CSP errors after adding a service/new Supabase project | Browser console CSP violations | Update `connect-src`/`script-src` in `vercel.json` |
-| Calls not appearing / call flow broken | Vapi dashboard → server URL delivery log; `vapi-webhook` logs; secret `VAPI_SERVER_SECRET` equals the assistant's Server URL Secret; function deployed `--no-verify-jwt` | Fix secret/flag; Vapi can resend; verify `calls` upserts |
+| Calls not appearing / call flow broken | Vapi dashboard → server URL delivery log; `vapi-webhook` logs; secret `VAPI_SERVER_SECRET` equals the token of the Vapi credential on the Server URL (`Authorization: Bearer` or legacy `x-vapi-secret`; see `docs/runbooks/vapi-webhook-secret-header.md`); function deployed `--no-verify-jwt` | Fix secret/flag; Vapi can resend; verify `calls` upserts |
 | Stripe events failing | Stripe → Webhooks delivery log; `billing_events` (idempotent by event id); `STRIPE_WEBHOOK_SECRET` matches endpoint | Fix secret/flag, **resend failed events from Stripe** (safe: event ids are deduplicated) |
 | Checkout says "Billing is not configured yet" | Missing `STRIPE_SECRET_KEY` or `STRIPE_PRICE_<PLAN>` | Set secrets |
 | SMS/email not sent | Twilio/Resend console; secrets `TWILIO_*`, `RESEND_*`; compliance path (A2P registration, DNC/STOP) in `sendCompliantSms` | Fix config / registration |
@@ -229,16 +229,16 @@ and update this runbook.
 
 1. No `supabase/config.toml` → function `verify_jwt` flags are only in deploy commands (§2.3). Add one before enabling CI deploys.
 2. Duplicate/invalid migration versions (§3.3).
-3. **Legacy demo account (code fixed; production state unverified).** The old `20260821101216_seed_demo_data.sql` created `demo@vireek.com` with a password written in the repository.
-   The migration is now a no-op, `scripts/demo/seed.mjs` seeds demo data explicitly (random password, needs `DEMO_ENV`), and `20290307000000_neutralize_demo_account.sql` bans that fixed user
-   unless the database is marked `app.settings.vireek_environment = demo|staging`. **Run the read-only audit in [docs/runbooks/demo-account-audit.md](docs/runbooks/demo-account-audit.md) on production before and after `db push`** — until you have, treat it as open. [VERIFY]
+3. **`20260821101216_seed_demo_data.sql` creates `demo@vireek.com` with a password written in the file (and a "professional" profile) in whatever project the migrations are applied to.**
+   On production this is a known-credential account. *Decide:* remove/disable that user in production (needs a reviewed, non-destructive procedure) and move demo seeding to an opt-in script — see [docs/LOCAL_SEED.md](docs/LOCAL_SEED.md).
 4. `ci.yml` does not pass `E2E_TEST_EMAIL`/`E2E_TEST_PASSWORD`, so authenticated E2E specs are skipped in CI.
 5. `scripts/ingest-brand-knowledge.mjs` writes to `brand_knowledge`, but no migration in the repo creates that table (the script header cites `20260915010000_brand_knowledge_rag.sql`, which does not exist here) — verify the table exists in your database.
-6. `esbuild` is required by `generate-rss.mjs` / `ingest-brand-knowledge.mjs` but is not in `package.json`.
+6. ~~`esbuild` missing from `package.json`~~ — resolved: `esbuild@^0.21.5` is now a devDependency (same version Vite 5 resolves, so only one copy is installed).
 7. `automation-seasonal-maintenance-reminder` has deploy instructions but no `index.ts` in the snapshot.
-8. A duplicate top-level `functions/` folder mirrors two function folders; only `supabase/functions/` deploys.
+8. Top-level `functions/agent-runtime/index.ts` is a stray, older, diverged copy of `supabase/functions/agent-runtime/index.ts` (the other two files of that folder were byte-identical duplicates and have been deleted). Only `supabase/functions/` deploys. Delete the stray copy once the deployable one is confirmed to compile (see item 8a).
+8a. `supabase/functions/agent-runtime/index.ts` line 264 has a syntax error: `correlation: { marketplaceRunId: run.id` is missing `},`. Verified with an esbuild parse; the function cannot deploy until it is fixed.
 9. `lint:design` is documented as a CI check but is not in `ci.yml`.
-10. `vapi-webhook` header says the `x-vapi-secret` header name was not re-verified against current Vapi docs — verify once.
+10. ~~`x-vapi-secret` not re-verified~~ — verified against docs.vapi.ai 2026-11-21: current Vapi uses `Authorization: Bearer`, legacy `x-vapi-secret` still works; both are accepted (see `docs/runbooks/vapi-webhook-secret-header.md`). Still **[VERIFY]**: which credential your Vapi account sends, and a live-call test.
 11. No on-call roster, paging tool or SLA targets are defined in the repo — fill §6.1 with your own.
 
 ---
