@@ -108,3 +108,40 @@ export async function completeVerification(p: VerificationPorts, tenantId: strin
   }
   return NEED_BOTH;
 }
+// ---------------------------------------------------------------------------------------------
+// request_callback: the office calls the number ON FILE back. Resolved out of band by a human; it unlocks
+// NOTHING inside the current call. The target is always the customer record's own number, never anything the
+// caller says, and the answer is identical whether or not an account exists (no enumeration).
+// ---------------------------------------------------------------------------------------------
+
+export type CallbackOutcome = "created" | "duplicate" | "limited";
+export const CALLBACK_DUE_MINUTES = 240;
+
+export interface CallbackPorts {
+  findCustomerByPhone(tenantId: string, callerNumber: string): Promise<CustomerOnFile | null>;
+  callbackCreate(a: { tenantId: string; callId: string; customerId: string; actionClass: string; tool: string; reason: string | null; dueMinutes: number }): Promise<CallbackOutcome>;
+  audit(tenantId: string, rec: AuditRecord): Promise<void>;
+}
+
+const CALLBACK_OK = "Thank you. The office will call back on the number on file. Tell the caller that, share no account details on this call, and offer help with anything that does not need account access.";
+const CALLBACK_UNAVAILABLE = "A callback can't be arranged from this call. Tell the caller the office will follow up, and offer to transfer them to a team member.";
+const ACTIONS = new Set(["account_read", "reschedule", "address_change", "payment", "other"]);
+
+export async function requestCallback(p: CallbackPorts, tenantId: string, call: CallRef, args: { for_action?: string; reason?: string }): Promise<string> {
+  const rec = (code: string, decision: AuditRecord["decision"], severity: AuditRecord["severity"] = "info"): AuditRecord =>
+    ({ kind: "callback_requested", severity, callId: call.callId, tool: "request_callback", decision, code });
+  if (!call.callId || !call.callerNumber) return CALLBACK_UNAVAILABLE;
+
+  const customer = await p.findCustomerByPhone(tenantId, call.callerNumber);
+  if (!customer?.phone) {
+    await p.audit(tenantId, rec("no_account", "info"));
+    return CALLBACK_OK;
+  }
+  const actionClass = args.for_action && ACTIONS.has(args.for_action) ? args.for_action : "other";
+  const outcome = await p.callbackCreate({
+    tenantId, callId: call.callId, customerId: customer.id, actionClass, tool: "request_callback",
+    reason: args.reason ? args.reason.slice(0, 200) : null, dueMinutes: CALLBACK_DUE_MINUTES,
+  });
+  await p.audit(tenantId, rec(`callback_${outcome}`, outcome === "limited" ? "deny" : "info", outcome === "limited" ? "medium" : "info"));
+  return outcome === "limited" ? CALLBACK_UNAVAILABLE : CALLBACK_OK;
+}
