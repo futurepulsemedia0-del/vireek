@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { LoadingScope } from './LoadingScope';
 import { Progress } from './Progress';
-import { PulseMark } from './PulseMark';
+import { BrandLoader } from './BrandLoader';
 import { Spinner } from './Spinner';
 import { useDelayedLoading } from './useDelayedLoading';
 import './loading.css';
@@ -90,7 +90,11 @@ export function BlockingOverlay({ open, label, progress, children }: OverlayProp
         <LoadingScope>
           <div className="vrk-fade-in absolute inset-0 bg-bg-primary/85" aria-hidden="true" />
           <div className="vrk-fade-in relative flex w-72 max-w-[90vw] flex-col items-center gap-4 rounded-2xl border border-border bg-bg-secondary p-6 text-center">
-            <PulseMark size="md" />
+           <BrandLoader
+              variant={typeof progress === 'number' ? 'fill' : 'signal'}
+              progress={typeof progress === 'number' ? progress : undefined}
+              size="md"
+            />
             <p role="status" aria-live="polite" className="text-sm font-medium text-text-primary">
               {text}
             </p>
