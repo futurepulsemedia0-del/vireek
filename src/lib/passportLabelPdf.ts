@@ -6,6 +6,7 @@
 
 import QRCode from 'qrcode';
 import { supabase } from '@/lib/supabase';
+import { getPdfBrand } from '@/lib/pdfBrand';
 import { equipmentTitle, formatPassportCode, maskSerial, normalizePassportCode, passportUrl } from '@/lib/equipmentPassport';
 
 export interface PdfPassport {
