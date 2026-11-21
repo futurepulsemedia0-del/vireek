@@ -92,6 +92,13 @@ describe("VapiProvider.verifyWebhookSignature (fail closed)", () => {
     expect(p.verifyWebhookSignature({ headers: { "x-vapi-secret": "wrong!" } })).toBe(false);
     expect(p.verifyWebhookSignature({ headers: { "x-vapi-secret": "s3cret" } })).toBe(true);
   });
+  it("also accepts the current Vapi Bearer credential; a wrong Bearer alone is rejected", () => {
+    const p = new VapiProvider({ apiKey: "k", webhookSecret: "s3cret" });
+    expect(p.verifyWebhookSignature({ headers: { authorization: "Bearer s3cret" } })).toBe(true);
+    expect(p.verifyWebhookSignature({ headers: { authorization: "Bearer wrong!" } })).toBe(false);
+    expect(p.verifyWebhookSignature({ headers: { authorization: "Bearer s3cret", "x-vapi-secret": null } })).toBe(true);
+    expect(new VapiProvider({ apiKey: "k", webhookSecret: null }).verifyWebhookSignature({ headers: { authorization: "Bearer s3cret" } })).toBe(false);
+  });
 });
 
 describe("VapiProvider operations", () => {
