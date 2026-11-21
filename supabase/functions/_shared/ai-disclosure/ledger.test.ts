@@ -42,9 +42,10 @@ describe("planDisclosure", () => {
   it("registers the version and writes a pending proof row", async () => {
     const admin = fakeAdmin();
     const plan = await planDisclosure(asAdmin(admin), { userId: "u1", vapiCallId: "vc1", callerLanguage: "es" });
-    expect(plan).toMatchObject({ language: "es", source: "builtin_translation", versionId: "ver-1" });
+    // "es" is not yet cleared for outbound compliance wording (docs/i18n/reviewed-keys.json), so the account script is used.
+    expect(plan).toMatchObject({ language: "en", source: "business_profile", reason: "default_fallback", versionId: "ver-1" });
     expect(admin.rpcs[0].fn).toBe("ai_disclosure_register_version");
-    expect(admin.upserts[0]).toMatchObject({ status: "pending", vapi_call_id: "vc1", language: "es" });
+    expect(admin.upserts[0]).toMatchObject({ status: "pending", vapi_call_id: "vc1", language: "en", selection_reason: "default_fallback" });
   });
   it("does not write a row when the call id is unknown, but still returns the plan", async () => {
     const admin = fakeAdmin();
