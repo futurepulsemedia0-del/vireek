@@ -1,6 +1,13 @@
 {
   "flags": [
     {
+      "key": "personalized_pricing_notice",
+      "kind": "ops",
+      "owner": "compliance",
+      "created": "2026-11-18",
+      "cleanup": "Permanent compliance switch. If retired, remove PersonalizedPricingNotice and its two mounts (ServiceAreasPage, OutcomePricingPage), src/lib/pricingPersonalization.ts and the flag row."
+    },
+    {
       "key": "cs_auto_tasks",
       "kind": "ops",
       "owner": "customer-success",
