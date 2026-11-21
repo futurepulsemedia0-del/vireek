@@ -28,7 +28,8 @@
 // alongside this.
 
 import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
-import { isDncSuppressed } from "../_shared/compliance/dncCheck.ts";
+import { isDncSuppressed, normalizePhone } from "../_shared/compliance/dncCheck.ts";
+import { gateContact } from "../_shared/compliance/consentChecks.ts";
 import { sendCompliantSms } from "../_shared/messaging/sendSms.ts";
 import { claimCoordinationSlot, recordCoordinationOutcome } from "../_shared/ai-core/emergentCoordination.ts";
 import { voiceOverride } from "../_shared/voice/voiceMap.ts";
@@ -447,7 +448,29 @@ Deno.serve(async (req: Request) => {
 
     const channel = step === "legacy_call" ? "call" : step.channel;
     const stepNumber = step === "legacy_call" ? 1 : step.step_number;
-
+    // Reassigned-number check + cross-channel revocation ledger (fails CLOSED). Runs for every SMS/call step.
+    if (enrollment.customer_phone) {
+      const contact = await gateContact({
+        ownerId: enrollment.user_id, channel: channel === "call" ? "call" : "sms",
+        phoneE164: normalizePhone(enrollment.customer_phone), source: "followup-agent-dispatcher",
+        fallbackConsentAt: (enrollment as { created_at?: string }).created_at ?? null,
+      }, { admin, getEnv: (k) => Deno.env.get(k) });
+      if (!contact.allow) {
+        if (contact.retryable) {
+          await admin.from("followup_agent_enrollments").update({
+            next_action_at: new Date(Date.now() + 15 * 60_000).toISOString(),
+          }).eq("id", enrollment.id);
+        } else {
+          await admin.from("followup_agent_enrollments").update({
+            status: contact.reason === "REVOKED" ? "opted_out" : "stopped",
+            stop_reason: contact.reason === "REVOKED" ? "consent_revoked" : `compliance_gate:${contact.reason}`,
+          }).eq("id", enrollment.id);
+          stopped += 1;
+        }
+        continue;
+      }
+    }
+    
     // Emergent coordination: bid for this exact lead/job before actually
     // contacting them. Other independently-scheduled agents bid on the
     // same slot from their own runs — whichever bid currently ranks
