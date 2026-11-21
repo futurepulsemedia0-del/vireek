@@ -76,7 +76,7 @@ export function BrandsPanel({ brands, onChanged }: { brands: Brand[]; onChanged:
           <div className="grid gap-3 sm:grid-cols-3">
             <Input label="Brand name" required autoFocus maxLength={80} value={editing.name} onChange={(e) => setEditing({ ...editing, name: e.target.value })} />
             <Input label="Website" type="url" inputMode="url" placeholder="https://" value={editing.website} onChange={(e) => setEditing({ ...editing, website: e.target.value })} />
-            <Input label="Brand color" placeholder="#A93B0F" maxLength={7} value={editing.color} onChange={(e) => setEditing({ ...editing, color: e.target.value })} />
+            <Input label="Brand color" placeholder="#934126" maxLength={7} value={editing.color} onChange={(e) => setEditing({ ...editing, color: e.target.value })} />
           </div>
           {error && <p role="alert" className="mt-2 text-xs text-danger">{error}</p>}
           <div className="mt-3 flex gap-2">
