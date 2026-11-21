@@ -1,0 +1,3 @@
+# Local quality gate (husky v9). Bypass for emergencies only: git commit --no-verify  (CI re-runs every check).
+# Disable entirely in CI/Docker with HUSKY=0.
+npx --no-install lint-staged
