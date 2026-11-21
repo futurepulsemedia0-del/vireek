@@ -192,7 +192,7 @@ export function MobileDrawer({ open, sheetId, pathname, buttonRef, onClose, onNa
         <Link
           to="/signup"
           onClick={onNavigate}
-          className="focus-ring flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-accent text-base font-semibold text-white transition-[filter] hover:brightness-110 motion-reduce:transition-none"
+          className="focus-ring flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-accent text-base font-semibold text-on-accent transition-[filter] hover:brightness-110 motion-reduce:transition-none"
         >
           {t('cta.startFreeTrial')}
           <Icon icon={ArrowRight} size="sm" className="rtl:rotate-180" />
