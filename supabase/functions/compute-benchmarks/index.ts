@@ -1,4 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { guardRows, type GuardRpcClient } from "../_shared/infoExchangeGuard.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -40,7 +41,24 @@ Deno.serve(async (req: Request) => {
     const periodEnd = now.toISOString().slice(0, 10);
     const computedAt = now.toISOString();
 
-    const safeRows = rows ?? [];
+    const candidateRows = rows ?? [];
+
+    // Antitrust information-exchange guard (fail closed). Thresholds live in the database config.
+    // If the guard cannot answer, publish nothing: the purge below then removes what is already published.
+    let safeRows: typeof candidateRows = [];
+    let guardFailed = false;
+    try {
+      const guarded = await guardRows(
+        admin as unknown as GuardRpcClient,
+        "platform_benchmarks",
+        candidateRows,
+        (row: { metric_key: string; sample_size: number }) => [{ metric: row.metric_key, cohort_size: row.sample_size }],
+      );
+      safeRows = guarded.allowed;
+    } catch (guardError) {
+      guardFailed = true;
+      console.error(JSON.stringify({ event: "info_exchange_guard_unavailable", flow: "platform_benchmarks", error: guardError instanceof Error ? guardError.message : String(guardError) }));
+    }
 
     if (safeRows.length > 0) {
       const snapshots = safeRows.map((row) => ({
@@ -69,6 +87,7 @@ Deno.serve(async (req: Request) => {
       .delete()
       .lt("computed_at", computedAt);
     if (purgeError) throw purgeError;
+    if (guardFailed) return jsonResponse({ error: "Benchmark publication blocked by the information-exchange guard." }, 503);
     return jsonResponse({ metrics_computed: safeRows.length });
   } catch (error) {
     console.error(JSON.stringify({ event: "compute_benchmarks_failed", error: error instanceof Error ? error.message : String(error) }));
