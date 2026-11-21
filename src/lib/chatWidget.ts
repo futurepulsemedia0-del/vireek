@@ -67,7 +67,7 @@ export function defaultTimezone(): string {
 export function buildDefaults(): ChatWidgetSettings {
   return {
     enabled: false,
-    brand_color: '#A93B0F',
+    brand_color: '#934126',
     position: 'right',
     theme: 'auto',
     title: 'Chat with us',
@@ -130,7 +130,7 @@ export function validateSettings(s: ChatWidgetSettings): ChatWidgetErrors {
   else if (s.greeting.length > LIMITS.greeting) e.greeting = `Max ${LIMITS.greeting} characters.`;
   if (!s.offline_message.trim()) e.offline_message = 'Enter an offline message.';
   else if (s.offline_message.length > LIMITS.offline) e.offline_message = `Max ${LIMITS.offline} characters.`;
-  if (!/^#[0-9a-fA-F]{6}$/.test(s.brand_color)) e.brand_color = 'Use a 6-digit hex color, e.g. #A93B0F.';
+  if (!/^#[0-9a-fA-F]{6}$/.test(s.brand_color)) e.brand_color = 'Use a 6-digit hex color, e.g. #934126.';
   if (!isValidTimezone(s.timezone)) e.timezone = 'Unknown time zone.';
   if (s.hours_mode === 'scheduled') {
     const days = Object.values(s.schedule).filter(Boolean) as DayHours[];
