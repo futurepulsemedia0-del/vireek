@@ -4,6 +4,7 @@ import { gateOutbound } from "../_shared/messaging/quietHours.ts";
 import { governedGate } from "../_shared/governance/shadowGate.ts";
 import { recordAgentActionOutcome } from "../_shared/governance/agentGovernance.ts";
 import { selectOutboundNumber, recordDialAttempt } from "../_shared/number-reputation/attempts.ts";
+import { EMERGENCY_BLOCK_MESSAGE, isEmergencyDialBlocked } from "../_shared/telecom/emergencyNumbers.ts";
 import { getKillSwitchGuard } from "../_shared/flags/killSwitch.ts";
 import { VapiEngine } from "../_shared/voice-engine/vapiEngine.ts";
 import { OpenAiRealtimeEngine } from "../_shared/voice-engine/openAiRealtimeEngine.ts";
@@ -61,6 +62,15 @@ Deno.serve(async (req: Request) => {
 
   for (const call of queue as QueuedCall[]) {
     if (await killSwitches.isStopped("outbound_dialer", call.user_id)) continue; // تماس در صف می‌ماند
+    // Emergency numbers are never dialled by the platform. Fail the row permanently with a visible notice; the guard
+    // below would refuse it too, this just avoids provider/assistant lookups and a pointless retry.
+    if (call.customer_phone && isEmergencyDialBlocked(call.customer_phone)) {
+      await admin.from("outbound_calls").update({
+        status: "failed", outcome_notes: EMERGENCY_BLOCK_MESSAGE, attempt_count: call.attempt_count + 1,
+      }).eq("id", call.id);
+      failed += 1;
+      continue;
+    }
     const { data: business } = await admin
       .from("business_profile")
       .select("vapi_assistant_id, vapi_phone_number_id, assistant_voice")
@@ -114,6 +124,9 @@ Deno.serve(async (req: Request) => {
       await admin.from("outbound_calls").update({
         scheduled_for: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
         outcome_notes: `Awaiting governance: ${gate.decision ?? gate.wouldBlock}`,
+      }).eq("id", call.id);
+      continue;
+    }
     // Fraud guard (shadow/enforce per fraud_settings.outbound_guard_mode): budget reservation + destination policy,
     // immediately before the provider call. A blocked call is parked or failed, NEVER left in the queue to be retried
     // on the next tick: a cap that resets is rescheduled to retryAt without using an attempt, anything else fails now.
@@ -131,9 +144,6 @@ Deno.serve(async (req: Request) => {
         await admin.from("outbound_calls").update({ status: "failed", outcome_notes: `Blocked by safety checks (${b.code}): ${b.message}`, attempt_count: call.attempt_count + 1 }).eq("id", call.id);
         failed += 1;
       }
-      continue;
-    }
-      }).eq("id", call.id);
       continue;
     }
     try {
@@ -161,12 +171,12 @@ Deno.serve(async (req: Request) => {
         await admin.from("outbound_calls").update({
           status: call.attempt_count + 1 >= 3 ? "failed" : "queued",
           outcome_notes: started.note,
-      await attachOutboundCall(asFraudDb(admin), fraud, started.callId);
           attempt_count: call.attempt_count + 1,
         }).eq("id", call.id);
         failed += 1;
         continue;
       }
+      await attachOutboundCall(asFraudDb(admin), fraud, started.callId);
 
       await admin.from("outbound_calls").update({
         status: "calling", vapi_call_id: started.callId, called_at: new Date().toISOString(), attempt_count: call.attempt_count + 1,
