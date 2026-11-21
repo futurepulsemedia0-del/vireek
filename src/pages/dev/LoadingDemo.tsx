@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/Button';
 import {
   BackgroundTask,
   BlockingOverlay,
+  BrandLoader,
   CardSkeleton,
   ChartSkeleton,
   FormSkeleton,
@@ -81,7 +82,20 @@ export default function LoadingDemo() {
           </div>
           <p className="text-sm text-text-secondary">Pull down on a touch device to try pull-to-refresh (refreshed {refreshes}×).</p>
         </Section>
-
+        <Section title="Brand loaders">
+          <div className="flex flex-wrap items-end gap-8">
+            {(['thread', 'fill', 'signal', 'network', 'pulse'] as const).map((v) => (
+              <figure key={v} className="flex flex-col items-center gap-2">
+                <BrandLoader variant={v} size="lg" />
+                <figcaption className="text-xs text-text-secondary">{v}</figcaption>
+              </figure>
+            ))}
+            <figure className="flex flex-col items-center gap-2">
+              <BrandLoader variant="fill" size="lg" progress={65} />
+              <figcaption className="text-xs text-text-secondary">fill · 65%</figcaption>
+            </figure>
+          </div>
+        </Section>
         <Section title="Route transition">
           <TopProgressBar progress={0.55} />
           <Button variant="secondary" onClick={() => setRoute(true)}>Preview route fallback (3.5s)</Button>
