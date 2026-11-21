@@ -108,6 +108,8 @@ verify_jwt = false
 verify_jwt = false
 [functions.voice-reconcile]
 verify_jwt = false
+[functions.voice-clone-retention-sweep]
+verify_jwt = false
 [functions.release-guard-tick]
 verify_jwt = false
 [functions.results-plan-ingest]
