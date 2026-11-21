@@ -39,6 +39,7 @@ import {
   type DsarKind,
   type DsarOutcome,
 } from "../_shared/compliance/dsar.ts";
+import { suppressionHash } from "../_shared/compliance/nonCustomerDsar.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -249,6 +250,21 @@ Deno.serve(async (req: Request) => {
         }
       }
 
+      // ---- Non-customer opt-out: a verified delete request from someone with no Vireek account is honoured
+      // immediately (suppression list). Erasure of Vireek-derived data and tenant referrals are done by the
+      // staff-only dsar-non-customer function. Best-effort here: the DSAR row remains the durable record.
+      if (!owner && kind === "delete") {
+        try {
+          const key = await suppressionHash("email", email);
+          if (key) {
+            await admin.from("data_subject_suppressions").upsert(
+              { key_kind: "email", key_hash: key, reason: "opt_out", dsar_id: requestId },
+              { onConflict: "key_kind,key_hash", ignoreDuplicates: true },
+            );
+          }
+        } catch { /* non-fatal */ }
+      }
+      
       // ---- Notifications (best-effort: the request is already durably recorded).
       const { data: info } = await admin
         .from("data_subject_requests").select("requester_name, relationship, region").eq("id", requestId).maybeSingle();
