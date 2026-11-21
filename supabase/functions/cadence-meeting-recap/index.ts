@@ -138,7 +138,7 @@ Deno.serve(async (req: Request) => {
 <h2 style="margin:0 0 8px;font-size:15px">Action items</h2>
 ${actionsHtml}
 ${notes ? `<h2 style="margin:0 0 8px;font-size:15px">Notes</h2><p style="margin:0 0 20px;font-size:15px;line-height:1.55;color:#44423D;white-space:pre-wrap">${esc(notes)}</p>` : ""}
-<a href="${esc(link)}" style="display:inline-block;background:#a93b0f;color:#ffffff;text-decoration:none;font-weight:600;font-size:14px;padding:12px 20px;border-radius:12px">Open in Vireek</a>
+<a href="${esc(link)}" style="display:inline-block;background:#934126;color:#ffffff;text-decoration:none;font-weight:600;font-size:14px;padding:12px 20px;border-radius:12px">Open in Vireek</a>
 <p style="margin:24px 0 0;font-size:12px;color:#a9a8a2">You’re receiving this because you attended the weekly meeting.</p>
 </td></tr></table></td></tr></table></body></html>`;
 
