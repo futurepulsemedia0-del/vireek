@@ -1,0 +1,4 @@
+{
+  "note": "Ratchet for scripts/content/check-content-pages.mjs. Each entry is \"<route path> <problem code>\" for a page that is KNOWN to fail today. Entries may only be removed: fix the page, then delete its line. A stale entry (the page now passes) fails CI so the list cannot rot. Regenerate only after a real build with: npm run build && node scripts/content/check-content-pages.mjs --write-baseline",
+  "tolerated": []
+}
