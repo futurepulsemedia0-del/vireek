@@ -193,6 +193,9 @@ export const TOOL_CATALOG: Readonly<Record<string, ToolSpec>> = Object.freeze({
   request_verification: { tier: "public", kinds: PHONE_KINDS, min: "caller_id", below: "deny", bindCaller: true, args: {}, perCall: 3, perCallerDay: 5 },
   verify_caller: { tier: "public", kinds: PHONE_KINDS, min: "caller_id", below: "deny", bindCaller: true, args: { code: T(40), zip: T(12), street_number: T(12), last_name: T(60) }, perCall: 8, perCallerDay: 16 },
 
+  // ---- callback: the office calls the number ON FILE back (resolved out of band by a human; unlocks nothing in-call) ----
+  request_callback: { tier: "intake", kinds: PHONE_KINDS, min: "caller_id", below: "deny", bindCaller: true, args: { for_action: { kind: "enum", values: ["account_read", "reschedule", "address_change", "payment", "other"] }, reason: T(200) }, perCall: 2, perCallerDay: 4 },
+  
   // ---- never on voice (denied + audited; route to the office / in-app approval) ----
   issue_refund: { tier: "voice_never", kinds: [], min: "step_up", below: "deny", args: {}, perCall: 0, perCallerDay: 0 },
   update_address: { tier: "voice_never", kinds: [], min: "step_up", below: "deny", args: {}, perCall: 0, perCallerDay: 0 },
