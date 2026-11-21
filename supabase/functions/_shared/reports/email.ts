@@ -68,7 +68,7 @@ export interface ReportEmail {
   text: string;
 }
 
-const C = { ink: "#141413", muted: "#73726C", line: "#e8e6dc", soft: "#f0eee6", accent: "#ae3600" };
+const C = { ink: "#141413", muted: "#73726C", line: "#e8e6dc", soft: "#f0eee6", accent: "#9f4223" };
 
 export function buildReportEmail(input: ReportEmailInput): ReportEmail {
   const { def, result, currency } = input;
@@ -126,7 +126,7 @@ export function buildReportEmail(input: ReportEmailInput): ReportEmail {
   }
 
   const warn = input.truncated
-    ? `<p style="margin:0 0 12px;padding:10px 12px;background:#fff6df;border-radius:8px;color:#822600;font-size:13px">This period contains more than 5,000 records, so only the most recent 5,000 are included.</p>`
+    ? `<p style="margin:0 0 12px;padding:10px 12px;background:#fff6df;border-radius:8px;color:#712f18;font-size:13px">This period contains more than 5,000 records, so only the most recent 5,000 are included.</p>`
     : "";
 
   const html = `<!doctype html><html><body style="margin:0;background:${C.soft};font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:${C.ink}">
