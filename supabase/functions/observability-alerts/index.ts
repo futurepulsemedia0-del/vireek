@@ -5,7 +5,10 @@
 //
 // Secrets (Supabase function secrets):
 //   PUSH_DISPATCH_SECRET            already used by slo-evaluate (cron caller auth)
+//   ALERT_PAGER_WEBHOOK_URL         vendor-neutral paging webhook (generic JSON, schema vireek.alert.v1) [optional]
 //   PAGERDUTY_ROUTING_KEY           PagerDuty Events API v2 integration key (SEV1/SEV2 pages)    [optional]
+//   ALERT_ROUTING_JSON              optional routing override (destinations reference env var NAMES only);
+//                                   invalid JSON/config falls back to DEFAULT_ROUTING, never silences alerts
 //   ALERT_SLACK_WEBHOOK_URL         Slack incoming webhook for #voice-alerts (SEV1-SEV3 + mirrors) [recommended]
 //   ALERT_TICKET_WEBHOOK_URL        digest/ticket webhook for SEV4; falls back to the Slack webhook  [optional]
 //   ALERT_RUNBOOK_BASE_URL          e.g. https://github.com/<org>/<repo>/blob/main (links in pages)  [recommended]
@@ -15,7 +18,8 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { isAuthorizedCaller, json } from "../_shared/synthetic/auth.ts";
 import { runAlertCycle, type MetricRow, type RunnerPorts, type SliCountRow } from "../_shared/observability/alertRunner.ts";
-import { pagerDutyBody, slackBody, type AlertState, type RoutedNotification } from "../_shared/observability/alertRules.ts";
+import type { AlertState, RoutedNotification } from "../_shared/observability/alertRules.ts";
+import { buildRequests, parseRoutingOverride } from "../_shared/observability/alertRouting.ts";
 
 async function post(url: string, body: unknown, timeoutMs = 4000): Promise<boolean> {
   const ctl = new AbortController();
@@ -35,9 +39,9 @@ Deno.serve(async (req: Request) => {
   if (!url || !key) return json({ error: "Server not configured" }, 500);
   const admin = createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
 
-  const pd = Deno.env.get("PAGERDUTY_ROUTING_KEY");
-  const slack = Deno.env.get("ALERT_SLACK_WEBHOOK_URL");
-  const ticket = Deno.env.get("ALERT_TICKET_WEBHOOK_URL") ?? slack;
+  const routing = parseRoutingOverride(Deno.env.get("ALERT_ROUTING_JSON"));
+  if (routing.errors.length) console.error(JSON.stringify({ event: "alert_routing_override_rejected", errors: routing.errors }));
+  const env = (name: string) => Deno.env.get(name) || undefined;
   const runbookBase = Deno.env.get("ALERT_RUNBOOK_BASE_URL") ?? "docs";
   const source = Deno.env.get("ALERT_SOURCE_NAME") ?? "vireek-voice";
 
@@ -72,9 +76,11 @@ Deno.serve(async (req: Request) => {
       return count ?? 0;
     },
     async deliver(n: RoutedNotification) {
-      if (n.channel === "pagerduty") return pd ? await post("https://events.pagerduty.com/v2/enqueue", pagerDutyBody(n, pd, source, runbookBase)) : false;
-      const target = n.channel === "ticket" ? ticket : slack;
-      return target ? await post(target, slackBody(n, runbookBase)) : false;
+      const { requests, unconfigured } = buildRequests(n, routing.config, env, runbookBase, source);
+      if (unconfigured.length) console.warn(JSON.stringify({ event: "alert_destination_unconfigured", destinations: unconfigured, severity: n.severity }));
+      const results = await Promise.all(requests.map(async (r) => ({ r, ok: await post(r.url, r.body) })));
+      // A page counts as delivered only if a PAGING destination accepted it; otherwise the runner retries next cycle.
+      return n.channel === "pagerduty" ? results.some((x) => x.r.paging && x.ok) : results.some((x) => x.ok);
     },
     async logDelivery(n, delivered) {
       await admin.from("observability_alert_log").insert({ fingerprint: n.dedupKey, kind: n.kind, severity: n.severity, channel: n.channel, delivered, detail: n.summary.slice(0, 300) });
