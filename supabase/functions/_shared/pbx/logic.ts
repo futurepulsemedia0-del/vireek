@@ -15,6 +15,8 @@ export interface Schedule {
 }
 export type OpenReason = 'no_schedule' | 'holiday' | 'exception_closed' | 'exception_hours' | 'weekly' | 'outside_hours';
 
+import { detectEmergencyDestination, type EmergencyCode } from '../telecom/emergencyNumbers.ts';
+
 const DAYS = new Set(['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']);
 const E164 = /^\+[1-9]\d{7,14}$/;
 const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
@@ -35,12 +37,18 @@ export function xml(s: string): string {
   return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' }[c] as string));
 }
 
-/** "204" -> internal extension, "+15551234567"/"5551234567" -> PSTN, anything else -> null. */
+/**
+ * "204" -> internal extension, "+15551234567"/"5551234567" -> PSTN, an emergency number in any common written form
+ * -> { kind: 'emergency' } (never an extension, never PSTN: the platform provides no emergency calling), anything else -> null.
+ */
 export function parseDialString(raw: string):
+  | { kind: 'emergency'; code: EmergencyCode }
   | { kind: 'extension'; extension: string }
   | { kind: 'pstn'; e164: string }
   | null {
   const t = (raw ?? '').trim();
+  const emergency = detectEmergencyDestination(t);
+  if (emergency) return { kind: 'emergency', code: emergency };
   if (/^\d{2,6}$/.test(t)) return { kind: 'extension', extension: t };
   const e = toE164(t);
   return e ? { kind: 'pstn', e164: e } : null;
