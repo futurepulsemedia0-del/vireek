@@ -273,7 +273,7 @@
     root.appendChild(h('style', { text: css }));
   }
   function applyTheme(wrap, s, dark) {
-    var brand = isHex(s.brand_color) ? s.brand_color : '#A93B0F';
+    var brand = isHex(s.brand_color) ? s.brand_color : '#934126';
     var bg = dark ? '#1C1B15' : '#FFFFFF';
     var vars = {
       '--b': brand, '--on': textOn(brand), '--a': accentOn(brand, bg, dark),
