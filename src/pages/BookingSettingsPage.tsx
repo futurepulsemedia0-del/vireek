@@ -330,7 +330,7 @@ export function BookingSettingsPage() {
               <div>
                 <label htmlFor="brand-color" className="mb-1.5 block text-sm font-medium text-text-primary">Accent colour</label>
                 <div className="flex items-center gap-2">
-                  <input id="brand-color-picker" type="color" aria-label="Pick accent colour" value={draft.branding.accent_color ?? '#ae3600'} onChange={(e) => setBranding({ accent_color: e.target.value })} className="h-12 w-14 shrink-0 cursor-pointer rounded-xl border border-border bg-bg-primary p-1" />
+                  <input id="brand-color-picker" type="color" aria-label="Pick accent colour" value={draft.branding.accent_color ?? '#9f4223'} onChange={(e) => setBranding({ accent_color: e.target.value })} className="h-12 w-14 shrink-0 cursor-pointer rounded-xl border border-border bg-bg-primary p-1" />
                   <Input id="brand-color" value={draft.branding.accent_color ?? ''} placeholder="Default Vireek blue" error={shown.accent} onChange={(e) => setBranding({ accent_color: e.target.value.trim() === '' ? null : e.target.value.trim().toLowerCase() })} />
                 </div>
               </div>
