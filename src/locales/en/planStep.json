@@ -1,0 +1,100 @@
+{
+  "loading": "Loading your plan options…",
+  "title": "Choose your plan",
+  "subtitle": "Pick the plan that fits your business. You can change it later from Billing.",
+  "period": { "month": "month", "year": "year" },
+  "billing": { "legend": "Billing period", "monthly": "Monthly", "annual": "Annual" },
+  "size": {
+    "title": "Not sure which plan? Tell us roughly how big you are",
+    "hint": "Optional. We estimate about {{minutes}} minutes per call. This only highlights a plan; every plan stays available.",
+    "calls": "Calls per month",
+    "technicians": "Technicians",
+    "locations": "Locations",
+    "optional": "optional"
+  },
+  "suggest": {
+    "lead": "Suggested: {{plan}}.",
+    "use": "Use this plan",
+    "editable": "You can always choose a different plan below.",
+    "reason": {
+      "fits_all": "It covers the numbers you entered at the lowest estimated monthly cost.",
+      "seats": "You need about {{seats}} seats.",
+      "locations": "You need {{locations}} locations.",
+      "minutes_overage": "About {{minutes}} minutes a month is more than it includes, so {{overage}} minutes would be billed at its overage rate.",
+      "beyond_self_serve": "Your numbers are beyond the self-serve plans, so a custom plan from our sales team fits best.",
+      "cheaper_as_enterprise": "At this volume a custom plan is likely to cost less. Talk to our sales team."
+    }
+  },
+  "plans": {
+    "legend": "Plans",
+    "popular": "Most popular",
+    "suggested": "Suggested for you",
+    "selected": "Selected",
+    "custom": "Custom",
+    "from": "from {{price}} / month",
+    "billedMonthly": "Billed monthly",
+    "billedYearly": "{{price}} billed yearly (save {{saving}} vs monthly)",
+    "taxNote": "Prices are in US dollars and exclude taxes. Any tax that applies is calculated at checkout."
+  },
+  "compare": { "title": "Compare plans", "caption": "Plan comparison", "feature": "Feature", "yes": "Included", "no": "Not included" },
+  "terms": {
+    "title": "Before you pay",
+    "pick": "Choose a plan to see exactly what will be charged and when.",
+    "enterprise": "Enterprise plans are set up with our sales team. Nothing is charged from this page.",
+    "trialCard": "Free for {{days}} days. A card is required. {{price}} per {{period}} is charged when the trial ends unless you cancel before then.",
+    "trialNoCard": "Free for {{days}} days, no card needed to start. To keep your plan after the trial, add a payment method; the plan then costs {{price}} per {{period}}.",
+    "payNow": "{{price}} per {{period}} is charged today when you subscribe.",
+    "renews": "The plan renews automatically every {{period}} until you cancel.",
+    "cancel": "You can cancel any time from Billing in your account.",
+    "tax": "Taxes, if any, are shown on the payment page before you confirm.",
+    "links": { "lead": "By continuing you agree to our", "terms": "Terms of Service", "refunds": "Refund Policy", "privacy": "Privacy Policy" }
+  },
+  "promo": { "label": "Promo code" },
+  "reminder": {
+    "label": "Email me one reminder if I don't finish (after about {{hours}} hours)",
+    "help": "Optional. One email, only about finishing this step."
+  },
+  "cta": {
+    "startTrial": "Start {{days}}-day trial",
+    "pay": "Continue to secure payment",
+    "sales": "Talk to sales",
+    "working": "One moment…",
+    "pickFirst": "Choose a plan first"
+  },
+  "skip": {
+    "label": "Skip for now",
+    "help": "You can look around the dashboard. Vireek can't answer your calls until a plan is active."
+  },
+  "notices": {
+    "cancelled": "Checkout was cancelled and nothing was charged. Your plan choice is saved.",
+    "expired": "That payment session expired. Nothing was charged. Please continue again."
+  },
+  "errors": {
+    "rateLimited": "Too many attempts. Please wait a minute and try again.",
+    "promoInvalid": "That promo code isn't valid. Check it or clear the field.",
+    "annualUnavailable": "Annual billing isn't available yet. Please choose monthly.",
+    "notEligible": "Only the account owner can choose a plan.",
+    "notConfigured": "Payments aren't fully set up yet. Please contact support.",
+    "unavailable": "Something went wrong starting checkout. Nothing was charged. Please try again."
+  },
+  "confirm": {
+    "title": "Confirming your payment…",
+    "body": "This usually takes a few seconds. Please keep this page open.",
+    "slowTitle": "Still confirming",
+    "slowBody": "Your payment is taking longer than usual to confirm. Your plan switches on as soon as it does. You can continue to your dashboard.",
+    "continue": "Go to dashboard"
+  },
+  "loadError": {
+    "title": "We couldn't load your plan options",
+    "body": "Check your connection and try again.",
+    "retry": "Try again",
+    "dashboard": "Go to dashboard"
+  },
+  "banner": {
+    "label": "Plan setup",
+    "dismiss": "Dismiss",
+    "plan": { "title": "Finish choosing your plan", "body": "Your choice is saved. It takes a minute to finish.", "cta": "Choose plan" },
+    "checkout": { "title": "Finish checkout", "body": "You started checkout but didn't finish. Nothing was charged.", "cta": "Resume checkout" },
+    "skipped": { "title": "You're on limited access", "body": "Vireek can't answer your calls until you pick a plan.", "cta": "Choose plan" }
+  }
+}
