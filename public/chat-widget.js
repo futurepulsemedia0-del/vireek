@@ -56,7 +56,7 @@
   }
 
   function mount(c) {
-    var brand = /^#[0-9a-fA-F]{6}$/.test(c.brand_color) ? c.brand_color : '#A93B0F';
+    var brand = /^#[0-9a-fA-F]{6}$/.test(c.brand_color) ? c.brand_color : '#934126';
     var onBrand = textOn(brand);
     var dark = c.theme === 'dark' || (c.theme === 'auto' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
     var left = c.position === 'left';
