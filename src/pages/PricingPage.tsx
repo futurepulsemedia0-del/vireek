@@ -217,7 +217,7 @@ const external = isExternalLink(plan.id) && !signupHref;
           </Button>
         </a>
       ) : (
-        <Link to={href} className="mt-8 block">
+        <Link to={signupHref ?? href} className="mt-8 block">
           <Button variant={plan.recommended ? 'primary' : 'secondary'} size="lg" className="w-full gap-2">
             {plan.ctaLabel}
             <ArrowRight size={18} className="transition-transform duration-200 group-hover:translate-x-1" />
