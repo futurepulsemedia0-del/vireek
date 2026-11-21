@@ -251,7 +251,7 @@ export function BrandGuidelinesPage() {
 
             <div className="mt-12 grid gap-6 lg:grid-cols-[1fr_1.2fr]">
               <Card className="flex items-center justify-center py-14">
-                <VireekMark size={180} intro="always" interactive label="Vireek animated mark" />
+                <VireekMark size={280} className="h-auto w-[clamp(180px,60vw,300px)]" intro="always" interactive label="Vireek animated mark" />
               </Card>
               <Card className="p-8">
                 <h3 className="text-lg font-semibold text-text-primary">Where it moves, and where it doesn&rsquo;t</h3>
