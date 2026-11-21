@@ -97,25 +97,14 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   useLoginAlert(Boolean(session));
 
   if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-bg-primary">
-        <div className="flex flex-col items-center gap-4">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-accent" />
-          <p className="text-sm text-text-secondary">Loading your dashboard…</p>
-        </div>
-      </div>
-    );
+    return <RouteFallback variant="data" fullScreen />;
   }
 
   if (!session) {
     return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
   if (mfaPending === null || enforcement.loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-bg-primary">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-accent" />
-      </div>
-    );
+    return <RouteFallback variant="data" fullScreen />;
   }
 
   if (mfaPending) {
