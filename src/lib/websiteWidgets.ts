@@ -145,7 +145,7 @@ export function buildDefaults(type: WidgetType): WidgetSettings {
   return {
     widget_type: type,
     enabled: false,
-    brand_color: '#A93B0F',
+    brand_color: '#934126',
     theme: 'auto',
     display_mode: type === 'reviews' ? 'inline' : 'floating',
     position: 'right',
@@ -238,7 +238,7 @@ export function isHttpsUrl(value: string): boolean {
 
 export function validateSettings(s: WidgetSettings): WidgetErrors {
   const e: WidgetErrors = {};
-  if (!/^#[0-9a-fA-F]{6}$/.test(s.brand_color)) e.brand_color = 'Use a 6-digit hex color, e.g. #A93B0F.';
+  if (!/^#[0-9a-fA-F]{6}$/.test(s.brand_color)) e.brand_color = 'Use a 6-digit hex color, e.g. #934126.';
   if (!Number.isInteger(s.radius) || s.radius < LIMITS.radiusMin || s.radius > LIMITS.radiusMax) e.radius = `Between ${LIMITS.radiusMin} and ${LIMITS.radiusMax}.`;
   if (s.title.length > LIMITS.title) e.title = `Max ${LIMITS.title} characters.`;
   if (s.subtitle.length > LIMITS.subtitle) e.subtitle = `Max ${LIMITS.subtitle} characters.`;
