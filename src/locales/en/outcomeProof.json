@@ -1,0 +1,81 @@
+{
+  "title": "Customer outcome cases",
+  "subtitle": "Turn your recorded results into a case study with a documented method, written consent and a trail back to the source records.",
+  "notAudited": "Not independently audited.",
+  "noAccess": {
+    "title": "You don't have access to this page",
+    "body": "Ask your account owner for the \"View billing\" permission."
+  },
+  "list": {
+    "heading": "Your cases",
+    "emptyTitle": "No cases yet",
+    "emptyBody": "Create a case from a past period. Figures are taken from your results ledger and frozen at that moment.",
+    "period": "{{start}} to {{end}}",
+    "verified": "Independently verified",
+    "open": "Open"
+  },
+  "create": {
+    "heading": "New case",
+    "titleLabel": "Title",
+    "startLabel": "First day (UTC)",
+    "endLabel": "Last day (UTC, before today)",
+    "currencyLabel": "Currency",
+    "costLabel": "Subscription cost for the period",
+    "costHelp": "Leave empty to use the cost saved in your results settings. Without a cost no return figure is shown.",
+    "submit": "Create case",
+    "creating": "Creating…",
+    "failed": "Could not create the case: {{message}}"
+  },
+  "detail": {
+    "back": "Back to cases",
+    "loading": "Loading case…",
+    "loadFailed": "Could not load this case: {{message}}",
+    "retry": "Try again",
+    "measured": "Measured value",
+    "estimated": "Estimated value (reported separately)",
+    "saved": "Time saved (not converted to money)",
+    "events": "Ledger events included",
+    "cost": "Subscription cost",
+    "noReturn": "No return figure is shown: {{reasons}}.",
+    "return": "Return on subscription cost: between {{low}} (measured only) and {{high}} (measured plus estimated).",
+    "integrityOk": "Integrity check passed: the listed events match the frozen snapshot.",
+    "integrityBad": "Integrity check FAILED. Do not use this case.",
+    "hash": "Snapshot SHA-256",
+    "sources": "Source events",
+    "sourceCol": { "date": "Date", "type": "Type", "amount": "Amount", "confidence": "Confidence", "ref": "Evidence reference", "status": "Status" },
+    "included": "included",
+    "excluded": "excluded: {{reason}}"
+  },
+  "export": {
+    "heading": "Export",
+    "markdownAudit": "Markdown (audit copy)",
+    "pdfAudit": "PDF (audit copy)",
+    "markdownPublic": "Markdown (public copy)",
+    "pdfPublic": "PDF (public copy)",
+    "blocked": "Public copy is blocked: {{blocks}}.",
+    "failed": "Export failed: {{message}}"
+  },
+  "consent": {
+    "heading": "Written consent",
+    "status": { "none": "No consent recorded.", "granted": "Consent granted on {{date}} by {{name}}.", "revoked": "Consent withdrawn on {{date}}." },
+    "ownerOnly": "Only the account owner can give or withdraw consent.",
+    "textLabel": "What you are agreeing to",
+    "businessName": "Show my business name",
+    "personName": "Show my name and role",
+    "quote": "Show a quote",
+    "quoteLabel": "Quote (exactly as it may appear)",
+    "signerName": "Your full name",
+    "signerRole": "Your role",
+    "grant": "Give consent",
+    "revoke": "Withdraw consent",
+    "saved": "Consent recorded.",
+    "failed": "Could not record consent: {{message}}",
+    "blocks": {
+      "no_consent": "no consent recorded",
+      "consent_revoked": "consent withdrawn",
+      "consent_for_other_snapshot": "consent was given for a different snapshot",
+      "integrity_check_failed": "integrity check failed",
+      "not_enough_data": "not enough data for a return figure"
+    }
+  }
+}
