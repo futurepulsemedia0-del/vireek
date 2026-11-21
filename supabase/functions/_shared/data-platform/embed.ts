@@ -155,7 +155,7 @@ export function sanitizeEmbedConfig(raw: unknown): { ok: true; config: EmbedConf
       tz: tzIn,
       theme: {
         mode: theme.mode === "dark" || theme.mode === "light" ? theme.mode : "auto",
-        accent: typeof theme.accent === "string" && HEX_RE.test(theme.accent) ? theme.accent : "#a93b0f",
+        accent: typeof theme.accent === "string" && HEX_RE.test(theme.accent) ? theme.accent : "#934126",
       },
     },
   };
