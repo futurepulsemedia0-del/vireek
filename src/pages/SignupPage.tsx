@@ -5,6 +5,7 @@ import { Mail, Lock, User, Check, X, MailCheck } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { VireekMark } from '@/components/brand/VireekMark';
 import { supabase } from '@/lib/supabase';
 import { readPartnerReferralCode, clearPartnerReferralCode } from '@/lib/partnerPortal';
 import {
@@ -302,7 +303,7 @@ export function SignupPage() {
   };
 
   return (
-    <AuthShell side={<AuthSidePanel />}>
+    <AuthShell side={<AuthSidePanel showMark />}>
       {/* Theme toggle */}
       <div className="absolute right-6 top-5 sm:right-8">
         <ThemeToggle />
@@ -333,6 +334,10 @@ export function SignupPage() {
           <div className="mt-8">
             <AuthBackLink onClick={() => setStep('form')} label="Wrong email? Go back" />
           </div>
+      {/* Mobile / tablet brand mark (the side panel is desktop-only) */}
+      <div className="mb-6 flex justify-center lg:hidden [@media(max-height:560px)]:hidden">
+        <VireekMark size={72} intro="once" decorative />
+      </div>
         </div>
       ) : (
         <>
