@@ -11,8 +11,7 @@
 // Runs automatically as the first step of `npm run build`. Manual run:
 //   node scripts/generate-rss.mjs
 //
-// Requires esbuild as a dev dependency:
-//   npm install --save-dev esbuild
+// Requires esbuild (declared in devDependencies; installed by `npm ci`).
 
 import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
