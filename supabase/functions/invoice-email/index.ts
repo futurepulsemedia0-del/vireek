@@ -161,7 +161,7 @@ const language = await resolveCustomerLanguage(admin, ownerId, { customerId: inv
 <tr><td style="color:#73726c;font-size:13px">${escapeHtml(L("invoice.email.label.balance"))}</td><td style="text-align:${language === "ar" || language === "fa" ? "left" : "right"};font-weight:600">${escapeHtml(balanceLabel)}</td></tr>
 ${dueLine ? `<tr><td colspan="2" style="color:#73726c;font-size:13px;padding-top:8px">${escapeHtml(dueLine)}</td></tr>` : ""}
 </table>
-<p style="margin:24px 0"><a href="${link}" style="background:#ae3600;color:#fff;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:600;display:inline-block">${escapeHtml(L("invoice.email.cta"))}</a></p>
+<p style="margin:24px 0"><a href="${link}" style="background:#9f4223;color:#fff;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:600;display:inline-block">${escapeHtml(L("invoice.email.cta"))}</a></p>
 <p style="color:#73726c;font-size:13px">${escapeHtml(L("invoice.email.signoff"))}<br/>${escapeHtml(business)}</p></div>`;
      const results: { to: string; ok: boolean; error?: string }[] = [];
     for (const addr of recipients) {
