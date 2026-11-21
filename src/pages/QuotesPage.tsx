@@ -27,6 +27,7 @@ import type { TieredEstimateDraft } from '@/components/quotes/TieredEstimateBuil
 import { describeEngagement, isTieredQuote } from '@/lib/estimates';
 import { QuoteTruthPanel } from '@/components/quotes/QuoteTruthReport';
 import { useBulkTable } from '@/hooks/useBulkTable';
+import { useUndoableActions } from '@/hooks/useUndoableActions';
 import { applyRowPatches } from '@/lib/bulk/engine';
 import { SavedViewsBar, type AppliedViewExtras } from '@/components/SavedViewsBar';
 import { SortSelect, type SortOption } from '@/components/SortSelect';
