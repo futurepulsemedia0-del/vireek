@@ -8,7 +8,8 @@ export type NoticeKind =
   | "price_change"
   | "payment_suspended"
   | "fraud_throttled"
-  | "fraud_suspended";
+  | "fraud_suspended"
+  | "plan_resume";
 
 export interface NoticeClient {
   rpc(fn: string, args: Record<string, unknown>): PromiseLike<{ data: unknown; error: { message: string } | null }>;
