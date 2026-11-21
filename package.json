@@ -131,6 +131,8 @@
     "brand:gallery": "node scripts/brand/build-gallery.mjs",
     "check:pwa": "node scripts/brand/check-pwa.mjs",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
+    "secrets:scan": "node scripts/secret-scan.mjs",
+    "test:scripts:secret-scan": "node --test scripts/secret-scan.test.mjs",
     "vertical:eval": "node scripts/vertical-eval.mjs",
     "vertical:test": "vitest run supabase/functions/_shared/vertical-ai",
     "interpreter:eval": "node scripts/interpreter-eval.mjs",
@@ -179,7 +181,8 @@
     "test:supply-chain": "node --test scripts/supply-chain/sbom.test.mjs scripts/supply-chain/pin-actions.test.mjs",
     "assets:check": "node scripts/supply-chain/asset-inventory.mjs --check",
     "registers:check": "node scripts/registers/check-registers.mjs",
-    "owners:check": "node scripts/governance/check-codeowners.mjs"
+    "owners:check": "node scripts/governance/check-codeowners.mjs",
+    "prepare": "husky"
   },
   "dependencies": {
     "@aparajita/capacitor-biometric-auth": "^10.0.0",
@@ -247,7 +250,9 @@
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.11",
     "globals": "^15.9.0",
+    "husky": "^9.1.7",
     "jsdom": "^25.0.1",
+    "lint-staged": "^15.2.10",
     "postcss": "^8.4.35",
     "prettier": "^3.3.3",
     "tailwindcss": "^3.4.1",
