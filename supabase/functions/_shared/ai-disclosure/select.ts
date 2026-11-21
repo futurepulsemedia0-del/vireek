@@ -4,8 +4,12 @@
 //  1. caller language == language of the account script  -> the account script
 //  2. caller language known, different                   -> built-in translation
 //  3. caller language unknown                            -> the account script (fallback)
+//  4. caller language known but NOT cleared for outbound   -> the account script (fallback). A built-in translation is only
+//     compliance text (see ../i18n/outboundCompliance.ts) used when a native reviewer has signed it off in
+//     docs/i18n/reviewed-keys.json. Reason stays "default_fallback" because call_ai_disclosures.selection_reason has a CHECK constraint.
 
 import { DEFAULT_LANGUAGE, type LanguageCode } from "../i18n/languages.ts";
+import { isOutboundComplianceLanguage, OUTBOUND_COMPLIANCE_LANGUAGES } from "../i18n/outboundCompliance.ts";
 
 export const DEFAULT_DISCLOSURE_SCRIPT = "This call is answered by an AI voice assistant, not a live person.";
 
@@ -36,6 +40,8 @@ export function selectDisclosure(input: {
   script: string | null | undefined;
   scriptLanguage: LanguageCode | null | undefined;
   callerLanguage: LanguageCode | null | undefined;
+  /** Languages cleared for outbound compliance wording. Defaults to OUTBOUND_COMPLIANCE_LANGUAGES; override in tests only. */
+  outboundLanguages?: readonly string[];
 }): DisclosureSelection {
   const script = input.script?.trim() || DEFAULT_DISCLOSURE_SCRIPT;
   const scriptLanguage = input.scriptLanguage ?? DEFAULT_LANGUAGE;
@@ -43,5 +49,8 @@ export function selectDisclosure(input: {
 
   if (!caller) return { language: scriptLanguage, text: script, source: "business_profile", reason: "default_fallback" };
   if (caller === scriptLanguage) return { language: scriptLanguage, text: script, source: "business_profile", reason: "caller_language_match" };
+  if (!isOutboundComplianceLanguage(caller, input.outboundLanguages ?? OUTBOUND_COMPLIANCE_LANGUAGES)) {
+    return { language: scriptLanguage, text: script, source: "business_profile", reason: "default_fallback" };
+  }
   return { language: caller, text: BUILTIN_DISCLOSURES[caller], source: "builtin_translation", reason: "caller_language_translation" };
 }
