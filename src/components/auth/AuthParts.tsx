@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Eye, EyeOff, AlertCircle, Check, ArrowLeft } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Link } from 'react-router-dom';
+import { VireekMark } from '@/components/brand/VireekMark';
 
 /* ------------------------------------------------------------------ */
 /*  Shared logo                                                        */
@@ -251,6 +252,10 @@ export function AuthSidePanel() {
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
           className="max-w-md"
         >
+          {/* Animated brand mark — symbol only. Hidden on short viewports so the panel never clips. */}
+          <div className="mb-7 hidden [@media(min-height:760px)]:block">
+            <VireekMark size={88} intro="once" interactive decorative />
+          </div>
           {/* Floating call card mockup */}
           <div className="rounded-2xl border border-border/60 bg-bg-secondary/60 p-6 shadow-2xl backdrop-blur-md">
             <div className="flex items-center gap-3">
