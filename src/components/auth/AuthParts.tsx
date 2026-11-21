@@ -254,8 +254,8 @@ export function AuthSidePanel({ showMark = false }: { showMark?: boolean } = {})
         >
           {/* Animated brand mark — symbol only. Shown only where the page opts in; hidden on short viewports so the panel never clips. */}
           {showMark && (
-            <div className="mb-7 hidden [@media(min-height:760px)]:block">
-              <VireekMark size={96} intro="once" interactive decorative />
+              <div className="mb-7 hidden [@media(min-height:780px)]:block">
+              <VireekMark size={240} className="h-auto w-[clamp(120px,calc(100vh_-_690px),260px)]" intro="once" interactive decorative />
             </div>
           )}
           {/* Floating call card mockup */}
