@@ -62,6 +62,12 @@ jobs:
 
       - name: Public claims gate
         run: npm run claims:check
+      - name: Claims substantiation gate (numeric and comparative claims need current evidence)
+        run: |
+          npm run test:scripts:claims-gate
+          npm run claims:gate
+      - name: Content pipeline tests
+        run: npm run test:scripts:content
       - name: AI system register (every AI call site must be registered)
         run: npm run ai-governance:check
       - name: Localization gates (raw Intl ratchet, voice, translation keys)
@@ -100,6 +106,8 @@ jobs:
 
       - name: Verify built SEO output
         run: npm run test:built
+      - name: Content pages have metadata, canonical and structured data
+        run: npm run content:check
         
   e2e:
     name: E2E (Playwright)
