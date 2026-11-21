@@ -12,6 +12,7 @@
 //   * The destination policy (premium / international / unknown) ALWAYS applies, even to emergency.
 
 import { evaluateDestination, type DenyReason } from "./destinationPolicy.ts";
+import { EMERGENCY_BLOCK_MESSAGE, emergencyDestinationDecision } from "../telecom/emergencyNumbers.ts";
 import {
   CALL_CENTS_PER_MIN,
   PLAN_LIMITS,
@@ -97,11 +98,12 @@ interface GuardContext {
 
 const HTTP: Record<GuardCode, 403 | 429 | 503> = {
   INVALID_NUMBER: 403, NEVER_ROUTABLE: 403, PREMIUM_RATE: 403, UNKNOWN_DESTINATION: 403, COUNTRY_NOT_ALLOWED: 403,
-  INTERNATIONAL_LOCKED: 403, GUARD_UNAVAILABLE: 503, KILL_SWITCH: 503, ORG_SUSPENDED: 403, VERIFICATION_REQUIRED: 403,
+  INTERNATIONAL_LOCKED: EMERGENCY_NUMBER_BLOCKED: 403, INTERNATIONAL_LOCKED: 403, GUARD_UNAVAILABLE: 503, 403, GUARD_UNAVAILABLE: 503, KILL_SWITCH: 503, ORG_SUSPENDED: 403, VERIFICATION_REQUIRED: 403,
   PLAN_NOT_ALLOWED: 403, CONSENT_REQUIRED: 403, CAMPAIGN_APPROVAL_REQUIRED: 403, DAILY_CALLS: 429, DAILY_SMS: 429, DAILY_COST: 429, LIFETIME_COST: 429,
 };
 
 const MESSAGE: Record<GuardCode, string> = {
+  EMERGENCY_NUMBER_BLOCKED: EMERGENCY_BLOCK_MESSAGE,
   INVALID_NUMBER: "The destination is not a valid phone number.",
   NEVER_ROUTABLE: "This destination cannot be reached from Vireek.",
   PREMIUM_RATE: "Premium-rate and special-service numbers are blocked.",
@@ -141,6 +143,13 @@ function utcDay(d: Date): string {
 export async function guardOutbound(db: FraudDb, req: GuardRequest): Promise<GuardResult> {
   const now = req.now ?? new Date();
 
+  // ---- 0. emergency numbers: refused first, unconditionally ----
+  // Not subject to shadow/rollout switches (a "shadow" would place the call), not dependent on the fraud store being
+  // reachable, and the dialled number itself is never written to the event log. See _shared/telecom/emergencyNumbers.ts.
+  if (req.kind !== "clone" && req.to && emergencyDestinationDecision(req.to).kind === "blocked") {
+    await logEvent(db, req.userId, req, "EMERGENCY_NUMBER_BLOCKED", null, false);
+    return deny("EMERGENCY_NUMBER_BLOCKED");
+  }
   // ---- 1. load context (fail closed, except domestic emergency hand-offs which are decided locally) ----
   let ctx: GuardContext | null = null;
   try {
@@ -340,6 +349,11 @@ export async function guardDestination(
   to: string,
   opts: { rollout?: "global" | "outbound"; source?: string } = {},
 ): Promise<GuardResult> {
+  // Emergency numbers are refused first and are never shadowed (see guardOutbound step 0).
+  if (emergencyDestinationDecision(to).kind === "blocked") {
+    await logEvent(db, userId, { userId, kind: "call", purpose: "service", source: opts.source ?? "guardDestination" }, "EMERGENCY_NUMBER_BLOCKED", null, false);
+    return deny("EMERGENCY_NUMBER_BLOCKED");
+  }
   let ctx: GuardContext | null = null;
   try {
     const { data, error } = await db.rpc("fraud_guard_context", { p_user: userId });
