@@ -21,6 +21,7 @@ import { createDeps } from "../_shared/lead-marketplace/runtime.ts";
 import { handleThirdPartyEmail } from "../_shared/third-party-intake/emailEntry.ts";
 import { handleFmPortalEmail } from "../_shared/fm-ingest/emailEntry.ts";
 import { recordLanguageFromMessage } from "../_shared/i18n/customerLanguage.ts";
+import { recordInboundRevocation } from "../_shared/compliance/consentChecks.ts";
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
@@ -67,6 +68,17 @@ Deno.serve(async (req: Request) => {
     }
       console.error(JSON.stringify({ event: "email_webhook_unknown_alias", to }));
       return json({ received: true });
+    }
+
+    // Cross-channel revocation from an email reply ("unsubscribe", "stop emailing me", ...). Never blocks intake.
+    try {
+      const rev = await recordInboundRevocation(
+        { ownerId: profile.id, channel: "email", text, subject, email: from.toLowerCase(), source: "email-webhook" },
+        { admin, getEnv: (k) => Deno.env.get(k) },
+      );
+      if (rev.revoked && !rev.recorded) console.error(JSON.stringify({ event: "email_revocation_not_recorded", error: rev.error }));
+    } catch (e) {
+      console.error(JSON.stringify({ event: "email_revocation_failed", error: e instanceof Error ? e.message : String(e) }));
     }
 
     const thirdParty = await handleThirdPartyEmail(admin, {
