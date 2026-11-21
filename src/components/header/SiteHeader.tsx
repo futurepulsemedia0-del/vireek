@@ -72,7 +72,7 @@ function DrawerActions({ onNavigate }: { onNavigate: () => void }) {
   const base =
     'focus-ring flex h-12 w-full items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-all active:scale-[0.98]';
   return (
-    <div className="space-y-3 border-t border-border px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-5"
+    <div className="space-y-3 border-t border-border px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-5">
       {signedIn ? (
         <Link to="/dashboard" onClick={onNavigate} className={`${base} bg-accent text-on-accent shadow-sm hover:shadow-glow-accent`}>
           <LayoutDashboard size={16} aria-hidden="true" />
