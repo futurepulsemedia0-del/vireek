@@ -21,6 +21,56 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "..", "..");
 const TENANT_COLUMNS = ["user_id", "account_owner_id", "owner_id"];
 
+// ---------------------------------------------------------------- baseline file (strict)
+export const BASELINE_FILE = "docs/security/rls-baseline.json";
+export const BASELINE_RULES = Object.freeze([
+  "no-rls", "rls-no-policy", "policy-true", "anon-write-policy", "policy-unwrapped-auth", "policy-column-unindexed",
+]);
+
+/** Returns a list of problems; an empty list means the baseline object is well-formed. Never throws. */
+export function validateBaseline(b) {
+  if (b === null || typeof b !== "object" || Array.isArray(b)) return ["baseline must be a JSON object"];
+  const errors = [];
+  if (b.version !== 1) errors.push(`baseline.version must be 1 (got ${JSON.stringify(b.version)})`);
+  if (!Array.isArray(b.findings)) return [...errors, "baseline.findings must be an array"];
+  const seen = new Set();
+  b.findings.forEach((f, i) => {
+    if (f === null || typeof f !== "object" || Array.isArray(f)) { errors.push(`findings[${i}] must be an object`); return; }
+    if (typeof f.table !== "string" || f.table.trim() === "") errors.push(`findings[${i}].table must be a non-empty string`);
+    if (!BASELINE_RULES.includes(f.rule)) errors.push(`findings[${i}].rule "${String(f.rule)}" is not a known rule (${BASELINE_RULES.join(", ")})`);
+    const k = `${f.table}|${f.rule}`;
+    if (seen.has(k)) errors.push(`findings[${i}] duplicates "${k}"`);
+    seen.add(k);
+  });
+  return errors;
+}
+
+/** Reads the frozen baseline. Throws (never silently returns "empty") when it is missing or malformed. */
+export function readBaseline(file) {
+  if (!fs.existsSync(file)) {
+    throw new Error(`${posix(path.relative(ROOT, file))} is missing. Restore it from version control, or bootstrap it once with: node scripts/security/rls-audit.mjs --update-baseline`);
+  }
+  let parsed;
+  try { parsed = JSON.parse(readText(file)); } catch (e) { throw new Error(`${posix(path.relative(ROOT, file))} is not valid JSON: ${e.message}`); }
+  const problems = validateBaseline(parsed);
+  if (problems.length) throw new Error(`${posix(path.relative(ROOT, file))} is malformed:\n    - ${problems.join("\n    - ")}`);
+  return parsed;
+}
+
+/** Unique, sorted {table, rule} pairs: the baseline is a set, not a log. */
+export function baselineFromFindings(findings) {
+  const seen = new Map();
+  for (const f of findings) seen.set(`${f.table}|${f.rule}`, { table: f.table, rule: f.rule });
+  return [...seen.values()].sort((a, b) => (a.table < b.table ? -1 : a.table > b.table ? 1 : a.rule < b.rule ? -1 : a.rule > b.rule ? 1 : 0));
+}
+
+/** Per-rule counts of unique (table, rule) pairs. */
+export function countByRule(entries) {
+  const out = {};
+  for (const e of entries) out[e.rule] = (out[e.rule] ?? 0) + 1;
+  return out;
+}
+
 // ---------------------------------------------------------------- SQL helpers
 /** Strips -- and /* *\/ comments, keeping quoted strings and dollar-quoted bodies intact. */
 export function stripSql(sql) {
