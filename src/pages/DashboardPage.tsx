@@ -30,6 +30,8 @@ import { OverviewCustomizeBar } from '@/components/overview/OverviewCustomizeBar
 import { SystemHealthStrip } from '@/components/overview/SystemHealthStrip';
 import { RenewalRateCard } from '@/components/overview/RenewalRateCard';
 import { DataHealthCard } from '@/components/overview/DataHealthCard';
+import { StoredValueCard } from '@/components/overview/StoredValueCard';
+import { DisputeRatioCard } from '@/components/overview/DisputeRatioCard';
 import { useOverviewLayout } from '@/hooks/useOverviewLayout';
 import { hiddenItems, resolveRolePreset, visibleItems, type OverviewWidgetId, type PermissionKey } from '@/lib/overviewLayout';
 // ============================================================
@@ -931,6 +933,10 @@ export function DashboardPage() {
         return <LeakCasesCard />;
       case 'data_health':
         return <DataHealthCard />;
+      case 'stored_value':
+        return <StoredValueCard />;
+      case 'dispute_ratio':
+        return <DisputeRatioCard />;
       case 'recent_activity':
         return <RecentActivity items={metrics.activityItems} highlightId={newlyArrivedId ? `call-${newlyArrivedId}` : null} />;
       default:
