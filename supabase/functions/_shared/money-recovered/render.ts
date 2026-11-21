@@ -27,7 +27,7 @@ export function callUrl(siteUrl: string, callId: string | null): string | null {
 const STATE_LABEL = { credited: "Recovered", in_progress: "In progress", not_claimed: "Not claimed" } as const;
 const STATE_COLOR = {
   credited: { bg: "#f0eee6", fg: "#007c2c" },
-  in_progress: { bg: "#fff6df", fg: "#a93b0f" },
+  in_progress: { bg: "#fff6df", fg: "#934126" },
   not_claimed: { bg: "#f0eee6", fg: "#595852" },
 } as const;
 
@@ -71,7 +71,7 @@ export function renderStatementEmail(input: StatementEmailInput): { subject: str
         ${kv("Recovered by Vireek", formatMoney(s.baseline.creditedCents, cur), s.baseline.recoveredVsBaselinePct === null ? "" : `${s.baseline.recoveredVsBaselinePct}% of the weekly baseline leak`)}
        </table>`
     : `<h2 style="${H2}">Baseline Leak Report</h2>
-       <p style="${P}">No baseline has been recorded yet. <a href="${escapeHtml(manageUrl)}" style="color:#ae3600">Add your Leak Report figure</a> to see this week compared with it.</p>`;
+       <p style="${P}">No baseline has been recorded yet. <a href="${escapeHtml(manageUrl)}" style="color:#9f4223">Add your Leak Report figure</a> to see this week compared with it.</p>`;
 
   const categoryHtml = s.categories.length
     ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:13px;border-collapse:collapse">
@@ -88,7 +88,7 @@ export function renderStatementEmail(input: StatementEmailInput): { subject: str
     const url = callUrl(siteUrl, r.callId);
     const c = STATE_COLOR[r.state];
     const link = url
-      ? `<a href="${escapeHtml(url)}" style="color:#ae3600">${r.hasRecording ? "Listen &amp; view call" : "View call"}</a>`
+      ? `<a href="${escapeHtml(url)}" style="color:#9f4223">${r.hasRecording ? "Listen &amp; view call" : "View call"}</a>`
       : `<span style="color:#a9a8a2">No call linked</span>`;
     return `<tr>
       <td style="${TD}"><div style="font-weight:600;color:#141413">${escapeHtml(r.customer)}</div>
@@ -105,9 +105,9 @@ export function renderStatementEmail(input: StatementEmailInput): { subject: str
 <div style="display:none;max-height:0;overflow:hidden">${escapeHtml(`${formatMoney(s.creditedCents, cur)} recovered ${s.period.label}`)}</div>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:24px 12px">
 <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:14px;overflow:hidden">
-<tr><td style="background:#ae3600;height:6px;font-size:0">&nbsp;</td></tr>
+<tr><td style="background:#9f4223;height:6px;font-size:0">&nbsp;</td></tr>
 <tr><td style="padding:28px 28px 8px">
-  <div style="font-size:12px;font-weight:700;color:#ae3600">${escapeHtml(company)}</div>
+  <div style="font-size:12px;font-weight:700;color:#9f4223">${escapeHtml(company)}</div>
   <h1 style="margin:6px 0 2px;font-size:22px;color:#141413">Money Recovered</h1>
   <div style="font-size:13px;color:#73726c">${escapeHtml(s.period.label)} (${escapeHtml(s.period.timezone)})</div>
   <div style="margin-top:18px;font-size:40px;font-weight:800;color:#007c2c;line-height:1">${escapeHtml(formatMoney(s.creditedCents, cur))}</div>
@@ -123,7 +123,7 @@ export function renderStatementEmail(input: StatementEmailInput): { subject: str
 <tr><td style="padding:8px 28px"><h2 style="${H2}">Calls and customers we worked</h2>
   ${shown.length
     ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse">${shown.map(rowHtml).join("")}</table>
-       ${hidden > 0 ? `<p style="${P}">+ ${hidden} more in the <a href="${escapeHtml(manageUrl)}" style="color:#ae3600">full statement</a> and the attached PDF.</p>` : ""}`
+       ${hidden > 0 ? `<p style="${P}">+ ${hidden} more in the <a href="${escapeHtml(manageUrl)}" style="color:#9f4223">full statement</a> and the attached PDF.</p>` : ""}`
     : `<p style="${P}">No recoveries or active follow-ups this week.</p>`}
 </td></tr>
 ${input.pilot ? `<tr><td style="padding:8px 28px">${input.pilot.html}</td></tr>` : ""}
