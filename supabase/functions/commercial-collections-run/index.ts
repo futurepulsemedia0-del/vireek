@@ -129,7 +129,7 @@ Deno.serve(async (req: Request) => {
         const html = `<div ${htmlLangAttrs(language)} style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:520px;margin:0 auto;color:#141413">
 <p>${escapeHtml(greeting)}</p><p>${escapeHtml(L("invoice.email.lead.reminder"))}</p>
 <p><strong>${escapeHtml(L("invoice.email.label.invoice"))} ${escapeHtml(r.invoice_number)}</strong>${poLine ? `<br/>${escapeHtml(poLine)}` : ""}<br/>${escapeHtml(L("invoice.email.label.balance"))}: ${escapeHtml(balanceLabel)}${dueLine ? `<br/>${escapeHtml(dueLine)}` : ""}</p>
-<p><a href="${escapeHtml(link)}" style="background:#ae3600;color:#fff;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:600;display:inline-block">${escapeHtml(L("invoice.email.cta"))}</a></p>
+<p><a href="${escapeHtml(link)}" style="background:#9f4223;color:#fff;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:600;display:inline-block">${escapeHtml(L("invoice.email.cta"))}</a></p>
 <p style="color:#73726c;font-size:13px">${escapeHtml(L("invoice.email.signoff"))}<br/>${escapeHtml(biz)}</p></div>`;
 
         let anyOk = false; let lastError = "";
