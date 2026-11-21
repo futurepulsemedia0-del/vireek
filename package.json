@@ -80,6 +80,8 @@
     "i18n:coverage": "node scripts/i18n-coverage.mjs",
     "i18n:coverage:release": "node scripts/i18n-coverage.mjs --strict",
     "i18n:freshness": "node scripts/i18n-freshness.mjs",
+    "i18n:status": "node scripts/i18n-status.mjs --write",
+    "i18n:status:check": "node scripts/i18n-status.mjs --check",
     "i18n:inventory": "node scripts/i18n-inventory.mjs",
     "openapi:generate": "node scripts/openapi.mjs generate",
     "openapi:check": "node scripts/openapi.mjs check",
