@@ -374,6 +374,12 @@ Deno.serve(async (req: Request) => {
   const query = [site.address, site.city, site.state, site.postal_code].filter((p) => typeof p === "string" && p.trim()).join(", ");
   if (!query) return jsonResponse({ error: "Add an address to this site before enriching it." }, 422);
 
+  // Honour data-subject opt-outs: never send this address/coordinates to third-party providers.
+  // Fail closed: if the check itself fails we do not enrich.
+  const { data: suppressed, error: suppressedError } = await db.rpc("property_site_suppressed", { p_site_id: siteId });
+  if (suppressedError) return jsonResponse({ error: "Could not verify enrichment eligibility." }, 500);
+  if (suppressed === true) return jsonResponse({ error: "Enrichment is disabled for this property.", code: "subject_opt_out" }, 403);
+  
   await db.from("property_profiles").upsert({ site_id: siteId }, { onConflict: "site_id", ignoreDuplicates: true });
   const { data: profile, error: profileError } = await db
     .from("property_profiles")
