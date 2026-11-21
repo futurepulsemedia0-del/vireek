@@ -83,6 +83,7 @@ jobs:
           npm run i18n:keys
           npm run i18n:coverage
           npm run i18n:freshness
+          npm run i18n:status:check
 
       - name: Unit tests
         run: npm run test -- --coverage
