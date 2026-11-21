@@ -782,7 +782,7 @@ export function OnboardingPage() {
               >
                 <div className="text-center">
                   <div className="flex justify-center">
-                    <VireekMark size={76} intro="always" decorative />
+                    <VireekMark size={200} className="h-auto w-[clamp(140px,44vw,200px)]" intro="always" decorative />
                   </div>
                   <h1 className="mt-4 text-xl font-bold tracking-tight text-text-primary sm:text-2xl">
                     You're all set!
