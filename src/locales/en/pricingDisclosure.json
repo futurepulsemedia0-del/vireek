@@ -1,0 +1,18 @@
+{
+  "notice": {
+    "aria": "Pricing notice",
+    "learnMore": "How this price was set",
+    "location": {
+      "title": "Price based on your location",
+      "body": "This price includes an adjustment that depends on the service address you gave us, such as a travel fee or a temporary surge rate for your area."
+    },
+    "account": {
+      "title": "Price set for your account",
+      "body": "This price comes from a price list or terms set up specifically for your account, contract or membership."
+    },
+    "modeled": {
+      "title": "Price calculated from your equipment data",
+      "body": "This price was calculated automatically using information about you and your equipment, including its repair history. Ask the business if you would like to know how it was set."
+    }
+  }
+}
