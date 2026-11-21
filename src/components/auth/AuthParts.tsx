@@ -233,7 +233,7 @@ export function AuthShell({
 /*  Auth side panel — the visual right column                          */
 /* ------------------------------------------------------------------ */
 
-export function AuthSidePanel() {
+export function AuthSidePanel({ showMark = false }: { showMark?: boolean } = {}) {
   return (
     <div className="relative h-full overflow-hidden bg-gradient-mesh bg-noise">
       <div className="absolute inset-0 bg-gradient-to-br from-accent-900/40 via-bg-secondary to-bg-tertiary" />
@@ -252,10 +252,12 @@ export function AuthSidePanel() {
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
           className="max-w-md"
         >
-          {/* Animated brand mark — symbol only. Hidden on short viewports so the panel never clips. */}
-          <div className="mb-7 hidden [@media(min-height:760px)]:block">
-            <VireekMark size={88} intro="once" interactive decorative />
-          </div>
+          {/* Animated brand mark — symbol only. Shown only where the page opts in; hidden on short viewports so the panel never clips. */}
+          {showMark && (
+            <div className="mb-7 hidden [@media(min-height:760px)]:block">
+              <VireekMark size={96} intro="once" interactive decorative />
+            </div>
+          )}
           {/* Floating call card mockup */}
           <div className="rounded-2xl border border-border/60 bg-bg-secondary/60 p-6 shadow-2xl backdrop-blur-md">
             <div className="flex items-center gap-3">
