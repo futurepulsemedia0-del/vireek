@@ -1,5 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
-import { isDncSuppressed } from "../_shared/compliance/dncCheck.ts";
+import { isDncSuppressed, normalizePhone } from "../_shared/compliance/dncCheck.ts";
+import { gateContact } from "../_shared/compliance/consentChecks.ts";
 import { gateOutbound } from "../_shared/messaging/quietHours.ts";
 import { governedGate } from "../_shared/governance/shadowGate.ts";
 import { recordAgentActionOutcome } from "../_shared/governance/agentGovernance.ts";
@@ -22,6 +23,7 @@ interface QueuedCall {
   customer_name: string;
   customer_phone: string;
   attempt_count: number;
+  created_at: string;
 }
 
 const CAMPAIGN_CONTEXT: Record<QueuedCall["campaign_type"], string> = {
@@ -47,7 +49,7 @@ Deno.serve(async (req: Request) => {
 
   const { data: queue, error } = await admin
     .from("outbound_calls")
-    .select("id, user_id, campaign_type, customer_name, customer_phone, attempt_count")
+    .select("id, user_id, campaign_type, customer_name, customer_phone, attempt_count, created_at")
     .eq("status", "queued")
     .lte("scheduled_for", new Date().toISOString())
     .lt("attempt_count", 3)
@@ -90,6 +92,27 @@ Deno.serve(async (req: Request) => {
       }).eq("id", call.id);
       continue;
     }    
+    if (call.customer_phone) {
+      // Reassigned-number check + cross-channel revocation ledger. Fails CLOSED (see _shared/compliance/consentChecks.ts).
+      const contact = await gateContact({
+        ownerId: call.user_id, channel: "call", phoneE164: normalizePhone(call.customer_phone),
+        source: "outbound-dialer", fallbackConsentAt: call.created_at,
+      }, { admin, getEnv: (k) => Deno.env.get(k) });
+      if (!contact.allow) {
+        if (contact.retryable) {
+          await admin.from("outbound_calls").update({
+            scheduled_for: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+            outcome_notes: `Held by consent check (${contact.reason}); retrying later.`,
+          }).eq("id", call.id);
+        } else {
+          await admin.from("outbound_calls").update({
+            status: contact.reason === "REVOKED" ? "opted_out" : "failed",
+            outcome_notes: `Blocked by consent check (${contact.reason}).`, attempt_count: call.attempt_count + 1,
+          }).eq("id", call.id);
+        }
+        continue;
+      }
+    }
     if (call.customer_phone) {
       const gate = await gateOutbound(admin, call.user_id, {
         channel: "call", to: call.customer_phone,
