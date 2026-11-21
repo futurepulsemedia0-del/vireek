@@ -114,7 +114,7 @@ function buildEmail(st: Statement, business: string, siteUrl: string) {
     `<tr><td style="${td}white-space:nowrap">${esc(fmtDate(l.date))}</td><td style="${td}">${esc(l.description)}${st.consolidated && l.customer_name ? `<br><span style="color:#73726c;font-size:12px">${esc(l.customer_name)}</span>` : ""}</td><td style="${num}">${l.charge_cents ? esc(money(l.charge_cents)) : ""}</td><td style="${num}">${l.credit_cents ? esc(money(l.credit_cents)) : ""}</td><td style="${num}">${esc(money(l.balance_cents))}</td></tr>`).join("");
 
   const open = st.open_invoices.slice(0, 40).map((o) =>
-    `<tr><td style="${td}"><a href="${esc(`${siteUrl}/invoice/${o.invoice_token}`)}" style="color:#ae3600;text-decoration:none">${esc(o.invoice_number ?? "Invoice")}</a></td><td style="${td}">${o.due_date ? esc(fmtDate(o.due_date)) : "—"}</td><td style="${td}">${o.days_past_due > 0 ? `${o.days_past_due} days past due` : "Current"}</td><td style="${num}">${esc(money(o.balance_cents))}</td></tr>`).join("");
+    `<tr><td style="${td}"><a href="${esc(`${siteUrl}/invoice/${o.invoice_token}`)}" style="color:#9f4223;text-decoration:none">${esc(o.invoice_number ?? "Invoice")}</a></td><td style="${td}">${o.due_date ? esc(fmtDate(o.due_date)) : "—"}</td><td style="${td}">${o.days_past_due > 0 ? `${o.days_past_due} days past due` : "Current"}</td><td style="${num}">${esc(money(o.balance_cents))}</td></tr>`).join("");
 
   const ag = st.aging;
   const aging = [["Current", ag.current], ["1–30", ag.d1_30], ["31–60", ag.d31_60], ["61–90", ag.d61_90], ["90+", ag.d90_plus]]
