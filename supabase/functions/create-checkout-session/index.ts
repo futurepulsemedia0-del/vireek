@@ -36,17 +36,34 @@ Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return jsonResponse({ error: "Method not allowed" }, 405);
 
   try {
-    const { planId } = await req.json().catch(() => ({}));
-    const priceEnvKey = PRICE_ENV_BY_PLAN[planId];
-    if (!priceEnvKey) return jsonResponse({ error: "Unknown plan." }, 400);
-
+  const body = await req.json().catch(() => ({}));
+  const { planId } = body;
+  const isOnboarding = body?.source === "onboarding";
+  const priceEnvKey = PRICE_ENV_BY_PLAN[planId];
+  if (!priceEnvKey && !isOnboarding) return jsonResponse({ error: "Unknown plan." }, 400);
     const jwt = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
     if (!jwt) return jsonResponse({ error: "Missing Authorization header." }, 401);
 
     const admin = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", { auth: { persistSession: false } });
     const { data: userData, error: userError } = await admin.auth.getUser(jwt);
     if (userError || !userData?.user) return jsonResponse({ error: "Invalid or expired session." }, 401);
-
+if (isOnboarding) {
+  const onbStripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+  if (!onbStripeKey) return jsonResponse({ error: "Billing is not configured yet.", code: "not_configured" }, 500);
+  const deps = {
+    stripe: new Stripe(onbStripeKey, { apiVersion: "2024-11-20.acacia" }),
+    admin,
+    limiter: dbRateLimiter(admin),
+    readEnv: (k: string) => Deno.env.get(k),
+    siteUrl: (Deno.env.get("SITE_URL") || "https://vireek.com").replace(/\/$/, ""),
+    now: () => Date.now(),
+    log: (event: string, data?: Record<string, unknown>) => console.log(JSON.stringify({ event, ...data })),
+  };
+  const out = body?.action === "reconcile"
+    ? await reconcileOnboardingCheckout(deps, userData.user.id)
+    : await runOnboardingCheckout(deps, { userId: userData.user.id, planId, billing: body?.billing, promoCode: body?.promoCode });
+  return jsonResponse(out.body, out.status);
+}
     const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
     const priceId = Deno.env.get(priceEnvKey);
     if (!stripeSecretKey || !priceId) {
