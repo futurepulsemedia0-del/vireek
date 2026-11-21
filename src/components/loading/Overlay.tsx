@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { LoadingScope } from './LoadingScope';
 import { Progress } from './Progress';
 import { BrandLoader } from './BrandLoader';
-import { Spinner } from './Spinner';
+import { BrandDot } from './BrandDot';
 import { useDelayedLoading } from './useDelayedLoading';
 import './loading.css';
 
@@ -125,7 +125,7 @@ export function BackgroundTask({ open, label, progress }: BackgroundTaskProps) {
       className="vrk-fade-in fixed z-[2147482000] flex w-72 max-w-[calc(100vw-2rem)] items-center gap-3 rounded-xl border border-border bg-bg-secondary px-4 py-3 text-sm text-text-primary shadow-lg"
       style={{ insetInlineEnd: 16, bottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)' }}
     >
-      <Spinner size={18} className="text-accent" />
+      <BrandDot size={20} />
       <div className="min-w-0 flex-1">
         <p className="truncate">{label}</p>
         {typeof progress === 'number' && <Progress value={progress} label={label} size="sm" className="mt-2" />}
