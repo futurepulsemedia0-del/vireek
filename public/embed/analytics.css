@@ -6,7 +6,7 @@
   --muted: #73726c;
   --good: #007c2c;
   --bad: #d4222a;
-  --accent: #a93b0f;
+  --accent: #934126;
   --radius: 12px;
 }
 :root[data-theme="dark"] {
