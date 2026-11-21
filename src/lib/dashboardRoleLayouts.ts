@@ -50,6 +50,8 @@ export const WIDGET_DESCRIPTIONS: Record<OverviewWidgetId, string> = {
   recent_activity: 'The latest calls, jobs and updates.',
   kpi_renewal_rate: 'How many service agreements renew.',
   data_health: 'Checks that data and integrations are healthy.',
+  stored_value: 'Open gift card, store credit and optional loyalty balances with inactivity.',
+  dispute_ratio: 'Monthly dispute ratio against internal early-warning levels.',
 };
 
 const PERMISSION_LABELS: Record<PermissionKey, string> = {
