@@ -29,7 +29,7 @@ async function call<T>(fn: string, body: Record<string, unknown>): Promise<T> {
 /* -------------------------------------------------------------------------- */
 
 export type ConsentRelationship = 'self' | 'employee_written_consent';
-export type ConsentStatus = 'pending' | 'approved' | 'rejected' | 'revoked';
+export type ConsentStatus = 'pending' | 'approved' | 'rejected' | 'revoked' | 'expired';
 
 export interface ConsentRow {
   id: string;
@@ -40,6 +40,9 @@ export interface ConsentRow {
   failure_reason: string | null;
   approved_at: string | null;
   revoked_at: string | null;
+  consent_version: string;
+  retention_days: number;
+  expires_at: string | null;
   created_at: string;
 }
 
@@ -47,6 +50,8 @@ export interface StartConsentInput {
   voiceOwnerName: string;
   relationship: ConsentRelationship;
   attested: boolean;
+  consentVersion: string;
+  retentionDays: number;
 }
 
 export interface StartConsentResult {
@@ -57,7 +62,7 @@ export interface StartConsentResult {
 }
 
 const CONSENT_COLUMNS =
-  'id,voice_owner_name,relationship,status,liveness_phrase,failure_reason,approved_at,revoked_at,created_at';
+  'id,voice_owner_name,relationship,status,liveness_phrase,failure_reason,approved_at,revoked_at,created_at,consent_version,retention_days,expires_at';
 
 /** Newest consent record of the account, or null when none exists. */
 export async function latestConsent(): Promise<ConsentRow | null> {
@@ -77,8 +82,11 @@ export const startConsent = (input: StartConsentInput) =>
     voiceOwnerName: input.voiceOwnerName,
     relationship: input.relationship,
     attested: input.attested,
+    consentVersion: input.consentVersion,
+    retentionDays: input.retentionDays,
   });
-
+export const setRetention = (consentId: string, retentionDays: number) =>
+  call<{ ok: true; retentionDays: number }>('voice-consent', { action: 'set_retention', consentId, retentionDays });
 export const revokeConsent = (consentId: string) =>
   call<{ ok: true }>('voice-consent', { action: 'revoke', consentId });
 
