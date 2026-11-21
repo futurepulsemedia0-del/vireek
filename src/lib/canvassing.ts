@@ -129,7 +129,7 @@ export const OUTCOMES: Record<DoorOutcome, OutcomeMeta> = {
   no_answer: { label: 'No answer', hint: 'Nobody came to the door', color: '#ffcc00', needsContact: false, followUp: 'optional' },
   callback: { label: 'Call back', hint: 'Asked us to come back later', color: '#6c6fff', needsContact: false, followUp: 'required' },
   interested: { label: 'Interested', hint: 'Wants to hear more — creates a lead', color: '#6eacff', needsContact: true, followUp: 'optional' },
-  appointment_set: { label: 'Appointment set', hint: 'Booked a visit — creates a lead and a task', color: '#a93b0f', needsContact: true, followUp: 'required' },
+  appointment_set: { label: 'Appointment set', hint: 'Booked a visit — creates a lead and a task', color: '#934126', needsContact: true, followUp: 'required' },
   sold: { label: 'Sold', hint: 'Signed on the spot', color: '#18a141', needsContact: true, followUp: 'none' },
   not_interested: { label: 'Not interested', hint: 'Politely declined', color: '#ff2d55', needsContact: false, followUp: 'none' },
   do_not_knock: { label: 'Do not knock', hint: 'Never visit again (locked for reps)', color: '#2f2e28', needsContact: false, followUp: 'none' },
@@ -528,7 +528,7 @@ export function parseReport(raw: unknown): CanvassReport {
     by_territory: (Array.isArray(r.by_territory) ? r.by_territory : []).map((x) => {
       const o = x as Record<string, unknown>;
       return {
-        territory_id: String(o.territory_id ?? ''), name: String(o.name ?? ''), color: typeof o.color === 'string' ? o.color : '#A93B0F',
+        territory_id: String(o.territory_id ?? ''), name: String(o.name ?? ''), color: typeof o.color === 'string' ? o.color : '#934126',
         doors_total: num(o.doors_total), doors_unvisited: num(o.doors_unvisited), knocks: num(o.knocks), contacts: num(o.contacts),
         interested: num(o.interested), appointments: num(o.appointments), sold: num(o.sold),
       };
@@ -572,4 +572,4 @@ export function canvassErrorMessage(err: { code?: string; message?: string } | s
   return fallback;
 }
 
-export const TERRITORY_COLORS = ['#A93B0F', '#18A141', '#D4222A', '#F9774C', '#533AFD', '#3D8EF6', '#D4222A', '#595852'];
+export const TERRITORY_COLORS = ['#934126', '#18A141', '#D4222A', '#D97757', '#533AFD', '#3D8EF6', '#D4222A', '#595852'];
