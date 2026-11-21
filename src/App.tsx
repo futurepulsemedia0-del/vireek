@@ -16,6 +16,7 @@ import { PartnerRoute } from '@/components/PartnerRoute';
 import { AriaLiveRegion } from '@/lib/a11y/announcer';
 import { HomeTargetGate } from '@/pages/home/HomeTargetGate';
 import { QualificationGate } from '@/components/auth/QualificationGate';
+import { PlanStepGate } from '@/components/onboarding/PlanStepGate';
 import { RouteProgressSignal } from '@/components/nav/RouteProgress';
 
 // Performance pass: only the landing page (the route almost every first-time
@@ -376,6 +377,7 @@ const LiveMapPage = lazy(() => import('@/pages/LiveMapPage').then((m) => ({ defa
 const WallboardPage = lazy(() => import('@/pages/WallboardPage').then((m) => ({ default: m.WallboardPage })));
 const TodayPage = lazy(() => import('@/pages/TodayPage').then((m) => ({ default: m.TodayPage })));
 const TodayWallboardPage = lazy(() => import('@/pages/TodayWallboardPage').then((m) => ({ default: m.TodayWallboardPage })));
+const PlanStepPage = lazy(() => import('@/pages/onboarding/PlanStepPage').then((m) => ({ default: m.PlanStepPage })));
 const FirstCallPage = lazy(() => import('@/pages/onboarding/FirstCallPage').then((m) => ({ default: m.FirstCallPage })));
 const WallboardSettingsPage = lazy(() => import('@/pages/WallboardSettingsPage').then((m) => ({ default: m.WallboardSettingsPage })));
 const FieldEvidencePage = lazy(() => import('@/pages/FieldEvidencePage').then((m) => ({ default: m.FieldEvidencePage })));
@@ -796,7 +798,8 @@ function AppRoutes() {
         <Route path="/onboarding/manual" element={<OnboardingWizard />} />
         <Route path="/onboarding/concierge" element={<OnboardingConciergePage />} />
         <Route path="/onboarding/classic" element={<OnboardingPage />} />
-        <Route path="/onboarding/first-call" element={<ProtectedRoute><FirstCallPage /></ProtectedRoute>} />
+        <Route path="/onboarding/plan" element={<ProtectedRoute><PlanStepPage /></ProtectedRoute>} />
+        <Route path="/onboarding/first-call" element={<ProtectedRoute><PlanStepGate><FirstCallPage /></PlanStepGate></ProtectedRoute>} />
         <Route path="/welcome-setup" element={<ProtectedRoute><WelcomeQualifyPage /></ProtectedRoute>} />
         <Route path="/onboarding-guide" element={<OnboardingGuidePage />} />
         <Route path="/academy" element={<AcademyPage />} />
@@ -1195,9 +1198,11 @@ function AppRoutes() {
           path="/dashboard"
           element={
             <ProtectedRoute>
+            <PlanStepGate>
               <QualificationGate>
                 <DashboardPage />
               </QualificationGate>
+              </PlanStepGate>
             </ProtectedRoute>
           }
         />
