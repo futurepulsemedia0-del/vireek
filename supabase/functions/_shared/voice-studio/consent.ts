@@ -5,6 +5,29 @@ export const CONSENT_TEXT_V1 =
   "to create a synthetic copy of it for this business's AI receptionist. I will not clone any other person's voice. " +
   "I understand calls will still disclose that the assistant is AI, and that I can revoke this consent at any time, " +
   "which deletes the cloned voice.";
+// ---------------------------------------------------------------------------
+// Versioned consent text. A consent record stores the VERSION and the SHA-256 of the exact text the person accepted.
+// NEVER edit a published text: add a new version, make it current, and keep the old one so old records stay verifiable.
+// The same texts are seeded, immutably, in public.voice_clone_consent_texts (migration 20290306000000); a test keeps
+// this file and that migration identical.
+// v2 adds the retention statement (automatic deletion after the period the owner chooses). Wording is a draft: [COUNSEL].
+export const CONSENT_TEXT_V2 =
+  "I confirm that the voice in the sample I upload is my own, or that its owner gave me explicit written permission " +
+  "to create a synthetic copy of it for this business's AI receptionist. I will not clone any other person's voice. " +
+  "I understand calls will still disclose that the assistant is AI. " +
+  "I understand that the uploaded sample and the cloned voice are kept only for the retention period I choose, " +
+  "after which both are deleted automatically, and that I can revoke this consent at any time, which deletes them sooner.";
+export const CONSENT_TEXTS = { v1: CONSENT_TEXT_V1, v2: CONSENT_TEXT_V2 } as const;
+export type ConsentVersion = keyof typeof CONSENT_TEXTS;
+/** The version new consents are created with. v1 is legacy: it is still accepted for old records, never offered. */
+export const CURRENT_CONSENT_VERSION: ConsentVersion = "v2";
+export const CURRENT_CONSENT_TEXT: string = CONSENT_TEXTS[CURRENT_CONSENT_VERSION];
+export function isKnownConsentVersion(v: unknown): v is ConsentVersion {
+  return typeof v === "string" && Object.prototype.hasOwnProperty.call(CONSENT_TEXTS, v);
+}
+export function consentTextFor(version: string): string | null {
+  return isKnownConsentVersion(version) ? CONSENT_TEXTS[version] : null;
+}
 export const CONSENT_TTL_MS = 30 * 60 * 1000;
 export const RELATIONSHIPS = ["self", "employee_written_consent"] as const;
 
