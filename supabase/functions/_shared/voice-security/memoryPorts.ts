@@ -7,7 +7,8 @@
 
 import type { PendingResult, StateDelta, VoiceSecurityPorts } from "./gate.ts";
 import { hmacHex } from "./stepUp.ts";
-import type { CustomerOnFile, VerificationPorts } from "./verifyTools.ts";
+import type { CallbackOutcome, CallbackPorts, CustomerOnFile, VerificationPorts } from "./verifyTools.ts";
+import { DEFAULT_TIER_CONFIG, type TierConfig } from "./riskTiers.ts";
 import type { AuditRecord, CallRef, CallSecurityState, SecurityMode } from "./types.ts";
 import { EMPTY_CALL_STATE } from "./types.ts";
 
@@ -33,14 +34,15 @@ export function createMemoryPorts(
   world: MemoryWorld,
   scanInjection: VoiceSecurityPorts["scanInjection"],
   secret = "test-secret-do-not-use",
-  opts: { failBackend?: () => boolean } = {},
-): VoiceSecurityPorts & VerificationPorts {
+  opts: { failBackend?: () => boolean; tierConfig?: TierConfig } = {},
+): VoiceSecurityPorts & VerificationPorts & CallbackPorts & { callbacks: { tenantId: string; callId: string; customerId: string; actionClass: string }[] } {
   const states = new Map<string, CallSecurityState>();
   const rates = new Map<string, number>();
   const challenges: Challenge[] = [];
   const pendings = new Map<string, Pending>();
   const challengeCounts = new Map<string, number>();
   let seq = 0;
+  const callbacks: { tenantId: string; callId: string; customerId: string; actionClass: string }[] = [];
 
   const sk = (t: string, c: CallRef) => `${t}|${c.callId ?? "nocall"}`;
   const guard = () => { if (opts.failBackend?.()) throw new Error("backend down"); };
@@ -53,6 +55,15 @@ export function createMemoryPorts(
 
   return {
     secret,
+    callbacks,
+    async tierConfig() { return opts.tierConfig ?? DEFAULT_TIER_CONFIG; },
+    async callbackCreate(a): Promise<CallbackOutcome> {
+      guard();
+      if (callbacks.some((c) => c.callId === a.callId && c.actionClass === a.actionClass)) return "duplicate";
+      if (callbacks.filter((c) => c.customerId === a.customerId).length >= 3) return "limited";
+      callbacks.push({ tenantId: a.tenantId, callId: a.callId, customerId: a.customerId, actionClass: a.actionClass });
+      return "created";
+    },
     nowMs: () => world.clock.now,
     async getMode() { guard(); return world.mode; },
     async getCallState(t, c) { guard(); const s = get(t, c); return { ...s, counters: { ...s.counters } }; },
