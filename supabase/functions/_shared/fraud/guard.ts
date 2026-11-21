@@ -258,8 +258,8 @@ async function reserve(
   want: { calls: number; sms: number; costCents: number },
   plan: ReturnType<typeof normalizePlan>,
   factor: number,
-  const scale = factor * (req.purpose === "marketing" ? MARKETING_CAP_SHARE : 1);
 ): Promise<GuardCode | null> {
+  const scale = factor * (req.purpose === "marketing" ? MARKETING_CAP_SHARE : 1);
   const caps = effectiveCaps(plan, ctx.account_age_days);
   try {
     const { data, error } = await db.rpc("fraud_reserve", {
