@@ -27,6 +27,7 @@ import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { PersonalizedPricingNotice } from '@/components/pricing/PersonalizedPricingNotice';
 import { Input, Textarea } from '@/components/ui/Input';
 import { EmptyState } from '@/components/EmptyState';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
@@ -1045,6 +1046,13 @@ function AddressTester({
               </ul>
             )}
           </div>
+            {quote && (
+              <PersonalizedPricingNotice
+                className="mt-3"
+                path={quote.surgeApplied ? 'service_area_surge' : 'service_area_travel_fee'}
+                applied={quote.surgeApplied || quote.travelFeeCents > 0}
+              />
+            )}
         )}
         {outcome?.kind === 'out_of_area' && (
           <div className="rounded-xl border border-danger/30 bg-danger/5 p-4">
