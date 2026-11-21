@@ -15,6 +15,7 @@ import { isDncSuppressed, normalizePhone } from "../compliance/dncCheck.ts";
 import { getPreferences } from "../compliance/preferenceCheck.ts";
 import { buildRecordingConsentNotice } from "../compliance/recordingConsent.ts";
 import { gateOutbound } from "../messaging/quietHours.ts";
+import { gateContact } from "../compliance/consentChecks.ts";
 import { voiceOverride } from "../voice/voiceMap.ts";
 import { asFraudDb, attachOutboundCall, gateCustomerOutbound, releaseOutboundReservation } from "../fraud/outboundGate.ts";
 import {
@@ -74,6 +75,8 @@ export interface Deps {
   admin: SupabaseClient;
   vapiKey: string | null;
   fetchImpl?: typeof fetch;
+  /** Env reader for the contact gate; defaults to Deno.env when running in an edge function. */
+  getEnv?: (key: string) => string | undefined;
 }
 
 type Json = Record<string, unknown>;
@@ -411,13 +414,21 @@ export async function processClaimed(deps: Deps, req: RequestRow, nowFn: () => D
   const { admin } = deps;
   const owner = req.account_owner_id;
   const now = nowFn();
-
+  let contactStop: string | null = null;
   let settings: StlSettings;
   let decision: ReturnType<typeof decideDial>;
   let gate: GateView;
   let tzInfo: { timezone: string; localTime: string };
   try {
     settings = await loadSettings(admin, owner);
+    // Reassigned-number check + cross-channel revocation ledger. Retryable problems throw into the fail-closed
+    // deferral below; definitive blocks (revoked / reassigned / no consent date) stop the request.
+    const getEnv = deps.getEnv ?? ((k: string) => (globalThis as { Deno?: { env: { get(k: string): string | undefined } } }).Deno?.env.get(k));
+    const cg = await gateContact({ ownerId: owner, channel: "call", phoneE164: req.phone_e164, source: "speed-to-lead" }, { admin, getEnv, now });
+    if (!cg.allow) {
+      if (cg.retryable) throw new Error(`contact_gate_${cg.reason}`);
+      contactStop = cg.reason;
+    }
     const [consent, dnc, optOut, attempts] = await Promise.all([
       latestConsent(admin, owner, req.phone_e164),
       dncStrict(admin, owner, req.phone_e164),
@@ -449,6 +460,16 @@ export async function processClaimed(deps: Deps, req: RequestRow, nowFn: () => D
     await logAttempt(admin, req, { decision: "deferred", reason: "compliance_check_failed", detail: { error: msg.slice(0, 300) } });
     await patchRequest(admin, req.id, { status: "queued", next_attempt_at: new Date(now.getTime() + RECHECK_DELAY_MS).toISOString() });
     return "deferred";
+  }
+
+  if (contactStop) {
+    await logAttempt(admin, req, { decision: "skipped", reason: `CONTACT_GATE_${contactStop}`, timezone: tzInfo.timezone, local_time: tzInfo.localTime });
+    await patchRequest(admin, req.id, {
+      status: "suppressed", final_reason: `contact_gate_${contactStop.toLowerCase()}`,
+      needs_human: contactStop !== "REVOKED", human_reason: contactStop !== "REVOKED" ? `contact_gate_${contactStop.toLowerCase()}` : null,
+      next_attempt_at: null,
+    });
+    return "stopped";
   }
 
   if (decision.action === "defer") {
