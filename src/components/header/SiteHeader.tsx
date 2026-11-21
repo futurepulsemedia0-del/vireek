@@ -3,7 +3,6 @@ import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring } from 
 import { Link, useLocation } from 'react-router-dom';
 import { ArrowRight, LayoutDashboard, LogIn, Phone } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { ThemeToggle } from '@/components/ThemeToggle';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDirection } from '@/hooks/useDirection';
 import { SARAH_PHONE } from '@/lib/site';
@@ -266,7 +265,6 @@ export function SiteHeader() {
             <DesktopMegaNav />
 
             <div className="flex items-center gap-2 sm:gap-3">
-              <ThemeToggle />
               <DesktopActions />
               <HamburgerButton ref={hamburgerRef} open={drawerOpen} onClick={() => setDrawerOpen((v) => !v)} />
             </div>
