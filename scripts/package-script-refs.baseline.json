@@ -1,0 +1,40 @@
+{
+  "$comment": "Known-broken package.json script references (ratchet). Only ever shrink this list: fix the script or delete it, then remove the entry. Checked by scripts/check-package-script-refs.mjs.",
+  "entries": [
+    {
+      "script": "assets:check",
+      "file": "scripts/supply-chain/asset-inventory.mjs",
+      "note": "Missing from the repository; no document references it. [TRIAGE] implement or delete the script."
+    },
+    {
+      "script": "check:layers",
+      "file": "scripts/governance/check-layers.mjs",
+      "note": "Missing from the repository. Documented in CONTRIBUTING.md (pre-PR governance checks) and .github/pull_request_template.md. [TRIAGE] implement or delete the script."
+    },
+    {
+      "script": "debt:report",
+      "file": "scripts/governance/debt-report.mjs",
+      "note": "Missing from the repository. Mentioned in docs/governance/TECH_DEBT.md. [TRIAGE] implement or delete the script."
+    },
+    {
+      "script": "doctor",
+      "file": "scripts/dependency-doctor.mjs",
+      "note": "Missing from the repository. Documented in CONTRIBUTING.md, .github/pull_request_template.md and docs/governance/DECISIONS_NEEDED.md. [TRIAGE] implement or delete the script."
+    },
+    {
+      "script": "doctor:strict",
+      "file": "scripts/dependency-doctor.mjs",
+      "note": "Same missing file as \"doctor\". [TRIAGE] resolve together with \"doctor\"."
+    },
+    {
+      "script": "registers:check",
+      "file": "scripts/registers/check-registers.mjs",
+      "note": "Missing from the repository (scripts/registers/ does not exist). Documented in CONTRIBUTING.md, docs/READINESS_SCORECARD.md, docs/_audit/final-convergence-audit.md. [TRIAGE] implement or delete the script."
+    },
+    {
+      "script": "sbom",
+      "file": "scripts/supply-chain/sbom.mjs",
+      "note": "Missing from the repository; no document references it. No SBOM generator exists here. [TRIAGE] implement it or delete the script. Do not claim an SBOM is produced until it is."
+    }
+  ]
+}
