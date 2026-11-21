@@ -172,7 +172,7 @@ export function renderReportHtml(p: ReportPayload, opts: { companyName?: string;
 <html lang="${locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${t("title")}</title>
 <style>
-:root{--bg:#fff;--fg:#141413;--muted:#73726c;--line:#e8e6dc;--accent:#ae3600;--warn:#a93b0f}
+:root{--bg:#fff;--fg:#141413;--muted:#73726c;--line:#e8e6dc;--accent:#9f4223;--warn:#934126}
 @media (prefers-color-scheme:dark){:root{--bg:#141413;--fg:#f0eee6;--muted:#a9a8a2;--line:#2f2e28;--accent:#8d97ff;--warn:#ffcc00}}
 body{font:16px/1.5 system-ui,sans-serif;background:var(--bg);color:var(--fg);margin:0;padding:24px;max-width:860px;margin-inline:auto}
 h1{font-size:1.6rem;margin:.2em 0}h2{font-size:1.1rem;margin-top:1.8em;border-bottom:1px solid var(--line);padding-bottom:.3em}
