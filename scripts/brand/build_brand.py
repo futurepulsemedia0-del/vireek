@@ -147,9 +147,9 @@ def splash(bgc, px=2732):
     b, tvv, tdd = fullbleed_icon(px, 0.16)
     # use the bare symbol on the splash background (no tile)
     return f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {px} {px}"><rect width="{px}" height="{px}" fill="{bgc}"/><path fill="{TILE_V if bgc != PAPER_BG else INDIGO}" d="{D(tvv)}"/><path fill="{ORANGE_DK if bgc != PAPER_BG else ORANGE}" d="{D(tdd)}"/></svg>'
-PAPER_BG = '#FDFCFA'
+PAPER_BG = '#FAF9F5'
 png_sq(splash(PAPER_BG), 2732, out('assets', 'splash.png'))
-png_sq(splash('#090A0D'), 2732, out('assets', 'splash-dark.png'))
+png_sq(splash('#141413'), 2732, out('assets', 'splash-dark.png'))
 
 
 # ---- press-kit PNGs (transparent) ------------------------------------------------
@@ -182,9 +182,9 @@ def og_svg():
         body += f'<path fill="{fill}" d="{D(xform(p, scale, tx, ty))}"/>'
     l1 = text_path('Never miss a call.', 84, 96, 400); l2 = text_path('Book more jobs.', 84, 96, 500)
     sub = text_path('AI voice receptionist for home-service trades', 34, 96, 575)
-    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630"><rect width="1200" height="630" fill="#FDFCFA"/>'
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630"><rect width="1200" height="630" fill="#FAF9F5"/>'
             f'<circle cx="1130" cy="40" r="360" fill="{INDIGO}" fill-opacity=".07"/><circle cx="1180" cy="640" r="260" fill="{ORANGE}" fill-opacity=".08"/>'
-            + body + f'<path fill="{INK}" d="{D(l1)}"/><path fill="{INK}" d="{D(l2)}"/><path fill="#676770" d="{D(sub)}"/></svg>')
+            + body + f'<path fill="{INK}" d="{D(l1)}"/><path fill="{INK}" d="{D(l2)}"/><path fill="#6c6a65" d="{D(sub)}"/></svg>')
 OG = og_svg(); png_sq  # noqa
 cairosvg.svg2png(bytestring=OG.encode(), write_to=out('public', 'og-image.png'), output_width=1200, output_height=630)
 
