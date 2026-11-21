@@ -242,6 +242,38 @@ export function BrandGuidelinesPage() {
               transition={{ duration: 0.5, ease: EASE }}
               className="mx-auto max-w-2xl text-center"
             >
+              <p className={`${eyebrowClass()} text-center`}>Motion</p>
+              <h2 className={`${sectionHeadingClass()} mt-3 text-center`}>The animated mark</h2>
+              <p className={`${bodyClass()} mx-auto text-center`}>
+                One line draws itself, turns into the V, and its end point opens into a network. Click it to see it change shape and return home.
+              </p>
+            </motion.div>
+
+            <div className="mt-12 grid gap-6 lg:grid-cols-[1fr_1.2fr]">
+              <Card className="flex items-center justify-center py-14">
+                <VireekMark size={180} intro="always" interactive label="Vireek animated mark" />
+              </Card>
+              <Card className="p-8">
+                <h3 className="text-lg font-semibold text-text-primary">Where it moves, and where it doesn&rsquo;t</h3>
+                <ul className="mt-4 space-y-3 text-sm leading-relaxed text-text-secondary">
+                  <li>Use it once per screen, at moments when the person is already pausing: sign-up, a finished setup, an empty or error page.</li>
+                  <li>Screens people see every day, like sign-in, play the drawing once per session and then show the settled mark.</li>
+                  <li>Headers, footers, favicons, emails, PDFs and anything under 32&nbsp;px use the still logo files.</li>
+                  <li>It stands still for visitors who ask their system to reduce motion, and it pauses whenever it&rsquo;s off screen.</li>
+                </ul>
+              </Card>
+            </div>
+          </div>
+        </section>
+        <section className="px-6 py-20 sm:py-24">
+          <div className="mx-auto max-w-6xl">
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={viewport}
+              transition={{ duration: 0.5, ease: EASE }}
+              className="mx-auto max-w-2xl text-center"
+            >
               <p className={`${eyebrowClass()} text-center`}>Color</p>
               <h2 className={`${sectionHeadingClass()} mt-3 text-center`}>The palette, exactly as shipped</h2>
               <p className={`${bodyClass()} mx-auto text-center`}>
