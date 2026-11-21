@@ -11,9 +11,9 @@ from pathops import Path, op, PathOp
 FONT = os.environ.get('VIREEK_SORA_WOFF')   # only needed for the OG-image tagline (raster); the logo itself uses no font
 
 # ---- palette (matches src/index.css tokens) ---------------------------------
-INDIGO, INDIGO_DK = '#203AD8', '#6C82FF'     # --accent-primary light / dark
-ORANGE, ORANGE_DK = '#C14F26', '#FF8A5A'     # --logo-accent light (AA, 4.6:1) / dark = --accent-secondary dark
-INK, PAPER = '#17171A', '#F2F1EE'            # --text-primary light / dark
+INDIGO, INDIGO_DK = '#9F4223', '#F69271'     # --accent-primary light / dark
+ORANGE, ORANGE_DK = '#B7593A', '#F5906F'     # --logo-accent light (AA, 4.6:1) / dark = --accent-secondary dark
+INK, PAPER = '#141413', '#FAF9F5'            # --text-primary light / dark
 
 # ---- helpers ------------------------------------------------------------------
 def poly(pts):
