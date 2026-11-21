@@ -1,4 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { guardRows, type GuardRpcClient } from "../_shared/infoExchangeGuard.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -40,7 +41,38 @@ Deno.serve(async (req: Request) => {
     const periodEnd = now.toISOString().slice(0, 10);
     const computedAt = now.toISOString();
 
-    const safeRows = rows ?? [];
+    const candidateRows = rows ?? [];
+
+    // Antitrust information-exchange guard (fail closed): minimum cohort, single-tenant share and narrow-geography
+    // suppression, all from the database config. If the guard cannot answer, publish nothing and purge below.
+    let safeRows: typeof candidateRows = [];
+    let guardFailed = false;
+    try {
+      const { data: shares, error: sharesError } = await admin.rpc("ixg_regional_segment_shares");
+      if (sharesError) throw sharesError;
+      const shareBySegment = new Map<string, number>(
+        ((shares ?? []) as Array<{ industry: string; region_key: string; max_share_pct: number | null }>)
+          .filter((s) => s.max_share_pct !== null)
+          .map((s) => [`${s.industry}|${s.region_key}`, Number(s.max_share_pct)]),
+      );
+      const metrics = ["current_week_calls", "prior_week_calls", "call_volume_change_pct", "current_week_leads", "emergency_rate_pct"];
+      const guarded = await guardRows(
+        admin as unknown as GuardRpcClient,
+        "regional_demand",
+        candidateRows,
+        (row: { industry: string; region_key: string; sample_size: number }) =>
+          metrics.map((metric) => ({
+            metric,
+            cohort_size: row.sample_size,
+            geo_text: row.region_key,
+            max_share_pct: shareBySegment.get(`${row.industry}|${row.region_key}`) ?? null,
+          })),
+      );
+      safeRows = guarded.allowed;
+    } catch (guardError) {
+      guardFailed = true;
+      console.error(JSON.stringify({ event: "info_exchange_guard_unavailable", flow: "regional_demand", error: guardError instanceof Error ? guardError.message : String(guardError) }));
+    }
 
     if (safeRows.length > 0) {
       const snapshots = safeRows.map((row) => ({
@@ -72,6 +104,7 @@ Deno.serve(async (req: Request) => {
       .delete()
       .lt("computed_at", computedAt);
     if (purgeError) throw purgeError;
+    if (guardFailed) return jsonResponse({ error: "Regional demand publication blocked by the information-exchange guard." }, 503);
     return jsonResponse({ segments_computed: safeRows.length });
   } catch (error) {
     console.error(JSON.stringify({ event: "compute_regional_demand_failed", error: error instanceof Error ? error.message : String(error) }));
