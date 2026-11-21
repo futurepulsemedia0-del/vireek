@@ -47,6 +47,6 @@ export async function run() {
   const nativePipe = [['capacitor config', Boolean(cap)], ['native asset generator', exists('scripts/make-native-assets.mjs')], ['mobile preflight', exists('scripts/mobile-preflight.mjs')], ['release doc', exists('docs/MOBILE_RELEASE.md')], ['mobile CI workflow', exists('.github/workflows/mobile.yml')]];
   components.push({ name: 'Native pipeline (assets, preflight, docs, CI)', weight: 20, score: round1((100 * nativePipe.filter(([, p]) => p).length) / nativePipe.length), detail: nativePipe.map(([n, p]) => `${p ? '✓' : '✗'} ${n}`).join(' · ') });
   const splash = /SplashScreen:[^}]*backgroundColor:\s*'(#[0-9a-fA-F]{6})'/.exec(cap)?.[1];
-  if (splash) findings.push(finding({ id: 'mobile/splash-color', category: 'mobile', severity: 'info', title: `Capacitor splash/background is ${splash} (dark theme bg token is #090A0D; light is #FDFCFA)`, detail: 'Pure black differs from both themes and can flash on launch.', refs: [{ file: 'capacitor.config.ts' }], count: 1 }));
+  if (splash) findings.push(finding({ id: 'mobile/splash-color', category: 'mobile', severity: 'info', title: `Capacitor splash/background is ${splash} (dark theme bg token is #141413; light is #FAF9F5)`, detail: 'Pure black differs from both themes and can flash on launch.', refs: [{ file: 'capacitor.config.ts' }], count: 1 }));
   return { category: 'mobile', components, metrics: { vh, dvh, safe }, findings };
 }
