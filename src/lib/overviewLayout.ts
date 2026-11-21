@@ -18,6 +18,8 @@ export const MAX_ROW_UNITS = 12;
 export const LAYOUT_SCHEMA_VERSION = 1;
 
 export const WIDGET_IDS = [
+  'stored_value',
+  'dispute_ratio',
   'since_yesterday',
   'revenue_recovered',
   'kpi_calls',
@@ -83,6 +85,8 @@ export const WIDGETS: Record<OverviewWidgetId, WidgetDef> = {
   recent_activity: { id: 'recent_activity', title: 'Recent activity', minW: 4 },
   kpi_renewal_rate: { id: 'kpi_renewal_rate', title: 'Agreement renewal rate', minW: 3, permission: 'can_view_billing' },
   data_health: { id: 'data_health', title: 'Data health', minW: 4, permission: 'can_view_billing' },
+  stored_value: { id: 'stored_value', title: 'Stored value', minW: 4, permission: 'can_view_billing' },
+  dispute_ratio: { id: 'dispute_ratio', title: 'Dispute ratio', minW: 4, permission: 'can_view_billing' },
 leak_cases: { id: 'leak_cases', title: 'Refrigerant leak cases', minW: 4, permission: 'can_view_all_jobs' },
 };
 
