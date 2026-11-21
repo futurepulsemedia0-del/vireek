@@ -198,7 +198,7 @@ export function buildBackHtml(i: ArtworkInput): string {
   const qrIn = i.size === "4x6" ? 1.15 : 1.5;
   const leftW = g.widthIn - g.addressW - 0.9;
   return `<html><head><meta charset="utf-8"><style>
-*{box-sizing:border-box}body{margin:0;width:${g.widthIn}in;height:${g.heightIn}in;background:#fff;color:#111;${fontCss}}
+*{box-sizing:border-box}body{margin:0;width:${g.widthIn}in;height:${g.heightIn}in;background:#fff;color:#141413;${fontCss}}
 .left{position:absolute;left:0.4in;top:0.4in;width:${leftW}in}
 .brand{font-size:${i.size === "4x6" ? 0.15 : 0.2}in;font-weight:800;color:${accent};text-transform:uppercase;letter-spacing:.06em}
 .cta{margin:.1in 0 .14in;font-size:${i.size === "4x6" ? 0.2 : 0.28}in;line-height:1.2;font-weight:700}
