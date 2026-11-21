@@ -36,6 +36,8 @@ Signature **answer pulse**: indigo bars wave in a 90ms stagger; the orange centr
 ## i18n / RTL
 Microcopy keys: `loading.route`, `loading.pickingUp`, `loading.connecting` (namespace `common`, all 9 locales). The top bar mirrors under `[dir="rtl"]`.
 
+## Brand loader (V mark + orange dot)
+`<BrandLoader variant size progress label />` in `src/components/loading/BrandLoader.tsx`. Variants: `thread` (site open, in index.html as static markup), `fill` (real progress via `progress` 0–100, indeterminate without it), `signal` (marketing routes, small spots), `pulse` (app/portal routes), `network` (data/dashboard, not wired yet). Line = `currentColor`, dot = `--accent-primary`, pulse/network = `--accent-secondary`. `Spinner` stays as the monochrome inline/button indicator. `PulseMark` is legacy; use `BrandLoader` for new work.
 ## Components (`src/components/loading/`)
 | Need | Use |
 |---|---|
