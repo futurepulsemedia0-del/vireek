@@ -1,4 +1,5 @@
 export { PulseMark, type PulseSize } from './PulseMark';
+export { BrandLoader, type BrandLoaderVariant, type BrandLoaderSize } from './BrandLoader';
 export { Spinner } from './Spinner';
 export { TopProgressBar } from './TopProgressBar';
 export { Progress } from './Progress';
