@@ -103,7 +103,8 @@ import { toolSearchKnowledge } from "../_shared/knowledge/search.ts";
 import { applyEmergencyOverride, lookupPriceDeterministic } from "../_shared/vertical-ai/runtime.ts";
 import { createSupabasePorts, promptCanaries } from "../_shared/voice-security/ports.ts";
 import { finalizeToolResult, guardToolCall, type GateResult } from "../_shared/voice-security/gate.ts";
-import { completeVerification, requestVerification } from "../_shared/voice-security/verifyTools.ts";
+import { completeVerification, requestCallback, requestVerification } from "../_shared/voice-security/verifyTools.ts";
+import { loadTierConfig } from "../_shared/voice-security/riskTiers.ts";
 import { deriveCallKind } from "../_shared/voice-security/toolPolicy.ts";
 import { neutralizeUntrusted } from "../_shared/voice-security/outputFilter.ts";
 import { scanPromptInjection } from "../_shared/ai-core/aiSecurity.ts";
@@ -130,6 +131,7 @@ import {
   type ServiceAreaSettingsRow,
 } from "../_shared/service-areas/resolve.ts";
 import { asFraudDb, resolveInboundCap, settleCall } from "../_shared/fraud/outboundGate.ts";
+import { recordInboundRevocation } from "../_shared/compliance/consentChecks.ts";
 
 // ---------------------------------------------------------------------------
 // Types (only the fields we actually read — Vapi payloads carry much more)
@@ -1128,8 +1130,12 @@ function getVoiceSecurity(admin: SupabaseClient) {
     console.error(JSON.stringify({ event: "voice_security_secret_missing" }));
     return null;
   }
+  // Optional risk-tier overrides (tighten-only; invalid JSON is rejected and the built-in defaults stay in force).
+  const tiers = loadTierConfig(Deno.env.get("VOICE_RISK_TIERS_JSON"));
+  if (tiers.warnings.length) console.error(JSON.stringify({ event: "voice_risk_tiers_config", rejected: tiers.rejected, warnings: tiers.warnings }));
   return createSupabasePorts(admin, {
     secret,
+    tierConfig: tiers.config,
     scanInjection: (t) => {
       const s = scanPromptInjection(t);
       return { score: s.score, rules: s.rules };
@@ -2230,6 +2236,14 @@ async function handleToolCalls(admin: SupabaseClient, message: VapiMessage, requ
            case "request_verification":
             result = vs ? await requestVerification(vs, tenant.userId, callRef) : "Verification isn't available on this call.";
             break;
+          case "request_callback":
+            result = vs
+              ? await requestCallback(vs, tenant.userId, callRef, {
+                  for_action: typeof args.for_action === "string" ? args.for_action : undefined,
+                  reason: typeof args.reason === "string" ? args.reason : undefined,
+                })
+              : "A callback can't be arranged from this call. Tell the caller the office will follow up.";
+            break;
           case "verify_caller":
             result = vs
               ? await completeVerification(vs, tenant.userId, callRef, {
@@ -2736,6 +2750,19 @@ transcript = pci.text;
   if (message.type === "end-of-call-report" && transcript) {
     const detected = await recordLanguageFromCall(admin, { userId: tenant.userId, vapiCallId, callerNumber, transcript });
     if (detected.language) logEvent("caller_language_detected", requestId, { language: detected.language, confidence: detected.confidence });
+  }
+  // Cross-channel revocation from the call (customer's own lines only). Runs for inbound AND outbound calls; never throws.
+  if (message.type === "end-of-call-report" && (typeof transcript === "string" || message.analysis) && callerNumber) {
+    try {
+      const rev = await recordInboundRevocation({
+        ownerId: tenant.userId, channel: "voice", text: typeof transcript === "string" ? transcript : null,
+        structured: (message.analysis as { structuredData?: Record<string, unknown> } | undefined)?.structuredData ?? null,
+        phoneE164: callerNumber, sourceRef: vapiCallId ?? null, source: "vapi-webhook",
+      }, { admin, getEnv: (k) => Deno.env.get(k) });
+      if (rev.revoked) logEvent("voice_revocation_detected", requestId, { recorded: rev.recorded, matched: rev.matched });
+    } catch (error) {
+      logError("voice_revocation_failed", requestId, error, {});
+    }
   }
   // Interpreted-call record (original + English lines). Skipped when transcripts are sealed. Never throws.
   if (message.type === "end-of-call-report" && transcript && callRow && vapiCallId && !sealingActive) {
