@@ -305,7 +305,7 @@ export function emptyDraft(): LandingPageDraft {
     sections: [],
     cta_label: 'Get a free quote',
     cta_mode: 'lead_form',
-    accent_color: '#a93b0f',
+    accent_color: '#934126',
     seo_title: '',
     seo_description: '',
   };
@@ -354,7 +354,7 @@ export function validateDraft(d: LandingPageDraft): DraftErrors {
   if (!d.cta_label.trim()) e.cta_label = 'Button text is required.';
   else if (d.cta_label.trim().length > L.ctaLabel) e.cta_label = `Keep it under ${L.ctaLabel} characters.`;
 
-  if (!isValidHexColor(d.accent_color)) e.accent_color = 'Use a 6-digit hex color like #a93b0f.';
+  if (!isValidHexColor(d.accent_color)) e.accent_color = 'Use a 6-digit hex color like #934126.';
   if (d.seo_title.trim().length > L.seoTitle) e.seo_title = `Keep it under ${L.seoTitle} characters.`;
   if (d.seo_description.trim().length > L.seoDescription) {
     e.seo_description = `Keep it under ${L.seoDescription} characters.`;
