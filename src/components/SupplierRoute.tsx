@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
+import { RouteFallback } from '@/components/loading/RouteFallback';
 import { supabase } from '@/lib/supabase';
 import { fetchMySupplier } from '@/lib/procurementNetworkApi';
 
@@ -35,11 +35,7 @@ export function SupplierRoute({ children, requireSupplier = true }: { children: 
   }, [requireSupplier]);
 
   if (state === 'loading') {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-bg-primary" role="status" aria-label="Loading">
-        <Loader2 className="animate-spin text-text-secondary" />
-      </div>
-    );
+    return <RouteFallback variant="portal" fullScreen />;
   }
   if (state === 'anonymous') return <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname)}`} replace />;
   if (state === 'no-supplier') return <Navigate to="/supplier-portal/apply" replace />;
