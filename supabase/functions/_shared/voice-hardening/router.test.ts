@@ -135,3 +135,51 @@ describe("failure handling", () => {
     expect((await processWebhook(post({ message: { type: "end-of-call-report" } }), ports)).status).toBe(500);
   });
 });
+
+describe("webhook secret header transition (Authorization: Bearer + legacy x-vapi-secret)", () => {
+  const ok = async (headers: Record<string, string>, envPatch: Record<string, string | undefined> = {}) => {
+    const made = makePorts();
+    Object.assign(made.env, envPatch);
+    const res = await processWebhook(post({ message: { type: "hang" } }, headers), made.ports);
+    return { ...made, res };
+  };
+
+  it("accepts Authorization: Bearer <secret> and runs the handler", async () => {
+    const { res, calls } = await ok({ authorization: `Bearer ${SECRET}` });
+    expect(res.status).toBe(200);
+    expect(calls).toEqual(["lifecycle"]);
+  });
+  it("still accepts legacy x-vapi-secret", async () => {
+    const { res, calls } = await ok({ "x-vapi-secret": SECRET });
+    expect(res.status).toBe(200);
+    expect(calls).toEqual(["lifecycle"]);
+  });
+  it("voice-reconcile replay shape (legacy header + service-role Authorization) is accepted", async () => {
+    const { res } = await ok({ "x-vapi-secret": SECRET, authorization: "Bearer service-role-key" });
+    expect(res.status).toBe(200);
+  });
+  it("a service-role Authorization alone is 401", async () => {
+    const { res, calls } = await ok({ authorization: "Bearer service-role-key" });
+    expect(res.status).toBe(401);
+    expect(calls).toEqual([]);
+  });
+  it("VAPI_ACCEPT_LEGACY_SECRET_HEADER=0 rejects x-vapi-secret alone but keeps Bearer working", async () => {
+    const legacy = await ok({ "x-vapi-secret": SECRET }, { VAPI_ACCEPT_LEGACY_SECRET_HEADER: "0" });
+    expect(legacy.res.status).toBe(401);
+    expect(legacy.calls).toEqual([]);
+    const bearer = await ok({ authorization: `Bearer ${SECRET}` }, { VAPI_ACCEPT_LEGACY_SECRET_HEADER: "0" });
+    expect(bearer.res.status).toBe(200);
+  });
+  it("logs which header authenticated the request, and never logs a secret value", async () => {
+    const a = await ok({ authorization: `Bearer ${SECRET}` });
+    expect(a.ports.logEvent).toHaveBeenCalledWith("webhook_received", "req-1", { type: "hang", auth_via: "authorization" });
+    const b = await ok({ "x-vapi-secret": SECRET });
+    expect(b.ports.logEvent).toHaveBeenCalledWith("webhook_received", "req-1", { type: "hang", auth_via: "x-vapi-secret" });
+    const denied = await ok({ authorization: "Bearer wrong", "x-vapi-secret": "wrong-too" });
+    expect(denied.res.status).toBe(401);
+    for (const m of [a, b, denied]) {
+      const logged = JSON.stringify([(m.ports.logEvent as { mock: { calls: unknown[] } }).mock.calls, (m.ports.logError as { mock: { calls: unknown[] } }).mock.calls]);
+      expect(logged.includes(SECRET)).toBe(false);
+    }
+  });
+});
