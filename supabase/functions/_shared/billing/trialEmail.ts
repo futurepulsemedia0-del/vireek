@@ -35,7 +35,7 @@ export function buildTrialEndingEmail(p: TrialEndingEmailParams) {
   const line2 = `You've used ${used} of your ${TRIAL_MINUTES} trial minutes. After your first payment your plan's full monthly minutes are unlocked.`;
   const html = `
     <div style="font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1c1b15;">
-      <p style="font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #a93b0f; margin: 0 0 16px;">Trial ending soon</p>
+      <p style="font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #934126; margin: 0 0 16px;">Trial ending soon</p>
       <h1 style="font-size: 22px; margin: 0 0 16px;">Hi ${escapeHtml(p.greetingName)}, your trial ends on ${escapeHtml(date)}</h1>
       <p style="font-size: 15px; line-height: 1.6; color: #44423D;">${escapeHtml(line1)}</p>
       <p style="font-size: 15px; line-height: 1.6; color: #44423D;">${escapeHtml(line2)}</p>
