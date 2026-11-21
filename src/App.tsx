@@ -1546,15 +1546,6 @@ function AppRoutes() {
           }
         />
         <Route
-        <Route
-          path="/dashboard/account"
-          element={
-            <ProtectedRoute>
-              <AccountPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
           path="/dashboard/settings/activity"
           element={
             <ProtectedRoute>
