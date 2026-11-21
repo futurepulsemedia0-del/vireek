@@ -11,6 +11,7 @@ import { AlertTriangle, CheckCircle2, ChevronDown, Gauge, Loader2, Save, XCircle
 import { useToast } from '@/contexts/ToastContext';
 import { DashboardLayout } from '@/components/DashboardNav';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { PersonalizedPricingNotice } from '@/components/pricing/PersonalizedPricingNotice';
 import { formatDollars } from '@/lib/decisionDebt';
 import {
   allowedDowntimeHours,
@@ -365,6 +366,7 @@ function PricingWorkspace({ settings, onSaved }: { settings: PricingSettings; on
                 <Stat label={`${result.termMonths}-month value`} value={money(result.priceTermCents)} />
                 <Stat label="Expected margin" value={`${result.risk.expectedMarginPct}%`} sub={`P10 ${result.risk.p10MarginPct}% · loss risk ${Math.round(result.risk.probabilityOfLoss * 100)}%`} />
               </div>
+              <PersonalizedPricingNotice path="outcome_pricing" />
 
               <div className={cardClass}>
                 <p className="mb-2 text-xs font-medium text-text-primary">Where the price comes from (per year)</p>
