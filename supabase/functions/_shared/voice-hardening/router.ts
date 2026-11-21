@@ -1,7 +1,7 @@
 // Entry-point logic of the Vapi webhook, extracted from vapi-webhook/index.ts so it can be tested
 // without Deno. Behaviour is unchanged except: constant-time secret check, body-size cap, and
 // every handler failure is logged to webhook_logs as an error.
-import { parseVapiBody, verifyVapiSecret } from "./webhookAuth.ts";
+import { isLegacySecretHeaderAccepted, parseVapiBody, verifyVapiRequestSecret } from "./webhookAuth.ts";
 
 /** Every Vapi message.type this function acts on, and which handler owns it. Anything else is acknowledged (200) and ignored. */
 export const HANDLED_EVENTS = {
@@ -19,7 +19,7 @@ export type HandlerKey = (typeof HANDLED_EVENTS)[keyof typeof HANDLED_EVENTS];
 export const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, x-vapi-secret",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, x-vapi-secret",
 };
 
 export function json(data: unknown, status = 200): Response {
@@ -52,7 +52,12 @@ export async function processWebhook<A, M extends { type?: string }>(req: Reques
     ports.logError("config_error_missing_secret", requestId, "VAPI_SERVER_SECRET is not set");
     return json({ error: "Server not configured" }, 500);
   }
-  if (!verifyVapiSecret(req.headers.get("x-vapi-secret"), expectedSecret)) {
+  // `Authorization: Bearer` (current Vapi credential) and legacy `x-vapi-secret` are both accepted during the
+  // transition; see webhookAuth.ts. Logging only WHICH header matched (never a value) tells ops when the legacy one is unused.
+  const auth = verifyVapiRequestSecret(req.headers, expectedSecret, {
+    acceptLegacyHeader: isLegacySecretHeaderAccepted(ports.getEnv("VAPI_ACCEPT_LEGACY_SECRET_HEADER")),
+  });
+  if (!auth.ok) {
     ports.logEvent("unauthorized_request", requestId, {});
     return json({ error: "Unauthorized" }, 401);
   }
@@ -80,7 +85,7 @@ export async function processWebhook<A, M extends { type?: string }>(req: Reques
   const admin = ports.createAdmin(supabaseUrl, serviceRoleKey);
 
   try { await ports.bindTrace?.(requestId, message); } catch { /* telemetry must never block the webhook */ }
-  ports.logEvent("webhook_received", requestId, { type: message.type });
+  ports.logEvent("webhook_received", requestId, { type: message.type, auth_via: auth.via });
   await ports.logToDb(admin, { eventType: message.type, status: "success", requestId });
   try {
     await ports.trackLiveCall(admin, message, requestId);
