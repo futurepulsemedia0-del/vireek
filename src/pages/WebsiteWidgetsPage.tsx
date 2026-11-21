@@ -334,7 +334,7 @@ export function WebsiteWidgetsPage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Brand color" error={showErr('brand_color')}>
                   <div className="flex items-center gap-2">
-                    <input type="color" aria-label="Pick brand color" value={/^#[0-9a-fA-F]{6}$/.test(effective.brand_color) ? effective.brand_color : '#A93B0F'} onChange={(e) => patch('brand_color', e.target.value.toUpperCase())} className="h-10 w-12 shrink-0 cursor-pointer rounded-lg border border-border bg-bg-primary p-1" />
+                    <input type="color" aria-label="Pick brand color" value={/^#[0-9a-fA-F]{6}$/.test(effective.brand_color) ? effective.brand_color : '#934126'} onChange={(e) => patch('brand_color', e.target.value.toUpperCase())} className="h-10 w-12 shrink-0 cursor-pointer rounded-lg border border-border bg-bg-primary p-1" />
                     <input value={effective.brand_color} onChange={(e) => patch('brand_color', e.target.value.trim())} maxLength={7} className={inputCls} />
                   </div>
                 </Field>
