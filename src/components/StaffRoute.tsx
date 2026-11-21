@@ -2,6 +2,7 @@ import { ReactNode, useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { RouteFallback } from '@/components/loading/RouteFallback';
 
 export function StaffRoute({ children }: { children: ReactNode }) {
   const { session, user, loading: authLoading } = useAuth();
@@ -28,11 +29,7 @@ export function StaffRoute({ children }: { children: ReactNode }) {
   }, [user]);
 
   if (authLoading || (session && isStaff === null)) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-bg-primary">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-accent" />
-      </div>
-    );
+    return <RouteFallback variant="app" fullScreen />;
   }
 
   if (!session) return <Navigate to="/login" state={{ from: location.pathname }} replace />;
