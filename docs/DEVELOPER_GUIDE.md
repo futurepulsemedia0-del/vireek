@@ -5,7 +5,7 @@
 2. `npm ci`; copy `.env.example` → `.env` and fill **dev** values only (never production).
 3. Local DB: `supabase start`; seed per `docs/LOCAL_SEED.md` (dev only).
 4. `npm run dev`. Before a PR: `npm run lint && npm run typecheck && npm test`.
-Troubleshooting: missing env → see `docs/generated/ENV_USAGE.md`; migration order errors → `docs/runbooks/migration-version-repair.md`; `esbuild` not found when running generate-rss/ingest scripts → `npm i -D esbuild` (known gap).
+Troubleshooting: missing env → see `docs/generated/ENV_USAGE.md`; migration order errors → `docs/runbooks/migration-version-repair.md`; `esbuild` not found when running generate-rss/ingest scripts → run `npm ci` (`esbuild` is a devDependency).
 
 ## Conventions
 Branches: `feat/…`, `fix/…`, `docs/…`. Commits: imperative, one logical change. PRs use `.github/pull_request_template.md`. Code style: ESLint + Prettier (`npm run format`). Add a `CHANGELOG.md` line per PR.
