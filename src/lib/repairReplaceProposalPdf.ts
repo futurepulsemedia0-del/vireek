@@ -1,4 +1,5 @@
 import { usd } from '@/lib/repairReplaceAdvisor';
+import { getPdfBrand } from '@/lib/pdfBrand';
 import type { Proposal } from '@/lib/repairReplaceProposal';
 
 /**
