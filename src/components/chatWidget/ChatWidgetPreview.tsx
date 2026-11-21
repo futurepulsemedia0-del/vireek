@@ -22,7 +22,7 @@ const PALETTE = {
  */
 export function ChatWidgetPreview({ settings, state, theme, businessName }: Props) {
   const c = PALETTE[theme];
-  const brand = /^#[0-9a-fA-F]{6}$/.test(settings.brand_color) ? settings.brand_color : '#A93B0F';
+  const brand = /^#[0-9a-fA-F]{6}$/.test(settings.brand_color) ? settings.brand_color : '#934126';
   const onBrand = readableTextColor(brand);
   const online = state === 'online';
   const hidden = !online && settings.offline_behavior === 'hide';
