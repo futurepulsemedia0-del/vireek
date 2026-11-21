@@ -68,7 +68,7 @@ export function AskVireekLauncher({ open, unread, onToggle }: Props) {
         {open ? <X size={22} aria-hidden="true" /> : <MessageCircleQuestion size={24} aria-hidden="true" />}
         {!open && (
           <span className="absolute end-0.5 top-0.5 flex h-3 w-3" aria-hidden="true">
-            <span className={`h-3 w-3 rounded-full border-2 border-bg-secondary ${unread ? 'bg-cta' : online ? 'bg-success-500' : 'bg-text-muted'}`} />
+            <span className={`h-3 w-3 rounded-full border-2 border-bg-secondary ${unread ? 'bg-cta' : online ? 'bg-success' : 'bg-text-muted'}`} />
           </span>
         )}
       </button>
