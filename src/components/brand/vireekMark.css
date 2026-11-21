@@ -1,0 +1,14 @@
+/* Vireek animated mark. Colours come from the app's design tokens (fallbacks = brand values). */
+.vk-mark{overflow:visible;display:block;flex:none;--vk-ink:rgb(var(--text-primary,20 20 19));--vk-net:rgb(var(--accent-primary,83 58 253));--vk-dot:rgb(var(--accent-graphic,217 90 46))}
+.vk-mark[data-interactive]{cursor:pointer;touch-action:manipulation}
+.vk-mark[data-interactive]:focus-visible{outline:2px solid var(--vk-net);outline-offset:6px;border-radius:8px}
+.vk-main,.vk-echo{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.vk-main{stroke:var(--vk-ink)}
+.vk-echo{stroke:var(--vk-net);opacity:.4}
+.vk-link{fill:none;stroke:var(--vk-net);stroke-width:2.2;stroke-linecap:round;opacity:.6}
+.vk-spoke{stroke:var(--vk-dot);opacity:.95}
+.vk-t-i{fill:var(--vk-net)}.vk-t-k{fill:var(--vk-ink)}.vk-t-o,.vk-node{fill:var(--vk-dot)}
+.vk-ring{fill:none;stroke:var(--vk-dot);stroke-width:2;opacity:0;transform-box:fill-box;transform-origin:center;animation:vk-ring 4.8s cubic-bezier(.16,1,.3,1) infinite}
+@keyframes vk-ring{0%{transform:scale(1);opacity:.55}70%,100%{transform:scale(2.6);opacity:0}}
+.vk-mark[data-still] .vk-echo,.vk-mark[data-still] .vk-ring{display:none}
+@media (prefers-reduced-motion:reduce){.vk-ring{display:none}}
