@@ -19,8 +19,8 @@ const MAP_STYLE = (import.meta.env.VITE_MAP_STYLE_URL as string | undefined) || 
 
 const STATE_COLOR: Record<MapVehicleState, string> = {
   moving: '#18a141',
-  idling: '#f9774c',
-  stopped: '#a93b0f',
+  idling: '#d97757',
+  stopped: '#934126',
   offline: '#a9a8a2',
 };
 
@@ -94,20 +94,20 @@ export function LiveMapCanvas({ views, jobs, trails, geofenceM, nowMs, selectedI
       map.addSource('geofences', { type: 'geojson', data: EMPTY as never });
       map.addSource('routes', { type: 'geojson', data: EMPTY as never });
       map.addSource('trails', { type: 'geojson', data: EMPTY as never });
-      map.addLayer({ id: 'geofence-fill', type: 'fill', source: 'geofences', paint: { 'fill-color': '#a93b0f', 'fill-opacity': 0.12 } });
-      map.addLayer({ id: 'geofence-line', type: 'line', source: 'geofences', paint: { 'line-color': '#a93b0f', 'line-width': 1.5, 'line-opacity': 0.6 } });
+      map.addLayer({ id: 'geofence-fill', type: 'fill', source: 'geofences', paint: { 'fill-color': '#934126', 'fill-opacity': 0.12 } });
+      map.addLayer({ id: 'geofence-line', type: 'line', source: 'geofences', paint: { 'line-color': '#934126', 'line-width': 1.5, 'line-opacity': 0.6 } });
       map.addLayer({
         id: 'trails',
         type: 'line',
         source: 'trails',
         layout: { 'line-cap': 'round', 'line-join': 'round' },
         paint: {
-          'line-color': ['case', ['==', ['get', 'selected'], true], '#a93b0f', '#a9a8a2'],
+          'line-color': ['case', ['==', ['get', 'selected'], true], '#934126', '#a9a8a2'],
           'line-width': ['case', ['==', ['get', 'selected'], true], 4, 2.5],
           'line-opacity': 0.8,
         },
       });
-      map.addLayer({ id: 'routes', type: 'line', source: 'routes', paint: { 'line-color': '#a93b0f', 'line-width': 3, 'line-dasharray': [2, 2] } });
+      map.addLayer({ id: 'routes', type: 'line', source: 'routes', paint: { 'line-color': '#934126', 'line-width': 3, 'line-dasharray': [2, 2] } });
       readyRef.current = true;
       // Trigger the data effects below, which only run once ready.
       map.fire('vireek-ready');
@@ -210,8 +210,8 @@ export function LiveMapCanvas({ views, jobs, trails, geofenceM, nowMs, selectedI
         }
         entry.marker.setLngLat([p.lng, p.lat]);
         const late = isLateJob(job, nowMs);
-        entry.el.style.backgroundColor = late ? '#d4222a' : job.job_status === 'scheduled' ? '#faf9f5' : '#a93b0f';
-        entry.el.style.borderColor = late ? '#ffffff' : '#a93b0f';
+        entry.el.style.backgroundColor = late ? '#d4222a' : job.job_status === 'scheduled' ? '#faf9f5' : '#934126';
+        entry.el.style.borderColor = late ? '#ffffff' : '#934126';
         entry.el.title = `${job.customer_name}${job.service_type ? ` — ${job.service_type}` : ''}${late ? ' (late)' : ''}`;
       }
       for (const [id, entry] of jobMarkers.current) {
