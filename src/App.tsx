@@ -1553,6 +1553,7 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+        <Route
           path="/dashboard/settings/security"
           element={
             <ProtectedRoute>
