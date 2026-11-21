@@ -1149,9 +1149,8 @@ export function DashboardLayout({
             <div className="lg:pl-60 print:pl-0">
               <main id="main-content" className="mx-auto max-w-7xl px-4 py-6 pb-[calc(var(--vk-bottom-nav-h,0px)+var(--vk-bottom-bar-h,0px)+2rem)] lg:px-8 lg:py-8 print:max-w-none print:p-0">
                 <Breadcrumbs className="no-print mb-4" />
-                <div className="no-print">
                 {/* Banner queue: order = priority, and only the first banner that renders is shown. Each banner
-                    renders one root element or nothing, so hiding later siblings is safe (they stay mounted). */}
+                  renders one root element or nothing, so hiding later siblings is safe (they stay mounted). */}
                 <div className="no-print [&>*:not(:first-child)]:!hidden">
                   <SecurityAlertBanner />
                   <PaymentFailedBanner />
