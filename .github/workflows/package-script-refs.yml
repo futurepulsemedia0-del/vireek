@@ -1,0 +1,44 @@
+name: Package script references
+
+# Fails when a package.json script points at a file or npm script that does not exist, or when
+# package.json has duplicate keys. Known pre-existing debt is tracked in
+# scripts/package-script-refs.baseline.json (ratchet: it may only shrink).
+# Zero dependencies and offline: no `npm ci` needed. Runbook: docs/runbooks/package-script-refs.md
+#
+# Deliberately a standalone workflow: .github/workflows/ci.yml currently does not parse as valid YAML,
+# so a step added there would never run.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# No `paths:` filter on purpose: the job takes seconds, and deleting ANY file a script references
+# (a test, a config, a spec) must trip it, not only edits under scripts/.
+
+concurrency:
+  group: package-script-refs-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  package-script-refs:
+    name: Every package.json script target exists
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Checker self-tests
+        run: node --test scripts/check-package-script-refs.test.mjs
+
+      - name: Check script references (baseline ratchet)
+        run: node scripts/check-package-script-refs.mjs
