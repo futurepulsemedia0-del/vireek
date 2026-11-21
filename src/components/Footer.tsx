@@ -290,15 +290,16 @@ function FooterNewsletter() {
         : 'border-border hover:border-border focus-within:border-accent/60 focus-within:shadow-[0_0_0_3px_rgb(var(--accent-primary)/0.12)]';
 
   return (
-    <div className="w-full">
+    <div className="w-full max-w-md lg:max-w-none">
       <h3 className="text-sm font-semibold tracking-tight text-text-primary">{t('footer.newsletterTitle')}</h3>
       <p className="mt-1 text-sm leading-relaxed text-text-secondary">{t('footer.newsletterSubtitle')}</p>
 
       <form onSubmit={handleSubmit} noValidate className="mt-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
         <div
-          className={`flex items-center gap-1 rounded-xl border bg-bg-primary p-1 shadow-sm transition-[border-color,box-shadow] duration-200 ${frameClass}`}
+          className={`flex min-w-0 flex-1 items-center gap-2 rounded-control border bg-bg-primary px-3 shadow-sm transition-[border-color,box-shadow] duration-200 ${frameClass}`}
         >
-          <Mail className="ml-2.5 h-4 w-4 shrink-0 text-graphic-muted" aria-hidden="true" />
+          <Mail className="h-4 w-4 shrink-0 text-graphic-muted" aria-hidden="true" />
           <input
             ref={inputRef}
             type="email"
@@ -319,12 +320,13 @@ function FooterNewsletter() {
             aria-label="Email address"
             aria-invalid={state === 'error'}
             aria-describedby={statusId}
-            className="min-w-0 flex-1 bg-transparent px-2 py-2 text-sm text-text-primary placeholder:text-text-placeholder focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+            className="h-11 min-w-0 flex-1 bg-transparent text-base text-text-primary placeholder:text-text-placeholder focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 sm:text-sm"
           />
+        </div>
           <button
             type="submit"
             disabled={busy}
-            className="focus-ring inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-accent px-4 text-sm font-semibold text-on-accent transition-all duration-200 ease-out hover:brightness-110 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-80"
+            className="focus-ring inline-flex h-11 w-full shrink-0 items-center justify-center gap-1.5 bg-accent px-5 text-sm font-semibold text-on-accent rounded-control transition-all duration-200 ease-out hover:brightness-110 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-80 sm:w-auto"
           >
             <AnimatePresence mode="wait" initial={false}>
               {state === 'loading' ? (
@@ -393,7 +395,7 @@ function FooterNewsletter() {
         </div>
       </form>
 
-      <p className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-text-muted">
+      <p className="mt-3 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-text-muted">
         <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-graphic-muted" aria-hidden="true" />
         <span>No spam, unsubscribe anytime</span>
         <span aria-hidden="true">·</span>
