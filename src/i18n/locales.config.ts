@@ -45,7 +45,7 @@ export interface LocaleConfig {
 }
 
 export const LOCALES: Readonly<Record<LocaleCode, LocaleConfig>> = {
-  en: { code: 'en', tier: 'source', review: 'source', surfaces: ['S1', 'S2', 'S3', 'S4', 'S5', 'S6'], minCoverage: 1, beta: false },
+  en: { code: 'en', tier: 'source', review: 'source', surfaces: ['S1', 'S2', 'S3', 'S4', 'S5', 'S6'], minCoverage: 1, beta: true }, // Beta until docs/i18n/status.md shows every automated launch fact met AND the manual checklist is done
   es: { code: 'es', tier: 'A', review: 'human-reviewed', surfaces: ['S1', 'S2', 'S3'], minCoverage: 1, beta: false },
   fr: { code: 'fr', tier: 'C', review: 'machine-assisted-reviewed', surfaces: ['S1'], minCoverage: 0.9, beta: true },
   de: { code: 'de', tier: 'C', review: 'machine-assisted-reviewed', surfaces: ['S1'], minCoverage: 0.9, beta: true },
