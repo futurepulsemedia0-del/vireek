@@ -5,7 +5,8 @@
 // guard.ts) with a destination that was resolved SERVER-SIDE.
 //
 // Rules, in order:
-//   1. Emergency numbers (911, 112, 999) are always allowed and never counted.
+//   1. Emergency numbers (911, 112, 999, in any common written form) are REFUSED: Vireek provides no emergency calling.
+//      See _shared/telecom/emergencyNumbers.ts. Never relaxed by rollout/shadow modes (guard.ts enforces that).
 //   2. Input must be a clean E.164 number. Pause/DTMF characters (',', ';', '#', '*', 'w', 'p'),
 //      letters, and anything that is not a plausible numbering-plan number are rejected, so a
 //      "+15551234567,,,9011..." value can never smuggle digits into <Number> / sendDigits.
@@ -15,6 +16,7 @@
 //      when international is unlocked (verification); "extended" only via an explicit per-org
 //      allowlist; "high_cost" only via an explicit per-org allowlist (staff-approved).
 
+import { emergencyDestinationDecision } from "../telecom/emergencyNumbers.ts";
 import {
   NANP_PREMIUM_AREA_CODES,
   NEVER_ROUTABLE_CODES,
@@ -24,6 +26,7 @@ import {
 } from "./countries.ts";
 
 export type DenyReason =
+  | "EMERGENCY_NUMBER_BLOCKED"
   | "INVALID_NUMBER"
   | "NEVER_ROUTABLE"
   | "PREMIUM_RATE"
@@ -42,13 +45,12 @@ export interface DestinationContext {
   allowedCountries?: readonly string[];
 }
 
-const EMERGENCY = new Set(["911", "112", "999"]);
-
 /** Countries any plan may call without unlocking international: US and Canada only. */
 const DOMESTIC_ISO = new Set(["US", "CA"]);
 
+/** True when the value addresses an emergency service in any common written form (see emergencyNumbers.ts). */
 export function isEmergencyNumber(raw: string): boolean {
-  return EMERGENCY.has(String(raw ?? "").trim());
+  return emergencyDestinationDecision(raw, true).kind === "allowed";
 }
 
 /**
@@ -83,9 +85,9 @@ function nanpShapeOk(digits: string): boolean {
 }
 
 export function evaluateDestination(raw: string, ctx: DestinationContext): DestinationDecision {
-  if (isEmergencyNumber(raw)) {
-    return { allowed: true, e164: String(raw).trim(), country: "EMERGENCY", tier: "domestic", emergency: true };
-  }
+  const em = emergencyDestinationDecision(raw);
+  if (em.kind === "blocked") return { allowed: false, reason: "EMERGENCY_NUMBER_BLOCKED" };
+  if (em.kind === "allowed") return { allowed: true, e164: em.code, country: "EMERGENCY", tier: "domestic", emergency: true };
   const e164 = normalizeE164Strict(raw);
   if (!e164) return { allowed: false, reason: "INVALID_NUMBER" };
   const digits = e164.slice(1);
