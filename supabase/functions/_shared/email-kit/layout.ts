@@ -24,14 +24,14 @@ const DARK_BASE = { page: "#141413", card: "#1c1b15", text: "#faf9f5", muted: "#
 
 export const LIGHT: Record<Severity, Palette> = {
   info: { ...LIGHT_BASE, accent: "#0057b3", onAccent: "#ffffff" },
-  warning: { ...LIGHT_BASE, accent: "#a93b0f", onAccent: "#ffffff" },
-  high: { ...LIGHT_BASE, accent: "#a93b0f", onAccent: "#ffffff" },
+  warning: { ...LIGHT_BASE, accent: "#934126", onAccent: "#ffffff" },
+  high: { ...LIGHT_BASE, accent: "#934126", onAccent: "#ffffff" },
   critical: { ...LIGHT_BASE, accent: "#ac0016", onAccent: "#ffffff" },
 };
 export const DARK: Record<Severity, Palette> = {
   info: { ...DARK_BASE, accent: "#6eacff", onAccent: "#141413" },
   warning: { ...DARK_BASE, accent: "#ffcc00", onAccent: "#141413" },
-  high: { ...DARK_BASE, accent: "#ff9b7a", onAccent: "#141413" },
+  high: { ...DARK_BASE, accent: "#ef9477", onAccent: "#141413" },
   critical: { ...DARK_BASE, accent: "#ff7e75", onAccent: "#141413" },
 };
 
