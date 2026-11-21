@@ -65,6 +65,10 @@ html[data-vrk-paused] .vrk-v,
 html[data-vrk-paused] .vrk-v * {
   animation-play-state: paused !important;
 }
+/* dot: small-spot form of `signal` (rings drawn in a 40×40 box, so the stroke is thinner than in the 260×240 mark) */
+.vrk-v--dot .vrk-v__rg {
+  stroke-width: 1.5;
+}
 
 /* thread: line draws itself, dot opens */
 .vrk-v--thread .vrk-v__m {
