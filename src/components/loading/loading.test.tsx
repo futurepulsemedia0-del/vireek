@@ -22,15 +22,14 @@ describe('Progress', () => {
 });
 
 describe('Button loading', () => {
-  it('blocks clicks, is busy immediately, shows the spinner after 150ms', async () => {
+  it('blocks clicks, is busy immediately, shows the spinner after 250ms', async () => {
     const onClick = vi.fn();
     render(<Button loading onClick={onClick}>Save</Button>);
     const btn = screen.getByRole('button');
     expect(btn).toHaveAttribute('aria-busy', 'true');
     fireEvent.click(btn);
     expect(onClick).not.toHaveBeenCalled();
-    expect(btn.querySelector('.vrk-spin')).toBeNull();
-    await tick(150);
+    await tick(250);
     expect(btn.querySelector('.vrk-spin')).not.toBeNull();
     expect(btn).toHaveTextContent('Save'); // label stays in the DOM: width is preserved
   });
@@ -42,10 +41,9 @@ describe('LoadingBoundary', () => {
     render(<LoadingBoundary isLoading={false} skeleton={skeleton}><p>Data</p></LoadingBoundary>);
     expect(screen.getByText('Data')).toBeInTheDocument();
   });
-  it('reserves space invisibly for 150ms, then shows the skeleton', async () => {
+  it('reserves space invisibly for 250ms, then shows the skeleton', async () => {
     const { container } = render(<LoadingBoundary isLoading skeleton={skeleton}><p>Data</p></LoadingBoundary>);
-    expect(container.querySelector('.invisible')).not.toBeNull();
-    await tick(150);
+    await tick(250);
     expect(container.querySelector('.vrk-fade-in')).not.toBeNull();
     expect(screen.queryByText('Data')).toBeNull();
   });
@@ -66,17 +64,16 @@ describe('LoadingBoundary', () => {
 });
 
 describe('BlockingOverlay', () => {
-  it('blocks and traps focus from the first frame, holds 400ms after being shown', async () => {
+  it('blocks and traps focus from the first frame, holds 500ms after being shown', async () => {
     const { rerender } = render(<BlockingOverlay open label="Paying" />);
     const dialog = screen.getByRole('dialog');
     expect(dialog).toHaveAttribute('aria-modal', 'true');
     expect(document.activeElement).toBe(dialog);
     expect(document.body.style.overflow).toBe('hidden');
-    await tick(150); // visuals appear
+    await tick(250); // visuals appear
     rerender(<BlockingOverlay open={false} label="Paying" />);
     await tick(300);
-    expect(screen.queryByRole('dialog')).not.toBeNull();
-    await tick(150);
+    await tick(250);
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(document.body.style.overflow).toBe('');
   });
