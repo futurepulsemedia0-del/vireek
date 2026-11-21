@@ -1,7 +1,7 @@
 /**
  * Vireek Pulse timing rules (single source — see BRAND_MOTION.md):
- *  1. Loading shorter than `showAfterMs` (150ms) shows nothing.
- *  2. Once shown, the loader stays at least `minVisibleMs` (400ms).
+ *  1. Loading shorter than `showAfterMs` (250ms) shows nothing.
+ *  2. Once shown, the loader stays at least `minVisibleMs` (500ms).
  *  3. A new load that starts while a hide is pending cancels the hide.
  */
 export interface DelayedVisibilityOptions {
@@ -17,8 +17,8 @@ export interface DelayedVisibility {
   dispose: () => void;
 }
 
-export const SHOW_AFTER_MS = 150;
-export const MIN_VISIBLE_MS = 400;
+export const SHOW_AFTER_MS = 250;
+export const MIN_VISIBLE_MS = 500;
 
 export function createDelayedVisibility(
   onChange: (visible: boolean) => void,
