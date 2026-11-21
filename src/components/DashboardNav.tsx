@@ -77,6 +77,7 @@ import { groupByHub } from '@/lib/surface/navHubs';
 import { useSimpleMode } from '@/hooks/useSimpleMode';
 import { filterToSimpleNav } from '@/lib/simpleMode';
 import { MobileBottomNav } from '@/components/mobile/MobileBottomNav';
+import { FrequentPages } from '@/components/nav/FrequentPages';
 import { Icon } from '@/components/ui/Icon';
 import { IconButton } from '@/components/ui/IconButton';
 import { isNavItemActive } from '@/lib/navActive';
@@ -876,6 +877,12 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
   const levelOne = (
     <nav aria-label={t('nav.mainNavigation')} className="flex flex-col gap-0.5">
       {overview && <NavLink item={overview} />}
+      <FrequentPages
+        candidates={pillarGroups.flatMap((g) => g.items)}
+        userId={user?.id}
+        pathname={location.pathname}
+        renderItem={(item) => <NavLink item={item} />}
+      />
       <div className="mt-3 flex flex-col gap-0.5">
         {pillarGroups.map(({ pillar, items }) => {
           const meta = PILLARS.find((p) => p.id === pillar)!;
