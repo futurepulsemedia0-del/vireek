@@ -40,7 +40,7 @@ export function WalletLandingPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-bg-primary px-4 py-10">
       <div className="w-full max-w-sm rounded-3xl border border-border bg-bg-secondary p-6 text-center shadow-sm">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl text-white" style={{ background: landing?.color ?? '#A93B0F' }}>
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl text-white" style={{ background: landing?.color ?? '#934126' }}>
           <Smartphone className="h-7 w-7" aria-hidden />
         </div>
 
