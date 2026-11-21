@@ -20,7 +20,7 @@ export function ImpersonationBanner() {
       role={urgent ? 'alert' : 'status'}
       aria-live={urgent ? 'assertive' : 'polite'}
       data-testid="impersonation-banner"
-      className={`sticky top-0 z-[60] flex w-full flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2 text-sm font-medium text-white print:hidden ${urgent ? 'bg-red-700' : 'bg-amber-700'}`}
+      className={`sticky top-0 z-[60] flex w-full flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2 text-sm font-medium print:hidden ${urgent ? 'bg-danger text-on-danger' : 'bg-warning text-on-warning'}`}
     >
       <ShieldAlert className="h-4 w-4 shrink-0" aria-hidden="true" />
       <div className="min-w-0 flex-1">
