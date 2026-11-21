@@ -15,6 +15,7 @@ import {
 } from '@/lib/jobEvidenceChain';
 import { drawPassportLabels, type PdfPassport } from '@/lib/passportLabelPdf';
 import { photoEvidencePlainLines, type PhotoCaptureView } from '@/lib/photoProvenance';
+import { getPdfBrand } from '@/lib/pdfBrand';
 
 const ACCENT: [number, number, number] = [32, 58, 216];
 const INK: [number, number, number] = [23, 23, 23];
