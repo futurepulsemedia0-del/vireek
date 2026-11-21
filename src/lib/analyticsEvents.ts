@@ -67,6 +67,12 @@ export const EVENT_REGISTRY = {
     search_ms: num('Latency of the last search in ms; absent when none ran', true),
   }),
 
+  plan_step_viewed
+  plan_selected
+  plan_checkout_started
+  plan_checkout_completed
+  plan_checkout_abandoned
+  plan_step_skipped
   // ---- Product tours and tips -------------------------------------------------------------------------------
   tour_started: ev('onboarding', 'Tour auto-started.', TOUR_STARTED_PROPS),
   tour_resumed: ev('onboarding', 'Tour resumed after a pause.', TOUR_STARTED_PROPS),
