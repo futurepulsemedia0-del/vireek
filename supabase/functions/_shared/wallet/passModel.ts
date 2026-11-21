@@ -54,7 +54,7 @@ export interface PassModel {
 
 // ---------- small helpers ----------
 
-const DEFAULT_COLOR = "#A93B0F";
+const DEFAULT_COLOR = "#934126";
 const HEX = /^#[0-9a-fA-F]{6}$/;
 
 export function normalizeColor(input: unknown, fallback = DEFAULT_COLOR): string {
