@@ -125,7 +125,7 @@ function buildEmail(input: { name: string; code: string; make: string; model: st
 <tr><td style="padding:6px 0;color:#73726c">Serial</td><td style="padding:6px 0;text-align:right">${esc(maskSerial(input.serial))}</td></tr>
 <tr><td style="padding:6px 0;color:#73726c">Purchase date</td><td style="padding:6px 0;text-align:right">${esc(input.purchaseDate)}</td></tr>
 </table>
-${input.passportUrl ? `<p><a href="${esc(input.passportUrl)}" style="color:#a93b0f">View your equipment passport</a></p>` : ""}
+${input.passportUrl ? `<p><a href="${esc(input.passportUrl)}" style="color:#934126">View your equipment passport</a></p>` : ""}
 <p style="color:#595852">Keep your proof of purchase (receipt or invoice) — you’ll need it if you make a warranty claim.</p>
 <p style="color:#a9a8a2;font-size:12px">If you didn’t register this equipment, you can ignore this email.</p>
 </div>`;
