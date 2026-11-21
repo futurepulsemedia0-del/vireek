@@ -1,0 +1,2 @@
+[functions.emergency-access-tick]
+verify_jwt = false
