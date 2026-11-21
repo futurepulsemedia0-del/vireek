@@ -113,7 +113,7 @@ Deno.serve(async (req: Request) => {
 <tr><td style="color:#73726c;font-size:13px">Your share due</td><td style="text-align:right;font-weight:600">${escapeHtml(payable)}</td></tr>
 ${dueLine ? `<tr><td colspan="2" style="color:#73726c;font-size:13px;padding-top:8px">${escapeHtml(dueLine)}</td></tr>` : ""}
 </table>
-<p style="margin:24px 0"><a href="${link}" style="background:#ae3600;color:#fff;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:600;display:inline-block">Pay your share</a></p>
+<p style="margin:24px 0"><a href="${link}" style="background:#9f4223;color:#fff;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:600;display:inline-block">Pay your share</a></p>
 <p style="color:#73726c;font-size:13px">This link is private to you. Thank you,<br/>${escapeHtml(business)}</p></div>`;
 
     const result = await sendEmail(to, subject, html, text);
