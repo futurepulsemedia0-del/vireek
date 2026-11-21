@@ -231,7 +231,7 @@ export function DesktopMegaNav() {
   return (
     <div
       ref={wrapRef}
-      className="hidden items-center self-stretch xl:flex"
+      className="hidden items-center self-stretch lg:flex"
       onPointerEnter={clear}
       onPointerLeave={(e) => {
         if (e.pointerType === 'mouse' && mode.current !== 'pinned') scheduleClose();
