@@ -25,7 +25,7 @@ export function rgbTripletToHex(triplet: string): string | null {
   return `#${parts.map((n) => n.toString(16).padStart(2, '0')).join('')}`;
 }
 
-const FALLBACK_ACCENT = '#a93b0f';
+const FALLBACK_ACCENT = '#934126';
 
 export function buildAppearance(opts: { dark: boolean; accentTriplet?: string }): Appearance {
   return {
