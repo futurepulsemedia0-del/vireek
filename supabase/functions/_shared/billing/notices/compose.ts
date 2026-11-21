@@ -24,12 +24,12 @@ export function planLabel(planId: string): string {
 function layout(lang: LanguageCode, heading: string, bodyHtml: string, cta?: { label: string; url: string }, secondary?: { label: string; url: string }): string {
   const align = textAlignStart(lang);
   const button = cta
-    ? `<p style="margin:24px 0 0;"><a href="${escapeHtml(cta.url)}" style="display:inline-block;padding:12px 24px;background:#111827;color:#ffffff;text-decoration:none;border-radius:10px;font-weight:600;font-size:14px;">${escapeHtml(cta.label)}</a></p>`
+    ? `<p style="margin:24px 0 0;"><a href="${escapeHtml(cta.url)}" style="display:inline-block;padding:12px 24px;background:#141413;color:#ffffff;text-decoration:none;border-radius:10px;font-weight:600;font-size:14px;">${escapeHtml(cta.label)}</a></p>`
     : "";
   const second = secondary
-    ? `<p style="margin:16px 0 0;font-size:13px;"><a href="${escapeHtml(secondary.url)}" style="color:#374151;text-decoration:underline;">${escapeHtml(secondary.label)}</a></p>`
+    ? `<p style="margin:16px 0 0;font-size:13px;"><a href="${escapeHtml(secondary.url)}" style="color:#57564f;text-decoration:underline;">${escapeHtml(secondary.label)}</a></p>`
     : "";
-  return `<div ${htmlLangAttrs(lang)} style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;color:#1a1a1a;text-align:${align};"><h1 style="font-size:20px;margin:0 0 16px;">${escapeHtml(heading)}</h1><p style="font-size:15px;line-height:1.6;color:#374151;margin:0;">${bodyHtml}</p>${button}${second}</div>`;
+  return `<div ${htmlLangAttrs(lang)} style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;color:#141413;text-align:${align};"><h1 style="font-size:20px;margin:0 0 16px;">${escapeHtml(heading)}</h1><p style="font-size:15px;line-height:1.6;color:#57564f;margin:0;">${bodyHtml}</p>${button}${second}</div>`;
 }
 
 const htmlBody = (s: string) => s.replace(/\n/g, "<br>");
