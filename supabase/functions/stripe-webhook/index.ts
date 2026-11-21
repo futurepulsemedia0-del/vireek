@@ -126,7 +126,7 @@ function buildDunningEmail({ toEmail, greetingName, stage, daysLeft, declineReas
       ? "We had trouble charging your card"
       : "Your Vireek subscription is still past due";
 
-  const urgencyColor = isFinal ? "#d4222a" : stage <= 1 ? "#1C1B15" : "#a93b0f";
+  const urgencyColor = isFinal ? "#d4222a" : stage <= 1 ? "#1C1B15" : "#934126";
 
   const html = `
     <div style="font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1c1b15;">
