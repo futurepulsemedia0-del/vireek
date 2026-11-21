@@ -60,4 +60,5 @@
 /docs/registers/                               @OWNER_COMPLIANCE
 /docs/claims-register.json                     @OWNER_COMPLIANCE
 /scripts/check-claims.mjs                      @OWNER_COMPLIANCE
+/scripts/claims-gate/                           @OWNER_COMPLIANCE
 /scripts/registers/                            @OWNER_COMPLIANCE
