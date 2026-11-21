@@ -1,10 +1,11 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { PhoneOff, ArrowRight, Home } from 'lucide-react';
+import { ArrowRight, Home } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { CookieConsent } from '@/components/CookieConsent';
+import { VireekMark } from '@/components/brand/VireekMark';
 import { Button } from '@/components/ui/Button';
 import { EASE } from '@/lib/motion';
 
@@ -45,9 +46,7 @@ export function NotFoundPage() {
           transition={{ duration: 0.5, ease: EASE }}
           className="flex max-w-lg flex-col items-center text-center"
         >
-          <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-accent/10 text-accent">
-            <PhoneOff size={28} />
-          </span>
+          <VireekMark size={84} intro="always" interactive decorative />
           <p className="mt-6 text-sm font-semibold uppercase tracking-[0.2em] text-accent">404</p>
           <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-text-primary sm:text-4xl">
             This call didn&apos;t go through.
