@@ -83,8 +83,8 @@ export const LIMITS = {
 } as const;
 
 export const DEFAULT_FORM: BrandForm = {
-  primary_color: '#AE3600',
-  accent_color: '#006FE1',
+  primary_color: '#9F4223',
+  accent_color: '#0071E3',
   email_sender_name: '',
   email_reply_to: '',
   email_footer: '',
@@ -97,11 +97,11 @@ export const DEFAULT_FORM: BrandForm = {
 };
 
 export const COLOR_PRESETS: { name: string; primary: string; accent: string }[] = [
-  { name: 'Clay', primary: '#AE3600', accent: '#006FE1' },
-  { name: 'Blue', primary: '#0058B3', accent: '#F9774C' },
+  { name: 'Clay', primary: '#9F4223', accent: '#0071E3' },
+  { name: 'Blue', primary: '#0058B3', accent: '#D97757' },
   { name: 'Green', primary: '#007228', accent: '#34C759' },
-  { name: 'Blurple', primary: '#4C2BF2', accent: '#F9774C' },
-  { name: 'Graphite', primary: '#44423D', accent: '#F9774C' },
+  { name: 'Blurple', primary: '#4C2BF2', accent: '#D97757' },
+  { name: 'Graphite', primary: '#44423D', accent: '#D97757' },
   { name: 'Red', primary: '#B80034', accent: '#FFCC00' },
 ];
 
@@ -212,8 +212,8 @@ export interface FormErrors {
 
 export function validateForm(form: BrandForm): FormErrors {
   const errors: FormErrors = {};
-  if (!isHexColor(form.primary_color)) errors.primary_color = 'Use a 6-digit hex color, e.g. #AE3600.';
-  if (!isHexColor(form.accent_color)) errors.accent_color = 'Use a 6-digit hex color, e.g. #006FE1.';
+  if (!isHexColor(form.primary_color)) errors.primary_color = 'Use a 6-digit hex color, e.g. #9F4223.';
+  if (!isHexColor(form.accent_color)) errors.accent_color = 'Use a 6-digit hex color, e.g. #0071E3.';
   const name = validateSenderName(form.email_sender_name);
   if (name) errors.email_sender_name = name;
   const reply = validateEmail(form.email_reply_to);
