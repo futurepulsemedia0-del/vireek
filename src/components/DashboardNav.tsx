@@ -46,6 +46,7 @@ import { ActivePlaybookBanner } from '@/components/playbooks/ActivePlaybookBanne
 import { PaymentFailedBanner } from '@/components/PaymentFailedBanner';
 import { UsageLimitBanner } from '@/components/UsageLimitBanner';
 import { TrialBanner } from '@/components/TrialBanner';
+import { PlanResumeBanner } from '@/components/onboarding/PlanResumeBanner';
 import { NotificationBell } from '@/components/NotificationBell';
 import { WhatsNewButton } from '@/components/whats-new/WhatsNewButton';
 import { ReplayTourMenu } from '@/components/tour/ReplayTourMenu';
@@ -1158,6 +1159,7 @@ export function DashboardLayout({
                   <UsageLimitBanner />
                   <SurgeModeBanner />
                   <TrialBanner />
+                  <PlanResumeBanner />
                   <UpgradeBanner />
                   <ActivePlaybookBanner />
                   <PwaInstallBanner />
