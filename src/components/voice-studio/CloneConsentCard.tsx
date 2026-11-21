@@ -5,8 +5,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { supabase } from '@/lib/supabase';
 import { uploadVoiceSample, triggerVoiceCloning } from '@/lib/voiceCloning';
-import { latestConsent, revokeConsent, startConsent, syncVoice, type ConsentRow } from '@/lib/voiceStudioApi';
-import { CONSENT_TEXT_V1 } from '../../../supabase/functions/_shared/voice-studio/consent';
+import { latestConsent, revokeConsent, setRetention, startConsent, syncVoice, type ConsentRow } from '@/lib/voiceStudioApi';
+import { CURRENT_CONSENT_TEXT, CURRENT_CONSENT_VERSION } from '../../../supabase/functions/_shared/voice-studio/consent';
+import { RETENTION_DEFAULT_DAYS } from '../../../supabase/functions/_shared/voice-clone/retention';
+import { RetentionPicker, RetentionSummary } from '@/components/voice-studio/CloneRetentionControl';
 
 type Rel = 'self' | 'employee_written_consent';
 type Phase = 'loading' | 'form' | 'record' | 'processing' | 'ready' | 'failed';
@@ -20,6 +22,7 @@ export function CloneConsentCard() {
   const [name, setName] = useState('');
   const [rel, setRel] = useState<Rel>('self');
   const [attested, setAttested] = useState(false);
+  const [retentionDays, setRetentionDays] = useState<number>(RETENTION_DEFAULT_DAYS);
   const [busy, setBusy] = useState(false);
   const [confirmRevoke, setConfirmRevoke] = useState(false);
 
@@ -53,7 +56,7 @@ export function CloneConsentCard() {
   const onStart = async () => {
     setBusy(true);
     try {
-      await startConsent({ voiceOwnerName: name.trim(), relationship: rel, attested: true });
+      await startConsent({ voiceOwnerName: name.trim(), relationship: rel, attested: true, consentVersion: CURRENT_CONSENT_VERSION, retentionDays });
       await refresh();
     } catch (e) { toast(e instanceof Error ? e.message : 'Could not start.', 'error'); } finally { setBusy(false); }
   };
@@ -121,7 +124,8 @@ export function CloneConsentCard() {
               <option value="employee_written_consent">A team member who gave written permission</option>
             </select>
           </label>
-          <p className="rounded-xl border border-border bg-bg-primary p-3 text-xs text-text-secondary">{CONSENT_TEXT_V1}</p>
+          <p className="rounded-xl border border-border bg-bg-primary p-3 text-xs text-text-secondary">{CURRENT_CONSENT_TEXT}</p>
+          <RetentionPicker value={retentionDays} onChange={setRetentionDays} disabled={busy} />
           <label className="flex items-start gap-2 text-sm text-text-primary">
             <input type="checkbox" checked={attested} onChange={(e) => setAttested(e.target.checked)} className="mt-1" />
             I have read and accept this statement.
@@ -148,6 +152,11 @@ export function CloneConsentCard() {
       {phase === 'ready' && consent && (
         <div className="space-y-3">
           <p className="text-sm text-text-primary" role="status">Cloned voice ready for {consent.voice_owner_name}.</p>
+          <RetentionSummary
+            expiresAt={consent.expires_at}
+            retentionDays={consent.retention_days}
+            onShorten={async (days) => { await setRetention(consent.id, days); await refresh(); }}
+          />
           <div className="flex flex-wrap gap-2">
             <button type="button" className={btn} disabled={busy} onClick={onApply}>Use on live calls</button>
             {!confirmRevoke ? (
