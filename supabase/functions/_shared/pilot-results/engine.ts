@@ -226,7 +226,7 @@ ${rows.map((r) => `<tr><td style="${td}">${esc(label(r))}</td><td align="right" 
 <tr><td style="${td}">Not counted (no preceding action)</td><td align="right" style="${td}">—</td><td align="right" style="${td}">${esc(formatMoney(p.recovered.not_counted_cents, currency))} (${p.recovered.not_counted_count})</td></tr>
 <tr><td style="${td}">Hours spent (manual entry)</td><td align="right" style="${td}">—</td><td align="right" style="${td}">${esc(hoursLabel(p.hours_minutes))}</td></tr>
 ${fee === null ? "" : `<tr><td style="${td}">Fee at ${esc(p.fee_pct)}% (display only, never charged automatically)</td><td align="right" style="${td}">—</td><td align="right" style="${td}">${esc(formatMoney(fee, currency))}</td></tr>`}
-</table><p style="margin:8px 0 0;font-size:12px"><a href="${esc(pageUrl)}" style="color:#ae3600">Open Pilot Results</a></p>`;
+</table><p style="margin:8px 0 0;font-size:12px"><a href="${esc(pageUrl)}" style="color:#9f4223">Open Pilot Results</a></p>`;
   const text = [
     "Pilot results (baseline -> now):",
     ...rows.map((r) => `  ${label(r)}: ${formatValue(r, r.baseline, currency)} -> ${formatValue(r, r.now, currency)}`),
