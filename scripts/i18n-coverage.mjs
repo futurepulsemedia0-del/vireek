@@ -23,8 +23,9 @@ const json = process.argv.includes('--json');
 
 const flat = (o, p = '') =>
   Object.entries(o).flatMap(([k, v]) => (v && typeof v === 'object' && !Array.isArray(v) ? flat(v, `${p}${k}.`) : [[`${p}${k}`, v]]));
+const nsFile = (l, ns) => (ns === 'consent' ? path.join(dir, 'consent', `${l}.json`) : path.join(dir, l, `${ns}.json`)); // consent lives in src/locales/consent/<lang>.json
 const load = (l, ns) => {
-  const f = path.join(dir, l, `${ns}.json`);
+  const f = nsFile(l, ns);
   return fs.existsSync(f) ? new Map(flat(JSON.parse(fs.readFileSync(f, 'utf8')))) : null;
 };
 const tokens = (s) =>
@@ -32,7 +33,7 @@ const tokens = (s) =>
     ? [...s.matchAll(/\{\{\s*[\w.]+\s*\}\}|\{[\w.]+(?:,[^}]*)?\}|<\/?\w+\s*\/?>/g)].map((m) => m[0].replace(/\s+/g, '')).sort().join('|')
     : '';
 
-const namespaces = fs.readdirSync(path.join(dir, 'en')).filter((f) => f.endsWith('.json')).map((f) => f.slice(0, -5));
+const namespaces = fs.readdirSync(path.join(dir, 'en')).filter((f) => f.endsWith('.json')).map((f) => f.slice(0, -5)).concat(fs.existsSync(path.join(dir, 'consent', 'en.json')) ? ['consent'] : []);
 const reviewedFile = path.join(root, 'docs/i18n/reviewed-keys.json');
 const reviewed = fs.existsSync(reviewedFile) ? JSON.parse(fs.readFileSync(reviewedFile, 'utf8')) : {};
 
