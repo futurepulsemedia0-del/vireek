@@ -21,6 +21,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { buildSignupPath } from '@/lib/planOnboarding/intent';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/Button';
@@ -117,7 +118,8 @@ function PlanCard({
   const price = billing === 'annual' ? plan.annual : plan.monthly;
   const displayPrice = isCustomPrice ? null : billing === 'annual' ? Math.round((price ?? 0) / 12) : price;
   const href = getPlanHref(plan.id, billing, user?.id);
-  const external = isExternalLink(plan.id);
+ const signupHref = !user && plan.id !== 'free' && plan.id !== 'enterprise' ? buildSignupPath(plan.id, billing) : null;
+const external = isExternalLink(plan.id) && !signupHref;
 
   return (
     <motion.div
