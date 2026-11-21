@@ -36,7 +36,7 @@ import {
   type NearestTechnician,
 } from '@/lib/routing';
 
-const TERRITORY_COLORS = ['#3d8ef6', '#34c759', '#ffcc00', '#ff2d55', '#7e6bfd', '#6eacff'];
+const TERRITORY_COLORS = ['#3d8ef6', '#34c759', '#ffcc00', '#ff2d55', '#6e71ff', '#6eacff'];
 
 type JobWithCall = Job & { calls: { is_emergency: boolean } | null };
 
