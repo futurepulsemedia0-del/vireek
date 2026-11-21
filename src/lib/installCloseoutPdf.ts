@@ -5,6 +5,7 @@
  */
 import { jsPDF } from 'jspdf';
 import { supabase } from '@/lib/supabase';
+import { getPdfBrand } from '@/lib/pdfBrand';
 import {
   EVIDENCE_LABELS, RULES_DISCLAIMER, STATUS_LABELS, STEP_LABELS, ELIGIBILITY_LABELS, PRE_APPROVAL_LABELS,
   missingEvidence, safeHttpUrl,
