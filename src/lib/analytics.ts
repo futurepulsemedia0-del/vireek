@@ -5,7 +5,6 @@
 
 import { CATEGORY_FOOTPRINT, deleteCookiesMatching, onCategoryChange } from '@/lib/consent/engine';
 import { clampPageTitle, sanitizePageUrl, sanitizeEvent, type EventArgs, type EventName, type EventProblem } from '@/lib/analyticsEvents';
-import { sanitizeEvent, type EventArgs, type EventName, type EventProblem } from '@/lib/analyticsEvents';
 
 declare global {
   interface Window {
