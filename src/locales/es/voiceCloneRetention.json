@@ -1,0 +1,20 @@
+{
+  "picker": {
+    "label": "Conservar mi voz clonada durante",
+    "option": "{{days}} días",
+    "hint": "Pasado este plazo, la voz clonada y la muestra subida se eliminan automáticamente. Puede eliminarlas antes en cualquier momento."
+  },
+  "summary": {
+    "title": "Eliminación automática",
+    "expires": "Se eliminará automáticamente el {{date}}",
+    "daysLeft": "Días restantes: {{days}}",
+    "dueNow": "Programada para eliminarse en la próxima ejecución diaria.",
+    "unknown": "Aún no hay fecha de eliminación.",
+    "shortenLabel": "Acortar el plazo de conservación",
+    "shortenHint": "Puede acortar el plazo, pero no ampliarlo. Para conservar una voz más tiempo, grabe una nueva con un consentimiento nuevo.",
+    "save": "Guardar",
+    "saving": "Guardando…",
+    "saved": "Plazo de conservación acortado.",
+    "failed": "No se pudo cambiar el plazo de conservación."
+  }
+}
