@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/Button';
 import {
   BackgroundTask,
   BlockingOverlay,
+  BrandDot,
   BrandLoader,
   CardSkeleton,
   ChartSkeleton,
@@ -14,6 +15,7 @@ import {
   PullToRefresh,
   PulseMark,
   RouteFallback,
+  type RouteFallbackVariant,
   Spinner,
   TableSkeleton,
   TopProgressBar,
@@ -36,7 +38,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 const wait = (ms: number) => new Promise<void>((r) => window.setTimeout(r, ms));
 
 export default function LoadingDemo() {
-  const [route, setRoute] = useState(false);
+  const [route, setRoute] = useState<RouteFallbackVariant | null>(null);
   const [overlay, setOverlay] = useState(false);
   const [overlayPct, setOverlayPct] = useState<number | null>(null);
   const [bg, setBg] = useState(false);
@@ -47,7 +49,7 @@ export default function LoadingDemo() {
 
   useEffect(() => {
     if (!route) return;
-    const id = window.setTimeout(() => setRoute(false), 3500);
+    const id = window.setTimeout(() => setRoute(null), 3500);
     return () => window.clearTimeout(id);
   }, [route]);
 
@@ -94,12 +96,22 @@ export default function LoadingDemo() {
               <BrandLoader variant="fill" size="lg" progress={65} />
               <figcaption className="text-xs text-text-secondary">fill · 65%</figcaption>
             </figure>
+            <figure className="flex flex-col items-center gap-2">
+              <div className="flex items-end gap-3">
+                <BrandDot size={16} /><BrandDot size={24} /><BrandDot size={32} />
+              </div>
+              <figcaption className="text-xs text-text-secondary">dot · under 32px</figcaption>
+            </figure>
           </div>
         </Section>
         <Section title="Route transition">
           <TopProgressBar progress={0.55} />
-          <Button variant="secondary" onClick={() => setRoute(true)}>Preview route fallback (3.5s)</Button>
-          {route && <div className="fixed inset-0 z-[2147482500]"><RouteFallback variant="app" /></div>}
+          <div className="flex flex-wrap gap-3">
+            {(['marketing', 'app', 'portal', 'data'] as const).map((v) => (
+              <Button key={v} variant="secondary" onClick={() => setRoute(v)}>Preview route fallback · {v} (3.5s)</Button>
+            ))}
+          </div>
+          {route && <div className="fixed inset-0 z-[2147482500]"><RouteFallback variant={route} fullScreen /></div>}
         </Section>
 
         <Section title="Button loading (keeps width)">
