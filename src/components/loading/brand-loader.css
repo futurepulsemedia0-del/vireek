@@ -1,0 +1,199 @@
+/* Vireek brand loader — V mark + orange "answered" dot.
+   Tokens only. Reduced motion → static mark with a slow (<0.5 Hz) opacity pulse.
+   Determinate `fill` uses stroke-dashoffset on a ~100px SVG (the one deliberate exception to "transform/opacity only"). */
+
+.vrk-v {
+  display: block;
+  flex: none;
+  overflow: visible;
+  color: rgb(var(--text-primary));
+}
+
+.vrk-v__m,
+.vrk-v__tr,
+.vrk-v__pl {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 12;
+}
+.vrk-v__m {
+  stroke: currentColor;
+}
+.vrk-v__tr {
+  stroke: currentColor;
+  opacity: 0.14;
+}
+.vrk-v__pl {
+  stroke: rgb(var(--accent-secondary));
+}
+.vrk-v__nd {
+  fill: rgb(var(--accent-primary));
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.vrk-v__rg {
+  fill: none;
+  stroke: rgb(var(--accent-primary));
+  stroke-width: 2.5;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.vrk-v__sat {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.vrk-v__sat--i {
+  fill: rgb(var(--accent-secondary));
+}
+.vrk-v__sat--k {
+  fill: currentColor;
+}
+.vrk-v__sat--o {
+  fill: rgb(var(--accent-primary));
+}
+.vrk-v__lk {
+  stroke: rgb(var(--accent-secondary));
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  opacity: 0.6;
+}
+
+/* Background tabs (initLoadingRuntime sets data-vrk-paused) */
+html[data-vrk-paused] .vrk-v,
+html[data-vrk-paused] .vrk-v * {
+  animation-play-state: paused !important;
+}
+
+/* thread: line draws itself, dot opens */
+.vrk-v--thread .vrk-v__m {
+  stroke-dasharray: 1;
+  animation: vrkv-thread-m 3.4s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+.vrk-v--thread .vrk-v__nd {
+  animation: vrkv-thread-n 3.4s ease infinite;
+}
+@keyframes vrkv-thread-m {
+  0% { stroke-dashoffset: 1; opacity: 0; }
+  3% { opacity: 1; }
+  46%, 80% { stroke-dashoffset: 0; opacity: 1; }
+  94% { stroke-dashoffset: 0; opacity: 0; }
+  100% { stroke-dashoffset: 1; opacity: 0; }
+}
+@keyframes vrkv-thread-n {
+  0%, 42% { transform: scale(0); opacity: 0; }
+  54% { transform: scale(1.3); opacity: 1; }
+  62%, 80% { transform: scale(1); opacity: 1; }
+  94%, 100% { transform: scale(1); opacity: 0; }
+}
+
+/* fill: indeterminate loop, or determinate when `progress` is given */
+.vrk-v--fill .vrk-v__m {
+  stroke-dasharray: 1;
+  animation: vrkv-fill-m 2.2s cubic-bezier(0.45, 0, 0.2, 1) infinite;
+}
+.vrk-v--fill .vrk-v__nd {
+  animation: vrkv-fill-n 2.2s ease infinite;
+}
+@keyframes vrkv-fill-m {
+  0% { stroke-dashoffset: 1; }
+  70%, 100% { stroke-dashoffset: 0; }
+}
+@keyframes vrkv-fill-n {
+  0%, 60% { transform: scale(0.7); opacity: 0.3; }
+  76% { transform: scale(1.3); opacity: 1; }
+  90%, 100% { transform: scale(1); opacity: 1; }
+}
+.vrk-v--det .vrk-v__m {
+  animation: none;
+  transition: stroke-dashoffset 240ms var(--vrk-ease, cubic-bezier(0.16, 1, 0.3, 1)), opacity 120ms linear;
+}
+.vrk-v--det .vrk-v__nd {
+  animation: none;
+  opacity: 0.35;
+  transform: scale(0.85);
+  transition: opacity 240ms var(--vrk-ease, cubic-bezier(0.16, 1, 0.3, 1)), transform 240ms var(--vrk-ease, cubic-bezier(0.16, 1, 0.3, 1));
+}
+.vrk-v--det.vrk-v--done .vrk-v__nd {
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+/* signal: dot sends rings, like a ringing call */
+.vrk-v--signal .vrk-v__rg {
+  animation: vrkv-ring 2.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  animation-delay: calc(var(--d, 0) * 1s);
+}
+.vrk-v--signal .vrk-v__nd {
+  animation: vrkv-beat 2.4s ease-in-out infinite;
+}
+@keyframes vrkv-ring {
+  0% { transform: scale(1); opacity: 0.7; }
+  100% { transform: scale(4); opacity: 0; }
+}
+@keyframes vrkv-beat {
+  0%, 100% { transform: scale(1); }
+  8% { transform: scale(1.18); }
+}
+
+/* network: small network blooms from the dot and folds back */
+.vrk-v--network .vrk-v__sat,
+.vrk-v--network .vrk-v__lk {
+  animation: vrkv-bloom 3.8s cubic-bezier(0.34, 1.4, 0.5, 1) infinite;
+  animation-delay: calc(var(--d, 0) * 1s);
+}
+.vrk-v--network .vrk-v__lk {
+  animation-name: vrkv-bloom-l;
+}
+@keyframes vrkv-bloom {
+  0%, 6% { transform: scale(0); opacity: 0; }
+  22%, 76% { transform: scale(1); opacity: 1; }
+  92%, 100% { transform: scale(0); opacity: 0; }
+}
+@keyframes vrkv-bloom-l {
+  0%, 8% { opacity: 0; }
+  24%, 76% { opacity: 0.6; }
+  92%, 100% { opacity: 0; }
+}
+
+/* pulse: a violet pulse runs along the V and hits the dot */
+.vrk-v--pulse .vrk-v__pl {
+  stroke-dasharray: 0.22 1.3;
+  animation: vrkv-pulse-p 1.9s cubic-bezier(0.5, 0, 0.3, 1) infinite;
+}
+.vrk-v--pulse .vrk-v__nd {
+  animation: vrkv-pulse-n 1.9s ease-out infinite;
+}
+@keyframes vrkv-pulse-p {
+  0% { stroke-dashoffset: 0.22; }
+  100% { stroke-dashoffset: -1; }
+}
+@keyframes vrkv-pulse-n {
+  0%, 72% { transform: scale(1); }
+  84% { transform: scale(1.45); }
+  100% { transform: scale(1); }
+}
+
+@keyframes vrkv-soft {
+  50% { opacity: 0.45; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vrk-v * {
+    animation: none !important;
+  }
+  .vrk-v:not(.vrk-v--det) {
+    animation: vrkv-soft 2.4s ease-in-out infinite;
+  }
+  .vrk-v__rg,
+  .vrk-v--network .vrk-v__sat,
+  .vrk-v--network .vrk-v__lk,
+  .vrk-v--pulse .vrk-v__pl {
+    display: none;
+  }
+  .vrk-v--det .vrk-v__m,
+  .vrk-v--det .vrk-v__nd {
+    transition: none;
+  }
+}
