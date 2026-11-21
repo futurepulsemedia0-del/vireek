@@ -81,6 +81,7 @@ import { FrequentPages } from '@/components/nav/FrequentPages';
 import { Icon } from '@/components/ui/Icon';
 import { IconButton } from '@/components/ui/IconButton';
 import { isNavItemActive } from '@/lib/navActive';
+import { navIcon } from '@/lib/surface/navIcons';
 import { PwaInstallBanner } from '@/components/mobile/PwaInstallBanner';
 
 interface NavItem {
@@ -851,7 +852,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
         }`}
       >
         {active && <span aria-hidden="true" className="absolute inset-y-1.5 start-0 w-0.5 rounded-full bg-accent" />}
-        <Icon icon={item.icon} size="sm" className={active ? 'text-accent' : 'text-text-muted group-hover:text-text-secondary'} />
+        <Icon icon={navIcon(item.href, item.icon)} size="sm" className={active ? 'text-accent' : 'text-text-muted group-hover:text-text-secondary'} />
         <span className="min-w-0 flex-1 truncate">{label(plainLabel(item.href, item.label))}</span>
         {item.href === '/dashboard/team-chat' && <ChatNavBadge />}
       </Link>
@@ -1149,15 +1150,18 @@ export function DashboardLayout({
               <main id="main-content" className="mx-auto max-w-7xl px-4 py-6 pb-[calc(var(--vk-bottom-nav-h,0px)+var(--vk-bottom-bar-h,0px)+2rem)] lg:px-8 lg:py-8 print:max-w-none print:p-0">
                 <Breadcrumbs className="no-print mb-4" />
                 <div className="no-print">
+                {/* Banner queue: order = priority, and only the first banner that renders is shown. Each banner
+                    renders one root element or nothing, so hiding later siblings is safe (they stay mounted). */}
+                <div className="no-print [&>*:not(:first-child)]:!hidden">
+                  <SecurityAlertBanner />
+                  <PaymentFailedBanner />
+                  <IncidentBanner />
+                  <UsageLimitBanner />
+                  <SurgeModeBanner />
+                  <TrialBanner />
                   <UpgradeBanner />
                   <ActivePlaybookBanner />
-                  <SurgeModeBanner />
-                  <PaymentFailedBanner />
-                  <UsageLimitBanner />
-                  <TrialBanner />
                   <PwaInstallBanner />
-                  <SecurityAlertBanner />
-                  <IncidentBanner />
                 </div>
                 <div key={i18n.language} className="contents">
                   {children}
