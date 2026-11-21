@@ -27,7 +27,7 @@ const ALPHA_FILTER = (id, mono) =>
 
 /**
  * The logo file is the symbol on opaque black. The filter turns "brightness" into alpha, so the symbol can sit on any
- * DARK background (brand dark #090A0D) without a black box. mono=true yields a white silhouette for monochrome icons.
+ * DARK background (brand dark #141413) without a black box. mono=true yields a white silhouette for monochrome icons.
  * Put inside an <svg xmlns:xlink=...> root.
  */
 export function symbolFragment({ x, y, width, mono = false }) {
