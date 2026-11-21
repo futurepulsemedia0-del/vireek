@@ -1,0 +1,439 @@
+diff -ruN a/supabase/functions/_shared/bank/sync.ts b/supabase/functions/_shared/bank/sync.ts
+--- a/supabase/functions/_shared/bank/sync.ts	2026-11-18 10:11:11.631788858 +0000
++++ b/supabase/functions/_shared/bank/sync.ts	2026-11-18 10:11:11.636211327 +0000
+@@ -1,32 +1,49 @@
+-// Plaid -> Supabase sync (cursor-based, idempotent, lock-protected).
++// Provider -> Supabase sync (cursor-based, idempotent, lock-protected).
++// Talks to the aggregator ONLY through BankDataProvider (see ./provider/types.ts), so the vendor,
++// its field names and its sign convention never leak into this file.
++//
++// Graceful degradation: when the provider is down / throttled / the circuit is open, a sync is SKIPPED
++// (`skipped: "provider_unavailable"`). The connection's status and last_error are NOT touched — an
++// outage at the aggregator is not the customer's fault and must not push them into "reconnect your
++// bank". Already-synced data keeps being served; the UI shows freshness via bank_get_provider_status().
+ import type { SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
+-import { PlaidError, type Plaid } from "./plaid.ts";
++import { BankProviderError, type BankDataProvider, type NormalizedAccount, type NormalizedTransaction } from "./provider/types.ts";
+ 
+ export interface ConnRow { id: string; user_id: string; sync_cursor: string | null; last_synced_at?: string | null }
+-export interface SyncResult { added: number; modified: number; removed: number; skipped?: "already_running" | "cooldown" | "not_ready"; error?: string; login_required?: boolean }
++export interface SyncResult {
++  added: number; modified: number; removed: number;
++  skipped?: "already_running" | "cooldown" | "not_ready" | "provider_unavailable" | "consent_missing";
++  error?: string; login_required?: boolean;
++  /** Set with skipped = "provider_unavailable" when we know when retrying makes sense. */
++  retry_after_seconds?: number;
++}
++export interface SyncOptions {
++  minIntervalMs?: number;
++  /** When true, refuse to pull for a connection that has no active (unrevoked, unexpired) consent record. */
++  requireConsent?: boolean;
++}
+ 
+-const cents = (n: number | null | undefined): number | null => (typeof n === "number" ? Math.round(n * 100) : null);
+ const chunk = <T>(a: T[], n: number): T[][] => Array.from({ length: Math.ceil(a.length / n) }, (_, i) => a.slice(i * n, i * n + n));
++const MAX_PAGINATION_RESTARTS = 2;
+ 
+-export async function syncAccounts(db: SupabaseClient, plaid: Plaid, conn: ConnRow, accessToken: string): Promise<Map<string, { id: string; active: boolean }>> {
+-  const [{ data: coa }, res] = await Promise.all([
++export async function syncAccounts(db: SupabaseClient, provider: BankDataProvider, conn: ConnRow, accessToken: string): Promise<Map<string, { id: string; active: boolean }>> {
++  const [{ data: coa }, accounts] = await Promise.all([
+     db.from("chart_of_accounts").select("id, code").eq("user_id", conn.user_id).in("code", ["1000", "2200"]),
+-    plaid.post("/accounts/get", { access_token: accessToken }),
++    provider.getAccounts(accessToken),
+   ]);
+   const ledger = new Map((coa ?? []).map((r: { id: string; code: string }) => [r.code, r.id]));
+   const now = new Date().toISOString();
+-  // deno-lint-ignore no-explicit-any
+-  const rows = (res.accounts ?? []).map((a: any) => ({
++  const rows = accounts.map((a: NormalizedAccount) => ({
+     user_id: conn.user_id,
+     connection_id: conn.id,
+-    provider_account_id: a.account_id,
+-    name: String(a.name || a.official_name || "Account").slice(0, 120),
+-    mask: a.mask ?? null,
+-    account_type: a.type ?? "depository",
+-    subtype: a.subtype ?? null,
+-    currency: a.balances?.iso_currency_code ?? "USD",
+-    current_balance_cents: cents(a.balances?.current),
+-    available_balance_cents: cents(a.balances?.available ?? a.balances?.current),
++    provider_account_id: a.providerAccountId,
++    name: a.name,
++    mask: a.mask,
++    account_type: a.type,
++    subtype: a.subtype,
++    currency: a.currency,
++    current_balance_cents: a.currentBalanceCents,
++    available_balance_cents: a.availableBalanceCents,
+     balance_updated_at: now,
+     ledger_account_id: (a.type === "credit" ? ledger.get("2200") : ledger.get("1000")) ?? null,
+     is_active: a.type === "depository" || a.type === "credit",
+@@ -39,10 +56,15 @@
+   return map;
+ }
+ 
+-export async function syncConnection(db: SupabaseClient, plaid: Plaid, conn: ConnRow, opts: { minIntervalMs?: number } = {}): Promise<SyncResult> {
++export async function syncConnection(db: SupabaseClient, provider: BankDataProvider, conn: ConnRow, opts: SyncOptions = {}): Promise<SyncResult> {
+   const result: SyncResult = { added: 0, modified: 0, removed: 0 };
+   if (opts.minIntervalMs && conn.last_synced_at && Date.now() - Date.parse(conn.last_synced_at) < opts.minIntervalMs) return { ...result, skipped: "cooldown" };
+ 
++  if (opts.requireConsent) {
++    const { data: ok } = await db.rpc("bank_has_active_consent", { p_connection_id: conn.id });
++    if (ok !== true) return { ...result, skipped: "consent_missing" };
++  }
++
+   const nowIso = new Date().toISOString();
+   const { data: claimed } = await db.from("bank_connections")
+     .update({ sync_locked_until: new Date(Date.now() + 120_000).toISOString() })
+@@ -54,46 +76,45 @@
+ 
+   try {
+     const { data: secret } = await db.from("bank_connection_secrets").select("access_token").eq("connection_id", conn.id).maybeSingle();
+-    if (!secret?.access_token) throw new PlaidError("NO_TOKEN", "CONFIG", "Connection has no access token — reconnect the bank.", 400);
++    if (!secret?.access_token) throw new BankProviderError("invalid_request", "NO_TOKEN", "Connection has no access token — reconnect the bank.", provider.id, 400);
+     const accessToken = secret.access_token as string;
+ 
+-    const accounts = await syncAccounts(db, plaid, conn, accessToken);
++    const accounts = await syncAccounts(db, provider, conn, accessToken);
+ 
+-    // deno-lint-ignore no-explicit-any
+-    let added: any[] = [], modified: any[] = [], removed: any[] = [];
++    let added: NormalizedTransaction[] = [], modified: NormalizedTransaction[] = [], removedIds: string[] = [];
+     let nextCursor: string | undefined = conn.sync_cursor ?? undefined;
+     for (let attempt = 0; ; attempt++) {
+-      added = []; modified = []; removed = [];
+-      let cursor = conn.sync_cursor ?? undefined;
++      added = []; modified = []; removedIds = [];
++      let cursor: string | null = conn.sync_cursor ?? null;
+       let more = true;
+       try {
+         while (more) {
+-          const r = await plaid.post("/transactions/sync", { access_token: accessToken, cursor, count: 500 });
+-          added.push(...(r.added ?? [])); modified.push(...(r.modified ?? [])); removed.push(...(r.removed ?? []));
+-          cursor = r.next_cursor; more = !!r.has_more;
++          const page = await provider.syncTransactions(accessToken, cursor);
++          added.push(...page.added); modified.push(...page.modified); removedIds.push(...page.removedIds);
++          cursor = page.nextCursor; more = page.hasMore;
+         }
+-        nextCursor = cursor;
++        nextCursor = cursor ?? undefined;
+         break;
+       } catch (e) {
+-        if (e instanceof PlaidError && e.code === "TRANSACTIONS_SYNC_MUTATION_DURING_PAGINATION" && attempt < 2) continue;
++        if (e instanceof BankProviderError && e.kind === "pagination_mutation" && attempt < MAX_PAGINATION_RESTARTS) continue;
+         throw e;
+       }
+     }
+ 
+-    const toRow = (t: any) => { // deno-lint-ignore no-explicit-any
+-      const acc = accounts.get(t.account_id);
++    const toRow = (t: NormalizedTransaction) => {
++      const acc = accounts.get(t.providerAccountId);
+       if (!acc || !acc.active) return null;
+       return {
+         user_id: conn.user_id,
+         account_id: acc.id,
+-        provider_txn_id: String(t.transaction_id),
+-        posted_date: t.date,
+-        amount_cents: -(Math.round(Number(t.amount) * 100)) || 0,
+-        currency: t.iso_currency_code ?? "USD",
+-        description: String(t.name ?? t.original_description ?? "").slice(0, 300),
+-        merchant_name: t.merchant_name ? String(t.merchant_name).slice(0, 120) : null,
+-        provider_category: t.personal_finance_category?.primary ?? null,
+-        pending: !!t.pending,
++        provider_txn_id: t.providerTxnId,
++        posted_date: t.postedDate,
++        amount_cents: t.amountCents,
++        currency: t.currency,
++        description: t.description,
++        merchant_name: t.merchantName,
++        provider_category: t.category,
++        pending: t.pending,
+         updated_at: new Date().toISOString(),
+       };
+     };
+@@ -101,7 +122,7 @@
+     for (const t of [...added, ...modified]) { const r = toRow(t); if (r) incoming.set(r.provider_txn_id, r); }
+ 
+     // Pending rows are superseded by their posted version.
+-    const supersededPending = added.map((t) => t.pending_transaction_id).filter(Boolean) as string[];
++    const supersededPending = added.map((t) => t.supersedesPendingId).filter(Boolean) as string[];
+     for (const ids of chunk(supersededPending, 100)) {
+       await db.from("bank_transactions").delete().eq("user_id", conn.user_id).in("provider_txn_id", ids).neq("match_status", "reconciled");
+     }
+@@ -124,20 +145,29 @@
+       if (error) throw error;
+     }
+ 
+-    const removedIds = removed.map((r) => String(r.transaction_id));
+     for (const part of chunk(removedIds, 100)) {
+       await db.from("bank_transactions").delete().eq("user_id", conn.user_id).in("provider_txn_id", part).neq("match_status", "reconciled");
+       await db.from("bank_transactions").update({ needs_review: true }).eq("user_id", conn.user_id).in("provider_txn_id", part).eq("match_status", "reconciled");
+     }
+ 
+     await release({ sync_cursor: nextCursor ?? null, last_synced_at: new Date().toISOString(), status: "active", last_error: null });
+-    return { added: added.length, modified: modified.length, removed: removed.length };
++    return { added: added.length, modified: modified.length, removed: removedIds.length };
+   } catch (e) {
+-    if (e instanceof PlaidError && e.code === "PRODUCT_NOT_READY") {
++    const err = e instanceof BankProviderError ? e : null;
++
++    if (err?.kind === "product_not_ready") {
+       await release({});
+       return { ...result, skipped: "not_ready" };
+     }
+-    const loginRequired = e instanceof PlaidError && ["ITEM_LOGIN_REQUIRED", "PENDING_EXPIRATION"].includes(e.code);
++
++    // Provider-side trouble (or one bank being down): keep the connection healthy, keep serving cached data.
++    if (err && (err.kind === "provider_unavailable" || err.kind === "rate_limited" || err.kind === "institution_unavailable")) {
++      await release({});
++      console.error(JSON.stringify({ event: "bank_sync_degraded", connection_id: conn.id, provider: err.provider, kind: err.kind, code: err.code }));
++      return { ...result, skipped: "provider_unavailable", ...(err.retryAfterMs ? { retry_after_seconds: Math.ceil(err.retryAfterMs / 1000) } : {}) };
++    }
++
++    const loginRequired = err?.kind === "auth_required";
+     const message = (e instanceof Error ? e.message : String(e)).slice(0, 300);
+     await release(loginRequired ? { status: "login_required", last_error: message } : { last_error: message });
+     console.error(JSON.stringify({ event: "bank_sync_failed", connection_id: conn.id, error: message }));
+diff -ruN a/supabase/functions/bank-intelligence/index.ts b/supabase/functions/bank-intelligence/index.ts
+--- a/supabase/functions/bank-intelligence/index.ts	2026-11-18 10:11:11.633797484 +0000
++++ b/supabase/functions/bank-intelligence/index.ts	2026-11-18 10:11:11.637323193 +0000
+@@ -1,11 +1,11 @@
+ // Direct Bank Intelligence — authenticated API (actions: link_token, exchange,
+-// reconnected, sync, analyze, disconnect, sync_forecast_cash).
++// reconnected, sync, analyze, disconnect, sync_forecast_cash, status).
+ // Secrets: PLAID_CLIENT_ID, PLAID_SECRET, PLAID_ENV (sandbox|production),
+ //          optional PLAID_WEBHOOK_URL. Deploy: supabase functions deploy bank-intelligence
+ 
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+-import { getPlaid, PlaidError } from "../_shared/bank/plaid.ts";
+-import { syncConnection, syncAccounts, type ConnRow } from "../_shared/bank/sync.ts";
++import { BankProviderError, buildStatusView, getBankProvider, INITIAL_HEALTH, type BankDataProvider, type HealthSnapshot, type HealthState, type ProviderErrorKind } from "../_shared/bank/provider/index.ts";
++import { syncConnection, syncAccounts, type ConnRow, type SyncOptions } from "../_shared/bank/sync.ts";
+ import { runAnalysis } from "../_shared/bank/analysis.ts";
+ 
+ const corsHeaders = {
+@@ -34,6 +34,9 @@
+     const db = createClient(url, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", { auth: { persistSession: false } });
+     const body = await req.json().catch(() => ({}));
+     const action = String(body?.action ?? "");
++    // Aggregator access goes through the resilient provider: circuit breaker + health + per-pull metering.
++    const providerFor = (connectionId: string | null = null): BankDataProvider => getBankProvider(db, { userId: ownerId, connectionId });
++    const syncOpts: SyncOptions = { requireConsent: Deno.env.get("BANK_CONSENT_ENFORCE") === "true" };
+ 
+     const getConn = async (id: unknown): Promise<(ConnRow & { status: string }) | null> => {
+       if (!isUuid(id)) return null;
+@@ -43,43 +46,52 @@
+ 
+     switch (action) {
+       case "link_token": {
+-        const plaid = getPlaid();
+-        const payload: Record<string, unknown> = {
+-          client_name: "Vireek", language: "en", country_codes: ["US"],
+-          user: { client_user_id: ownerId },
+-          webhook: Deno.env.get("PLAID_WEBHOOK_URL") ?? `${url}/functions/v1/bank-webhook`,
+-        };
++        const webhookUrl = Deno.env.get("PLAID_WEBHOOK_URL") ?? `${url}/functions/v1/bank-webhook`;
++        let accessToken: string | undefined;
++        let connId: string | null = null;
+         if (body.connection_id) {
+           const conn = await getConn(body.connection_id);
+           if (!conn) return json({ error: "Connection not found." }, 404);
+           const { data: secret } = await db.from("bank_connection_secrets").select("access_token").eq("connection_id", conn.id).maybeSingle();
+           if (!secret) return json({ error: "Connection has no credentials — connect the bank again." }, 409);
+-          payload.access_token = secret.access_token; // update mode (re-authentication)
+-        } else {
+-          payload.products = ["transactions"];
+-          payload.transactions = { days_requested: 365 };
++          accessToken = secret.access_token as string; // update mode (re-authentication)
++          connId = conn.id;
+         }
+-        const r = await plaid.post("/link/token/create", payload);
+-        return json({ link_token: r.link_token });
++        const { linkToken } = await providerFor(connId).createLinkToken({ ownerId, webhookUrl, accessToken, historyDays: 365 });
++        return json({ link_token: linkToken });
+       }
+ 
+       case "exchange": {
+         const publicToken = typeof body.public_token === "string" ? body.public_token : "";
+         if (!publicToken) return json({ error: "Missing public_token." }, 400);
+-        const plaid = getPlaid();
++        const provider = providerFor();
+         await authClient.rpc("ensure_default_chart_of_accounts"); // so accounts map to ledger 1000 / 2200
+-        const ex = await plaid.post("/item/public_token/exchange", { public_token: publicToken });
++        const ex = await provider.exchangePublicToken(publicToken);
+         const { data: conn, error } = await db.from("bank_connections").upsert({
+-          user_id: ownerId, provider: "plaid", item_id: ex.item_id,
++          user_id: ownerId, provider: provider.id, item_id: ex.itemId,
+           institution_id: typeof body.institution_id === "string" ? body.institution_id.slice(0, 64) : null,
+           institution_name: typeof body.institution_name === "string" && body.institution_name ? body.institution_name.slice(0, 120) : "Bank",
+           status: "active", last_error: null, updated_at: new Date().toISOString(),
+         }, { onConflict: "provider,item_id" }).select("id, user_id, sync_cursor, last_synced_at").single();
+         if (error || !conn) throw error ?? new Error("Could not save connection");
+-        const { error: secErr } = await db.from("bank_connection_secrets").upsert({ connection_id: conn.id, access_token: ex.access_token }, { onConflict: "connection_id" });
++        const { error: secErr } = await db.from("bank_connection_secrets").upsert({ connection_id: conn.id, access_token: ex.accessToken }, { onConflict: "connection_id" });
+         if (secErr) throw secErr;
+-        await syncAccounts(db, plaid, conn, ex.access_token);
+-        const sync = await syncConnection(db, plaid, conn); // history may not be ready yet; the webhook finishes it
++
++        // Consent record: evidence that THIS user completed the provider link flow for THIS connection.
++        // We record only what we can prove. Vireek's own notice text/version is [COUNSEL] and is stored
++        // only if the client reports it; nothing is fabricated.
++        const notice = body?.consent && typeof body.consent === "object" ? body.consent as Record<string, unknown> : null;
++        const { error: consentErr } = await db.rpc("bank_record_consent", {
++          p_user_id: ownerId, p_connection_id: conn.id, p_provider: provider.id, p_actor_id: user.id,
++          p_scopes: ["accounts", "transactions", "balances"], p_source: "link_flow",
++          p_notice_version: typeof notice?.version === "string" ? notice.version.slice(0, 40) : null,
++          p_notice_acknowledged: notice?.acknowledged === true,
++        });
++        if (consentErr) console.error(JSON.stringify({ event: "bank_consent_record_failed", connection_id: conn.id, error: consentErr.message }));
++
++        const scoped = providerFor(conn.id);
++        await syncAccounts(db, scoped, conn, ex.accessToken);
++        const sync = await syncConnection(db, scoped, conn, syncOpts); // history may not be ready yet; the webhook finishes it
+         return json({ connection_id: conn.id, sync });
+       }
+ 
+@@ -87,22 +99,26 @@
+         const conn = await getConn(body.connection_id);
+         if (!conn) return json({ error: "Connection not found." }, 404);
+         await db.from("bank_connections").update({ status: "active", last_error: null, updated_at: new Date().toISOString() }).eq("id", conn.id);
+-        const sync = await syncConnection(db, getPlaid(), { ...conn, last_synced_at: null });
++        const sync = await syncConnection(db, providerFor(conn.id), { ...conn, last_synced_at: null }, syncOpts);
+         return json({ sync });
+       }
+ 
+       case "sync": {
+-        const plaid = getPlaid();
+         const { data: conns } = await db.from("bank_connections").select("id, user_id, sync_cursor, last_synced_at").eq("user_id", ownerId).eq("status", "active");
+-        const totals = { added: 0, modified: 0, removed: 0, skipped: 0, errors: [] as string[] };
++        const totals = { added: 0, modified: 0, removed: 0, skipped: 0, providerUnavailable: 0, retryAfterSeconds: null as number | null, errors: [] as string[] };
+         for (const c of conns ?? []) {
+-          const r = await syncConnection(db, plaid, c, { minIntervalMs: 15_000 });
++          const r = await syncConnection(db, providerFor(c.id), c, { ...syncOpts, minIntervalMs: 15_000 });
+           totals.added += r.added; totals.modified += r.modified; totals.removed += r.removed;
+           if (r.skipped) totals.skipped++;
++          if (r.skipped === "provider_unavailable") {
++            totals.providerUnavailable++;
++            if (r.retry_after_seconds) totals.retryAfterSeconds = Math.max(totals.retryAfterSeconds ?? 0, r.retry_after_seconds);
++          }
+           if (r.error) totals.errors.push(r.error);
+         }
++        // Analysis reads only data already in Postgres, so it still runs (and serves cached data) during an outage.
+         const analysis = await runAnalysis(db, ownerId);
+-        return json({ sync: totals, analysis });
++        return json({ sync: totals, analysis, degraded: totals.providerUnavailable > 0 });
+       }
+ 
+       case "analyze":
+@@ -113,15 +129,36 @@
+         if (!conn) return json({ error: "Connection not found." }, 404);
+         const { data: secret } = await db.from("bank_connection_secrets").select("access_token").eq("connection_id", conn.id).maybeSingle();
+         if (secret) {
+-          try { await getPlaid().post("/item/remove", { access_token: secret.access_token }); }
+-          catch (e) { console.error(JSON.stringify({ event: "bank_item_remove_failed", error: e instanceof Error ? e.message : String(e) })); }
++          // If this fails (e.g. provider outage) the vendor-side item is orphaned: see
++          // docs/runbooks/bank-data-provider-failure.md ("Orphaned items").
++          try { await providerFor(conn.id).removeItem(secret.access_token as string); }
++          catch (e) { console.error(JSON.stringify({ event: "bank_item_remove_failed", connection_id: conn.id, kind: e instanceof BankProviderError ? e.kind : "unknown", error: e instanceof Error ? e.message : String(e) })); }
+         }
++        await db.rpc("bank_revoke_consents", { p_connection_id: conn.id, p_actor_id: user.id, p_reason: "disconnected_by_user" });
+         await db.from("bank_connection_secrets").delete().eq("connection_id", conn.id);
+         await db.from("bank_accounts").update({ is_active: false }).eq("connection_id", conn.id);
+         await db.from("bank_connections").update({ status: "disconnected", updated_at: new Date().toISOString() }).eq("id", conn.id);
+         return json({ ok: true });
+       }
+ 
++      case "status": {
++        const { data: h } = await db.from("bank_provider_health").select("*").eq("provider", "plaid").maybeSingle();
++        const health: HealthSnapshot = h ? {
++          state: (["healthy", "degraded", "down"].includes(h.state) ? h.state : "healthy") as HealthState,
++          consecutiveFailures: Number(h.consecutive_failures ?? 0), lastSuccessAt: h.last_success_at ?? null,
++          lastFailureAt: h.last_failure_at ?? null, lastErrorKind: (h.last_error_kind ?? null) as ProviderErrorKind | null,
++          circuitOpenUntil: h.circuit_open_until ?? null,
++        } : INITIAL_HEALTH;
++        const { data: conns } = await db.from("bank_connections").select("id, institution_name, status, last_synced_at").eq("user_id", ownerId).neq("status", "disconnected");
++        const now = new Date();
++        return json({
++          provider: buildStatusView(health, null, now).providerState,
++          connections: (conns ?? []).map((c: { id: string; institution_name: string; status: string; last_synced_at: string | null }) => ({
++            id: c.id, institution_name: c.institution_name, status: c.status, ...buildStatusView(health, c.last_synced_at, now),
++          })),
++        });
++      }
++
+       case "sync_forecast_cash": {
+         const { data: accts } = await db.from("bank_accounts").select("available_balance_cents, current_balance_cents")
+           .eq("user_id", ownerId).eq("is_active", true).eq("account_type", "depository").eq("currency", "USD");
+@@ -136,9 +173,13 @@
+         return json({ error: "Unknown action." }, 400);
+     }
+   } catch (err) {
+-    if (err instanceof PlaidError) {
+-      console.error(JSON.stringify({ event: "bank_plaid_error", code: err.code, message: err.message }));
+-      return json({ error: err.code === "NOT_CONFIGURED" ? err.message : "Your bank connection provider returned an error. Please try again.", code: err.code }, err.code === "NOT_CONFIGURED" ? 503 : 502);
++    if (err instanceof BankProviderError) {
++      console.error(JSON.stringify({ event: "bank_provider_error", provider: err.provider, kind: err.kind, code: err.code }));
++      if (err.kind === "not_configured") return json({ error: err.message, code: err.code }, 503);
++      if (err.kind === "provider_unavailable" || err.kind === "rate_limited") {
++        return json({ error: "Our bank connection provider is temporarily unavailable. Your existing data is still available; please try again shortly.", code: "provider_unavailable", retry_after_seconds: err.retryAfterMs ? Math.ceil(err.retryAfterMs / 1000) : null }, 503);
++      }
++      return json({ error: "Your bank connection provider returned an error. Please try again.", code: err.code }, 502);
+     }
+     console.error(JSON.stringify({ event: "bank_intelligence_failed", error: err instanceof Error ? err.message : String(err) }));
+     return json({ error: "Something went wrong. Please try again." }, 500);
+diff -ruN a/supabase/functions/bank-webhook/index.ts b/supabase/functions/bank-webhook/index.ts
+--- a/supabase/functions/bank-webhook/index.ts	2026-11-18 10:11:11.635165376 +0000
++++ b/supabase/functions/bank-webhook/index.ts	2026-11-18 10:11:11.638499145 +0000
+@@ -4,7 +4,7 @@
+ // Plaid dashboard / PLAID_WEBHOOK_URL: https://<project-ref>.supabase.co/functions/v1/bank-webhook
+ 
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+-import { getPlaid, verifyPlaidWebhook, type Plaid } from "../_shared/bank/plaid.ts";
++import { getBankProvider, type BankDataProvider } from "../_shared/bank/provider/index.ts";
+ import { syncConnection } from "../_shared/bank/sync.ts";
+ import { runAnalysis } from "../_shared/bank/analysis.ts";
+ 
+@@ -15,27 +15,27 @@
+   if (req.method !== "POST") return respond(405, { error: "Method not allowed" });
+   const raw = await req.text();
+ 
+-  let plaid: Plaid;
+-  try { plaid = getPlaid(); } catch { return respond(503, { error: "Not configured" }); }
+-  if (!(await verifyPlaidWebhook(plaid, raw, req.headers.get("plaid-verification")))) return respond(401, { error: "Invalid signature" });
+-
+-  // deno-lint-ignore no-explicit-any
+-  let evt: any;
+-  try { evt = JSON.parse(raw); } catch { return respond(400, { error: "Bad JSON" }); }
++  const db = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", { auth: { persistSession: false } });
++  // The webhook verifier is not circuit-gated (see provider/resilient.ts): inbound events must never be refused during an outage.
++  const provider: BankDataProvider = getBankProvider(db);
++  if (!provider.isConfigured()) return respond(503, { error: "Not configured" });
++  if (!(await provider.verifyWebhook(raw, req.headers.get("plaid-verification")))) return respond(401, { error: "Invalid signature" });
++
++  const evt = provider.parseWebhook(raw);
++  if (!evt) return respond(400, { error: "Bad JSON" });
+ 
+   const work = (async () => {
+-    if (!evt?.item_id) return;
+-    const db = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", { auth: { persistSession: false } });
+-    const { data: conn } = await db.from("bank_connections").select("id, user_id, sync_cursor, last_synced_at").eq("provider", "plaid").eq("item_id", evt.item_id).maybeSingle();
++    if (evt.kind === "ignored" || !evt.itemId) return;
++    const { data: conn } = await db.from("bank_connections").select("id, user_id, sync_cursor, last_synced_at").eq("provider", provider.id).eq("item_id", evt.itemId).maybeSingle();
+     if (!conn) return;
+-    const type = evt.webhook_type, code = evt.webhook_code;
+ 
+-    if (type === "TRANSACTIONS" && code === "SYNC_UPDATES_AVAILABLE") {
+-      await syncConnection(db, plaid, conn);
++    if (evt.kind === "transactions_updated") {
++      // A provider outage makes this a no-op skip; the nightly/manual sync catches up when the circuit closes.
++      await syncConnection(db, getBankProvider(db, { userId: conn.user_id, connectionId: conn.id }), conn, { requireConsent: Deno.env.get("BANK_CONSENT_ENFORCE") === "true" });
+       await runAnalysis(db, conn.user_id);
+-    } else if (type === "ITEM" && (code === "PENDING_EXPIRATION" || code === "USER_PERMISSION_REVOKED" || (code === "ERROR" && evt.error?.error_code === "ITEM_LOGIN_REQUIRED"))) {
++    } else if (evt.kind === "login_required") {
+       await db.from("bank_connections").update({ status: "login_required", last_error: "Your bank needs you to sign in again.", updated_at: new Date().toISOString() }).eq("id", conn.id);
+-    } else if (type === "ITEM" && code === "LOGIN_REPAIRED") {
++    } else if (evt.kind === "login_repaired") {
+       await db.from("bank_connections").update({ status: "active", last_error: null, updated_at: new Date().toISOString() }).eq("id", conn.id);
+     }
+   })().catch((e) => console.error(JSON.stringify({ event: "bank_webhook_failed", error: e instanceof Error ? e.message : String(e) })));
