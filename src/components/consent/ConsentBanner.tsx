@@ -1,8 +1,13 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { ShieldCheck, X } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import { motionClass, pressable } from '@/lib/ui/interaction';
 import { useConsentT } from '@/i18n/consentNamespace';
+
+// Accept and Reject MUST render from the SAME class string: equal size, colour and contrast (asserted in ConsentManager.test.tsx).
+const CHOICE_BASE = `focus-ring inline-flex min-h-touch w-full items-center justify-center rounded-control px-4 py-3 text-center text-sm font-semibold leading-tight ${motionClass} ${pressable}`;
+const CHOICE_EQUAL = `${CHOICE_BASE} bg-on-inverse text-surface-inverse hover:brightness-90`;
+const CHOICE_OUTLINE = `${CHOICE_BASE} border border-border-inverse text-on-inverse hover:brightness-125`;
 
 interface Props {
   /** True during the exit animation (the manager unmounts the banner right after). */
@@ -61,46 +66,47 @@ export function ConsentBanner({ leaving, onAcceptAll, onReject, onCustomize, onD
       aria-describedby="consent-banner-desc"
       tabIndex={-1}
       onKeyDown={onKeyDown}
-      className={`fixed inset-x-0 bottom-0 z-[70] max-h-[45dvh] overflow-y-auto overscroll-contain rounded-t-2xl border border-b-0 border-border bg-bg-secondary px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-3 text-text-primary shadow-card-hover outline-none transition duration-300 ease-out motion-reduce:transition-none dark:shadow-card-hover-dark sm:inset-x-auto sm:bottom-6 sm:start-6 sm:max-h-[calc(100dvh-3rem)] sm:w-[26rem] sm:rounded-2xl sm:border-b sm:p-5 print:hidden ${
+      className={`fixed inset-x-0 bottom-0 z-[70] max-h-[45dvh] overflow-y-auto overscroll-contain rounded-t-overlay border border-b-0 border-border-inverse bg-surface-inverse px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-3 text-on-inverse shadow-elevation-4 outline-none transition duration-300 ease-out motion-reduce:transition-none sm:inset-x-auto sm:bottom-6 sm:start-6 sm:max-h-[calc(100dvh-3rem)] sm:w-[26rem] sm:rounded-overlay sm:border-b sm:p-5 print:hidden ${
         visible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-2 opacity-0'
       }`}
     >
-      <div aria-hidden="true" className="mx-auto mb-3 h-1 w-9 rounded-full bg-border-strong sm:hidden" />
+      <div aria-hidden="true" className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-brand-from to-brand-to" />
+      <div aria-hidden="true" className="mx-auto mb-3 h-1 w-9 rounded-full bg-border-inverse sm:hidden" />
       <div className="flex items-start gap-3">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-inset bg-gradient-to-br from-brand-from to-brand-to text-on-brand">
           <ShieldCheck size={18} aria-hidden="true" />
         </span>
-        <h2 id="consent-banner-title" className="min-w-0 flex-1 pt-1.5 text-base font-semibold leading-snug">
+        <h2 id="consent-banner-title" className="min-w-0 flex-1 pt-1.5 text-base font-semibold leading-snug text-on-inverse">
           {t('banner.title')}
         </h2>
         <button
           type="button"
           onClick={onDismiss}
           aria-label={t('banner.close')}
-          className="focus-ring -me-2 -mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary motion-reduce:transition-none"
+          className="focus-ring -me-2 -mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-control text-on-inverse-muted transition-colors hover:text-on-inverse motion-reduce:transition-none"
         >
           <X size={18} aria-hidden="true" />
         </button>
       </div>
-      <p id="consent-banner-desc" className="mt-2 text-sm leading-relaxed text-text-secondary">
+      <p id="consent-banner-desc" className="mt-2 text-sm leading-relaxed text-on-inverse-muted">
         {t('banner.body')}
       </p>
       <div className="mt-4 grid grid-cols-2 gap-2">
-        <Button type="button" variant="secondary" size="md" fullWidth onClick={onAcceptAll}>
+        <button type="button" onClick={onAcceptAll} className={CHOICE_EQUAL}>
           {t('banner.accept')}
-        </Button>
-        <Button type="button" variant="secondary" size="md" fullWidth onClick={onReject}>
+        </button>
+        <button type="button" onClick={onReject} className={CHOICE_EQUAL}>
           {t('banner.reject')}
-        </Button>
+        </button>
       </div>
-      <Button type="button" variant="ghost" size="md" fullWidth className="mt-2" onClick={onCustomize}>
+      <button type="button" onClick={onCustomize} className={`${CHOICE_OUTLINE} mt-2`}>
         {t('banner.customize')}
-      </Button>
+      </button>
       <div className="mt-2 flex flex-wrap gap-x-4 text-xs">
-        <Link to="/privacy" className="focus-ring inline-flex min-h-[44px] items-center rounded text-accent underline-offset-2 hover:underline">
+        <Link to="/privacy" className="focus-ring inline-flex min-h-touch items-center rounded text-on-inverse-muted underline underline-offset-2 transition-colors hover:text-on-inverse">
           {t('banner.privacy')}
         </Link>
-        <Link to="/cookies" className="focus-ring inline-flex min-h-[44px] items-center rounded text-accent underline-offset-2 hover:underline">
+        <Link to="/cookies" className="focus-ring inline-flex min-h-touch items-center rounded text-on-inverse-muted underline underline-offset-2 transition-colors hover:text-on-inverse">
           {t('banner.cookies')}
         </Link>
       </div>
