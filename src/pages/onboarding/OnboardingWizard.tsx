@@ -4,7 +4,6 @@ import { Phone } from 'lucide-react';
 import { SkeletonForm } from '@/components/Skeleton';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useOnboardingWizard } from './useOnboardingWizard';
-import { SkeletonForm } from '@/components/Skeleton';
 import { Stepper } from './Stepper';
 import { BusinessInfoStep } from './steps/BusinessInfoStep';
 import { OperationsStep } from './steps/OperationsStep';
