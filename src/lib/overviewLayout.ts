@@ -101,13 +101,10 @@ type PresetEntry = readonly [OverviewWidgetId, number];
 /** Visible widgets in display order. Everything else starts hidden. */
 const PRESET_ENTRIES: Record<OverviewPresetId, readonly PresetEntry[]> = {
   owner: [
-    ['since_yesterday', 12], ['revenue_recovered', 12],
+    ['since_yesterday', 12],
     ['kpi_calls', 3], ['kpi_emergency', 3], ['kpi_jobs', 3], ['kpi_revenue', 3],
-    ['metric_minutes', 3], ['metric_sentiment', 3], ['metric_conversion', 3], ['metric_missed', 3],
-    ['call_volume', 6], ['needs_attention', 6],
-    ['data_health', 12],
-    ['leak_cases', 12],
-    ['attribution', 6], ['kpi_renewal_rate', 6], ['ai_insights', 12], ['quick_actions', 12], ['recent_activity', 12],
+    ['needs_attention', 6], ['call_volume', 6],
+    ['recent_activity', 12],
   ],
   dispatcher: [
     ['kpi_emergency', 3], ['kpi_jobs', 3], ['kpi_calls', 3], ['metric_missed', 3],
