@@ -423,7 +423,7 @@ function PageEditor({
                 id="lp-accent"
                 type="color"
                 className="focus-ring h-12 w-14 cursor-pointer rounded-xl border border-border bg-bg-primary p-1"
-                value={/^#[0-9a-fA-F]{6}$/.test(draft.accent_color) ? draft.accent_color : '#a93b0f'}
+                value={/^#[0-9a-fA-F]{6}$/.test(draft.accent_color) ? draft.accent_color : '#934126'}
                 onChange={(e) => patch({ accent_color: e.target.value })}
               />
               <Input
