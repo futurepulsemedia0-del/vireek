@@ -441,7 +441,7 @@ export function UsageDashboardPage() {
                   type="button"
                   onClick={buyTopup}
                   disabled={topupBusy}
-                  className="focus-ring flex shrink-0 items-center gap-1.5 rounded-lg bg-accent px-3.5 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+                  className="focus-ring flex shrink-0 items-center gap-1.5 rounded-lg bg-accent px-3.5 py-2 text-sm font-semibold text-on-accent transition-opacity hover:opacity-90 disabled:opacity-60"
                 >
                   <Plus size={15} />
                   {topupBusy
