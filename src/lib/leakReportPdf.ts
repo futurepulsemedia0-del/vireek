@@ -1,4 +1,5 @@
 import { jsPDF } from 'jspdf';
+import { getPdfBrand } from '@/lib/pdfBrand';
 import {
   DAY_NAMES,
   formatDuration,
