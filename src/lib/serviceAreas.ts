@@ -88,7 +88,7 @@ export const AREA_COLORS = [
   '#34c759',
   '#ffcc00',
   '#ff2d55',
-  '#7e6bfd',
+  '#6e71ff',
   '#6eacff',
   '#ff375f',
   '#30d158',
