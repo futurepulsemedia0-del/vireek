@@ -55,7 +55,7 @@ const blank = (): Form => ({
   groupBy: [],
   locked: emptyLocked(),
   mode: 'auto',
-  accent: '#a93b0f',
+  accent: '#934126',
   rate: '60',
 });
 
