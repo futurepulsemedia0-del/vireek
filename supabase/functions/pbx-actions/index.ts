@@ -7,8 +7,9 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { isValidE164 } from "../_shared/pbx/logic.ts";
+import { EMERGENCY_BLOCK_MESSAGE, isEmergencyDialBlocked } from "../_shared/telecom/emergencyNumbers.ts";
 import { mintVoiceToken } from "../_shared/pbx/twilio.ts";
-import: import { logSensitiveRead, ReadLogError } from "../_shared/privacy/readLog.ts";
+import { logSensitiveRead, ReadLogError } from "../_shared/privacy/readLog.ts";
 
 import {
   FALLBACK_HOLD_MUSIC, callerIdFor, clientIdentity, confSid, createLeg, endLeg, loadSettings,
@@ -120,6 +121,9 @@ Deno.serve(async (req: Request) => {
         if (call.status !== "in_progress") return json({ error: "The call is not active" }, 409);
         if (legs.length >= 4) return json({ error: "The conference is full" }, 409);
         const t = body.target ?? {};
+        if (t.type === "external" && isEmergencyDialBlocked(t.number)) {
+          return json({ error: "emergency_number_blocked", message: EMERGENCY_BLOCK_MESSAGE }, 403);
+        }
         let target: { extensionId?: string; number?: string };
         if (t.type === "extension" && UUID.test(t.id ?? "")) {
           const { data: ext } = await admin.from("pbx_extensions").select("id").eq("id", t.id).eq("account_owner_id", owner).maybeSingle();
