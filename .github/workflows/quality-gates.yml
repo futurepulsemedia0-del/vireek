@@ -148,7 +148,8 @@ jobs:
           name: lighthouse-report
           path: .lighthouseci/
           retention-days: 14
-            interpreter-eval:
+
+  interpreter-eval:
     name: Interpreter eval gate
     runs-on: ubuntu-latest
     timeout-minutes: 5
