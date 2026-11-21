@@ -278,7 +278,7 @@ async function deliver(admin: Admin, inv: Invitation, businessName: string): Pro
       `<div style="font-family:system-ui,-apple-system,Segoe UI,sans-serif;max-width:480px;margin:0 auto;padding:24px;color:#141413">` +
       `<p style="font-size:16px">Hi ${escapeHtml(vars.customer_first_name)},</p>` +
       `<p style="font-size:16px">Thanks for choosing ${escapeHtml(businessName)}. ${q}</p>` +
-      `<p style="margin:28px 0"><a href="${href}" style="background:#a93b0f;color:#fff;text-decoration:none;padding:14px 24px;border-radius:10px;font-weight:600;display:inline-block">Share your feedback</a></p>` +
+      `<p style="margin:28px 0"><a href="${href}" style="background:#934126;color:#fff;text-decoration:none;padding:14px 24px;border-radius:10px;font-weight:600;display:inline-block">Share your feedback</a></p>` +
       `<p style="font-size:13px;color:#73726C">It takes about 10 seconds. If the button doesn't work, open this link: ${href}</p></div>`;
     const text = `Hi ${vars.customer_first_name},\n\nThanks for choosing ${businessName}. ${inv.question}\n\nShare your feedback (10 seconds): ${link}`;
     const r = await sendEmail(inv.customer_email!, subject, html, text);
