@@ -91,7 +91,7 @@ function linkify(text: string, tracked?: Map<string, string>): string {
     html += escapeHtml(text.slice(last, start));
     if (isHttpUrl(url)) {
       const href = tracked?.get(url) ?? url;
-      html += `<a href="${escapeHtml(href)}" style="color:#a93b0f">${escapeHtml(url)}</a>${escapeHtml(trail)}`;
+      html += `<a href="${escapeHtml(href)}" style="color:#934126">${escapeHtml(url)}</a>${escapeHtml(trail)}`;
     } else {
       html += escapeHtml(match[0]);
     }
