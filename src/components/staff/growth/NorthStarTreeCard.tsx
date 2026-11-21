@@ -42,7 +42,7 @@ function Body({ raw }: { raw: NorthStarRaw }) {
             <p className="text-3xl font-bold text-text-primary" aria-live="polite">{f.num(tree.keptN, 0)}</p>
             <p className="text-xs text-text-secondary">{t('northStar.window', { from: first, to: last })}</p>
             {tree.pendingN > 0 && (
-              <p role="note" className="rounded-lg bg-warning-500/10 px-2 py-1 text-xs text-text-primary">
+              <p role="note" className="rounded-lg bg-warning-subtle px-2 py-1 text-xs text-text-primary">
                 {t('northStar.pending', { n: f.num(tree.pendingN, 0) })}
               </p>
             )}
