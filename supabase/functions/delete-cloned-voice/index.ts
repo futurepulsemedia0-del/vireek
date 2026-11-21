@@ -17,7 +17,7 @@
 // Deploy:  supabase functions deploy delete-cloned-voice
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
-import { deleteElevenLabsVoice } from "../_shared/voice/elevenLabs.ts";
+import { deleteAndVerifyElevenLabsVoice } from "../_shared/voice/elevenLabs.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -65,7 +65,7 @@ Deno.serve(async (req: Request) => {
     // 2. Remove it at ElevenLabs (a 404 means it is already gone).
     if (voiceId) {
       const elevenLabsKey = Deno.env.get("ELEVENLABS_API_KEY") ?? "";
-      const result = await deleteElevenLabsVoice(elevenLabsKey, voiceId);
+      const result = await deleteAndVerifyElevenLabsVoice(elevenLabsKey, voiceId);
       if (result === "failed") {
         await admin
           .from("business_profile")
@@ -101,6 +101,12 @@ Deno.serve(async (req: Request) => {
       return json({ error: "The voice was deleted but your settings could not be updated. Please refresh." }, 500);
     }
 
+    // 5. Close the consent too, otherwise the old 'approved' row blocks recording a new voice.
+    const nowIso = new Date().toISOString();
+    await admin.from("voice_clone_consents").update({
+      status: "revoked", revoked_at: nowIso, provider_voice_id: null, sample_path: null,
+      provider_delete_verified_at: nowIso, failure_reason: null,
+    }).eq("user_id", caller.id).eq("status", "approved");
     return json({ deleted: true });
   } catch (err) {
     console.error("delete-cloned-voice error:", err);
