@@ -12,6 +12,7 @@ import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { PlatformEndorsement, EndorsementStructuredData } from '@/components/brand/PlatformEndorsement';
 import { getEndorsementLineForPath } from '@/lib/brand/platformEndorsement';
 import { openAccessibilityCenter } from '@/lib/uiEvents';
+import { AppInstallCta } from '@/components/AppInstallCta';
 
 const FOOTER_COLUMN_TITLE_KEYS: Record<string, string> = {
   Product: 'footer.product',
@@ -495,7 +496,10 @@ const { t } = useTranslation();
             ))}
           </div>
         </div>
-          <FooterNewsletter />
+          <div className="flex flex-col gap-6">
+            <FooterNewsletter />
+            <AppInstallCta variant="compact" />
+          </div>
         </div>
 
         {/* Navigation columns — a balanced CSS multi-column flow (2 columns
