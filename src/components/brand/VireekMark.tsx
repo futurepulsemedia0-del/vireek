@@ -37,6 +37,8 @@ export interface VireekMarkProps {
   animated?: boolean;
   intro?: 'always' | 'once';
   interactive?: boolean;
+  /** Repeat the morph cycle automatically (default true). Still stops under reduced motion and while off-screen. */
+  loop?: boolean;
   decorative?: boolean;
   label?: string;
   className?: string;
@@ -46,6 +48,7 @@ const SEEN_KEY = 'vireek:mark-intro-seen';
 const INTRO_MS = 2200;
 const MORPH_MS = 1300;
 const HOLD_MS = 1100;
+const HOME_HOLD_MS = 3200;
 
 const readSeen = (): boolean => {
   try {
@@ -71,6 +74,7 @@ export function VireekMark({
   animated = true,
   intro = 'always',
   interactive = false,
+  loop = true,
   decorative = false,
   label = 'Vireek',
   className,
@@ -109,7 +113,7 @@ export function VireekMark({
     let k = 0;
     let moving = false;
     let t0 = 0;
-    let hold = 0;
+    let hold = INTRO_MS + HOME_HOLD_MS;
     let b = 0; // network scale (spring)
     let bv = 0;
     let rot = 0;
@@ -124,6 +128,7 @@ export function VireekMark({
     if (intro === 'once' && readSeen()) {
       introDone = true;
       b = 1;
+      hold = HOME_HOLD_MS;
     } else {
       main.style.strokeDasharray = '1';
       main.style.strokeDashoffset = '1';
@@ -175,13 +180,13 @@ export function VireekMark({
           if (intro === 'once') writeSeen();
         }
       }
-      if (introDone && !moving && k !== 0 && clock >= hold) start();
+      if (introDone && !moving && (k !== 0 || loop) && clock >= hold) start();
       if (moving) {
         const u = Math.min((clock - t0) / MORPH_MS, 1);
         mix(cur, from, to, easeInOutCubic(u));
         if (u >= 1) {
           moving = false;
-          hold = clock + HOLD_MS;
+          hold = clock + (k === 0 ? HOME_HOLD_MS : HOLD_MS);
         }
       }
 
@@ -199,7 +204,7 @@ export function VireekMark({
         !introDone || moving || lagging || Math.abs(target - b) > 0.002 || Math.abs(bv) > 0.002 || Math.abs(rot - rotT) > 0.05;
       write(introDone ? 1 : Math.max(0, (iu - 0.85) / 0.15));
       // Sleep when fully settled; pointer input or visibility changes wake the loop again.
-      if (active || k !== 0) raf = requestAnimationFrame(frame);
+      if (active || k !== 0 || loop) raf = requestAnimationFrame(frame);
     };
 
     const wake = (): void => {
@@ -255,7 +260,7 @@ export function VireekMark({
       svg.removeEventListener('vk-play', play);
       document.removeEventListener('visibilitychange', onVisibility);
     };
-  }, [still, intro, canMorph]);
+  }, [still, intro, canMorph, loop]);
 
   const onKeyDown = (ev: KeyboardEvent<SVGSVGElement>): void => {
     if (!canMorph || (ev.key !== 'Enter' && ev.key !== ' ')) return;
