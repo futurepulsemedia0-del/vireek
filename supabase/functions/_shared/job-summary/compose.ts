@@ -683,7 +683,7 @@ export function renderEmail(args: {
   }
   const href = e(vars.link);
   html +=
-    `<p style="margin:28px 0"><a href="${href}" style="background:#a93b0f;color:#fff;text-decoration:none;padding:14px 24px;border-radius:10px;font-weight:600;display:inline-block">` +
+    `<p style="margin:28px 0"><a href="${href}" style="background:#934126;color:#fff;text-decoration:none;padding:14px 24px;border-radius:10px;font-weight:600;display:inline-block">` +
     `${content.photoCount > 0 ? "View full summary and photos" : "View full summary"}</a></p>` +
     `<p style="font-size:13px;color:#73726C">If the button doesn't work, open this link: ${href}</p></div>`;
 
