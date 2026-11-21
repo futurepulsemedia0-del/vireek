@@ -52,6 +52,7 @@ export const HUBS: HubDef[] = [
   { id: 'labs-agents', pillar: 'labs', label: 'Agents & autonomy', test: /agent|autonomy|evaluation plane|multi-agent|marketplace|procurement network|supply chain|outcome|truck-roll/i },
   { id: 'labs-decisions', pillar: 'labs', label: 'Decisions & simulation', test: /decision|causal|simulator|regret|counterfactual|scientist|autopilot|value at risk|opportunity cost|drift|experiment|resolution probability|roadmap|stabilizer|equilibrium|ltv|pricing/i },
   { id: 'labs-graphs', pillar: 'labs', label: 'Graphs & memory', test: /graph|memory|identity|genome|atlas|truth|constitution|commitment|fabric|context|negative knowledge|contradictions|evidence map|unknowns|trust|reality|twin|world model/i },
+  { id: 'labs-operations', pillar: 'labs', label: 'Operations & automation', test: /operating model|entropy|immune|flywheel|verification network|physical economy|self-healing|switching shield|next best|rescue loop|service intelligence|duration intelligence|reflexes|workflow compiler|event (bus|prediction)|click-to-cash|demand os|adoption|revenue autopsy|bottleneck|continuous improvement|learning compiler|operations (sandbox|loop)/i },
 ];
 
 const FALLBACK: Record<PillarId, HubDef> = {
