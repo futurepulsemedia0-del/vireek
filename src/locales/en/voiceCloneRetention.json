@@ -1,0 +1,20 @@
+{
+  "picker": {
+    "label": "Keep my cloned voice for",
+    "option": "{{days}} days",
+    "hint": "After this period the cloned voice and the uploaded sample are deleted automatically. You can delete them sooner at any time."
+  },
+  "summary": {
+    "title": "Automatic deletion",
+    "expires": "Deleted automatically on {{date}}",
+    "daysLeft": "Days left: {{days}}",
+    "dueNow": "Scheduled for deletion at the next daily run.",
+    "unknown": "No deletion date is set yet.",
+    "shortenLabel": "Shorten the retention period",
+    "shortenHint": "You can shorten the period but not extend it. To keep a voice longer, record a new one with fresh consent.",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Retention period shortened.",
+    "failed": "Could not change the retention period."
+  }
+}
