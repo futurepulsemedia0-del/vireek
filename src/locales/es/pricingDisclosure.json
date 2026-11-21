@@ -1,0 +1,18 @@
+{
+  "notice": {
+    "aria": "Aviso de precios",
+    "learnMore": "Cómo se fijó este precio",
+    "location": {
+      "title": "Precio según su ubicación",
+      "body": "Este precio incluye un ajuste que depende de la dirección del servicio que nos indicó, como un cargo por desplazamiento o una tarifa temporal por alta demanda en su zona."
+    },
+    "account": {
+      "title": "Precio establecido para su cuenta",
+      "body": "Este precio procede de una lista de precios o de condiciones definidas específicamente para su cuenta, contrato o membresía."
+    },
+    "modeled": {
+      "title": "Precio calculado con los datos de su equipo",
+      "body": "Este precio se calculó automáticamente con información sobre usted y su equipo, incluido su historial de reparaciones. Pregunte al negocio si desea saber cómo se fijó."
+    }
+  }
+}
