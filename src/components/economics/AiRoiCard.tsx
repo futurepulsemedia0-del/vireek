@@ -9,7 +9,7 @@ const KIND_LABEL: Record<Metric['kind'], string> = { measured: 'Measured', booke
 const KIND_STYLE: Record<Metric['kind'], string> = {
   measured: 'bg-accent/10 text-accent',
   booked: 'bg-bg-tertiary text-text-secondary',
-  estimated: 'bg-warning-500/15 text-warning-500',
+  estimated: 'bg-warning-subtle text-warning-strong',
 };
 
 function show(m: Metric): string {
@@ -65,7 +65,7 @@ export function AiRoiCard({ defaultDays = 30 }: { defaultDays?: 30 | 90 }) {
         <div role="group" aria-label="Period" className="flex gap-1">
           {([30, 90] as const).map((d) => (
             <button key={d} type="button" aria-pressed={days === d} onClick={() => setDays(d)}
-              className={`focus-ring min-h-[44px] rounded-lg px-3 text-sm ${days === d ? 'bg-accent text-white' : 'bg-bg-tertiary text-text-secondary'}`}>{d}d</button>
+              className={`focus-ring min-h-[44px] rounded-lg px-3 text-sm ${days === d ? 'bg-accent text-on-accent' : 'bg-bg-tertiary text-text-secondary'}`}>{d}d</button>
           ))}
         </div>
       </div>
