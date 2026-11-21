@@ -21,6 +21,7 @@ import { runAutoReplyInBackground } from "../_shared/autoReply/runtime.ts";
 import { normalizePhone } from "../_shared/compliance/dncCheck.ts";
 import { recordLanguageFromMessage } from "../_shared/i18n/customerLanguage.ts";
 import { STOP_WORDS } from "../_shared/messaging/optOut.ts";
+import { recordInboundRevocation } from "../_shared/compliance/consentChecks.ts";
 import { classifySymptom } from "../_shared/mass-incident/core.ts";
 import { ingestIncidentContact } from "../_shared/mass-incident/runtime.ts";
 import { handleIncidentSms } from "../_shared/mass-incident/runtime.ts";
@@ -79,6 +80,18 @@ if (sigReject) return sigReject;
         .upsert({ user_id: userId, phone_number: from, reason: "customer_opt_out" }, { onConflict: "user_id,phone_number" });
     }
 
+    // Cross-channel revocation: STOP words AND natural-language opt-outs ("please don't text me") land in the
+    // consent ledger and suppress phone + email + queued work everywhere. Never blocks the webhook response.
+    try {
+      const rev = await recordInboundRevocation(
+        { ownerId: userId, channel: "sms", text: body, phoneE164: normalizePhone(from), sourceRef: providerSid, source: "sms-webhook" },
+        { admin, getEnv: (k) => Deno.env.get(k) },
+      );
+      if (rev.revoked && !rev.recorded) console.error(JSON.stringify({ event: "sms_revocation_not_recorded", error: rev.error }));
+    } catch (e) {
+      console.error(JSON.stringify({ event: "sms_revocation_failed", error: e instanceof Error ? e.message : String(e) }));
+    }
+    
     // Site Safety Intelligence: a technician's SMS fallback ("OK 123456" / "HELP") never enters the customer inbox.
     const { data: safetyReply } = await admin.rpc("safety_checkin_by_sms", { p_user: userId, p_phone: from, p_body: body });
     if ((safetyReply as { handled?: boolean } | null)?.handled) return emptyTwiml();
