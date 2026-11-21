@@ -30,10 +30,10 @@ const { config: NEXUS_CONFIG, problems: CONFIG_PROBLEMS } = parseNexusConfig(raw
 
 const STATUS_STYLE: Record<NexusStatus, string> = {
   exceeded: 'bg-danger/10 text-danger',
-  approaching: 'bg-warning-500/10 text-warning-500',
-  below: 'bg-success-500/10 text-success-500',
+  approaching: 'bg-warning-subtle text-warning-strong',
+  below: 'bg-success-subtle text-success-strong',
   not_configured: 'bg-bg-tertiary text-text-secondary',
-  currency_mismatch: 'bg-warning-500/10 text-warning-500',
+  currency_mismatch: 'bg-warning-subtle text-warning-strong',
 };
 const STATUS_ORDER: NexusStatus[] = ['exceeded', 'approaching', 'below', 'currency_mismatch', 'not_configured'];
 
@@ -46,7 +46,7 @@ function SEO() {
 }
 
 function Kpi({ label, value, tone }: { label: string; value: string; tone?: 'bad' | 'warn' | 'good' }) {
-  const color = tone === 'bad' ? 'text-danger' : tone === 'warn' ? 'text-warning-500' : tone === 'good' ? 'text-success-500' : 'text-text-primary';
+  const color = tone === 'bad' ? 'text-danger' : tone === 'warn' ? 'text-warning-strong' : tone === 'good' ? 'text-success-strong' : 'text-text-primary';
   return (
     <div className="rounded-2xl border border-border bg-bg-secondary p-5">
       <p className="text-sm font-medium text-text-secondary">{label}</p>
@@ -225,7 +225,7 @@ export function StaffNexusPage() {
           {state === 'ready' && report && (
             <div className="mt-6 space-y-6">
               {gap > 0 && (
-                <div role="alert" className="rounded-xl border border-warning-500/40 bg-warning-500/10 p-3 text-sm text-warning-500">{t('coverage.gap', { count: gap })}</div>
+                <div role="alert" className="rounded-xl border border-warning-subtle-border bg-warning-subtle p-3 text-sm text-warning-strong">{t('coverage.gap', { count: gap })}</div>
               )}
               {summary.configuredCount === 0 && (
                 <div role="note" className="rounded-xl border border-border bg-bg-secondary p-3 text-sm text-text-primary">{t('config.noneConfigured')}</div>
@@ -312,8 +312,8 @@ function Row({ r, language }: { r: TrackerRow; language: string }) {
     <tr>
       <th scope="row" className="px-4 py-3 text-start font-medium text-text-primary">
         <span>{r.name}</span> <span className="text-xs text-text-secondary">{r.key} · {(r.currency ?? '').toUpperCase()}</span>
-        {r.unresolved && <span className="block text-xs text-warning-500">{t('table.unresolved')}</span>}
-        {r.revenueThresholdCents !== null || r.transactionThreshold !== null ? (!r.reviewed && <span className="block text-xs text-warning-500">{t('table.unreviewed')}</span>) : null}
+        {r.unresolved && <span className="block text-xs text-warning-strong">{t('table.unresolved')}</span>}
+        {r.revenueThresholdCents !== null || r.transactionThreshold !== null ? (!r.reviewed && <span className="block text-xs text-warning-strong">{t('table.unreviewed')}</span>) : null}
       </th>
       <td className="px-4 py-3">
         <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLE[r.status]}`} title={r.reason || undefined}>{t(`status.${r.status}`)}</span>
