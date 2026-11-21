@@ -20,7 +20,12 @@ describe('nav hubs', () => {
       expect(new Set(grouped.map((i) => i.href)).size).toBe(new Set(items.map((i) => i.href)).size);
     }
   });
-
+  it('leaves no menu page in the catch-all "More" hub', () => {
+    for (const { pillar, items } of pillarGroups) {
+      const more = groupByHub(pillar, items).find((g) => g.hub.id === `${pillar}-more`);
+      expect(more?.items.map((i) => i.label) ?? []).toEqual([]);
+    }
+  });
   it('keeps every pillar to a handful of hubs', () => {
     for (const { pillar, items } of pillarGroups) {
       expect(groupByHub(pillar, items).length).toBeLessThanOrEqual(9);
