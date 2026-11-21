@@ -18,6 +18,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { Skeleton } from '@/components/Skeleton';
 import { useProductTour } from '@/contexts/ProductTourContext';
 import { Button } from '@/components/ui/Button';
+import { AppInstallCta } from '@/components/AppInstallCta';
 import { useGettingStarted } from '@/hooks/useGettingStarted';
 import { GROUPS, type StepKey, type StepView } from '@/lib/gettingStarted';
 
@@ -235,6 +236,8 @@ export function GettingStartedPage() {
                 </>
               )}
             </motion.section>
+
+            <AppInstallCta variant="banner" />
 
             {GROUPS.map((group) => {
               const groupSteps = steps.filter((s) => s.group === group.key);
