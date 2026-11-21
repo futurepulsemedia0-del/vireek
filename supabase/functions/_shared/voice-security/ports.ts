@@ -7,7 +7,8 @@
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import type { PendingResult, StateDelta, VoiceSecurityPorts } from "./gate.ts";
 import { hmacHex } from "./stepUp.ts";
-import type { CustomerOnFile, VerificationPorts } from "./verifyTools.ts";
+import type { CallbackOutcome, CallbackPorts, CustomerOnFile, VerificationPorts } from "./verifyTools.ts";
+import { DEFAULT_TIER_CONFIG, type TierConfig } from "./riskTiers.ts";
 import type { AuditRecord, CallRef, CallSecurityState, SecurityMode } from "./types.ts";
 import { EMPTY_CALL_STATE } from "./types.ts";
 import { canaryFromDigest, type InjectionScanner } from "./outputFilter.ts";
@@ -18,11 +19,13 @@ export interface SupabasePortsOptions {
   scanInjection: InjectionScanner;
   /** Sends via the existing compliant SMS path (A2P approval, opt-out, quiet hours). */
   sendSms: (tenantId: string, to: string, body: string, customerId: string) => Promise<boolean>;
+  /** Risk-tier overrides (already parsed by loadTierConfig, tighten-only). Omit for the built-in defaults. */
+  tierConfig?: TierConfig;
 }
 
 type Rpc = { data: unknown; error: { message: string } | null };
 
-export function createSupabasePorts(admin: SupabaseClient, o: SupabasePortsOptions): VoiceSecurityPorts & VerificationPorts {
+export function createSupabasePorts(admin: SupabaseClient, o: SupabasePortsOptions): VoiceSecurityPorts & VerificationPorts & CallbackPorts {
   if (!o.secret || o.secret.length < 32) throw new Error("VOICE_OTP_HMAC_SECRET must be at least 32 characters");
 
   const rpc = async (fn: string, args: Record<string, unknown>): Promise<unknown> => {
@@ -129,6 +132,15 @@ export function createSupabasePorts(admin: SupabaseClient, o: SupabasePortsOptio
       return { locked: r.locked === true };
     },
     sendSms: (tenantId, to, body, customerId) => o.sendSms(tenantId, to, body, customerId),
+
+    // ---- risk tiers + callback ----
+    async tierConfig() {
+      return o.tierConfig ?? DEFAULT_TIER_CONFIG;
+    },
+    async callbackCreate(a): Promise<CallbackOutcome> {
+      const r = await rpc("voice_callback_create", { p_user_id: a.tenantId, p_call_id: a.callId, p_customer_id: a.customerId, p_action_class: a.actionClass, p_tool: a.tool, p_reason: a.reason, p_due_minutes: a.dueMinutes });
+      return r === "created" || r === "duplicate" ? r : "limited";
+    },
   };
 }
 
