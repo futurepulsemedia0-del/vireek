@@ -163,3 +163,5 @@ verify_jwt = false
 # Apple Wallet devices cannot send a Supabase JWT; every wallet-pass route is protected by an unguessable token (see function header).
 [functions.wallet-pass]
 verify_jwt = false
+[functions.emergency-access-tick]
+verify_jwt = false
