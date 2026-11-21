@@ -34,8 +34,8 @@ const TONE: Record<'success' | 'accent' | 'warning' | 'muted' | 'danger', string
 
 const DOT: Record<TechStatus, string> = {
   on_site: '#67d97a',
-  en_route: '#64aeff',
-  driving: '#64aeff',
+  en_route: '#60aeff',
+  driving: '#60aeff',
   available: '#ffcc00',
   offline: '#73726c',
 };
