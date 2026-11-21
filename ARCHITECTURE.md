@@ -17,7 +17,7 @@ Related docs: [RUNBOOK.md](RUNBOOK.md) · [ENVIRONMENT.md](ENVIRONMENT.md) · [C
 ## 1. System overview
 
 ```
- Browser (React SPA, PWA)  ──────────────►  Vercel (static hosting + SPA rewrite + security headers: vercel.json)
+ Browser (React SPA, PWA)  ──────────────►  Host: Vercel OR Cloudflare Worker (undecided — docs/adr/production-hosting.md)
    │  supabase-js (anon key + user JWT)
    ▼
  Supabase project
@@ -33,7 +33,7 @@ Related docs: [RUNBOOK.md](RUNBOOK.md) · [ENVIRONMENT.md](ENVIRONMENT.md) · [C
  Client-side third parties: Sentry, Google Analytics 4, Vapi web SDK, Plaid Link (see CSP in vercel.json).
 ```
 
-- **Hosting:** Vercel; `vercel.json` rewrites everything to `/index.html`, proxies
+- **Hosting:** **under decision — see [docs/adr/production-hosting.md](docs/adr/production-hosting.md).** Both a Vercel config and a Cloudflare Worker exist; the Worker applies the same rewrites and headers from `vercel.json`. `vercel.json` rewrites everything to `/_spa.html`, proxies
   `/.well-known/agent-card.json` to the `mcp-server` A2A agent card, and sets HSTS / CSP / frame
   headers (the `/badge` route is embeddable: `frame-ancestors *`).
 - **Mobile shell:** `capacitor.config.ts` (`appId: com.vireek.field`, `appName: Vireek Field`,
