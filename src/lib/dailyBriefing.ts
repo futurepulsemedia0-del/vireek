@@ -763,7 +763,7 @@ export function toPlainText(b: Briefing): string {
 const TONE_COLOR: Record<Tone, string> = {
   good: '#007c2c',
   bad: '#ac0016',
-  warn: '#a93b0f',
+  warn: '#934126',
   neutral: '#1C1B15',
 };
 
