@@ -1,0 +1,12 @@
+{
+  "note": "Code-health ratchet baseline. Numbers may only go DOWN: fix the code, then run `node scripts/check-code-health.mjs --update`. Never raise by hand.",
+  "counts": {
+    "any_files": 110,
+    "eslint_disable_files": 166,
+    "console_log": 0,
+    "todo_fixme": 37,
+    "skipped_test_files": 28,
+    "ts_ignore": 2,
+    "coming_soon": 15
+  }
+}
