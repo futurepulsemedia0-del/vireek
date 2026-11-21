@@ -21,10 +21,10 @@ export const ACCENT_COLORS: ColorToken[] = [
 ];
 
 export const CTA_COLORS: ColorToken[] = [
-  tok('Copper fill', 'Live/urgent solid surfaces (active call, emergency) — never a generic CTA', 'cta-fill'),
-  tok('On-copper', 'Text on the copper fill', 'on-cta'),
-  tok('Copper text', 'Darker copper for text (≥ 4.5:1)', 'cta-text'),
-  tok('Copper graphic', 'Icons, dots and large shapes (≥ 3:1)', 'cta-graphic'),
+  tok('Blurple fill', 'Live/AI solid surfaces (active call, emergency) — never a generic CTA', 'cta-fill'),
+  tok('On-blurple', 'Text on the blurple fill', 'on-cta'),
+  tok('Blurple text', 'Blurple tuned for text (≥ 4.5:1)', 'cta-text'),
+  tok('Blurple graphic', 'Icons, dots and large shapes (≥ 3:1)', 'cta-graphic'),
 ];
 
 export const SEMANTIC_COLORS: ColorToken[] = [
@@ -50,12 +50,12 @@ export const NEUTRAL_COLORS: ColorToken[] = [
 export const COLOR_DOS: string[] = [
   'Use semantic classes: bg-accent + text-on-accent, text-text-secondary, border-border-strong, bg-success-subtle + text-success-strong.',
   'Pair every solid fill with its on-* colour — never choose text colour by eye.',
-  'Reserve copper for live / urgent moments (active call, emergency detection).',
+  'Reserve blurple for live / AI moments (active call, emergency detection).',
   'Pair status colour with an icon or label; underline links inside text; give chart series a pattern, marker and direct label.',
 ];
 export const COLOR_DONTS: string[] = [
   'No hex / rgb() / raw Tailwind palette classes (blue-500, gray-600 …) — CI fails the build.',
   'Never put muted text over the gradient mesh or an image without a surface behind it.',
-  'Never use copper as a decorative or generic call-to-action colour.',
+  'Never use blurple as a decorative or generic call-to-action colour.',
   'Never rely on colour alone to show status, errors, required fields or chart series.',
 ];
