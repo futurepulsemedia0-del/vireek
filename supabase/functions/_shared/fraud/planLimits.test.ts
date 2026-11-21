@@ -171,10 +171,11 @@ describe("emergency-classified traffic is never blocked by these caps", () => {
     });
   }
 
-  it("911 passes with no ledger interaction at all", async () => {
+  it("911 is refused (the platform provides no emergency calling) with no ledger interaction at all", async () => {
     const { db, calls } = fakeDb(hostile("free"));
     const r = await guardOutbound(db, { userId: "u1", kind: "call", to: "911", purpose: "emergency", source: "test" });
-    expect(r.ok).toBe(true);
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.code).toBe("EMERGENCY_NUMBER_BLOCKED");
     expect(calls.some((c) => c.fn === "fraud_reserve")).toBe(false);
   });
 
