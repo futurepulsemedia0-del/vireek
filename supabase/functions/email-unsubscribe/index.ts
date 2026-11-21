@@ -10,6 +10,7 @@
 // Deploy:  supabase functions deploy email-unsubscribe --no-verify-jwt
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { loadRevocationConfig } from "../_shared/compliance/revocation.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -68,6 +69,22 @@ Deno.serve(async (req: Request) => {
     const { data: email, error } = await admin.rpc("email_unsubscribe", { p_token: token });
     if (error) throw error;
     if (!email) return json({ success: false, error: "This unsubscribe link isn't valid." }, 404);
+    // Mirror into the cross-channel revocation ledger so SMS/voice gates see it too. Best effort: the
+    // email suppression above already took effect, so a failure here must not fail the unsubscribe.
+    try {
+      const { data: rcpt } = await admin.from("email_campaign_recipients").select("user_id").eq("token", token).maybeSingle();
+      if (rcpt?.user_id) {
+        const cfg = loadRevocationConfig((k) => Deno.env.get(k));
+        const { error: revErr } = await admin.rpc("consent_record_revocation", {
+          p_owner: rcpt.user_id, p_phone: null, p_email: String(email).toLowerCase(), p_channel: "email", p_scope: cfg.scope,
+          p_match_kind: "structured", p_matched: "unsubscribe_link", p_wrong_number: false,
+          p_source: "email-unsubscribe", p_source_ref: token, p_window_hours: cfg.windowHours,
+        });
+        if (revErr) console.error("email-unsubscribe revocation ledger error", revErr.message);
+      }
+    } catch (e) {
+      console.error("email-unsubscribe revocation ledger exception", e);
+    }
     return json({ success: true, email_masked: mask(String(email)) });
   } catch (e) {
     console.error("email-unsubscribe error", e);
