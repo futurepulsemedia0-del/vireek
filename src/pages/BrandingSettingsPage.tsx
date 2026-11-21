@@ -175,7 +175,7 @@ function ColorField({
           spellCheck={false}
           autoComplete="off"
           error={error}
-          placeholder="#A93B0F"
+          placeholder="#934126"
           className="font-mono uppercase"
         />
       </div>
