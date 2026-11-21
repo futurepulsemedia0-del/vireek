@@ -100,7 +100,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   try {
     await chrome.action.openPopup();
   } catch {
-    await chrome.action.setBadgeBackgroundColor({ color: '#AE3600' });
+    await chrome.action.setBadgeBackgroundColor({ color: '#9F4223' });
     await chrome.action.setBadgeText({ text: '1' });
   }
 });
