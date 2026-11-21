@@ -592,6 +592,7 @@ const MENU_ITEM =
  */
 function AccountMenu({
   email,
+  displayName,
   roleLabel,
   onNavigate,
   onShortcuts,
@@ -599,6 +600,7 @@ function AccountMenu({
   onSignOut,
 }: {
   email: string;
+  displayName?: string;
   roleLabel: string;
   onNavigate: () => void;
   onShortcuts: () => void;
@@ -611,8 +613,8 @@ function AccountMenu({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelId = useId();
   const themeLabelId = `${panelId}-theme`;
-  const name = email || t('nav.account.fallback', { defaultValue: 'Account' });
-  const initial = (email.trim()[0] ?? 'V').toUpperCase();
+  const name = displayName?.trim() || email || t('nav.account.fallback', { defaultValue: 'Account' });
+  const initial = (name.trim()[0] ?? 'V').toUpperCase();
 
   useEffect(() => {
     if (!open) return;
@@ -653,6 +655,7 @@ function AccountMenu({
         >
           <div className="px-2.5 pb-2 pt-1.5">
             <p className="truncate text-[13px] font-medium text-text-primary">{name}</p>
+            {email && name !== email && <p className="truncate text-xs text-text-muted">{email}</p>}
             <p className="text-xs text-text-muted">{roleLabel}</p>
           </div>
           <div className="border-t border-border pt-1.5">
@@ -1008,6 +1011,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
   const accountMenu = (
     <AccountMenu
       email={user?.email ?? ''}
+      displayName={typeof user?.user_metadata?.full_name === 'string' ? user.user_metadata.full_name : typeof user?.user_metadata?.name === 'string' ? user.user_metadata.name : undefined}
       roleLabel={isOwner ? t('nav.account.owner', { defaultValue: 'Owner' }) : t('nav.account.member', { defaultValue: 'Team member' })}
       onNavigate={() => setDrawerOpen(false)}
       onShortcuts={() => setShortcutsHelpOpen(true)}
@@ -1131,7 +1135,7 @@ export function DashboardLayout({
     <NotificationsProvider>
       <WhatsNewProvider>
         <ChatUnreadProvider>
-          <div className="min-h-screen bg-bg-primary">
+          <div className="min-h-screen bg-bg-primary [&_svg.lucide]:[stroke-width:1.5]">
             <DashboardNav activeLabel={activeLabel} />
             <ImpersonationBanner />
             <div className="lg:pl-60 print:pl-0">
