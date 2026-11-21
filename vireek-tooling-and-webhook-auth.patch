@@ -1,0 +1,1910 @@
+diff -ruN a/.github/workflows/package-script-refs.yml b/.github/workflows/package-script-refs.yml
+--- a/.github/workflows/package-script-refs.yml	1970-01-01 00:00:00.000000000 +0000
++++ b/.github/workflows/package-script-refs.yml	2026-11-21 09:56:02.093913467 +0000
+@@ -0,0 +1,44 @@
++name: Package script references
++
++# Fails when a package.json script points at a file or npm script that does not exist, or when
++# package.json has duplicate keys. Known pre-existing debt is tracked in
++# scripts/package-script-refs.baseline.json (ratchet: it may only shrink).
++# Zero dependencies and offline: no `npm ci` needed. Runbook: docs/runbooks/package-script-refs.md
++#
++# Deliberately a standalone workflow: .github/workflows/ci.yml currently does not parse as valid YAML,
++# so a step added there would never run.
++
++on:
++  push:
++    branches: [main]
++  pull_request:
++    branches: [main]
++  workflow_dispatch:
++
++# No `paths:` filter on purpose: the job takes seconds, and deleting ANY file a script references
++# (a test, a config, a spec) must trip it, not only edits under scripts/.
++
++concurrency:
++  group: package-script-refs-${{ github.ref }}
++  cancel-in-progress: true
++
++permissions:
++  contents: read
++
++jobs:
++  package-script-refs:
++    name: Every package.json script target exists
++    runs-on: ubuntu-latest
++    timeout-minutes: 5
++    steps:
++      - uses: actions/checkout@v4
++
++      - uses: actions/setup-node@v4
++        with:
++          node-version-file: '.nvmrc'
++
++      - name: Checker self-tests
++        run: node --test scripts/check-package-script-refs.test.mjs
++
++      - name: Check script references (baseline ratchet)
++        run: node scripts/check-package-script-refs.mjs
+diff -ruN a/ARCHITECTURE.md b/ARCHITECTURE.md
+--- a/ARCHITECTURE.md	2026-11-21 09:56:01.932945203 +0000
++++ b/ARCHITECTURE.md	2026-11-21 09:56:02.094288343 +0000
+@@ -204,8 +204,9 @@
+ | `bank/`, `ads/`, `telematics/`, `price-book/`, `financing/` | Provider clients, OAuth state, token encryption (AES keys from secrets) |
+ | `knowledge/`, `property-intelligence/`, `dispatch/`, `automation/` | Domain helpers (RAG search, property data, technician assignment, automation gate) |
+ 
+-A stray top-level `functions/` folder mirrors `supabase/functions/agent-runtime` and `_shared/agent-marketplace`
+-(identical in the snapshot). Only `supabase/functions/` is deployable by the Supabase CLI.
++A stray top-level `functions/agent-runtime/index.ts` is an OLDER, diverged copy of `supabase/functions/agent-runtime/index.ts`
++(it lacks the loop guard). Its two byte-identical `_shared/agent-marketplace` twins were deleted. Only `supabase/functions/`
++is deployable by the Supabase CLI; the remaining stray file is pending a decision (see RUNBOOK §8).
+ 
+ ### 3.5 Edge-function map
+ 
+@@ -217,7 +218,7 @@
+ | Trigger | Auth | Examples |
+ |---|---|---|
+ | App (user) | Supabase JWT in `Authorization` (platform JWT check on) | `ai-assistant-query`, `create-checkout-session`, `delete-account`, `generate-insights`, `sms-send`, `email-send` |
+-| Public webhook | `--no-verify-jwt` + provider signature/secret | `stripe-webhook`, `stripe-payment-webhook`, `vapi-webhook` (`x-vapi-secret`), `sms-webhook` (Twilio), `email-webhook`, `whatsapp-webhook`, `bank-webhook` (Plaid JWT), `financing-webhook` |
++| Public webhook | `--no-verify-jwt` + provider signature/secret | `stripe-webhook`, `stripe-payment-webhook`, `vapi-webhook` (`Authorization: Bearer` or legacy `x-vapi-secret`), `sms-webhook` (Twilio), `email-webhook`, `whatsapp-webhook`, `bank-webhook` (Plaid JWT), `financing-webhook` |
+ | Device / partner ingest | `--no-verify-jwt` + device key or token | `iot-ingest` (`X-Device-Key`), `telemetry-ingest`, `telematics-ingest`, `fleet-telemetry-ingest`, `rr-device-ingest`, `fabric-ingest`, `api-v1` (customer API key), `mcp-server` (agent key `vrk_agent_…`), `evidence-marketplace-api` |
+ | Scheduled | `X-Cron-Secret` header (or user JWT for "Run now") | see list below |
+ | DB-triggered | `pg_net` call from a trigger using `app.settings.*` | `send-push-notification` (from `notifications` inserts), `dispatch-webhook`, `event-bus-dispatch` |
+diff -ruN a/ENVIRONMENT.md b/ENVIRONMENT.md
+--- a/ENVIRONMENT.md	2026-11-21 09:56:01.933105167 +0000
++++ b/ENVIRONMENT.md	2026-11-21 09:56:02.094425700 +0000
+@@ -115,7 +115,8 @@
+ 
+ | Secret | Used by | Notes |
+ |---|---|---|
+-| `VAPI_SERVER_SECRET` | `vapi-webhook` | Verified against header `x-vapi-secret`; set the same value as the assistant's "Server URL Secret" in Vapi (the function header asks you to **re-verify the header name against current Vapi docs**) |
++| `VAPI_SERVER_SECRET` | `vapi-webhook` | Shared secret. Accepted in `Authorization: Bearer <secret>` (current Vapi Bearer credential, verified against docs.vapi.ai 2026-11-21) **or** legacy `x-vapi-secret`; constant-time compare. See `docs/runbooks/vapi-webhook-secret-header.md` |
++| `VAPI_ACCEPT_LEGACY_SECRET_HEADER` | `vapi-webhook` | Optional. `0`/`false`/`off`/`no` stops honouring `x-vapi-secret` (default: accepted). Do not set before `voice-reconcile` is migrated |
+ | `VAPI_PRIVATE_KEY` | `outbound-dialer`, `followup-agent-dispatcher`, `workflow-engine-executor` | Vapi **private** key (server-side calls). Missing → `"VAPI_PRIVATE_KEY is not configured."` |
+ | `ELEVENLABS_API_KEY` | `clone-voice` | ElevenLabs profile → API keys |
+ 
+@@ -232,7 +233,7 @@
+ 
+ | Script | Env it reads |
+ |---|---|
+-| `scripts/ingest-brand-knowledge.mjs` | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `COHERE_API_KEY`, optional `COHERE_EMBED_MODEL`; `--dry-run` needs no keys. Also needs `esbuild` installed (not in `package.json` devDependencies) and writes to table `brand_knowledge` |
++| `scripts/ingest-brand-knowledge.mjs` | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `COHERE_API_KEY`, optional `COHERE_EMBED_MODEL`; `--dry-run` needs no keys. Also needs `esbuild` (a `package.json` devDependency, installed by `npm ci`) and writes to table `brand_knowledge` |
+ | `scripts/telemetry-simulate.mjs` | `INGEST_URL`, `TOKEN`, optional `EQUIPMENT_ID`, `FAULT` (default `1`; `0` = healthy only) |
+ | `scripts/generate-rss.mjs` | none (needs `esbuild`) |
+ | `scripts/lint-migrations.mjs`, `check-bundle-size.mjs`, `gen-docs-inventory.mjs` | see §E / none |
+diff -ruN a/RUNBOOK.md b/RUNBOOK.md
+--- a/RUNBOOK.md	2026-11-21 09:56:01.933247829 +0000
++++ b/RUNBOOK.md	2026-11-21 09:56:02.094583735 +0000
+@@ -195,7 +195,7 @@
+ |---|---|---|
+ | Blank page / "missing-env" errors | Vercel env vars `VITE_SUPABASE_*` present for that environment? Console shows `[Vireek] VITE_SUPABASE_URL / … missing` | Set vars, redeploy |
+ | CSP errors after adding a service/new Supabase project | Browser console CSP violations | Update `connect-src`/`script-src` in `vercel.json` |
+-| Calls not appearing / call flow broken | Vapi dashboard → server URL delivery log; `vapi-webhook` logs; secret `VAPI_SERVER_SECRET` equals the assistant's Server URL Secret; function deployed `--no-verify-jwt` | Fix secret/flag; Vapi can resend; verify `calls` upserts |
++| Calls not appearing / call flow broken | Vapi dashboard → server URL delivery log; `vapi-webhook` logs; secret `VAPI_SERVER_SECRET` equals the token of the Vapi credential on the Server URL (`Authorization: Bearer` or legacy `x-vapi-secret`; see `docs/runbooks/vapi-webhook-secret-header.md`); function deployed `--no-verify-jwt` | Fix secret/flag; Vapi can resend; verify `calls` upserts |
+ | Stripe events failing | Stripe → Webhooks delivery log; `billing_events` (idempotent by event id); `STRIPE_WEBHOOK_SECRET` matches endpoint | Fix secret/flag, **resend failed events from Stripe** (safe: event ids are deduplicated) |
+ | Checkout says "Billing is not configured yet" | Missing `STRIPE_SECRET_KEY` or `STRIPE_PRICE_<PLAN>` | Set secrets |
+ | SMS/email not sent | Twilio/Resend console; secrets `TWILIO_*`, `RESEND_*`; compliance path (A2P registration, DNC/STOP) in `sendCompliantSms` | Fix config / registration |
+@@ -233,11 +233,12 @@
+    On production this is a known-credential account. *Decide:* remove/disable that user in production (needs a reviewed, non-destructive procedure) and move demo seeding to an opt-in script — see [docs/LOCAL_SEED.md](docs/LOCAL_SEED.md).
+ 4. `ci.yml` does not pass `E2E_TEST_EMAIL`/`E2E_TEST_PASSWORD`, so authenticated E2E specs are skipped in CI.
+ 5. `scripts/ingest-brand-knowledge.mjs` writes to `brand_knowledge`, but no migration in the repo creates that table (the script header cites `20260915010000_brand_knowledge_rag.sql`, which does not exist here) — verify the table exists in your database.
+-6. `esbuild` is required by `generate-rss.mjs` / `ingest-brand-knowledge.mjs` but is not in `package.json`.
++6. ~~`esbuild` missing from `package.json`~~ — resolved: `esbuild@^0.21.5` is now a devDependency (same version Vite 5 resolves, so only one copy is installed).
+ 7. `automation-seasonal-maintenance-reminder` has deploy instructions but no `index.ts` in the snapshot.
+-8. A duplicate top-level `functions/` folder mirrors two function folders; only `supabase/functions/` deploys.
++8. Top-level `functions/agent-runtime/index.ts` is a stray, older, diverged copy of `supabase/functions/agent-runtime/index.ts` (the other two files of that folder were byte-identical duplicates and have been deleted). Only `supabase/functions/` deploys. Delete the stray copy once the deployable one is confirmed to compile (see item 8a).
++8a. `supabase/functions/agent-runtime/index.ts` line 264 has a syntax error: `correlation: { marketplaceRunId: run.id` is missing `},`. Verified with an esbuild parse; the function cannot deploy until it is fixed.
+ 9. `lint:design` is documented as a CI check but is not in `ci.yml`.
+-10. `vapi-webhook` header says the `x-vapi-secret` header name was not re-verified against current Vapi docs — verify once.
++10. ~~`x-vapi-secret` not re-verified~~ — verified against docs.vapi.ai 2026-11-21: current Vapi uses `Authorization: Bearer`, legacy `x-vapi-secret` still works; both are accepted (see `docs/runbooks/vapi-webhook-secret-header.md`). Still **[VERIFY]**: which credential your Vapi account sends, and a live-call test.
+ 11. No on-call roster, paging tool or SLA targets are defined in the repo — fill §6.1 with your own.
+ 
+ ---
+diff -ruN a/docs/DEVELOPER_GUIDE.md b/docs/DEVELOPER_GUIDE.md
+--- a/docs/DEVELOPER_GUIDE.md	2026-11-21 09:56:01.934462320 +0000
++++ b/docs/DEVELOPER_GUIDE.md	2026-11-21 09:56:02.096110732 +0000
+@@ -5,7 +5,7 @@
+ 2. `npm ci`; copy `.env.example` → `.env` and fill **dev** values only (never production).
+ 3. Local DB: `supabase start`; seed per `docs/LOCAL_SEED.md` (dev only).
+ 4. `npm run dev`. Before a PR: `npm run lint && npm run typecheck && npm test`.
+-Troubleshooting: missing env → see `docs/generated/ENV_USAGE.md`; migration order errors → `docs/runbooks/migration-version-repair.md`; `esbuild` not found when running generate-rss/ingest scripts → `npm i -D esbuild` (known gap).
++Troubleshooting: missing env → see `docs/generated/ENV_USAGE.md`; migration order errors → `docs/runbooks/migration-version-repair.md`; `esbuild` not found when running generate-rss/ingest scripts → run `npm ci` (`esbuild` is a devDependency).
+ 
+ ## Conventions
+ Branches: `feat/…`, `fix/…`, `docs/…`. Commits: imperative, one logical change. PRs use `.github/pull_request_template.md`. Code style: ESLint + Prettier (`npm run format`). Add a `CHANGELOG.md` line per PR.
+diff -ruN a/docs/runbooks/package-script-refs.md b/docs/runbooks/package-script-refs.md
+--- a/docs/runbooks/package-script-refs.md	1970-01-01 00:00:00.000000000 +0000
++++ b/docs/runbooks/package-script-refs.md	2026-11-21 09:56:02.100925666 +0000
+@@ -0,0 +1,35 @@
++# Runbook — package.json script references
++
++`npm run check:script-refs` (CI: `.github/workflows/package-script-refs.yml`) fails when a `package.json`
++script points at something that does not exist, or when `package.json` has a duplicate key.
++
++## What it checks
++
++| Check | Example it catches |
++|---|---|
++| A file the script runs must exist | `"sbom": "node scripts/supply-chain/sbom.mjs"` with no such file |
++| Entry file, `node --test` files, `-c`/`--config` and `tsc -p` values, `playwright test <spec>`, direct `./x.sh` | `"test:built": "vitest run -c vitest.built.config.ts"` |
++| `npm run <name>` must name a defined script | `"docs:all": "npm run docs:inventory && ..."` |
++| No duplicate keys (`JSON.parse` silently keeps the last one) | two `"build"` entries |
++
++Not evaluated: `$VAR`, `$(...)`, globs and braces (skipped, never reported); arguments after a script's
++entry file (they may be output paths). Zero dependencies, offline.
++
++## Baseline (ratchet)
++
++Known broken references that existed before the check are listed in
++`scripts/package-script-refs.baseline.json`, each with a note. They print as warnings and do not fail CI.
++
++- A **new** broken reference fails CI.
++- A baselined reference that is now **fixed** also fails CI ("delete it from the baseline"), so the list can only shrink.
++- `node scripts/check-package-script-refs.mjs --strict` ignores the baseline. Use it on release branches.
++
++## When the check fails
++
++1. Read the `::error` line: it names the script and the missing target.
++2. Fix it in one of two ways: create the missing file, or delete/repair the script. Do not add a new baseline entry to get a PR green.
++3. If you fixed a baselined entry, delete it from the baseline JSON.
++4. `node --test scripts/check-package-script-refs.test.mjs` runs the checker's own tests.
++
++`--write-baseline` regenerates the file from the current state and keeps existing notes. Review the diff:
++the baseline should never grow in a normal PR.
+diff -ruN a/docs/runbooks/secret-rotation.md b/docs/runbooks/secret-rotation.md
+--- a/docs/runbooks/secret-rotation.md	2026-11-21 09:56:01.938544128 +0000
++++ b/docs/runbooks/secret-rotation.md	2026-11-21 09:56:02.100795472 +0000
+@@ -8,7 +8,7 @@
+ 2. Credential-vault keys: add the new key FIRST in the env var read by `credentialKeysFromEnv()` (new key first, old key kept for decrypt), run `provider-credentials-backfill`/re-seal, then remove the old key.
+ 3. Stripe: roll `STRIPE_SECRET_KEY` and each webhook signing secret (`whsec_…`); update secrets, deploy `stripe-webhook`, `stripe-payment-webhook`, `stripe-dispute-webhook`; send a test event.
+ 4. Twilio: rotate auth token (or API key), update secrets, test `sms-webhook` signature validation.
+-5. Vapi: rotate the private key and `VAPI_SERVER_SECRET` (must match the assistant `x-vapi-secret`); rotate the public key and `VITE_VAPI_PUBLIC_KEY`.
++5. Vapi: rotate the private key and `VAPI_SERVER_SECRET` (must match the token of the Vapi credential on the Server URL: `Authorization: Bearer` or legacy `x-vapi-secret`; see `vapi-webhook-secret-header.md`); rotate the public key and `VITE_VAPI_PUBLIC_KEY`.
+ 6. Meta: `META_APP_SECRET` and `WHATSAPP_VERIFY_TOKEN`; Xero: `XERO_CLIENT_SECRET`, `XERO_WEBHOOK_KEY`, `XERO_STATE_SECRET`, `XERO_TOKEN_ENCRYPTION_KEY` (re-encrypt tokens first); QuickBooks, Jobber, HubSpot, Google client secrets the same way (also `*_STATE_SECRET`).
+ 7. Resend, Plaid, ElevenLabs, AI providers: create new key, update secrets, deploy, test one call, revoke old key.
+ 8. VAPID: `npx web-push generate-vapid-keys`; this invalidates existing push subscriptions (users must re-subscribe). Update `VITE_VAPID_PUBLIC_KEY` and the server private key together.
+diff -ruN a/docs/runbooks/vapi-webhook-secret-header.md b/docs/runbooks/vapi-webhook-secret-header.md
+--- a/docs/runbooks/vapi-webhook-secret-header.md	1970-01-01 00:00:00.000000000 +0000
++++ b/docs/runbooks/vapi-webhook-secret-header.md	2026-11-21 09:56:02.100898978 +0000
+@@ -0,0 +1,52 @@
++# Runbook — Vapi webhook secret header (Bearer + legacy `x-vapi-secret`)
++
++Applies to `vapi-webhook` (via `_shared/voice-hardening/router.ts`) and `_shared/voice/vapiProvider.ts`.
++Code: `_shared/voice-hardening/webhookAuth.ts`. Tests: `webhookAuth.test.ts`, `router.test.ts`, `voice/provider.test.ts`.
++
++## What was verified, and what was not
++
++| Claim | Status | Source |
++|---|---|---|
++| Server URL auth is opt-in: a Vapi Bearer Token custom credential sends `Authorization: Bearer <token>` (recommended) | Verified from the docs page text, 2026-11-21 | https://docs.vapi.ai/server-url/server-authentication |
++| The legacy `X-Vapi-Secret` header is still supported: a Bearer credential with header name `X-Vapi-Secret` and "Include Bearer Prefix" off | Verified, same page | same |
++| The old inline `server.secret` sends `x-vapi-secret` | Verified (docs repo change "Add server credentialId docs", VapiAI/docs #669) | https://github.com/VapiAI/docs/pull/669 |
++| Vapi also offers OAuth 2.0 and HMAC credentials | Verified, same page. **Not supported by this function** (it only handles the shared-secret schemes) | same |
++| What your Vapi account actually sends today | **[VERIFY]** open Vapi dashboard → Custom Credentials / the Server URL of each assistant, phone number and the org, and check which credential is attached | dashboard |
++| A live call authenticates with each header | **[VERIFY]** not exercised against a real Vapi call; only unit tests were run | — |
++
++## Behaviour
++
++`VAPI_SERVER_SECRET` is the single shared secret. A request is authentic if **either** header carries it
++(constant-time compare, both headers are always compared, fails closed when the secret is unset):
++
++| Request headers | Result |
++|---|---|
++| `Authorization: Bearer <secret>` (also `bearer`, or the raw token if Vapi's Bearer prefix is off) | accepted, logged `auth_via: "authorization"` |
++| `x-vapi-secret: <secret>` | accepted, logged `auth_via: "x-vapi-secret"` |
++| `x-vapi-secret: <secret>` + `Authorization: Bearer <service-role key>` (what `voice-reconcile` sends) | accepted via `x-vapi-secret`; the unrelated Authorization value is ignored |
++| `Authorization: Bearer <service-role key>` alone, or any wrong/empty/truncated/extended value | **401** |
++| `VAPI_SERVER_SECRET` not set | **500** (fail closed) |
++| `VAPI_ACCEPT_LEGACY_SECRET_HEADER=0` and only `x-vapi-secret` | **401** |
++
++The log field `auth_via` is on the `webhook_received` event. Header values are never logged.
++
++## Preconditions
++
++- The function must be deployed with `--no-verify-jwt` (a Vapi secret is not a Supabase JWT, so the gateway would reject it for either header). In this snapshot `supabase/config.toml` has **no** `[functions.vapi-webhook]` entry, so the deploy flag is the only thing providing this. **[VERIFY]** on your project.
++
++## Transition plan
++
++1. **Deploy this change.** Nothing breaks: the legacy header keeps working. No Vapi change is needed yet.
++2. **Create the Bearer credential** in Vapi (Custom Credentials → Bearer Token, header `Authorization`, Bearer prefix on). Use the **same value** as `VAPI_SERVER_SECRET`. Attach it by `credentialId` to every Server URL that targets this function (assistants, phone numbers, org level). Never paste the value into tickets or chat.
++3. **Watch** the `vapi-webhook` logs for `auth_via`. Real Vapi traffic should move to `"authorization"`.
++4. **Migrate the internal caller first:** `supabase/functions/voice-reconcile/index.ts` (`replayThroughWebhook`) still authenticates with `x-vapi-secret`. Turning the legacy header off before changing it makes every reconcile replay 401. *(Not changed in this task.)*
++5. **Decide the cut-off** (suggestion: no `auth_via: "x-vapi-secret"` events for 14 days — your call). Then:
++   `supabase secrets set VAPI_ACCEPT_LEGACY_SECRET_HEADER=0`. The function reads it on every request; how fast a secrets change reaches running instances is a Supabase platform detail **[VERIFY]**, so re-test right after.
++6. **Rollback:** `supabase secrets unset VAPI_ACCEPT_LEGACY_SECRET_HEADER` (default is accept). If Vapi traffic starts returning 401, check the Vapi delivery log first, then the credential value vs `VAPI_SERVER_SECRET`.
++
++`_shared/audit/script.ts` provisions assistants with `server.headers["x-vapi-secret"]`; that remains valid (legacy). Move it to a credential when step 5 is decided.
++
++## Rotating the secret
++
++Unchanged principle (see `secret-rotation.md`): the function holds one secret, so rotation is a short two-sided window.
++Update `VAPI_SERVER_SECRET` and the Vapi credential together, or expect 401s until they match.
+diff -ruN a/functions/_shared/agent-marketplace/contract.test.ts b/functions/_shared/agent-marketplace/contract.test.ts
+--- a/functions/_shared/agent-marketplace/contract.test.ts	2026-11-21 09:56:01.941335931 +0000
++++ b/functions/_shared/agent-marketplace/contract.test.ts	1970-01-01 00:00:00.000000000 +0000
+@@ -1,136 +0,0 @@
+-// @vitest-environment node
+-import { describe, it, expect } from 'vitest';
+-import {
+-  allowedActions,
+-  checkEndpointShape,
+-  extractJsonObject,
+-  isPrivateIp,
+-  manifestLimits,
+-  parseAgentResponse,
+-  projectCustomer,
+-  projectJob,
+-  signRequest,
+-  validateAction,
+-} from './contract';
+-
+-const UUID = '3f2b8c1e-5a4d-4e6f-9b7a-1c2d3e4f5a6b';
+-const ALL = ['read:jobs', 'act:record_insight', 'act:create_task', 'act:send_sms'];
+-
+-describe('validateAction', () => {
+-  it('accepts a valid insight', () => {
+-    const r = validateAction({ type: 'record_insight', reasoning: 'Compressor noise', params: { title: 'Check capacitor', body: 'Likely failing run capacitor.' } }, ALL);
+-    expect(r.ok).toBe(true);
+-  });
+-
+-  it('rejects an action whose scope was not granted', () => {
+-    const r = validateAction({ type: 'send_sms', reasoning: 'Reminder', params: { customer_id: UUID, body: 'Hello' } }, ['act:record_insight']);
+-    expect(r).toEqual({ ok: false, error: 'Scope act:send_sms was not granted.' });
+-  });
+-
+-  it('rejects prototype keys and unknown types', () => {
+-    expect(validateAction({ type: 'toString', reasoning: 'abc', params: {} }, ALL).ok).toBe(false);
+-    expect(validateAction({ type: 'delete_everything', reasoning: 'abc', params: {} }, ALL).ok).toBe(false);
+-  });
+-
+-  it('blocks links in SMS (phishing guard)', () => {
+-    const base = { type: 'send_sms', reasoning: 'Reminder', params: { customer_id: UUID } };
+-    expect(validateAction({ ...base, params: { ...base.params, body: 'Pay at https://evil.example' } }, ALL).ok).toBe(false);
+-    expect(validateAction({ ...base, params: { ...base.params, body: 'Pay at evil.com now' } }, ALL).ok).toBe(false);
+-    expect(validateAction({ ...base, params: { ...base.params, body: 'Friendly reminder: invoice is open.' } }, ALL).ok).toBe(true);
+-  });
+-
+-  it('requires entity_type and entity_id together', () => {
+-    const r = validateAction({ type: 'record_insight', reasoning: 'abc', params: { title: 'Title', body: 'Body text', entity_id: UUID } }, ALL);
+-    expect(r.ok).toBe(false);
+-  });
+-
+-  it('rejects bad task_type and oversized payload', () => {
+-    expect(validateAction({ type: 'create_task', reasoning: 'abc', params: { task_type: 'Has Spaces' } }, ALL).ok).toBe(false);
+-    expect(validateAction({ type: 'create_task', reasoning: 'abc', params: { task_type: 'follow_up', payload: { x: 'a'.repeat(3000) } } }, ALL).ok).toBe(false);
+-  });
+-});
+-
+-describe('parseAgentResponse', () => {
+-  it('caps actions at max_actions and reports rejects', () => {
+-    const action = { type: 'record_insight', reasoning: 'because', params: { title: 'Title', body: 'Body text' } };
+-    const out = parseAgentResponse({ summary: 'ok', actions: [action, action, action, { type: 'nope' }] }, ALL, 2);
+-    expect(out.actions).toHaveLength(2);
+-    expect(out.rejected.map((r) => r.index)).toEqual([2, 3]);
+-  });
+-
+-  it('never throws on garbage', () => {
+-    expect(parseAgentResponse(null, ALL, 5).actions).toEqual([]);
+-    expect(parseAgentResponse('x', ALL, 5).actions).toEqual([]);
+-    expect(parseAgentResponse({ actions: 'nope' }, ALL, 5).actions).toEqual([]);
+-  });
+-});
+-
+-describe('extractJsonObject', () => {
+-  it('parses fenced / prose-wrapped JSON', () => {
+-    expect(extractJsonObject('Here you go:\n```json\n{"a":1}\n```')).toEqual({ a: 1 });
+-    expect(extractJsonObject('not json')).toBeNull();
+-  });
+-});
+-
+-describe('data minimization', () => {
+-  const job = { id: 'j1', service_type: 'AC repair', customer_name: 'Jane', address: '1 Main St', invoice_amount: 500, invoice_status: 'sent', secret_note: 'x' };
+-  it('exposes only base job fields with read:jobs', () => {
+-    expect(projectJob(job, ['read:jobs'])).toEqual({ id: 'j1', service_type: 'AC repair' });
+-  });
+-  it('adds fields only when the matching scope is granted', () => {
+-    const p = projectJob(job, ['read:jobs', 'read:job_financials', 'read:customers', 'read:customer_contact']);
+-    expect(p).toMatchObject({ customer_name: 'Jane', address: '1 Main St', invoice_amount: 500 });
+-    expect(p).not.toHaveProperty('secret_note');
+-  });
+-  it('returns nothing without read:jobs', () => {
+-    expect(projectJob(job, ['read:customers'])).toEqual({});
+-  });
+-  it('hides contact details without read:customer_contact', () => {
+-    const c = { id: 'c1', name: 'Jane', phone: '+1555', email: 'a@b.co', notes: 'private' };
+-    expect(projectCustomer(c, ['read:customers'])).toEqual({ id: 'c1', name: 'Jane' });
+-    expect(projectCustomer(c, ['read:customers', 'read:customer_contact'])).toMatchObject({ phone: '+1555' });
+-  });
+-});
+-
+-describe('endpoint safety', () => {
+-  it('accepts a public https endpoint', () => {
+-    expect(checkEndpointShape('https://agents.example.com/hook').ok).toBe(true);
+-  });
+-  it.each([
+-    'http://agents.example.com/hook',
+-    'https://localhost/hook',
+-    'https://127.0.0.1/hook',
+-    'https://2130706433/hook',
+-    'https://[::1]/hook',
+-    'https://user:pw@agents.example.com/hook',
+-    'https://agents.example.com:8443/hook',
+-    'https://service.internal/hook',
+-    'https://intranet/hook',
+-  ])('rejects %s', (u) => {
+-    expect(checkEndpointShape(u).ok).toBe(false);
+-  });
+-  it('flags private IPs', () => {
+-    for (const ip of ['10.0.0.1', '127.0.0.1', '169.254.169.254', '172.16.5.4', '192.168.1.1', '::1', 'fd00::1', '::ffff:10.0.0.1']) {
+-      expect(isPrivateIp(ip)).toBe(true);
+-    }
+-    for (const ip of ['8.8.8.8', '1.1.1.1', '2606:4700:4700::1111']) expect(isPrivateIp(ip)).toBe(false);
+-  });
+-});
+-
+-describe('misc', () => {
+-  it('clamps manifest limits', () => {
+-    expect(manifestLimits({ scopes: [], triggers: [], limits: { timeout_ms: 999999, max_actions: 99 } })).toEqual({ timeoutMs: 15000, maxActions: 10 });
+-    expect(manifestLimits({ scopes: [], triggers: [] })).toEqual({ timeoutMs: 8000, maxActions: 5 });
+-  });
+-  it('derives allowed actions from granted scopes', () => {
+-    expect(allowedActions(['read:jobs', 'act:send_sms'])).toEqual(['send_sms']);
+-  });
+-  it('produces a stable, versioned HMAC signature', async () => {
+-    const a = await signRequest('whsec_test', 1700000000, '{"x":1}');
+-    const b = await signRequest('whsec_test', 1700000000, '{"x":1}');
+-    const c = await signRequest('whsec_test', 1700000001, '{"x":1}');
+-    expect(a).toMatch(/^v1=[0-9a-f]{64}$/);
+-    expect(a).toBe(b);
+-    expect(a).not.toBe(c);
+-  });
+-});
+diff -ruN a/functions/_shared/agent-marketplace/contract.ts b/functions/_shared/agent-marketplace/contract.ts
+--- a/functions/_shared/agent-marketplace/contract.ts	2026-11-21 09:56:01.941348700 +0000
++++ b/functions/_shared/agent-marketplace/contract.ts	1970-01-01 00:00:00.000000000 +0000
+@@ -1,283 +0,0 @@
+-// supabase/functions/_shared/agent-marketplace/contract.ts
+-//
+-// The sandbox contract between Vireek and any marketplace agent. Pure
+-// functions only (no I/O, no Deno globals) so every rule below is unit
+-// tested in contract.test.ts. The agent-runtime edge function is the only
+-// caller.
+-//
+-// Security model in one paragraph: an agent NEVER gets credentials or DB
+-// access. It receives a scope-minimized snapshot of data and returns a list
+-// of PROPOSED actions. Each proposal is (1) schema-validated here, (2)
+-// checked against the scopes the account owner granted, (3) passed through
+-// evaluate_agent_action() (approval queue / spend limits / audit), and only
+-// then (4) executed by Vireek's own executors.
+-
+-export type ActionType = "record_insight" | "create_task" | "send_sms";
+-
+-export const ACTION_SCOPE: Record<ActionType, string> = {
+-  record_insight: "act:record_insight",
+-  create_task: "act:create_task",
+-  send_sms: "act:send_sms",
+-};
+-
+-export const ACTION_GOVERNANCE_SLUG: Record<ActionType, string> = {
+-  record_insight: "mkt_record_insight",
+-  create_task: "mkt_create_task",
+-  send_sms: "mkt_send_sms",
+-};
+-
+-export interface AgentManifest {
+-  scopes: string[];
+-  triggers: string[];
+-  limits?: { timeout_ms?: number; max_actions?: number };
+-  system_prompt?: string;
+-}
+-
+-export interface ProposedAction {
+-  type: ActionType;
+-  reasoning: string;
+-  params: Record<string, unknown>;
+-}
+-
+-export interface ParsedAgentResponse {
+-  summary: string;
+-  actions: ProposedAction[];
+-  rejected: { index: number; error: string }[];
+-}
+-
+-export const MAX_RESPONSE_BYTES = 256 * 1024;
+-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+-export function isUuid(v: unknown): v is string {
+-  return typeof v === "string" && UUID_RE.test(v);
+-}
+-const TASK_TYPE_RE = /^[a-z0-9_]{3,80}$/;
+-// eslint-disable-next-line no-control-regex
+-const CONTROL_CHARS_RE = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/;
+-const LINK_RE = /(https?:\/\/|www\.|\b[a-z0-9-]+\.(com|net|org|io|co|app|ly|me|info|biz|xyz|link|click|top|site|online)\b)/i;
+-
+-export function manifestLimits(m: AgentManifest): { timeoutMs: number; maxActions: number } {
+-  const t = Number(m.limits?.timeout_ms);
+-  const a = Number(m.limits?.max_actions);
+-  return {
+-    timeoutMs: Number.isFinite(t) ? Math.min(15000, Math.max(1000, Math.round(t))) : 8000,
+-    maxActions: Number.isFinite(a) ? Math.min(10, Math.max(1, Math.round(a))) : 5,
+-  };
+-}
+-
+-export function allowedActions(granted: readonly string[]): ActionType[] {
+-  return (Object.keys(ACTION_SCOPE) as ActionType[]).filter((t) => granted.includes(ACTION_SCOPE[t]));
+-}
+-
+-function isPlainObject(v: unknown): v is Record<string, unknown> {
+-  return typeof v === "object" && v !== null && !Array.isArray(v);
+-}
+-
+-function str(v: unknown, min: number, max: number): string | null {
+-  if (typeof v !== "string") return null;
+-  const t = v.trim();
+-  if (t.length < min || t.length > max) return null;
+-  if (CONTROL_CHARS_RE.test(t)) return null;
+-  return t;
+-}
+-
+-export type ValidationResult = { ok: true; action: ProposedAction } | { ok: false; error: string };
+-
+-export function validateAction(raw: unknown, granted: readonly string[]): ValidationResult {
+-  if (!isPlainObject(raw)) return { ok: false, error: "Action must be an object." };
+-  const type = raw.type;
+-  if (typeof type !== "string" || !Object.prototype.hasOwnProperty.call(ACTION_SCOPE, type)) {
+-    return { ok: false, error: "Unknown action type." };
+-  }
+-  const t = type as ActionType;
+-  if (!granted.includes(ACTION_SCOPE[t])) return { ok: false, error: `Scope ${ACTION_SCOPE[t]} was not granted.` };
+-
+-  const reasoning = str(raw.reasoning, 3, 400);
+-  if (!reasoning) return { ok: false, error: "reasoning (3-400 chars) is required." };
+-  if (!isPlainObject(raw.params)) return { ok: false, error: "params must be an object." };
+-  const p = raw.params;
+-  const out: Record<string, unknown> = {};
+-
+-  if (t === "record_insight") {
+-    const title = str(p.title, 3, 140);
+-    const body = str(p.body, 3, 1200);
+-    if (!title || !body) return { ok: false, error: "record_insight needs title (3-140) and body (3-1200)." };
+-    const severity = p.severity ?? "info";
+-    if (!["info", "warning", "critical"].includes(severity as string)) return { ok: false, error: "Invalid severity." };
+-    out.title = title;
+-    out.body = body;
+-    out.severity = severity;
+-    if (p.entity_type !== undefined || p.entity_id !== undefined) {
+-      if (!["job", "customer"].includes(p.entity_type as string) || typeof p.entity_id !== "string" || !UUID_RE.test(p.entity_id)) {
+-        return { ok: false, error: "entity_type (job|customer) and a uuid entity_id must be given together." };
+-      }
+-      out.entity_type = p.entity_type;
+-      out.entity_id = p.entity_id;
+-    }
+-  } else if (t === "create_task") {
+-    if (typeof p.task_type !== "string" || !TASK_TYPE_RE.test(p.task_type)) {
+-      return { ok: false, error: "task_type must match [a-z0-9_]{3,80}." };
+-    }
+-    const priority = p.priority ?? "normal";
+-    if (!["low", "normal", "high", "urgent"].includes(priority as string)) return { ok: false, error: "Invalid priority." };
+-    out.task_type = p.task_type;
+-    out.priority = priority;
+-    if (p.target_table !== undefined || p.target_id !== undefined) {
+-      if (!["jobs", "customers"].includes(p.target_table as string) || typeof p.target_id !== "string" || !UUID_RE.test(p.target_id)) {
+-        return { ok: false, error: "target_table (jobs|customers) and a uuid target_id must be given together." };
+-      }
+-      out.target_table = p.target_table;
+-      out.target_id = p.target_id;
+-    }
+-    if (p.payload !== undefined) {
+-      if (!isPlainObject(p.payload) || JSON.stringify(p.payload).length > 2048) {
+-        return { ok: false, error: "payload must be an object up to 2KB." };
+-      }
+-      out.payload = p.payload;
+-    }
+-  } else {
+-    if (typeof p.customer_id !== "string" || !UUID_RE.test(p.customer_id)) return { ok: false, error: "send_sms needs a uuid customer_id." };
+-    const body = str(p.body, 1, 320);
+-    if (!body) return { ok: false, error: "send_sms body must be 1-320 characters." };
+-    if (LINK_RE.test(body)) return { ok: false, error: "Links are not allowed in marketplace SMS." };
+-    out.customer_id = p.customer_id;
+-    out.body = body;
+-  }
+-
+-  return { ok: true, action: { type: t, reasoning, params: out } };
+-}
+-
+-/** Parses the agent's JSON reply. Never throws; malformed input yields zero actions. */
+-export function parseAgentResponse(raw: unknown, granted: readonly string[], maxActions: number): ParsedAgentResponse {
+-  const empty: ParsedAgentResponse = { summary: "", actions: [], rejected: [] };
+-  if (!isPlainObject(raw)) return empty;
+-  const summary = typeof raw.summary === "string" ? raw.summary.replace(CONTROL_CHARS_RE, "").trim().slice(0, 500) : "";
+-  const list = Array.isArray(raw.actions) ? raw.actions : [];
+-  const actions: ProposedAction[] = [];
+-  const rejected: { index: number; error: string }[] = [];
+-  list.forEach((item, index) => {
+-    if (index >= maxActions) {
+-      rejected.push({ index, error: "Exceeds max_actions per run." });
+-      return;
+-    }
+-    const v = validateAction(item, granted);
+-    if (v.ok) actions.push(v.action);
+-    else rejected.push({ index, error: v.error });
+-  });
+-  return { summary, actions, rejected };
+-}
+-
+-/** Tolerant JSON extraction (models sometimes wrap JSON in prose or code fences). */
+-export function extractJsonObject(text: string): unknown {
+-  const trimmed = text.trim();
+-  try {
+-    return JSON.parse(trimmed);
+-  } catch {
+-    const start = trimmed.indexOf("{");
+-    const end = trimmed.lastIndexOf("}");
+-    if (start === -1 || end <= start) return null;
+-    try {
+-      return JSON.parse(trimmed.slice(start, end + 1));
+-    } catch {
+-      return null;
+-    }
+-  }
+-}
+-
+-// ---------------------------------------------------------------------
+-// Data minimization — only fields the granted scopes allow ever leave
+-// Vireek. Fields that don't exist on a row are simply absent.
+-// ---------------------------------------------------------------------
+-const JOB_BASE = ["id", "service_type", "scheduled_datetime", "job_status", "created_at", "arrived_at", "started_at", "expected_duration_minutes", "safety_flag", "safety_flag_note"];
+-const JOB_FINANCIAL = ["invoice_amount", "invoice_status"];
+-const JOB_CUSTOMER = ["customer_name", "customer_id"];
+-const JOB_CONTACT = ["address"];
+-const CUSTOMER_PROFILE = ["id", "name", "customer_type", "lifecycle_stage", "tags", "last_contacted_at", "created_at"];
+-const CUSTOMER_CONTACT = ["phone", "email", "address"];
+-
+-function pick(row: Record<string, unknown>, fields: string[]): Record<string, unknown> {
+-  const out: Record<string, unknown> = {};
+-  for (const f of fields) if (f in row && row[f] !== undefined) out[f] = row[f];
+-  return out;
+-}
+-
+-export function projectJob(row: Record<string, unknown>, granted: readonly string[]): Record<string, unknown> {
+-  if (!granted.includes("read:jobs")) return {};
+-  let fields = [...JOB_BASE];
+-  if (granted.includes("read:job_financials")) fields = fields.concat(JOB_FINANCIAL);
+-  if (granted.includes("read:customers")) fields = fields.concat(JOB_CUSTOMER);
+-  if (granted.includes("read:customer_contact")) fields = fields.concat(JOB_CONTACT);
+-  return pick(row, fields);
+-}
+-
+-export function projectCustomer(row: Record<string, unknown>, granted: readonly string[]): Record<string, unknown> {
+-  if (!granted.includes("read:customers")) return {};
+-  let fields = [...CUSTOMER_PROFILE];
+-  if (granted.includes("read:customer_contact")) fields = fields.concat(CUSTOMER_CONTACT);
+-  return pick(row, fields);
+-}
+-
+-// ---------------------------------------------------------------------
+-// Outbound endpoint safety (SSRF). Runtime additionally resolves DNS and
+-// rejects private ranges with isPrivateIp().
+-// ---------------------------------------------------------------------
+-const BLOCKED_SUFFIXES = [".local", ".internal", ".localhost", ".lan", ".home", ".corp", ".intranet", ".private"];
+-
+-export type EndpointCheck = { ok: true; url: URL } | { ok: false; reason: string };
+-
+-export function checkEndpointShape(input: string): EndpointCheck {
+-  let url: URL;
+-  try {
+-    url = new URL(input);
+-  } catch {
+-    return { ok: false, reason: "Invalid URL." };
+-  }
+-  if (url.protocol !== "https:") return { ok: false, reason: "Endpoint must use https." };
+-  if (url.username || url.password) return { ok: false, reason: "Credentials in URL are not allowed." };
+-  if (url.port && url.port !== "443") return { ok: false, reason: "Only port 443 is allowed." };
+-  const host = url.hostname.toLowerCase();
+-  if (host.includes(":") || host.startsWith("[")) return { ok: false, reason: "IP literals are not allowed." };
+-  if (host === "localhost" || BLOCKED_SUFFIXES.some((s) => host.endsWith(s))) return { ok: false, reason: "Internal hostnames are not allowed." };
+-  const labels = host.split(".");
+-  if (labels.length < 2) return { ok: false, reason: "Hostname must be a public domain." };
+-  const tld = labels[labels.length - 1];
+-  if (!/^([a-z]{2,24}|xn--[a-z0-9-]{2,59})$/.test(tld)) return { ok: false, reason: "Hostname must be a public domain." };
+-  return { ok: true, url };
+-}
+-
+-export function isPrivateIp(ip: string): boolean {
+-  const v = ip.trim().toLowerCase();
+-  const mapped = v.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/);
+-  const candidate = mapped ? mapped[1] : v;
+-  const m4 = candidate.match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/);
+-  if (m4) {
+-    const [a, b] = [Number(m4[1]), Number(m4[2])];
+-    return (
+-      a === 0 || a === 10 || a === 127 || a >= 224 ||
+-      (a === 100 && b >= 64 && b <= 127) ||
+-      (a === 169 && b === 254) ||
+-      (a === 172 && b >= 16 && b <= 31) ||
+-      (a === 192 && b === 168) ||
+-      (a === 192 && b === 0 && Number(m4[3]) === 0) ||
+-      (a === 198 && (b === 18 || b === 19))
+-    );
+-  }
+-  if (v.includes(":")) {
+-    return v === "::" || v === "::1" || v.startsWith("fc") || v.startsWith("fd") || /^fe[89ab]/.test(v);
+-  }
+-  return false;
+-}
+-
+-// ---------------------------------------------------------------------
+-// Request signing (HMAC-SHA256 over `${timestamp}.${body}`), Stripe-style.
+-// Agents verify the signature and reject timestamps older than 5 minutes.
+-// ---------------------------------------------------------------------
+-export async function hmacSha256Hex(secret: string, message: string): Promise<string> {
+-  const enc = new TextEncoder();
+-  const key = await crypto.subtle.importKey("raw", enc.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+-  const sig = await crypto.subtle.sign("HMAC", key, enc.encode(message));
+-  return Array.from(new Uint8Array(sig)).map((b) => b.toString(16).padStart(2, "0")).join("");
+-}
+-
+-export async function signRequest(secret: string, timestamp: number, body: string): Promise<string> {
+-  return `v1=${await hmacSha256Hex(secret, `${timestamp}.${body}`)}`;
+-}
+diff -ruN a/package-lock.json b/package-lock.json
+--- a/package-lock.json	2026-11-21 09:56:01.942312259 +0000
++++ b/package-lock.json	2026-11-21 09:56:02.105618748 +0000
+@@ -69,6 +69,7 @@
+         "@vitejs/plugin-react": "^4.3.1",
+         "@vitest/coverage-v8": "^2.1.9",
+         "autoprefixer": "^10.4.18",
++        "esbuild": "^0.21.5",
+         "eslint": "^9.9.0",
+         "eslint-plugin-react-hooks": "^5.1.0-rc.0",
+         "eslint-plugin-react-refresh": "^0.4.11",
+diff -ruN a/package.json b/package.json
+--- a/package.json	2026-11-21 09:56:01.942428346 +0000
++++ b/package.json	2026-11-21 09:56:02.105938839 +0000
+@@ -5,7 +5,6 @@
+   "type": "module",
+   "scripts": {
+     "dev": "vite",
+-    "build": "node scripts/generate-rss.mjs && vite build && node scripts/seo/build-seo.mjs && node scripts/seo/prerender.mjs",
+     "build": "node scripts/seo/lint-index-html.mjs && node scripts/generate-rss.mjs && vite build && node scripts/seo/build-seo.mjs && node scripts/seo/prerender.mjs && node scripts/seo/assert-prerendered.mjs",
+     "test:scripts:seo": "node --test scripts/seo/worker-routing.test.mjs scripts/seo/lint-index-html.test.mjs scripts/seo/assert-prerendered.test.mjs",
+     "build:app": "vite build",
+@@ -138,7 +137,9 @@
+     "sbom": "node scripts/supply-chain/sbom.mjs",
+     "assets:check": "node scripts/supply-chain/asset-inventory.mjs --check",
+     "registers:check": "node scripts/registers/check-registers.mjs",
+-    "owners:check": "node scripts/governance/check-codeowners.mjs"
++    "owners:check": "node scripts/governance/check-owners.mjs",
++    "check:script-refs": "node scripts/check-package-script-refs.mjs",
++    "test:scripts:script-refs": "node --test scripts/check-package-script-refs.test.mjs"
+   },
+   "dependencies": {
+     "@aparajita/capacitor-biometric-auth": "^10.0.0",
+@@ -202,6 +203,7 @@
+     "@vitejs/plugin-react": "^4.3.1",
+     "@vitest/coverage-v8": "^2.1.9",
+     "autoprefixer": "^10.4.18",
++    "esbuild": "^0.21.5",
+     "eslint": "^9.9.0",
+     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
+     "eslint-plugin-react-refresh": "^0.4.11",
+diff -ruN a/scripts/check-package-script-refs.mjs b/scripts/check-package-script-refs.mjs
+--- a/scripts/check-package-script-refs.mjs	1970-01-01 00:00:00.000000000 +0000
++++ b/scripts/check-package-script-refs.mjs	2026-11-21 09:56:02.123727030 +0000
+@@ -0,0 +1,470 @@
++#!/usr/bin/env node
++// scripts/check-package-script-refs.mjs
++//
++// Fails when a `package.json` script points at something that does not exist:
++//   * a file it runs      (`node scripts/foo.mjs`, `node --test a.test.mjs`, `vitest -c x.config.ts`,
++//                          `tsc -p tsconfig.x.json`, `playwright test e2e/x.spec.ts`, `./run.sh`)
++//   * another npm script  (`npm run docs:inventory && ...`)
++// and when `package.json` contains duplicate keys (JSON.parse silently keeps the LAST one, so the
++// earlier definition is dead code that looks live in review).
++//
++// Pre-existing debt lives in scripts/package-script-refs.baseline.json (a ratchet):
++//   * a NEW broken reference                      -> error
++//   * a baselined reference that is now fixed     -> error ("remove it from the baseline")
++//   * --strict                                    -> baseline ignored, every broken reference is an error
++//
++// Zero dependencies (Node built-ins only), offline, no `npm ci` needed.
++//
++// Usage:
++//   node scripts/check-package-script-refs.mjs                  # CI mode (honours the baseline)
++//   node scripts/check-package-script-refs.mjs --strict         # release branches: no baseline
++//   node scripts/check-package-script-refs.mjs --write-baseline # regenerate the baseline (keeps existing notes)
++//   node scripts/check-package-script-refs.mjs --root <dir>     # check another checkout (used by tests)
++//
++// Known limits (deliberate, to avoid false positives): shell expansion (`$VAR`, `$(...)`, globs, braces)
++// is not evaluated; arguments to a script after its entry file are not checked (they may be output paths).
++
++import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
++import path from 'node:path';
++import { fileURLToPath } from 'node:url';
++
++export const BASELINE_FILE = 'scripts/package-script-refs.baseline.json';
++
++// ---------------------------------------------------------------------------------------------
++// Shell tokenising
++// ---------------------------------------------------------------------------------------------
++
++/**
++ * Splits a command line into segments (separated by `&&`, `||`, `;`, `|`, `&`), each an array of
++ * tokens. Honours single/double quotes and backslash escapes. Redirections (`> file`, `2>&1`) are dropped.
++ * @param {string} command
++ * @returns {string[][]}
++ */
++export function splitShell(command) {
++  const segments = [];
++  let tokens = [];
++  let cur = '';
++  let has = false;
++  let quote = null;
++
++  const pushToken = () => {
++    if (has) tokens.push(cur);
++    cur = '';
++    has = false;
++  };
++  const endSegment = () => {
++    pushToken();
++    if (tokens.length) segments.push(tokens);
++    tokens = [];
++  };
++
++  for (let i = 0; i < command.length; i++) {
++    const ch = command[i];
++    if (quote) {
++      if (ch === quote) quote = null;
++      else if (ch === '\\' && quote === '"' && i + 1 < command.length) cur += command[++i];
++      else cur += ch;
++      continue;
++    }
++    if (ch === '"' || ch === "'") {
++      quote = ch;
++      has = true;
++      continue;
++    }
++    if (ch === '\\' && i + 1 < command.length) {
++      cur += command[++i];
++      has = true;
++      continue;
++    }
++    if (/\s/.test(ch)) {
++      pushToken();
++      continue;
++    }
++    if (ch === '&' || ch === '|' || ch === ';') {
++      // `2>&1` and `>&2` are redirections, not command separators.
++      if (ch === '&' && /(^|[^\s])>$/.test(cur)) {
++        cur += ch;
++        has = true;
++        continue;
++      }
++      endSegment();
++      if ((ch === '&' || ch === '|') && command[i + 1] === ch) i++;
++      continue;
++    }
++    cur += ch;
++    has = true;
++  }
++  endSegment();
++
++  // Drop redirections: `>file`, `2>file`, `>>file`, `2>&1`, and the target of a bare `>` / `2>`.
++  return segments
++    .map((seg) => {
++      const out = [];
++      for (let i = 0; i < seg.length; i++) {
++        const t = seg[i];
++        if (/^\d*>>?$/.test(t) || /^\d*<$/.test(t)) {
++          i++; // bare operator: skip its target as well
++          continue;
++        }
++        if (/^\d*[<>]/.test(t)) continue;
++        out.push(t);
++      }
++      return out;
++    })
++    .filter((seg) => seg.length);
++}
++
++// ---------------------------------------------------------------------------------------------
++// Reference extraction
++// ---------------------------------------------------------------------------------------------
++
++const ENV_ASSIGN = /^[A-Za-z_][A-Za-z0-9_]*=/;
++const WRAPPERS = new Set(['cross-env', 'npx', 'env', 'exec', 'time']);
++const NODE_LIKE = new Set(['node', 'bash', 'sh', 'zsh', 'python', 'python3', 'deno', 'bun', 'tsx', 'ts-node']);
++const NODE_VALUE_FLAGS = new Set([
++  '-r', '--require', '--import', '--loader', '--experimental-loader', '--env-file',
++  '--conditions', '-C', '--input-type', '--title', '--inspect-port',
++]);
++const NODE_EVAL_FLAGS = new Set(['-e', '--eval', '-p', '--print']);
++const FILE_EXT = /\.(?:[cm]?[jt]sx?|json|sh|sql|ya?ml)$/i;
++
++// Flags whose VALUE is an input file that must exist, per tool.
++const CONFIG_FLAGS = {
++  tsc: ['-p', '--project', '-b', '--build'],
++  vitest: ['-c', '--config'],
++  vite: ['-c', '--config'],
++  eslint: ['-c', '--config'],
++  playwright: ['-c', '--config'],
++  stryker: ['-c', '--config'],
++  prettier: ['--config', '--ignore-path'],
++  default: ['--config'],
++};
++// Flags whose value is an OUTPUT or a name, never an input file.
++const SKIP_VALUE_FLAGS = new Set([
++  '-o', '--out', '--outDir', '--out-dir', '--outfile', '--output', '--cache-location', '--mode',
++  '--project', '--reporter', '--grep', '--port', '-p', '--host', '--base', '--shard', '--workers',
++]);
++
++const hasShellMagic = (t) => /[$*?{}`]|:\/\//.test(t);
++
++/**
++ * @typedef {{ kind: 'file' | 'node-entry' | 'npm-script', target: string }} Ref
++ */
++
++/**
++ * Extracts references from one script's command string.
++ * @param {string} command
++ * @returns {Ref[]}
++ */
++export function extractRefs(command) {
++  /** @type {Ref[]} */
++  const refs = [];
++  const add = (kind, target) => {
++    if (!target || hasShellMagic(target)) return;
++    refs.push({ kind, target: target.replace(/^\.\//, '') });
++  };
++
++  for (const seg of splitShell(command)) {
++    let i = 0;
++    // Leading env assignments and wrappers: `FOO=1 cross-env BAR=2 npx tsc ...`
++    for (;;) {
++      if (i < seg.length && ENV_ASSIGN.test(seg[i])) i++;
++      else if (i < seg.length && WRAPPERS.has(seg[i])) {
++        i++;
++        while (i < seg.length && seg[i].startsWith('-') && seg[i] !== '--') i++; // npx -y / --no-install
++      } else break;
++    }
++    if (i >= seg.length) continue;
++    const cmd = seg[i];
++    const args = seg.slice(i + 1);
++
++    // npm run <script> / npm run-script <script> / npm test
++    if (cmd === 'npm') {
++      if (args[0] === 'run' || args[0] === 'run-script') {
++        const name = args.slice(1).find((a) => !a.startsWith('-'));
++        if (name) refs.push({ kind: 'npm-script', target: name });
++      } else if (args[0] === 'test' || args[0] === 't') {
++        refs.push({ kind: 'npm-script', target: 'test' });
++      }
++      continue;
++    }
++
++    // Direct executable path: `./scripts/run.sh`, `scripts/run.sh`
++    if (cmd.includes('/') && !cmd.includes('node_modules/.bin') && !hasShellMagic(cmd)) {
++      add('file', cmd);
++      continue;
++    }
++
++    if (NODE_LIKE.has(cmd)) {
++      extractNodeLike(cmd, args, add);
++      continue;
++    }
++
++    extractGenericTool(cmd, args, add);
++  }
++  return refs;
++}
++
++function extractNodeLike(cmd, args, add) {
++  let i = 0;
++  if ((cmd === 'deno' || cmd === 'bun') && args[0] === 'run') i = 1;
++  let testMode = false;
++  for (; i < args.length; i++) {
++    const a = args[i];
++    if (a === '--') break;
++    if (NODE_EVAL_FLAGS.has(a)) return; // inline code, nothing on disk to check
++    if (a === '--test') {
++      testMode = true;
++      continue;
++    }
++    if (a.startsWith('-')) {
++      if (!a.includes('=') && NODE_VALUE_FLAGS.has(a)) i++; // swallow the flag's value
++      continue;
++    }
++    if (testMode) {
++      add('file', a);
++      continue;
++    }
++    add('node-entry', a); // first positional is the entry file; the rest are its arguments
++    return;
++  }
++}
++
++function extractGenericTool(cmd, args, add) {
++  const configFlags = new Set(CONFIG_FLAGS[cmd] ?? CONFIG_FLAGS.default);
++  for (let i = 0; i < args.length; i++) {
++    const a = args[i];
++    if (a === '--') break;
++    if (a.startsWith('-')) {
++      const eq = a.indexOf('=');
++      const flag = eq === -1 ? a : a.slice(0, eq);
++      const inlineValue = eq === -1 ? undefined : a.slice(eq + 1);
++      if (configFlags.has(flag)) {
++        add('file', inlineValue ?? args[++i]);
++      } else if (SKIP_VALUE_FLAGS.has(flag) && inlineValue === undefined) {
++        i++;
++      }
++      continue;
++    }
++    if (FILE_EXT.test(a)) add('file', a);
++  }
++}
++
++// ---------------------------------------------------------------------------------------------
++// Duplicate JSON keys
++// ---------------------------------------------------------------------------------------------
++
++/**
++ * Finds duplicate object keys anywhere in a JSON text (JSON.parse hides them).
++ * @param {string} text
++ * @returns {{ path: string, key: string, line: number }[]}
++ */
++export function findDuplicateKeys(text) {
++  const dups = [];
++  /** @type {{ type: 'obj' | 'arr', keys: Set<string>, expectKey: boolean, path: string[] }[]} */
++  const stack = [];
++  let lastKey = null;
++  let line = 1;
++  let i = 0;
++
++  const readString = () => {
++    let out = '';
++    i++; // opening quote
++    while (i < text.length && text[i] !== '"') {
++      if (text[i] === '\\') {
++        const next = text[i + 1];
++        if (next === 'u') {
++          out += String.fromCharCode(parseInt(text.slice(i + 2, i + 6), 16));
++          i += 6;
++          continue;
++        }
++        out += { n: '\n', t: '\t', r: '\r', b: '\b', f: '\f' }[next] ?? next;
++        i += 2;
++        continue;
++      }
++      if (text[i] === '\n') line++;
++      out += text[i++];
++    }
++    i++; // closing quote
++    return out;
++  };
++
++  while (i < text.length) {
++    const ch = text[i];
++    if (ch === '\n') {
++      line++;
++      i++;
++    } else if (ch === '{' || ch === '[') {
++      const parent = stack[stack.length - 1];
++      const segment = parent ? (parent.type === 'obj' ? lastKey ?? '' : '[]') : '';
++      stack.push({
++        type: ch === '{' ? 'obj' : 'arr',
++        keys: new Set(),
++        expectKey: ch === '{',
++        path: parent ? [...parent.path, segment] : [],
++      });
++      lastKey = null;
++      i++;
++    } else if (ch === '}' || ch === ']') {
++      stack.pop();
++      lastKey = null;
++      i++;
++    } else if (ch === ',') {
++      const top = stack[stack.length - 1];
++      if (top && top.type === 'obj') top.expectKey = true;
++      i++;
++    } else if (ch === ':') {
++      const top = stack[stack.length - 1];
++      if (top && top.type === 'obj') top.expectKey = false;
++      i++;
++    } else if (ch === '"') {
++      const startLine = line;
++      const value = readString();
++      const top = stack[stack.length - 1];
++      if (top && top.type === 'obj' && top.expectKey) {
++        if (top.keys.has(value)) dups.push({ path: top.path.join('.') || '(root)', key: value, line: startLine });
++        top.keys.add(value);
++        lastKey = value;
++      }
++    } else {
++      i++;
++    }
++  }
++  return dups;
++}
++
++// ---------------------------------------------------------------------------------------------
++// Analysis
++// ---------------------------------------------------------------------------------------------
++
++/**
++ * @typedef {{ script: string, file: string, note?: string }} BaselineEntry
++ * @typedef {{ script: string, kind: Ref['kind'], target: string }} Broken
++ */
++
++const keyOf = (script, target) => `${script}::${target}`;
++
++/**
++ * Pure analysis, no I/O (the caller injects `exists`), so it is unit-testable.
++ * @param {{ pkgText: string, exists: (relPath: string) => boolean, baseline?: BaselineEntry[], strict?: boolean }} input
++ */
++export function analyze({ pkgText, exists, baseline = [], strict = false }) {
++  const pkg = JSON.parse(pkgText);
++  const scripts = pkg.scripts ?? {};
++  const duplicateKeys = findDuplicateKeys(pkgText);
++
++  const nodeResolves = (t) =>
++    exists(t) ||
++    ['.js', '.cjs', '.mjs', '.json'].some((e) => exists(t + e)) ||
++    exists(path.posix.join(t, 'index.js'));
++
++  /** @type {Broken[]} */
++  const broken = [];
++  const seen = new Set();
++  for (const [script, command] of Object.entries(scripts)) {
++    if (typeof command !== 'string') continue;
++    for (const ref of extractRefs(command)) {
++      const k = keyOf(script, ref.target);
++      if (seen.has(k)) continue;
++      seen.add(k);
++      const ok =
++        ref.kind === 'npm-script'
++          ? Object.hasOwn(scripts, ref.target)
++          : ref.kind === 'node-entry'
++            ? nodeResolves(ref.target)
++            : exists(ref.target);
++      if (!ok) broken.push({ script, kind: ref.kind, target: ref.target });
++    }
++  }
++
++  const baselineKeys = new Map(baseline.map((b) => [keyOf(b.script, b.file), b]));
++  const brokenKeys = new Set(broken.map((b) => keyOf(b.script, b.target)));
++
++  const newBroken = strict ? broken : broken.filter((b) => !baselineKeys.has(keyOf(b.script, b.target)));
++  const baselined = strict ? [] : broken.filter((b) => baselineKeys.has(keyOf(b.script, b.target)));
++  const staleBaseline = strict ? [] : baseline.filter((b) => !brokenKeys.has(keyOf(b.script, b.file)));
++
++  return {
++    scriptCount: Object.keys(scripts).length,
++    duplicateKeys,
++    broken,
++    newBroken,
++    baselined,
++    staleBaseline,
++    ok: duplicateKeys.length === 0 && newBroken.length === 0 && staleBaseline.length === 0,
++  };
++}
++
++// ---------------------------------------------------------------------------------------------
++// CLI
++// ---------------------------------------------------------------------------------------------
++
++function loadBaseline(root) {
++  const file = path.join(root, BASELINE_FILE);
++  if (!existsSync(file)) return [];
++  const data = JSON.parse(readFileSync(file, 'utf8'));
++  if (!Array.isArray(data.entries)) throw new Error(`${BASELINE_FILE}: "entries" must be an array`);
++  for (const e of data.entries) {
++    if (typeof e.script !== 'string' || typeof e.file !== 'string') {
++      throw new Error(`${BASELINE_FILE}: every entry needs string "script" and "file" (got ${JSON.stringify(e)})`);
++    }
++  }
++  return data.entries;
++}
++
++function main(argv) {
++  const rootArg = argv.indexOf('--root');
++  const root = path.resolve(rootArg === -1 ? path.join(path.dirname(fileURLToPath(import.meta.url)), '..') : argv[rootArg + 1]);
++  const strict = argv.includes('--strict');
++  const writeBaseline = argv.includes('--write-baseline');
++
++  const pkgText = readFileSync(path.join(root, 'package.json'), 'utf8');
++  const baseline = writeBaseline ? [] : loadBaseline(root);
++  const result = analyze({ pkgText, exists: (p) => existsSync(path.join(root, p)), baseline, strict });
++
++  if (writeBaseline) {
++    const previous = new Map(loadBaseline(root).map((b) => [keyOf(b.script, b.file), b.note]));
++    const entries = result.broken
++      .map((b) => ({
++        script: b.script,
++        file: b.target,
++        note: previous.get(keyOf(b.script, b.target)) ?? 'TRIAGE: referenced by package.json but absent from the repository; implement it or delete the script.',
++      }))
++      .sort((a, b) => a.script.localeCompare(b.script) || a.file.localeCompare(b.file));
++    const out = {
++      $comment:
++        'Known-broken package.json script references (ratchet). Only ever shrink this list: fix the script or delete it, then remove the entry. Checked by scripts/check-package-script-refs.mjs.',
++      entries,
++    };
++    mkdirSync(path.dirname(path.join(root, BASELINE_FILE)), { recursive: true });
++    writeFileSync(path.join(root, BASELINE_FILE), JSON.stringify(out, null, 2) + '\n');
++    console.log(`Wrote ${BASELINE_FILE} with ${entries.length} entr${entries.length === 1 ? 'y' : 'ies'}.`);
++    return 0;
++  }
++
++  for (const d of result.duplicateKeys) {
++    console.log(`::error file=package.json,line=${d.line}::Duplicate key "${d.key}" in ${d.path}: JSON.parse keeps the last one, the earlier definition is dead. Delete one.`);
++  }
++  for (const b of result.newBroken) {
++    const what = b.kind === 'npm-script' ? `runs \`npm run ${b.target}\`, which is not defined in package.json` : `references "${b.target}", which does not exist`;
++    console.log(`::error file=package.json::Script "${b.script}" ${what}.`);
++  }
++  for (const s of result.staleBaseline) {
++    console.log(`::error file=${BASELINE_FILE}::Baseline entry "${s.script}" -> "${s.file}" is resolved (or the script was removed). Delete it from the baseline.`);
++  }
++  for (const b of result.baselined) {
++    console.log(`::warning file=package.json::Known debt: script "${b.script}" -> "${b.target}" is missing (baselined).`);
++  }
++
++  const summary = `package.json scripts: ${result.scriptCount} checked, ${result.broken.length} broken reference(s) (${result.baselined.length} baselined, ${result.newBroken.length} new), ${result.duplicateKeys.length} duplicate key(s), ${result.staleBaseline.length} stale baseline entr${result.staleBaseline.length === 1 ? 'y' : 'ies'}.`;
++  if (result.ok) {
++    console.log(`OK. ${summary}`);
++    return 0;
++  }
++  console.log(`FAILED. ${summary}`);
++  return 1;
++}
++
++if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
++  process.exit(main(process.argv.slice(2)));
++}
+diff -ruN a/scripts/check-package-script-refs.test.mjs b/scripts/check-package-script-refs.test.mjs
+--- a/scripts/check-package-script-refs.test.mjs	1970-01-01 00:00:00.000000000 +0000
++++ b/scripts/check-package-script-refs.test.mjs	2026-11-21 09:56:02.123805511 +0000
+@@ -0,0 +1,259 @@
++// Run: node --test scripts/check-package-script-refs.test.mjs
++import { test } from 'node:test';
++import assert from 'node:assert/strict';
++import { spawnSync } from 'node:child_process';
++import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
++import { tmpdir } from 'node:os';
++import path from 'node:path';
++import { fileURLToPath } from 'node:url';
++import { analyze, extractRefs, findDuplicateKeys, splitShell, BASELINE_FILE } from './check-package-script-refs.mjs';
++
++const HERE = path.dirname(fileURLToPath(import.meta.url));
++const REPO = path.resolve(HERE, '..');
++const CLI = path.join(HERE, 'check-package-script-refs.mjs');
++
++const files = (...present) => (p) => present.includes(p);
++const pkgOf = (scripts) => JSON.stringify({ name: 't', scripts }, null, 2);
++const targets = (cmd) => extractRefs(cmd).map((r) => `${r.kind}:${r.target}`);
++
++// ---- splitShell ------------------------------------------------------------------------------
++
++test('splitShell: separators, quotes and redirections', () => {
++  assert.deepEqual(splitShell('a x && b y || c; d | e'), [['a', 'x'], ['b', 'y'], ['c'], ['d'], ['e']]);
++  assert.deepEqual(splitShell(`node -e "console.log('a && b')"`), [['node', '-e', "console.log('a && b')"]]);
++  assert.deepEqual(splitShell('node a.mjs > out.txt 2>&1'), [['node', 'a.mjs']]);
++  assert.deepEqual(splitShell("echo 'it''s'"), [['echo', 'its']]);
++});
++
++// ---- extractRefs -----------------------------------------------------------------------------
++
++test('extractRefs: node entry file, ignoring node flags and script arguments', () => {
++  assert.deepEqual(targets('node scripts/a.mjs'), ['node-entry:scripts/a.mjs']);
++  assert.deepEqual(targets('node --experimental-strip-types --no-warnings scripts/check-settings-registry.mjs'), [
++    'node-entry:scripts/check-settings-registry.mjs',
++  ]);
++  assert.deepEqual(targets('node scripts/a.mjs --write out/report.json'), ['node-entry:scripts/a.mjs']);
++  assert.deepEqual(targets('node ./scripts/a.mjs'), ['node-entry:scripts/a.mjs']);
++  assert.deepEqual(targets('FOO=1 node scripts/a.mjs'), ['node-entry:scripts/a.mjs']);
++  assert.deepEqual(targets('cross-env FOO=1 node scripts/a.mjs'), ['node-entry:scripts/a.mjs']);
++  assert.deepEqual(targets('node --import ./loader.mjs scripts/a.mjs'), ['node-entry:scripts/a.mjs']);
++});
++
++test('extractRefs: node --test lists every test file; inline code has no refs', () => {
++  assert.deepEqual(targets('node --test a.test.mjs b.test.mjs'), ['file:a.test.mjs', 'file:b.test.mjs']);
++  assert.deepEqual(targets('node -e "require(\'./nope.js\')"'), []);
++  assert.deepEqual(targets('node --eval "1"'), []);
++});
++
++test('extractRefs: && chains and npm run', () => {
++  assert.deepEqual(targets('node scripts/a.mjs && vite build && node scripts/b.mjs'), [
++    'node-entry:scripts/a.mjs',
++    'node-entry:scripts/b.mjs',
++  ]);
++  assert.deepEqual(targets('npm run a && npm run b -- --flag'), ['npm-script:a', 'npm-script:b']);
++  assert.deepEqual(targets('npm run --silent c'), ['npm-script:c']);
++});
++
++test('extractRefs: tool config flags and spec files, with no false positives on ports/names', () => {
++  assert.deepEqual(targets('vitest run -c vitest.built.config.ts'), ['file:vitest.built.config.ts']);
++  assert.deepEqual(targets('vitest run --config=vitest.x.ts'), ['file:vitest.x.ts']);
++  assert.deepEqual(targets('tsc --noEmit -p tsconfig.app.json'), ['file:tsconfig.app.json']);
++  assert.deepEqual(targets('playwright test e2e/a.spec.ts --project=m-iphone-se --project=m-pixel-7'), ['file:e2e/a.spec.ts']);
++  assert.deepEqual(targets('playwright test --project chromium e2e/a.spec.ts'), ['file:e2e/a.spec.ts']);
++  assert.deepEqual(targets('stryker run stryker/money.conf.mjs'), ['file:stryker/money.conf.mjs']);
++  assert.deepEqual(targets('storybook dev -p 6006'), []);
++  assert.deepEqual(targets('vite build --mode home --outDir dist-home'), []);
++  assert.deepEqual(targets('prettier --write .'), []);
++  assert.deepEqual(targets('vitest run supabase/functions/_shared/vertical-ai'), []);
++});
++
++test('extractRefs: shell expansion and URLs are never reported', () => {
++  assert.deepEqual(targets('node scripts/$NAME.mjs'), []);
++  assert.deepEqual(targets('node --test scripts/*.test.mjs'), []);
++  assert.deepEqual(targets('node https://example.com/x.mjs'), []);
++});
++
++// ---- findDuplicateKeys -----------------------------------------------------------------------
++
++test('findDuplicateKeys: reports duplicates with path and line, ignores same key in different objects', () => {
++  const text = `{
++  "scripts": {
++    "build": "a",
++    "test": "b",
++    "build": "c"
++  },
++  "other": { "build": "x" },
++  "list": [ { "k": 1 }, { "k": 2 } ]
++}`;
++  assert.deepEqual(findDuplicateKeys(text), [{ path: 'scripts', key: 'build', line: 5 }]);
++  assert.deepEqual(findDuplicateKeys('{"a":{"b":1},"c":{"b":2}}'), []);
++  assert.deepEqual(findDuplicateKeys('{"a\\"b":1,"a\\"b":2}'), [{ path: '(root)', key: 'a"b', line: 1 }]);
++});
++
++test('findDuplicateKeys: braces inside strings do not confuse the scanner', () => {
++  assert.deepEqual(findDuplicateKeys('{"scripts":{"x":"echo {}","y":"a:b,c","x":"z"}}'), [
++    { path: 'scripts', key: 'x', line: 1 },
++  ]);
++});
++
++// ---- analyze ---------------------------------------------------------------------------------
++
++test('analyze: passes when everything exists', () => {
++  const r = analyze({
++    pkgText: pkgOf({ a: 'node scripts/a.mjs', b: 'npm run a' }),
++    exists: files('scripts/a.mjs'),
++  });
++  assert.equal(r.ok, true);
++  assert.equal(r.broken.length, 0);
++});
++
++test('analyze: a missing file fails (the original `sbom` bug)', () => {
++  const r = analyze({
++    pkgText: pkgOf({ sbom: 'node scripts/supply-chain/sbom.mjs' }),
++    exists: files(),
++  });
++  assert.equal(r.ok, false);
++  assert.deepEqual(r.newBroken, [{ script: 'sbom', kind: 'node-entry', target: 'scripts/supply-chain/sbom.mjs' }]);
++});
++
++test('analyze: an undefined `npm run` target fails', () => {
++  const r = analyze({ pkgText: pkgOf({ a: 'npm run ghost' }), exists: files() });
++  assert.equal(r.ok, false);
++  assert.equal(r.newBroken[0].target, 'ghost');
++});
++
++test('analyze: duplicate keys fail even when every reference resolves', () => {
++  const dup = '{"scripts":{"build":"node a.mjs","build":"node b.mjs"}}';
++  const r = analyze({ pkgText: dup, exists: files('a.mjs', 'b.mjs') });
++  assert.equal(r.ok, false);
++  assert.equal(r.duplicateKeys.length, 1);
++});
++
++test('analyze: a node entry resolves like Node does (extensionless / index.js)', () => {
++  assert.equal(analyze({ pkgText: pkgOf({ a: 'node scripts/a' }), exists: files('scripts/a.mjs') }).ok, true);
++  assert.equal(analyze({ pkgText: pkgOf({ a: 'node scripts' }), exists: files('scripts/index.js') }).ok, true);
++});
++
++test('analyze: baseline suppresses known debt, but a NEW break still fails', () => {
++  const baseline = [{ script: 'old', file: 'scripts/old.mjs' }];
++  const pkgText = pkgOf({ old: 'node scripts/old.mjs', fresh: 'node scripts/fresh.mjs' });
++  const r = analyze({ pkgText, exists: files(), baseline });
++  assert.equal(r.ok, false);
++  assert.deepEqual(r.newBroken.map((b) => b.script), ['fresh']);
++  assert.deepEqual(r.baselined.map((b) => b.script), ['old']);
++});
++
++test('analyze: a stale baseline entry fails so the ratchet only tightens', () => {
++  const baseline = [{ script: 'old', file: 'scripts/old.mjs' }];
++  const r = analyze({ pkgText: pkgOf({ old: 'node scripts/old.mjs' }), exists: files('scripts/old.mjs'), baseline });
++  assert.equal(r.ok, false);
++  assert.equal(r.staleBaseline.length, 1);
++});
++
++test('analyze: --strict ignores the baseline', () => {
++  const baseline = [{ script: 'old', file: 'scripts/old.mjs' }];
++  const r = analyze({ pkgText: pkgOf({ old: 'node scripts/old.mjs' }), exists: files(), baseline, strict: true });
++  assert.equal(r.ok, false);
++  assert.equal(r.newBroken.length, 1);
++});
++
++// ---- CLI -------------------------------------------------------------------------------------
++
++const run = (args) => spawnSync(process.execPath, [CLI, ...args], { encoding: 'utf8' });
++
++function tmpRepo(scripts, extra = {}) {
++  const dir = mkdtempSync(path.join(tmpdir(), 'script-refs-'));
++  writeFileSync(path.join(dir, 'package.json'), pkgOf(scripts));
++  for (const [rel, content] of Object.entries(extra)) {
++    mkdirSync(path.dirname(path.join(dir, rel)), { recursive: true });
++    writeFileSync(path.join(dir, rel), content);
++  }
++  return dir;
++}
++
++test('CLI: exit 1 and a GitHub error annotation for a missing file', () => {
++  const dir = tmpRepo({ sbom: 'node scripts/supply-chain/sbom.mjs' });
++  try {
++    const r = run(['--root', dir]);
++    assert.equal(r.status, 1);
++    assert.match(r.stdout, /::error file=package\.json::Script "sbom" references "scripts\/supply-chain\/sbom\.mjs"/);
++  } finally {
++    rmSync(dir, { recursive: true, force: true });
++  }
++});
++
++test('CLI: exit 0 when the referenced file exists', () => {
++  const dir = tmpRepo({ ok: 'node scripts/ok.mjs' }, { 'scripts/ok.mjs': '' });
++  try {
++    assert.equal(run(['--root', dir]).status, 0);
++  } finally {
++    rmSync(dir, { recursive: true, force: true });
++  }
++});
++
++test('CLI: --write-baseline then check passes; fixing the file makes the baseline stale (fails)', () => {
++  const dir = tmpRepo({ gone: 'node scripts/gone.mjs' });
++  try {
++    assert.equal(run(['--root', dir, '--write-baseline']).status, 0);
++    assert.equal(run(['--root', dir]).status, 0);
++    assert.equal(run(['--root', dir, '--strict']).status, 1);
++    mkdirSync(path.join(dir, 'scripts'), { recursive: true });
++    writeFileSync(path.join(dir, 'scripts/gone.mjs'), '');
++    const r = run(['--root', dir]);
++    assert.equal(r.status, 1);
++    assert.match(r.stdout, /Delete it from the baseline/);
++  } finally {
++    rmSync(dir, { recursive: true, force: true });
++  }
++});
++
++test('CLI: --write-baseline keeps existing notes', () => {
++  const dir = tmpRepo({ gone: 'node scripts/gone.mjs' });
++  try {
++    run(['--root', dir, '--write-baseline']);
++    const file = path.join(dir, BASELINE_FILE);
++    const data = JSON.parse(readFileSync(file, 'utf8'));
++    data.entries[0].note = 'my hand-written note';
++    writeFileSync(file, JSON.stringify(data));
++    run(['--root', dir, '--write-baseline']);
++    assert.equal(JSON.parse(readFileSync(file, 'utf8')).entries[0].note, 'my hand-written note');
++  } finally {
++    rmSync(dir, { recursive: true, force: true });
++  }
++});
++
++test('CLI: a malformed baseline is a hard error, not a silent pass', () => {
++  const dir = tmpRepo({ a: 'node a.mjs' }, { 'a.mjs': '', [BASELINE_FILE]: '{"entries":[{"script":1}]}' });
++  try {
++    assert.notEqual(run(['--root', dir]).status, 0);
++  } finally {
++    rmSync(dir, { recursive: true, force: true });
++  }
++});
++
++// ---- This repository --------------------------------------------------------------------------
++
++test('this repo: package.json passes the check with the committed baseline', () => {
++  const r = run([]);
++  assert.equal(r.status, 0, r.stdout);
++});
++
++test('this repo: every baseline entry has a note and points at a really-missing file', () => {
++  const { entries } = JSON.parse(readFileSync(path.join(REPO, BASELINE_FILE), 'utf8'));
++  for (const e of entries) {
++    assert.ok(e.note && e.note.length > 20, `baseline entry ${e.script} needs a real note`);
++    assert.equal(existsSync(path.join(REPO, e.file)), false, `${e.file} exists now: remove ${e.script} from the baseline`);
++  }
++});
++
++test('this repo: package.json has no duplicate keys', () => {
++  assert.deepEqual(findDuplicateKeys(readFileSync(path.join(REPO, 'package.json'), 'utf8')), []);
++});
++
++test('this repo: esbuild is declared (regression for the phantom dependency)', () => {
++  const pkg = JSON.parse(readFileSync(path.join(REPO, 'package.json'), 'utf8'));
++  const declared = { ...pkg.dependencies, ...pkg.devDependencies };
++  assert.ok(declared.esbuild, 'esbuild must be in package.json: scripts import it directly');
++  const lock = JSON.parse(readFileSync(path.join(REPO, 'package-lock.json'), 'utf8'));
++  assert.equal(lock.packages[''].devDependencies.esbuild, declared.esbuild, 'package-lock.json root entry must match package.json');
++});
+diff -ruN a/scripts/generate-rss.mjs b/scripts/generate-rss.mjs
+--- a/scripts/generate-rss.mjs	2026-11-21 09:56:01.953657081 +0000
++++ b/scripts/generate-rss.mjs	2026-11-21 09:56:02.120240085 +0000
+@@ -11,8 +11,7 @@
+ // Runs automatically as the first step of `npm run build`. Manual run:
+ //   node scripts/generate-rss.mjs
+ //
+-// Requires esbuild as a dev dependency:
+-//   npm install --save-dev esbuild
++// Requires esbuild (declared in devDependencies; installed by `npm ci`).
+ 
+ import { writeFileSync } from 'node:fs';
+ import { fileURLToPath } from 'node:url';
+diff -ruN a/scripts/ingest-brand-knowledge.mjs b/scripts/ingest-brand-knowledge.mjs
+--- a/scripts/ingest-brand-knowledge.mjs	2026-11-21 09:56:01.953794903 +0000
++++ b/scripts/ingest-brand-knowledge.mjs	2026-11-21 09:56:02.121057878 +0000
+@@ -25,8 +25,7 @@
+ // the chunk output after editing a source file, with no API keys needed:
+ //   node scripts/ingest-brand-knowledge.mjs --dry-run
+ //
+-// Requires esbuild as a dev dependency (same as generate-rss.mjs):
+-//   npm install --save-dev esbuild
++// Requires esbuild (declared in devDependencies; installed by `npm ci`).
+ // Requires @supabase/supabase-js (already a project dependency).
+ 
+ import { fileURLToPath } from 'node:url';
+diff -ruN a/scripts/knowledge-build.mjs b/scripts/knowledge-build.mjs
+--- a/scripts/knowledge-build.mjs	2026-11-21 09:56:01.953818852 +0000
++++ b/scripts/knowledge-build.mjs	2026-11-21 09:56:02.121407318 +0000
+@@ -57,7 +57,7 @@
+ let esbuildPromise;
+ async function loadEsbuild() {
+   esbuildPromise ??= import('esbuild').catch(() => {
+-    throw new Error('esbuild is required: run `npm install --save-dev esbuild` (it is not yet in devDependencies).');
++    throw new Error('esbuild could not be imported: run `npm ci` (esbuild is a devDependency).');
+   });
+   return esbuildPromise;
+ }
+diff -ruN a/scripts/package-script-refs.baseline.json b/scripts/package-script-refs.baseline.json
+--- a/scripts/package-script-refs.baseline.json	1970-01-01 00:00:00.000000000 +0000
++++ b/scripts/package-script-refs.baseline.json	2026-11-21 09:56:02.123747798 +0000
+@@ -0,0 +1,40 @@
++{
++  "$comment": "Known-broken package.json script references (ratchet). Only ever shrink this list: fix the script or delete it, then remove the entry. Checked by scripts/check-package-script-refs.mjs.",
++  "entries": [
++    {
++      "script": "assets:check",
++      "file": "scripts/supply-chain/asset-inventory.mjs",
++      "note": "Missing from the repository; no document references it. [TRIAGE] implement or delete the script."
++    },
++    {
++      "script": "check:layers",
++      "file": "scripts/governance/check-layers.mjs",
++      "note": "Missing from the repository. Documented in CONTRIBUTING.md (pre-PR governance checks) and .github/pull_request_template.md. [TRIAGE] implement or delete the script."
++    },
++    {
++      "script": "debt:report",
++      "file": "scripts/governance/debt-report.mjs",
++      "note": "Missing from the repository. Mentioned in docs/governance/TECH_DEBT.md. [TRIAGE] implement or delete the script."
++    },
++    {
++      "script": "doctor",
++      "file": "scripts/dependency-doctor.mjs",
++      "note": "Missing from the repository. Documented in CONTRIBUTING.md, .github/pull_request_template.md and docs/governance/DECISIONS_NEEDED.md. [TRIAGE] implement or delete the script."
++    },
++    {
++      "script": "doctor:strict",
++      "file": "scripts/dependency-doctor.mjs",
++      "note": "Same missing file as \"doctor\". [TRIAGE] resolve together with \"doctor\"."
++    },
++    {
++      "script": "registers:check",
++      "file": "scripts/registers/check-registers.mjs",
++      "note": "Missing from the repository (scripts/registers/ does not exist). Documented in CONTRIBUTING.md, docs/READINESS_SCORECARD.md, docs/_audit/final-convergence-audit.md. [TRIAGE] implement or delete the script."
++    },
++    {
++      "script": "sbom",
++      "file": "scripts/supply-chain/sbom.mjs",
++      "note": "Missing from the repository; no document references it. No SBOM generator exists here. [TRIAGE] implement it or delete the script. Do not claim an SBOM is produced until it is."
++    }
++  ]
++}
+diff -ruN a/supabase/functions/_shared/voice/provider.test.ts b/supabase/functions/_shared/voice/provider.test.ts
+--- a/supabase/functions/_shared/voice/provider.test.ts	2026-11-21 09:56:02.053226728 +0000
++++ b/supabase/functions/_shared/voice/provider.test.ts	2026-11-21 09:56:02.232886793 +0000
+@@ -92,6 +92,13 @@
+     expect(p.verifyWebhookSignature({ headers: { "x-vapi-secret": "wrong!" } })).toBe(false);
+     expect(p.verifyWebhookSignature({ headers: { "x-vapi-secret": "s3cret" } })).toBe(true);
+   });
++  it("also accepts the current Vapi Bearer credential; a wrong Bearer alone is rejected", () => {
++    const p = new VapiProvider({ apiKey: "k", webhookSecret: "s3cret" });
++    expect(p.verifyWebhookSignature({ headers: { authorization: "Bearer s3cret" } })).toBe(true);
++    expect(p.verifyWebhookSignature({ headers: { authorization: "Bearer wrong!" } })).toBe(false);
++    expect(p.verifyWebhookSignature({ headers: { authorization: "Bearer s3cret", "x-vapi-secret": null } })).toBe(true);
++    expect(new VapiProvider({ apiKey: "k", webhookSecret: null }).verifyWebhookSignature({ headers: { authorization: "Bearer s3cret" } })).toBe(false);
++  });
+ });
+ 
+ describe("VapiProvider operations", () => {
+diff -ruN a/supabase/functions/_shared/voice/vapiProvider.ts b/supabase/functions/_shared/voice/vapiProvider.ts
+--- a/supabase/functions/_shared/voice/vapiProvider.ts	2026-11-21 09:56:02.053281738 +0000
++++ b/supabase/functions/_shared/voice/vapiProvider.ts	2026-11-21 09:56:02.232932873 +0000
+@@ -16,7 +16,7 @@
+ //   endCall              POST monitor.controlUrl {type:"end-call"} — transfer uses the same channel with type:"transfer"
+ //                        (live-call-control); the "end-call" message type is UNVERIFIED against live Vapi.
+ 
+-import { parseVapiBody, verifyVapiSecret } from "../voice-hardening/webhookAuth.ts";
++import { parseVapiBody, verifyVapiRequestSecret } from "../voice-hardening/webhookAuth.ts";
+ import { VapiEngine } from "../voice-engine/vapiEngine.ts";
+ import {
+   errResult, errorFromStatus, errorFromThrown, notConfigured, okResult,
+@@ -34,7 +34,7 @@
+ 
+ export interface VapiProviderOptions {
+   apiKey: string | null | undefined;
+-  /** Shared secret expected in the `x-vapi-secret` header. Missing => every webhook is rejected (fail closed). */
++  /** Shared secret expected in `Authorization: Bearer` or the legacy `x-vapi-secret` header. Missing => every webhook is rejected (fail closed). */
+   webhookSecret: string | null | undefined;
+   fetchImpl?: FetchLike;
+   baseUrl?: string;
+@@ -261,6 +261,7 @@
+   }
+ 
+   verifyWebhookSignature(req: WebhookRequestMeta): boolean {
+-    return verifyVapiSecret(req.headers["x-vapi-secret"], this.webhookSecret);
++    // Accepts the current `Authorization: Bearer <secret>` and the legacy `x-vapi-secret` header (see webhookAuth.ts).
++    return verifyVapiRequestSecret(req.headers, this.webhookSecret).ok;
+   }
+ }
+diff -ruN a/supabase/functions/_shared/voice-hardening/router.test.ts b/supabase/functions/_shared/voice-hardening/router.test.ts
+--- a/supabase/functions/_shared/voice-hardening/router.test.ts	2026-11-21 09:56:02.052195833 +0000
++++ b/supabase/functions/_shared/voice-hardening/router.test.ts	2026-11-21 09:56:02.232118815 +0000
+@@ -135,3 +135,51 @@
+     expect((await processWebhook(post({ message: { type: "end-of-call-report" } }), ports)).status).toBe(500);
+   });
+ });
++
++describe("webhook secret header transition (Authorization: Bearer + legacy x-vapi-secret)", () => {
++  const ok = async (headers: Record<string, string>, envPatch: Record<string, string | undefined> = {}) => {
++    const made = makePorts();
++    Object.assign(made.env, envPatch);
++    const res = await processWebhook(post({ message: { type: "hang" } }, headers), made.ports);
++    return { ...made, res };
++  };
++
++  it("accepts Authorization: Bearer <secret> and runs the handler", async () => {
++    const { res, calls } = await ok({ authorization: `Bearer ${SECRET}` });
++    expect(res.status).toBe(200);
++    expect(calls).toEqual(["lifecycle"]);
++  });
++  it("still accepts legacy x-vapi-secret", async () => {
++    const { res, calls } = await ok({ "x-vapi-secret": SECRET });
++    expect(res.status).toBe(200);
++    expect(calls).toEqual(["lifecycle"]);
++  });
++  it("voice-reconcile replay shape (legacy header + service-role Authorization) is accepted", async () => {
++    const { res } = await ok({ "x-vapi-secret": SECRET, authorization: "Bearer service-role-key" });
++    expect(res.status).toBe(200);
++  });
++  it("a service-role Authorization alone is 401", async () => {
++    const { res, calls } = await ok({ authorization: "Bearer service-role-key" });
++    expect(res.status).toBe(401);
++    expect(calls).toEqual([]);
++  });
++  it("VAPI_ACCEPT_LEGACY_SECRET_HEADER=0 rejects x-vapi-secret alone but keeps Bearer working", async () => {
++    const legacy = await ok({ "x-vapi-secret": SECRET }, { VAPI_ACCEPT_LEGACY_SECRET_HEADER: "0" });
++    expect(legacy.res.status).toBe(401);
++    expect(legacy.calls).toEqual([]);
++    const bearer = await ok({ authorization: `Bearer ${SECRET}` }, { VAPI_ACCEPT_LEGACY_SECRET_HEADER: "0" });
++    expect(bearer.res.status).toBe(200);
++  });
++  it("logs which header authenticated the request, and never logs a secret value", async () => {
++    const a = await ok({ authorization: `Bearer ${SECRET}` });
++    expect(a.ports.logEvent).toHaveBeenCalledWith("webhook_received", "req-1", { type: "hang", auth_via: "authorization" });
++    const b = await ok({ "x-vapi-secret": SECRET });
++    expect(b.ports.logEvent).toHaveBeenCalledWith("webhook_received", "req-1", { type: "hang", auth_via: "x-vapi-secret" });
++    const denied = await ok({ authorization: "Bearer wrong", "x-vapi-secret": "wrong-too" });
++    expect(denied.res.status).toBe(401);
++    for (const m of [a, b, denied]) {
++      const logged = JSON.stringify([(m.ports.logEvent as { mock: { calls: unknown[] } }).mock.calls, (m.ports.logError as { mock: { calls: unknown[] } }).mock.calls]);
++      expect(logged.includes(SECRET)).toBe(false);
++    }
++  });
++});
+diff -ruN a/supabase/functions/_shared/voice-hardening/router.ts b/supabase/functions/_shared/voice-hardening/router.ts
+--- a/supabase/functions/_shared/voice-hardening/router.ts	2026-11-21 09:56:02.052205568 +0000
++++ b/supabase/functions/_shared/voice-hardening/router.ts	2026-11-21 09:56:02.232132899 +0000
+@@ -1,7 +1,7 @@
+ // Entry-point logic of the Vapi webhook, extracted from vapi-webhook/index.ts so it can be tested
+ // without Deno. Behaviour is unchanged except: constant-time secret check, body-size cap, and
+ // every handler failure is logged to webhook_logs as an error.
+-import { parseVapiBody, verifyVapiSecret } from "./webhookAuth.ts";
++import { isLegacySecretHeaderAccepted, parseVapiBody, verifyVapiRequestSecret } from "./webhookAuth.ts";
+ 
+ /** Every Vapi message.type this function acts on, and which handler owns it. Anything else is acknowledged (200) and ignored. */
+ export const HANDLED_EVENTS = {
+@@ -19,7 +19,7 @@
+ export const CORS_HEADERS = {
+   "Access-Control-Allow-Origin": "*",
+   "Access-Control-Allow-Methods": "POST, OPTIONS",
+-  "Access-Control-Allow-Headers": "Content-Type, x-vapi-secret",
++  "Access-Control-Allow-Headers": "Content-Type, Authorization, x-vapi-secret",
+ };
+ 
+ export function json(data: unknown, status = 200): Response {
+@@ -52,7 +52,12 @@
+     ports.logError("config_error_missing_secret", requestId, "VAPI_SERVER_SECRET is not set");
+     return json({ error: "Server not configured" }, 500);
+   }
+-  if (!verifyVapiSecret(req.headers.get("x-vapi-secret"), expectedSecret)) {
++  // `Authorization: Bearer` (current Vapi credential) and legacy `x-vapi-secret` are both accepted during the
++  // transition; see webhookAuth.ts. Logging only WHICH header matched (never a value) tells ops when the legacy one is unused.
++  const auth = verifyVapiRequestSecret(req.headers, expectedSecret, {
++    acceptLegacyHeader: isLegacySecretHeaderAccepted(ports.getEnv("VAPI_ACCEPT_LEGACY_SECRET_HEADER")),
++  });
++  if (!auth.ok) {
+     ports.logEvent("unauthorized_request", requestId, {});
+     return json({ error: "Unauthorized" }, 401);
+   }
+@@ -80,7 +85,7 @@
+   const admin = ports.createAdmin(supabaseUrl, serviceRoleKey);
+ 
+   try { await ports.bindTrace?.(requestId, message); } catch { /* telemetry must never block the webhook */ }
+-  ports.logEvent("webhook_received", requestId, { type: message.type });
++  ports.logEvent("webhook_received", requestId, { type: message.type, auth_via: auth.via });
+   await ports.logToDb(admin, { eventType: message.type, status: "success", requestId });
+   try {
+     await ports.trackLiveCall(admin, message, requestId);
+diff -ruN a/supabase/functions/_shared/voice-hardening/webhookAuth.test.ts b/supabase/functions/_shared/voice-hardening/webhookAuth.test.ts
+--- a/supabase/functions/_shared/voice-hardening/webhookAuth.test.ts	1970-01-01 00:00:00.000000000 +0000
++++ b/supabase/functions/_shared/voice-hardening/webhookAuth.test.ts	2026-11-21 09:56:02.232158041 +0000
+@@ -0,0 +1,105 @@
++import { describe, expect, it } from "vitest";
++import {
++  isLegacySecretHeaderAccepted,
++  timingSafeEqualStr,
++  verifyVapiRequestSecret,
++  verifyVapiSecret,
++} from "./webhookAuth.ts";
++
++const SECRET = "s3cret-value-0123456789";
++const h = (init: Record<string, string>) => new Headers(init);
++
++describe("timingSafeEqualStr", () => {
++  it("is true only for identical strings", () => {
++    expect(timingSafeEqualStr("abc", "abc")).toBe(true);
++    expect(timingSafeEqualStr("", "")).toBe(true);
++    expect(timingSafeEqualStr("abc", "abd")).toBe(false);
++    expect(timingSafeEqualStr("héllo✓", "héllo✓")).toBe(true);
++    expect(timingSafeEqualStr("héllo✓", "héllo✗")).toBe(false);
++  });
++  it("never treats a prefix/extension as equal (length is part of the result)", () => {
++    expect(timingSafeEqualStr(SECRET, SECRET + "x")).toBe(false);
++    expect(timingSafeEqualStr(SECRET + "x", SECRET)).toBe(false);
++    expect(timingSafeEqualStr(SECRET, SECRET.slice(0, -1))).toBe(false);
++    expect(timingSafeEqualStr("", "a")).toBe(false);
++    expect(timingSafeEqualStr("a", "")).toBe(false);
++    expect(timingSafeEqualStr("abc", "abc\u0000")).toBe(false);
++  });
++});
++
++describe("verifyVapiSecret", () => {
++  it("fails closed without a configured secret, and on empty/missing input", () => {
++    expect(verifyVapiSecret("anything", undefined)).toBe(false);
++    expect(verifyVapiSecret("anything", null)).toBe(false);
++    expect(verifyVapiSecret("", "")).toBe(false);
++    expect(verifyVapiSecret("", SECRET)).toBe(false);
++    expect(verifyVapiSecret(undefined, SECRET)).toBe(false);
++    expect(verifyVapiSecret(null, SECRET)).toBe(false);
++    expect(verifyVapiSecret(SECRET, SECRET)).toBe(true);
++  });
++});
++
++describe("verifyVapiRequestSecret", () => {
++  it("accepts the current Bearer credential", () => {
++    expect(verifyVapiRequestSecret(h({ authorization: `Bearer ${SECRET}` }), SECRET)).toEqual({ ok: true, via: "authorization" });
++  });
++  it("accepts the Bearer scheme case-insensitively and a raw token (Vapi 'Include Bearer Prefix' off)", () => {
++    expect(verifyVapiRequestSecret(h({ authorization: `bearer   ${SECRET}` }), SECRET).ok).toBe(true);
++    expect(verifyVapiRequestSecret(h({ authorization: SECRET }), SECRET)).toEqual({ ok: true, via: "authorization" });
++  });
++  it("accepts the legacy x-vapi-secret header", () => {
++    expect(verifyVapiRequestSecret(h({ "x-vapi-secret": SECRET }), SECRET)).toEqual({ ok: true, via: "x-vapi-secret" });
++    expect(verifyVapiRequestSecret(h({ "X-VAPI-SECRET": SECRET }), SECRET).ok).toBe(true);
++  });
++  it("reports 'authorization' when both headers are valid", () => {
++    expect(verifyVapiRequestSecret(h({ authorization: `Bearer ${SECRET}`, "x-vapi-secret": SECRET }), SECRET).via).toBe("authorization");
++  });
++  it("voice-reconcile shape: legacy header valid + Authorization carrying the service-role key -> accepted via legacy", () => {
++    const res = verifyVapiRequestSecret(h({ "x-vapi-secret": SECRET, authorization: "Bearer service-role-key-not-the-secret" }), SECRET);
++    expect(res).toEqual({ ok: true, via: "x-vapi-secret" });
++  });
++  it("the service-role key alone is never accepted", () => {
++    expect(verifyVapiRequestSecret(h({ authorization: "Bearer service-role-key-not-the-secret" }), SECRET).ok).toBe(false);
++  });
++  it("rejects missing, empty, wrong, truncated and extended values in either header", () => {
++    const bad = [
++      {},
++      { authorization: "" },
++      { authorization: "Bearer " },
++      { authorization: "Bearer" },
++      { authorization: `Basic ${SECRET}` },
++      { authorization: `Bearer ${SECRET}x` },
++      { authorization: `Bearer ${SECRET.slice(0, -1)}` },
++      { "x-vapi-secret": "" },
++      { "x-vapi-secret": "nope" },
++      { "x-vapi-secret": SECRET + "x" },
++      { "x-vapi-secret": SECRET.slice(0, -1) },
++    ];
++    for (const headers of bad) expect(verifyVapiRequestSecret(h(headers), SECRET)).toEqual({ ok: false, via: null });
++  });
++  it("fails closed when no secret is configured, even if the header is empty-equal", () => {
++    for (const expected of [undefined, null, ""]) {
++      expect(verifyVapiRequestSecret(h({ "x-vapi-secret": "" }), expected).ok).toBe(false);
++      expect(verifyVapiRequestSecret(h({ authorization: "Bearer " }), expected).ok).toBe(false);
++      expect(verifyVapiRequestSecret(h({ authorization: "Bearer x", "x-vapi-secret": "x" }), expected).ok).toBe(false);
++    }
++  });
++  it("acceptLegacyHeader:false rejects x-vapi-secret alone but still accepts Bearer", () => {
++    expect(verifyVapiRequestSecret(h({ "x-vapi-secret": SECRET }), SECRET, { acceptLegacyHeader: false }).ok).toBe(false);
++    expect(verifyVapiRequestSecret(h({ authorization: `Bearer ${SECRET}` }), SECRET, { acceptLegacyHeader: false }).ok).toBe(true);
++    expect(verifyVapiRequestSecret(h({ authorization: `Bearer ${SECRET}`, "x-vapi-secret": SECRET }), SECRET, { acceptLegacyHeader: false }).via).toBe("authorization");
++  });
++  it("works with plain header records (Node-style, mixed case, array values, null)", () => {
++    expect(verifyVapiRequestSecret({ Authorization: `Bearer ${SECRET}` }, SECRET).ok).toBe(true);
++    expect(verifyVapiRequestSecret({ "X-Vapi-Secret": [SECRET, "other"] }, SECRET).ok).toBe(true);
++    expect(verifyVapiRequestSecret({ "x-vapi-secret": null, authorization: undefined }, SECRET).ok).toBe(false);
++    expect(verifyVapiRequestSecret({}, SECRET).ok).toBe(false);
++  });
++});
++
++describe("isLegacySecretHeaderAccepted", () => {
++  it("defaults to ON; only explicit off values turn it off", () => {
++    for (const v of [undefined, null, "", "1", "true", "on", "yes", "garbage"]) expect(isLegacySecretHeaderAccepted(v)).toBe(true);
++    for (const v of ["0", "false", "FALSE", "off", "Off", "no", " 0 "]) expect(isLegacySecretHeaderAccepted(v)).toBe(false);
++  });
++});
+diff -ruN a/supabase/functions/_shared/voice-hardening/webhookAuth.ts b/supabase/functions/_shared/voice-hardening/webhookAuth.ts
+--- a/supabase/functions/_shared/voice-hardening/webhookAuth.ts	2026-11-21 09:56:02.052214582 +0000
++++ b/supabase/functions/_shared/voice-hardening/webhookAuth.ts	2026-11-21 09:56:02.232146634 +0000
+@@ -1,20 +1,86 @@
+ // Pure helpers for the Vapi webhook entry point (no Deno / npm imports so vitest can run them).
+ 
+-/** Constant-time string comparison (length difference still short-circuits; lengths are not secret). */
++/**
++ * Constant-time string comparison. It always walks max(a.length, b.length) code units and folds the length
++ * difference into the result, so neither content nor length of a near-miss changes the work done.
++ */
+ export function timingSafeEqualStr(a: string, b: string): boolean {
+-  if (a.length !== b.length) return false;
+-  let diff = 0;
+-  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
++  const len = Math.max(a.length, b.length);
++  let diff = a.length ^ b.length;
++  for (let i = 0; i < len; i++) diff |= (a.charCodeAt(i) | 0) ^ (b.charCodeAt(i) | 0);
+   return diff === 0;
+ }
+ 
+-/** True only when a non-empty expected secret is configured AND the header matches it exactly. */
++/** True only when a non-empty expected secret is configured AND the provided value matches it exactly. */
+ export function verifyVapiSecret(provided: string | null | undefined, expected: string | null | undefined): boolean {
+   if (!expected) return false;
+   if (typeof provided !== "string" || provided.length === 0) return false;
+   return timingSafeEqualStr(provided, expected);
+ }
+ 
++// ---------------------------------------------------------------------------------------------
++// Which header carries the Server URL secret (verified against docs.vapi.ai/server-url/server-authentication)
++//
++//   * Current / recommended: a Bearer Token custom credential -> `Authorization: Bearer <token>`
++//     (the dashboard also lets the owner turn the "Bearer" prefix off, which sends the raw token).
++//   * Legacy: `X-Vapi-Secret: <token>` (the old inline `server.secret`; still supported by Vapi, and still
++//     what `_shared/audit/script.ts` configures through `server.headers`).
++//
++// During the transition BOTH are accepted against the same VAPI_SERVER_SECRET. A request is authentic if
++// EITHER header carries the secret; an unrelated value in the other header is ignored. That matters:
++// `voice-reconcile` replays events with `x-vapi-secret: <secret>` AND `Authorization: Bearer <service-role key>`.
++// Set VAPI_ACCEPT_LEGACY_SECRET_HEADER=0 to stop honouring `x-vapi-secret` once the logs show it is unused.
++// ---------------------------------------------------------------------------------------------
++
++export type VapiSecretSource = "authorization" | "x-vapi-secret";
++export type VapiAuthResult = { ok: true; via: VapiSecretSource } | { ok: false; via: null };
++
++/** Fetch `Headers`, or a plain (Node-style) record whose values may be arrays. */
++export type HeaderBag = { get(name: string): string | null } | Record<string, string | string[] | null | undefined>;
++
++function readHeader(headers: HeaderBag, name: string): string | undefined {
++  if (typeof (headers as { get?: unknown }).get === "function") {
++    return (headers as { get(n: string): string | null }).get(name) ?? undefined;
++  }
++  const record = headers as Record<string, string | string[] | null | undefined>;
++  for (const key of Object.keys(record)) {
++    if (key.toLowerCase() !== name) continue;
++    const value = record[key];
++    return (Array.isArray(value) ? value[0] : value) ?? undefined;
++  }
++  return undefined;
++}
++
++/** `Authorization: Bearer abc` -> `abc`; a raw `Authorization: abc` (prefix toggled off in Vapi) -> `abc`. */
++function readAuthorizationToken(headers: HeaderBag): string | undefined {
++  const raw = readHeader(headers, "authorization")?.trim();
++  if (!raw) return undefined;
++  return raw.replace(/^bearer\s+/i, "");
++}
++
++/** Reads the legacy-header switch. Anything other than an explicit off value keeps it ON (the safe default for a migration). */
++export function isLegacySecretHeaderAccepted(envValue: string | null | undefined): boolean {
++  return !/^(0|false|off|no)$/i.test((envValue ?? "").trim());
++}
++
++/**
++ * Authenticates a Vapi Server URL request. Both candidate headers are always compared (no early exit),
++ * so timing does not reveal which one carried a valid secret. Fails closed when no secret is configured.
++ */
++export function verifyVapiRequestSecret(
++  headers: HeaderBag,
++  expected: string | null | undefined,
++  opts: { acceptLegacyHeader?: boolean } = {},
++): VapiAuthResult {
++  if (!expected) return { ok: false, via: null };
++  const acceptLegacy = opts.acceptLegacyHeader ?? true;
++  const okBearer = verifyVapiSecret(readAuthorizationToken(headers), expected);
++  const okLegacy = acceptLegacy && verifyVapiSecret(readHeader(headers, "x-vapi-secret"), expected);
++  if (okBearer) return { ok: true, via: "authorization" };
++  if (okLegacy) return { ok: true, via: "x-vapi-secret" };
++  return { ok: false, via: null };
++}
++
+ export const MAX_WEBHOOK_BODY_CHARS = 2_000_000;
+ 
+ export type ParsedBody =
+diff -ruN a/supabase/functions/vapi-webhook/index.ts b/supabase/functions/vapi-webhook/index.ts
+--- a/supabase/functions/vapi-webhook/index.ts	2026-11-21 09:56:02.068392205 +0000
++++ b/supabase/functions/vapi-webhook/index.ts	2026-11-21 09:56:02.248852912 +0000
+@@ -61,9 +61,12 @@
+ // moment this file was generated. Two things are worth explicitly
+ // re-verifying against current Vapi docs before you rely on this in
+ // production, because Vapi has changed these shapes before:
+-//   1. The exact header name Vapi sends its Server URL secret in
+-//      (implemented here as `x-vapi-secret`, matching the assistant-level
+-//      "Server URL Secret" feature).
++//   1. (VERIFIED 2026-11-21 against docs.vapi.ai/server-url/server-authentication)
++//      The secret header. Current Vapi sends a Bearer Token credential as
++//      `Authorization: Bearer <token>`; the legacy `X-Vapi-Secret` header (old
++//      inline `server.secret`) is still supported. This function accepts BOTH
++//      against VAPI_SERVER_SECRET, compared in constant time — see
++//      _shared/voice-hardening/webhookAuth.ts and docs/runbooks/vapi-webhook-secret-header.md.
+ //   2. The exact response shape expected for `transfer-destination-request`
+ //      (implemented here as `{ destination: { type: "number", number, message } }`)
+ //      and for `tool-calls` (`{ results: [{ toolCallId, result }] }`).
+@@ -76,8 +79,10 @@
+ // Required secrets (set with `supabase secrets set`, never hardcode):
+ //   SUPABASE_URL                — already provided by the platform
+ //   SUPABASE_SERVICE_ROLE_KEY   — already provided by the platform
+-//   VAPI_SERVER_SECRET          — the same value you put in the Vapi
+-//                                  assistant's "Server URL Secret" field
++//   VAPI_SERVER_SECRET          — the token of the Vapi Custom Credential used for
++//                                  the Server URL (or the legacy "Server URL Secret")
++//   VAPI_ACCEPT_LEGACY_SECRET_HEADER — optional; "0" stops honouring `x-vapi-secret`
++//                                  (default: accepted during the transition)
+ // ─────────────────────────────────────────────────────────────────────────
+ //
+ // Deploy:
