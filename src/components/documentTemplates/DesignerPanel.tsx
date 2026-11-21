@@ -116,7 +116,7 @@ function ColorField({ label, value, onChange, disabled }: { label: string; value
           value={text}
           disabled={disabled}
           maxLength={7}
-          error={invalid ? 'Use a hex color like #AE3600.' : undefined}
+          error={invalid ? 'Use a hex color like #9F4223.' : undefined}
           onChange={(e) => commit(e.target.value)}
           onBlur={() => setText(value)}
           className="font-mono uppercase"
