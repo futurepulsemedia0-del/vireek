@@ -72,7 +72,7 @@ function DrawerActions({ onNavigate }: { onNavigate: () => void }) {
   const base =
     'focus-ring flex h-12 w-full items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-all active:scale-[0.98]';
   return (
-    <div className="space-y-3 border-t border-border px-5 py-5">
+    <div className="space-y-3 border-t border-border px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-5"
       {signedIn ? (
         <Link to="/dashboard" onClick={onNavigate} className={`${base} bg-accent text-on-accent shadow-sm hover:shadow-glow-accent`}>
           <LayoutDashboard size={16} aria-hidden="true" />
@@ -168,11 +168,19 @@ export function SiteHeader() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Lock page scroll while the drawer is open.
+  // Lock page scroll while the drawer is open. Compensates for a classic scrollbar
+  // disappearing (no layout jump) and restores whatever inline styles were there before.
   useEffect(() => {
-    document.body.style.overflow = drawerOpen ? 'hidden' : '';
+    if (!drawerOpen) return;
+    const { body, documentElement } = document;
+    const prevOverflow = body.style.overflow;
+    const prevPaddingRight = body.style.paddingRight;
+    const scrollbarGap = window.innerWidth - documentElement.clientWidth;
+    body.style.overflow = 'hidden';
+    if (scrollbarGap > 0) body.style.paddingRight = `${scrollbarGap}px`;
     return () => {
-      document.body.style.overflow = '';
+      body.style.overflow = prevOverflow;
+      body.style.paddingRight = prevPaddingRight;
     };
   }, [drawerOpen]);
 
