@@ -18,6 +18,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { supabase, BusinessProfile } from '@/lib/supabase';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { VireekMark } from '@/components/brand/VireekMark';
 
 // ============================================================
 // CONSTANTS
@@ -780,9 +781,9 @@ export function OnboardingPage() {
                 transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
               >
                 <div className="text-center">
-                  <span className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-accent/10 text-accent">
-                    <PartyPopper size={28} />
-                  </span>
+                  <div className="flex justify-center">
+                    <VireekMark size={76} intro="always" decorative />
+                  </div>
                   <h1 className="mt-4 text-xl font-bold tracking-tight text-text-primary sm:text-2xl">
                     You're all set!
                   </h1>
