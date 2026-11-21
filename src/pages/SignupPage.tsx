@@ -25,6 +25,7 @@ import { OtpEntry } from '@/components/auth/OtpEntry';
 import { AppleButton } from '@/components/auth/SocialAuthButtons';
 import { registerTrustedDevice } from '@/lib/deviceTrust';
 import { consumePostAuthRedirect, peekPostAuthPath } from '@/lib/inviteRedirect';
+import { deepLinkFromSearch, readDeepLink, saveDeepLink, signupMetadata } from '@/lib/planOnboarding/intent';
 
 type SignupStep = 'form' | 'verify';
 
@@ -78,6 +79,10 @@ export function SignupPage() {
   const [step, setStep] = useState<SignupStep>('form');
   const [pendingEmail, setPendingEmail] = useState('');
 
+useEffect(() => {
+  const link = deepLinkFromSearch(window.location.search);
+  if (link) saveDeepLink(link);
+}, []);
   // Only auto-redirect on an existing session while we're still on the plain
   // form — once we're in the verify step we want to play the OTP success
   // animation ourselves before navigating (see handleOtpSuccess below).
@@ -168,7 +173,7 @@ export function SignupPage() {
         email: email.trim(),
         password,
         options: {
-          data: { full_name: fullName.trim() },
+          data: { full_name: fullName.trim(), ...signupMetadata(deepLinkFromSearch(window.location.search) ?? readDeepLink()) },
           emailRedirectTo: `${window.location.origin}/dashboard`,
         },
       });
