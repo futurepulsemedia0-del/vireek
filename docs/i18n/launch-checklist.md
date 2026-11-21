@@ -5,6 +5,7 @@ To promote a language to Tier A/B or to remove its Beta label, every item below 
 - [ ] `npm run i18n:coverage` passes with no errors (threshold: `minCoverage` in `src/i18n/locales.config.ts`)
 - [ ] `npm run i18n:coverage:release` (`--strict` mode) passes with no errors: every legal, consent, emergency and AI-disclosure key is recorded in `docs/i18n/reviewed-keys.json` under a named native reviewer
 - [ ] `npm run i18n:freshness` reports no stale translations on the covered surfaces
+- [ ] `npm run i18n:status` regenerated `docs/i18n/status.md` and `npm run i18n:status:check` passes (the Beta label follows these facts; outbound voice/SMS compliance text stays English until the language's reviewed keys are present)
 - [ ] Legal counsel has approved the recording-consent text, AI disclosure, opt-out keywords and A2P/TCPA templates
 - [ ] Native reviewer (name/date): ________
 - [ ] Pseudo-localization run and key screens checked visually (overflow, RTL for ar/fa)
