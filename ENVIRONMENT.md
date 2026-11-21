@@ -115,7 +115,8 @@ Chain order and task routing: `_shared/ai-core/registry.ts`. A provider without 
 
 | Secret | Used by | Notes |
 |---|---|---|
-| `VAPI_SERVER_SECRET` | `vapi-webhook` | Verified against header `x-vapi-secret`; set the same value as the assistant's "Server URL Secret" in Vapi (the function header asks you to **re-verify the header name against current Vapi docs**) |
+| `VAPI_SERVER_SECRET` | `vapi-webhook` | Shared secret. Accepted in `Authorization: Bearer <secret>` (current Vapi Bearer credential, verified against docs.vapi.ai 2026-11-21) **or** legacy `x-vapi-secret`; constant-time compare. See `docs/runbooks/vapi-webhook-secret-header.md` |
+| `VAPI_ACCEPT_LEGACY_SECRET_HEADER` | `vapi-webhook` | Optional. `0`/`false`/`off`/`no` stops honouring `x-vapi-secret` (default: accepted). Do not set before `voice-reconcile` is migrated |
 | `VAPI_PRIVATE_KEY` | `outbound-dialer`, `followup-agent-dispatcher`, `workflow-engine-executor` | Vapi **private** key (server-side calls). Missing → `"VAPI_PRIVATE_KEY is not configured."` |
 | `ELEVENLABS_API_KEY` | `clone-voice` | ElevenLabs profile → API keys |
 
@@ -232,7 +233,7 @@ exist, `dispatch_push_notification()` simply no-ops.
 
 | Script | Env it reads |
 |---|---|
-| `scripts/ingest-brand-knowledge.mjs` | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `COHERE_API_KEY`, optional `COHERE_EMBED_MODEL`; `--dry-run` needs no keys. Also needs `esbuild` installed (not in `package.json` devDependencies) and writes to table `brand_knowledge` |
+| `scripts/ingest-brand-knowledge.mjs` | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `COHERE_API_KEY`, optional `COHERE_EMBED_MODEL`; `--dry-run` needs no keys. Also needs `esbuild` (a `package.json` devDependency, installed by `npm ci`) and writes to table `brand_knowledge` |
 | `scripts/telemetry-simulate.mjs` | `INGEST_URL`, `TOKEN`, optional `EQUIPMENT_ID`, `FAULT` (default `1`; `0` = healthy only) |
 | `scripts/generate-rss.mjs` | none (needs `esbuild`) |
 | `scripts/lint-migrations.mjs`, `check-bundle-size.mjs`, `gen-docs-inventory.mjs` | see §E / none |
