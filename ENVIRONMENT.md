@@ -110,6 +110,11 @@ Chain order and task routing: `_shared/ai-core/registry.ts`. A provider without 
 | `MESSENGER_VERIFY_TOKEN` | `messenger-webhook` | Any string; enter the same value as "Verify Token" in Meta › Messenger › Webhooks |
 | `META_GRAPH_VERSION` | `dm-connect`, `dm-send`, `messenger-webhook` | Optional, e.g. `v25.0` (default is pinned in `_shared/dmChannels/protocol.ts`) |
 | `DNC_SCRUB_API_URL`, `DNC_SCRUB_API_KEY` | `_shared/compliance/dncCheck.ts` | Optional second layer: external National DNC registry scrub |
+| `REASSIGNED_NUMBER_CHECK_MODE` | `_shared/compliance/reassignedNumber.ts` | `required` (default, fail closed) or `off` (explicit, logged). Any other value is treated as `required` |
+| `REASSIGNED_NUMBER_ADAPTER`, `REASSIGNED_NUMBER_API_URL`, `REASSIGNED_NUMBER_API_KEY` | same | Provider-agnostic reassigned-number lookup. Default adapter `http-json` (contract in the file header). Unset = every check blocks |
+| `REASSIGNED_NUMBER_TIMEOUT_MS`, `REASSIGNED_NUMBER_MAX_AGE_HOURS` | same | Per-call timeout (500-15000, default 4000); how long a clear result is reused (1-720 h, default 24) |
+| `REVOCATION_SCOPE`, `REVOCATION_WINDOW_HOURS` | `_shared/compliance/revocation.ts` | `all_channels` (default) or `this_channel`; max hours for downstream fan-out after a revocation (0-240, default 24) |
+| `VOICE_RISK_TIERS_JSON` | `_shared/voice-security/riskTiers.ts` | Optional JSON override of voice risk tiers (tighten-only; invalid = ignored, defaults stay). See docs/security/voice-risk-tiers.md |
 
 ### B5. Voice
 
