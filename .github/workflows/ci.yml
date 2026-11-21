@@ -28,21 +28,28 @@ jobs:
       - name: Lint
         run: npm run lint
       - name: Flag lifecycle (stale / unowned flags)
+        run: npm run lint:flags
+
       - name: Accessibility ACR evidence (rules only; gaps are reported, not failed)
         run: |
           npm run test:scripts:acr
           npm run a11y:acr
-        run: npm run lint:flags
+
       - name: Analytics registry (unregistered events / PII properties)
         run: npm run lint:analytics
-       - name: Owners (warn-only until assigned)
+
+      - name: Owners (warn-only until assigned)
         run: node scripts/governance/check-owners.mjs
-      - name: Colour tokens (ratchet) + generated tokens up to date
+
+      - name: Colour tokens (ratchet) + palette purity + generated tokens up to date
         run: |
           npm run lint:colors
           npm run lint:surfaces
+          npm run lint:palette
           npm run tokens:build
-          git diff --exit-code -- src/styles docs/design/COLOR_TOKENS.md supabase/functions/_shared/brand-colors.ts
+          npm run tokens:export
+          npm run tokens:preview
+          git diff --exit-code -- src/styles docs/design/COLOR_TOKENS.md docs/design/tokens.json docs/design/color-preview.html supabase/functions/_shared/brand-colors.ts
 
       - name: Typecheck
         run: npm run typecheck
