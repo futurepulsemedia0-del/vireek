@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BrandLoader } from './BrandLoader';
+import { BrandDot } from './BrandDot';
 import './loading.css';
 
 const THRESHOLD = 64;
@@ -97,7 +97,7 @@ export function PullToRefresh({ onRefresh, disabled = false, className, children
         className="pointer-events-none fixed inset-x-0 z-[2147482000] mx-auto w-fit rounded-full border border-border bg-bg-secondary p-1.5 shadow-lg"
         style={{ top: 'calc(env(safe-area-inset-top, 0px) + 8px)', opacity: 0, transform: 'translateY(-48px)' }}
       >
-        <BrandLoader variant="signal" size="xs" />
+        <BrandDot size={24} />
       </div>
       <span role="status" aria-live="polite" className="sr-only">
         {refreshing ? t('loading.refreshing', 'Refreshing…') : ''}
