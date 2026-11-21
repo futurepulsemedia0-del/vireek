@@ -27,8 +27,8 @@ try {
     const page = await ctx.newPage();
     await page.goto(`${BASE}/login`);
     await page.getByLabel('Email address').fill(EMAIL);
-    await page.getByLabel('Password').fill(PASSWORD);
-    await page.getByRole('button', { name: 'Sign In' }).click();
+    await page.locator('#password').fill(PASSWORD);
+    await page.getByRole('button', { name: 'Sign In', exact: true }).click();
     await page.waitForURL(/\/(dashboard|tech|onboarding)/, { timeout: 30000 });
     for (const [name, route] of PAGES) {
       await page.goto(`${BASE}${route}`, { waitUntil: 'networkidle' });
