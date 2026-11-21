@@ -77,6 +77,8 @@ import { useScheduleBoard } from '@/hooks/useScheduleBoard';
 import type { MoveTargetOption } from '@/lib/scheduleDnd';
 import { JobWorkflowBoard } from '@/components/jobs/JobWorkflowBoard';
 import { useJobWorkflowActions } from '@/hooks/useJobWorkflowActions';
+import { useUndoableActions } from '@/hooks/useUndoableActions';
+import { mergeRestored } from '@/lib/undo/undoEngine';
 import { WORKFLOW_STATUS_OPTIONS, emptyWorkflowBuckets, isWorkflowStatus } from '@/lib/jobWorkflow';
 
 // ============================================================
