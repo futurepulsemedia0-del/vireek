@@ -140,7 +140,7 @@ Deno.serve(async (req: Request) => {
         `<h2 style="margin:0 0 8px">${esc(label)} — ${esc(customer)}</h2>` +
         `<p>This step is <strong>${esc(when)}</strong> (deadline ${esc(String(esc_.deadline_on))}).${esc(missing)}</p>` +
         `<p>Escalation level: <strong>${esc(TIER_LABEL[esc_.tier as number])}</strong></p>` +
-        `<p><a href="${esc(link)}" style="color:#a93b0f">Open the closeout checklist</a></p>` +
+        `<p><a href="${esc(link)}" style="color:#934126">Open the closeout checklist</a></p>` +
         `<p style="color:#73726c;font-size:12px">Nothing is submitted automatically — a person must approve and file this with the program or authority.</p></div>`;
 
       if (to.length === 0) {
