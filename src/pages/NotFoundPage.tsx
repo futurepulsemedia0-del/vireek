@@ -46,7 +46,7 @@ export function NotFoundPage() {
           transition={{ duration: 0.5, ease: EASE }}
           className="flex max-w-lg flex-col items-center text-center"
         >
-          <VireekMark size={84} intro="always" interactive decorative />
+          <VireekMark size={220} className="h-auto w-[clamp(150px,50vw,230px)]" intro="always" interactive decorative />
           <p className="mt-6 text-sm font-semibold uppercase tracking-[0.2em] text-accent">404</p>
           <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-text-primary sm:text-4xl">
             This call didn&apos;t go through.
