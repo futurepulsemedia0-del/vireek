@@ -17,7 +17,7 @@
 // tweakable by hand as new rules are needed — no ESLint plugin API to
 // learn.
 
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative, extname } from 'node:path';
 import { radiusViolations } from './design/check-radius.mjs';
 import { applyTextAlphaRule } from './lib/text-alpha-rule.mjs';
@@ -143,6 +143,12 @@ collectLayoutViolations((v) => violations.push(v));
 applyTextAlphaRule(ROOT, violations);
 // Rule 6 — border-radius scale (ratchet; see scripts/design/check-radius.mjs)
 for (const v of radiusViolations(new URL('..', import.meta.url).pathname)) violations.push(v);
+// Machine-readable mode for the CI ratchet (scripts/design/check-design-ratchet.mjs): write all violations, exit 0.
+const jsonOut = process.argv.find((a) => a.startsWith('--json-out='));
+if (jsonOut) {
+  writeFileSync(jsonOut.slice('--json-out='.length), JSON.stringify(violations));
+  process.exit(0);
+}
 if (violations.length === 0) {
   console.log('✔ Design-system check passed — no drift detected.');
   process.exit(0);
