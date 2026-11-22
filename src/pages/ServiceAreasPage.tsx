@@ -1045,7 +1045,6 @@ function AddressTester({
                 </li>
               </ul>
             )}
-          </div>
             {quote && (
               <PersonalizedPricingNotice
                 className="mt-3"
