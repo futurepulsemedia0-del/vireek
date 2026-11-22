@@ -17,6 +17,7 @@ const json = (d: unknown, s = 200) => new Response(JSON.stringify(d), { status: 
 
 const CAPS = new Set(["voice_engine", "carrier", "asr", "tts", "sms"]);
 const FAULTS = new Set(["engine_down", "engine_slow", "carrier_down", "sms_down", "tts_fail", "keys_expired", "db_slow", "tools_down"]);
+const DRILL_KINDS = new Set(["voicemail", "emergency_key", "owner_forward", "other"]); // keep in sync with voice_drill_evidence.kind CHECK
 const FAMILIES = new Set<CarrierFamily>(["gsm_standard", "verizon", "landline_voip_pbx"]);
 
 Deno.serve(async (req: Request) => {
@@ -87,7 +88,24 @@ Deno.serve(async (req: Request) => {
       const { error } = await admin.from("voice_org_resilience").upsert(patch, { onConflict: "user_id" });
       return error ? json({ error: "Could not save" }, 500) : json({ ok: true });
     }
+    case "drill_set": {
+      const days = Number(body.interval_days ?? 30);
+      if (!Number.isInteger(days) || days < 7 || days > 90) return json({ error: "interval_days must be a whole number 7-90" }, 400);
+      const { error } = await admin.from("voice_drill_schedules").upsert({ user_id: owner, enabled: body.enabled !== false, interval_days: days, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
+      return error ? json({ error: "Could not save" }, 500) : json({ ok: true });
+    }
 
+    case "drill_log": {
+      const kind = String(body.kind ?? ""), outcome = String(body.outcome ?? "");
+      if (!DRILL_KINDS.has(kind) || (outcome !== "passed" && outcome !== "failed")) return json({ error: "kind or outcome invalid" }, 400);
+      const note = body.note == null ? null : String(body.note).trim();
+      if (note && note.length > 500) return json({ error: "note too long" }, 400);
+      const since = new Date(Date.now() - 3_600_000).toISOString();
+      const { count } = await admin.from("voice_drill_evidence").select("id", { count: "exact", head: true }).eq("user_id", owner).gte("created_at", since);
+      if ((count ?? 0) >= 30) return json({ error: "Too many entries this hour" }, 429);
+      const { error } = await admin.from("voice_drill_evidence").insert({ user_id: owner, kind, outcome, note: note || null, recorded_by: u.user.id });
+      return error ? json({ error: "Could not save" }, 500) : json({ ok: true });
+    }
     case "wizard_plan": {
       const family = String(body.family) as CarrierFamily, vn = String(body.vireek_number ?? "");
       if (!FAMILIES.has(family) || !E164.test(vn)) return json({ error: "family or vireek_number invalid" }, 400);
