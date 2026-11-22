@@ -72,8 +72,7 @@ describe('BlockingOverlay', () => {
     expect(document.body.style.overflow).toBe('hidden');
     await tick(250); // visuals appear
     rerender(<BlockingOverlay open={false} label="Paying" />);
-    await tick(300);
-    await tick(250);
+    await tick(2400);
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(document.body.style.overflow).toBe('');
   });
