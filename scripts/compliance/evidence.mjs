@@ -3,6 +3,7 @@
 //
 //   node scripts/compliance/evidence.mjs collect --out evidence-out [--only repo|github] [--window-days 30]
 //   node scripts/compliance/evidence.mjs sync                               registry  -> compliance_controls
+//   node scripts/compliance/evidence.mjs sync-policies                      policy file hashes -> compliance_policies
 //   node scripts/compliance/evidence.mjs push --dir evidence-out            envelopes -> compliance_evidence
 //   node scripts/compliance/evidence.mjs collect-remote [--modules a,b]     run Supabase-side collectors
 //   node scripts/compliance/evidence.mjs manual --collector manual.training \
@@ -22,6 +23,7 @@ import { COLLECTORS, makeEnvelope, sha256Hex, stableStringify } from './lib.mjs'
 import { REPO_ROOT, loadRegistry, validateRegistry } from './validate-controls.mjs';
 import { collectRepo } from './collect-repo.mjs';
 import { collectGithub, createGithubClient } from './collect-github.mjs';
+import { buildPolicyItems } from './policies.mjs';
 
 export const MAX_BATCH = 20;
 
@@ -104,6 +106,11 @@ export async function runSync({ url, token, fetchImpl, root = REPO_ROOT }) {
   return postJson(url, token, { action: 'sync_controls', registry: reg }, { fetchImpl });
 }
 
+export async function runSyncPolicies({ url, token, fetchImpl, root = REPO_ROOT }) {
+  const policies = buildPolicyItems(root);
+  return postJson(url, token, { action: 'sync_policies', policies }, { fetchImpl });
+}
+
 export async function runPush({ dir, url, token, fetchImpl }) {
   const files = readdirSync(dir).filter((f) => f.endsWith('.json') && f !== 'manifest.json').sort();
   const records = files.map((f) => JSON.parse(readFileSync(join(dir, f), 'utf8')));
@@ -152,6 +159,11 @@ export async function main(argv = process.argv.slice(2), env = process.env) {
       console.log(`✔ synced ${res.controls ?? '?'} controls, ${res.claimLinks ?? '?'} claim links${res.orphaned?.length ? `; orphaned in DB (not in registry): ${res.orphaned.join(', ')}` : ''}`);
       return 0;
     }
+    case 'sync-policies': {
+      const res = await runSyncPolicies({ url: need(env, 'COMPLIANCE_INGEST_URL'), token: need(env, 'COMPLIANCE_INGEST_TOKEN') });
+      console.log(`✔ policy hashes synced: ${res.created ?? 0} created, ${res.updated ?? 0} updated`);
+      return 0;
+    }
     case 'push': {
       const results = await runPush({ dir: resolve(args.dir || 'evidence-out'), url: need(env, 'COMPLIANCE_INGEST_URL'), token: need(env, 'COMPLIANCE_INGEST_TOKEN') });
       let bad = 0;
@@ -185,7 +197,7 @@ export async function main(argv = process.argv.slice(2), env = process.env) {
       return (res.results ?? []).some((r) => r.status === 'rejected') ? 1 : 0;
     }
     default:
-      console.error('usage: evidence.mjs <collect|sync|push|collect-remote|manual> [options]  (see header of this file)');
+      console.error('usage: evidence.mjs <collect|sync|sync-policies|push|collect-remote|manual> [options]  (see header of this file)');
       return 2;
   }
 }
