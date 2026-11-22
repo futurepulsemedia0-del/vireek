@@ -14,6 +14,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Input';
 import { SignaturePad, SignaturePadValue } from '@/components/signatures/SignaturePad';
+import { SignatureCertificateButtons } from '@/components/signatures/SignatureCertificateButtons';
 import {
   fetchSignatureRequestForSigner,
   recordSignatureView,
@@ -130,6 +131,11 @@ export function SignDocumentPage() {
                   ? `"${info.title}" is now fully executed.`
                   : `Thanks — waiting on ${info.other_signers.filter((s) => s.status !== 'signed').length || 'the remaining'} more signer(s).`}
               </p>
+              {viewState === 'completed' && token && (
+                <div className="mt-4 border-t border-border pt-4">
+                  <SignatureCertificateButtons signerToken={token} />
+                </div>
+              )}
               {info.other_signers.length > 0 && (
                 <div className="mt-4 space-y-1.5 text-left">
                   {info.other_signers.map((s, i) => (
