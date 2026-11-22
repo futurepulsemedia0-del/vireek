@@ -175,3 +175,27 @@ describe("config.toml integrity", () => {
     expect(fixed).toContain("[functions.b]\nverify_jwt = false");
   });
 });
+
+describe("no-schema-validation (every function that reads request input)", () => {
+  const base = { verifyJwt: true, authModes: ["jwt"], rateLimit: true, validation: "schema", readsInput: true, inboundWebhook: false, webhook: {}, tenancy: "none", cors: "none", tests: "own" };
+  it("flags input-reading functions that only validate manually, or not at all", () => {
+    expect(evaluateRules({ ...base, validation: "manual" }, null)).toContain("no-schema-validation");
+    expect(evaluateRules({ ...base, validation: "none" }, null)).toContain("no-schema-validation");
+  });
+  it("passes schema-validated functions and functions that read no input", () => {
+    expect(evaluateRules(base, null)).not.toContain("no-schema-validation");
+    expect(evaluateRules({ ...base, validation: "none", readsInput: false }, null)).not.toContain("no-schema-validation");
+  });
+  it("analyzeFunction: input read + zod helper in _shared => schema; input read + hand-rolled check => manual => flagged", () => {
+    const root = repo({
+      "supabase/functions/good/index.ts": 'import { go } from "../_shared/v.ts"; Deno.serve(async (req) => go(await req.json()));',
+      "supabase/functions/_shared/v.ts": 'import { z } from "npm:zod@3.25.76"; export const go = (b) => z.object({ a: z.string() }).strict().parse(b);',
+      "supabase/functions/hand/index.ts": 'Deno.serve(async (req) => { const b = await req.json(); if (typeof b.a !== "string") throw 1; return new Response("ok"); });',
+      "supabase/functions/cron/index.ts": 'Deno.serve(async () => new Response("ok"));',
+    });
+    const good = analyze(root, "good"), hand = analyze(root, "hand"), cron = analyze(root, "cron");
+    expect([good.readsInput, good.validation, good.violations.includes("no-schema-validation")]).toEqual([true, "schema", false]);
+    expect([hand.readsInput, hand.validation, hand.violations.includes("no-schema-validation")]).toEqual([true, "manual", true]);
+    expect([cron.readsInput, cron.violations.includes("no-schema-validation")]).toEqual([false, false]);
+  });
+});
