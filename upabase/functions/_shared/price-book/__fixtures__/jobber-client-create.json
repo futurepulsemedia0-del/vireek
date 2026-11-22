@@ -1,0 +1,2 @@
+{ "data": { "clientCreate": { "client": { "id": "Z2lkOi8vSm9iYmVyL0NsaWVudC80NTY=" }, "userErrors": [] } },
+  "extensions": { "cost": { "requestedQueryCost": 50, "throttleStatus": { "currentlyAvailable": 9950, "restoreRate": 500 } } } }
