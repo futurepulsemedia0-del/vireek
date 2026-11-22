@@ -175,7 +175,7 @@ function DailyUsageChart({ data }: { data: { date: string; minutes: number }[] }
         const x = padding.left + i * (barW + barGap);
         const h = (d.minutes / maxVal) * plotH;
         const y = padding.top + plotH - h;
-        return <rect key={d.date} x={x} y={y} width={Math.max(barW, 1)} height={h} rx={1.5} fill="rgb(169 59 15)" />;
+        return <rect key={d.date} x={x} y={y} width={Math.max(barW, 1)} height={h} rx={1.5} fill="rgb(147 65 38)" />;
       })}
       {data.length > 0 && (
         <>
