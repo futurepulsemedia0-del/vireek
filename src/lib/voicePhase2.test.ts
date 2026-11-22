@@ -81,7 +81,7 @@ describe("telephony brand", () => {
     expect(e.subject.includes("\n")).toBe(false);
     expect(e.html.includes("<script>")).toBe(false);
     expect(e.html.includes("javascript:")).toBe(false);
-    expect(e.html.includes("#1d4ed8")).toBe(true);
+    expect(e.html.includes("#0057b3")).toBe(true); // invalid brand colour falls back to the palette's info-700
     expect(e.text).toContain("automatically");
   });
 });
