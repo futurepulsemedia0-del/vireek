@@ -30,12 +30,29 @@ describe('RouteFallback', () => {
     }
   });
 
-  it('fullScreen fills the viewport (auth guards); default keeps the 60vh block', () => {
-    const full = render(<RouteFallback fullScreen />);
-    expect(full.container.firstElementChild).toHaveClass('min-h-screen');
-    full.unmount();
-    const normal = render(<RouteFallback />);
-    expect(normal.container.firstElementChild).toHaveClass('min-h-[60vh]');
+  it('is a fixed stage that fills the visible area, whatever props the call site passes', () => {
+    for (const props of [{}, { fullScreen: true }, { immediate: true }]) {
+      const { container, unmount } = render(<RouteFallback {...props} />);
+      const stage = container.firstElementChild as HTMLElement;
+      expect(stage).toHaveAttribute('data-loader-stage', 'viewport');
+      expect(stage).toHaveClass('fixed', 'inset-0', 'items-center', 'justify-center');
+      expect(stage).not.toHaveClass('min-h-screen');
+      expect(stage).not.toHaveClass('min-h-[60vh]');
+      unmount();
+    }
+  });
+
+  it('renders the mark large (xxl = 144px) and keeps the microcopy out of the flow so the mark never moves', async () => {
+    const { container } = render(<RouteFallback variant="app" immediate />);
+    await tick(1);
+    const svg = container.querySelector('svg.vrk-v')!;
+    expect(svg.getAttribute('height')).toBe('144');
+    const markBox = svg.parentElement!.parentElement!;
+    expect(markBox).toHaveClass('h-36');
+    await tick(2600);
+    const copy = container.querySelector('p')!;
+    expect(copy).toHaveClass('absolute', 'top-full');
+    expect(markBox.contains(copy)).toBe(true);
   });
 
   it('keeps one polite status region for assistive tech', async () => {
