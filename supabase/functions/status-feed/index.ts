@@ -6,6 +6,11 @@
 // Deploy: supabase functions deploy status-feed --no-verify-jwt
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { parseQuery, tryGuard } from "../_shared/http/zodRequest.ts";
+import { enforceRateLimit } from "../_shared/http/publicGuard.ts";
+import { z } from "../_shared/http/zod.ts";
+
+const QUERY = z.object({ format: z.enum(["atom", "json"]).optional() });
 import { guardPublic } from "../_shared/http/publicGuardDeno.ts";
 
 const cors = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "GET, OPTIONS", "Access-Control-Allow-Headers": "Content-Type" };
@@ -47,6 +52,11 @@ Deno.serve(async (req: Request) => {
   if (!url || !key) return new Response("Server not configured", { status: 500, headers: cors });
   const admin = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
 
+  const g = await tryGuard(req, cors, async () => {
+    await enforceRateLimit(admin, req, { name: "status-feed", limit: 60, windowSeconds: 60, onError: "open" });
+    return parseQuery(req, QUERY);
+  });
+  if (!g.ok) return g.response;
   const { data, error } = await admin.rpc("public_status_feed");
   if (error || !data) return new Response(JSON.stringify({ error: "Status temporarily unavailable" }), { status: 503, headers: { ...cors, "Content-Type": "application/json" } });
 
