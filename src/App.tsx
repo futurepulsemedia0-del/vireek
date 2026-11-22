@@ -3,7 +3,7 @@ import { PlanFeatureGate } from '@/components/PlanFeatureGate';
 import { PdfBrandSync } from '@/components/PdfBrandSync';
 import { GrowthAttributionSync } from '@/components/GrowthAttributionSync';
 import { Suspense } from 'react';
-import { safeLazy as lazy } from '@/lib/safeLazy';
+import { routeLazy as lazy } from '@/lib/routeLazy';
 import { RouteFallback } from '@/components/loading/RouteFallback';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -778,7 +778,7 @@ const DesignSystemPage = import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEV_
 const InterpreterPlayground = import.meta.env.DEV ? lazy(() => import('@/pages/dev/InterpreterPlayground')) : null; // dev-only
 
 function RouteLoadingFallback() {
-  return <RouteFallback variant="app" />;
+  return <RouteFallback variant="app" immediate />;
 }
 
 function AppRoutes() {
