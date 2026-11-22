@@ -23,15 +23,25 @@ I4 compensation runs in reverse completion order, once per step. I5 fan-out star
 Commitment actions (including inside branches, bodies and as compensators) need a human approval that dominates their owner.
 Branches cannot contain approvals, nested parallels, joins or foreach. A join that cancels siblings does not undo commitments that already ran (compile warning).
 
-## Not implemented
-Multi-token executor, token table, idempotency UNIQUE constraint, runtime compensation, kill switch, load tests.
+## Status of the former "Not implemented" list
+| Item | Status |
+|---|---|
+| Kill switch | Existed (`WORKFLOW_PARALLEL_ENABLED`); kept. The two flags below only narrow it. |
+| Idempotency constraint | Existed: `compiled_workflow_step_keys` PRIMARY KEY (key). Added: key must start with its own run id (CHECK), token `UNIQUE (run_id, scope_key)`, compensation `UNIQUE (run_id, node_id)`. |
+| Token table + multi-token executor | Added behind `WORKFLOW_TOKENS_ENABLED` (default off): `compiled_workflow_tokens`, `_shared/workflow-compiler/tokens.ts`. Branches run concurrently inside a tick on isolated state; leases make a slow tick unable to double-run a node. |
+| Runtime compensation state | Added behind `WORKFLOW_DURABLE_COMPENSATION` (default off): run status `compensating`, `compiled_workflow_compensations`, `_shared/workflow-compiler/compensation.ts`. |
+| Load tests | Added: `load/workflow/engine-sim.mjs` (engine invariants, executed), `load/k6/workflow-executor.load.js` + `load/workflow/seed.sql` / `verify.sql` (staging, NOT yet run). |
+
+Still out of scope / unverified: nesting, approvals inside branches, cross-run fan-in, token-level pre-emption of an already-running branch, and everything that needs a deployed database (see "Runtime (unverified until deployed)").
+Known residual: tokens protect node side effects, not run advancement. If a tick outlives its run lease, two ticks can both release the same join (duplicate audit / advance); `engine-sim.mjs --overlap=1` measures it. Keep the executor tick budget below the run lease.
 
 ## Runtime (unverified until deployed)
 - Orchestration logic: `_shared/workflow-compiler/orchestrate.ts` (parallel, fan-out, compensation). The executor persists its state in `run.state` under `__par_<node>` / `__fe_<node>` and completed actions under `__done`.
 - At-most-once side effects: `compiled_workflow_step_keys` (`cwf_claim_step`), key = `runId:nodeId:purpose:branch:item`.
 - Kill switch: `WORKFLOW_PARALLEL_ENABLED=true` (secret). Off = runs reaching these nodes fail safely and compensate; the compiler also rejects such graphs.
 - Rollback and constrained edits always create a new draft through the same validator (`workflow-compiler` modes `rollback_of`, `edit_of`, `diff`).
-- `compensating` is a conceptual state only: the run table does not allow it, so undo steps run inside the failing tick and are audited as `compensation_done` / `compensation_failed`.
+- `compensating`: with `WORKFLOW_DURABLE_COMPENSATION=true` it is a real run status (undo plan persisted, one undo at a time in reverse order, resumable, a crash mid-undo is marked failed and never repeated). With the flag off the legacy in-tick undo (audited as `compensation_done` / `compensation_failed`) is used. A block that started on one engine always finishes on it; turning `WORKFLOW_TOKENS_ENABLED` off mid-block fails that run safely (`tokens_disabled`) and compensates.
+- Bug fixed on the way: the executor used `joinConfigFromParams` without importing it, so any parallel block would have thrown at runtime once the kill switch was turned on.
 
 ## UI
 Outline (keyboard/screen-reader list view), run overlay, version history/diff/rollback/edit, Insights tab, run debugger with redacted replay and a test-mode what-if.
