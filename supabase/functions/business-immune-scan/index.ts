@@ -14,6 +14,10 @@
 // must be reproducible and explainable.
 
 import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
+import { parseBody, tryGuard } from "../_shared/http/zodRequest.ts";
+import { enforceRateLimit } from "../_shared/http/publicGuard.ts";
+import { assertCronAuth } from "../_shared/http/cronGuard.ts";
+import { emptyObject } from "../_shared/http/zod.ts";
 import { sendSms } from "../_shared/notify/deliver.ts";
 // Scheduler-only endpoint: no browser origin is ever allowed (no Access-Control-Allow-Origin).
 import { requireCronAuth } from "../_shared/http/cronAuth.ts";
