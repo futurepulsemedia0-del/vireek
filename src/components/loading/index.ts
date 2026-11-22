@@ -5,6 +5,7 @@ export { Spinner } from './Spinner';
 export { TopProgressBar } from './TopProgressBar';
 export { Progress } from './Progress';
 export { RouteFallback, type RouteFallbackVariant } from './RouteFallback';
+export { LoaderStage, LoaderInsetProvider } from './LoaderStage';
 export { BootDismiss } from './BootDismiss';
 export { LoadingBoundary } from './LoadingBoundary';
 export { BlockingOverlay, BackgroundTask } from './Overlay';
