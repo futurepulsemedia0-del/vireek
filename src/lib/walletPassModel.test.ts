@@ -18,9 +18,21 @@ function payload(kind: WalletKind, data: Record<string, unknown> | null, over: P
 
 describe('colors & timezone', () => {
   it('picks readable foregrounds and rejects bad hex', () => {
-    expect(resolveColors('#FFFFFF').fg).toBe('#0B1220');
+    expect(resolveColors('#FFFFFF').fg).toBe('#1C1B15');
     expect(resolveColors('#0B1220').fg).toBe('#FFFFFF');
-    expect(resolveColors('javascript:alert(1)').bg).toBe('#2563EB');
+    expect(resolveColors('javascript:alert(1)').bg).toBe('#934126');
+  });
+  it('text and label reach 4.5:1 on every colour of a 4096-point RGB grid (no mid-tone dead zone)', () => {
+    const ch = (v: number): number => { const s = v / 255; return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4; };
+    const lum = (hex: string): number => { const n = parseInt(hex.slice(1), 16); return 0.2126 * ch((n >> 16) & 255) + 0.7152 * ch((n >> 8) & 255) + 0.0722 * ch(n & 255); };
+    const ratio = (a: string, b: string): number => (Math.max(lum(a), lum(b)) + 0.05) / (Math.min(lum(a), lum(b)) + 0.05);
+    let worst = Infinity;
+    for (let r = 0; r < 256; r += 17) for (let g = 0; g < 256; g += 17) for (let b = 0; b < 256; b += 17) {
+      const bg = `#${[r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')}`.toUpperCase();
+      const c = resolveColors(bg);
+      worst = Math.min(worst, ratio(bg, c.fg), ratio(bg, c.label));
+    }
+    expect(worst).toBeGreaterThanOrEqual(4.5);
   });
   it('validates IANA zones', () => {
     expect(isValidTimezone('America/Chicago')).toBe(true);
