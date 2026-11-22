@@ -37,6 +37,9 @@
 //   supabase functions deploy fabric-ingest --no-verify-jwt
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { parseBody, tryGuard } from "../_shared/http/zodRequest.ts";
+import { enforceRateLimit } from "../_shared/http/publicGuard.ts";
+import { z, strictObject } from "../_shared/http/zod.ts";
 // Server-to-server ingest (ingest key + HMAC): no browser origin is ever allowed (no Access-Control-Allow-Origin).
 import { guardPublic } from "../_shared/http/publicGuardDeno.ts";
 import { dbRateLimiter, dbReplayStore } from "../_shared/http/rateLimit.ts";
@@ -60,6 +63,12 @@ const ENTITY_ORDER: Record<Entity, number> = {
 
 const MAX_BODY_BYTES = 1_000_000;
 const MAX_RECORDS = 200;
+// Third-party ingest API: unknown top-level keys are stripped (not rejected) so existing senders keep working;
+// each record is still validated field-by-field by normalizeRecord().
+const INGEST_BODY = z.union([
+  z.array(z.unknown()).min(1).max(MAX_RECORDS),
+  z.object({ records: z.array(z.unknown()).min(1).max(MAX_RECORDS) }),
+]);
 const MAX_DATA_CHARS = 64_000;
 const MAX_REFS = 25;
 const RELATION_RE = /^[a-z_]{2,40}$/;
@@ -234,7 +243,9 @@ Deno.serve(async (req: Request) => {
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
   if (!supabaseUrl || !serviceRoleKey) return json({ error: "Server not configured" }, 500);
   const admin = createClient(supabaseUrl, serviceRoleKey, { auth: { autoRefreshToken: false, persistSession: false } });
-
+  // Pre-auth throttle (key stuffing / floods); keeps the legacy `{ error: "<message>" }` body shape.
+  const pre = await tryGuard(req, corsHeaders, () => enforceRateLimit(admin, req, { name: "fabric-ingest-ip", limit: 240, windowSeconds: 60 }), { legacy: true });
+  if (!pre.ok) return pre.response;
   try {
     // ---- Authenticate the ingest key ---------------------------------------
     const authHeader = req.headers.get("Authorization") || "";
@@ -255,6 +266,9 @@ Deno.serve(async (req: Request) => {
     if (!connData) return json({ error: "Invalid ingest key." }, 401);
     const conn = connData as ConnectionRow;
     if (conn.status !== "active") return json({ error: "This connection is paused." }, 403);
+
+    const lim = await tryGuard(req, corsHeaders, () => enforceRateLimit(admin, req, { name: "fabric-ingest-conn", key: conn.id, limit: 120, windowSeconds: 60 }), { legacy: true });
+    if (!lim.ok) return lim.response;
     // Per-connection limit (a legitimate batch is up to 200 records, so 120 requests/min is generous). Fail closed.
     try {
       const rl = await dbRateLimiter({ rpc: (fn, args) => admin.rpc(fn, args) }).hit(`fabric-conn:${conn.id}`, 120, 60);
