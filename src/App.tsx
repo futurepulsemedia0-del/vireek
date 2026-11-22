@@ -93,6 +93,7 @@ const ExecutionReliabilityPage = lazy(() => import('@/pages/ExecutionReliability
 const OutboundCampaignsPage = lazy(() => import('@/pages/OutboundCampaignsPage').then((m) => ({ default: m.OutboundCampaignsPage })));
 const ReferralsPage = lazy(() => import('@/pages/ReferralsPage').then((m) => ({ default: m.ReferralsPage })));
 const LoyaltyPage = lazy(() => import('@/pages/LoyaltyPage').then((m) => ({ default: m.LoyaltyPage })));
+const PointsLedgerPage = lazy(() => import('@/pages/PointsLedgerPage').then((m) => ({ default: m.PointsLedgerPage })));
 const VoicemailDropsPage = lazy(() => import('@/pages/VoicemailDropsPage').then((m) => ({ default: m.VoicemailDropsPage })));
 const VoiceBrandPage = lazy(() => import('@/pages/VoiceBrandPage').then((m) => ({ default: m.VoiceBrandPage })));
 const AgentCallersPage = lazy(() => import('@/pages/AgentCallersPage').then((m) => ({ default: m.AgentCallersPage })));
@@ -2683,6 +2684,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <LoyaltyPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/points-ledger"
+          element={
+            <ProtectedRoute>
+              <PointsLedgerPage />
             </ProtectedRoute>
           }
         />
