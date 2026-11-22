@@ -13,10 +13,6 @@ export function routeLazy<T extends ComponentType<any>>(factory: () => Promise<{
   return safeLazy(async () => {
     const startedAt = performance.now();
     const mod = await factory();
-    if (import.meta.env.MODE !== 'test' && !document.getElementById('vrk-boot')) {
-      const wait = ROUTE_MIN_CYCLE_MS - (performance.now() - startedAt);
-      if (wait > 0) await new Promise<void>((resolve) => setTimeout(resolve, wait));
-    }
     return mod;
   });
 }
