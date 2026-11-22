@@ -49,9 +49,9 @@ The draft file uses the recommended structure ($29 base + $15/verified job, $199
 - The ledger stores references and a hash of the transcript excerpt, not the excerpt itself (immutable storage must not hold personal data); the UI reads call details live under RLS.
 - CRM job ID in the evidence chain is `null` until the CRM sync exposes a stable external job reference.
 - Milestone columns are filled by a trigger from now on; jobs created before the migration have no `confirmed_at`/`cancelled_at` history (only jobs created after opt-in are ever billed).
-- Customer-confirmation SMS ("Did [business] arrive?") is NOT implemented.
+- Customer-confirmation SMS ("Did [business] arrive?"): implemented (`results-plan-confirm`, `_shared/results-plan/confirmation.ts`, migration `20290307000000`). Off by default; the owner opts in. Sent only through `sendCompliantSms` (A2P gate, STOP list, quiet hours). A "NO" reply opens a staff review and holds the charge; "YES" is stored as extra evidence in the proof ledger (`customer_confirmed`). It never changes a price. [COUNSEL] confirm the consent basis / message classification per jurisdiction and the retention period of the stored phone number. [VERIFY] reply-window and delay defaults (`CONFIRMATION_DEFAULTS`) against real data.
 - Stripe meter events dedupe on `identifier` for a rolling 24 h; a failed charge retried after 24 h could in theory double-post — monitor `failed` rows.
-- Monthly PDF statement is not implemented (CSV is).
+- Monthly PDF statement: implemented (`results-plan-statement`, `_shared/results-plan/monthlyStatement.ts`). One immutable snapshot per account per month (`UNIQUE (user_id, month)`), generated after month end + grace days, emailed with the PDF attached (owner can switch the email off; the PDF stays downloadable in the dashboard). No amount is invented: lines print what is stored on the charges/terms. Late credits after generation appear in the dashboard and CSV, not in an already generated statement.
 - Strings use `t(key, default)`; translation files for other languages are not added (English default shows).
 - Team members cannot manage billing (owner only).
 
