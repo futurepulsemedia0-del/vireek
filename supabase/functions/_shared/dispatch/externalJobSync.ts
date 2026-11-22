@@ -12,7 +12,8 @@
 
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { refreshJobberTokenIfNeeded } from "../price-book/jobber.ts";
-import { createServiceTitanJob, type ServiceTitanJobConfig } from "../price-book/servicetitanJobs.ts";
+import { createServiceTitanJob, type ServiceTitanJobConfig } from "../price-book/servicetitan-jobs.ts";
+import { jobberGraphQL } from "../price-book/jobberGraphql.ts";
 import { createHousecallProJob } from "../price-book/housecallpro.ts";
 import { hydrateRow, saveSecrets } from "../secrets/providerCredentials.ts";
 
@@ -40,8 +41,6 @@ interface PriceBookConnectionRow {
   hcp_api_key: string | null;
 }
 
-const JOBBER_GRAPHQL_URL = "https://api.getjobber.com/api/graphql";
-const JOBBER_API_VERSION = "2025-04-16";
 
 async function recordSyncResult(
   admin: SupabaseClient,
@@ -65,22 +64,6 @@ async function recordSyncResult(
   );
 }
 
-async function jobberGraphQL(accessToken: string, query: string, variables: Record<string, unknown>) {
-  const res = await fetch(JOBBER_GRAPHQL_URL, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      "X-JOBBER-GRAPHQL-VERSION": JOBBER_API_VERSION,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ query, variables }),
-    signal: AbortSignal.timeout(8000),
-  });
-  if (!res.ok) throw new Error(`jobber_graphql_http_${res.status}`);
-  const json = await res.json();
-  if (json.errors?.length) throw new Error(`jobber_graphql_error_${json.errors[0]?.message ?? "unknown"}`);
-  return json.data;
-}
 
 async function findOrCreateJobberClient(
   accessToken: string,
@@ -96,6 +79,7 @@ async function findOrCreateJobberClient(
         }
       }`,
       { phone: customerPhone },
+      { idempotent: true },
     );
     const existingId = searchData?.clients?.nodes?.[0]?.id;
     if (existingId) return String(existingId);
