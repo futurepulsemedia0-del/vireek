@@ -112,5 +112,352 @@
       "title": "Independent penetration test",
       "body": "A third-party penetration test has been completed and recorded."
     }
+  },
+  "policies": {
+    "title": "Policy approvals",
+    "subtitle": "Who approved which version of each policy, when, and which staff have acknowledged it. Staff only.",
+    "notice": "This records internal approvals. It is readiness tracking, not a SOC 2 report or certification. All policies stay drafts until a named person approves them; a self-approval is flagged and is not independent review.",
+    "tab": {
+      "policies": "Policies",
+      "workforce": "Workforce records"
+    },
+    "refresh": "Refresh",
+    "loading": "Loading policies",
+    "export": "Export (CSV)",
+    "error": {
+      "title": "Could not load policies",
+      "body": "Check your connection and permissions, then retry."
+    },
+    "empty": {
+      "title": "No policies registered",
+      "body": "Run the compliance evidence workflow (sync-policies) to register the files in docs/compliance/policies."
+    },
+    "summary": {
+      "total": "Policies",
+      "current": "Approved and current",
+      "attention": "Need attention",
+      "selfApproved": "Self-approved",
+      "pendingAcks": "Acknowledgements pending",
+      "inReview": "In review"
+    },
+    "table": {
+      "caption": "Policy approval status",
+      "policy": "Policy",
+      "state": "Status",
+      "version": "Version",
+      "approved": "Approved",
+      "nextReview": "Next review",
+      "acks": "Acknowledged",
+      "actions": "Actions"
+    },
+    "state": {
+      "never_approved": "Not approved (draft)",
+      "content_changed": "Text changed since approval",
+      "overdue": "Review overdue",
+      "review_due": "Review due soon",
+      "current": "Approved"
+    },
+    "action": {
+      "submit": "Submit for approval",
+      "approve": "Approve",
+      "withdraw": "Withdraw",
+      "acknowledge": "Acknowledge",
+      "acknowledged": "Acknowledged",
+      "whoAcked": "Who acknowledged",
+      "hide": "Hide",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    },
+    "submit": {
+      "title": "Submit a version",
+      "version": "Version (e.g. 1.0)",
+      "summary": "What changed (optional, max 300 characters)",
+      "hashMissing": "The repository hash for this policy has not been synced yet."
+    },
+    "approve": {
+      "effective": "Effective date",
+      "selfWarning": "You submitted this version. Approving it will be recorded as self-approval and will not count as independent review.",
+      "selfConfirm": "I understand and want to record a self-approval",
+      "mismatch": "The policy text no longer matches what was submitted. Withdraw and submit again."
+    },
+    "ack": {
+      "count": "{{done}} / {{total}}",
+      "none": "—",
+      "you": "You have not acknowledged this version"
+    },
+    "badge": {
+      "self": "Self-approved",
+      "noApprover": "No approver"
+    },
+    "pending": {
+      "label": "In review: version {{version}}"
+    },
+    "success": {
+      "submitted": "Version submitted for approval.",
+      "approved": "Version approved.",
+      "withdrawn": "Version withdrawn.",
+      "acknowledged": "Acknowledgement recorded."
+    },
+    "errors": {
+      "version_format": "Use the form 1.0.",
+      "version_not_newer": "The version must be higher than the latest existing one.",
+      "summary_too_long": "The summary is longer than 300 characters.",
+      "hash_not_synced": "The policy hash has not been synced from the repository.",
+      "already_in_review": "A version is already in review.",
+      "generic": "The action failed. Try again."
+    }
+  },
+  "workforce": {
+    "title": "Workforce completion records",
+    "notice": "Record only that a step was completed. Never enter results, findings, reports, notes, dates of birth, ID numbers or documents: those stay with the provider. Background checks are not required until management decides; lawfulness varies by country and role [COUNSEL].",
+    "requirements": {
+      "title": "Requirements",
+      "required": "Required",
+      "notRequired": "Not required",
+      "setRequired": "Mark required",
+      "setOptional": "Mark not required",
+      "pending": "No management decision recorded yet",
+      "maxAge": "Valid for {{days}} days",
+      "noExpiry": "No expiry rule"
+    },
+    "matrix": {
+      "title": "Status by staff member",
+      "caption": "Workforce requirements by active staff account",
+      "staff": "Staff",
+      "requirement": "Requirement",
+      "state": "State",
+      "completed": "Completed",
+      "validUntil": "Valid until",
+      "provider": "Provider",
+      "empty": "No active staff accounts."
+    },
+    "state": {
+      "current": "Current",
+      "waived": "Waived",
+      "expired": "Expired",
+      "missing": "Missing"
+    },
+    "form": {
+      "title": "Add a completion record",
+      "subject": "Staff member",
+      "type": "Record type",
+      "course": "Course",
+      "status": "Outcome of the process",
+      "completed": "Completed on",
+      "validUntil": "Valid until (optional)",
+      "waiver": "Waiver reason",
+      "provider": "Provider label (e.g. vendor name or \"internal\")",
+      "reference": "Opaque reference at the provider (optional)",
+      "submit": "Save record",
+      "none": "Select…"
+    },
+    "type": {
+      "background_check": "Background check",
+      "security_training": "Security training",
+      "offboarding_checklist": "Offboarding checklist"
+    },
+    "course": {
+      "security_awareness_annual": "Security awareness (annual)",
+      "secure_coding": "Secure coding",
+      "privacy_data_handling": "Privacy and data handling",
+      "incident_reporting": "Incident reporting"
+    },
+    "status": {
+      "completed": "Completed",
+      "waived": "Waived"
+    },
+    "waiver": {
+      "role_not_applicable": "Not applicable to the role",
+      "not_required_by_policy": "Not required by policy",
+      "legal_restriction": "Legal restriction"
+    },
+    "requirementName": {
+      "background_check": "Background check",
+      "security_awareness_annual": "Security awareness training (annual)"
+    },
+    "success": {
+      "recorded": "Record saved.",
+      "requirement": "Requirement updated."
+    },
+    "errors": {
+      "subject_required": "Select a staff member.",
+      "type_invalid": "Choose a record type.",
+      "course_required": "Choose a course.",
+      "course_not_allowed": "A course applies only to training.",
+      "date_required": "Enter the completion date.",
+      "date_invalid": "Enter a valid date.",
+      "date_future": "The date cannot be in the future.",
+      "date_too_old": "The date is more than five years ago.",
+      "valid_until_before": "Valid-until must not be before the completion date.",
+      "waiver_required": "Choose a waiver reason.",
+      "waiver_not_allowed": "A waiver reason applies only to waived records.",
+      "provider_invalid": "Use a plain label without emails, long numbers or markup.",
+      "reference_invalid": "Use 3–64 letters, digits, dot, dash or underscore.",
+      "generic": "The action failed. Try again."
+    }
+  },
+  "pentest": {
+    "title": "Penetration test program",
+    "subtitle": "Engagements, findings and remediation deadlines. Staff only.",
+    "notice": "Readiness tracking only. It does not mean a test has happened, and nothing here may be presented to customers as a test result. Details of findings stay in the vendor report; only neutral titles and pointers are stored here.",
+    "banner": {
+      "none": "No penetration test has been performed or reported.",
+      "done": "At least one report has been received. Statuses below are internal tracking."
+    },
+    "refresh": "Refresh",
+    "loading": "Loading",
+    "exportCsv": "Export findings (CSV)",
+    "error": {
+      "title": "Could not load the program",
+      "body": "Check your connection and permissions, then retry."
+    },
+    "summary": {
+      "engagements": "Engagements",
+      "open": "Open findings",
+      "overdue": "Overdue",
+      "overdueCH": "Overdue critical/high",
+      "dueSoon": "Due within 7 days",
+      "awaitingRetest": "Awaiting retest"
+    },
+    "engagements": {
+      "title": "Engagements",
+      "empty": "No engagements recorded.",
+      "new": "New engagement",
+      "name": "Title",
+      "vendor": "Vendor",
+      "status": "Status",
+      "scope": "Scope",
+      "windowStart": "Test window start",
+      "windowEnd": "Test window end",
+      "report": "Report received on",
+      "retestDue": "Retest due",
+      "save": "Save engagement",
+      "advance": "Set status",
+      "retestDueNone": "—"
+    },
+    "estatus": {
+      "planned": "Planned",
+      "vendor_selection": "Vendor selection",
+      "scheduled": "Scheduled",
+      "in_progress": "In progress",
+      "report_received": "Report received",
+      "remediation": "Remediation",
+      "retest": "Retest",
+      "closed": "Closed",
+      "cancelled": "Cancelled"
+    },
+    "area": {
+      "web_app": "Web app",
+      "edge_functions": "Edge functions",
+      "api": "API",
+      "mcp": "MCP",
+      "mobile": "Mobile",
+      "supabase_data_layer": "Supabase data layer",
+      "auth": "Authentication",
+      "ai_voice": "AI / voice",
+      "chrome_extension": "Chrome extension"
+    },
+    "findings": {
+      "title": "Findings",
+      "empty": "No findings recorded.",
+      "noMatch": "No findings match this filter.",
+      "new": "Add finding",
+      "caption": "Penetration test findings with remediation deadlines",
+      "filterAll": "All",
+      "filterOpen": "Open",
+      "filterOverdue": "Overdue",
+      "engagement": "Engagement",
+      "title_f": "Neutral title (no exploit details, no URLs)",
+      "area": "Area",
+      "severity": "Severity",
+      "basis": "Severity basis",
+      "cvss": "CVSS base score",
+      "vector": "CVSS vector (optional)",
+      "vendorRef": "Vendor reference (optional)",
+      "fixRef": "Fix pointer, e.g. PR or ticket (optional)",
+      "reported": "Reported on",
+      "save": "Save finding",
+      "needEngagement": "Create an engagement first.",
+      "due": "Due",
+      "daysLeft": "{{count}} days left",
+      "daysOver": "{{count}} days overdue",
+      "fixedOn": "Fixed on",
+      "retestedOn": "Retested on",
+      "acceptedUntil": "Accepted until",
+      "update": "Update status"
+    },
+    "table": {
+      "ref": "Ref",
+      "finding": "Finding",
+      "area": "Area",
+      "severity": "Severity",
+      "status": "Status",
+      "sla": "SLA",
+      "due": "Due",
+      "actions": "Actions"
+    },
+    "severity": {
+      "critical": "Critical",
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low",
+      "info": "Informational"
+    },
+    "basis": {
+      "cvss": "CVSS v3.x score",
+      "vendor_rating": "Vendor rating",
+      "tenant_isolation_floor": "Tenant-isolation floor"
+    },
+    "fstatus": {
+      "open": "Open",
+      "in_progress": "In progress",
+      "fixed_pending_retest": "Fixed, awaiting retest",
+      "retest_passed": "Retest passed",
+      "retest_failed": "Retest failed",
+      "risk_accepted": "Risk accepted",
+      "false_positive": "False positive",
+      "duplicate": "Duplicate"
+    },
+    "sla": {
+      "closed": "Closed",
+      "awaiting_retest": "Awaiting retest",
+      "not_applicable": "No deadline",
+      "overdue": "Overdue",
+      "due_soon": "Due soon",
+      "on_track": "On track"
+    },
+    "slaTable": {
+      "title": "Proposed remediation targets",
+      "note": "Proposed internal targets, not customer commitments; the security owner must approve them before they are cited.",
+      "severity": "Severity",
+      "days": "Days from report",
+      "none": "No deadline"
+    },
+    "success": {
+      "engagement": "Engagement saved.",
+      "finding": "Finding saved.",
+      "updated": "Updated."
+    },
+    "errors": {
+      "title_length": "Use 3–160 characters.",
+      "vendor_required": "A vendor is required at this stage.",
+      "window_order": "The end date is before the start date.",
+      "scope_required": "Select at least one scope area.",
+      "scope_invalid": "Unknown scope area.",
+      "report_date_required": "A report date is required at this stage.",
+      "title_has_url": "Do not put URLs in titles.",
+      "cvss_required": "Enter the CVSS score.",
+      "cvss_range": "The score must be between 0.0 and 10.0.",
+      "severity_mismatch": "The severity does not match the CVSS score.",
+      "vector_invalid": "Use a CVSS 3.x vector string.",
+      "vendor_ref_invalid": "Use letters, digits, dot, dash or underscore (max 40).",
+      "fix_ref_invalid": "Use a PR number, ticket id or path without spaces.",
+      "date_future": "The date cannot be in the future.",
+      "fixed_date_required": "Enter the fix date.",
+      "retest_date_required": "Enter the retest date.",
+      "acceptance_required": "A risk acceptance needs an approver and a later expiry date.",
+      "isolation_floor": "The tenant-isolation floor applies only to critical or high.",
+      "generic": "The action failed. Try again."
+    }
   }
 }
