@@ -61,12 +61,42 @@ export function normalizeColor(input: unknown, fallback = DEFAULT_COLOR): string
   return typeof input === "string" && HEX.test(input.trim()) ? input.trim().toUpperCase() : fallback;
 }
 
+// <readable-text> marked copy of src/lib/readableText.ts: keep identical (readableText.parity.test.ts fails if it drifts)
+export function readableTextColor(hex: string): string {
+  const raw = String(hex ?? "").trim().replace(/^#/, "");
+  const full = /^[0-9a-f]{3}$/i.test(raw) ? raw.split("").map((c) => c + c).join("") : raw;
+  if (!/^[0-9a-f]{6}$/i.test(full)) return "#FFFFFF";
+  const luminance = (r: number, g: number, b: number): number => {
+    const c = [r, g, b].map((v) => {
+      const s = v / 255;
+      return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  };
+  const lum = luminance(parseInt(full.slice(0, 2), 16), parseInt(full.slice(2, 4), 16), parseInt(full.slice(4, 6), 16));
+  const ink = luminance(28, 27, 21);
+  const onWhite = 1.05 / (lum + 0.05);
+  const onInk = (Math.max(lum, ink) + 0.05) / (Math.min(lum, ink) + 0.05);
+  return Math.max(onWhite, onInk) >= 4.5 ? (onWhite >= onInk ? "#FFFFFF" : "#1C1B15") : "#000000";
+}
+// </readable-text>
+
+const relLuminance = (hex: string): number => {
+  const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+  return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+};
+const contrastOf = (a: string, b: string): number => {
+  const x = relLuminance(a);
+  const y = relLuminance(b);
+  return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+};
+
+/** Pass colours for a tenant brand colour. The text and the (softer) label both reach 4.5:1 on every possible background. */
 export function resolveColors(hex?: unknown): PassModel["colors"] {
   const bg = normalizeColor(hex);
-  const [r, g, b] = [1, 3, 5].map((i) => parseInt(bg.slice(i, i + 2), 16) / 255).map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
-  const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-  const light = lum > 0.45;
-  return { bg, fg: light ? "#141413" : "#FFFFFF", label: light ? "#44423D" : "#E8E6DC" };
+  const fg = readableTextColor(bg);
+  const soft = fg === "#FFFFFF" ? "#E8E6DC" : "#44423D"; // Light Gray / warm dark gray; used only while it still reaches 4.5:1
+  return { bg, fg, label: contrastOf(bg, soft) >= 4.5 ? soft : fg };
 }
 
 export function isValidTimezone(tz: unknown): tz is string {
