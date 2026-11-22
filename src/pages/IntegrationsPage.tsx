@@ -26,6 +26,7 @@ import { IntegrationRecoveryPanel } from '@/components/integrations/IntegrationR
 import { ChatNotificationsPanel } from '@/components/integrations/ChatNotificationsPanel';
 import { MicrosoftCalendarPanel } from '@/components/integrations/MicrosoftCalendarPanel';
 import { oauthReasonMessage } from '@/lib/microsoftCalendar';
+import { disconnectProvider, followUpNote } from '@/lib/providerDisconnect';
 import {
   disconnectMicrosoftCalendar,
   startMicrosoftCalendarConnect,
@@ -233,12 +234,22 @@ export function IntegrationsPage() {
     }
     setToggling(def.type);
     try {
-      const { error } = await supabase.from('integrations').update({ status: 'disconnected' }).eq('id', existing.id);
-      if (error) throw error;
-      toast(`${def.name} disconnected.`, 'info');
+      if (def.type === 'hubspot' || def.type === 'google_calendar') {
+        // Server-side: revokes at the provider where documented, deletes the sealed credentials and the connection row.
+        // (A client-side status flip would leave the tokens stored and the grant active at the provider.)
+        const result = await disconnectProvider((name, options) => supabase.functions.invoke(name, options), def.type);
+        if (!result.ok) throw new Error(result.message);
+        toast(`${def.name} disconnected.`, 'info');
+        const note = followUpNote(def.name, def.type, result);
+        if (note) toast(note, 'info');
+      } else {
+        const { error } = await supabase.from('integrations').update({ status: 'disconnected' }).eq('id', existing.id);
+        if (error) throw error;
+        toast(`${def.name} disconnected.`, 'info');
+      }
       await loadIntegrations();
-    } catch {
-      toast(`Could not disconnect ${def.name}. Please try again.`, 'error');
+    } catch (err) {
+      toast(err instanceof Error && err.message ? err.message : `Could not disconnect ${def.name}. Please try again.`, 'error');
     } finally {
       setToggling(null);
     }
