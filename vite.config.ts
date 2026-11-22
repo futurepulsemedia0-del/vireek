@@ -30,6 +30,7 @@ export default defineConfig({
       '@': '/src',
       // Test-only: lets Vitest import Deno edge functions that use the npm: specifier.
       'npm:@supabase/supabase-js@2.57.4': '/src/test/stubs/supabaseNpm.ts',
+      'npm:zod@3.25.76': 'zod',
     },
   },
   build: {
