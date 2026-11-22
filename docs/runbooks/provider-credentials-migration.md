@@ -52,5 +52,13 @@ Search function logs for `credential_hydrate_failed`, `credential_backfill_faile
 
 ## Known limits (honest)
 - `hydrateRow` costs one vault read per connection per sync; fine at current scale, batch it if you pass a few thousand connections per cron run.
-- Jobber/ServiceTitan/Housecall Pro/HubSpot token **revocation at the provider** is not implemented in `provider-disconnect` (no verified endpoint in this repo); only Google revocation is. Tell users to also remove the app in the provider.
+- **Revocation at the provider** (`_shared/secrets/revocation.ts`, called by `provider-disconnect` before credentials are deleted). Endpoints below were read from the providers' public docs on implementation day **[VERIFY before citing in an audit]**:
+  - Google: RFC 7009 `oauth2.googleapis.com/revoke` — implemented.
+  - Jobber: GraphQL `appDisconnect` mutation — implemented (refreshes the access token first when needed).
+  - HubSpot: `DELETE /oauth/v1/refresh-tokens/{token}` — implemented, but HubSpot documents that this removes only the refresh token; issued access tokens work until expiry and the app stays installed. The UI tells the user to remove Vireek from HubSpot connected apps.
+  - ServiceTitan, Housecall Pro: **no documented revocation endpoint**. Vireek deletes its copy and tells the user to delete the credential in the provider (Housecall Pro: My Apps → API Key Management).
+  - A failed revocation never blocks deletion of Vireek's copy (the response carries `revocation: "failed"`); the credential is gone, so it cannot be retried — the user must remove the app at the provider.
+  - Google Business Profile is not handled by `provider-disconnect`.
+- `provider-disconnect` authorizes with `requireIntegrationManager(..., "disconnect")` and acts on the account owner id. The connect/OAuth-callback functions still store under the caller's user id (same value for account owners); aligning them to the owner id is a separate change.
+- After the backfill is verified in production (step 6 SQL returns 0 plaintext rows), update `docs/security/partner-security-questionnaire.md` rows that still say "NOT application-encrypted". Do not change them before that.
 - Concurrent refresh of a rotating Jobber refresh token by two parallel requests is not locked.
