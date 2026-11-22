@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import type { RatingModerationState } from '@/lib/talentRatingModeration';
 
 /**
  * Talent Network — client library.
@@ -145,7 +146,7 @@ export interface EngagementRow {
   direct_deposit_set_at?: string | null; onboarding_completed_at?: string | null; completed_at: string | null;
   team_member_id?: string | null; my_rating_submitted: boolean; counterpart_revealed: boolean;
 }
-export interface EngagementRatings {
+export interface EngagementRatings extends RatingModerationState {
   mine: { rating: number; tags: string[]; comment: string | null } | null;
   theirs: { rating: number; tags: string[]; comment: string | null } | null;
   revealed: boolean;
