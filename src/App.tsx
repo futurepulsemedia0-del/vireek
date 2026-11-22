@@ -720,7 +720,7 @@ const FindingsPackagesPage = lazy(() => import('@/pages/FindingsPackagesPage').t
 const InHomeSalesPage = lazy(() => import('@/pages/InHomeSalesPage').then((m) => ({ default: m.InHomeSalesPage })));
 const SalesPresentationPage = lazy(() => import('@/pages/SalesPresentationPage').then((m) => ({ default: m.SalesPresentationPage })));
 const FindingsPackagePublicPage = lazy(() => import('@/pages/FindingsPackagePublicPage').then((m) => ({ default: m.FindingsPackagePublicPage })));
-const ReputationPage = lazy(() => import('@/pages/ReputationPage'));
+const ReputationPage = lazy(() => import('@/pages/ReputationPage').then((m) => ({ default: m.ReputationPage })));
 const ReviewShieldPage = lazy(() => import('@/pages/ReviewShieldPage'));
 const ListingsPage = lazy(() => import('@/pages/ListingsPage').then((m) => ({ default: m.ListingsPage })));
 const InspectionReportPublicPage = lazy(() => import('@/pages/InspectionReportPublicPage').then((m) => ({ default: m.InspectionReportPublicPage })));
