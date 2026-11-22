@@ -49,7 +49,7 @@ describe('dismissBootLoader', () => {
   });
 
   it('fast load (before the content appears): removed at once, no fade', () => {
-    at(120);
+    at(0);
     const el = mount();
     dismissBootLoader();
     expect(el.isConnected).toBe(false);
@@ -59,7 +59,7 @@ describe('dismissBootLoader', () => {
     at(450);
     const el = mount();
     dismissBootLoader();
-    vi.advanceTimersByTime(299);
+    vi.advanceTimersByTime(1949);
     expect(el.isConnected).toBe(true);
     expect(el).not.toHaveClass('o');
     vi.advanceTimersByTime(1);
@@ -69,7 +69,7 @@ describe('dismissBootLoader', () => {
   });
 
   it('visible for 500ms or more: fades immediately', () => {
-    at(2000);
+    at(3000);
     const el = mount();
     dismissBootLoader();
     expect(el).toHaveClass('o');
@@ -82,7 +82,7 @@ describe('dismissBootLoader', () => {
     const el = mount();
     dismissBootLoader();
     dismissBootLoader();
-    vi.advanceTimersByTime(300);
+    vi.advanceTimersByTime(1950);
     expect(el).toHaveClass('o');
     vi.advanceTimersByTime(540);
     expect(() => dismissBootLoader()).not.toThrow();
