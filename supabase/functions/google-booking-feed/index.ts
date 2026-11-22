@@ -12,6 +12,12 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { computeFeedAvailability, sha256Hex, type FeedSnapshot } from "../_shared/google-booking/availability.ts";
+import { parseQuery, tryGuard } from "../_shared/http/zodRequest.ts";
+import { enforceRateLimit } from "../_shared/http/publicGuard.ts";
+import { z } from "../_shared/http/zod.ts";
+
+// Unknown params are stripped (crawlers add cache-busters); repeated/oversized params are rejected.
+const FEED_QUERY = z.object({ slug: z.string().max(80).optional(), format: z.string().max(20).optional() });
 import { serviceIdFor } from "../_shared/google-booking/ids.ts";
 import { resolveFsmGate } from "../_shared/fsm-availability/gate.ts";
 import { supabaseGateDeps } from "../_shared/fsm-availability/gateDeps.ts";
@@ -40,6 +46,15 @@ Deno.serve(async (req: Request) => {
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
   const siteUrl = (Deno.env.get("SITE_URL") ?? "https://app.vireek.com").replace(/\/$/, "");
+
+  const g = await tryGuard(req, cors, async () => {
+    const limiterDb = createClient(supabaseUrl, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", { auth: { persistSession: false } });
+    const preview = req.method === "POST";
+    // Googlebot fetches many slugs from few IPs: generous public limit, tight limit on the owner preview.
+    await enforceRateLimit(limiterDb, req, { name: preview ? "google-booking-feed-preview" : "google-booking-feed", limit: preview ? 30 : 300, windowSeconds: 60, onError: "open" });
+    if (!preview) parseQuery(req, FEED_QUERY);
+  });
+  if (!g.ok) return g.response;
 
   try {
     // ---------------- owner preview (shows block reasons; never public) ----------------
