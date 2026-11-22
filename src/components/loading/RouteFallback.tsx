@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BrandLoader } from './BrandLoader';
+import { LoaderStage } from './LoaderStage';
 import { TopProgressBar } from './TopProgressBar';
 import { useStagedReveal } from './useDelayedLoading';
 import './loading.css';
@@ -10,7 +11,7 @@ export type RouteFallbackVariant = 'marketing' | 'app' | 'portal' | 'data';
 
 interface RouteFallbackProps {
   variant?: RouteFallbackVariant;
-  /** Full viewport height (auth guards that replace the whole screen). */
+  /** @deprecated No longer needed: the loader is always centred in the visible area. Kept so existing call sites compile. */
   fullScreen?: boolean;
   /** Suspense fallbacks of lazy routes: show the mark from the first frame (routeLazy guarantees one full loop). */
   immediate?: boolean;
@@ -26,7 +27,7 @@ const COPY_ROTATE_MS = 2400;
  * Known limit: React unmounts a Suspense fallback the instant the chunk arrives, so the 400ms
  * minimum cannot apply here (it does for LoadingBoundary, Button, Overlay and PullToRefresh).
  */
-export function RouteFallback({ variant = 'marketing', fullScreen = false, immediate = false }: RouteFallbackProps) {
+export function RouteFallback({ variant = 'marketing', immediate = false }: RouteFallbackProps) {
   const { t } = useTranslation('common', { useSuspense: false });
   const stage = useStagedReveal(true, immediate ? IMMEDIATE_STAGES : STAGES);
   const [copyIndex, setCopyIndex] = useState(0);
@@ -41,23 +42,28 @@ export function RouteFallback({ variant = 'marketing', fullScreen = false, immed
   const copy = copyIndex % 2 === 0 ? t('loading.pickingUp', 'Picking up…') : t('loading.connecting', 'Connecting your calls…');
 
   return (
-    <div
-      className={`flex w-full flex-col items-center justify-center gap-4 bg-bg-primary ${fullScreen ? 'min-h-screen' : 'h-full min-h-[60vh]'}`}
-    >
+    <LoaderStage>
       {stage >= 1 && <TopProgressBar />}
-      {stage >= 2 && (
-        <div className="vrk-fade-in">
-          <BrandLoader variant={variant === 'marketing' ? 'signal' : variant === 'data' ? 'network' : 'pulse'} size="md" />
-        </div>
-      )}
-      {showCopy && (
-        <p aria-hidden="true" className="vrk-fade-in text-sm text-text-secondary">
-          {copy}
-        </p>
-      )}
+      {/* Fixed-size box: the mark sits at the exact centre of the visible area from the first frame, and the
+          microcopy hangs BELOW it (absolute) so it appearing later can never push the mark upwards. */}
+      <div className="relative flex h-36 w-[156px] items-center justify-center">
+        {stage >= 2 && (
+          <div className="vrk-fade-in">
+            <BrandLoader variant={variant === 'marketing' ? 'signal' : variant === 'data' ? 'network' : 'pulse'} size="xxl" />
+          </div>
+        )}
+        {showCopy && (
+          <p
+            aria-hidden="true"
+            className="vrk-fade-in absolute left-1/2 top-full mt-5 -translate-x-1/2 whitespace-nowrap text-sm text-text-secondary sm:text-base"
+          >
+            {copy}
+          </p>
+        )}
+      </div>
       <span role="status" aria-live="polite" className="sr-only">
         {stage >= 1 ? t('loading.route', 'Loading') : ''}
       </span>
-    </div>
+    </LoaderStage>
   );
 }
