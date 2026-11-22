@@ -1,7 +1,7 @@
 // src/components/integrations/ProviderDisconnectControl.tsx
 //
 // "Disconnect" button + confirmation for a connected third-party integration. Calls the `provider-disconnect` edge
-// function (credentials deleted server-side, Google tokens revoked where supported). Uses the app's ConfirmDialog so
+// function (credentials deleted server-side; revoked at the provider where a mechanism is documented: Google, Jobber, HubSpot). Uses the app's ConfirmDialog so
 // destructive actions behave identically everywhere (focus trap, Escape, two-step confirm).
 
 import { useState } from 'react';
@@ -34,7 +34,7 @@ export function ProviderDisconnectControl({ provider, providerLabel, consequence
       return;
     }
     toast(`${providerLabel} disconnected.`, 'success');
-    const note = followUpNote(providerLabel, provider, result.revoked);
+    const note = followUpNote(providerLabel, provider, result);
     if (note) toast(note, 'info');
     onDisconnected();
   };
