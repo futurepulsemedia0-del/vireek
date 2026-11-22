@@ -55,6 +55,6 @@ describe('drift guards (static files must match the config)', () => {
     expect(index).not.toMatch(/#4F46E5/i);
     expect(manifest.name).toBe(BRAND.name);
     expect(manifest.theme_color).toBe(BRAND.colors.light.bg);
-    expect(manifest.background_color).toBe(BRAND.colors.dark.bg);
+    expect(manifest.background_color).toBe(BRAND.colors.light.bg);
   });
 });
