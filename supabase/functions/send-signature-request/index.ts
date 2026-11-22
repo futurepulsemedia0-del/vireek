@@ -88,7 +88,13 @@ Deno.serve(async (req: Request) => {
     if (typeof body.consent_text === "string" && body.consent_text.trim()) {
       insertPayload.consent_text = body.consent_text.trim();
     }
-
+    // Evidence: the fingerprint of document + consent text is computed by a database trigger on insert.
+    if (typeof body.document_file_sha256 === "string" && /^[0-9a-f]{64}$/.test(body.document_file_sha256)) {
+      insertPayload.document_file_sha256 = body.document_file_sha256;
+    }
+    if (typeof body.consent_version === "string" && body.consent_version.trim() && body.consent_version.trim().length <= 40) {
+      insertPayload.consent_version = body.consent_version.trim();
+    }
     const { data: request, error: reqError } = await admin.from("signature_requests").insert(insertPayload).select().single();
     if (reqError || !request) throw reqError || new Error("Could not create the signature request.");
 
