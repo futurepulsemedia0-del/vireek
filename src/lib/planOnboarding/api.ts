@@ -106,9 +106,13 @@ export async function fetchPlanState(): Promise<PlanOnboardingState> {
 }
 
 /** Cached read for passive consumers. Fails open: on any error the dashboard behaves as before this feature. */
+/** Fail open: a hung request must never keep the dashboard on the full-screen spinner. */
+function failOpen(p: Promise<PlanOnboardingState>, ms = 6000): Promise<PlanOnboardingState> {
+  return Promise.race([p, new Promise<PlanOnboardingState>((resolve) => setTimeout(() => resolve(SAFE_STATE), ms))]);
+}
 export async function getPlanStateCached(userId: string, now = Date.now()): Promise<PlanOnboardingState> {
   if (cache && cache.userId === userId && now - cache.at < CACHE_TTL_MS) return cache.state;
-  if (inflight && inflight.userId === userId) return inflight.p;
+  if (inflight && inflight.userId === userId) return failOpen(inflight.p);
   const p = fetchPlanState()
     .then((state) => {
       cache = { userId, at: Date.now(), state };
@@ -118,8 +122,8 @@ export async function getPlanStateCached(userId: string, now = Date.now()): Prom
     .finally(() => {
       if (inflight?.p === p) inflight = null;
     });
-  inflight = { userId, p };
-  return p;
+inflight = { userId, p };
+  return failOpen(p);
 }
 
 export interface SaveIntentArgs {
