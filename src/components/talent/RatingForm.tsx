@@ -3,6 +3,7 @@ import { Star } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Input';
 import { fetchEngagementRatings, submitRating, type EngagementRatings } from '@/lib/talentNetwork';
+import { RatingDispute } from '@/components/talent/RatingDispute';
 
 interface Props {
   engagementId: string;
@@ -90,5 +91,6 @@ export function RatingForm({ engagementId, tags, theirTags, onDone }: Props) {
         </div>
       )}
     </div>
+      <RatingDispute engagementId={engagementId} moderation={data} onChanged={() => { void load(); onDone?.(); }} />
   );
 }
