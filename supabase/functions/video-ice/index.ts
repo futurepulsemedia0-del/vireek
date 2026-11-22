@@ -6,6 +6,9 @@
 // Deploy: supabase functions deploy video-ice --no-verify-jwt   (guests have no account)
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { parseBody, tryGuard } from "../_shared/http/zodRequest.ts";
+import { enforceRateLimit } from "../_shared/http/publicGuard.ts";
+import { z, strictObject } from "../_shared/http/zod.ts";
 import { guardPublic } from "../_shared/http/publicGuardDeno.ts";
 
 const CORS = {
@@ -73,20 +76,18 @@ Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
-  let token: unknown;
-  try {
-    token = (await req.json())?.token;
-  } catch {
-    return json({ error: "Invalid JSON body" }, 400);
-  }
-  if (typeof token !== "string" || !TOKEN_RE.test(token)) return json({ error: "Invalid token" }, 400);
-  // TURN credentials cost money: limit per client AND per session token. Fail CLOSED.
-  const blocked = await guardPublic(req, { endpoint: "video-ice", limit: 30, windowSeconds: 60, failClosed: true, scope: token, headers: CORS });
-  if (blocked) return blocked;
-
   const db = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", {
     auth: { persistSession: false, autoRefreshToken: false },
   });
+  const g = await tryGuard(req, CORS, async () => {
+    await enforceRateLimit(db, req, { name: "video-ice", limit: 30, windowSeconds: 60, onError: "open" });
+    const body = await parseBody(req, strictObject({ token: z.string().regex(TOKEN_RE, "Invalid token.") }), { maxBytes: 2_000 });
+    // Per-session cap: TURN credentials cost money, one session never needs more than a few refreshes.
+    await enforceRateLimit(db, req, { name: "video-ice-token", key: body.token.slice(0, 16), limit: 12, windowSeconds: 60, onError: "open" });
+    return body;
+  });
+  if (!g.ok) return g.response;
+  const token = g.value.token;
   const { data: session, error } = await db.rpc("get_video_session_public", { p_token: token });
   if (error) return json({ error: "Lookup failed" }, 500);
   if (!session || !["waiting", "live"].includes(session.status)) return json({ error: "Session unavailable" }, 410);
