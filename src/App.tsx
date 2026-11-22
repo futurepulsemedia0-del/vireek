@@ -708,7 +708,7 @@ const SsoLoginPage = lazy(() => import('@/pages/SsoLoginPage').then((m) => ({ de
 const ReliabilityPage = lazy(() => import('@/pages/ReliabilityPage').then((m) => ({ default: m.ReliabilityPage })));
 const AccountPage = lazy(() => import('@/pages/AccountPage').then((m) => ({ default: m.AccountPage })));
 const NavigationCenterPage = lazy(() => import('@/pages/NavigationCenterPage').then((m) => ({ default: m.NavigationCenterPage })));
-onst ApiKeysPage = lazy(() => import('@/pages/ApiKeysPage').then((m) => ({ default: m.ApiKeysPage })));
+const ApiKeysPage = lazy(() => import('@/pages/ApiKeysPage').then((m) => ({ default: m.ApiKeysPage })));
 const VoicePlatformPage = lazy(() => import('@/pages/VoicePlatformPage').then((m) => ({ default: m.VoicePlatformPage })));
 const InspectionReportsPage = lazy(() => import('@/pages/InspectionReportsPage').then((m) => ({ default: m.InspectionReportsPage })));
 const FindingsPackagesPage = lazy(() => import('@/pages/FindingsPackagesPage').then((m) => ({ default: m.FindingsPackagesPage })));
