@@ -14,7 +14,7 @@ interface RouteFallbackProps {
   fullScreen?: boolean;
 }
 
-top bar 250 → mark 800 (slow chunk only) → microcopy 1600 (app / portal / data only)
+// top bar 250 → mark 800 (slow chunk only) → microcopy 1600 (app / portal / data only)
 const STAGES = [250, 800, 1600] as const;
 const COPY_ROTATE_MS = 2400;
 
