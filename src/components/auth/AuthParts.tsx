@@ -3,25 +3,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Eye, EyeOff, AlertCircle, Check, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { AuthBrandMark, type AuthMarkMotion } from './AuthBrandMark';
+import { Logo } from '@/components/brand/Logo';
 
 /* ------------------------------------------------------------------ */
 /*  Shared logo                                                        */
 /* ------------------------------------------------------------------ */
 
-export function AuthLogo({ size = 'h-12 w-12' }: { size?: string }) {
-  return (
-    <span className={`relative block ${size}`}>
-      <img
-        src="/brand/vireek-symbol-color.svg"
-        alt="Vireek"
-        width={48}
-        height={48}
-        decoding="async"
-        loading="eager"
-        className="absolute inset-0 h-full w-full object-contain"
-      />
-    </span>
-  );
+export function AuthLogo({ size = 22, className = '' }: { size?: number; className?: string }) {
+  // Same component + variant as the dashboard header (DashboardNav). Inline SVG that follows the
+  // --text-primary / --accent-graphic tokens, so it is readable in light AND dark (the old <img>
+  // of /brand/vireek-symbol-color.svg had a fixed #141413 fill and vanished on dark backgrounds).
+  return <Logo variant="wordmark" size={size} className={className} decorative />;
 }
 
 /* ------------------------------------------------------------------ */
@@ -188,9 +180,8 @@ export function AuthShell({
       <div className="relative flex w-full flex-col lg:w-[480px] lg:shrink-0">
         {/* Top bar */}
         <div className="flex items-center justify-between px-6 py-5 sm:px-8">
-          <Link to="/" className="flex items-center gap-2.5">
-            <AuthLogo size="h-10 w-10" />
-            <span className="text-lg font-bold tracking-tight text-accent">Vireek</span>
+          <Link to="/" aria-label="Vireek" className="focus-ring -mx-1.5 flex h-10 items-center rounded-lg px-1.5">
+            <AuthLogo size={22} />
           </Link>
           {/* ThemeToggle is injected by the page via children to avoid circular imports */}
         </div>
