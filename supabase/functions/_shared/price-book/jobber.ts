@@ -5,7 +5,6 @@
 
 import type { NormalizedPriceItem } from "./types.ts";
 import { graphqlWithRetry, type GraphQlBody } from "../http/retry.ts";
-import { denyUnlessCanManageCrm } from "../_shared/auth/crmPermission.ts";
 
 export const JOBBER_API_VERSION = "2025-04-16";
 const JOBBER_TOKEN_URL = "https://api.getjobber.com/api/oauth/token";
