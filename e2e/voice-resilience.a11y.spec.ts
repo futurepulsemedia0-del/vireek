@@ -7,6 +7,10 @@ import AxeBuilder from '@axe-core/playwright';
 const STATUS = { org: null, platform_level: 2, since: new Date().toISOString(), recent_fallback_calls: [], checks: [] };
 
 test.beforeEach(async ({ page }) => {
+  // The Drills tab reads tables through PostgREST (RLS-scoped): stub them so no real backend is touched.
+  await page.route('**/rest/v1/voice_drill_schedules*', (r) => r.fulfill({ status: 200, contentType: 'application/json', body: '{}' }));
+  await page.route('**/rest/v1/voice_drill_evidence*', (r) => r.fulfill({ status: 200, contentType: 'application/json', body: '[]' }));
+  await page.route('**/rest/v1/voice_forward_checks*', (r) => r.fulfill({ status: 200, contentType: 'application/json', body: '[]' }));
   // Deterministic backend: the admin function is stubbed, no real call or vendor is touched.
   await page.route('**/functions/v1/voice-resilience-admin', async (route) => {
     const body = route.request().postDataJSON() as { action?: string };
@@ -24,7 +28,7 @@ for (const theme of ['light', 'dark'] as const) {
     await page.emulateMedia({ colorScheme: theme });
     await page.goto('/dashboard/voice-resilience');
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-    for (const name of [/status/i, /backup handling/i, /carrier safety net/i]) {
+    for (const name of [/status/i, /backup handling/i, /carrier safety net/i, /drills & evidence/i]) {
       await page.getByRole('tab', { name }).click();
       const r = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag22aa']).analyze();
       expect(r.violations, JSON.stringify(r.violations, null, 2)).toEqual([]);
