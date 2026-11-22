@@ -470,7 +470,7 @@ export function WorkflowCompilerPage() {
 
   const byId = useMemo(() => new Map(workflows.map((w) => [w.id, w])), [workflows]);
   const latest = latestId ? byId.get(latestId) ?? null : null;
-  const inFlight = runs.filter((r) => r.status === 'active' || r.status === 'waiting_approval' || r.status === 'waiting_timer').length;
+  const inFlight = runs.filter((r) => r.status === 'active' || r.status === 'compensating'|| r.status === 'waiting_approval' || r.status === 'waiting_timer').length;
 
   return (
     <DashboardLayout>
