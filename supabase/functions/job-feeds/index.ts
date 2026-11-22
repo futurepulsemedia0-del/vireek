@@ -8,6 +8,11 @@
 //   supabase functions deploy job-feeds --no-verify-jwt
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { parseQuery, tryGuard } from "../_shared/http/zodRequest.ts";
+import { enforceRateLimit } from "../_shared/http/publicGuard.ts";
+import { z } from "../_shared/http/zod.ts";
+
+const QUERY = z.object({ board: z.string().max(32).optional() });
 import { buildFeed, isFeedBoard, type FeedPosting } from "../_shared/job-feeds/engine.ts";
 import { guardPublic } from "../_shared/http/publicGuardDeno.ts";
 
@@ -40,6 +45,12 @@ Deno.serve(async (req: Request) => {
   const service = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
   if (!supabaseUrl || !service) return text("Feed not configured", 503, { "Retry-After": "300" });
   const admin = createClient(supabaseUrl, service, { auth: { persistSession: false } });
+  
+  const g = await tryGuard(req, {}, async () => {
+    await enforceRateLimit(admin, req, { name: "job-feeds", limit: 30, windowSeconds: 60, onError: "open" });
+    parseQuery(req, QUERY);
+  });
+  if (!g.ok) return g.response;
 
   const { data: cfg, error: cfgErr } = await admin
     .from("job_board_feeds")
