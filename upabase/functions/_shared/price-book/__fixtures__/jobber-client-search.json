@@ -1,0 +1,2 @@
+{ "data": { "clients": { "nodes": [ { "id": "Z2lkOi8vSm9iYmVyL0NsaWVudC8xMjM=" } ] } },
+  "extensions": { "cost": { "requestedQueryCost": 8, "throttleStatus": { "currentlyAvailable": 9992, "restoreRate": 500 } } } }
