@@ -100,10 +100,12 @@ class Builder implements PromiseLike<{ data: any; error: any }> {
   private lim: number | null = null;
   private rng: [number, number] | null = null;
   private mode: 'many' | 'single' | 'maybe' = 'many';
+  private wantCount = false;
+  private head = false;
 
   constructor(private db: FakeDb, private table: string) {}
 
-  select(cols = '*') { this.cols = cols; if (this.op !== 'select') this.returning = true; return this; }
+  select(cols = '*', o?: { count?: string; head?: boolean }) { this.cols = cols; if (o?.count) this.wantCount = true; if (o?.head) this.head = true; if (this.op !== 'select') this.returning = true; return this; }
   insert(p: any) { this.op = 'insert'; this.payload = p; return this; }
   upsert(p: any, o?: any) { this.op = 'upsert'; this.payload = p; this.options = o ?? {}; return this; }
   update(p: any) { this.op = 'update'; this.payload = p; return this; }
@@ -132,6 +134,10 @@ class Builder implements PromiseLike<{ data: any; error: any }> {
   range(a: number, b: number) { this.rng = [a, b]; return this; }
   maybeSingle() { this.mode = 'maybe'; return this; }
   single() { this.mode = 'single'; return this; }
+  /** supabase-js `.throwOnError()`: the awaited builder rejects instead of resolving { error }. */
+  throwOnError() {
+    return { then: (ok?: any, bad?: any) => this.exec().then((r) => { if (r.error) throw Object.assign(new Error(r.error.message), r.error); return r; }).then(ok, bad) } as PromiseLike<{ data: any; error: any }>;
+  }
 
   then<R1 = any, R2 = never>(ok?: ((v: { data: any; error: any }) => R1 | PromiseLike<R1>) | null, bad?: ((e: unknown) => R2 | PromiseLike<R2>) | null) {
     return this.exec().then(ok, bad);
@@ -155,9 +161,11 @@ class Builder implements PromiseLike<{ data: any; error: any }> {
     const matched = () => rows.filter((r) => this.preds.every((p) => p(r)));
     let out: Row[] = [];
     let error: any = null;
+    let total = 0;
 
     if (this.op === 'select') {
       out = matched();
+      total = out.length;
       for (const [c, asc] of [...this.orderBy].reverse()) out.sort((a, b) => ((cmp(a[c], b[c]) ?? 0) * (asc ? 1 : -1)));
       if (this.rng) out = out.slice(this.rng[0], this.rng[1] + 1);
       if (this.lim !== null) out = out.slice(0, this.lim);
@@ -173,7 +181,7 @@ class Builder implements PromiseLike<{ data: any; error: any }> {
         }
         const uniq = this.db.uniques[this.table];
         if (uniq && rows.some((r) => uniq.every((k) => r[k] === p[k]))) { error = { message: `duplicate key value violates unique constraint on ${this.table}`, code: '23505' }; break; }
-        const row = { id: nextId(), ...p };
+        const row = { id: nextId(), ...(this.db.defaults[this.table]?.() ?? {}), ...p };
         rows.push(row);
         out.push({ ...row });
       }
@@ -192,7 +200,7 @@ class Builder implements PromiseLike<{ data: any; error: any }> {
     const wantsRows = this.op === 'select' || this.returning || this.mode !== 'many';
     if (this.mode === 'single') return out.length === 1 ? { data: out[0], error: null } : { data: null, error: { message: 'JSON object requested, multiple (or no) rows returned', code: 'PGRST116' } };
     if (this.mode === 'maybe') return out.length > 1 ? { data: null, error: { message: 'multiple rows', code: 'PGRST116' } } : { data: out[0] ?? null, error: null };
-    return { data: wantsRows ? out : null, error: null };
+    return { data: this.head ? null : wantsRows ? out : null, error: null, ...(this.wantCount ? { count: this.op === 'select' ? total : out.length } : {}) };
   }
 }
 
@@ -200,6 +208,8 @@ export class FakeDb {
   tables: Record<string, Row[]> = {};
   log: Call[] = [];
   uniques: Record<string, string[]> = {};
+  /** Column defaults applied on insert (models DB defaults such as created_at / public_token). */
+  defaults: Record<string, () => Row> = {};
   rpcHandlers: Record<string, RpcHandler> = {};
   /** bearer token -> user */
   users: Record<string, { id: string; email?: string | null }> = {};
@@ -245,7 +255,11 @@ export class FakeDb {
       const r = h(args, db);
       return r && typeof r === 'object' && ('data' in r || 'error' in r) ? { data: r.data ?? null, error: r.error ?? null } : { data: r ?? null, error: null };
     };
-    return { then: (ok: any, bad: any) => run().then(ok, bad) } as PromiseLike<{ data: any; error: any }>;
+    const q: any = {
+      then: (ok: any, bad: any) => run().then(ok, bad),
+      throwOnError: () => ({ then: (ok: any, bad: any) => run().then((r) => { if (r.error) throw Object.assign(new Error(r.error.message), r.error); return r; }).then(ok, bad) }),
+    };
+    return q as PromiseLike<{ data: any; error: any }>;
   }
 
   /** What the mocked `createClient` returns. Auth is resolved from the bearer token (explicit or via global headers). */
