@@ -74,11 +74,11 @@ All cells stay empty until a declarations page is in hand. Never populate from m
 | # | Question | Answer today | Tag | Evidence |
 |---|---|---|---|---|
 | B1 | Named security officer | **No** | `[N]` | `READINESS_REPORT.md` §1 |
-| B2 | Written security policies | 15 policy **drafts** exist; **none approved**, none acknowledged by staff | `[P]` | `docs/compliance/policies/`; control `GOV-01` missing |
-| B3 | Risk assessment performed | No formal risk register or annual assessment | `[N]` | `RSK-01` missing; `policies/risk-assessment.md` |
-| B4 | Security awareness training | None found in repo | `[N]` | `policies/security-training.md`; `GOV-02` |
+| B2 | Written security policies | 15 policy **drafts** exist; **none approved**, none acknowledged by staff | `[P]` | `docs/compliance/policies/`; control `GOV-01` partial (approval workflow built, no approvals recorded) |
+| B3 | Risk assessment performed | No formal risk register or annual assessment | `[N]` | `RSK-01` partial (draft policy only, no register); `policies/risk-assessment.md` |
+| B4 | Security awareness training | None found in repo | `[N]` | `policies/security-training.md`; `GOV-02` partial (completion records can be captured, none recorded) |
 | B5 | Background checks | No decision recorded | `[N]` | `GOV-02` |
-| B6 | Independent penetration test | **Not performed.** Scope document drafted | `[N]` | `docs/compliance/soc2/PENTEST_SCOPE.md`; `PEN-01` |
+| B6 | Independent penetration test | **Not performed.** Scope document drafted | `[N]` | `docs/compliance/soc2/PENTEST_SCOPE.md`, `docs/security/pentest-program.md`; `PEN-01` partial (readiness only) |
 | B7 | Vulnerability disclosure program | Yes — `security.txt` and `/vulnerability-disclosure` (targets, not commitments) | `[R]` | `SECURITY.md`, `public/.well-known/security.txt` (expires 2027-09-10) |
 
 ### C. Access control and MFA
@@ -99,7 +99,7 @@ All cells stay empty until a declarations page is in hand. Never populate from m
 |---|---|---|---|---|
 | D1 | Regular backups | Logical backup function `dr-backup-run` covers ~17 of ~1,500 tables into a private bucket with SHA-256; Supabase PITR/physical backups are the primary layer but plan, retention and restore owner are **unverified** | `[P]` `[V]` | `docs/DB_BACKUP_RESTORE.md`; `RUNBOOK.md` §5; `AVL-02` |
 | D2 | Backups tested / restore drills | A drill function exists (checksum, row counts, sample restore); **no drill evidence recorded**; no full restore has been timed | `[P]` | `supabase/functions/dr-restore-drill`; `AVL-03`; results table in `DB_BACKUP_RESTORE.md` is empty ("NOT MEASURED") |
-| D3 | Stated RTO / RPO | **Not defined or measured.** Do not report the drill's `rto_seconds` as an RTO | `[N]` | `DB_BACKUP_RESTORE.md`; `AVL-04` missing |
+| D3 | Stated RTO / RPO | **Not defined or measured.** Do not report the drill's `rto_seconds` as an RTO | `[N]` | `DB_BACKUP_RESTORE.md`; `AVL-04` partial (drafts only) |
 | D4 | Offline / immutable backups | Not evidenced | `[V]` | — |
 | D5 | Business continuity / DR plan | Draft policy only; no continuity plan or communication tree | `[N]` | `policies/business-continuity.md` |
 | D6 | Availability monitoring | Synthetic probes, SLO evaluation, public `/status` page | `[R]` | `docs/runbooks/synthetic-monitoring.md`; `AVL-01` met |
