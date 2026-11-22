@@ -129,8 +129,8 @@ describe('analytics math', () => {
 
 describe('readableTextColor', () => {
   it('picks readable text for light, dark and invalid backgrounds', () => {
-    expect(readableTextColor('#ffffff')).toBe('#0f172a');
-    expect(readableTextColor('#facc15')).toBe('#0f172a');
+    expect(readableTextColor('#ffffff')).toBe('#1c1b15');
+    expect(readableTextColor('#facc15')).toBe('#1c1b15');
     expect(readableTextColor('#000000')).toBe('#ffffff');
     expect(readableTextColor('bad')).toBe('#ffffff');
   });
