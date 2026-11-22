@@ -21,7 +21,7 @@ import {
 } from '@/components/auth/AuthParts';
 import { OtpEntry } from '@/components/auth/OtpEntry';
 import { PlatformEndorsement } from '@/components/brand/PlatformEndorsement';
-import { VireekMark } from '@/components/brand/VireekMark';
+import { AuthBrandMark } from '@/components/auth/AuthBrandMark';
 import { PasskeyButton, PhoneButton } from '@/components/auth/SocialAuthButtons';
 import { toE164 } from '@/lib/homeowner/format';
 import { requestPhoneSignInCode, verifyPhoneSignInCode, type PhoneDestination } from '@/lib/phoneAuth';
@@ -421,7 +421,7 @@ export function LoginPage() {
   };
 
   return (
-    <AuthShell side={<AuthSidePanel showMark />}>
+    <AuthShell formMark={false} side={<AuthSidePanel motion="animated" />}>
       {/* Theme toggle in top-right of form side */}
       <div className="absolute right-6 top-5 sm:right-8">
         <ThemeToggle />
@@ -576,10 +576,7 @@ export function LoginPage() {
           </div>
         ) : (
           <>
-            {/* Mobile / tablet brand mark (the side panel is desktop-only) */}
-            <div className="mb-8 flex justify-center lg:hidden [@media(max-height:560px)]:hidden">
-              <VireekMark size={220} className="h-auto w-[clamp(150px,52vw,230px)]" intro="once" decorative />
-            </div>
+            <AuthBrandMark placement="form" motion="animated" />
             {/* Heading */}
             <div className="mb-8">
               <h1 className="text-2xl font-bold tracking-tight text-text-primary">Welcome back</h1>
