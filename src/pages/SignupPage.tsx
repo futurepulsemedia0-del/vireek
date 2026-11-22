@@ -22,7 +22,7 @@ import {
   AuthIconBadge,
 } from '@/components/auth/AuthParts';
 import { OtpEntry } from '@/components/auth/OtpEntry';
-import { AppleButton } from '@/components/auth/SocialAuthButtons';
+import { PhoneButton } from '@/components/auth/SocialAuthButtons';
 import { registerTrustedDevice } from '@/lib/deviceTrust';
 import { consumePostAuthRedirect, peekPostAuthPath } from '@/lib/inviteRedirect';
 import { deepLinkFromSearch, readDeepLink, saveDeepLink, signupMetadata } from '@/lib/planOnboarding/intent';
@@ -72,7 +72,6 @@ export function SignupPage() {
 
   const [submitting, setSubmitting] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
-  const [appleLoading, setAppleLoading] = useState(false);
   const [authError, setAuthError] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -268,25 +267,6 @@ useEffect(() => {
     navigate(peekPostAuthPath() ? consumePostAuthRedirect() : import.meta.env.VITE_FIRST_CALL_FASTPATH === 'true' ? '/onboarding/first-call' : '/dashboard', { replace: true });
   }, [navigate]);
 
-  const handleAppleSignUp = async () => {
-    setAuthError('');
-    setAppleLoading(true);
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'apple',
-        options: { redirectTo: `${window.location.origin}/dashboard` },
-      });
-      if (error) throw error;
-    } catch (err) {
-      setAppleLoading(false);
-      const msg = err instanceof Error ? err.message : 'Apple sign-up failed.';
-      setAuthError(
-        msg.toLowerCase().includes('provider') || msg.toLowerCase().includes('not')
-          ? 'Apple sign-up is not configured. Please use email and password.'
-          : msg
-      );
-    }
-  };
   const handleGoogleSignUp = async () => {
     setAuthError('');
     setGoogleLoading(true);
@@ -355,10 +335,12 @@ useEffect(() => {
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <GoogleButton onClick={handleGoogleSignUp} loading={googleLoading} disabled={submitting || appleLoading} label="Google" />
-        <AppleButton onClick={handleAppleSignUp} loading={appleLoading} disabled={submitting || googleLoading} label="Apple" />
+        <GoogleButton onClick={handleGoogleSignUp} loading={googleLoading} disabled={submitting} label="Google" />
+        <PhoneButton onClick={() => navigate('/home/sign-in')} disabled={submitting || googleLoading} label="Phone" />
       </div>
-
+      <p className="mt-3 text-center text-xs text-text-muted">
+        Phone sign-up is for homeowners (Vireek Home). Business accounts use email or Google.
+      </p>
       <AuthDivider />
 
       {/* Banners */}
