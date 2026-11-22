@@ -149,7 +149,7 @@ describe('presets', () => {
       -1,
     );
     const out = applyPresetStyle(custom, 'quote', 'modern');
-    expect(out.theme.primary).toBe('#0F172A');
+    expect(out.theme.primary).toBe('#1C1B15');
     expect(out.header.accentBar).toBe('band');
     expect(out.terms).toBe('My terms');
     expect(out.header.title).toBe('ESTIMATE');
