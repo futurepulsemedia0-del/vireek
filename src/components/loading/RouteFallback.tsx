@@ -38,7 +38,8 @@ export function RouteFallback({ variant = 'marketing', fullScreen = false }: Rou
   const copy = copyIndex % 2 === 0 ? t('loading.pickingUp', 'Picking up…') : t('loading.connecting', 'Connecting your calls…');
 
   return (
-    className={`flex w-full flex-col items-center justify-center gap-4 bg-bg-primary ${fullScreen ? 'min-h-screen' : 'h-full min-h-[60vh]'}`}
+    <div
+      className={`flex w-full flex-col items-center justify-center gap-4 bg-bg-primary ${fullScreen ? 'min-h-screen' : 'h-full min-h-[60vh]'}`}
       {stage >= 1 && <TopProgressBar />}
       {stage >= 2 && (
         <div className="vrk-fade-in">
