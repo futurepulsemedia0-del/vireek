@@ -77,7 +77,7 @@ function WeeklyBars({ weekly }: { weekly: ReceivablesWeek[] }) {
       <svg viewBox={`0 0 ${chartW} ${chartH}`} className="w-full" style={{ height: chartH }} role="img" aria-label="Billed versus collected per week">
         {weekly.map((w, i) => (
           <g key={w.week_start}>
-            <rect x={i * slot + 1} y={chartH - h(w.billed_cents)} width={barW} height={h(w.billed_cents)} rx={1.5} fill="rgb(169 59 15)" opacity={0.85} />
+            <rect x={i * slot + 1} y={chartH - h(w.billed_cents)} width={barW} height={h(w.billed_cents)} rx={1.5} fill="rgb(147 65 38)" opacity={0.85} />
             <rect x={i * slot + 1 + barW + 1} y={chartH - h(w.collected_cents)} width={barW} height={h(w.collected_cents)} rx={1.5} fill="rgb(52 199 89)" opacity={0.85} />
           </g>
         ))}
