@@ -1,7 +1,7 @@
 import { useState, FormEvent, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
-import { Mail, Lock, MailCheck, KeyRound, Sparkles } from 'lucide-react';
+import { Mail, Lock, MailCheck, KeyRound, Sparkles, Smartphone } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -22,7 +22,9 @@ import {
 import { OtpEntry } from '@/components/auth/OtpEntry';
 import { PlatformEndorsement } from '@/components/brand/PlatformEndorsement';
 import { VireekMark } from '@/components/brand/VireekMark';
-import { AppleButton, PasskeyButton } from '@/components/auth/SocialAuthButtons';
+import { PasskeyButton, PhoneButton } from '@/components/auth/SocialAuthButtons';
+import { toE164 } from '@/lib/homeowner/format';
+import { requestPhoneSignInCode, verifyPhoneSignInCode, type PhoneDestination } from '@/lib/phoneAuth';
 import { PasskeyError, isConditionalUiAvailable, isPasskeySupported, signInWithPasskey } from '@/lib/passkeys';
 import { checkDeviceTrusted, registerTrustedDevice } from '@/lib/deviceTrust';
 import { consumePostAuthRedirect } from '@/lib/inviteRedirect';
@@ -33,7 +35,7 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // /reset-password pages — see those files for that flow. This page keeps
 // only the steps that are genuinely part of signing in: post-signup email
 // confirmation, and the new-device OTP step-up below.
-type LoginStep = 'signin' | 'confirm-email' | 'device-otp' | 'magic-link-sent';
+type LoginStep = 'signin' | 'confirm-email' | 'device-otp' | 'magic-link-sent' | 'phone-entry' | 'phone-otp';
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -57,7 +59,12 @@ export function LoginPage() {
   const [deviceChecking, setDeviceChecking] = useState(false);
   const [signInMode, setSignInMode] = useState<'password' | 'magic-link'>('password');
   const [magicLinkSending, setMagicLinkSending] = useState(false);
-  const [appleLoading, setAppleLoading] = useState(false);
+  const [phoneInput, setPhoneInput] = useState('');
+  const [phoneE164, setPhoneE164] = useState('');
+  const [phoneError, setPhoneError] = useState('');
+  const [phoneNoAccount, setPhoneNoAccount] = useState(false);
+  const [phoneSending, setPhoneSending] = useState(false);
+  const phoneDestinationRef = useRef<PhoneDestination>('business');
   const [passkeyLoading, setPasskeyLoading] = useState(false);
   const [conditionalNonce, setConditionalNonce] = useState(0);
   const conditionalAbortRef = useRef<AbortController | null>(null);
@@ -255,25 +262,47 @@ export function LoginPage() {
     }
   };
 
-  const handleAppleSignIn = async () => {
+  // ---- Phone sign-in (SMS code) ----
+  // Existing accounts only. Phone-only accounts are homeowners (Vireek Home),
+  // so after a verified code they continue to /home instead of /dashboard.
+  const handlePhoneSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (phoneSending) return;
     setAuthError('');
-    setAppleLoading(true);
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'apple',
-        options: { redirectTo: `${window.location.origin}/dashboard` },
-      });
-      if (error) throw error;
-    } catch (err) {
-      setAppleLoading(false);
-      const msg = err instanceof Error ? err.message : 'Apple sign-in failed.';
-      setAuthError(
-        msg.toLowerCase().includes('provider') || msg.toLowerCase().includes('not')
-          ? 'Apple sign-in is not configured. Please use another sign-in method.'
-          : msg
-      );
+    setPhoneNoAccount(false);
+    const phone = toE164(phoneInput);
+    if (!phone) {
+      setPhoneError('Enter a valid mobile number, like (555) 123-4567, or add your country code, like +44 7700 900123.');
+      return;
     }
+    setPhoneError('');
+    setPhoneSending(true);
+    const result = await requestPhoneSignInCode(phone);
+    setPhoneSending(false);
+    if (!result.ok) {
+      setPhoneError(result.message);
+      setPhoneNoAccount(result.reason === 'no_account');
+      return;
+    }
+    setPhoneE164(phone);
+    setStep('phone-otp');
   };
+
+  const handleVerifyPhoneOtp = useCallback(
+    async (code: string): Promise<{ success: boolean; error?: string }> => {
+      const result = await verifyPhoneSignInCode(phoneE164, code);
+      if (!result.ok) return { success: false, error: result.message };
+      phoneDestinationRef.current = result.destination;
+      toast('Signed in — welcome back!', 'success');
+      return { success: true };
+    },
+    [phoneE164, toast]
+  );
+
+  const handleResendPhoneOtp = useCallback(async (): Promise<{ success: boolean; error?: string }> => {
+    const result = await requestPhoneSignInCode(phoneE164);
+    return result.ok ? { success: true } : { success: false, error: result.message };
+  }, [phoneE164]);
   const handleGoogleSignIn = async () => {
     setAuthError('');
     setGoogleLoading(true);
@@ -387,6 +416,8 @@ export function LoginPage() {
     setStep('signin');
     setAuthError('');
     setDeviceChecking(false);
+    setPhoneError('');
+    setPhoneNoAccount(false);
   };
 
   return (
@@ -444,6 +475,85 @@ export function LoginPage() {
               <AuthBackLink onClick={backToSignIn} label="Back to sign in" />
             </div>
           </div>
+        ) : step === 'phone-entry' ? (
+          <div className="flex flex-col items-center text-center">
+            <AuthIconBadge icon={<Smartphone size={22} />} />
+            <h1 className="text-2xl font-bold tracking-tight text-text-primary">Sign in with your phone</h1>
+            <p className="mx-auto mt-1.5 max-w-[320px] text-sm leading-relaxed text-text-secondary">
+              Enter the mobile number on your account. We&rsquo;ll text you a 6-digit code.
+            </p>
+            <form onSubmit={handlePhoneSubmit} noValidate className="mt-8 w-full space-y-4 text-left">
+              <AuthInput
+                id="phone"
+                type="tel"
+                label="Mobile number"
+                icon={<Smartphone size={18} />}
+                autoComplete="tel"
+                autoFocus
+                value={phoneInput}
+                onChange={(e) => {
+                  setPhoneInput(e.target.value);
+                  if (phoneError) setPhoneError('');
+                  setPhoneNoAccount(false);
+                }}
+                placeholder="(555) 123-4567"
+                error={phoneError}
+                touched={phoneError !== ''}
+                isValid={toE164(phoneInput) !== null}
+              />
+              {phoneNoAccount && (
+                <p className="text-sm text-text-secondary">
+                  Homeowner?{' '}
+                  <Link to="/home/sign-in" className="font-semibold text-accent hover:underline">
+                    Continue with Vireek Home
+                  </Link>
+                  . Business owner?{' '}
+                  <Link to="/signup" className="font-semibold text-accent hover:underline">
+                    Create an account
+                  </Link>
+                  .
+                </p>
+              )}
+              <AuthSubmitButton
+                loading={phoneSending}
+                disabled={toE164(phoneInput) === null}
+                label="Send code"
+                loadingLabel="Sending code…"
+              />
+              <p className="text-center text-xs text-text-muted">Message and data rates may apply.</p>
+            </form>
+            <div className="mt-8">
+              <AuthBackLink onClick={backToSignIn} label="Back to sign in" />
+            </div>
+          </div>
+        ) : step === 'phone-otp' ? (
+          <div className="flex flex-col items-center text-center">
+            <AuthIconBadge icon={<Smartphone size={22} />} />
+            <h1 className="text-2xl font-bold tracking-tight text-text-primary">Check your phone</h1>
+            <p className="mx-auto mt-1.5 max-w-[320px] text-sm leading-relaxed text-text-secondary">
+              We texted a 6-digit code to{' '}
+              <span className="font-semibold text-text-primary">{phoneE164}</span>.
+            </p>
+            <div className="mt-8 w-full">
+              <OtpEntry
+                length={6}
+                onVerify={handleVerifyPhoneOtp}
+                onResend={handleResendPhoneOtp}
+                onSuccessSettled={() =>
+                  navigate(phoneDestinationRef.current === 'home' ? '/home' : consumePostAuthRedirect(), { replace: true })
+                }
+              />
+            </div>
+            <div className="mt-8">
+              <AuthBackLink
+                onClick={() => {
+                  setStep('phone-entry');
+                  setPhoneError('');
+                }}
+                label="Wrong number? Go back"
+              />
+            </div>
+          </div>
         ) : step === 'device-otp' ? (
           <div className="flex flex-col items-center text-center">
             <AuthIconBadge icon={<KeyRound size={22} />} />
@@ -483,7 +593,7 @@ export function LoginPage() {
                 <PasskeyButton
                   onClick={handlePasskeySignIn}
                   loading={passkeyLoading}
-                  disabled={submitting || googleLoading || appleLoading}
+                  disabled={submitting || googleLoading}
                   label="Sign in with a passkey"
                 />
               </div>
@@ -492,14 +602,16 @@ export function LoginPage() {
               <GoogleButton
                 onClick={handleGoogleSignIn}
                 loading={googleLoading}
-                disabled={submitting || passkeyLoading || appleLoading}
+                disabled={submitting || passkeyLoading}
                 label="Google"
               />
-              <AppleButton
-                onClick={handleAppleSignIn}
-                loading={appleLoading}
+              <PhoneButton
+                onClick={() => {
+                  setAuthError('');
+                  setStep('phone-entry');
+                }}
                 disabled={submitting || passkeyLoading || googleLoading}
-                label="Apple"
+                label="Phone"
               />
             </div>
 
