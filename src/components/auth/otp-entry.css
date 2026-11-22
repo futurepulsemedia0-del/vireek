@@ -339,3 +339,42 @@
     max-width: 44px;
   }
 }
+
+/* ---------- resend countdown ---------- */
+.vrk-authotp-resend-wait {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 12.5px;
+  color: rgb(var(--text-secondary));
+}
+.vrk-authotp-resend-wait strong {
+  min-width: 2.8ch;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: rgb(var(--text-primary));
+}
+.vrk-authotp-ring {
+  flex: none;
+  transform: rotate(-90deg);
+}
+.vrk-authotp-ring-track {
+  stroke: rgb(var(--border-default));
+}
+.vrk-authotp-ring-fill {
+  stroke: rgb(var(--accent-primary));
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s linear;
+}
+.vrk-authotp-resend-btn {
+  animation: vaotp-resend-in 0.3s var(--vaotp-ease) both;
+}
+@keyframes vaotp-resend-in {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vrk-authotp-ring-fill { transition: none; }
+  .vrk-authotp-resend-btn { animation: none; }
+}
