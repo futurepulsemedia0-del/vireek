@@ -12,10 +12,13 @@ interface RouteFallbackProps {
   variant?: RouteFallbackVariant;
   /** Full viewport height (auth guards that replace the whole screen). */
   fullScreen?: boolean;
+  /** Suspense fallbacks of lazy routes: show the mark from the first frame (routeLazy guarantees one full loop). */
+  immediate?: boolean;
 }
 
 // top bar 250 → mark 800 (slow chunk only) → microcopy 1600 (app / portal / data only)
 const STAGES = [250, 800, 1600] as const;
+const IMMEDIATE_STAGES = [0, 0, 2600] as const;
 const COPY_ROTATE_MS = 2400;
 
 /**
@@ -23,9 +26,9 @@ const COPY_ROTATE_MS = 2400;
  * Known limit: React unmounts a Suspense fallback the instant the chunk arrives, so the 400ms
  * minimum cannot apply here (it does for LoadingBoundary, Button, Overlay and PullToRefresh).
  */
-export function RouteFallback({ variant = 'marketing', fullScreen = false }: RouteFallbackProps) {
+export function RouteFallback({ variant = 'marketing', fullScreen = false, immediate = false }: RouteFallbackProps) {
   const { t } = useTranslation('common', { useSuspense: false });
-  const stage = useStagedReveal(true, STAGES);
+  const stage = useStagedReveal(true, immediate ? IMMEDIATE_STAGES : STAGES);
   const [copyIndex, setCopyIndex] = useState(0);
   const showCopy = stage >= 3 && variant !== 'marketing';
 
