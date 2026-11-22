@@ -10,6 +10,13 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { CxmlError, parseOrderMessage } from "../_shared/punchout/cxml.ts";
+import { HttpError } from "../_shared/http/core.ts";
+import { parseOrThrow } from "../_shared/http/zodRequest.ts";
+import { enforceRateLimit } from "../_shared/http/publicGuard.ts";
+import { z } from "../_shared/http/zod.ts";
+
+// Extra form fields are stripped (buyer systems add their own); only the two cXML carriers are read, each size-capped.
+const PUNCHOUT_FORM = z.object({ "cxml-base64": z.string().max(1_400_000).optional(), "cxml-urlencoded": z.string().max(1_000_000).optional() });
 import { sha256Hex } from "../_shared/punchout/security.ts";
 import { guardPublic } from "../_shared/http/publicGuardDeno.ts";
 
@@ -30,6 +37,13 @@ Deno.serve(async (req: Request) => {
   const site = (Deno.env.get("SITE_URL") ?? "https://app.vireek.com").replace(/\/$/, "");
   const supabaseUrl = Deno.env.get("SUPABASE_URL"), serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
   if (!supabaseUrl || !serviceKey) return textResponse("Server not configured", 500);
+  
+  // Buyer-facing browser flow: a limit hit redirects with an error code instead of returning JSON.
+  try {
+    await enforceRateLimit(createClient(supabaseUrl, serviceKey, { auth: { autoRefreshToken: false, persistSession: false } }), req, { name: "punchout-return", limit: 120, windowSeconds: 60 });
+  } catch (e) {
+    return back(site, { error: e instanceof HttpError && e.code === "rate_limited" ? "rate_limited" : "failed" });
+  }
 
   // Public write endpoint: rate limit per client BEFORE parsing XML. Fail CLOSED (the cart RPC needs the same DB anyway).
   // The caller is a user's browser mid-redirect, so a block is answered with a redirect, not JSON.
@@ -45,9 +59,9 @@ Deno.serve(async (req: Request) => {
     if (ctype.includes("application/x-www-form-urlencoded") || ctype.includes("multipart/form-data")) {
       const raw = await req.text();
       if (raw.length > MAX_BODY_BYTES) return back(site, { error: "too_large" });
-      const form = new URLSearchParams(raw);
-      const b64 = form.get("cxml-base64");
-      xml = form.get("cxml-urlencoded") ?? (b64 ? atob(b64.replace(/\s+/g, "")) : "");
+      const form = parseOrThrow(PUNCHOUT_FORM, Object.fromEntries(new URLSearchParams(raw)));
+      const b64 = form["cxml-base64"];
+      xml = form["cxml-urlencoded"] ?? (b64 ? atob(b64.replace(/\s+/g, "")) : "");
     } else {
       xml = await req.text();
     }
