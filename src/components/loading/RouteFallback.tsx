@@ -40,6 +40,7 @@ export function RouteFallback({ variant = 'marketing', fullScreen = false }: Rou
   return (
     <div
       className={`flex w-full flex-col items-center justify-center gap-4 bg-bg-primary ${fullScreen ? 'min-h-screen' : 'h-full min-h-[60vh]'}`}
+    >
       {stage >= 1 && <TopProgressBar />}
       {stage >= 2 && (
         <div className="vrk-fade-in">
