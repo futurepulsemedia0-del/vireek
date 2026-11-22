@@ -7,6 +7,11 @@
 //   supabase functions deploy careers-sitemap --no-verify-jwt
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { parseQuery, tryGuard } from "../_shared/http/zodRequest.ts";
+import { enforceRateLimit } from "../_shared/http/publicGuard.ts";
+import { z } from "../_shared/http/zod.ts";
+
+const QUERY = z.object({});
 import { guardPublic } from "../_shared/http/publicGuardDeno.ts";
 
 const SITE = "https://vireek.com";
@@ -23,7 +28,13 @@ Deno.serve(async (req: Request) => {
   const blocked = await guardPublic(req, { endpoint: "careers-sitemap", limit: 60, windowSeconds: 60, failClosed: false });
   if (blocked) return blocked;
   }
-
+  // Rate limiter needs the service role (RPC is service_role-only); data below still reads with the anon key + RLS.
+  const g = await tryGuard(req, {}, async () => {
+    const limiterDb = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "", { auth: { persistSession: false } });
+    await enforceRateLimit(limiterDb, req, { name: "careers-sitemap", limit: 30, windowSeconds: 60, onError: "open" });
+    parseQuery(req, QUERY);
+  });
+  if (!g.ok) return g.response;
   const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!);
   const { data, error } = await supabase
     .from("job_postings")
