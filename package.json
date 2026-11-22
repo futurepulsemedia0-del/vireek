@@ -182,6 +182,9 @@
     "assets:check": "node scripts/supply-chain/asset-inventory.mjs --check",
     "registers:check": "node scripts/registers/check-registers.mjs",
     "owners:check": "node scripts/governance/check-codeowners.mjs",
+    "owners:generate": "node scripts/governance/gen-codeowners.mjs",
+    "test:scripts:governance": "node --test scripts/governance/check-codeowners.test.mjs scripts/governance/check-cron-coverage.test.mjs",
+    "cron:check": "node scripts/governance/check-cron-coverage.mjs"
     "prepare": "husky"
   },
   "dependencies": {
