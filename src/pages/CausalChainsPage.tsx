@@ -73,7 +73,7 @@ function MiniTrend({ weekly, metric }: { weekly: CausalWeekPoint[]; metric: keyo
     <div>
       <p className="mb-1 text-[10px] uppercase text-text-secondary">{METRIC_LABELS[metric as string] ?? metric}</p>
       <svg viewBox={`0 0 ${chartW} ${chartH}`} className="w-full" style={{ height: chartH }}>
-        <path d={path} fill="none" stroke="rgb(169 59 15)" strokeWidth="2" />
+        <path d={path} fill="none" stroke="rgb(147 65 38)" strokeWidth="2" />
       </svg>
     </div>
   );
