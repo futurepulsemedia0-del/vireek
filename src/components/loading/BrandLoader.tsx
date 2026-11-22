@@ -3,10 +3,10 @@ import './loading.css';
 import './brand-loader.css';
 
 export type BrandLoaderVariant = 'thread' | 'fill' | 'signal' | 'network' | 'pulse';
-export type BrandLoaderSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+export type BrandLoaderSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
 
 /** Height in px; width follows the 260×240 viewBox. */
-const HEIGHT: Record<BrandLoaderSize, number> = { xs: 24, sm: 32, md: 56, lg: 80, xl: 120 };
+const HEIGHT: Record<BrandLoaderSize, number> = { xs: 24, sm: 32, md: 56, lg: 80, xl: 120, xxl: 144 };
 
 const V_PATH = 'M46 50L120 196L194 50';
 const DOT = { cx: 194, cy: 50, r: 14 } as const;
