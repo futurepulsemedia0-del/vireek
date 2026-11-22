@@ -257,6 +257,7 @@ const MultiEntityReportingPage = lazy(() => import('@/pages/MultiEntityReporting
 const FixedAssetsPage = lazy(() => import('@/pages/FixedAssetsPage').then((m) => ({ default: m.FixedAssetsPage })));
 const PayrollPage = lazy(() => import('@/pages/PayrollPage').then((m) => ({ default: m.PayrollPage })));
 const TaxCenterPage = lazy(() => import('@/pages/TaxCenterPage').then((m) => ({ default: m.TaxCenterPage })));
+const QuickBooksSyncPage = lazy(() => import('@/pages/QuickBooksSyncPage').then((m) => ({ default: m.QuickBooksSyncPage })));
 const SessionsPage = lazy(() => import('@/pages/SessionsPage').then((m) => ({ default: m.SessionsPage })));
 const VoiceSettingsPage = lazy(() => import('@/pages/VoiceSettingsPage').then((m) => ({ default: m.VoiceSettingsPage })));
 const CommissionsPage = lazy(() => import('@/pages/CommissionsPage').then((m) => ({ default: m.CommissionsPage })));
@@ -2366,6 +2367,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <TaxCenterPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/quickbooks"
+          element={
+            <ProtectedRoute>
+              <QuickBooksSyncPage />
             </ProtectedRoute>
           }
         />
