@@ -17,6 +17,11 @@ export interface IconProps extends Omit<LucideProps, 'size' | 'strokeWidth' | 'a
 }
 
 export const Icon = forwardRef<SVGSVGElement, IconProps>(({ icon: Glyph, size = 'sm', label, className = '', ...rest }, ref) => {
+   if (!Glyph) {
+    // eslint-disable-next-line no-console
+    console.error('[Icon] received an undefined icon');
+    return null;
+  }
   const a11y = label ? ({ role: 'img', 'aria-label': label } as const) : ({ 'aria-hidden': true, focusable: false } as const);
   return <Glyph ref={ref} size={ICON_SIZE_PX[size]} className={`${iconClass(size)} ${className}`.trim()} {...a11y} {...rest} />;
 });
