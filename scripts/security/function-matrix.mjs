@@ -203,8 +203,9 @@ export function analyzeFunction({ root, name, verifyJwt: cfgVerifyJwt, policy })
   const replayHits = hit(P.webhookReplay);
   const failOpenHits = hit(P.failOpenSecret);
   const plainCmpHits = hit(P.plainSecretCompare).filter((x) => !/timingSafeEqual/.test(x.text));
-  const piiHits = ownTexts.filter((s) => P.piiLog.some((re) => re.test(s.text)));
-
+  const SAFE_CONSOLE = /import\s*\{[^}]*\bsafeConsole\s+as\s+console\b[^}]*\}\s*from\s*["'][^"']*_shared\/http\/core\.ts["']/;
+  // A file that imports safeConsole as `console` routes every console.* call through the shared redactor.
+  const piiHits = ownTexts.filter((s) => !SAFE_CONSOLE.test(s.text) && P.piiLog.some((re) => re.test(s.text)));
   const authModes = [];
   if (jwtHits.length) authModes.push("jwt");
   if (verifyJwt && !jwtHits.length) authModes.push("gateway-jwt");
