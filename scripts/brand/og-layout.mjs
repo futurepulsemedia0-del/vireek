@@ -64,7 +64,7 @@ export function buildCardTree({ brand, title, tagline, kindLabel, host, symbolUr
     {
       width: 1200, height: 630, flexDirection: 'column', justifyContent: 'space-between', padding: 64,
       backgroundColor: c.bg, color: c.text, fontFamily: 'Inter',
-      backgroundImage: 'radial-gradient(circle at 92% -10%, rgba(169,59,15,0.50) 0%, rgba(20,20,19,0) 55%)',
+      backgroundImage: 'radial-gradient(circle at 92% -10%, rgba(147,65,38,0.50) 0%, rgba(20,20,19,0) 55%)',
     },
     [
       el('div', { alignItems: 'center', justifyContent: 'space-between' }, [
@@ -75,7 +75,7 @@ export function buildCardTree({ brand, title, tagline, kindLabel, host, symbolUr
         kindLabel
           ? el('div', {
               fontSize: 22, fontWeight: 600, letterSpacing: 3, textTransform: 'uppercase', color: B.colors.accent300,
-              border: '2px solid rgba(249,119,76,0.45)', borderRadius: 999, padding: '10px 22px',
+              border: '2px solid rgba(217,119,87,0.45)', borderRadius: 999, padding: '10px 22px',
             }, kindLabel)
           : null,
       ].filter(Boolean)),
@@ -102,7 +102,7 @@ export function buildKitTree({ brand, layout, w, h, symbolUri }) {
   }
   if (layout === 'backdrop') {
     return el('div', { ...base, alignItems: 'flex-end', justifyContent: 'flex-start', padding: Math.round(h * 0.06),
-      backgroundImage: 'radial-gradient(circle at 100% 0%, rgba(169,59,15,0.35) 0%, rgba(20,20,19,0) 50%)' }, [
+      backgroundImage: 'radial-gradient(circle at 100% 0%, rgba(147,65,38,0.35) 0%, rgba(20,20,19,0) 50%)' }, [
       el('div', { alignItems: 'center' }, [
         sym(Math.round(h * 0.07)),
         el('div', { fontFamily: 'Sora', fontWeight: 700, fontSize: Math.round(h * 0.034), marginLeft: Math.round(h * 0.012) }, B.name),
@@ -111,7 +111,7 @@ export function buildKitTree({ brand, layout, w, h, symbolUri }) {
   }
   const u = h * 0.1; // banner unit
   return el('div', { ...base, alignItems: 'center', justifyContent: 'center', flexDirection: 'column',
-    backgroundImage: 'radial-gradient(circle at 90% -20%, rgba(169,59,15,0.45) 0%, rgba(20,20,19,0) 55%)' }, [
+    backgroundImage: 'radial-gradient(circle at 90% -20%, rgba(147,65,38,0.45) 0%, rgba(20,20,19,0) 55%)' }, [
     el('div', { alignItems: 'center' }, [
       sym(Math.round(u * 1.9)),
       el('div', { fontFamily: 'Sora', fontWeight: 700, fontSize: Math.round(u * 1.5), marginLeft: Math.round(u * 0.5) }, B.name),
