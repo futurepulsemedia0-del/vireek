@@ -1,6 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { fetchServiceTitanPricebook } from "../_shared/price-book/servicetitan.ts";
 import { upsertPriceBookItems } from "../_shared/price-book/upsert.ts";
+import { saveSecrets } from "../_shared/secrets/providerCredentials.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -48,16 +49,21 @@ Deno.serve(async (req: Request) => {
       return jsonResponse({ error: "Client ID, Client Secret, App Key, and Tenant ID are all required." }, 400);
     }
 
+    // Secrets go to the encrypted vault; the table keeps only non-secret identifiers.
+    const { st_client_secret, st_app_key, ...publicCreds } = creds;
+
     let items;
     try {
       items = await fetchServiceTitanPricebook(creds);
     } catch (error) {
       await admin.from("price_book_connections").upsert(
-        { user_id: userId, provider: "service_titan", status: "error", ...creds, last_sync_error: error instanceof Error ? error.message : String(error) },
+        { user_id: userId, provider: "service_titan", status: "error", ...publicCreds, st_client_secret: null, st_app_key: null, last_sync_error: error instanceof Error ? error.message : String(error) },
         { onConflict: "user_id,provider" },
       );
       return jsonResponse({ error: "Could not connect to ServiceTitan with those credentials. Double-check them and try again." }, 400);
     }
+
+    await saveSecrets(admin, userId, "service_titan", { st_client_secret, st_app_key });
 
     const { synced, error: upsertError } = await upsertPriceBookItems(admin, userId, "service_titan", items);
 
@@ -66,7 +72,9 @@ Deno.serve(async (req: Request) => {
         user_id: userId,
         provider: "service_titan",
         status: upsertError ? "error" : "connected",
-        ...creds,
+        ...publicCreds,
+        st_client_secret: null,
+        st_app_key: null,
         last_synced_at: upsertError ? null : new Date().toISOString(),
         last_sync_error: upsertError ?? null,
       },
