@@ -165,3 +165,7 @@ verify_jwt = false
 verify_jwt = false
 [functions.emergency-access-tick]
 verify_jwt = false
+[functions.results-plan-confirm]
+verify_jwt = false
+[functions.results-plan-statement]
+verify_jwt = false
