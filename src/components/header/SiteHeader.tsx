@@ -8,6 +8,7 @@ import { useDirection } from '@/hooks/useDirection';
 import { SARAH_PHONE } from '@/lib/site';
 import { DesktopMegaNav } from '@/components/header/MegaMenu';
 import { MobileNav } from '@/components/header/MobileNav';
+import { HeaderLoginButton } from '@/components/header/HeaderLoginButton';
 import { Logo as BrandLogo } from '@/components/brand/Logo';
 
 const EASE = [0.16, 1, 0.3, 1] as const;
@@ -50,13 +51,7 @@ function DesktopActions() {
   }
   return (
     <>
-      <Link
-        to="/login"
-        className="focus-ring hidden h-9 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold text-text-secondary transition-colors duration-150 hover:bg-bg-tertiary hover:text-text-primary xl:flex"
-      >
-        <LogIn size={15} aria-hidden="true" />
-        {t('cta.login')}
-      </Link>
+      <HeaderLoginButton />
       <Link to="/signup" className={primary}>
         <span className="relative">{t('cta.startFreeTrial')}</span>
         <ArrowRight size={15} className="relative transition-transform duration-200 group-hover:translate-x-0.5 rtl:-scale-x-100 rtl:group-hover:-translate-x-0.5" aria-hidden="true" />
