@@ -48,7 +48,7 @@ describe('color helpers', () => {
   });
 
   it('picks readable text for light and dark backgrounds', () => {
-    expect(readableTextColor('#FFFF00')).toBe('#0F172A');
+    expect(readableTextColor('#FFFF00')).toBe('#141413');
     expect(readableTextColor('#0B1220')).toBe('#FFFFFF');
   });
 
