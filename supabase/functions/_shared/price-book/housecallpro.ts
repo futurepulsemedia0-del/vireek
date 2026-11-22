@@ -28,8 +28,8 @@ async function hcpFetch(apiKey: string, path: string, init: RequestInit = {}) {
     signal: AbortSignal.timeout(8000),
   });
   if (!res.ok) {
-    const body = await res.text().catch(() => "");
-    throw new Error(`housecallpro_http_${res.status}_${body.slice(0, 200)}`);
+    // Status only: provider error bodies can echo the credential and this message is persisted in last_sync_error.
+    throw new Error(`housecallpro_http_${res.status}`);
   }
   return res.status === 204 ? null : res.json();
 }
