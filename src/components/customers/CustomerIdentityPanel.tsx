@@ -30,7 +30,7 @@ const NODE_STYLE: Record<GraphNode['kind'], { fill: string; stroke: string }> = 
   self: { fill: 'rgb(var(--accent-primary) / 0.18)', stroke: 'rgb(var(--accent-primary))' },
   member: { fill: 'rgba(169,168,162,0.14)', stroke: 'rgba(169,168,162,0.9)' },
   phone: { fill: 'rgba(52,199,89,0.12)', stroke: 'rgba(52,199,89,0.8)' },
-  email: { fill: 'rgba(126,107,253,0.12)', stroke: 'rgba(126,107,253,0.8)' },
+  email: { fill: 'rgba(110,113,255,0.12)', stroke: 'rgba(110,113,255,0.8)' },
   address: { fill: 'rgba(255,204,0,0.12)', stroke: 'rgba(255,204,0,0.8)' },
 };
 
