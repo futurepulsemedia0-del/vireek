@@ -60,7 +60,10 @@ async function billAccount(admin: Admin, stripe: Stripe, meterEvent: string, a: 
   // Charges under an open dispute stay pending until a human decides.
   const { data: open } = await admin.from("results_plan_disputes").select("charge_id").eq("user_id", a.user_id).eq("status", "open");
   const blocked = new Set(((open ?? []) as Array<{ charge_id: string }>).map((d) => d.charge_id));
-
+  // A customer who replied NO to "Did <business> arrive?" holds the charge until staff decide.
+  const { data: denied } = await admin.from("results_plan_confirmations").select("charge_id").eq("user_id", a.user_id).eq("review_status", "open").not("charge_id", "is", null);
+  for (const r of (denied ?? []) as Array<{ charge_id: string }>) blocked.add(r.charge_id);
+  
   const { data: todo } = await admin.from("results_plan_charges").select("id,job_id,status,job_type,verified_at,month,amount_cents,updated_at")
     .eq("user_id", a.user_id).in("status", ["pending", "failed"]).order("verified_at", { ascending: true }).limit(200);
   const posted = new Map<string, number>(); // month -> cents already posted (credited ones no longer count)
