@@ -645,6 +645,8 @@ const StatusPage = lazy(() => import('@/pages/StatusPage').then((m) => ({ defaul
 const StaffReliabilityPage = lazy(() => import('@/pages/admin/StaffReliabilityPage').then((m) => ({ default: m.StaffReliabilityPage })));
 const StaffFairnessAuditPage = lazy(() => import('@/pages/admin/StaffFairnessAuditPage').then((m) => ({ default: m.StaffFairnessAuditPage })));
 const StaffComplianceControlsPage = lazy(() => import('@/pages/admin/StaffComplianceControlsPage').then((m) => ({ default: m.StaffComplianceControlsPage })));
+const StaffPolicyApprovalsPage = lazy(() => import('@/pages/admin/StaffPolicyApprovalsPage').then((m) => ({ default: m.StaffPolicyApprovalsPage })));
+const StaffPentestProgramPage = lazy(() => import('@/pages/admin/StaffPentestProgramPage').then((m) => ({ default: m.StaffPentestProgramPage })));
 const StaffVoiceObservabilityPage = lazy(() => import('@/pages/admin/StaffVoiceObservabilityPage').then((m) => ({ default: m.StaffVoiceObservabilityPage })));
 const OfflinePage = lazy(() => import('@/pages/OfflinePage').then((m) => ({ default: m.OfflinePage })));
 const StatusUnsubscribePage = lazy(() => import('@/pages/StatusUnsubscribePage').then((m) => ({ default: m.StatusUnsubscribePage })));
@@ -902,6 +904,26 @@ function AppRoutes() {
             <StaffRoute>
               <Suspense fallback={<PageLoader />}>
                 <StaffComplianceControlsPage />
+              </Suspense>
+            </StaffRoute>
+          }
+        />
+        <Route
+          path="/staff/compliance-policies"
+          element={
+            <StaffRoute>
+              <Suspense fallback={<PageLoader />}>
+                <StaffPolicyApprovalsPage />
+              </Suspense>
+            </StaffRoute>
+          }
+        />
+        <Route
+          path="/staff/pentest-program"
+          element={
+            <StaffRoute>
+              <Suspense fallback={<PageLoader />}>
+                <StaffPentestProgramPage />
               </Suspense>
             </StaffRoute>
           }
