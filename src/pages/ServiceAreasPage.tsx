@@ -1052,6 +1052,7 @@ function AddressTester({
                 applied={quote.surgeApplied || quote.travelFeeCents > 0}
               />
             )}
+          </div>
         )}
         {outcome?.kind === 'out_of_area' && (
           <div className="rounded-xl border border-danger/30 bg-danger/5 p-4">
