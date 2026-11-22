@@ -86,12 +86,12 @@ function RealityPathChart({ result }: { result: RealityPathResult }) {
         ))}
         {decisionIdx >= 0 && (
           <line x1={xScale(decisionIdx)} y1={padding.top} x2={xScale(decisionIdx)} y2={padding.top + plotH}
-            stroke="rgb(249 119 76)" strokeWidth="1.5" strokeDasharray="3 3" />
+            stroke="rgb(217 119 87)" strokeWidth="1.5" strokeDasharray="3 3" />
         )}
         <path d={cfPath} fill="none" stroke="rgb(var(--text-secondary))" strokeWidth="2" strokeDasharray="5 4" />
-        <path d={actualPath} fill="none" stroke="rgb(169 59 15)" strokeWidth="2.5" />
+        <path d={actualPath} fill="none" stroke="rgb(147 65 38)" strokeWidth="2.5" />
         {weekly.map((w, i) => (
-          <circle key={i} cx={xScale(i)} cy={yScale(w.actual)} r="2.5" fill="rgb(169 59 15)" />
+          <circle key={i} cx={xScale(i)} cy={yScale(w.actual)} r="2.5" fill="rgb(147 65 38)" />
         ))}
         {weekly.length > 0 && (
           <>
