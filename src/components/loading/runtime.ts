@@ -97,7 +97,7 @@ export function dismissBootLoader(): void {
   const el = document.getElementById(BOOT_ID);
   if (!el || pendingDismiss !== null) return;
 
-  const plan = bootDismissPlan(bootVisibleForMs(el), BOOT_CYCLE_MS);
+  const plan = bootDismissPlan(bootVisibleForMs(el), BOOT_MIN_VISIBLE_MS);
   if (plan.instant) {
     el.remove();
     return;
