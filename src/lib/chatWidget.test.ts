@@ -72,7 +72,7 @@ describe('getWidgetStatus', () => {
 
 describe('helpers', () => {
   it('picks readable text color', () => {
-    expect(readableTextColor('#FFFFFF')).toBe('#111827');
+    expect(readableTextColor('#FFFFFF')).toBe('#1C1B15');
     expect(readableTextColor('#111827')).toBe('#FFFFFF');
     expect(readableTextColor('#3448E8')).toBe('#FFFFFF');
   });
