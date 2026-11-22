@@ -223,7 +223,40 @@
     "signedOut": "Sesión cerrada correctamente.",
     "openMenu": "Abrir menú",
     "closeMenu": "Cerrar menú",
-    "mainNavigation": "Navegación principal"
+    "mainNavigation": "Navegación principal",
+    "shortcuts": {
+      "title": "Accesos directos",
+      "edit": "Editar accesos directos"
+    },
+    "pin": {
+      "pin": "Fijar {{name}} en accesos directos",
+      "unpin": "Quitar {{name}} de accesos directos",
+      "pinnedToast": "{{name}} se añadió a accesos directos.",
+      "unpinnedToast": "{{name}} se quitó de accesos directos.",
+      "limit": "Puedes tener hasta {{count}} accesos directos. Quita uno para añadir otro.",
+      "unavailable": "Esa página no está disponible para tu rol.",
+      "clear": "Quitar todos",
+      "empty": "Aún no hay accesos directos. Usa el botón de fijar en cualquier página de abajo o pasa el cursor sobre una fila del menú.",
+      "moveUp": "Subir {{name}}",
+      "moveDown": "Bajar {{name}}",
+      "hiddenPins": "{{count}} acceso(s) directo(s) guardado(s) apuntan a páginas que tu rol no puede abrir ahora. Vuelven si se restablece el acceso."
+    },
+    "center": {
+      "title": "Centro de navegación",
+      "context": "Todas las páginas disponibles para ti ({{count}}). Fija las que usas a diario en la parte superior del menú.",
+      "search": "Buscar en todas las páginas",
+      "all": "Todas",
+      "filterBy": "Filtrar por área",
+      "results": "{{count}} páginas mostradas",
+      "clearSearch": "Borrar búsqueda"
+    },
+    "menu": {
+      "navigationCenter": "Centro de navegación",
+      "language": "Idioma",
+      "help": "Centro de ayuda",
+      "whatsNew": "Novedades",
+      "status": "Estado del sistema"
+    }
   },
   "account": {
     "subtitle": "Tu perfil, correo de acceso y contraseña.",
