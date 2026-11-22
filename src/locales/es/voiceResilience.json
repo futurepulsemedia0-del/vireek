@@ -118,6 +118,50 @@
       "error": { "title": "Falló la llamada de prueba", "body": "No pudimos hacer la llamada. Intente de nuevo en un minuto." }
     }
   },
+  "drills": {
+    "state": {
+      "never": { "title": "Aún no hay una llamada de prueba superada", "body": "Haz la llamada de prueba del operador una vez para comprobar tu red de seguridad en lugar de darla por hecha." },
+      "ok": { "title": "Red de seguridad verificada", "body": "La próxima prueba vence en {{days}} días ({{due}})." },
+      "due_soon": { "title": "La llamada de prueba vence pronto", "body": "Tu última llamada de prueba superada está cerca del intervalo. La próxima prueba vence en {{days}} días ({{due}})." },
+      "overdue": { "title": "Llamada de prueba vencida", "body": "Tu última llamada de prueba superada fue el {{last}}. Los operadores cambian ajustes sin avisar, así que repítela." },
+      "disabled": { "title": "Los recordatorios de simulacro están desactivados", "body": "Activa el calendario para ver una fecha límite basada en tu última llamada de prueba superada." }
+    },
+    "runNow": "Hacer la llamada de prueba",
+    "proofNote": "Solo una llamada de prueba del operador superada cuenta para el calendario. Las entradas manuales son para tus propios registros y nunca lo reinician.",
+    "schedule": {
+      "title": "Calendario de simulacros",
+      "intro": "Con qué frecuencia quieres volver a comprobar que las llamadas se desvían a Vireek cuando no contestas.",
+      "enabled": "Mostrar fecha límite y recordatorio en esta página",
+      "interval": "Repetir cada (días)",
+      "intervalHelp": "Entre {{min}} y {{max}} días.",
+      "save": "Guardar calendario",
+      "saving": "Guardando…",
+      "saved": "Calendario guardado.",
+      "invalid": "Introduce un número entero de días entre 7 y 90."
+    },
+    "manual": {
+      "title": "Registrar un simulacro a mano",
+      "intro": "Para comprobaciones que el sistema no puede hacer solo, como dejar un mensaje de voz o pulsar la tecla de emergencia. Las entradas no se pueden editar después.",
+      "kind": "¿Qué comprobaste?",
+      "outcome": "Resultado",
+      "note": "Notas (opcional)",
+      "save": "Añadir al registro",
+      "saving": "Añadiendo…",
+      "saved": "Añadido al registro.",
+      "errors": { "kindInvalid": "Elige qué comprobaste.", "noteTooLong": "Mantén la nota por debajo de {{max}} caracteres." }
+    },
+    "kind": {
+      "forward_on": "Llamada de prueba de desvío",
+      "forward_off": "Llamada de prueba sin desvío",
+      "voicemail": "Buzón de voz",
+      "emergency_key": "Tecla de emergencia",
+      "owner_forward": "Desvío al teléfono del titular",
+      "other": "Otra comprobación"
+    },
+    "outcome": { "passed": "Superada", "failed": "Fallida", "inconclusive": "No concluyente" },
+    "source": { "system": "Verificado por Vireek", "manual": "Introducido por ti" },
+    "log": { "title": "Registro de pruebas", "empty": "Aún no hay nada registrado. Haz una llamada de prueba o añade una entrada.", "when": "Cuándo", "what": "Comprobación", "result": "Resultado", "source": "Origen" }
+  },
   "errors": {
     "generic": "Algo salió mal. Inténtelo de nuevo.",
     "tooMany": "Demasiadas llamadas de prueba esta hora. Inténtelo más tarde.",
