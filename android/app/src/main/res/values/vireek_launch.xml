@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Launch theme of MainActivity: NO static splash. The OS still draws one frame while the process starts,
+  so that frame is a flat #141413 (the same colour as the web boot animation in index.html, which is always
+  dark on the native app) with an invisible icon. The animated #vrk-boot then takes over without any seam.
+  Inherits everything else (postSplashScreenTheme, fullscreen flags...) from the Capacitor template theme.
+-->
+<resources>
+    <color name="vireek_launch_bg">#141413</color>
+
+    <style name="AppTheme.VireekLaunch" parent="AppTheme.NoActionBarLaunch">
+        <!-- Android 11 and older: solid colour instead of the splash.png drawable -->
+        <item name="android:background">@color/vireek_launch_bg</item>
+        <!-- Android 12+ system splash: same colour, empty icon (no orange tile, no V) -->
+        <item name="windowSplashScreenBackground">@color/vireek_launch_bg</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/vireek_splash_blank</item>
+        <item name="windowSplashScreenAnimationDuration">0</item>
+    </style>
+</resources>
