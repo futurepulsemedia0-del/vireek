@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from 'react';
+import { createContext, useContext, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { usePartsSourcingEnabled } from '@/hooks/usePartsSourcingEnabled';
@@ -1213,7 +1213,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
   );
 }
 
-export function DashboardLayout({
+function DashboardChrome({
   activeLabel,
   children,
 }: {
@@ -1270,5 +1270,47 @@ export function DashboardLayout({
         </ChatUnreadProvider>
       </WhatsNewProvider>
     </NotificationsProvider>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Persistent shell                                                   */
+/*  <DashboardShellHost> renders the chrome once above <Routes>. Pages  */
+/*  still render <DashboardLayout>; inside the host it only passes      */
+/*  children through, so nav/providers/banners are no longer rebuilt    */
+/*  on every navigation. Outside the host it renders the full chrome    */
+/*  exactly as before.                                                  */
+/* ------------------------------------------------------------------ */
+
+interface DashboardShellApi {
+  setActiveLabel: (label: string) => void;
+}
+
+const DashboardShellContext = createContext<DashboardShellApi | null>(null);
+
+export function DashboardLayout({
+  activeLabel,
+  children,
+}: {
+  activeLabel: string;
+  children: React.ReactNode;
+}) {
+  const shell = useContext(DashboardShellContext);
+  const setShellLabel = shell?.setActiveLabel;
+  useEffect(() => {
+    setShellLabel?.(activeLabel);
+  }, [setShellLabel, activeLabel]);
+
+  if (shell) return <>{children}</>;
+  return <DashboardChrome activeLabel={activeLabel}>{children}</DashboardChrome>;
+}
+
+export function DashboardShellHost({ children }: { children: React.ReactNode }) {
+  const [activeLabel, setActiveLabel] = useState('');
+  const api = useMemo<DashboardShellApi>(() => ({ setActiveLabel }), []);
+  return (
+    <DashboardShellContext.Provider value={api}>
+      <DashboardChrome activeLabel={activeLabel}>{children}</DashboardChrome>
+    </DashboardShellContext.Provider>
   );
 }
