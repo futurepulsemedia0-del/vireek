@@ -6,6 +6,8 @@ import { EmptyState } from '@/components/EmptyState';
 import { useEntitlement, refreshEntitlements } from '@/hooks/useEntitlement';
 import { useFeatureFlags } from '@/hooks/useFeatureFlag';
 import { moduleLabel } from '@/lib/entitlements';
+import { BrandLoader } from '@/components/loading/BrandLoader';
+import { LoaderStage } from '@/components/loading/LoaderStage';
 
 /**
  * Wrap a module's route element. Deny by default:
@@ -44,10 +46,12 @@ export function ModuleGate({ module, flag, children }: { module: string; flag?: 
 
   if (ent.status === 'loading' || (ent.status === 'ready' && ent.allowed && flagPending)) {
     return (
-      <div role="status" aria-busy="true" aria-live="polite" className="flex min-h-[40vh] items-center justify-center p-6">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-accent" />
+      <LoaderStage role="status" aria-busy="true" aria-live="polite">
+        <div className="vrk-fade-in">
+          <BrandLoader variant="pulse" size="xxl" />
+        </div>
         <span className="sr-only">{t('modules.loading', { defaultValue: 'Checking access…' })}</span>
-      </div>
+      </LoaderStage>
     );
   }
 
