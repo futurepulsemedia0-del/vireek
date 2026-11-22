@@ -1,7 +1,6 @@
 import { forwardRef, InputHTMLAttributes, ReactNode, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Eye, EyeOff, AlertCircle, Check, ArrowLeft } from 'lucide-react';
-import { useTheme } from '@/contexts/ThemeContext';
 import { Link } from 'react-router-dom';
 import { AuthBrandMark, type AuthMarkMotion } from './AuthBrandMark';
 
@@ -10,31 +9,16 @@ import { AuthBrandMark, type AuthMarkMotion } from './AuthBrandMark';
 /* ------------------------------------------------------------------ */
 
 export function AuthLogo({ size = 'h-12 w-12' }: { size?: string }) {
-  const { theme } = useTheme();
   return (
     <span className={`relative block ${size}`}>
       <img
-        src="/assets/logos/logo-dark.png"
+        src="/brand/vireek-symbol-color.svg"
         alt="Vireek"
         width={48}
         height={48}
         decoding="async"
         loading="eager"
-        className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-200 ${
-          theme === 'light' ? 'opacity-100' : 'opacity-0'
-        }`}
-      />
-      <img
-        src="/assets/logos/logo-light.png"
-        alt=""
-        aria-hidden="true"
-        width={48}
-        height={48}
-        decoding="async"
-        loading="eager"
-        className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-200 ${
-          theme === 'dark' ? 'opacity-100' : 'opacity-0'
-        }`}
+        className="absolute inset-0 h-full w-full object-contain"
       />
     </span>
   );
@@ -237,7 +221,7 @@ export function AuthShell({
 /*  Auth side panel — the visual right column                          */
 /* ------------------------------------------------------------------ */
 
-export function AuthSidePanel({ motion = 'still' }: { motion?: AuthMarkMotion } = {}) {
+export function AuthSidePanel({ motion: markMotion = 'still' }: { motion?: AuthMarkMotion } = {}) {
   return (
     <div className="relative h-full overflow-hidden bg-gradient-mesh bg-noise">
       <div className="absolute inset-0 bg-gradient-to-br from-accent-900/40 via-bg-secondary to-bg-tertiary" />
@@ -256,7 +240,7 @@ export function AuthSidePanel({ motion = 'still' }: { motion?: AuthMarkMotion } 
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
           className="max-w-md"
         >
-          <AuthBrandMark placement="panel" motion={motion} />
+          <AuthBrandMark placement="panel" motion={markMotion} />
           {/* Floating call card mockup */}
           <div className="rounded-2xl border border-border/60 bg-bg-secondary/60 p-6 shadow-2xl backdrop-blur-md">
             <div className="flex items-center gap-3">
