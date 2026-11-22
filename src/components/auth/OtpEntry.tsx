@@ -1,5 +1,6 @@
 import {
   useCallback,
+  Fragment,
   useEffect,
   useRef,
   useState,
@@ -39,6 +40,13 @@ interface OtpEntryProps {
 
 const SUCCESS_SETTLE_MS = 900;
 const ERROR_RESET_MS = 900;
+const RING_RADIUS = 7;
+const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
+
+function formatClock(totalSeconds: number): string {
+  const s = Math.max(0, Math.floor(totalSeconds));
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+}
 
 export function OtpEntry({
   length = 6,
@@ -262,8 +270,9 @@ export function OtpEntry({
       <div className="vrk-authotp-boxes" role="group" aria-label="One-time verification code">
         <span className="vrk-authotp-ripple" aria-hidden="true" />
         {digits.map((d, i) => (
-          <div className="vrk-authotp-box-wrap" key={i}>
-            {i === Math.floor(length / 2) && <span className="vrk-authotp-divider" aria-hidden="true" />}
+          <Fragment key={i}>
+          {i === Math.floor(length / 2) && <span className="vrk-authotp-divider" aria-hidden="true" />}
+          <div className="vrk-authotp-box-wrap">
             <div
               className={[
                 'vrk-authotp-box',
@@ -295,6 +304,7 @@ export function OtpEntry({
               </svg>
             </div>
           </div>
+          </Fragment>
         ))}
       </div>
 
@@ -309,14 +319,30 @@ export function OtpEntry({
       </div>
 
       <div className="vrk-authotp-resend">
-        <button
-          type="button"
-          onClick={handleResend}
-          disabled={resending || secondsLeft > 0}
-          className="vrk-authotp-resend-btn"
-        >
-          {resending ? 'Sending…' : secondsLeft > 0 ? `Resend code (${secondsLeft}s)` : 'Resend code'}
-        </button>
+        {secondsLeft > 0 ? (
+          <p className="vrk-authotp-resend-wait" role="timer" aria-live="off">
+            <svg className="vrk-authotp-ring" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+              <circle className="vrk-authotp-ring-track" cx="9" cy="9" r={RING_RADIUS} fill="none" strokeWidth="2" />
+              <circle
+                className="vrk-authotp-ring-fill"
+                cx="9"
+                cy="9"
+                r={RING_RADIUS}
+                fill="none"
+                strokeWidth="2"
+                strokeDasharray={RING_CIRCUMFERENCE}
+                strokeDashoffset={RING_CIRCUMFERENCE * (1 - secondsLeft / Math.max(1, resendCooldownSeconds))}
+              />
+            </svg>
+            <span>
+              Resend code in <strong>{formatClock(secondsLeft)}</strong>
+            </span>
+          </p>
+        ) : (
+          <button type="button" onClick={handleResend} disabled={resending} className="vrk-authotp-resend-btn">
+            {resending ? 'Sending…' : 'Resend code'}
+          </button>
+        )}
       </div>
     </div>
   );
