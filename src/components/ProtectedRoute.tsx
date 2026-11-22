@@ -2,6 +2,7 @@ import { ReactNode, useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { RouteFallback } from '@/components/loading/RouteFallback';
 import { useLoginAlert } from '@/hooks/useLoginAlert';
 import { useMfaEnforcement } from '@/hooks/useMfaEnforcement';
 import { MfaGraceBanner } from '@/components/security/MfaGraceBanner';
