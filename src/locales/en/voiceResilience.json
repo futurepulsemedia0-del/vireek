@@ -118,6 +118,50 @@
       "error": { "title": "The test call failed", "body": "We couldn't place the call. Try again in a minute." }
     }
   },
+  "drills": {
+    "state": {
+      "never": { "title": "No passed test call yet", "body": "Run the carrier test call once so your safety net is proven, not assumed." },
+      "ok": { "title": "Safety net verified", "body": "Next test is due in {{days}} days ({{due}})." },
+      "due_soon": { "title": "Test call due soon", "body": "Your last passed test call is close to its interval. Next test is due in {{days}} days ({{due}})." },
+      "overdue": { "title": "Test call overdue", "body": "Your last passed test call was on {{last}}. Carriers change settings quietly, so run it again." },
+      "disabled": { "title": "Drill reminders are off", "body": "Turn the schedule on to get a due date based on your last passed test call." }
+    },
+    "runNow": "Run the test call",
+    "proofNote": "Only a passed carrier test call counts toward the schedule. Entries you add by hand are kept for your own records and never reset it.",
+    "schedule": {
+      "title": "Drill schedule",
+      "intro": "How often you want to re-prove that calls forward to Vireek when your phone isn't answered.",
+      "enabled": "Show a due date and reminder on this page",
+      "interval": "Repeat every (days)",
+      "intervalHelp": "Between {{min}} and {{max}} days.",
+      "save": "Save schedule",
+      "saving": "Saving…",
+      "saved": "Schedule saved.",
+      "invalid": "Enter a whole number of days between 7 and 90."
+    },
+    "manual": {
+      "title": "Log a drill by hand",
+      "intro": "For checks the system can't make itself, such as leaving a voicemail or pressing the emergency key. Entries can't be edited later.",
+      "kind": "What did you check?",
+      "outcome": "Result",
+      "note": "Notes (optional)",
+      "save": "Add to log",
+      "saving": "Adding…",
+      "saved": "Added to the log.",
+      "errors": { "kindInvalid": "Choose what you checked.", "noteTooLong": "Keep the note under {{max}} characters." }
+    },
+    "kind": {
+      "forward_on": "Forwarding test call",
+      "forward_off": "Forwarding-off test call",
+      "voicemail": "Voicemail",
+      "emergency_key": "Emergency key",
+      "owner_forward": "Owner phone forwarding",
+      "other": "Other check"
+    },
+    "outcome": { "passed": "Passed", "failed": "Failed", "inconclusive": "Inconclusive" },
+    "source": { "system": "Verified by Vireek", "manual": "Entered by you" },
+    "log": { "title": "Evidence log", "empty": "Nothing recorded yet. Run a test call or add an entry.", "when": "When", "what": "Check", "result": "Result", "source": "Source" }
+  },
   "errors": {
     "generic": "Something went wrong. Please try again.",
     "tooMany": "Too many test calls this hour. Try again later.",
