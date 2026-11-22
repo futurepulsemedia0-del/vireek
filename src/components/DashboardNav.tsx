@@ -56,6 +56,7 @@ import { LocationSwitcher } from '@/components/locations/LocationSwitcher';
 import { AiAssistant } from '@/components/AiAssistant';
 import { GlobalSearchPalette, openPalette } from '@/components/GlobalSearchPalette';
 import { NpsPrompt } from '@/components/success/NpsPrompt';
+import { LoaderInsetProvider } from '@/components/loading/LoaderStage';
 import { FeedbackButton } from '@/components/feedback/FeedbackButton';
 import { FeedbackDialog } from '@/components/feedback/FeedbackDialog';
 import { SurveyHost } from '@/components/feedback/SurveyHost';
@@ -1252,7 +1253,7 @@ function DashboardChrome({
                   <PwaInstallBanner />
                 </div>
                 <div key={i18n.language} className="contents">
-                  {children}
+                  <LoaderInsetProvider>{children}</LoaderInsetProvider>
                 </div>
               </main>
             </div>
