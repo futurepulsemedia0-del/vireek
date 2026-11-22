@@ -150,6 +150,7 @@ const SupplierApplyPage = lazy(() => import('@/pages/SupplierApplyPage').then((m
 const StaffProcurementNetworkPage = lazy(() => import('@/pages/StaffProcurementNetworkPage').then((m) => ({ default: m.StaffProcurementNetworkPage })));
 const SupplyChainOutcomePage = lazy(() => import('@/pages/SupplyChainOutcomePage').then((m) => ({ default: m.SupplyChainOutcomePage })));
 const OutcomeAssurancePage = lazy(() => import('@/pages/OutcomeAssurancePage').then((m) => ({ default: m.OutcomeAssurancePage })));
+const OutcomeProofPage = lazy(() => import('@/pages/OutcomeProofPage').then((m) => ({ default: m.OutcomeProofPage })));
 const OutcomeIntelligenceNetworkPage = lazy(() => import('@/pages/OutcomeIntelligenceNetworkPage').then((m) => ({ default: m.OutcomeIntelligenceNetworkPage })));
 const OutcomeClearinghousePage = lazy(() => import('@/pages/OutcomeClearinghousePage').then((m) => ({ default: m.OutcomeClearinghousePage })));
 const OutcomeVerifyPage = lazy(() => import('@/pages/OutcomeVerifyPage').then((m) => ({ default: m.OutcomeVerifyPage })));
@@ -1969,6 +1970,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <OutcomeAssurancePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/outcome-cases"
+          element={
+            <ProtectedRoute>
+              <OutcomeProofPage />
             </ProtectedRoute>
           }
         />
