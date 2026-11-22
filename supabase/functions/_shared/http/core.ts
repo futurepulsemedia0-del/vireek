@@ -71,13 +71,16 @@ export function errorResponse(e: HttpError, requestId: string, extra: Record<str
 }
 
 // ------------------------------------------------------------------ structured logging with PII redaction
-const SENSITIVE_KEY = /(pass(word)?|secret|token|authorization|api[_-]?key|cookie|ssn|card|cvv|iban|email|phone|to_number|from_number|address|dob|name|transcript|body|payload)/i;
+const SENSITIVE_KEY = /(pass(word)?|secret|token|authorization|api[_-]?key|cookie|ssn|card|cvv|iban|email|phone|to_number|from_number|address|dob|name|transcript|body|payload|street|zip|postal|latitude|longitude|description|summary|message|content|issue_description|issue_text)/i;
 const EMAIL_RE = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
-const LONG_DIGITS_RE = /(?<!\w)\+?\d[\d\s().-]{8,}\d\b/g;
+const LONG_DIGITS_RE = /(?<!\w)[+(]?\d[\d\s().-]{8,}\d\b/g;
+// "123 Main St", "4500 N. Central Avenue Apt 4": house number + 1-4 words + a street suffix (+ optional unit).
+const ADDRESS_RE = /\b\d{1,6}\s+(?:[A-Za-z0-9.'-]+\s+){1,4}(?:St|Street|Ave|Avenue|Rd|Road|Blvd|Boulevard|Ln|Lane|Dr|Drive|Ct|Court|Way|Pl|Place|Pkwy|Parkway|Hwy|Highway|Cir|Circle|Ter|Terrace)\b\.?(?:,?\s+(?:Apt|Unit|Suite|Ste|#)\s*[\w-]+)?/gi;
 
 export function redact(value: unknown, depth = 0): unknown {
   if (depth > 4) return "[depth]";
-  if (typeof value === "string") return value.replace(EMAIL_RE, "[email]").replace(LONG_DIGITS_RE, "[number]").slice(0, 300);
+  if (typeof value === "string") return value.replace(EMAIL_RE, "[email]").replace(ADDRESS_RE, "[address]").replace(LONG_DIGITS_RE, "[number]").slice(0, 300);
+  if (value instanceof Error) return `${value.name}: ${redact(value.message, depth + 1)}`;
   if (Array.isArray(value)) return value.slice(0, 20).map((v) => redact(v, depth + 1));
   if (value && typeof value === "object") {
     const out: Record<string, unknown> = {};
@@ -86,6 +89,32 @@ export function redact(value: unknown, depth = 0): unknown {
   }
   return value;
 }
+
+/** Error -> short, scrubbed text. Use instead of String(e) / e.message in anything that gets logged. */
+export function redactError(e: unknown): string {
+  return String(redact(e instanceof Error ? e : new Error(typeof e === "string" ? e : JSON.stringify(e) ?? String(e))));
+}
+
+function redactArg(a: unknown): unknown {
+  if (typeof a === "string") {
+    const t = a.trim();
+    // Already-serialised JSON (the dominant pattern here): redact by KEY, then re-serialise.
+    if ((t.startsWith("{") && t.endsWith("}")) || (t.startsWith("[") && t.endsWith("]"))) {
+      try { return JSON.stringify(redact(JSON.parse(t))); } catch { /* not JSON: fall through to text scrubbing */ }
+    }
+  }
+  return redact(a);
+}
+
+type ConsoleLevel = "log" | "info" | "warn" | "error" | "debug";
+const emit = (level: ConsoleLevel) => (...args: unknown[]) => console[level](...args.map(redactArg));
+
+/**
+ * Drop-in replacement for the global `console` in edge functions:
+ *   import { safeConsole as console } from "../_shared/http/core.ts";
+ * Every argument is scrubbed (emails, phone-like numbers, street addresses, PII-named keys, bodies/payloads) before it is written.
+ */
+export const safeConsole = { log: emit("log"), info: emit("info"), warn: emit("warn"), error: emit("error"), debug: emit("debug") } as const;
 
 export type LogFn = (event: string, fields?: Record<string, unknown>) => void;
 
