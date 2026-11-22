@@ -11,13 +11,13 @@ const hex = (r: number, g: number, b: number): string => `#${[r, g, b].map((v) =
 
 describe('readableTextColor', () => {
   it('picks the obvious ends', () => {
-    expect(readableTextColor('#FFFFFF')).toBe('#0F172A');
+    expect(readableTextColor('#FFFFFF')).toBe('#1C1B15');
     expect(readableTextColor('#000000')).toBe('#FFFFFF');
-    expect(readableTextColor('#facc15')).toBe('#0F172A');
+    expect(readableTextColor('#facc15')).toBe('#1C1B15');
     expect(readableTextColor('#3448E8')).toBe('#FFFFFF');
   });
   it('accepts 3-digit and un-prefixed hex; falls back to white on garbage', () => {
-    expect(readableTextColor('fff')).toBe('#0F172A');
+    expect(readableTextColor('fff')).toBe('#1C1B15');
     expect(readableTextColor('#000')).toBe('#FFFFFF');
     expect(readableTextColor('nope')).toBe('#FFFFFF');
     expect(readableTextColor('')).toBe('#FFFFFF');
