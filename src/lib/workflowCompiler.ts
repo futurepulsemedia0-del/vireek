@@ -19,7 +19,7 @@ export type { EditOp, IrDiff };
 export type NodeKind = 'lookup' | 'reason' | 'decision' | 'action' | 'approval' | 'verify' | 'wait' | 'parallel' | 'join' | 'foreach';
 export type EdgeOn = 'next' | 'true' | 'false' | 'fail' | 'approved' | 'rejected' | 'timeout' | 'pass' | 'b0' | 'b1' | 'b2' | 'b3' | 'b4' | 'b5' | 'b6' | 'b7';
 export type CompiledStatus = 'draft' | 'test' | 'live' | 'paused' | 'archived';
-export type CompiledRunStatus = 'active' | 'waiting_approval' | 'waiting_timer' | 'completed' | 'failed' | 'cancelled';
+export type CompiledRunStatus = 'active' | 'waiting_approval' | 'waiting_timer' | 'compensating' | 'completed' | 'failed' | 'cancelled';
 
 export interface GraphNode {
   id: string;
@@ -121,12 +121,13 @@ export const STATUS_STYLE: Record<CompiledStatus, string> = {
   archived: 'bg-bg-tertiary text-text-secondary',
 };
 export const RUN_STATUS_LABEL: Record<CompiledRunStatus, string> = {
-  active: 'Running', waiting_approval: 'Needs approval', waiting_timer: 'Waiting', completed: 'Completed', failed: 'Failed', cancelled: 'Cancelled',
+  active: 'Running', waiting_approval: 'Needs approval', waiting_timer: 'Waiting', compensating: 'Undoing steps', completed: 'Completed', failed: 'Failed', cancelled: 'Cancelled',
 };
 export const RUN_STATUS_STYLE: Record<CompiledRunStatus, string> = {
   active: 'bg-accent-subtle text-accent',
   waiting_approval: 'bg-warning-subtle text-warning',
   waiting_timer: 'bg-bg-tertiary text-text-secondary',
+  compensating: 'bg-warning-subtle text-warning', 
   completed: 'bg-success-subtle text-success',
   failed: 'bg-danger/10 text-danger',
   cancelled: 'bg-bg-tertiary text-text-secondary',
