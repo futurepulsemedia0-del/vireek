@@ -1,6 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import {
-  AlertOctagon, AudioLines, Award, BadgeCheck, Banknote, BookOpen, Briefcase, ClipboardCheck, Coins, Crosshair, Eye, FileCheck2, FileClock, FileSearch, FileText, Gauge, Gavel, GitMerge, Handshake, HeartPulse, Landmark, Library, ListChecks, Lock, Mail, MapPinned, Medal, MessageSquareText, Microscope, Percent, PhoneMissed, PiggyBank, Radar, Receipt, RefreshCw, Rocket, RotateCcw, Route, SearchCheck, Store, Tags, Telescope, Timer, UserMinus, Webhook,
+  AlertOctagon, AudioLines, Award, BadgeCheck, Banknote, BookOpen, Briefcase, CalendarRange, ClipboardCheck, Coins, Crosshair, Eye, FileCheck2, FileClock, FileSearch, FileText, Gauge, Gavel, GitMerge, Handshake, HeartPulse, Landmark, Library, ListChecks, Lock, Mail, MapPinned, Medal, MessageSquareText, Microscope, Percent, PhoneMissed, PiggyBank, Radar, Receipt, RefreshCw, Rocket, RotateCcw, Route, SearchCheck, Store, Tags, Telescope, Timer, UserMinus, Webhook,
 } from 'lucide-react';
 
 /**
@@ -11,6 +11,7 @@ import {
  */
 export const NAV_ICON_OVERRIDES: Readonly<Record<string, LucideIcon>> = {
   '/dashboard/live-copilot': AudioLines,
+  '/dashboard/calendar-feeds': CalendarRange,
   '/dashboard/call-queue': ListChecks,
   '/dashboard/power-dialer': Timer,
   '/dashboard/phone-numbers/reputation': BadgeCheck,
