@@ -38,6 +38,7 @@ import { CustomerDocumentsCard } from '@/components/customers/CustomerDocumentsC
 import { CustomerTimeline } from '@/components/customers/CustomerTimeline';
 import { CustomerLanguageControl } from '@/components/customers/CustomerLanguageSelect';
 import { CustomerIdentityPanel } from '@/components/customers/CustomerIdentityPanel';
+import { PortalLinkCard } from '@/components/customers/PortalLinkCard';
 import { CustomerContactsPanel } from '@/components/customers/CustomerContactsPanel';
 
 // ============================================================
@@ -435,6 +436,7 @@ export function CustomerDetailPage() {
 
         {id && <HomeHealthCard customerId={id} />}
         {id && <CustomerLifecycleCard customerId={id} />}
+        {id && <PortalLinkCard customerId={id} portalToken={(customer as { portal_token?: string | null }).portal_token ?? null} />}
         {id && <PropertyVisionCard customerId={id} />}
 {id && <CustomerContactsPanel customerId={id} customerName={customer.name} customerEmail={customer.email} customerPhone={customer.phone} />}
         {id && <CustomerIdentityPanel customerId={id} customerName={customer.name} />}
