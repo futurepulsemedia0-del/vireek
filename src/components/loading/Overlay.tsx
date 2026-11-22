@@ -6,6 +6,7 @@ import { Progress } from './Progress';
 import { BrandLoader } from './BrandLoader';
 import { BrandDot } from './BrandDot';
 import { useDelayedLoading } from './useDelayedLoading';
+import { LOADER_CYCLE_MS } from './cycles';
 import './loading.css';
 
 const FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
@@ -27,7 +28,8 @@ interface OverlayProps {
  */
 export function BlockingOverlay({ open, label, progress, children }: OverlayProps) {
   const { t } = useTranslation('common', { useSuspense: false });
-  const visible = useDelayedLoading(open);
+  // Indeterminate: once shown, stay one full `signal` loop. With real progress the bar is the feedback.
+  const visible = useDelayedLoading(open, { minVisibleMs: typeof progress === 'number' ? undefined : LOADER_CYCLE_MS.signal });
   const active = open || visible;
   const ref = useRef<HTMLDivElement>(null);
 
@@ -116,7 +118,7 @@ interface BackgroundTaskProps {
 
 /** NON-blocking toast-style indicator for background work (exports, syncs). */
 export function BackgroundTask({ open, label, progress }: BackgroundTaskProps) {
-  const visible = useDelayedLoading(open);
+  const visible = useDelayedLoading(open, { minVisibleMs: LOADER_CYCLE_MS.signal });
   if (!visible) return null;
   return createPortal(
     <div
