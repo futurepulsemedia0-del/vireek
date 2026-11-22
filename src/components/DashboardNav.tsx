@@ -488,6 +488,7 @@ export const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Procurement Network', href: '/dashboard/procurement-network', icon: Handshake, requiresPermission: 'can_view_billing' },
   { label: 'Supply Chain Outcomes', href: '/dashboard/supply-chain-outcomes', icon: GitBranch, requiresPermission: 'can_view_billing' },
   { label: 'Outcome Assurance', href: '/dashboard/outcome-assurance', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
+  { label: 'Outcome Cases', href: '/dashboard/outcome-cases', icon: FileCheck2, requiresPermission: 'can_view_billing' },
   { label: 'Outcome Intelligence Network', href: '/dashboard/outcome-network', icon: Network },
   { label: 'Outcome Clearinghouse', href: '/dashboard/outcome-clearinghouse', icon: Scale },
   { label: 'Truck-Roll Elimination', href: '/dashboard/truck-roll', icon: Ban, requiresPermission: 'can_view_billing' },
