@@ -67,13 +67,15 @@ export const EVENT_REGISTRY = {
     search_ms: num('Latency of the last search in ms; absent when none ran', true),
   }),
 
-  plan_step_viewed
-  plan_selected
-  plan_checkout_started
-  plan_checkout_completed
-  plan_checkout_abandoned
-  plan_step_skipped
-  // ---- Product tours and tips -------------------------------------------------------------------------------
+  // ---- Plan selection ---------------------------------------------------------------------------------------
+  plan_step_viewed: ev('growth', 'A plan-selection step was shown.', {}),
+  plan_selected: ev('growth', 'A plan was selected.', {}),
+  plan_checkout_started: ev('growth', 'Plan checkout started.', {}),
+  plan_checkout_completed: ev('growth', 'Plan checkout completed.', {}),
+  plan_checkout_abandoned: ev('growth', 'Plan checkout abandoned.', {}),
+  plan_step_skipped: ev('growth', 'A plan-selection step was skipped.', {}),
+
+  // ---- Product tours and tips-------------------------------------------------------------------------------
   tour_started: ev('onboarding', 'Tour auto-started.', TOUR_STARTED_PROPS),
   tour_resumed: ev('onboarding', 'Tour resumed after a pause.', TOUR_STARTED_PROPS),
   tour_replayed: ev('onboarding', 'Tour replayed by the user.', TOUR_STARTED_PROPS),
