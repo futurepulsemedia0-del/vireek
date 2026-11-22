@@ -205,6 +205,7 @@ const CashFlowWarRoomPage = lazy(() => import('@/pages/CashFlowWarRoomPage').the
 const BankIntelligencePage = lazy(() => import('@/pages/BankIntelligencePage').then((m) => ({ default: m.BankIntelligencePage })));
 const RegionalDemandPage = lazy(() => import('@/pages/RegionalDemandPage').then((m) => ({ default: m.RegionalDemandPage })));
 const PriceAccuracyPage = lazy(() => import('@/pages/PriceAccuracyPage').then((m) => ({ default: m.PriceAccuracyPage })));
+const PricePolicyPage = lazy(() => import('@/pages/PricePolicyPage').then((m) => ({ default: m.PricePolicyPage })));
 const BenchmarksPage = lazy(() => import('@/pages/BenchmarksPage').then((m) => ({ default: m.BenchmarksPage })));
 const StateOfCallsReportPage = lazy(() => import('@/pages/StateOfCallsReportPage').then((m) => ({ default: m.StateOfCallsReportPage })));
 const ServiceDataExchangePage = lazy(() => import('@/pages/ServiceDataExchangePage').then((m) => ({ default: m.ServiceDataExchangePage })));
@@ -215,7 +216,7 @@ const DashboardSnapshotsPage = lazy(() => import('@/pages/DashboardSnapshotsPage
 const SharedDashboardPage = lazy(() => import('@/pages/SharedDashboardPage').then((m) => ({ default: m.SharedDashboardPage })));
 const DispatchBoardPage = lazy(() => import('@/pages/DispatchBoardPage').then((m) => ({ default: m.DispatchBoardPage })));
 const DispatchRulesPage = lazy(() => import('@/pages/DispatchRulesPage').then((m) => ({ default: m.DispatchRulesPage })));
-   const DispatchRandomizationPage = lazy(() => import('@/pages/DispatchRandomizationPage').then((m) => ({ default: m.DispatchRandomizationPage })));
+const DispatchRandomizationPage = lazy(() => import('@/pages/DispatchRandomizationPage').then((m) => ({ default: m.DispatchRandomizationPage })));
 const InventoryPage = lazy(() => import('@/pages/InventoryPage').then((m) => ({ default: m.InventoryPage })));
 const InventoryCountsPage = lazy(() => import('@/pages/InventoryCountsPage').then((m) => ({ default: m.InventoryCountsPage })));
 const ToolCribPage = lazy(() => import('@/pages/ToolCribPage').then((m) => ({ default: m.ToolCribPage })));
@@ -2258,6 +2259,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <PriceAccuracyPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/price-playbook"
+          element={
+            <ProtectedRoute>
+              <PricePolicyPage />
             </ProtectedRoute>
           }
         />
