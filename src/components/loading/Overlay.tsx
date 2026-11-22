@@ -95,7 +95,7 @@ export function BlockingOverlay({ open, label, progress, children }: OverlayProp
            <BrandLoader
               variant={typeof progress === 'number' ? 'fill' : 'signal'}
               progress={typeof progress === 'number' ? progress : undefined}
-              size="md"
+              size="lg"
             />
             <p role="status" aria-live="polite" className="text-sm font-medium text-text-primary">
               {text}
