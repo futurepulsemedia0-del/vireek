@@ -237,6 +237,39 @@
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
     "mainNavigation": "Main navigation",
+    "shortcuts": {
+      "title": "Shortcuts",
+      "edit": "Edit shortcuts"
+    },
+    "pin": {
+      "pin": "Pin {{name}} to shortcuts",
+      "unpin": "Unpin {{name}} from shortcuts",
+      "pinnedToast": "{{name}} added to shortcuts.",
+      "unpinnedToast": "{{name}} removed from shortcuts.",
+      "limit": "You can keep up to {{count}} shortcuts. Remove one to add another.",
+      "unavailable": "That page is not available to your role.",
+      "clear": "Clear all",
+      "empty": "No shortcuts yet. Use the pin button on any page below, or hover a row in the menu.",
+      "moveUp": "Move {{name}} up",
+      "moveDown": "Move {{name}} down",
+      "hiddenPins": "{{count}} saved shortcut(s) point to pages your role cannot open right now. They return if access is restored."
+    },
+    "center": {
+      "title": "Navigation center",
+      "context": "Every page available to you ({{count}}). Pin the ones you use daily to the top of the menu.",
+      "search": "Search all pages",
+      "all": "All",
+      "filterBy": "Filter by area",
+      "results": "{{count}} pages shown",
+      "clearSearch": "Clear search"
+    },
+    "menu": {
+      "navigationCenter": "Navigation center",
+      "language": "Language",
+      "help": "Help center",
+      "whatsNew": "Help center",
+      "status": "System status"
+    },
     "mobile": {
       "bottomNavigation": "Mobile navigation",
       "overview": "Overview",
