@@ -5,20 +5,24 @@ import { EmptyState, EmptyStateError } from '@/components/EmptyState';
 import { SkeletonCardList } from '@/components/Skeleton';
 import { BackupSettingsPanel } from '@/components/voiceResilience/BackupSettingsPanel';
 import { CarrierWizardPanel } from '@/components/voiceResilience/CarrierWizardPanel';
+import { DrillEvidencePanel } from '@/components/voiceResilience/DrillEvidencePanel';
 import { LadderStatusPanel } from '@/components/voiceResilience/LadderStatusPanel';
 import { useAuth } from '@/contexts/AuthContext';
 import { useVoiceResilienceT } from '@/i18n/voiceResilienceNamespace';
+import {
+  buildEvidenceLog, computeDrillStatus, defaultSchedule, isValidInterval, validateManualDraft, type DrillData, type DrillSchedule, type ManualDraft,
+} from '@/lib/voiceDrills';
 import {
   buildSavePayload, draftFromSettings, errorKeyFor, forcedLevelActive, normalizePhone, pollDelayMs, pollExpired, validateForcedLevel, validateSettings,
   type CarrierFamily, type CheckKind, type CheckStatus, type ForwardCode, type Level, type SettingsDraft, type VoiceStatus,
 } from '@/lib/voiceResilience';
 import {
-  VoiceApiError, fetchVireekNumbers, fetchVoiceStatus, fetchWizardPlan, fetchWizardStatus, saveOrgSettings, setForcedLevel, startWizardCheck,
+  VoiceApiError, fetchDrillData, fetchVireekNumbers, logManualDrill, saveDrillSchedule,
 } from '@/lib/voiceResilienceApi';
 
 const PAGE = 'Phone Resilience';
-type Tab = 'status' | 'settings' | 'wizard';
-const TABS: Tab[] = ['status', 'settings', 'wizard'];
+type Tab = 'status' | 'settings' | 'wizard' | 'drills';
+const TABS: Tab[] = ['status', 'settings', 'wizard', 'drills'];
 
 const errKey = (e: unknown) => (e instanceof VoiceApiError ? errorKeyFor(e.message, e.status) : errorKeyFor(undefined));
 
@@ -154,7 +158,7 @@ export function VoiceResiliencePage() {
       try {
         const r = await fetchWizardStatus(checkId);
         if (cancelled) return;
-        if (r.status !== 'pending') { setCheck((c) => (c && c.id === checkId ? { ...c, status: r.status } : c)); return; }
+       if (r.status !== 'pending') { setCheck((c) => (c && c.id === checkId ? { ...c, status: r.status } : c)); setDrillLoad('idle'); return; }
       } catch { /* transient: keep polling until the deadline */ }
       if (cancelled) return;
       setCheck((c) => (c && c.id === checkId ? { ...c, elapsed: Math.round((Date.now() - begin) / 1000) } : c));
@@ -163,7 +167,66 @@ export function VoiceResiliencePage() {
     timer = window.setTimeout(() => void tick(), pollDelayMs(0));
     return () => { cancelled = true; if (timer) window.clearTimeout(timer); };
   }, [checkId, pending]);
+  // ---- drills + evidence ----
+  const [drillData, setDrillData] = useState<DrillData | null>(null);
+  const [drillLoad, setDrillLoad] = useState<'idle' | 'loading' | 'error' | 'ready'>('idle');
+  const [schedDraft, setSchedDraft] = useState<DrillSchedule>(defaultSchedule);
+  const [schedBusy, setSchedBusy] = useState(false);
+  const [schedMsg, setSchedMsg] = useState<{ tone: 'ok' | 'error'; text: string } | null>(null);
+  const [manual, setManual] = useState<ManualDraft>({ kind: 'voicemail', outcome: 'passed', note: '' });
+  const [manualErr, setManualErr] = useState<ReturnType<typeof validateManualDraft>>(null);
+  const [logBusy, setLogBusy] = useState(false);
+  const [logMsg, setLogMsg] = useState<{ tone: 'ok' | 'error'; text: string } | null>(null);
 
+  const loadDrills = useCallback(async (seed: boolean) => {
+    if (!ownerId) return;
+    if (seed) setDrillLoad('loading');
+    try {
+      const d = await fetchDrillData(ownerId);
+      setDrillData(d);
+      if (seed) setSchedDraft(d.schedule);
+      setDrillLoad('ready');
+    } catch {
+      setDrillLoad('error');
+    }
+  }, [ownerId]);
+
+  // Loaded when the tab is first opened, and again after a wizard test finishes (a new check is new evidence).
+  useEffect(() => { if (tab === 'drills' && canAccess && drillLoad === 'idle') void loadDrills(true); }, [tab, canAccess, drillLoad, loadDrills]);
+
+  const onSaveSchedule = async () => {
+    if (!isValidInterval(schedDraft.interval_days)) { setSchedMsg({ tone: 'error', text: t('drills.schedule.invalid') }); return; }
+    setSchedBusy(true);
+    try {
+      await saveDrillSchedule(schedDraft);
+      await loadDrills(false);
+      setSchedMsg({ tone: 'ok', text: t('drills.schedule.saved') });
+    } catch (e) {
+      setSchedMsg({ tone: 'error', text: t(errKey(e)) });
+    } finally {
+      setSchedBusy(false);
+    }
+  };
+
+  const onLogManual = async () => {
+    const bad = validateManualDraft(manual);
+    setManualErr(bad);
+    if (bad) return;
+    setLogBusy(true);
+    try {
+      await logManualDrill(manual);
+      setManual((m) => ({ ...m, note: '' }));
+      await loadDrills(false);
+      setLogMsg({ tone: 'ok', text: t('drills.manual.saved') });
+    } catch (e) {
+      setLogMsg({ tone: 'error', text: t(errKey(e)) });
+    } finally {
+      setLogBusy(false);
+    }
+  };
+
+  const evidence = drillData ? buildEvidenceLog(drillData.checks, drillData.manual) : [];
+  const drillStatus = computeDrillStatus(drillData?.schedule ?? schedDraft, evidence, now);
   // ---- tabs (roving tabindex + arrow keys) ----
   const onTabKey = (e: KeyboardEvent<HTMLButtonElement>) => {
     const i = TABS.indexOf(tab);
@@ -226,6 +289,14 @@ export function VoiceResiliencePage() {
               <CarrierWizardPanel t={t} family={family} onFamily={setFamily} numbers={numbers} number={number} onNumber={setNumber} businessNumber={business} onBusinessNumber={setBusiness}
                 plan={plan} planLoading={planLoading} onLoadPlan={() => void loadPlan()}
                 check={check ? { kind: check.kind, status: check.status, elapsedSeconds: check.elapsed } : null} onStart={(k) => void start(k)} errorKey={wizErr} />
+            )}
+            {tab === 'drills' && drillLoad === 'error' && <EmptyStateError icon={ShieldCheck} title={t('page.loadError')} onRetry={() => void loadDrills(true)} />}
+            {tab === 'drills' && drillLoad === 'loading' && <SkeletonCardList count={3} rows={2} />}
+            {tab === 'drills' && drillLoad === 'ready' && (
+              <DrillEvidencePanel t={t} schedule={schedDraft} status={drillStatus} entries={evidence} formatDate={fmt}
+                onSchedule={(patch) => setSchedDraft((s) => ({ ...s, ...patch }))} onSaveSchedule={() => void onSaveSchedule()} savingSchedule={schedBusy} scheduleMessage={schedMsg}
+                draft={manual} draftError={manualErr} onDraft={(patch) => setManual((m) => ({ ...m, ...patch }))} onLog={() => void onLogManual()} logging={logBusy} logMessage={logMsg}
+                onGoToWizard={() => setTab('wizard')} />
             )}
           </div>
         )}
