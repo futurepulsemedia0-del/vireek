@@ -1,5 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { verifyHousecallProKey } from "../_shared/price-book/housecallpro.ts";
+import { saveSecrets } from "../_shared/secrets/providerCredentials.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -37,18 +38,20 @@ Deno.serve(async (req: Request) => {
       await verifyHousecallProKey(apiKey);
     } catch (error) {
       await admin.from("price_book_connections").upsert(
-        { user_id: userId, provider: "housecall_pro", status: "error", hcp_api_key: apiKey, last_sync_error: error instanceof Error ? error.message : String(error) },
+        { user_id: userId, provider: "housecall_pro", status: "error", hcp_api_key: null, last_sync_error: error instanceof Error ? error.message : String(error) },
         { onConflict: "user_id,provider" },
       );
       return jsonResponse({ error: "Could not verify that Housecall Pro API key. Double-check it and try again." }, 400);
     }
+
+    await saveSecrets(admin, userId, "housecall_pro", { hcp_api_key: apiKey });
 
     await admin.from("price_book_connections").upsert(
       {
         user_id: userId,
         provider: "housecall_pro",
         status: "connected",
-        hcp_api_key: apiKey,
+        hcp_api_key: null,
         last_synced_at: new Date().toISOString(),
         last_sync_error: null,
       },
