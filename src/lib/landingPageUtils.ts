@@ -3,6 +3,8 @@
 // Pure helpers for the landing-page builder. No I/O and no Supabase import on
 // purpose, so everything here is trivially unit-testable.
 
+import { readableTextColor as canonicalReadableText } from './readableText';
+
 export type LandingStatus = 'draft' | 'published' | 'archived';
 export type CtaMode = 'lead_form' | 'booking' | 'both';
 export type DomainStatus = 'pending' | 'verified' | 'failed';
@@ -285,14 +287,10 @@ export function isValidHexColor(value: string): boolean {
   return /^#[0-9a-fA-F]{6}$/.test(value);
 }
 
-/** WCAG relative luminance: pick dark or light text for a given accent background. */
+/** Text colour for an accent background (lower-case). Delegates to the canonical readableText module (>= 4.5:1 for every colour). */
 export function readableTextColor(hex: string): string {
   if (!isValidHexColor(hex)) return '#ffffff';
-  const [r, g, b] = [1, 3, 5]
-    .map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
-    .map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
-  const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-  return luminance > 0.179 ? '#1c1b15' : '#ffffff';
+  return canonicalReadableText(hex).toLowerCase();
 }
 
 export function emptyDraft(): LandingPageDraft {
