@@ -707,7 +707,8 @@ const AiSecurityCenterPage = lazy(() => import('@/pages/AiSecurityCenterPage').t
 const SsoLoginPage = lazy(() => import('@/pages/SsoLoginPage').then((m) => ({ default: m.SsoLoginPage })));
 const ReliabilityPage = lazy(() => import('@/pages/ReliabilityPage').then((m) => ({ default: m.ReliabilityPage })));
 const AccountPage = lazy(() => import('@/pages/AccountPage').then((m) => ({ default: m.AccountPage })));
-const ApiKeysPage = lazy(() => import('@/pages/ApiKeysPage').then((m) => ({ default: m.ApiKeysPage })));
+const NavigationCenterPage = lazy(() => import('@/pages/NavigationCenterPage').then((m) => ({ default: m.NavigationCenterPage })));
+onst ApiKeysPage = lazy(() => import('@/pages/ApiKeysPage').then((m) => ({ default: m.ApiKeysPage })));
 const VoicePlatformPage = lazy(() => import('@/pages/VoicePlatformPage').then((m) => ({ default: m.VoicePlatformPage })));
 const InspectionReportsPage = lazy(() => import('@/pages/InspectionReportsPage').then((m) => ({ default: m.InspectionReportsPage })));
 const FindingsPackagesPage = lazy(() => import('@/pages/FindingsPackagesPage').then((m) => ({ default: m.FindingsPackagesPage })));
@@ -3309,6 +3310,14 @@ function AppRoutes() {
     </ProtectedRoute>
   }
 />
+        <Route
+          path="/dashboard/navigation"
+          element={
+            <ProtectedRoute>
+              <NavigationCenterPage />
+            </ProtectedRoute>
+          }
+        />
 <Route
   path="/dashboard/budgets"
   element={
