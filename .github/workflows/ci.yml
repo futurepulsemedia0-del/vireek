@@ -29,17 +29,18 @@ jobs:
         run: npm run lint
       - name: Flag lifecycle (stale / unowned flags)
         run: npm run lint:flags
-
       - name: Accessibility ACR evidence (rules only; gaps are reported, not failed)
         run: |
           npm run test:scripts:acr
           npm run a11y:acr
-
-      - name: Analytics registry (unregistered events / PII properties)
-        run: npm run lint:analytics
-
       - name: Owners (warn-only until assigned)
         run: node scripts/governance/check-owners.mjs
+      - name: Code ownership (CODEOWNERS in sync, coverage, placeholder owners)
+        run: |
+          npm run test:scripts:governance
+          npm run owners:check
+      - name: Cron coverage (every cron-style edge function is scheduled or exempted)
+        run: npm run cron:check
 
       - name: Colour tokens (ratchet) + palette purity + generated tokens up to date
         run: |
