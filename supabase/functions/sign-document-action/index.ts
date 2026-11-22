@@ -1,5 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { sendEmail } from "../_shared/notify/deliver.ts";
+import { clientIpFromHeaders } from "../_shared/esign-evidence/evidence.ts";
+import { issueCertificate } from "../_shared/esign-evidence/issue.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,10 +13,9 @@ function jsonResponse(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 }
 
+// Prefers the platform-set headers over the client-spoofable left end of x-forwarded-for. [VERIFY] the proxy topology.
 function clientIp(req: Request): string {
-  const fwd = req.headers.get("x-forwarded-for");
-  if (fwd) return fwd.split(",")[0].trim();
-  return req.headers.get("cf-connecting-ip") || req.headers.get("x-real-ip") || "unknown";
+  return clientIpFromHeaders((name) => req.headers.get(name));
 }
 
 Deno.serve(async (req: Request) => {
@@ -62,6 +63,11 @@ Deno.serve(async (req: Request) => {
       if (row.request_completed) {
         const { data: signer } = await admin.from("signature_signers").select("request_id").eq("signer_token", signerToken).maybeSingle();
         if (signer) {
+          try {
+            await issueCertificate(admin, signer.request_id, Deno.env.get("ESIGN_EVIDENCE_HMAC_KEY"), Deno.env.get("ESIGN_EVIDENCE_KEY_ID") || "k1");
+          } catch (sealErr) {
+            console.error("sign-document-action: certificate not issued at completion:", sealErr instanceof Error ? sealErr.message : sealErr);
+          }
           const { data: request } = await admin.from("signature_requests").select("title, user_id").eq("id", signer.request_id).maybeSingle();
           if (request) {
             const { data: profile } = await admin.from("profiles").select("email, company_name").eq("id", request.user_id).maybeSingle();
