@@ -4,7 +4,9 @@ import { PdfBrandSync } from '@/components/PdfBrandSync';
 import { GrowthAttributionSync } from '@/components/GrowthAttributionSync';
 import { Suspense, lazy } from 'react';
 import { RouteFallback } from '@/components/loading/RouteFallback';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { DashboardShellSwitch, shouldHostDashboardShell } from '@/components/DashboardShellSwitch';
 import { LEGACY_ONBOARDING_REDIRECTS } from '@/lib/onboardingRoutes';
 import { HomePage } from '@/pages/HomePage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
@@ -779,7 +781,11 @@ function RouteLoadingFallback() {
 }
 
 function AppRoutes() {
+  const { pathname } = useLocation();
+  const { session } = useAuth();
+  const shellOn = Boolean(session) && shouldHostDashboardShell(pathname);
   return (
+    <DashboardShellSwitch enabled={shellOn} fallback={<RouteLoadingFallback />}>
     <Suspense fallback={<RouteLoadingFallback />}>
       <Routes>
         {LoadingDemo && <Route path="/dev/loading" element={<Suspense fallback={<RouteFallback />}><LoadingDemo /></Suspense>} />}
@@ -5079,6 +5085,7 @@ function AppRoutes() {
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>
+    </DashboardShellSwitch>
   );
 }
 
