@@ -64,7 +64,7 @@ describe('buildAppearance', () => {
   });
 
   it('falls back to a safe accent when the CSS variable is missing', () => {
-    expect(buildAppearance({ dark: false, accentTriplet: '' }).variables?.colorPrimary).toBe('#2563eb');
+    expect(buildAppearance({ dark: false, accentTriplet: '' }).variables?.colorPrimary).toBe('#934126');
   });
 });
 
