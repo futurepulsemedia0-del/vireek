@@ -3,6 +3,7 @@
  * (2) removes the static boot loader (#vrk-boot, defined in index.html) once the app has mounted.
  */
 
+import { BOOT_CYCLE_MS } from './cycles';
 const BOOT_ID = 'vrk-boot';
 const FADE_MS = 540; // a hair longer than the 500ms CSS fade in index.html
 
@@ -24,13 +25,20 @@ export interface BootDismissPlan {
  *  - visible < 500ms  → wait the remainder, then fade (rule: minimum visible time)
  *  - visible >= 500ms → fade now
  */
-export function bootDismissPlan(visibleForMs: number): BootDismissPlan {
+export function bootDismissPlan(visibleForMs: number, minVisibleMs: number = BOOT_MIN_VISIBLE_MS): BootDismissPlan {
   if (!Number.isFinite(visibleForMs) || visibleForMs <= 0) return { instant: true, waitMs: 0 };
-  return { instant: false, waitMs: Math.max(0, BOOT_MIN_VISIBLE_MS - visibleForMs) };
+  return { instant: false, waitMs: Math.max(0, minVisibleMs - visibleForMs) };
 }
 
 /** Milliseconds the boot content has been visible, estimated from the navigation timeline. */
-function bootVisibleForMs(): number {
+function bootVisibleForMs(el: HTMLElement): number {
+  // Exact: the splash's own CSS animation has been running since its first paint.
+  try {
+    const t = el.querySelector('.vb-m')?.getAnimations?.()[0]?.currentTime;
+    if (typeof t === 'number' && Number.isFinite(t)) return t;
+  } catch {
+    /* fall through to the navigation-timeline estimate */
+  }
   if (typeof performance === 'undefined') return Number.POSITIVE_INFINITY;
   let responseStart = 0;
   try {
@@ -39,7 +47,7 @@ function bootVisibleForMs(): number {
   } catch {
     /* older engines: assume the document started at 0 */
   }
-  return performance.now() - (responseStart + BOOT_SHOW_AFTER_MS);
+  return performance.now() - responseStart;
 }
 
 let initialised = false;
@@ -89,7 +97,7 @@ export function dismissBootLoader(): void {
   const el = document.getElementById(BOOT_ID);
   if (!el || pendingDismiss !== null) return;
 
-  const plan = bootDismissPlan(bootVisibleForMs());
+  const plan = bootDismissPlan(bootVisibleForMs(el), BOOT_CYCLE_MS);
   if (plan.instant) {
     el.remove();
     return;
