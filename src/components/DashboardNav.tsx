@@ -174,6 +174,7 @@ export const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Lifecycle Touches', href: '/dashboard/lifecycle', icon: CalendarHeart },
   { label: 'Referrals', href: '/dashboard/referrals', icon: Gift, requiresPermission: 'can_view_billing' },
   { label: 'Loyalty', href: '/dashboard/loyalty', icon: Crown, requiresPermission: 'can_view_billing' },
+  { label: 'Points Ledger', href: '/dashboard/points-ledger', icon: Award, requiresPermission: 'can_view_billing' },
   { label: 'Email Campaigns', href: '/dashboard/email-campaigns', icon: MailPlus, requiresPermission: 'can_view_billing' },
   { label: 'Direct Mail', href: '/dashboard/direct-mail', icon: MailPlus, requiresPermission: 'can_view_billing' },
   { label: 'Work-Order Guard', href: '/dashboard/work-order-guard', icon: ShieldCheck, requiresPermission: 'can_view_billing' },
