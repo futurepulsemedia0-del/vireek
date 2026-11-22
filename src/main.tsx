@@ -1,4 +1,5 @@
-import { StrictMode, Suspense, lazy } from 'react';
+import { StrictMode, Suspense } from 'react';
+import { safeLazy as lazy } from '@/lib/safeLazy';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import { DataRouterShell } from '@/components/system/DataRouterShell';
