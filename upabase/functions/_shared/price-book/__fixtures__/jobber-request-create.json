@@ -1,0 +1,2 @@
+{ "data": { "requestCreate": { "request": { "id": "Z2lkOi8vSm9iYmVyL1JlcXVlc3QvNzg5" }, "userErrors": [] } },
+  "extensions": { "cost": { "requestedQueryCost": 50, "throttleStatus": { "currentlyAvailable": 9950, "restoreRate": 500 } } } }
