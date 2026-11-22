@@ -13,9 +13,32 @@ describe('disconnectProvider', () => {
     await disconnectProvider(invoke, 'jobber', true);
     expect(invoke).toHaveBeenCalledWith('provider-disconnect', { body: { provider: 'jobber', delete_imported_data: true } });
   });
-  it('maps success, preserving the revoked flag', async () => {
-    expect(await disconnectProvider(invokeWith({ data: { ok: true, revoked: true }, error: null }), 'google_calendar')).toEqual({ ok: true, revoked: true });
-    expect(await disconnectProvider(invokeWith({ data: { ok: true }, error: null }), 'jobber')).toEqual({ ok: true, revoked: null });
+  it('maps the new response contract (revocation + manual_action_required)', async () => {
+    const r = await disconnectProvider(
+      invokeWith({ data: { ok: true, revoked: true, revocation: 'revoked', manual_action_required: true }, error: null }),
+      'hubspot',
+    );
+    expect(r).toEqual({ ok: true, revoked: true, revocation: 'revoked', manualActionRequired: true });
+    const u = await disconnectProvider(
+      invokeWith({ data: { ok: true, revoked: null, revocation: 'unsupported', manual_action_required: true }, error: null }),
+      'service_titan',
+    );
+    expect(u).toEqual({ ok: true, revoked: null, revocation: 'unsupported', manualActionRequired: true });
+  });
+  it('derives the new fields from an older server response that only returns `revoked`', async () => {
+    expect(await disconnectProvider(invokeWith({ data: { ok: true, revoked: true }, error: null }), 'google_calendar')).toEqual({
+      ok: true, revoked: true, revocation: 'revoked', manualActionRequired: false,
+    });
+    expect(await disconnectProvider(invokeWith({ data: { ok: true, revoked: false }, error: null }), 'google_calendar')).toEqual({
+      ok: true, revoked: false, revocation: 'failed', manualActionRequired: true,
+    });
+    expect(await disconnectProvider(invokeWith({ data: { ok: true }, error: null }), 'jobber')).toEqual({
+      ok: true, revoked: null, revocation: 'unsupported', manualActionRequired: true,
+    });
+  });
+  it('ignores an unknown revocation value instead of trusting it', async () => {
+    const r = await disconnectProvider(invokeWith({ data: { ok: true, revoked: null, revocation: 'weird' }, error: null }), 'jobber');
+    expect(r).toMatchObject({ ok: true, revocation: 'unsupported' });
   });
   it('surfaces the server message from data.error', async () => {
     const r = await disconnectProvider(invokeWith({ data: { error: "You don't have permission to manage integrations." }, error: null }), 'jobber');
@@ -34,11 +57,35 @@ describe('disconnectProvider', () => {
 });
 
 describe('followUpNote', () => {
-  it('asks the user to remove the app at non-Google providers', () => {
-    expect(followUpNote('Jobber', 'jobber', null)).toContain('connected apps');
+  const out = (revocation: 'revoked' | 'failed' | 'unsupported' | 'no_credentials', manualActionRequired = true) => ({
+    revoked: revocation === 'revoked' ? true : revocation === 'failed' ? false : null,
+    revocation,
+    manualActionRequired,
   });
-  it('is silent when Google confirmed revocation, helpful when it did not', () => {
-    expect(followUpNote('Google Calendar', 'google_calendar', true)).toBeNull();
-    expect(followUpNote('Google Calendar', 'google_calendar', false)).toContain('myaccount.google.com/permissions');
+
+  it('is silent when Google or Jobber confirmed the revocation', () => {
+    expect(followUpNote('Google Calendar', 'google_calendar', out('revoked', false))).toBeNull();
+    expect(followUpNote('Jobber', 'jobber', out('revoked', false))).toBeNull();
+  });
+  it('points to the provider when Google or Jobber did not confirm', () => {
+    expect(followUpNote('Google Calendar', 'google_calendar', out('failed', false))).toContain('myaccount.google.com/permissions');
+    expect(followUpNote('Jobber', 'jobber', out('failed', false))).toContain('connected apps');
+  });
+  it('tells the truth about HubSpot: only the refresh token is removed, the app stays installed', () => {
+    const ok = followUpNote('HubSpot', 'hubspot', out('revoked'));
+    expect(ok).toContain('refresh token');
+    expect(ok).toContain('uninstall');
+    expect(followUpNote('HubSpot', 'hubspot', out('failed'))).toContain('did not confirm');
+  });
+  it('says there is no remote revocation for ServiceTitan and Housecall Pro and where to remove the credential', () => {
+    expect(followUpNote('ServiceTitan', 'service_titan', out('unsupported'))).toContain('no remote revocation');
+    const hcp = followUpNote('Housecall Pro', 'housecall_pro', out('unsupported'));
+    expect(hcp).toContain('no remote revocation');
+    expect(hcp).toContain('API Key Management');
+  });
+  it('never claims a revocation that did not happen', () => {
+    for (const p of ['service_titan', 'housecall_pro'] as const) {
+      expect(followUpNote('X', p, out('unsupported'))).not.toMatch(/revoked|invalidated/);
+    }
   });
 });
