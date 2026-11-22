@@ -5,7 +5,7 @@ import { Mail, Lock, User, Check, X, MailCheck } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { VireekMark } from '@/components/brand/VireekMark';
+import { AuthBrandMark } from '@/components/auth/AuthBrandMark';
 import { supabase } from '@/lib/supabase';
 import { readPartnerReferralCode, clearPartnerReferralCode } from '@/lib/partnerPortal';
 import {
@@ -288,7 +288,7 @@ useEffect(() => {
   };
 
   return (
-    <AuthShell side={<AuthSidePanel showMark />}>
+      <AuthShell formMark={false} side={<AuthSidePanel motion="animated" />}>
       {/* Theme toggle */}
       <div className="absolute right-6 top-5 sm:right-8">
         <ThemeToggle />
@@ -322,10 +322,7 @@ useEffect(() => {
         </div>
       ) : (
         <>
-      {/* Mobile / tablet brand mark (the side panel is desktop-only) */}
-      <div className="mb-8 flex justify-center lg:hidden [@media(max-height:560px)]:hidden">
-        <VireekMark size={220} className="h-auto w-[clamp(150px,52vw,230px)]" intro="once" decorative />
-      </div>
+      <AuthBrandMark placement="form" motion="animated" />
       {/* Heading */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold tracking-tight text-text-primary">Create your account</h1>
