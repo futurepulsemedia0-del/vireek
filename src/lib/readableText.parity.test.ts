@@ -12,16 +12,19 @@ const between = (src: string): string => {
   return m[1];
 };
 type Fn = (hex: string) => string;
+// The edge-function copies are TypeScript: strip the only two annotations the marked block contains, then run it.
+const loadTs = (rel: string): Fn => {
+  const code = between(read(rel))
+    .replace('export function readableTextColor(hex: string): string', 'function readableTextColor(hex)')
+    .replace('(r: number, g: number, b: number): number =>', '(r, g, b) =>');
+  return new Function(`${code}; return readableTextColor;`)() as Fn;
+};
 
 const copies: Array<[string, () => Fn]> = [
   ['public/chat-widget.js', () => new Function(`${between(read('../../public/chat-widget.js'))}; return textOn;`)() as Fn],
   ['public/website-widgets.js', () => new Function(`${between(read('../../public/website-widgets.js'))}; return textOn;`)() as Fn],
-  ['supabase/functions/_shared/direct-mail/engine.ts', () => {
-    const code = between(read('../../supabase/functions/_shared/direct-mail/engine.ts'))
-      .replace('export function readableTextColor(hex: string): string', 'function readableTextColor(hex)')
-      .replace('(r: number, g: number, b: number): number =>', '(r, g, b) =>');
-    return new Function(`${code}; return readableTextColor;`)() as Fn;
-  }],
+  ['supabase/functions/_shared/direct-mail/engine.ts', () => loadTs('../../supabase/functions/_shared/direct-mail/engine.ts')],
+  ['supabase/functions/_shared/wallet/passModel.ts', () => loadTs('../../supabase/functions/_shared/wallet/passModel.ts')],
 ];
 
 describe.each(copies)('readable-text parity: %s', (_name, load) => {
