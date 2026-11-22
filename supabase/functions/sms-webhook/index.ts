@@ -21,6 +21,7 @@ import { runAutoReplyInBackground } from "../_shared/autoReply/runtime.ts";
 import { normalizePhone } from "../_shared/compliance/dncCheck.ts";
 import { recordLanguageFromMessage } from "../_shared/i18n/customerLanguage.ts";
 import { STOP_WORDS } from "../_shared/messaging/optOut.ts";
+import { parseConfirmationReply } from "../_shared/results-plan/confirmation.ts";
 import { recordInboundRevocation } from "../_shared/compliance/consentChecks.ts";
 import { classifySymptom } from "../_shared/mass-incident/core.ts";
 import { ingestIncidentContact } from "../_shared/mass-incident/runtime.ts";
@@ -90,6 +91,16 @@ if (sigReject) return sigReject;
       if (rev.revoked && !rev.recorded) console.error(JSON.stringify({ event: "sms_revocation_not_recorded", error: rev.error }));
     } catch (e) {
       console.error(JSON.stringify({ event: "sms_revocation_failed", error: e instanceof Error ? e.message : String(e) }));
+    }
+        // Results Plan customer confirmation ("Did <business> arrive?").
+    try {
+      const rpAnswer = parseConfirmationReply(body);
+      if (rpAnswer) {
+        const { data: rp } = await admin.rpc("rp_record_confirmation_reply", { p_user: userId, p_phone: from, p_answer: rpAnswer });
+        if (rpAnswer !== "stop" && (rp as { handled?: boolean } | null)?.handled) return emptyTwiml();
+      }
+    } catch (e) {
+      console.error(JSON.stringify({ event: "rp_confirmation_reply_failed", error: e instanceof Error ? e.message : String(e) }));
     }
     
     // Site Safety Intelligence: a technician's SMS fallback ("OK 123456" / "HELP") never enters the customer inbox.
