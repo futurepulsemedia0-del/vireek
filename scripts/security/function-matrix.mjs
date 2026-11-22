@@ -51,6 +51,8 @@ const P = {
  /\bclaim_billing_event\b/, /\b(?:begin|claim)_webhook_event\b/,
   rateLimit: [/\brate[_-]?limit/i, /\bcheckRate/i, /\bbi_begin_request\b/, /\bthrottle/i],
   zod: [/\bz\.object\s*\(/, /\.safeParse\s*\(/, /from\s+["'](?:npm:)?zod/, /from\s+["'](?:npm:)?valibot/],
+  // Reads caller-controlled input (body / query). Such a function must validate it with a schema (rule no-schema-validation).
+  readsInput: [/\b(?:req|request)\.(?:json|text|formData|arrayBuffer)\s*\(/, /\bsearchParams\b/],
   manualValidation: [
     /Array\.isArray\s*\(/, /typeof\s+[\w.[\]]+\s*[!=]==\s*["'](?:string|number|boolean|object)["']/, /\bisUuid\b/i, /\bUUID_RE\b/i,
     /\bvalidate\w*\s*\(/i, /\bparse\w*Body\s*\(/, /\bsanitize\w*\s*\(/i, /Payload too large|too large|413/,
@@ -233,6 +235,7 @@ export function analyzeFunction({ root, name, verifyJwt: cfgVerifyJwt, policy })
   const corsPolicy = wildcardHits.length ? "wildcard" : allowlistHits.length ? "allowlist" : corsAnyHits.length ? "custom" : "none";
   const rateLimit = hit(P.rateLimit).length > 0;
   const validation = zodHits.length ? "schema" : manualHits.length ? "manual" : "none";
+  const readsInput = hit(P.readsInput).length > 0;
   const tenancy = userClientHits.length ? "rls-user-client"
     : serviceHits.length && tenantHits.length ? "service-role+scoped"
     : serviceHits.length ? "service-role-unscoped"
@@ -251,6 +254,7 @@ export function analyzeFunction({ root, name, verifyJwt: cfgVerifyJwt, policy })
     tenancy,
     rateLimit,
     validation,
+    readsInput,
     idempotency: idemHits.length > 0,
     cors: corsPolicy,
     piiLogRisk: piiHits.length > 0,
@@ -279,6 +283,7 @@ export const RULES = {
   "no-auth": "verify_jwt=false but no JWT / cron-secret / API-key / signature check was found, and the function is not declared public.",
   "public-no-rate-limit": "Public endpoint without rate limiting.",
   "public-no-validation": "Public endpoint without any input validation.",
+  "no-schema-validation": "Reads request input (body/query) without schema validation. Use parseBody/parseQuery + zod (supabase/functions/_shared/http/zodRequest.ts); manual checks are not enough for new code.",
   "webhook-no-signature": "Inbound webhook without signature verification.",
   "webhook-no-replay": "Inbound webhook with a signature but no timestamp tolerance AND replay/idempotency store.",
   "gateway-jwt-only": "Relies on verify_jwt alone: the public anon key is a valid JWT, so any internet caller passes the gateway. Needs an in-function getUser/cron/service check.",
@@ -300,6 +305,7 @@ export function evaluateRules(row, declared) {
     if (!row.rateLimit) v.push("public-no-rate-limit");
     if (row.validation === "none") v.push("public-no-validation");
   }
+  if (row.readsInput && row.validation !== "schema") v.push("no-schema-validation");
   if (row.inboundWebhook && !row.verifyJwt && !row.webhook.signature && !m.has("cron-secret") && !m.has("shared-secret") && !m.has("api-key") && !declaredPublic) v.push("webhook-no-signature");
   if (row.webhook.signature && !(row.webhook.timestampTolerance && row.webhook.replayStore)) v.push("webhook-no-replay");
   if (m.has("gateway-jwt") && !m.has("jwt") && !m.has("cron-secret") && !m.has("api-key") && !m.has("webhook-signature") && !m.has("shared-secret")) v.push("gateway-jwt-only");
