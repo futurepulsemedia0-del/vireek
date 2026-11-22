@@ -43,7 +43,7 @@ export const HUBS: HubDef[] = [
 
   // ── Settings ──────────────────────────────────────────────────────────────
   { id: 'settings-help', pillar: 'settings', label: 'Help & updates', test: /^(overview|support|getting started|success center|what.s new|help|settings|settings center)$/i },
-  { id: 'settings-account', pillar: 'settings', label: 'Account & team', test: /my account|business profile|branding|^billing|plans|locations|regional packs|^team$|org chart|hr &|email settings|trash|trust badge|dashboard builder/i },
+  { id: 'settings-account', pillar: 'settings', label: 'Account & team', test: /my account|navigation center|business profile|branding|^billing|plans|locations|regional packs|^team$|org chart|hr &|email settings|trash|trust badge|dashboard builder/i },
   { id: 'settings-integrations', pillar: 'settings', label: 'Integrations & data', test: /integrations|data imports|crm sync|netsuite|sage|xero|custom fields|exports|bi |data platform|api usage|webhook|slack|payroll (sync|connectors)|calendar feeds|google booking|mobile alerts/i },
   { id: 'settings-ai', pillar: 'settings', label: 'AI & governance', test: /sarah|shadow|\bai\b|agent|voice brand|interpreter|governance|decision ledger|chief of staff|security center|reliability|transparency|execution|playbook library/i },
   { id: 'settings-operations', pillar: 'settings', label: 'Operations setup', test: /booking settings|job statuses|scorecard|landscaping|pest ops|commercial|operating cadence|mass incidents|site safety|operations center|activity ledger|workflow health|capacity guard|revenue radar|fair sale|win cards|review shield|phone resilience/i },
