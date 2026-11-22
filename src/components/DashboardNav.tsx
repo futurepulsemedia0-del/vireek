@@ -35,6 +35,7 @@ import { ImpersonationBanner } from '@/components/staff/ImpersonationBanner';
 import { useAuth } from '@/contexts/AuthContext';
 import { rememberDashboardPath } from '@/lib/helpCenter';
 import { useToast } from '@/contexts/ToastContext';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { NotificationsProvider } from '@/contexts/NotificationsContext';
 import { ThemeSegmentedControl } from '@/components/ThemeSegmentedControl';
 import { UpgradeBanner } from '@/components/UpgradeBanner';
@@ -721,7 +722,7 @@ function AccountMenu({
           </div>
           <div className="mt-1.5 border-t border-border pt-1.5">
             <button type="button" onClick={() => { close(); onSignOut(); }} className={MENU_ITEM}>
-              <Icon icon={LogOut} size="sm" className="text-text-muted" />
+              <Icon icon={LogOut} size="sm" className="text-danger" />
               {t('nav.signOut')}
             </button>
           </div>
@@ -872,7 +873,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
     return found ? [found] : [];
   });
   const pinnedSet = new Set(pinnedItems.map((i) => normalizeHref(i.href)));
-
+  const [signOutConfirmOpen, setSignOutConfirmOpen] = useState(false);
   const handleSignOut = async () => {
     await signOut();
     toast(t('nav.signedOut'), 'info');
@@ -1098,12 +1099,25 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
       onNavigate={() => setDrawerOpen(false)}
       onShortcuts={() => setShortcutsHelpOpen(true)}
       onAccessibility={() => openAccessibilityCenter()}
-      onSignOut={handleSignOut}
+      onSignOut={() => setSignOutConfirmOpen(true)}
     />
   );
 
   return (
     <>
+      <ConfirmDialog
+        open={signOutConfirmOpen}
+        title={t('nav.signOutConfirm.title', { defaultValue: 'Log out of Vireek?' })}
+        description={t('nav.signOutConfirm.description', {
+          defaultValue: 'You will be signed out on this device and will need to sign in again to reach your dashboard.',
+        })}
+        confirmLabel={t('nav.signOutConfirm.confirm', { defaultValue: 'Log out' })}
+        onConfirm={async () => {
+          await handleSignOut();
+          setSignOutConfirmOpen(false);
+        }}
+        onCancel={() => setSignOutConfirmOpen(false)}
+      />
       {/* Desktop sidebar */}
       <aside
         data-active-label={activeLabel}
