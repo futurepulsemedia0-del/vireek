@@ -1,4 +1,8 @@
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useFormat } from '@/hooks/useFormat';
+import { Button } from '@/components/ui/Button';
+import { firstLoadError, hitRowCap, prependUnique, removeById, replaceById } from '@/lib/overviewLoad';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Phone, Clock, TrendingUp, TriangleAlert as AlertTriangle, CircleCheck as CheckCircle2, DollarSign, Activity, ArrowRight, Calendar, User, Settings, Lightbulb, Circle as XCircle, Bell, Wrench, ShieldCheck, CreditCard, Plug, X } from 'lucide-react';
@@ -43,25 +47,21 @@ function SkeletonBlock({ className }: { className: string }) {
 }
 
 function EmptyState({
-  icon: Icon,
   title,
   body,
 }: {
-  icon: typeof Phone;
+  /** Kept optional so existing callers that still pass an icon keep compiling; the quiet empty state shows none. */
+  icon?: typeof Phone;
   title: string;
   body: string;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-bg-secondary/50 px-6 py-12 text-center">
-      <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-bg-tertiary text-text-secondary">
-        <Icon size={22} />
-      </span>
-      <h3 className="mt-4 text-base font-semibold text-text-primary">{title}</h3>
-      <p className="mt-1.5 max-w-sm text-sm leading-relaxed text-text-secondary">{body}</p>
+    <div className="py-3 text-start">
+      <p className="text-[13px] font-medium text-text-primary">{title}</p>
+      <p className="mt-0.5 max-w-prose text-[13px] leading-relaxed text-text-secondary">{body}</p>
     </div>
   );
 }
-
 // ============================================================
 // KPI CARD (primary, large)
 // ============================================================
@@ -169,6 +169,7 @@ function CallVolumeChart({
   title?: string;
   bucketDays?: number;
 }) {
+  const { locale } = useFormat();
   const maxCount = Math.max(...data.map((d) => d.count), 1);
   const chartHeight = 160;
 
@@ -212,7 +213,7 @@ function CallVolumeChart({
       </div>
       <div className="mt-3 flex items-center justify-between">
         <span className="text-xs text-text-secondary">
-          {data[0]?.date && new Date(data[0].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+          {data[0]?.date && new Date(data[data.length - 1].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
         </span>
         <span className="text-xs text-text-secondary">
           {data[data.length - 1]?.date && new Date(data[data.length - 1].date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
@@ -325,15 +326,17 @@ interface ActivityItem {
 }
 
 function RecentActivity({ items, highlightId }: { items: ActivityItem[]; highlightId?: string | null }) {
+  const { t } = useTranslation('dashboard');
+  const f = useFormat();
   return (
     <div className="rounded-xl border border-border bg-bg-secondary p-6">
-      <h3 className="text-base font-semibold text-text-primary">Recent Activity</h3>
+      <h3 className="text-base font-semibold text-text-primary">{t('overview.recentActivity', { defaultValue: 'Recent Activity' })}</h3>
       {items.length === 0 ? (
         <div className="mt-4">
           <EmptyState
             icon={Activity}
-            title="No activity yet"
-            body="Calls, jobs, and leads will appear here in chronological order as they come in."
+            title={t('overview.noActivityTitle', { defaultValue: 'No activity yet' })}
+            body={t('overview.noActivityBody', { defaultValue: 'Calls, jobs, and leads will appear here in chronological order as they come in.' })}
           />
         </div>
       ) : (
@@ -362,7 +365,7 @@ function RecentActivity({ items, highlightId }: { items: ActivityItem[]; highlig
                   <p className="mt-0.5 text-xs leading-relaxed text-text-secondary line-clamp-2">{item.description}</p>
                 </div>
                 <span className="shrink-0 text-xs text-text-secondary">
-                  {formatTimeAgo(item.timestamp)}
+                  {f.relative(item.timestamp)}
                 </span>
               </motion.div>
             );
@@ -377,21 +380,6 @@ function RecentActivity({ items, highlightId }: { items: ActivityItem[]; highlig
 // HELPERS
 // ============================================================
 
-function formatTimeAgo(dateStr: string): string {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const hours = Math.floor(diff / 3600000);
-  const days = Math.floor(hours / 24);
-  if (days > 0) return `${days}d ago`;
-  if (hours > 0) return `${hours}h ago`;
-  const mins = Math.floor(diff / 60000);
-  return mins > 0 ? `${mins}m ago` : 'just now';
-}
-
-function formatCurrency(amount: number | null): string {
-  if (amount === null || amount === undefined) return '$0';
-  return amount.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 });
-}
-
 // ============================================================
 // MAIN DASHBOARD
 // ============================================================
@@ -400,6 +388,10 @@ export function DashboardPage() {
   const navigate = useNavigate();
   const { user, profile, profileLoading, isOwner, permissions, teamMember } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation('dashboard');
+  const f = useFormat();
+  // Locale-aware money. Amounts are stored in USD; this changes only how they are written, never the value.
+  const formatCurrency = (amount: number | null) => f.currency(amount ?? 0, 'USD', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
   // Overview defaults to month-to-date (what the old "This Month" cards showed).
   const dateRange = useDateRange('mtd');
   const { range } = dateRange;
@@ -412,16 +404,18 @@ export function DashboardPage() {
   const [allJobs, setAllJobs] = useState<Job[]>([]);
   const [businessProfile, setBusinessProfile] = useState<BusinessProfile | null>(null);
   const [dataLoading, setDataLoading] = useState(true);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [capped, setCapped] = useState(false);
 
   // Bound the overview queries (previously unbounded). Period metrics undercount beyond this cap.
   const DASH_ROW_CAP = 2000;
   const loadData = useCallback(async () => {
     if (!user) return;
     setDataLoading(true);
+    setLoadFailed(false);
     try {
-      const [callsRes, jobsRes, leadsRes, insightsRes, allCallsRes, allJobsRes, businessProfileRes] = await Promise.all([
-        supabase.from('calls').select('*').order('call_datetime', { ascending: false }).limit(20),
-        supabase.from('jobs').select('*').order('created_at', { ascending: false }).limit(20),
+      // The "latest 20" lists are the head of the capped lists below, so calls and jobs are queried once, not twice.
+      const [leadsRes, insightsRes, allCallsRes, allJobsRes, businessProfileRes] = await Promise.all([
         supabase.from('leads').select('*').order('created_at', { ascending: false }).limit(DASH_ROW_CAP),
         supabase.from('ai_insights').select('*').eq('is_dismissed', false).order('created_at', { ascending: false }).limit(200),
         supabase.from('calls').select('*').order('call_datetime', { ascending: false }).limit(DASH_ROW_CAP),
@@ -429,15 +423,31 @@ export function DashboardPage() {
         supabase.from('business_profile').select('*').maybeSingle(),
       ]);
 
-      if (callsRes.data) setCalls(callsRes.data as Call[]);
-      if (jobsRes.data) setJobs(jobsRes.data as Job[]);
+      const failure = firstLoadError([leadsRes, insightsRes, allCallsRes, allJobsRes, businessProfileRes]);
+      if (failure) console.error('[overview] load failed:', failure);
+      setLoadFailed(failure !== null);
+
       if (leadsRes.data) setLeads(leadsRes.data as Lead[]);
       if (insightsRes.data) setInsights(insightsRes.data as AiInsight[]);
-      if (allCallsRes.data) setAllCalls(allCallsRes.data as Call[]);
-      if (allJobsRes.data) setAllJobs(allJobsRes.data as Job[]);
+      if (allCallsRes.data) {
+        const rows = allCallsRes.data as Call[];
+        setAllCalls(rows);
+        setCalls(rows.slice(0, 20));
+      }
+      if (allJobsRes.data) {
+        const rows = allJobsRes.data as Job[];
+        setAllJobs(rows);
+        setJobs(rows.slice(0, 20));
+      }
       if (businessProfileRes.data) setBusinessProfile(businessProfileRes.data as BusinessProfile);
-    } catch {
-      // Data will show as empty states
+      setCapped(
+        hitRowCap((allCallsRes.data ?? []).length, DASH_ROW_CAP) ||
+          hitRowCap((allJobsRes.data ?? []).length, DASH_ROW_CAP) ||
+          hitRowCap((leadsRes.data ?? []).length, DASH_ROW_CAP),
+      );
+    } catch (e) {
+      console.error('[overview] load threw:', e);
+      setLoadFailed(true);
     } finally {
       setDataLoading(false);
     }
@@ -455,6 +465,13 @@ export function DashboardPage() {
   // ------------------------------------------------------------
   const accountOwnerId = isOwner ? profile?.id : teamMember?.account_owner_id;
   const [newlyArrivedId, setNewlyArrivedId] = useState<string | null>(null);
+  const arrivedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(
+    () => () => {
+      if (arrivedTimer.current) clearTimeout(arrivedTimer.current);
+    },
+    [],
+  );
 
   const callsLiveStatus = useRealtimeSubscription<Call>({
     channelName: `overview-calls-${accountOwnerId ?? 'anon'}`,
@@ -464,10 +481,11 @@ export function DashboardPage() {
     enabled: !!accountOwnerId,
     onChange: (payload) => {
       const row = payload.new as Call;
-      setCalls((prev) => [row, ...prev].slice(0, 20));
-      setAllCalls((prev) => [row, ...prev]);
+      setCalls((prev) => prependUnique(prev, row, 20));
+      setAllCalls((prev) => prependUnique(prev, row, DASH_ROW_CAP));
       setNewlyArrivedId(row.id);
-      setTimeout(() => setNewlyArrivedId((cur) => (cur === row.id ? null : cur)), 2500);
+      if (arrivedTimer.current) clearTimeout(arrivedTimer.current);
+      arrivedTimer.current = setTimeout(() => setNewlyArrivedId((cur) => (cur === row.id ? null : cur)), 2500);
     },
   });
 
@@ -480,12 +498,16 @@ export function DashboardPage() {
     onChange: (payload) => {
       if (payload.eventType === 'INSERT') {
         const row = payload.new as Job;
-        setJobs((prev) => [row, ...prev].slice(0, 20));
-        setAllJobs((prev) => [row, ...prev]);
+        setJobs((prev) => prependUnique(prev, row, 20));
+        setAllJobs((prev) => prependUnique(prev, row, DASH_ROW_CAP));
       } else if (payload.eventType === 'UPDATE') {
         const row = payload.new as Job;
-        setJobs((prev) => prev.map((j) => (j.id === row.id ? row : j)));
-        setAllJobs((prev) => prev.map((j) => (j.id === row.id ? row : j)));
+        setJobs((prev) => replaceById(prev, row));
+        setAllJobs((prev) => replaceById(prev, row));
+      } else if (payload.eventType === 'DELETE') {
+        const id = (payload.old as Partial<Job> | undefined)?.id;
+        setJobs((prev) => removeById(prev, id));
+        setAllJobs((prev) => removeById(prev, id));
       }
     },
   });
@@ -608,7 +630,7 @@ export function DashboardPage() {
         type: 'job',
         priority: 'urgent',
         title: `Overdue job: ${j.customer_name}`,
-        description: `Scheduled for ${new Date(j.scheduled_datetime!).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })} but still ${j.job_status.replace('_', ' ')}.`,
+        description: `Scheduled for ${new Date(j.scheduled_datetime!).toLocaleDateString(f.locale, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })} but still ${j.job_status.replace('_', ' ')}.`,
         icon: Calendar,
       });
     });
@@ -620,7 +642,7 @@ export function DashboardPage() {
           type: 'job',
           priority: 'warning',
           title: `Unassigned job: ${j.customer_name}`,
-          description: `${j.service_type || 'Service'} on ${j.scheduled_datetime ? new Date(j.scheduled_datetime).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) : 'unscheduled'} has no technician assigned.`,
+          description: `${j.service_type || 'Service'} on ${j.scheduled_datetime ? new Date(j.scheduled_datetime).toLocaleDateString(f.locale, { weekday: 'short', month: 'short', day: 'numeric' }) : 'unscheduled'} has no technician assigned.`,
           icon: Wrench,
         });
       }
@@ -736,9 +758,9 @@ export function DashboardPage() {
       activityItems: activityItems.slice(0, 10),
       attributionRows,
     };
-  }, [allCalls, allJobs, calls, jobs, leads, insights, profile, range]);
+  }, [allCalls, allJobs, calls, jobs, leads, insights, profile, range, f]);
 
-  const todayDate = new Date().toLocaleDateString('en-US', {
+  const todayDate = new Date().toLocaleDateString(f.locale, {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
@@ -947,6 +969,21 @@ export function DashboardPage() {
     <DashboardLayout activeLabel="Overview">
       {/* Usage alert banner */}
       <UsageAlertBanner onUpgrade={() => navigate('/dashboard/billing')} />
+      {loadFailed && !dataLoading && (
+        <div role="alert" className="mb-4 flex flex-wrap items-center gap-3 rounded-lg border border-danger/30 bg-danger/5 px-4 py-2.5 text-[13px] text-text-primary">
+          <p className="min-w-0 flex-1">
+            {t('overview.loadFailed', { defaultValue: 'Some figures could not be loaded, so the numbers below may be incomplete.' })}
+          </p>
+          <Button variant="secondary" size="xs" onClick={() => void loadData()}>
+            {t('overview.retry', { defaultValue: 'Try again' })}
+          </Button>
+        </div>
+      )}
+      {capped && !loadFailed && !dataLoading && (
+        <p role="note" className="mb-4 text-xs text-text-secondary">
+          {t('overview.capped', { count: DASH_ROW_CAP, defaultValue: 'Totals on this page cover your most recent {{count}} records of each type.' })}
+        </p>
+      )}
         {/* Welcome header */}
         <div className="mb-8">
           {profileLoading ? (
