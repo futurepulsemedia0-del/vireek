@@ -1,6 +1,7 @@
 // Network layer for /dashboard/voice-resilience. Pure helpers live in voiceResilience.ts.
 import { supabase } from '@/lib/supabase';
 import type { CarrierFamily, CheckKind, CheckStatus, ForwardCode, VoiceStatus } from '@/lib/voiceResilience';
+import { buildManualPayload, scheduleFromRow, type CheckRow, type DrillSchedule, type ManualDraft, type ManualRow } from '@/lib/voiceDrills';
 
 export class VoiceApiError extends Error {
   constructor(public readonly status: number | undefined, message: string) {
@@ -47,3 +48,20 @@ export async function fetchVireekNumbers(ownerId: string): Promise<string[]> {
   if (error) throw new Error(error.message);
   return (data ?? []).map((r: { phone_number: string }) => r.phone_number);
 }
+
+// ---- drill schedule + evidence log (src/lib/voiceDrills.ts) ----
+export interface DrillData { schedule: DrillSchedule; checks: CheckRow[]; manual: ManualRow[] }
+
+/** Reads go straight to the tables (RLS limits them to the signed-in account); writes go through the edge function. */
+export async function fetchDrillData(ownerId: string): Promise<DrillData> {
+  const [s, c, m] = await Promise.all([
+    supabase.from('voice_drill_schedules').select('enabled, interval_days').eq('user_id', ownerId).maybeSingle(),
+    supabase.from('voice_forward_checks').select('id, kind, status, started_at, finished_at').eq('user_id', ownerId).order('started_at', { ascending: false }).limit(200),
+    supabase.from('voice_drill_evidence').select('id, kind, outcome, note, created_at').eq('user_id', ownerId).order('created_at', { ascending: false }).limit(200),
+  ]);
+  if (s.error || c.error || m.error) throw new Error((s.error ?? c.error ?? m.error)!.message);
+  return { schedule: scheduleFromRow(s.data), checks: (c.data ?? []) as CheckRow[], manual: (m.data ?? []) as ManualRow[] };
+}
+
+export const saveDrillSchedule = (s: DrillSchedule) => call<{ ok: true }>({ action: 'drill_set', enabled: s.enabled, interval_days: s.interval_days });
+export const logManualDrill = (d: ManualDraft) => call<{ ok: true }>(buildManualPayload(d));
