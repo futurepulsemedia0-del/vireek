@@ -151,11 +151,25 @@ export const escapeHtml = (s: unknown) =>
 
 export const isHexColor = (c: string) => /^#[0-9a-fA-F]{6}$/.test(c);
 
+// <readable-text> marked copy of src/lib/readableText.ts: keep identical (readableText.parity.test.ts fails if it drifts)
 export function readableTextColor(hex: string): string {
-  const h = isHexColor(hex) ? hex : "#0071E3";
-  const [r, g, b] = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
-  return 0.299 * r + 0.587 * g + 0.114 * b > 150 ? "#141413" : "#FFFFFF";
+  const raw = String(hex ?? "").trim().replace(/^#/, "");
+  const full = /^[0-9a-f]{3}$/i.test(raw) ? raw.split("").map((c) => c + c).join("") : raw;
+  if (!/^[0-9a-f]{6}$/i.test(full)) return "#FFFFFF";
+  const luminance = (r: number, g: number, b: number): number => {
+    const c = [r, g, b].map((v) => {
+      const s = v / 255;
+      return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  };
+  const lum = luminance(parseInt(full.slice(0, 2), 16), parseInt(full.slice(2, 4), 16), parseInt(full.slice(4, 6), 16));
+  const ink = luminance(28, 27, 21);
+  const onWhite = 1.05 / (lum + 0.05);
+  const onInk = (Math.max(lum, ink) + 0.05) / (Math.min(lum, ink) + 0.05);
+  return Math.max(onWhite, onInk) >= 4.5 ? (onWhite >= onInk ? "#FFFFFF" : "#1C1B15") : "#000000";
 }
+// </readable-text>
 
 export interface ArtworkInput {
   size: PostcardSize;
