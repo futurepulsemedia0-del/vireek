@@ -139,8 +139,8 @@ function LineChart({
       <svg viewBox={`0 0 ${chartW} ${chartH}`} className="w-full" style={{ height: chartH }}>
         <defs>
           <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="rgb(169 59 15)" stopOpacity="0.2" />
-            <stop offset="100%" stopColor="rgb(169 59 15)" stopOpacity="0" />
+            <stop offset="0%" stopColor="rgb(147 65 38)" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="rgb(147 65 38)" stopOpacity="0" />
           </linearGradient>
         </defs>
         {/* Grid lines */}
@@ -166,10 +166,10 @@ function LineChart({
         )}
         {/* Current period area + line */}
         <path d={currentArea} fill="url(#lineGrad)" />
-        <path d={currentPath} fill="none" stroke="rgb(169 59 15)" strokeWidth="2.5" />
+        <path d={currentPath} fill="none" stroke="rgb(147 65 38)" strokeWidth="2.5" />
         {/* Current period dots */}
         {data.map((d, i) => (
-          <circle key={i} cx={xScale(i)} cy={yScale(d.count)} r="3" fill="rgb(169 59 15)" className="opacity-0 hover:opacity-100" />
+          <circle key={i} cx={xScale(i)} cy={yScale(d.count)} r="3" fill="rgb(147 65 38)" className="opacity-0 hover:opacity-100" />
         ))}
         {/* X axis labels (show first, middle, last) */}
         {data.length > 0 && (
@@ -389,8 +389,8 @@ function Heatmap({ data }: { data: { day: number; hour: number; count: number }[
     const intensity = count / maxCount;
     if (intensity > 0.75) return 'rgb(var(--accent-secondary))';
     if (intensity > 0.5) return 'rgb(var(--accent-secondary) / 0.7)';
-    if (intensity > 0.25) return 'rgb(169 59 15 / 0.6)';
-    return 'rgb(169 59 15 / 0.25)';
+    if (intensity > 0.25) return 'rgb(147 65 38 / 0.6)';
+    return 'rgb(147 65 38 / 0.25)';
   }
 
   return (
@@ -671,7 +671,7 @@ export function AnalyticsPage() {
 
     // Outcomes breakdown
     const outcomeConfig: Record<string, { label: string; color: string }> = {
-      new_lead: { label: 'New Lead', color: 'rgb(169 59 15)' },
+      new_lead: { label: 'New Lead', color: 'rgb(147 65 38)' },
       booked: { label: 'Booked', color: 'rgb(52 199 89)' },
       missed: { label: 'Missed', color: 'rgb(255 45 85)' },
       callback_requested: { label: 'Callback', color: 'rgb(255 204 0)' },
@@ -690,7 +690,7 @@ export function AnalyticsPage() {
 
     // Lead funnel
     const funnelStages: { label: string; value: number; color: string }[] = [
-      { label: 'New', value: leadsInRange.filter((l) => l.stage === 'new').length, color: 'rgb(169 59 15)' },
+      { label: 'New', value: leadsInRange.filter((l) => l.stage === 'new').length, color: 'rgb(147 65 38)' },
       { label: 'Contacted', value: leadsInRange.filter((l) => l.stage === 'contacted' || l.stage === 'quoted' || l.stage === 'won' || l.stage === 'lost').length, color: 'rgb(61 142 246)' },
       { label: 'Quoted', value: leadsInRange.filter((l) => l.stage === 'quoted' || l.stage === 'won' || l.stage === 'lost').length, color: 'rgb(255 204 0)' },
       { label: 'Won', value: leadsInRange.filter((l) => l.stage === 'won').length, color: 'rgb(52 199 89)' },
