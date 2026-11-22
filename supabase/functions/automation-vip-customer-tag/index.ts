@@ -7,10 +7,11 @@
 //   supabase secrets set VIP_TAG_CRON_SECRET=<random-string>
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { isCronAuthorized } from "../_shared/c2c/cronAuth.ts";
 
 Deno.serve(async (req: Request) => {
   const cronSecret = Deno.env.get("VIP_TAG_CRON_SECRET");
-  if (cronSecret && req.headers.get("X-Cron-Secret") !== cronSecret) {
+  if (!isCronAuthorized(cronSecret, req.headers.get("X-Cron-Secret"))) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   }
 
