@@ -3,8 +3,8 @@
 // THE one implementation of "which text colour goes on this arbitrary background" (tenant brand colours, landing-page
 // accents, widget launchers). Pure: no I/O, no Supabase — safe for any bundle.
 //
-// Guarantee: for EVERY 6-digit colour the result has a WCAG contrast >= 4.5:1 (worst case 4.58:1). A plain white-or-ink
-// choice cannot give that (worst case 4.23:1: mid-tone brand colours land in a dead zone), so pure black is the fallback.
+// Guarantee: for EVERY 6-digit colour the result has a WCAG contrast >= 4.5:1 (worst case 4.50:1, exactly at the threshold).
+// A plain white-or-ink choice cannot give that (worst case 4.16:1: mid-tone brand colours land in a dead zone), so pure black is the fallback.
 //
 // public/chat-widget.js, public/website-widgets.js and supabase/functions/_shared/direct-mail/engine.ts cannot import this
 // file; they carry a marked copy of the same algorithm. readableText.parity.test.ts fails if a copy drifts.
@@ -31,7 +31,9 @@ function parse(input: string): [number, number, number] | null {
   return [0, 2, 4].map((i) => parseInt(full.slice(i, i + 2), 16)) as [number, number, number];
 }
 
-const INK_LUMINANCE = luminance(15, 23, 42);
+// Must be the luminance of INK itself (#1C1B15 = 28, 27, 21). It was left at the old ink (15, 23, 42) after the ink changed,
+// which let mid-tone colours fall to 4.35:1.
+const INK_LUMINANCE = luminance(28, 27, 21);
 
 const ratio = (a: number, b: number): number => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
 
