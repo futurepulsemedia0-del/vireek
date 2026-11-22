@@ -38,6 +38,7 @@ if (manifest) {
   }
   must(!manifest.includes('ACCESS_BACKGROUND_LOCATION'), 'AndroidManifest: ACCESS_BACKGROUND_LOCATION triggers Play background-location review — the foreground service is enough');
   must(manifest.includes('android:allowBackup="false"'), 'AndroidManifest: allowBackup must be "false" (session data)');
+  should(manifest.includes('@style/AppTheme.VireekLaunch'), 'AndroidManifest: MainActivity must use @style/AppTheme.VireekLaunch (no static native splash, the animated web boot is the only one)');
   must(manifest.includes('android:autoVerify="true"'), 'AndroidManifest: verified App Links intent-filter missing');
   must(manifest.includes('android:scheme="vireek"'), 'AndroidManifest: vireek:// scheme intent-filter missing');
   must(manifest.includes('ic_stat_vireek'), 'AndroidManifest: notification icon meta-data missing');
