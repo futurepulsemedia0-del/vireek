@@ -70,7 +70,7 @@ import { useDirection } from '@/hooks/useDirection';
 import { useEntitlements } from '@/hooks/useEntitlement';
 import { passesModuleGate } from '@/lib/entitlements';
 import { navLabelKey } from '@/lib/navLabel';
-import { PILLARS, audienceFor, groupByPillar, isLab, pillarFor, plainLabel, searchTerms } from '@/lib/surface/surface';
+import { PILLARS, audienceFor, groupByPillar, isLab, pillarFor, plainLabel, searchTerms, visibleToAudience } from '@/lib/surface/surface';
 import type { PillarId } from '@/lib/surface/surface';
 import { Accessibility as AccessibilityIcon, MessageCircle as AskDataIcon } from 'lucide-react';
 import { openAccessibilityCenter, openAskData } from '@/lib/uiEvents';
@@ -79,6 +79,11 @@ import { useSimpleMode } from '@/hooks/useSimpleMode';
 import { filterToSimpleNav } from '@/lib/simpleMode';
 import { MobileBottomNav } from '@/components/mobile/MobileBottomNav';
 import { FrequentPages } from '@/components/nav/FrequentPages';
+import { PinnedShortcuts } from '@/components/nav/PinnedShortcuts';
+import { useNavPrefs } from '@/hooks/useNavPrefs';
+import { isPinned, visiblePinned } from '@/lib/navPrefs';
+import { normalizeHref } from '@/lib/navFrequent';
+import { LayoutGrid, Pin, PinOff } from 'lucide-react';
 import { Icon } from '@/components/ui/Icon';
 import { IconButton } from '@/components/ui/IconButton';
 import { isNavItemActive } from '@/lib/navActive';
@@ -550,6 +555,7 @@ export const ACCOUNT_ITEMS: NavItem[] = [
   { label: 'Email Settings', href: '/dashboard/settings/email', icon: Mail, requiresPermission: 'can_edit_business_profile' },
   { label: 'Settings', href: '/dashboard/settings', icon: Settings },
   { label: 'Settings Center', href: '/dashboard/settings/center', icon: SlidersHorizontal },
+  { label: 'Navigation Center', href: '/dashboard/navigation', icon: LayoutGrid },
   { label: 'Chat Widget', href: '/dashboard/settings/chat-widget', icon: MessageCircle, requiresPermission: 'can_edit_business_profile' },
   { label: 'Website Widgets', href: '/dashboard/settings/website-widgets', icon: Globe, requiresPermission: 'can_edit_business_profile' },
   { label: 'Trust Badge', href: '/dashboard/settings/trust-badge', icon: Globe, requiresPermission: 'can_edit_business_profile' },
@@ -678,14 +684,37 @@ function AccountMenu({
               <Icon icon={Settings} size="sm" className="text-text-muted" />
               {t('nav.account.settings', { defaultValue: 'Settings' })}
             </Link>
+            <Link to="/dashboard/navigation" onClick={() => { close(); onNavigate(); }} className={MENU_ITEM}>
+              <Icon icon={LayoutGrid} size="sm" className="text-text-muted" />
+              {t('nav.menu.navigationCenter', { defaultValue: 'Navigation center' })}
+            </Link>
             <button type="button" onClick={() => { close(); onShortcuts(); }} className={MENU_ITEM}>
               <Icon icon={Keyboard} size="sm" className="text-text-muted" />
-              {t('nav.account.shortcuts', { defaultValue: 'Keyboard shortcuts' })}
+              <span className="flex-1">{t('nav.account.shortcuts', { defaultValue: 'Keyboard shortcuts' })}</span>
+              <kbd className="rounded border border-border px-1.5 text-[11px] font-medium text-text-muted">?</kbd>
             </button>
             <button type="button" onClick={() => { close(); onAccessibility(); }} className={MENU_ITEM}>
               <Icon icon={AccessibilityIcon} size="sm" className="text-text-muted" />
               {t('nav.accessibility', { defaultValue: 'Accessibility' })}
             </button>
+            <button type="button" onClick={() => { close(); onAccessibility(); }} className={MENU_ITEM}>
+              <Icon icon={Languages} size="sm" className="text-text-muted" />
+              {t('nav.menu.language', { defaultValue: 'Language' })}
+            </button>
+          </div>
+          <div className="mt-1.5 border-t border-border pt-1.5">
+            <Link to="/dashboard/help" onClick={() => { close(); onNavigate(); }} className={MENU_ITEM}>
+              <Icon icon={BookOpen} size="sm" className="text-text-muted" />
+              {t('nav.menu.help', { defaultValue: 'Help center' })}
+            </Link>
+            <Link to="/dashboard/whats-new" onClick={() => { close(); onNavigate(); }} className={MENU_ITEM}>
+              <Icon icon={FileClock} size="sm" className="text-text-muted" />
+              {t('nav.menu.whatsNew', { defaultValue: 'What’s new' })}
+            </Link>
+            <Link to="/status" onClick={() => { close(); onNavigate(); }} className={MENU_ITEM}>
+              <Icon icon={Activity} size="sm" className="text-text-muted" />
+              {t('nav.menu.status', { defaultValue: 'System status' })}
+            </Link>
           </div>
           <div className="mt-1.5 border-t border-border pt-1.5">
             <button type="button" onClick={() => { close(); onSignOut(); }} className={MENU_ITEM}>
@@ -762,6 +791,7 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
   const { t } = useTranslation('dashboard');
   const { isRtl } = useDirection();
   const label = (text: string) => t(navLabelKey(text), { defaultValue: text });
+  const navPrefs = useNavPrefs(user?.id);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [shortcutsHelpOpen, setShortcutsHelpOpen] = useState(false);
 
@@ -831,6 +861,14 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
   const allVisible = [...visiblePrimary, ...visibleAccount];
   const pillarGroups = groupByPillar(simpleMode.active ? filterToSimpleNav(allVisible) : allVisible, { audience, showLabs: labsVisible && !simpleMode.active });
   const overview = visiblePrimary.find((i) => i.href === '/dashboard');
+  // Shortcuts (pins): only pages this person can already open (permissions + audience applied).
+  const pinAllowed: ReadonlySet<string> = new Set(allVisible.filter((i) => visibleToAudience(i.href, audience)).map((i) => normalizeHref(i.href)));
+  const itemByHref = new Map(allVisible.map((i) => [normalizeHref(i.href), i] as const));
+  const pinnedItems = visiblePinned(navPrefs.prefs, pinAllowed).flatMap((h) => {
+    const found = itemByHref.get(h);
+    return found ? [found] : [];
+  });
+  const pinnedSet = new Set(pinnedItems.map((i) => normalizeHref(i.href)));
 
   const handleSignOut = async () => {
     await signOut();
@@ -838,25 +876,56 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
     navigate('/login', { replace: true });
   };
 
-  function NavLink({ item }: { item: NavItem }) {
+  function NavLink({ item, pinnable = true }: { item: NavItem; pinnable?: boolean }) {
     const active = isActive(item.href);
+    const name = label(plainLabel(item.href, item.label));
+    const pinned = isPinned(navPrefs.prefs, item.href);
+    const canPin = pinnable && pinAllowed.has(normalizeHref(item.href));
+    const pinLabel = pinned
+      ? t('nav.pin.unpin', { name, defaultValue: 'Unpin {{name}} from shortcuts' })
+      : t('nav.pin.pin', { name, defaultValue: 'Pin {{name}} to shortcuts' });
     return (
-      <Link
-        key={item.href}
-        to={item.href}
-        onClick={() => setDrawerOpen(false)}
-        aria-current={active ? 'page' : undefined}
-        className={`focus-ring group relative flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-[13px] leading-5 transition-colors ${
-          active
-            ? 'bg-bg-tertiary font-medium text-text-primary'
-            : 'text-text-secondary hover:bg-bg-tertiary/70 hover:text-text-primary'
-        }`}
-      >
-        {active && <span aria-hidden="true" className="absolute inset-y-1.5 start-0 w-0.5 rounded-full bg-accent" />}
-        <Icon icon={navIcon(item.href, item.icon)} size="sm" className={active ? 'text-accent' : 'text-text-muted group-hover:text-text-secondary'} />
-        <span className="min-w-0 flex-1 truncate">{label(plainLabel(item.href, item.label))}</span>
-        {item.href === '/dashboard/team-chat' && <ChatNavBadge />}
-      </Link>
+      <div className="group/row relative">
+        <Link
+          key={item.href}
+          to={item.href}
+          onClick={() => setDrawerOpen(false)}
+          aria-current={active ? 'page' : undefined}
+          className={`focus-ring group relative flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-[13px] leading-5 transition-colors ${
+            canPin ? (pinned ? 'pe-8' : 'group-hover/row:pe-8 group-focus-within/row:pe-8') : ''
+          } ${
+            active
+              ? 'bg-bg-tertiary font-medium text-text-primary'
+              : 'text-text-secondary hover:bg-bg-tertiary/70 hover:text-text-primary'
+          }`}
+        >
+          {active && <span aria-hidden="true" className="absolute inset-y-1.5 start-0 w-0.5 rounded-full bg-accent" />}
+          <Icon icon={navIcon(item.href, item.icon)} size="sm" className={active ? 'text-accent' : 'text-text-muted group-hover:text-text-secondary'} />
+          <span className="min-w-0 flex-1 truncate">{name}</span>
+          {item.href === '/dashboard/team-chat' && <ChatNavBadge />}
+        </Link>
+        {canPin && (
+          <button
+            type="button"
+            aria-pressed={pinned}
+            aria-label={pinLabel}
+            title={pinLabel}
+            onClick={() => {
+              const result = navPrefs.toggle(item.href, pinAllowed);
+              if (!result.ok && result.reason === 'limit') {
+                toast(t('nav.pin.limit', { count: 12, defaultValue: 'You can keep up to {{count}} shortcuts. Remove one to add another.' }), 'warning');
+              }
+            }}
+            className={`focus-ring absolute end-1 top-1/2 -translate-y-1/2 rounded-md p-1 transition-opacity hover:bg-bg-tertiary ${
+              pinned
+                ? 'text-accent opacity-100'
+                : 'text-text-muted opacity-0 hover:text-text-primary focus-visible:opacity-100 group-hover/row:opacity-100 [@media(hover:none)]:hidden'
+            }`}
+          >
+            <Icon icon={pinned ? PinOff : Pin} size="micro" />
+          </button>
+        )}
+      </div>
     );
   }
 
@@ -878,9 +947,10 @@ export function DashboardNav({ activeLabel }: { activeLabel: string }) {
 
   const levelOne = (
     <nav aria-label={t('nav.mainNavigation')} className="flex flex-col gap-0.5">
-      {overview && <NavLink item={overview} />}
+      {overview && <NavLink item={overview} pinnable={false} />}
+      <PinnedShortcuts items={pinnedItems} renderItem={(item) => <NavLink item={item} />} />
       <FrequentPages
-        candidates={pillarGroups.flatMap((g) => g.items)}
+        candidates={pillarGroups.flatMap((g) => g.items).filter((i) => !pinnedSet.has(normalizeHref(i.href)))}
         userId={user?.id}
         pathname={location.pathname}
         renderItem={(item) => <NavLink item={item} />}
