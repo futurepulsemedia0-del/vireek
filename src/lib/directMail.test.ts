@@ -116,7 +116,7 @@ describe('postcard artwork', () => {
     for (const size of ['4x6', '6x9', '6x11'] as const) {
       expect(buildFrontHtml({ ...art, size })).toContain(`width:${GEOMETRY[size].widthIn}in`);
     }
-    expect(buildFrontHtml({ ...art, accent: 'red;}</style><script>' })).toContain('#0F62FE');
+    expect(buildFrontHtml({ ...art, accent: 'red;}</style><script>' })).toContain('#0071E3');
   });
 
   it('builds the Lob request', () => {
