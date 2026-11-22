@@ -19,10 +19,12 @@ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { Webhook } from "npm:standardwebhooks@1.0.0";
 import { canonicalizeEmail, scoreSignup, splitEmail } from "../_shared/fraud/signupRisk.ts";
 import { hashKey, hookError, hookSecretBase64 } from "../_shared/fraud/hooks.ts";
+import { createSupabaseStore, type SupabaseLike } from "../_shared/sanctions/store.ts";
+import { runScreening } from "../_shared/sanctions/gate.ts";
 
 interface HookPayload {
   metadata?: { ip_address?: string };
-  user?: { email?: string; user_metadata?: { device_id?: unknown } };
+  user?: { email?: string; user_metadata?: { device_id?: unknown; full_name?: unknown }. };
 }
 
 Deno.serve(async (req: Request) => {
