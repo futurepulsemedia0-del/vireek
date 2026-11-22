@@ -16,6 +16,7 @@ on:
   pull_request:
     paths:
       - 'docs/compliance/soc2/**'
+      - 'docs/compliance/policies/**'
       - 'scripts/compliance/**'
       - '.github/workflows/compliance-evidence.yml'
 
@@ -78,6 +79,9 @@ jobs:
 
       - name: Sync control definitions
         run: node scripts/compliance/evidence.mjs sync
+
+      - name: Sync policy file hashes
+        run: node scripts/compliance/evidence.mjs sync-policies
 
       - name: Push CI evidence
         run: node scripts/compliance/evidence.mjs push --dir evidence-out
