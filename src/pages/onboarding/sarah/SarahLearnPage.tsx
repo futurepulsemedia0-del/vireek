@@ -135,21 +135,28 @@ export function SarahLearnPage({ embedded = false }: { embedded?: boolean } = {}
 
   return (
     <div className={embedded ? 'relative' : 'relative min-h-screen bg-bg-primary px-4 pb-16 pt-20 sm:px-6'}>
-      <header className="absolute inset-x-0 top-0 z-10 flex items-center justify-between px-4 py-4 sm:px-6">
-        <span className="flex items-center gap-2.5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-on-accent">
-            <Phone size={16} strokeWidth={2.5} aria-hidden="true" />
+      <header
+        className={
+          embedded
+            ? 'mx-auto mb-4 flex w-full max-w-2xl items-center justify-end'
+            : 'absolute inset-x-0 top-0 z-10 flex items-center justify-between px-4 py-4 sm:px-6'
+        }
+      >
+        {!embedded && (
+          <span className="flex items-center gap-2.5">
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-on-accent">
+              <Phone size={16} strokeWidth={2.5} aria-hidden="true" />
+            </span>
+            <span className="text-lg font-bold tracking-tight text-accent">Vireek</span>
           </span>
-          <span className="text-lg font-bold tracking-tight text-accent">Vireek</span>
-        </span>
+        )}
         <div className="flex items-center gap-3">
           <Link to="/onboarding/manual" className="focus-ring text-xs font-medium text-text-secondary hover:text-accent">
             {t('page.manual')}
           </Link>
-          <ThemeToggle />
+          {!embedded && <ThemeToggle />}
         </div>
       </header>
-
       <main className="mx-auto w-full max-w-2xl space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-text-primary sm:text-3xl">{t('page.title')}</h1>
