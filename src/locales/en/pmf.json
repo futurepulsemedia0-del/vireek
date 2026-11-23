@@ -1,0 +1,77 @@
+{
+  "prompt": {
+    "title": "Quick question",
+    "question": "How would you feel if you could no longer use Vireek?",
+    "answers": {
+      "very_disappointed": "Very disappointed",
+      "somewhat_disappointed": "Somewhat disappointed",
+      "not_disappointed": "Not disappointed",
+      "no_longer_use": "I no longer use Vireek"
+    },
+    "benefit": "What is the main benefit you get from Vireek? (optional)",
+    "improve": "What would make Vireek better for you? (optional)",
+    "send": "Send",
+    "sending": "Sending…",
+    "later": "Ask me later",
+    "never": "Don’t ask me again",
+    "dismiss": "Dismiss",
+    "thanks": "Thank you — this helps us decide what to build next."
+  },
+  "staff": {
+    "title": "Product-market fit",
+    "subtitle": "“How disappointed would you be” results and retention by segment. Aggregates only; groups under 5 are merged.",
+    "tabs": { "survey": "Survey", "retention": "Retention" },
+    "dimension": "Group by",
+    "dimensions": {
+      "all": "Everyone",
+      "plan": "Plan",
+      "role": "Role",
+      "trade": "Trade",
+      "team_size": "Team size",
+      "tenure_bucket": "Account age",
+      "usage_bucket": "Usage"
+    },
+    "days": "Period",
+    "daysOption": "Last {{count}} days",
+    "weeks": "Cohort weeks",
+    "weeksOption": "Last {{count}} weeks",
+    "loadError": "Couldn’t load this view",
+    "loadErrorHelp": "Check your connection and try again.",
+    "empty": { "title": "No responses yet", "text": "Answers appear here once eligible customers have been asked." },
+    "emptyRetention": { "title": "No cohorts in this period", "text": "Retention appears once accounts signed up in the selected weeks." },
+    "overall": "Overall: {{pct}}% very disappointed ({{n}} responses)",
+    "table": {
+      "segment": "Segment",
+      "n": "Responses",
+      "very": "Very",
+      "somewhat": "Somewhat",
+      "not": "Not",
+      "gone": "No longer use",
+      "pct": "% very disappointed",
+      "verdict": "Reading"
+    },
+    "verdict": {
+      "too_few": "Too few responses",
+      "below_benchmark": "Below 40%",
+      "at_or_above_benchmark": "At or above 40%"
+    },
+    "segment": {
+      "small_groups": "Groups under 5 (merged)",
+      "unknown": "Unknown",
+      "all": "Everyone",
+      "30_89d": "30–89 days",
+      "90_179d": "90–179 days",
+      "180d_plus": "180+ days",
+      "light": "Light (<10 per 30 days)",
+      "regular": "Regular (10–49)",
+      "heavy": "Heavy (50+)"
+    },
+    "retention": {
+      "caption": "Share of each signup-week cohort with at least one call or job in week N. Week 0 is the signup week.",
+      "week": "Week {{n}}",
+      "cohort": "{{active}} of {{total}} accounts",
+      "planNote": "Segments use each account’s current plan and signup answers, not the plan at signup."
+    },
+    "note": "The 40% line is a common rule of thumb, not a guarantee. See docs/analytics/pmf.md."
+  }
+}
