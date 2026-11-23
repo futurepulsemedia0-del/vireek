@@ -1,0 +1,48 @@
+{
+  "page": {
+    "title": "Learn",
+    "subtitle": "Short courses for your role, each tied to the real screens you use every day.",
+    "recommended": "Recommended for you",
+    "modules": "{{done}} of {{total}} modules complete",
+    "courseDone": "Course complete",
+    "minutes": "{{count}} min",
+    "openScreen": "Open the screen",
+    "startQuiz": "Take the quiz",
+    "retakeQuiz": "Retake the quiz",
+    "completed": "Completed",
+    "score": "Best score {{pct}}%",
+    "loadError": "Could not load your progress.",
+    "retry": "Try again",
+    "loading": "Loading courses…"
+  },
+  "quiz": {
+    "passMark": "Pass mark: {{pct}}%",
+    "submit": "Check my answers",
+    "answerAll": "Answer every question first.",
+    "passed": "Passed with {{pct}}% — module complete.",
+    "failed": "{{pct}}% — not there yet. Review the steps above and try again.",
+    "saveFailed": "You passed, but we could not save it. Try again.",
+    "close": "Close quiz",
+    "why": "Why:",
+    "correct": "Correct",
+    "incorrect": "Not quite",
+    "question": "Question {{n}} of {{total}}"
+  },
+  "objectives": "What you’ll learn",
+  "steps": "Do this on the screen",
+  "team": {
+    "title": "Team completion record",
+    "body": "Who has completed which modules. Scores are self-reported by the app, so this is a training record, not proof of compliance training.",
+    "person": "Person",
+    "course": "Course",
+    "modules": "Modules",
+    "last": "Last completed",
+    "empty": "Nobody on your team has completed a module yet.",
+    "loadError": "Could not load the team record."
+  },
+  "courses": {
+    "owner": "Owner course",
+    "dispatcher": "Dispatcher course",
+    "technician": "Technician course"
+  }
+}
