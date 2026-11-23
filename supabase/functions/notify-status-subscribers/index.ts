@@ -119,6 +119,13 @@ Deno.serve(async (req: Request) => {
   const fromEmail = Deno.env.get("RESEND_FROM_EMAIL") || "Vireek Status <status@resend.dev>";
   const siteUrl = (Deno.env.get("SITE_URL") || "https://vireek.com").replace(/\/$/, "");
   const impactLabel = impact === "major" ? "Major impact" : "Minor impact";
+  // Multi-paragraph summaries (blank-line separated) render as separate paragraphs; a one-line summary is unchanged.
+  const summaryHtml = summary
+    .split(/\n{2,}/)
+    .map((p) => p.trim())
+    .filter(Boolean)
+    .map((p) => `<p style="font-size: 15px; line-height: 1.6; color: #44423D; margin: 0 0 14px;">${escapeHtml(p).replace(/\n/g, "<br>")}</p>`)
+    .join("");
 
   let sent = 0;
   let failed = 0;
@@ -132,7 +139,7 @@ Deno.serve(async (req: Request) => {
       <div style="font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #1c1b15;">
         <p style="font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #73726c; margin: 0 0 16px;">Vireek Status &middot; ${escapeHtml(impactLabel)}</p>
         <h1 style="font-size: 22px; margin: 0 0 16px;">${escapeHtml(title)}</h1>
-        <p style="font-size: 15px; line-height: 1.6; color: #44423D;">${escapeHtml(summary)}</p>
+        ${summaryHtml}
         <a href="${siteUrl}/status"
            style="display: inline-block; margin-top: 24px; padding: 12px 24px; background: #1C1B15; color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 14px;">
           View live status
