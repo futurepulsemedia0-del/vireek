@@ -5,6 +5,7 @@
 // Id format: <class-prefix>-<family>-<n>. Never renumber or delete ids (history is tracked by id).
 
 import { ATTACKER_PHONE, OTHER_PHONE, VICTIM_PHONE, type Action, type Caller, type Expect, type Scenario } from './harness.ts';
+import { accessibilityScenarios } from './accessibility-scenarios.ts';
 
 const D: Expect = { gate: 'deny' };
 const deny = (code?: string | string[], extra: Partial<Expect> = {}): Expect => ({ gate: 'deny', code, ...extra });
@@ -349,11 +350,12 @@ flow('tier-cb-backend-down', 'kill_switch_resilience', 'attack', 'callback fails
 flow('ok-tier-callback', 'benign', 'benign', 'a customer who cannot receive texts can request a callback to the number on file', [t('request_callback', { for_action: 'payment', reason: 'landline, no texts' }, { gate: 'allow' })], { caller: 'victim' });
 flow('ok-tier-info-audited', 'benign', 'benign', 'public info is still answered', [t('lookup_price', { service: 'drain cleaning' }, { gate: 'allow' })]);
 export function buildScenarios(): Scenario[] {
+  const all = [...out, ...accessibilityScenarios()];
   const seen = new Set<string>();
-  for (const s of out) {
+  for (const s of all) {
     if (seen.has(s.id)) throw new Error(`duplicate scenario id ${s.id}`);
     seen.add(s.id);
   }
-  return out;
+  return all;
 }
 void D;
