@@ -1,224 +1,61 @@
-# CODEOWNERS - GENERATED FILE. Do not edit by hand.
-#
-# Source of truth: docs/governance/ownership-map.json   Overview: docs/governance/service-ownership.md
-# Regenerate with:  npm run owners:generate      Verify with:  npm run owners:check
-#
-# Last matching rule wins; one path pattern per line; every owner on a line is listed (primary first, then backup).
-# GitHub silently ignores owners that are invalid or lack write access, so a placeholder owner protects nothing.
+{
+  "$comment": "SOURCE OF TRUTH for code ownership. Fill in `roles` below, then run `npm run owners:generate` to rewrite .github/CODEOWNERS and docs/governance/service-ownership.md. Never edit those two files by hand.",
+  "version": 1,
+  "enforcePlaceholders": false,
+  "roles": {
+    "PLATFORM":     { "title": "Platform, CI and supply chain",      "primary": "@OWNER_PLATFORM",     "backup": "@BACKUP_PLATFORM" },
+    "FRONTEND":     { "title": "Web frontend",                       "primary": "@OWNER_FRONTEND",     "backup": "@BACKUP_FRONTEND" },
+    "MOBILE":       { "title": "Mobile (Capacitor iOS/Android)",     "primary": "@OWNER_MOBILE",       "backup": "@BACKUP_MOBILE" },
+    "BACKEND":      { "title": "Backend and edge functions (core)",  "primary": "@OWNER_BACKEND",      "backup": "@BACKUP_BACKEND" },
+    "DATA":         { "title": "Database, migrations, analytics",    "primary": "@OWNER_DATA",         "backup": "@BACKUP_DATA" },
+    "SECURITY":     { "title": "Security and trust",                 "primary": "@OWNER_SECURITY",     "backup": "@BACKUP_SECURITY" },
+    "COMPLIANCE":   { "title": "Compliance, privacy and registers",  "primary": "@OWNER_COMPLIANCE",   "backup": "@BACKUP_COMPLIANCE" },
+    "VOICE":        { "title": "Voice, telephony and messaging",     "primary": "@OWNER_VOICE",        "backup": "@BACKUP_VOICE" },
+    "BILLING":      { "title": "Billing, payments and financing",    "primary": "@OWNER_BILLING",      "backup": "@BACKUP_BILLING" },
+    "INTEGRATIONS": { "title": "Third-party integrations and sync",  "primary": "@OWNER_INTEGRATIONS", "backup": "@BACKUP_INTEGRATIONS" },
+    "GROWTH":       { "title": "Growth, marketing and reputation",   "primary": "@OWNER_GROWTH",       "backup": "@BACKUP_GROWTH" }
+  },
+  "domains": [
+    { "id": "fallback",         "area": "Repository",       "title": "Fallback for anything not listed below", "role": "PLATFORM", "paths": ["*"] },
 
-# Repository
-*                                                   @OWNER_PLATFORM @BACKUP_PLATFORM
-# Frontend
-/src/                                               @OWNER_FRONTEND @BACKUP_FRONTEND
-/src/App.tsx                                        @OWNER_FRONTEND @BACKUP_FRONTEND
-/src/routes/                                        @OWNER_FRONTEND @BACKUP_FRONTEND
-/src/contexts/                                      @OWNER_FRONTEND @BACKUP_FRONTEND
-/src/hooks/                                         @OWNER_FRONTEND @BACKUP_FRONTEND
-/src/pages/                                         @OWNER_FRONTEND @BACKUP_FRONTEND
-/src/components/                                    @OWNER_FRONTEND @BACKUP_FRONTEND
-/src/lib/                                           @OWNER_FRONTEND @BACKUP_FRONTEND
-/src/styles/                                        @OWNER_FRONTEND @BACKUP_FRONTEND
-/src/index.css                                      @OWNER_FRONTEND @BACKUP_FRONTEND
-/vireek-a11y/                                       @OWNER_FRONTEND @BACKUP_FRONTEND
-/.storybook/                                        @OWNER_FRONTEND @BACKUP_FRONTEND
-/src/i18n/                                          @OWNER_FRONTEND @BACKUP_FRONTEND
-/src/locales/                                       @OWNER_FRONTEND @BACKUP_FRONTEND
-/public/                                            @OWNER_FRONTEND @BACKUP_FRONTEND
-/e2e/                                               @OWNER_FRONTEND @BACKUP_FRONTEND
-/src/lib/native/                                    @OWNER_MOBILE @BACKUP_MOBILE
-/src/lib/trustPack/                                 @OWNER_SECURITY @BACKUP_SECURITY
-/public/.well-known/                                @OWNER_COMPLIANCE @BACKUP_COMPLIANCE
-# Edge functions
-/supabase/functions/                                @OWNER_BACKEND @BACKUP_BACKEND
-/supabase/functions/_shared/                        @OWNER_BACKEND @BACKUP_BACKEND
-/supabase/functions/ads-*/                          @OWNER_GROWTH @BACKUP_GROWTH
-/supabase/functions/marketing-*/                    @OWNER_GROWTH @BACKUP_GROWTH
-/supabase/functions/growth-*/                       @OWNER_GROWTH @BACKUP_GROWTH
-/supabase/functions/reputation*/                    @OWNER_GROWTH @BACKUP_GROWTH
-/supabase/functions/survey-*/                       @OWNER_GROWTH @BACKUP_GROWTH
-/supabase/functions/feedback-*/                     @OWNER_GROWTH @BACKUP_GROWTH
-/supabase/functions/blog-*/                         @OWNER_GROWTH @BACKUP_GROWTH
-/supabase/functions/careers-*/                      @OWNER_GROWTH @BACKUP_GROWTH
-/supabase/functions/contact-sales/                  @OWNER_GROWTH @BACKUP_GROWTH
-/supabase/functions/demo-chat/                      @OWNER_GROWTH @BACKUP_GROWTH
-/supabase/functions/lead-marketplace-*/             @OWNER_GROWTH @BACKUP_GROWTH
-/supabase/functions/email-campaign*/                @OWNER_GROWTH @BACKUP_GROWTH
-/supabase/functions/direct-mail-*/                  @OWNER_GROWTH @BACKUP_GROWTH
-/supabase/functions/lifecycle-touch-tick/           @OWNER_GROWTH @BACKUP_GROWTH
-/supabase/functions/win-card*/                      @OWNER_GROWTH @BACKUP_GROWTH
-/supabase/functions/analytics-*/                    @OWNER_DATA @BACKUP_DATA
-/supabase/functions/analyze-*/                      @OWNER_DATA @BACKUP_DATA
-/supabase/functions/bi-*/                           @OWNER_DATA @BACKUP_DATA
-/supabase/functions/compute-*/                      @OWNER_DATA @BACKUP_DATA
-/supabase/functions/causal-*/                       @OWNER_DATA @BACKUP_DATA
-/supabase/functions/data-platform-*/                @OWNER_DATA @BACKUP_DATA
-/supabase/functions/generate-insights/              @OWNER_DATA @BACKUP_DATA
-/supabase/functions/insights-api/                   @OWNER_DATA @BACKUP_DATA
-/supabase/functions/metrics-query/                  @OWNER_DATA @BACKUP_DATA
-/supabase/functions/state-of-calls-*/               @OWNER_DATA @BACKUP_DATA
-/supabase/functions/value-scoreboard-run/           @OWNER_DATA @BACKUP_DATA
-/supabase/functions/money-recovered-run/            @OWNER_DATA @BACKUP_DATA
-/supabase/functions/founder-kpis/                   @OWNER_DATA @BACKUP_DATA
-/supabase/functions/knowledge-*/                    @OWNER_DATA @BACKUP_DATA
-/supabase/functions/learning-policy-monitor/        @OWNER_DATA @BACKUP_DATA
-/supabase/functions/failure-genome-refresh/         @OWNER_DATA @BACKUP_DATA
-/supabase/functions/predictive-failure/             @OWNER_DATA @BACKUP_DATA
-/supabase/functions/shadow-*/                       @OWNER_DATA @BACKUP_DATA
-/supabase/functions/telemetry-*/                    @OWNER_DATA @BACKUP_DATA
-/supabase/functions/rum-ingest/                     @OWNER_DATA @BACKUP_DATA
-/supabase/functions/fx-rates-refresh/               @OWNER_DATA @BACKUP_DATA
-/supabase/functions/stripe-*/                       @OWNER_BILLING @BACKUP_BILLING
-/supabase/functions/pay-*/                          @OWNER_BILLING @BACKUP_BILLING
-/supabase/functions/payment-*/                      @OWNER_BILLING @BACKUP_BILLING
-/supabase/functions/phone-payment-*/                @OWNER_BILLING @BACKUP_BILLING
-/supabase/functions/create-checkout-session/        @OWNER_BILLING @BACKUP_BILLING
-/supabase/functions/create-billing-portal-session/  @OWNER_BILLING @BACKUP_BILLING
-/supabase/functions/create-payment-request/         @OWNER_BILLING @BACKUP_BILLING
-/supabase/functions/billing-invoices/               @OWNER_BILLING @BACKUP_BILLING
-/supabase/functions/send-billing-notices/           @OWNER_BILLING @BACKUP_BILLING
-/supabase/functions/send-payment-reminders/         @OWNER_BILLING @BACKUP_BILLING
-/supabase/functions/split-payment/                  @OWNER_BILLING @BACKUP_BILLING
-/supabase/functions/terminal-payments/              @OWNER_BILLING @BACKUP_BILLING
-/supabase/functions/instant-payouts/                @OWNER_BILLING @BACKUP_BILLING
-/supabase/functions/issue-refund/                   @OWNER_BILLING @BACKUP_BILLING
-/supabase/functions/public-payment/                 @OWNER_BILLING @BACKUP_BILLING
-/supabase/functions/financing-*/                    @OWNER_BILLING @BACKUP_BILLING
-/supabase/functions/capital-manage/                 @OWNER_BILLING @BACKUP_BILLING
-/supabase/functions/enforce-payment-suspension/     @OWNER_BILLING @BACKUP_BILLING
-/supabase/functions/manage-subscription-*/          @OWNER_BILLING @BACKUP_BILLING
-/supabase/functions/membership-*/                   @OWNER_BILLING @BACKUP_BILLING
-/supabase/functions/invoice-*/                      @OWNER_BILLING @BACKUP_BILLING
-/supabase/functions/statements-run/                 @OWNER_BILLING @BACKUP_BILLING
-/supabase/functions/results-plan-*/                 @OWNER_BILLING @BACKUP_BILLING
-/supabase/functions/tax-taxjar/                     @OWNER_BILLING @BACKUP_BILLING
-/supabase/functions/dispute-evidence/               @OWNER_BILLING @BACKUP_BILLING
-/supabase/functions/sla-credit-run/                 @OWNER_BILLING @BACKUP_BILLING
-/supabase/functions/franchise-royalty-issue/        @OWNER_BILLING @BACKUP_BILLING
-/supabase/functions/acct-*/                         @OWNER_INTEGRATIONS @BACKUP_INTEGRATIONS
-/supabase/functions/qbo-*/                          @OWNER_INTEGRATIONS @BACKUP_INTEGRATIONS
-/supabase/functions/xero-*/                         @OWNER_INTEGRATIONS @BACKUP_INTEGRATIONS
-/supabase/functions/intacct-*/                      @OWNER_INTEGRATIONS @BACKUP_INTEGRATIONS
-/supabase/functions/ns-*/                           @OWNER_INTEGRATIONS @BACKUP_INTEGRATIONS
-/supabase/functions/payroll-*/                      @OWNER_INTEGRATIONS @BACKUP_INTEGRATIONS
-/supabase/functions/crm-*/                          @OWNER_INTEGRATIONS @BACKUP_INTEGRATIONS
-/supabase/functions/hubspot-*/                      @OWNER_INTEGRATIONS @BACKUP_INTEGRATIONS
-/supabase/functions/jobber-*/                       @OWNER_INTEGRATIONS @BACKUP_INTEGRATIONS
-/supabase/functions/price-book-*/                   @OWNER_INTEGRATIONS @BACKUP_INTEGRATIONS
-/supabase/functions/google-*/                       @OWNER_INTEGRATIONS @BACKUP_INTEGRATIONS
-/supabase/functions/microsoft-calendar-*/           @OWNER_INTEGRATIONS @BACKUP_INTEGRATIONS
-/supabase/functions/gbp-sync/                       @OWNER_INTEGRATIONS @BACKUP_INTEGRATIONS
-/supabase/functions/listings*/                      @OWNER_INTEGRATIONS @BACKUP_INTEGRATIONS
-/supabase/functions/pm-*/                           @OWNER_INTEGRATIONS @BACKUP_INTEGRATIONS
-/supabase/functions/provider-*/                     @OWNER_INTEGRATIONS @BACKUP_INTEGRATIONS
-/supabase/functions/integration-reconcile/          @OWNER_INTEGRATIONS @BACKUP_INTEGRATIONS
-/supabase/functions/bank-*/                         @OWNER_INTEGRATIONS @BACKUP_INTEGRATIONS
-/supabase/functions/chat-*/                         @OWNER_INTEGRATIONS @BACKUP_INTEGRATIONS
-/supabase/functions/dm-*/                           @OWNER_INTEGRATIONS @BACKUP_INTEGRATIONS
-/supabase/functions/external-world-sync/            @OWNER_INTEGRATIONS @BACKUP_INTEGRATIONS
-/supabase/functions/fabric-ingest/                  @OWNER_INTEGRATIONS @BACKUP_INTEGRATIONS
-/supabase/functions/data-import-run/                @OWNER_INTEGRATIONS @BACKUP_INTEGRATIONS
-/supabase/functions/import-framework/               @OWNER_INTEGRATIONS @BACKUP_INTEGRATIONS
-/supabase/functions/event-bus-dispatch/             @OWNER_INTEGRATIONS @BACKUP_INTEGRATIONS
-/supabase/functions/webhook-outbox-worker/          @OWNER_INTEGRATIONS @BACKUP_INTEGRATIONS
-/supabase/functions/wallet-*/                       @OWNER_INTEGRATIONS @BACKUP_INTEGRATIONS
-/supabase/functions/telematics-*/                   @OWNER_INTEGRATIONS @BACKUP_INTEGRATIONS
-/supabase/functions/job-feeds/                      @OWNER_INTEGRATIONS @BACKUP_INTEGRATIONS
-/supabase/functions/punchout-*/                     @OWNER_INTEGRATIONS @BACKUP_INTEGRATIONS
-/supabase/functions/talent-*/                       @OWNER_INTEGRATIONS @BACKUP_INTEGRATIONS
-/supabase/functions/voice-*/                        @OWNER_VOICE @BACKUP_VOICE
-/supabase/functions/vapi-*/                         @OWNER_VOICE @BACKUP_VOICE
-/supabase/functions/pbx-*/                          @OWNER_VOICE @BACKUP_VOICE
-/supabase/functions/call-*/                         @OWNER_VOICE @BACKUP_VOICE
-/supabase/functions/csr-*/                          @OWNER_VOICE @BACKUP_VOICE
-/supabase/functions/dialer-call/                    @OWNER_VOICE @BACKUP_VOICE
-/supabase/functions/outbound-dialer/                @OWNER_VOICE @BACKUP_VOICE
-/supabase/functions/live-*/                         @OWNER_VOICE @BACKUP_VOICE
-/supabase/functions/proxy-call-bridge/              @OWNER_VOICE @BACKUP_VOICE
-/supabase/functions/interpreter*/                   @OWNER_VOICE @BACKUP_VOICE
-/supabase/functions/sms-*/                          @OWNER_VOICE @BACKUP_VOICE
-/supabase/functions/whatsapp-*/                     @OWNER_VOICE @BACKUP_VOICE
-/supabase/functions/messenger-webhook/              @OWNER_VOICE @BACKUP_VOICE
-/supabase/functions/telegram-webhook/               @OWNER_VOICE @BACKUP_VOICE
-/supabase/functions/register-a2p-brand/             @OWNER_VOICE @BACKUP_VOICE
-/supabase/functions/clone-voice/                    @OWNER_VOICE @BACKUP_VOICE
-/supabase/functions/delete-cloned-voice/            @OWNER_VOICE @BACKUP_VOICE
-/supabase/functions/rich-*/                         @OWNER_VOICE @BACKUP_VOICE
-/supabase/functions/speed-to-lead-intake/           @OWNER_VOICE @BACKUP_VOICE
-/supabase/functions/admin-sso/                      @OWNER_SECURITY @BACKUP_SECURITY
-/supabase/functions/auth-*/                         @OWNER_SECURITY @BACKUP_SECURITY
-/supabase/functions/check-ip-policy/                @OWNER_SECURITY @BACKUP_SECURITY
-/supabase/functions/login-alert/                    @OWNER_SECURITY @BACKUP_SECURITY
-/supabase/functions/mfa-recovery/                   @OWNER_SECURITY @BACKUP_SECURITY
-/supabase/functions/otp-request/                    @OWNER_SECURITY @BACKUP_SECURITY
-/supabase/functions/scim-v2/                        @OWNER_SECURITY @BACKUP_SECURITY
-/supabase/functions/security-event-notify/          @OWNER_SECURITY @BACKUP_SECURITY
-/supabase/functions/siem-stream/                    @OWNER_SECURITY @BACKUP_SECURITY
-/supabase/functions/staff-impersonate/              @OWNER_SECURITY @BACKUP_SECURITY
-/supabase/functions/trust-*/                        @OWNER_SECURITY @BACKUP_SECURITY
-/supabase/functions/trusted-device/                 @OWNER_SECURITY @BACKUP_SECURITY
-/supabase/functions/audit-*/                        @OWNER_SECURITY @BACKUP_SECURITY
-/supabase/functions/fraud-*/                        @OWNER_SECURITY @BACKUP_SECURITY
-/supabase/functions/identity-signal-scan/           @OWNER_SECURITY @BACKUP_SECURITY
-/supabase/functions/release-guard-tick/             @OWNER_SECURITY @BACKUP_SECURITY
-/supabase/functions/check-credential-expirations/   @OWNER_SECURITY @BACKUP_SECURITY
-/supabase/functions/compliance-*/                   @OWNER_COMPLIANCE @BACKUP_COMPLIANCE
-/supabase/functions/data-retention-sweep/           @OWNER_COMPLIANCE @BACKUP_COMPLIANCE
-/supabase/functions/delete-account/                 @OWNER_COMPLIANCE @BACKUP_COMPLIANCE
-/supabase/functions/homeowner-delete-account/       @OWNER_COMPLIANCE @BACKUP_COMPLIANCE
-/supabase/functions/dsar-request/                   @OWNER_COMPLIANCE @BACKUP_COMPLIANCE
-/supabase/functions/tenant-export/                  @OWNER_COMPLIANCE @BACKUP_COMPLIANCE
-/supabase/functions/tenant-import/                  @OWNER_COMPLIANCE @BACKUP_COMPLIANCE
-/supabase/functions/export-run/                     @OWNER_COMPLIANCE @BACKUP_COMPLIANCE
-/supabase/functions/subprocessor-notice-dispatch/   @OWNER_COMPLIANCE @BACKUP_COMPLIANCE
-/supabase/functions/unsubscribe-status-updates/     @OWNER_COMPLIANCE @BACKUP_COMPLIANCE
-/supabase/functions/email-unsubscribe/              @OWNER_COMPLIANCE @BACKUP_COMPLIANCE
-/supabase/functions/conversation-intel-purge/       @OWNER_COMPLIANCE @BACKUP_COMPLIANCE
-/supabase/functions/quote-video-retention-sweep/    @OWNER_COMPLIANCE @BACKUP_COMPLIANCE
-/supabase/functions/voice-consent/                  @OWNER_COMPLIANCE @BACKUP_COMPLIANCE
-/supabase/functions/ai-disclosure-drift-scan/       @OWNER_COMPLIANCE @BACKUP_COMPLIANCE
-/supabase/functions/ai-eval-run/                    @OWNER_COMPLIANCE @BACKUP_COMPLIANCE
-/supabase/functions/dr-*/                           @OWNER_PLATFORM @BACKUP_PLATFORM
-/supabase/functions/observability-alerts/           @OWNER_PLATFORM @BACKUP_PLATFORM
-/supabase/functions/slo-evaluate/                   @OWNER_PLATFORM @BACKUP_PLATFORM
-/supabase/functions/synthetic-*/                    @OWNER_PLATFORM @BACKUP_PLATFORM
-/supabase/functions/_shared/ai-core/                @OWNER_SECURITY @BACKUP_SECURITY
-/supabase/functions/_shared/voice-security/         @OWNER_VOICE @BACKUP_VOICE
-/supabase/functions/vapi-webhook/                   @OWNER_VOICE @BACKUP_VOICE
-# Database
-/supabase/migrations/                               @OWNER_DATA @BACKUP_DATA
-/supabase/tests/                                    @OWNER_DATA @BACKUP_DATA
-/supabase/config.toml                               @OWNER_DATA @BACKUP_DATA
-/supabase/seed/                                     @OWNER_DATA @BACKUP_DATA
-/demo-seed.sql                                      @OWNER_DATA @BACKUP_DATA
-# Security
-/scripts/security/                                  @OWNER_SECURITY @BACKUP_SECURITY
-/docs/security/                                     @OWNER_SECURITY @BACKUP_SECURITY
-/SECURITY.md                                        @OWNER_SECURITY @BACKUP_SECURITY
-/.gitleaks.toml                                     @OWNER_SECURITY @BACKUP_SECURITY
-/scripts/ai-governance/                             @OWNER_SECURITY @BACKUP_SECURITY
-# Compliance
-/docs/ai-governance/                                @OWNER_COMPLIANCE @BACKUP_COMPLIANCE
-# Mobile
-/ios/                                               @OWNER_MOBILE @BACKUP_MOBILE
-/android/                                           @OWNER_MOBILE @BACKUP_MOBILE
-/capacitor.config.ts                                @OWNER_MOBILE @BACKUP_MOBILE
-/docs/MOBILE_RELEASE.md                             @OWNER_MOBILE @BACKUP_MOBILE
-# Voice
-/eval/voice-redteam/                                @OWNER_VOICE @BACKUP_VOICE
-/docs/voice/                                        @OWNER_VOICE @BACKUP_VOICE
-# Platform
-/.github/                                           @OWNER_PLATFORM @BACKUP_PLATFORM
-/scripts/governance/                                @OWNER_PLATFORM @BACKUP_PLATFORM
-/scripts/supply-chain/                              @OWNER_PLATFORM @BACKUP_PLATFORM
-/package.json                                       @OWNER_PLATFORM @BACKUP_PLATFORM
-/package-lock.json                                  @OWNER_PLATFORM @BACKUP_PLATFORM
-/docs/adr/                                          @OWNER_PLATFORM @BACKUP_PLATFORM
-/docs/governance/                                   @OWNER_PLATFORM @BACKUP_PLATFORM
-/docs/governance/license-policy.json                @OWNER_COMPLIANCE @BACKUP_COMPLIANCE
-/docs/governance/ASSET_LICENSES.csv                 @OWNER_COMPLIANCE @BACKUP_COMPLIANCE
-# Compliance
-/docs/compliance/                                   @OWNER_COMPLIANCE @BACKUP_COMPLIANCE
-/docs/registers/                                    @OWNER_COMPLIANCE @BACKUP_COMPLIANCE
-/docs/claims-register.json                          @OWNER_COMPLIANCE @BACKUP_COMPLIANCE
-/scripts/check-claims.mjs                           @OWNER_COMPLIANCE @BACKUP_COMPLIANCE
-/scripts/registers/                                 @OWNER_COMPLIANCE @BACKUP_COMPLIANCE
+    { "id": "fe-app",           "area": "Frontend",         "title": "App shell, routes, contexts, hooks",     "role": "FRONTEND", "paths": ["/src/", "/src/App.tsx", "/src/routes/", "/src/contexts/", "/src/hooks/"] },
+    { "id": "fe-pages",         "area": "Frontend",         "title": "Pages (marketing and dashboard)",        "role": "FRONTEND", "paths": ["/src/pages/"] },
+    { "id": "fe-components",    "area": "Frontend",         "title": "Shared components",                      "role": "FRONTEND", "paths": ["/src/components/"] },
+    { "id": "fe-lib",           "area": "Frontend",         "title": "Client libraries and API clients",       "role": "FRONTEND", "paths": ["/src/lib/"] },
+    { "id": "fe-design",        "area": "Frontend",         "title": "Design tokens, styles, accessibility",   "role": "FRONTEND", "paths": ["/src/styles/", "/src/index.css", "/vireek-a11y/", "/.storybook/"] },
+    { "id": "fe-i18n",          "area": "Frontend",         "title": "Localization (i18n, locales)",           "role": "FRONTEND", "paths": ["/src/i18n/", "/src/locales/"] },
+    { "id": "fe-static",        "area": "Frontend",         "title": "Static assets and end-to-end tests",     "role": "FRONTEND", "paths": ["/public/", "/e2e/"] },
+    { "id": "fe-native",        "area": "Frontend",         "title": "Native bridge in the web app",           "role": "MOBILE",   "paths": ["/src/lib/native/"] },
+    { "id": "fe-trustpack",     "area": "Frontend",         "title": "Trust pack client code",                 "role": "SECURITY", "paths": ["/src/lib/trustPack/"] },
+    { "id": "fe-wellknown",     "area": "Frontend",         "title": "Public .well-known files",               "role": "COMPLIANCE", "paths": ["/public/.well-known/"] },
+
+    { "id": "fn-core",          "area": "Edge functions",   "title": "Core edge functions (default group)",    "role": "BACKEND",  "paths": ["/supabase/functions/"] },
+    { "id": "fn-shared",        "area": "Edge functions",   "title": "Shared edge code (_shared)",             "role": "BACKEND",  "paths": ["/supabase/functions/_shared/"] },
+    { "id": "fn-growth",        "area": "Edge functions",   "title": "Growth, marketing, reputation, surveys", "role": "GROWTH",   "paths": ["/supabase/functions/ads-*/", "/supabase/functions/marketing-*/", "/supabase/functions/growth-*/", "/supabase/functions/reputation*/", "/supabase/functions/survey-*/", "/supabase/functions/feedback-*/", "/supabase/functions/blog-*/", "/supabase/functions/careers-*/", "/supabase/functions/contact-sales/", "/supabase/functions/demo-chat/", "/supabase/functions/lead-marketplace-*/", "/supabase/functions/email-campaign*/", "/supabase/functions/direct-mail-*/", "/supabase/functions/lifecycle-touch-tick/", "/supabase/functions/win-card*/"] },
+    { "id": "fn-data",          "area": "Edge functions",   "title": "Analytics, BI, learning and intelligence", "role": "DATA",   "paths": ["/supabase/functions/analytics-*/", "/supabase/functions/analyze-*/", "/supabase/functions/bi-*/", "/supabase/functions/compute-*/", "/supabase/functions/causal-*/", "/supabase/functions/data-platform-*/", "/supabase/functions/generate-insights/", "/supabase/functions/insights-api/", "/supabase/functions/metrics-query/", "/supabase/functions/state-of-calls-*/", "/supabase/functions/value-scoreboard-run/", "/supabase/functions/money-recovered-run/", "/supabase/functions/founder-kpis/", "/supabase/functions/knowledge-*/", "/supabase/functions/learning-policy-monitor/", "/supabase/functions/failure-genome-refresh/", "/supabase/functions/predictive-failure/", "/supabase/functions/shadow-*/", "/supabase/functions/telemetry-*/", "/supabase/functions/rum-ingest/", "/supabase/functions/fx-rates-refresh/"] },
+    { "id": "fn-billing",       "area": "Edge functions",   "title": "Billing, payments, financing",           "role": "BILLING",  "paths": ["/supabase/functions/stripe-*/", "/supabase/functions/pay-*/", "/supabase/functions/payment-*/", "/supabase/functions/phone-payment-*/", "/supabase/functions/create-checkout-session/", "/supabase/functions/create-billing-portal-session/", "/supabase/functions/create-payment-request/", "/supabase/functions/billing-invoices/", "/supabase/functions/send-billing-notices/", "/supabase/functions/send-payment-reminders/", "/supabase/functions/split-payment/", "/supabase/functions/terminal-payments/", "/supabase/functions/instant-payouts/", "/supabase/functions/issue-refund/", "/supabase/functions/public-payment/", "/supabase/functions/financing-*/", "/supabase/functions/capital-manage/", "/supabase/functions/enforce-payment-suspension/", "/supabase/functions/manage-subscription-*/", "/supabase/functions/membership-*/", "/supabase/functions/invoice-*/", "/supabase/functions/statements-run/", "/supabase/functions/results-plan-*/", "/supabase/functions/tax-taxjar/", "/supabase/functions/dispute-evidence/", "/supabase/functions/sla-credit-run/", "/supabase/functions/franchise-royalty-issue/"] },
+    { "id": "fn-integrations",  "area": "Edge functions",   "title": "Accounting, CRM, calendar, payroll, listings integrations", "role": "INTEGRATIONS", "paths": ["/supabase/functions/acct-*/", "/supabase/functions/qbo-*/", "/supabase/functions/xero-*/", "/supabase/functions/intacct-*/", "/supabase/functions/ns-*/", "/supabase/functions/payroll-*/", "/supabase/functions/crm-*/", "/supabase/functions/hubspot-*/", "/supabase/functions/jobber-*/", "/supabase/functions/price-book-*/", "/supabase/functions/google-*/", "/supabase/functions/microsoft-calendar-*/", "/supabase/functions/gbp-sync/", "/supabase/functions/listings*/", "/supabase/functions/pm-*/", "/supabase/functions/provider-*/", "/supabase/functions/integration-reconcile/", "/supabase/functions/bank-*/", "/supabase/functions/chat-*/", "/supabase/functions/dm-*/", "/supabase/functions/external-world-sync/", "/supabase/functions/fabric-ingest/", "/supabase/functions/data-import-run/", "/supabase/functions/import-framework/", "/supabase/functions/event-bus-dispatch/", "/supabase/functions/webhook-outbox-worker/", "/supabase/functions/wallet-*/", "/supabase/functions/telematics-*/", "/supabase/functions/job-feeds/", "/supabase/functions/punchout-*/", "/supabase/functions/talent-*/"] },
+    { "id": "fn-voice",         "area": "Edge functions",   "title": "Voice, telephony, SMS and messaging channels", "role": "VOICE", "paths": ["/supabase/functions/voice-*/", "/supabase/functions/vapi-*/", "/supabase/functions/pbx-*/", "/supabase/functions/call-*/", "/supabase/functions/csr-*/", "/supabase/functions/dialer-call/", "/supabase/functions/outbound-dialer/", "/supabase/functions/live-*/", "/supabase/functions/proxy-call-bridge/", "/supabase/functions/interpreter*/", "/supabase/functions/sms-*/", "/supabase/functions/whatsapp-*/", "/supabase/functions/messenger-webhook/", "/supabase/functions/telegram-webhook/", "/supabase/functions/register-a2p-brand/", "/supabase/functions/clone-voice/", "/supabase/functions/delete-cloned-voice/", "/supabase/functions/rich-*/", "/supabase/functions/speed-to-lead-intake/"] },
+    { "id": "fn-security",      "area": "Edge functions",   "title": "Authentication, access control, security and trust", "role": "SECURITY", "paths": ["/supabase/functions/admin-sso/", "/supabase/functions/auth-*/", "/supabase/functions/check-ip-policy/", "/supabase/functions/login-alert/", "/supabase/functions/mfa-recovery/", "/supabase/functions/otp-request/", "/supabase/functions/scim-v2/", "/supabase/functions/security-event-notify/", "/supabase/functions/siem-stream/", "/supabase/functions/staff-impersonate/", "/supabase/functions/trust-*/", "/supabase/functions/trusted-device/", "/supabase/functions/audit-*/", "/supabase/functions/fraud-*/", "/supabase/functions/identity-signal-scan/", "/supabase/functions/release-guard-tick/", "/supabase/functions/check-credential-expirations/"] },
+    { "id": "fn-compliance",    "area": "Edge functions",   "title": "Privacy, retention, exports and compliance", "role": "COMPLIANCE", "paths": ["/supabase/functions/compliance-*/", "/supabase/functions/data-retention-sweep/", "/supabase/functions/delete-account/", "/supabase/functions/homeowner-delete-account/", "/supabase/functions/dsar-request/", "/supabase/functions/tenant-export/", "/supabase/functions/tenant-import/", "/supabase/functions/export-run/", "/supabase/functions/subprocessor-notice-dispatch/", "/supabase/functions/unsubscribe-status-updates/", "/supabase/functions/email-unsubscribe/", "/supabase/functions/conversation-intel-purge/", "/supabase/functions/quote-video-retention-sweep/", "/supabase/functions/voice-consent/", "/supabase/functions/ai-disclosure-drift-scan/", "/supabase/functions/ai-eval-run/"] },
+    { "id": "fn-platform",      "area": "Edge functions",   "title": "Reliability, DR, observability",          "role": "PLATFORM", "paths": ["/supabase/functions/dr-*/", "/supabase/functions/observability-alerts/", "/supabase/functions/slo-evaluate/", "/supabase/functions/synthetic-*/"] },
+    { "id": "fn-ai-core",       "area": "Edge functions",   "title": "AI core shared code",                     "role": "SECURITY", "paths": ["/supabase/functions/_shared/ai-core/"] },
+    { "id": "fn-voice-shared",  "area": "Edge functions",   "title": "Voice security shared code and Vapi webhook", "role": "VOICE", "paths": ["/supabase/functions/_shared/voice-security/", "/supabase/functions/vapi-webhook/"] },
+
+    { "id": "db-migrations",    "area": "Database",         "title": "SQL migrations (schema review gate)",     "role": "DATA",     "paths": ["/supabase/migrations/"] },
+    { "id": "db-tests",         "area": "Database",         "title": "Database tests and Supabase config",      "role": "DATA",     "paths": ["/supabase/tests/", "/supabase/config.toml"] },
+    { "id": "db-seed",          "area": "Database",         "title": "Seed and demo data",                      "role": "DATA",     "paths": ["/supabase/seed/", "/demo-seed.sql"] },
+
+    { "id": "sec-tooling",      "area": "Security",         "title": "Security tooling and docs",               "role": "SECURITY", "paths": ["/scripts/security/", "/docs/security/", "/SECURITY.md", "/.gitleaks.toml"] },
+    { "id": "sec-ai",           "area": "Security",         "title": "AI governance scripts",                   "role": "SECURITY", "paths": ["/scripts/ai-governance/"] },
+    { "id": "comp-ai-docs",     "area": "Compliance",       "title": "AI governance documents",                 "role": "COMPLIANCE", "paths": ["/docs/ai-governance/"] },
+
+    { "id": "mobile",           "area": "Mobile",           "title": "Native projects and release docs",        "role": "MOBILE",   "paths": ["/ios/", "/android/", "/capacitor.config.ts", "/docs/MOBILE_RELEASE.md"] },
+    { "id": "voice-assets",     "area": "Voice",            "title": "Voice red-team evals and docs",           "role": "VOICE",    "paths": ["/eval/voice-redteam/", "/docs/voice/"] },
+
+    { "id": "platform-ci",      "area": "Platform",         "title": "CI, governance scripts, supply chain",    "role": "PLATFORM", "paths": ["/.github/", "/scripts/governance/", "/scripts/supply-chain/", "/package.json", "/package-lock.json", "/docs/adr/", "/docs/governance/"] },
+    { "id": "platform-license", "area": "Platform",         "title": "Licence policy and asset licences",       "role": "COMPLIANCE", "paths": ["/docs/governance/license-policy.json", "/docs/governance/ASSET_LICENSES.csv"] },
+
+    { "id": "comp-registers",   "area": "Compliance",       "title": "Compliance and business registers (not legal advice)", "role": "COMPLIANCE", "paths": ["/docs/compliance/", "/docs/registers/", "/docs/claims-register.json", "/scripts/check-claims.mjs", "/scripts/registers/"] }
+  ]
+}
