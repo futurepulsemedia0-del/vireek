@@ -109,6 +109,8 @@ import { deriveCallKind } from "../_shared/voice-security/toolPolicy.ts";
 import { neutralizeUntrusted } from "../_shared/voice-security/outputFilter.ts";
 import { scanPromptInjection } from "../_shared/ai-core/aiSecurity.ts";
 import { sendCompliantSms } from "../_shared/messaging/sendSms.ts";
+import { renderScript } from "../_shared/voice-brand/scripts.ts";
+import { decideTextFallback } from "../_shared/voice-accessibility/accessibility.ts";
 import { captureVerticalIntake, loadVerticalContext, resolveVoiceAssistantTenant } from "../_shared/verticals/context.ts";
 import { buildAgentSquad } from "../_shared/ai-core/agentOrchestration.ts";
 import { loadVoiceOverride } from "../_shared/voice/voiceOverride.ts";
@@ -1990,6 +1992,41 @@ async function toolRequestHumanTransfer(
     ? "Got it — connecting the caller to a live team member now."
     : "Got it — this business has no dedicated live-transfer number configured, so please connect the caller to the main forwarding number now.";
 }
+// request_text_followup — accessibility fallback: ONE fixed templated text to the caller's OWN caller-ID number.
+// Relay calls: the caller ID belongs to the relay provider, so we never text it and ask for the caller's own number.
+async function toolRequestTextFollowup(
+  admin: SupabaseClient,
+  tenant: TenantContext,
+  args: Record<string, unknown>,
+  vapiCallId: string | undefined,
+  callerNumber: string | null,
+): Promise<string> {
+  const relay = args.relay_call === true;
+  const decision = decideTextFallback({ callerNumber, mode: relay ? "relay" : "patient", textPreferred: true, hearingOrSpeechDisclosed: false, recognitionMisses: 0 });
+  if (decision.channel === "ask_for_text_number") {
+    return "Don't text the number this call came from. Say: \"To send a text, what number should I use? It can be the caller's own mobile.\" Then book or record the callback using that number with book_appointment, and confirm it back digit by digit.";
+  }
+  if (decision.channel !== "caller_id_sms" || !callerNumber) {
+    return "Texting isn't needed right now. Carry on with the call.";
+  }
+  const { data: prof } = await admin.from("profiles").select("company_name").eq("id", tenant.userId).maybeSingle();
+  const businessName = (prof?.company_name as string | null) ?? tenant.assistantName ?? "the business";
+  const body = renderScript("sms_accessibility_followup", { business_name: businessName }).text;
+  const r = await sendCompliantSms(admin, tenant.userId, callerNumber, body, {
+    purpose: "service",
+    source: "voice_accessibility_text_followup",
+    dedupeKey: vapiCallId ? `a11y-text:${vapiCallId}` : undefined,
+  });
+  if (r.ok) {
+    return r.deferred
+      ? "The text is queued and will arrive shortly. Tell the caller a text is on its way and they can reply to it, then ask what they need, one thing at a time."
+      : "The text was sent. Tell the caller to check their messages and reply there, and that you will also keep helping on this call if they like.";
+  }
+  if (r.reason === "OPTED_OUT") {
+    return "This number has opted out of texts, so don't send one. Offer to have the office call back or to connect a team member, and carry on helping on this call.";
+  }
+  return "Texting isn't available from this line right now. Say: \"I can't send texts from this line right now. I can have the office call you back, or connect you to someone.\" Then offer a callback or a transfer.";
+}
 async function buildServiceAreaContextVariable(admin: SupabaseClient, tenant: TenantContext): Promise<string> {
   const { areas } = await loadTenantServiceAreas(admin, tenant.userId);
   if (areas.length === 0) return "";
@@ -2234,6 +2271,9 @@ async function handleToolCalls(admin: SupabaseClient, message: VapiMessage, requ
           case "agent_hold_slot":
           case "agent_send_summary":
             result = await toolAgentCaller(admin, tenant, name, args, vapiCallId, callerNumber, callerName);
+            break;
+          case "request_text_followup":
+            result = await toolRequestTextFollowup(admin, tenant, args, vapiCallId, callerNumber);
             break;
           case "capture_vertical_intake":
             result = await captureVerticalIntake(admin, { userId: tenant.userId, voiceAssistantId: tenant.voiceAssistantId ?? null, vapiCallId }, args);
