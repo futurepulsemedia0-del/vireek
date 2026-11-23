@@ -61,6 +61,7 @@ import { LoaderInsetProvider } from '@/components/loading/LoaderStage';
 import { FeedbackButton } from '@/components/feedback/FeedbackButton';
 import { FeedbackDialog } from '@/components/feedback/FeedbackDialog';
 import { SurveyHost } from '@/components/feedback/SurveyHost';
+import { PmfPrompt } from '@/components/feedback/PmfPrompt';
 import { WhatsNewDrawer } from '@/components/whats-new/WhatsNewDrawer';
 import { TaskReminderWatcher } from '@/components/tasks/TaskReminderWatcher';
 import { ChatUnreadProvider } from '@/contexts/ChatUnreadContext';
@@ -1267,6 +1268,7 @@ function DashboardChrome({
               <AiAssistant />
               <NpsPrompt />
               <SurveyHost />
+              <PmfPrompt />
               <FeedbackDialog />
               <WhatsNewDrawer />
             </div>
