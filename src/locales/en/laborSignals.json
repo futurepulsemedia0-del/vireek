@@ -1,0 +1,137 @@
+{
+  "title": "Labor signals",
+  "subtitle": "Time-clock records that may deserve a closer look. Signals are prompts for a person to review, not conclusions.",
+  "disclaimer": {
+    "text": "Signals highlight time-clock records worth a second look. They are not legal conclusions and do not say that any law was or was not followed. Rules depend on facts this app cannot see, so confirm anything important with qualified employment counsel. [COUNSEL] [VERIFY]",
+    "counsel": "[COUNSEL] Counsel review not recorded",
+    "verify": "[VERIFY] Numbers not yet compared with the source",
+    "counselDone": "Counsel review recorded",
+    "verifyDone": "Compared with the source on {{date}}"
+  },
+  "tabs": { "signals": "Signals", "workers": "Workers", "rules": "Rules" },
+  "ranges": { "label": "Period", "option": "Last {{count}} days" },
+  "refresh": "Refresh",
+  "refreshing": "Refreshing…",
+  "stats": { "open": "Open signals", "reviewed": "Reviewed", "overtime": "Hours", "classification": "Worker records", "prevailing_wage": "Wage-table data", "breaks": "Breaks" },
+  "topics": { "all": "All topics", "overtime": "Hours and overtime", "classification": "Worker records", "prevailing_wage": "Wage-table data", "breaks": "Breaks" },
+  "filters": { "worker": "Worker", "allWorkers": "All workers", "topic": "Topic", "openOnly": "Open only", "showAll": "Include reviewed", "view": "Show" },
+  "status": { "open": "Needs a look", "acknowledged": "Acknowledged", "no_action_needed": "No action needed", "sent_to_counsel": "Sent to counsel" },
+  "signals": {
+    "daily_hours_above_threshold": { "title": "Long day on record", "detail": "{{hours}} clocked hours in one day, above the {{threshold}}-hour daily threshold set in Rules." },
+    "weekly_hours_above_threshold": { "title": "Long week on record", "detail": "{{hours}} clocked hours in the workweek, above the {{threshold}}-hour weekly threshold set in Rules." },
+    "payroll_overtime_below_clock": { "title": "Payroll overtime lower than the clock", "detail": "Clock records show about {{clockHours}} hours above your configured thresholds that week. Payroll lists {{payrollHours}} overtime hours." },
+    "seventh_day_clocked": { "title": "Time on all seven days", "detail": "Time is recorded on every day of the workweek that starts {{weekStart}}." },
+    "open_shift_long": { "title": "Shift open for a long time", "detail": "A shift has been open for {{hours}} hours (alert after {{threshold}}). A clock-out may have been missed." },
+    "classification_with_clock_use": { "title": "Time clock used by a worker recorded differently", "detail": "{{shifts}} clocked shifts this month for a worker with this record: {{classificationLabel}}. Worth checking that the record is current." },
+    "pw_classification_missing": { "title": "No classification on a wage-table job", "detail": "{{hours}} hours across {{jobs}} job(s) that use a wage table, with no classification recorded for this worker." },
+    "pw_pay_below_table": { "title": "Recorded pay below the wage table", "detail": "Recorded pay of {{paid}} per hour is lower than the table rate of {{table}} per hour for the recorded classification ({{hours}} hours that day)." },
+    "break_meal_missing": { "title": "No meal break on record", "detail": "{{workedMinutes}} minutes worked with no meal break on record." },
+    "break_meal_late": { "title": "Meal break started late", "detail": "A meal break was recorded after the point set in your break rules ({{workedMinutes}} minutes worked)." },
+    "break_rest_missing": { "title": "Rest break missing on record", "detail": "Fewer rest breaks are on record than your break rules list ({{workedMinutes}} minutes worked)." }
+  },
+  "card": { "review": "Review", "reviewedBy": "Note: {{note}}", "openBreaks": "Open in Break Compliance", "anchor": "{{date}}" },
+  "review": {
+    "title": "Review this signal",
+    "status": "What happened to it",
+    "note": "Note (optional)",
+    "notePlaceholder": "For your own records. Avoid sensitive personal details.",
+    "save": "Save",
+    "saving": "Saving…",
+    "reopen": "Mark as needing a look again",
+    "cancel": "Cancel",
+    "saved": "Review saved",
+    "counselHint": "\"Sent to counsel\" only records that you passed it on. Nothing is sent from here."
+  },
+  "workers": {
+    "heading": "Worker records",
+    "intro": "This is what your business has recorded. Vireek does not decide or verify anyone's status. Hour-based signals are skipped for workers recorded as exempt or as contractors; a separate worker-record signal appears if they use the time clock.",
+    "classification": "Recorded as",
+    "basis": "Basis (optional)",
+    "basisPlaceholder": "e.g. where this record came from",
+    "payroll1099": "Payroll record: 1099",
+    "save": "Save record",
+    "saved": "Worker record saved",
+    "readOnly": "You can view these records but not change them.",
+    "empty": "No active employees yet. Add employees under Payroll to record how each worker is classified.",
+    "excluded": "Hour-based signals are skipped for {{count}} worker(s) because of the record shown here."
+  },
+  "classifications": {
+    "unreviewed": "Not recorded yet",
+    "hourly_recorded": "Hourly",
+    "apprentice_recorded": "Apprentice",
+    "exempt_recorded": "Exempt from overtime",
+    "contractor_recorded": "Independent contractor",
+    "payroll1099": "a 1099 payroll record"
+  },
+  "rules": {
+    "heading": "Rules used for signals",
+    "intro": "Pick a starter set, adjust the numbers, then record when counsel reviewed it and when someone compared it with the source. Changing the numbers clears both records.",
+    "notConfigured": "Not set up. No signals are produced for this topic until you save a rule set.",
+    "pack": "Starter set",
+    "custom": "Custom",
+    "chooseStarter": "Choose a starter set",
+    "enabled": "Use these rules for signals",
+    "citation": "Citation",
+    "source": "Source link",
+    "notChecked": "Not checked by these signals",
+    "save": "Save rules",
+    "saving": "Saving…",
+    "saved": "Rules saved. Earlier review records were cleared because the numbers changed.",
+    "savedSame": "Rules saved",
+    "lastReviewedNone": "Starter set not yet compared with its source",
+    "overtime": {
+      "heading": "Hours and overtime thresholds",
+      "workweek": "Workweek starts on",
+      "weekly": "Weekly threshold (hours)",
+      "dailyOt": "Daily threshold (hours)",
+      "dailyDt": "Second daily threshold (hours)",
+      "seventh": "Signal when all seven days of a workweek have clocked time",
+      "open": "Open-shift alert after (hours)",
+      "tolerance": "Ignore payroll differences under (hours)",
+      "blank": "Leave blank to skip",
+      "days": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+    },
+    "prevailing_wage": {
+      "heading": "Wage-table data checks",
+      "missing": "Time on wage-table jobs with no classification recorded",
+      "below": "Recorded pay lower than the wage-table rate"
+    },
+    "review": {
+      "heading": "Review records",
+      "counsel": "Counsel who reviewed these rules",
+      "counselPlaceholder": "Name or firm",
+      "verified": "Date the numbers were compared with the source",
+      "note": "Note (optional)",
+      "save": "Record review",
+      "saved": "Review recorded",
+      "hint": "This records what a person did. Vireek does not check the law."
+    },
+    "breaks": {
+      "heading": "Meal and rest breaks",
+      "body": "Break signals use the rules on the Break Compliance page, which has its own review workflow.",
+      "jurisdiction": "Current break rule set: {{name}}",
+      "open": "Open Break Compliance"
+    }
+  },
+  "states": {
+    "loadingLabel": "Loading labor signals",
+    "emptyTitle": "No signals for this selection",
+    "emptyBody": "Nothing in the time-clock records matches the rules you set up for this period.",
+    "emptyNoRulesTitle": "Set up rules to start",
+    "emptyNoRulesBody": "No overtime or wage-table rules are saved yet, so only worker-record and break signals can appear. Open the Rules tab to choose a starter set.",
+    "noAccessTitle": "You do not have access to labor signals",
+    "noAccessBody": "Ask the account owner to give you billing access.",
+    "errorTitle": "Couldn't load labor signals",
+    "errorBody": "Please try again.",
+    "truncated": "This period has more shifts than can be shown at once. Choose a shorter period for complete results.",
+    "noAccount": "We couldn't find your account"
+  },
+  "errors": {
+    "permission": "You do not have permission to do that.",
+    "range": "That period is too long.",
+    "invalid": "Some of the values are not valid. Check the numbers and try again.",
+    "notFound": "That item no longer exists. Refresh and try again.",
+    "generic": "Something went wrong. Please try again."
+  },
+  "close": "Close"
+}
