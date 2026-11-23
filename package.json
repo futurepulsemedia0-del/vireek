@@ -46,6 +46,8 @@
     "lint:locale": "node scripts/check-raw-locale.mjs",
     "lint:regional": "node scripts/check-regional-assumptions.mjs",
     "test:scripts:regional": "node --test scripts/lib/regionalAssumptions.test.mjs",
+    "prioritize": "node scripts/product/prioritize.mjs",
+    "test:scripts:prioritization": "node --test scripts/product/prioritize.test.mjs",
     "test:scripts:rls-perf": "node --test scripts/security/rls-perf.test.mjs",
     "test:scripts:migrations": "node --test scripts/migrations/check-migration-versioning.test.mjs",
     "test:scripts:insurance": "node --test scripts/compliance/insurance-program.test.mjs",
