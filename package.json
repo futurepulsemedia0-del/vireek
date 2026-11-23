@@ -72,6 +72,8 @@
     "test:db:partner-scope": "node scripts/db-tests/partner-scope.pglite.mjs",
     "demo:provision": "node --experimental-strip-types --no-warnings scripts/provision-demo-tenant.mjs",
     "lint:voice": "node scripts/check-voice.mjs",
+    "lint:dark-patterns": "node scripts/check-dark-patterns.mjs",
+    "test:scripts:dark-patterns": "node --test scripts/dark-patterns.test.mjs",
     "chaos:voice": "node --experimental-strip-types --no-warnings scripts/chaos/voice-all.ts",
     "claims:check": "node scripts/check-claims.mjs",
     "claims:gate": "node scripts/claims-gate/check-claims-gate.mjs",
