@@ -795,6 +795,7 @@ export function checkEdgeFunctionSource(source: string): string[] {
   need(/\bipAllowed\(/, 'index.ts must enforce the key IP allowlist with ipAllowed() from contract.ts');
   need(/\bsandboxResponse\(/, 'index.ts must serve test keys from sandboxResponse() (contract.ts), never from the real tables');
   need(/\bdeprecationHeaders\(/, 'index.ts must send deprecation headers from contract.ts');
+  need(/\bapiDeprecationList\(\s*DEPRECATION_REGISTRY\s*\)/, 'index.ts must pass the lifecycle registry to deprecationHeaders() (apiDeprecationList(DEPRECATION_REGISTRY))');
   forbid(/x-forwarded-for/i, 'index.ts must not trust X-Forwarded-For for the allowlist (clients can forge it) — use clientIp()');
   need(/\berrorBody\(/, 'index.ts must build error bodies with errorBody() from contract.ts');
   forbid(/\bjson\(\s*\{\s*error\s*:/, 'index.ts returns a raw { error } body — use fail(ctx, code, message) so the response carries a catalog code');
@@ -1204,25 +1205,49 @@ export function sandboxResponse(resource: ApiResourceName, id: string | null, li
 
 /* ---- Deprecation / sunset (RFC 9745 Deprecation, RFC 8594 Sunset) ---- */
 
-export interface Deprecation {
-  resource: ApiResourceName;
-  /** ISO date the resource was deprecated. */
+export interface DeprecationRecord {
+  /** A resource name, or '*' for the whole API version. A resource-specific entry wins over '*'. */
+  resource: string;
+  /** ISO date the resource was deprecated (the day customers were told). */
   deprecatedAt: string;
   /** ISO date after which it may be removed. */
   sunsetAt: string;
-  /** Migration guide URL. */
+  /** Migration guide URL (https). Sent as `Link: <url>; rel="deprecation"`; omitted when it is not a plain https URL. */
   link: string;
 }
 
-/** Empty today: nothing in api-v1 is deprecated. Add an entry here and the headers, the spec note and the changelog check pick it up. */
+/** A record whose resource is checked against the real resource names. */
+export interface Deprecation extends DeprecationRecord {
+  resource: ApiResourceName | '*';
+}
+
+/**
+ * Intentionally empty. This file stays import-free (scripts/openapi.mjs loads it on its own), so the live data is NOT
+ * kept here: it comes from the lifecycle registry (supabase/functions/_shared/lifecycle/registry.ts) and index.ts passes
+ * it to deprecationHeaders(). checkEdgeFunctionSource() fails if index.ts stops doing that.
+ */
 export const API_DEPRECATIONS: Deprecation[] = [];
 
-export function deprecationHeaders(resource: string | null, list: readonly Deprecation[] = API_DEPRECATIONS): Record<string, string> {
-  const d = list.find((x) => x.resource === resource);
+/** Plain https URL only: it is placed inside a header, so no whitespace, quotes, angle brackets or control characters. */
+function isHttpsLink(value: string): boolean {
+  return value.length <= 2048 && /^https:\/\/[^\s"'<>\\^`{|}\u0000-\u001f\u007f]+$/.test(value);
+}
+
+/**
+ * Headers for a deprecated resource. Fails safe: a malformed entry (bad date, sunset before deprecation) yields no
+ * headers instead of "@NaN" / "Invalid Date", and an unsafe link is dropped while the dates are still sent.
+ * `null` (no resolved route) only matches a version-wide '*' entry.
+ */
+export function deprecationHeaders(resource: string | null, list: readonly DeprecationRecord[] = API_DEPRECATIONS): Record<string, string> {
+  const d = (resource === null ? undefined : list.find((x) => x.resource === resource)) ?? list.find((x) => x.resource === '*');
   if (!d) return {};
-  return {
-    Deprecation: `@${Math.floor(Date.parse(d.deprecatedAt) / 1000)}`,
-    Sunset: new Date(d.sunsetAt).toUTCString(),
-    Link: `<${d.link}>; rel="deprecation"`,
+  const deprecated = Date.parse(d.deprecatedAt);
+  const sunset = Date.parse(d.sunsetAt);
+  if (!Number.isFinite(deprecated) || !Number.isFinite(sunset) || sunset < deprecated) return {};
+  const headers: Record<string, string> = {
+    Deprecation: `@${Math.floor(deprecated / 1000)}`,
+    Sunset: new Date(sunset).toUTCString(),
   };
+  if (isHttpsLink(d.link)) headers.Link = `<${d.link}>; rel="deprecation"`;
+  return headers;
 }
