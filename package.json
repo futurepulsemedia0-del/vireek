@@ -163,6 +163,8 @@
     "cli:build": "tsc -p packages/cli/tsconfig.json",
     "cli:typecheck": "tsc -p packages/cli/tsconfig.json --noEmit",
     "test:e2e": "playwright test",
+    "test:visual:docker": "node scripts/visual/run-docker.mjs",
+    "visual:check-baselines": "node scripts/visual/check-baselines.mjs",
     "test:live": "vitest run -c vitest.live.config.ts",
     "test:redteam": "vitest run -c vitest.redteam.config.ts",
     "cap:sync": "npm run build && cap sync",
