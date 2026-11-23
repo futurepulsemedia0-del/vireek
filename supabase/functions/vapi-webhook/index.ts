@@ -2,8 +2,8 @@ import { handleAuditWebhookEvent } from "../_shared/audit/webhookHook.ts";
 import { checkInboundBlock } from "../_shared/compliance/callBlockCheck.ts";
 import { runInboundAllowanceGate } from "../_shared/fraud/inboundGate.ts";
 import type { FraudDb } from "../_shared/fraud/guard.ts";
-import { buildRecordingConsentNotice } from "../_shared/compliance/recordingConsent.ts";
-import { resolveRecordingProfile, renderConsentScript, type ProfileLanguage } from "../_shared/compliance/recordingProfiles.ts";
+import { applyPlanToSquad, buildCallStartPlan, parseGateMode, planOverrides } from "../_shared/compliance/callStartPlan.ts";
+import { finalizeCallRecording, recordCallStartPlan } from "../_shared/compliance/callRecordingLedger.ts";
 import { buildVoicePersonaContext, resolveTrade } from "../_shared/voice-brand/persona.ts";
 import { extractTurnLatencies, summarizeLatency } from "../_shared/voice-brand/latency.ts";
 import { trackLiveCallEvent } from "../_shared/live-calls/runtime.ts";
@@ -799,7 +799,6 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
   const customerTypeContext = await buildCustomerTypeContextVariable(admin, tenant, callerNumber);
   const surgeContext = buildSurgeContextVariable(tenant);
   const afterHoursContext = buildAfterHoursContextVariable(tenant, new Date());
-  const recordingConsentContext = buildRecordingConsentNotice(callerNumber);
   const customerMemoryContext = await buildCustomerMemoryContextVariable(admin, tenant, callerNumber);
   const voiceLanguage = await resolveVoiceLanguage(admin, tenant.userId, callerNumber, tenant.assistantName);
   const interpSettings = await loadInterpreterSettings(admin, tenant.userId); // null when the feature is off; never throws
@@ -814,15 +813,26 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
   }
   const serviceAreaContext = await buildServiceAreaContextVariable(admin, tenant);
   const incidentContext = await buildIncidentVoiceContext(admin, tenant.userId);
-   const disclosurePlan = await planDisclosure(admin, { userId: tenant.userId, vapiCallId: message.call?.id ?? null, callerLanguage: voiceLanguage.language });
-  const consentProfile = resolveRecordingProfile({ country: tenant.regional.country });
-  const consentLang: ProfileLanguage = (["de", "fr", "es"] as const).find((l) => l === voiceLanguage.language) ?? "en";
-  const regionalConsentContext = consentProfile.gateBeforeRecording && !recordingConsentContext
-    ? (() => {
-        const s = renderConsentScript(consentLang, "quality and service");
-        return `This business operates in ${consentProfile.jurisdiction}, where explicit consent to call recording is required. Before anything else, ask: "${s.ask}" Wait for a clear yes before continuing. If the caller declines, say: "${s.declined}", transfer to a human if possible, and do not ask again.`;
-      })()
-    : "";
+  const disclosurePlan = await planDisclosure(admin, { userId: tenant.userId, vapiCallId: message.call?.id ?? null, callerLanguage: voiceLanguage.language });
+  let planGreeting: string | null = firstMessageText;
+  if (!planGreeting && (voiceLanguage.language == null || voiceLanguage.language === "en")) {
+    try {
+      const { data: gp } = await admin.from("profiles").select("company_name").eq("id", tenant.userId).maybeSingle();
+      const company = ((gp?.company_name as string | null) ?? "").trim();
+      if (company) planGreeting = tenant.assistantName ? `Thanks for calling ${company}, this is ${tenant.assistantName}.` : `Thanks for calling ${company}.`;
+    } catch (err) {
+      console.error("[call-start] greeting lookup failed:", err);
+    }
+  }
+  const callStart = buildCallStartPlan({
+    aiDisclosureText: disclosurePlan?.text ?? null,
+    language: voiceLanguage.language,
+    callerNumber,
+    businessCountry: tenant.regional.country,
+    greeting: planGreeting,
+    gateMode: parseGateMode(Deno.env.get("CALL_RECORDING_GATE_MODE")),
+  });
+  runInBackground(recordCallStartPlan(admin, { userId: tenant.userId, vapiCallId: message.call?.id ?? null, plan: callStart, businessCountry: tenant.regional.country }));
   // Voice Platform: "" for home-services accounts (and on any error), so existing prompts are unaffected.
   const verticalContext = await loadVerticalContext(admin, tenant.userId, tenant.voiceAssistantId ?? null);
     // Voice brand: single-source persona block ("" on any error → prompt unchanged).
@@ -872,17 +882,18 @@ service_area_context: [serviceAreaContext, buildRegionalVoiceContext(tenant.regi
     voice_persona: voicePersonaContext,
      ai_disclosure: disclosurePlan?.text ?? "",
     interpreter_context: buildInterpreterContext(interpSettings),
+  };
   // Per-call duration cap (PLAN_LIMITS[plan].maxCallSeconds). Applied only when fraud_settings.outbound_guard_mode =
   // 'enforce'; in shadow it is logged. An unreadable plan applies nothing (fail open: never cut live calls short on a hiccup).
   const durationCap = await resolveInboundCap(asFraudDb(admin), tenant.userId);
   if (durationCap && !durationCap.enforce) logEvent("inbound_duration_cap_shadow", requestId, { user_id: tenant.userId, would_cap_seconds: durationCap.seconds });
   const maxDurationOverride = durationCap?.enforce ? { maxDurationSeconds: durationCap.seconds } : {};
-  };
+
 
   if (tenant.agentOrchestrationEnabled) {
     logEvent("assistant_request_squad_mode", requestId, { user_id: tenant.userId });
     return jsonResponse({
-      squad: buildAgentSquad(tenant.assistantId, tenant.assistantName, sharedVariableValues, voiceOverride.voice, tenantVoice),
+      squad: applyPlanToSquad(buildAgentSquad(tenant.assistantId, tenant.assistantName, sharedVariableValues, voiceOverride.voice, tenantVoice), callStart),
     });
   }
 
@@ -1698,7 +1709,7 @@ async function toolLookupPrice(
     emergency: false,
     vapiCallId: vapiCallId ?? null,
   });
-
+}
 async function toolFlagEmergencyCall(
   admin: SupabaseClient,
   tenant: TenantContext,
@@ -2549,10 +2560,17 @@ transcript = pci.text;
       }
     }
 
+    const recordingDecision = vapiCallId ? await finalizeCallRecording(admin, { userId: tenant.userId, vapiCallId, message }) : null;
+    const keepRecording = recordingDecision ? recordingDecision.storage.storeRecording : true;
+    const keepTranscript = recordingDecision ? recordingDecision.storage.storeTranscript : true;
+    if (recordingDecision && (!keepRecording || !keepTranscript)) {
+      logEvent("call_storage_suppressed", requestId, { recording: !keepRecording, transcript: !keepTranscript, reason: recordingDecision.storage.reason });
+    }
+
     Object.assign(patch, {
       duration_seconds: durationSeconds,
-      transcript,
-        recording_url: pci.spokenCardDetected ? null : recordingUrl,
+      transcript: keepTranscript ? transcript : null,
+        recording_url: pci.spokenCardDetected || !keepRecording ? null : recordingUrl,
         summary: summary ? redactCardData(summary, { strict: true }).text : summary,
         pci_capture_occurred: !!pciSess.data,
         pci_redactions: pci.redactions,
