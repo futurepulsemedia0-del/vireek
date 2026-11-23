@@ -43,7 +43,8 @@ export function CreatePlanDialog({ ownerId, onClose, onCreated }: { ownerId: str
   const [feeValue, setFeeValue] = useState('');
   const [feeCap, setFeeCap] = useState('');
   const [grace, setGrace] = useState('3');
-  const [autoCharge, setAutoCharge] = useState(true);
+// Off by default: recurring card charges are an opt-in the business owner chooses deliberately (never pre-checked).
+  const [autoCharge, setAutoCharge] = useState(false);
   const [notes, setNotes] = useState('');
   const [sendNow, setSendNow] = useState(true);
   const [submitted, setSubmitted] = useState(false);
