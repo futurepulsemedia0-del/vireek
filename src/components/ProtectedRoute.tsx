@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { RouteFallback } from '@/components/loading/RouteFallback';
 import { useLoginAlert } from '@/hooks/useLoginAlert';
 import { useMfaEnforcement } from '@/hooks/useMfaEnforcement';
+import { useLegalAcceptance } from '@/hooks/useLegalAcceptance';
 import { MfaGraceBanner } from '@/components/security/MfaGraceBanner';
 import { SECURITY_SETTINGS_PATH } from '@/lib/mfaChallenge';
 import { trackActivity, getIdleMinutes, getSessionAgeHours, clearSessionStart } from '@/lib/enterpriseSecurity';
@@ -95,6 +96,7 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   useSessionPolicyEnforcement(Boolean(session));
   const mfaPending = useMfaPending(session?.user?.id ?? null);
   const enforcement = useMfaEnforcement(session?.user?.id ?? null);
+  const legal = useLegalAcceptance(session?.user?.id ?? null, location.pathname);
   useLoginAlert(Boolean(session));
 
   if (loading) {
@@ -104,7 +106,7 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   if (!session) {
     return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
-  if (mfaPending === null || enforcement.loading) {
+  if (mfaPending === null || enforcement.loading || legal.loading) {
     return <RouteFallback variant="data" fullScreen />;
   }
 
@@ -113,6 +115,10 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   }
   if (enforcement.decision === 'must_enroll' && !location.pathname.startsWith(SECURITY_SETTINGS_PATH)) {
     return <Navigate to={`${SECURITY_SETTINGS_PATH}?mfa=required`} replace />;
+  }
+  if (legal.decision === 'must_accept') {
+    // after MFA, before any product page: a material legal change must be accepted first
+    return <Navigate to="/legal/accept" state={{ from: location.pathname + location.search }} replace />;
   }
   return (
     <>
