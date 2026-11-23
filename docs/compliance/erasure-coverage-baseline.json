@@ -1,5 +1,76 @@
 {
   "note": "Tables accepted as uncovered. New entries fail --check.",
+  "certificate": {
+    "note": "Systems and subprocessors named in erasure certificates (supabase/functions/_shared/compliance/erasureCertificate.ts). Facts only: every entry is traceable to code in this repo. `automated: false` entries are listed as limitations, never as erased. Keep in sync with ownedTables.ts, providerErasure.ts and delete-account/data-retention-sweep.",
+    "schemaVersion": 1,
+    "systems": [
+      {
+        "id": "postgres-owned-tables",
+        "name": "Vireek database: account-owned tables",
+        "automated": true,
+        "evidenceKey": "ownedTables",
+        "method": "Row delete by user_id over OWNED_TABLES (supabase/functions/_shared/compliance/ownedTables.ts)."
+      },
+      {
+        "id": "postgres-catalog-sweep",
+        "name": "Vireek database: every other public table with a uuid user_id column",
+        "automated": true,
+        "evidenceKey": "catalogErase",
+        "method": "public.erase_user_rows(). Evidence and ledger tables are excluded by default: deletion_requests, data_subject_requests, audit_log, audit_chain_heads, data_retention_policies."
+      },
+      {
+        "id": "trust-pack-vault",
+        "name": "Encrypted trust-pack data",
+        "automated": true,
+        "evidenceKey": "trustPack",
+        "method": "eraseTrustPackData() (supabase/functions/_shared/trust/vault.ts)."
+      },
+      {
+        "id": "supabase-storage",
+        "name": "Supabase Storage objects (for example call-recording audio)",
+        "automated": false,
+        "gap": "Not erased by the erasure job. delete-account/index.ts records that recording files in storage are not removed and the bucket is unconfirmed. [VERIFY]"
+      },
+      {
+        "id": "database-backups",
+        "name": "Database backups and logical snapshots",
+        "automated": false,
+        "gap": "Not erased individually. Copies age out when the backup retention window ends (see backup.expiresAt). Retention is configured outside this repo. [VERIFY]"
+      }
+    ],
+    "subprocessors": [
+      {
+        "id": "elevenlabs",
+        "name": "ElevenLabs",
+        "scope": "Custom voice clone",
+        "automated": true,
+        "evidenceKey": "elevenlabs",
+        "method": "DELETE /v1/voices/{voice_id}. Vendor endpoint not re-verified against current vendor docs. [VERIFY]"
+      },
+      {
+        "id": "vapi",
+        "name": "Vapi",
+        "scope": "Voice call records",
+        "automated": true,
+        "evidenceKey": "vapi",
+        "method": "DELETE /call/{call_id}, capped at 2000 calls per run. Vendor endpoint not re-verified against current vendor docs. [VERIFY]"
+      },
+      {
+        "id": "twilio",
+        "name": "Twilio",
+        "scope": "Call recordings and logs",
+        "automated": false,
+        "gap": "No provider-side erasure is implemented (providerErasure.ts header; docs/compliance/gap-list.md)."
+      },
+      {
+        "id": "resend",
+        "name": "Resend",
+        "scope": "Email delivery logs",
+        "automated": false,
+        "gap": "No provider-side erasure is implemented (providerErasure.ts header; docs/compliance/gap-list.md)."
+      }
+    ]
+  },
   "uncovered": [
     "academy_badges",
     "academy_progress",
