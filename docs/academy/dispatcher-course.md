@@ -1,145 +1,159 @@
-# Technician course
+# Dispatcher course
 
-**Audience:** Field technicians using the mobile app.
-**Length:** 4 modules, about 21 minutes.
+**Audience:** Office staff who schedule and assign work.
+**Length:** 4 modules, about 26 minutes.
 **In-app:** `/dashboard/learn` (nav label *Learn*) — progress and quizzes are tracked per person.
 **Pass mark:** 80% per module quiz.
 
-Run your day from Today, work from your weekly schedule even offline, claim open shifts, and keep your truck stocked.
+Read the Dispatch Board, move jobs through their lifecycle, keep customer records clean, and stay in touch with the field.
 
 ## Modules
 
 | # | Module | Screen | Route | Minutes |
 |---|---|---|---|---|
-| 1 | Your day on Today | Today | `/tech/today` | 5 |
-| 2 | Your weekly schedule, even offline | Weekly schedule | `/tech/schedule` | 5 |
-| 3 | Claiming open shifts | Open shifts | `/tech/job-board` | 6 |
-| 4 | Keeping your truck stocked | Truck stock | `/tech/truck-stock` | 5 |
+| 1 | Reading the Dispatch Board | Dispatch Board | `/dashboard/dispatch` | 8 |
+| 2 | The job lifecycle | Jobs | `/dashboard/jobs` | 6 |
+| 3 | Keeping customer records clean | Customers | `/dashboard/customers` | 7 |
+| 4 | Messaging the field | Field Messages | `/dashboard/field-messages` | 5 |
 
 ---
 
-## Module 1: Your day on Today
+## Module 1: Reading the Dispatch Board
 
-**Screen:** Today — `/tech/today` (module id `tech-today`)
+**Screen:** Dispatch Board — `/dashboard/dispatch` (module id `dispatch-board`)
 
 ### Objectives
 
-- Find today’s jobs and their status.
-- Navigate to a job.
+- Know which jobs and technicians appear.
+- Assign by dragging a job to a technician.
 
 ### Do this on the screen
 
-1. Open Today.
-2. Tap a job to open its actions, including Navigate.
-3. Open the job brief and advance its status as you work: Scheduled, En Route, In Progress, Completed.
+1. Open Dispatch Board.
+2. Find open jobs: scheduled, en route and in progress.
+3. Drag a job onto an active technician to assign it.
+4. Watch the board update live as technicians change status.
 
 ### Quiz
 
-**1.1** Which page lists today’s jobs in the technician app?
+**1.1** Which jobs does the Dispatch Board show?
 
-- A. Today
-- B. Truck stock
-- C. Open shifts
-- D. Weekly schedule only
+- A. Scheduled, en route and in progress
+- B. Only completed jobs
+- C. Every job ever created
+- D. Only unassigned leads
 
-**1.2** You have just left for a job. Which status fits?
+**1.2** Which technicians are listed?
+
+- A. Every person invited, accepted or not
+- B. Only active technicians (invite accepted)
+- C. Only owners
+- D. Only technicians with no jobs
+
+**1.3** How do you assign a job from the board?
+
+- A. Drag the job onto a technician
+- B. Email the technician
+- C. Delete and recreate the job
+- D. Change the customer type
+
+---
+
+## Module 2: The job lifecycle
+
+**Screen:** Jobs — `/dashboard/jobs` (module id `dispatch-jobs-lifecycle`)
+
+### Objectives
+
+- Know the four job statuses and their order.
+- Know the default invoice state of a new job.
+
+### Do this on the screen
+
+1. Open Jobs and filter by status.
+2. Follow a job: Scheduled → En Route → In Progress → Completed.
+3. Open a job to see its invoice status; new jobs start as not sent.
+
+### Quiz
+
+**2.1** What is the correct order of job statuses?
+
+- A. Scheduled, En Route, In Progress, Completed
+- B. Completed, Scheduled, En Route, In Progress
+- C. In Progress, Scheduled, Completed, En Route
+- D. En Route, Completed, Scheduled, In Progress
+
+**2.2** A technician has just arrived and started work. What is the next status after En Route?
 
 - A. Scheduled
-- B. En Route
-- C. In Progress
-- D. Completed
+- B. In Progress
+- C. Completed
+- D. Cancelled
+
+**2.3** What is the invoice status of a brand-new job?
+
+- A. Paid
+- B. Not sent
+- C. Overdue
+- D. Refunded
 
 ---
 
-## Module 2: Your weekly schedule, even offline
+## Module 3: Keeping customer records clean
 
-**Screen:** Weekly schedule — `/tech/schedule` (module id `tech-schedule`)
+**Screen:** Customers — `/dashboard/customers` (module id `dispatch-customers`)
 
 ### Objectives
 
-- Read the week at a glance.
-- Know what happens without signal.
+- Understand one customer per phone number and email.
+- Know lifecycle stages and customer types.
 
 ### Do this on the screen
 
-1. Open Weekly schedule and pick a day.
-2. The next unfinished stop is highlighted for today.
-3. If you lose signal, the last loaded schedule stays visible with a notice.
+1. Open Customers and search before creating a new one.
+2. Edit the existing record instead of adding a second one.
+3. Use lifecycle stage (lead, active, VIP, inactive) and type (residential, commercial).
 
 ### Quiz
 
-**2.1** You lose mobile signal. What does Weekly schedule do?
+**3.1** You try to add a customer whose phone number is already on another customer in your account. What happens?
 
-- A. Shows the last loaded schedule with a notice
-- B. Logs you out
-- C. Deletes today’s jobs
-- D. Shows a blank page
+- A. A second customer is created
+- B. It is blocked: one customer per phone number per account
+- C. The first customer is deleted
+- D. Both are merged silently
+
+**3.2** Which is a customer lifecycle stage?
+
+- A. VIP
+- B. Archived-forever
+- C. Prospect-plus
+- D. Trial
 
 ---
 
-## Module 3: Claiming open shifts
+## Module 4: Messaging the field
 
-**Screen:** Open shifts — `/tech/job-board` (module id `tech-open-shifts`)
-
-### Objectives
-
-- Read the offer labels.
-- Know what each label means for you.
-
-### Do this on the screen
-
-1. Open Open shifts.
-2. Offers labelled "Open to you" can be claimed now; "Opens soon" cannot yet.
-3. After you request one it shows "Request sent"; "Yours" means you got it; "Filled" means someone else did.
-
-### Quiz
-
-**3.1** An offer is labelled "Filled". What does that mean?
-
-- A. It is yours
-- B. Someone else got it
-- C. It opens soon
-- D. You declined it
-
-**3.2** Which label means you can claim the shift right now?
-
-- A. Opens soon
-- B. Open to you
-- C. Closed
-- D. Request sent
-
----
-
-## Module 4: Keeping your truck stocked
-
-**Screen:** Truck stock — `/tech/truck-stock` (module id `tech-truck-stock`)
+**Screen:** Field Messages — `/dashboard/field-messages` (module id `dispatch-field-messages`)
 
 ### Objectives
 
-- Filter to what needs restocking.
-- Know what a missing truck assignment looks like.
+- Know that field conversations are organised per job.
 
 ### Do this on the screen
 
-1. Open Truck stock.
-2. Use the filters: All, Needs restock, Requested.
-3. If the page says no truck is assigned yet, ask your dispatcher or owner to assign one.
+1. Open Field Messages: it lists every job thread on the account.
+2. Open the thread for a job to read and reply.
+3. Technicians read the same thread from their Messages tab.
 
 ### Quiz
 
-**4.1** You only want items that are running low. Which filter?
+**4.1** How are technician message threads organised?
 
-- A. All
-- B. Needs restock
-- C. Requested
-- D. Yours
-
-**4.2** Truck stock says "No truck assigned yet". What is the right next step?
-
-- A. Ask your dispatcher or owner to assign a truck
-- B. Reinstall the app
-- C. Create a new account
-- D. Nothing can be done
+- A. One thread per job
+- B. One thread per customer phone number
+- C. One global thread for everyone
+- D. One thread per invoice
 
 ---
 
@@ -147,13 +161,15 @@ Run your day from Today, work from your weekly schedule even offline, claim open
 
 | Question | Answer | Why |
 |---|---|---|
-| 1.1 | A | Today lists the day’s jobs with their status. |
-| 1.2 | B | En Route is the status between Scheduled and In Progress. |
-| 2.1 | A | The page falls back to cached data and tells you it is offline or showing saved data. |
-| 3.1 | B | Filled marks offers you did not win; "Yours" marks the ones you did. |
-| 3.2 | B | "Open to you" is the claimable state. |
-| 4.1 | B | The filters are All, Needs restock and Requested. |
-| 4.2 | A | The page is blocked until a truck is assigned to you. |
+| 1.1 | A | The board loads jobs whose status is scheduled, en route or in progress. |
+| 1.2 | B | The board lists technicians whose invite status is active. |
+| 1.3 | A | Jobs are draggable onto technician drop zones. |
+| 2.1 | A | The status order is Scheduled, En Route, In Progress, Completed. |
+| 2.2 | B | En Route is followed by In Progress. |
+| 2.3 | B | New jobs default to an invoice status of not sent. |
+| 3.1 | B | Phone numbers and emails are unique per account, which prevents silent duplicates. |
+| 3.2 | A | Lifecycle stages are lead, active, VIP and inactive. |
+| 4.1 | A | The technician app opens a thread by job (messages/:jobId). |
 
 ## Completion record
 
@@ -161,9 +177,9 @@ In the app this is stored automatically when a quiz is passed (table `learn_modu
 
 | Person | Role | Module | Date | Score % | Checked by |
 |---|---|---|---|---|---|
-|  | technician | tech-today |  |  |  |
-|  | technician | tech-schedule |  |  |  |
-|  | technician | tech-open-shifts |  |  |  |
-|  | technician | tech-truck-stock |  |  |  |
+|  | dispatcher | dispatch-board |  |  |  |
+|  | dispatcher | dispatch-jobs-lifecycle |  |  |  |
+|  | dispatcher | dispatch-customers |  |  |  |
+|  | dispatcher | dispatch-field-messages |  |  |  |
 
 > Product training only. Scores are reported by the app and are not proof of compliance or safety training. **[COUNSEL]** before using these records for any regulatory purpose.
