@@ -685,6 +685,9 @@ function OutcomeView({
       {kind === 'cancelled' && (
         <div className="mx-auto mt-5 max-w-md text-left">
           <ExportPanel />
+          <Link to="/dashboard/billing/offboarding" className="focus-ring mt-3 inline-block rounded-lg px-1 py-2 text-sm font-medium text-accent">
+            What happens to my data and access?
+          </Link>
         </div>
       )}
       <Button type="button" className="mt-6" onClick={onBilling}>
