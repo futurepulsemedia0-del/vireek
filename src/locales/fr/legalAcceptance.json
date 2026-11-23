@@ -1,0 +1,21 @@
+{
+  "title": "Nous avons mis à jour nos conditions juridiques",
+  "intro": "Certains de nos documents juridiques ont changé d’une manière qui concerne votre accord avec Vireek. Veuillez examiner les modifications et les accepter pour continuer à utiliser votre compte.",
+  "loading": "Recherche de mises à jour…",
+  "loadError": "Nous n’avons pas pu vérifier les conditions mises à jour. Veuillez réessayer.",
+  "retry": "Réessayer",
+  "effective": "En vigueur le {{date}}",
+  "whatChanged": "Ce qui a changé",
+  "noSummary": "Aucun résumé disponible. Veuillez lire le document complet.",
+  "kind": {
+    "added": "Ajouté",
+    "changed": "Modifié",
+    "removed": "Supprimé"
+  },
+  "readFull": "Lire {{title}} en entier",
+  "checkbox": "J’ai lu et j’accepte {{titles}} mis à jour.",
+  "accept": "Accepter et continuer",
+  "accepting": "Enregistrement…",
+  "errorGeneric": "Nous n’avons pas pu enregistrer votre acceptation. Veuillez réessayer.",
+  "signOut": "Se déconnecter à la place"
+}
