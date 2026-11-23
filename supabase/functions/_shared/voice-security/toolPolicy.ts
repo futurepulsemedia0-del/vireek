@@ -175,6 +175,9 @@ export const TOOL_CATALOG: Readonly<Record<string, ToolSpec>> = Object.freeze({
   capture_vertical_intake: { tier: "intake", kinds: PHONE_KINDS, min: "none", below: "minimal", args: { fields: { kind: "record", maxKeys: 25, maxValue: 300 } }, perCall: 3, perCallerDay: 8 },
   pitch_membership: { tier: "intake", kinds: PHONE_KINDS, min: "none", below: "minimal", args: {}, perCall: 2, perCallerDay: 4 },
   record_membership_decision: { tier: "intake", kinds: PHONE_KINDS, min: "none", below: "minimal", args: { accepted: { kind: "bool" } }, perCall: 2, perCallerDay: 4 },
+  // Accessibility: one fixed, templated text to the caller's OWN caller-ID number only (bindCaller drops any number the model supplies).
+  // Tight per-call / per-day caps keep it from being used for SMS pumping or harassment; it reads nothing back.
+  request_text_followup: { tier: "intake", kinds: PHONE_KINDS, min: "none", below: "minimal", bindCaller: true, args: { reason: { kind: "enum", values: ["caller_requested_text", "hearing_or_speech_difficulty", "recognition_trouble", "silence"] }, relay_call: { kind: "bool" } }, perCall: 2, perCallerDay: 4 },
   // Stored text is untrusted and is re-read by the model on later calls: capped hard + quarantined on read-back.
   save_customer_memory: { tier: "intake", kinds: PHONE_KINDS, min: "none", below: "minimal", bindCaller: true, args: { fact: T(240), category: { kind: "enum", values: ["preference", "property_detail", "recurring_issue", "access_info", "note"] } }, perCall: 3, perCallerDay: 6 },
 
