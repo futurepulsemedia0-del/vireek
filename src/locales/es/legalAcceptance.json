@@ -1,0 +1,21 @@
+{
+  "title": "Hemos actualizado nuestros términos legales",
+  "intro": "Algunos de nuestros documentos legales han cambiado de una forma que afecta a su acuerdo con Vireek. Revise los cambios y acéptelos para seguir usando su cuenta.",
+  "loading": "Buscando actualizaciones…",
+  "loadError": "No pudimos comprobar los términos actualizados. Inténtelo de nuevo.",
+  "retry": "Reintentar",
+  "effective": "En vigor desde el {{date}}",
+  "whatChanged": "Qué ha cambiado",
+  "noSummary": "No hay resumen disponible. Lea el documento completo.",
+  "kind": {
+    "added": "Añadido",
+    "changed": "Modificado",
+    "removed": "Eliminado"
+  },
+  "readFull": "Leer {{title}} completo",
+  "checkbox": "He leído y acepto {{titles}} actualizados.",
+  "accept": "Aceptar y continuar",
+  "accepting": "Guardando…",
+  "errorGeneric": "No pudimos guardar su aceptación. Inténtelo de nuevo.",
+  "signOut": "Cerrar sesión en su lugar"
+}
