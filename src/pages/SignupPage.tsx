@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Mail, Lock, User, Check, X, MailCheck } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { recordSignupAcceptance } from '@/lib/legalAcceptanceApi';
 import { useToast } from '@/contexts/ToastContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { AuthBrandMark } from '@/components/auth/AuthBrandMark';
@@ -197,6 +198,7 @@ useEffect(() => {
         // No email confirmation required (e.g. disabled in the Supabase
         // dashboard) — the account is fully live immediately, so this
         // browser is by definition the first verified device for it.
+        void recordSignupAcceptance();
         try {
           await registerTrustedDevice();
         } catch {
