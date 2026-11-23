@@ -1,0 +1,3 @@
+id,title,owner,reach,impact,confidence,effort,gate,evidence,scored_on,notes
+EXAMPLE-1,Replace this row with your first item,product,120,1,80,3,,Link to the interviews or data behind the numbers,2026-11-19,Delete both EXAMPLE rows before ranking
+EXAMPLE-2,"Item with a comma, quoted",support,40,2,50,1.5,none,,2026-11-19,Confidence 50 needs no evidence
