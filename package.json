@@ -122,6 +122,7 @@
     "docs:inventory": "node scripts/gen-docs-inventory.mjs",
     "docs:catalogs": "node scripts/gen-docs-catalogs.mjs",
     "docs:links": "node scripts/check-doc-links.mjs",
+    "product:new-trade": "node --experimental-strip-types --no-warnings scripts/product/new-trade-checklist.mjs",
     "docs:functions": "node scripts/gen-function-reference.mjs",
     "docs:providers": "node scripts/gen-provider-docs.mjs",
     "docs:headers": "node scripts/apply-headers.mjs",
