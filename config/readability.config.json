@@ -1,0 +1,14 @@
+{
+  "$comment": "Editorial defaults for customer-facing copy. Not a legal standard. Any statutory plain-language requirement is [COUNSEL]. Change a number here, not in code. See docs/design/plain-language.md.",
+  "language": "en",
+  "minWordsForGrade": 12,
+  "thresholds": {
+    "sms":   { "maxGrade": 8, "minEase": 60, "maxSentenceWords": 20 },
+    "email": { "maxGrade": 9, "minEase": 55, "maxSentenceWords": 25 },
+    "quote": { "maxGrade": 8, "minEase": 60, "maxSentenceWords": 22 }
+  },
+  "ignorePhrases": [
+    "Reply STOP to opt out."
+  ],
+  "overrides": {}
+}
