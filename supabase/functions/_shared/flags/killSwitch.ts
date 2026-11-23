@@ -13,6 +13,7 @@ export const CAPABILITIES = [
   'ai_model_prompt_versions',
   'marketplace_ingestion',
   'sms_campaigns',
+  'shadow_live_listen',
 ] as const;
 export type Capability = (typeof CAPABILITIES)[number];
 
