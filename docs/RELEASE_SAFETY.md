@@ -3,7 +3,7 @@
 Goal: a bad release must be stoppable in one click and reversible without a deploy. Source of truth: staff console `/staff/release-safety`.
 
 ## 1. Kill switches (on-call)
-Eight capabilities: `outbound_dialer`, `voice_cloning`, `agent_auto_actions`, `price_auto_apply`, `auto_replies`, `ai_model_prompt_versions`, `marketplace_ingestion`, `sms_campaigns`.
+Capabilities: outbound_dialer, voice_cloning, agent_auto_actions, agent_action_framework, price_auto_apply, auto_replies, ai_model_prompt_versions, marketplace_ingestion, sms_campaigns, shadow_live_listen.
 - **Stop** (global or one account): console buttons, or `select staff_set_kill_switch('outbound_dialer', null, true, 'reason');` (as a staff user). One person, instant, audited (`kill_switch_audit`).
 - **Resume**: `medium` switches resume alone. `high` / `critical` need a second staff member: *Request resume* then the other person *Approve* in the console.
 - Edge functions read `kill_switch_snapshot()` through `_shared/flags/killSwitch.ts` (cache 15 s). Unknown state (database unreachable for more than 10 minutes) **fails closed**: the capability pauses.
