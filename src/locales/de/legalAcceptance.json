@@ -1,0 +1,21 @@
+{
+  "title": "Wir haben unsere rechtlichen Bedingungen aktualisiert",
+  "intro": "Einige unserer rechtlichen Dokumente haben sich so geändert, dass sie Ihre Vereinbarung mit Vireek betreffen. Bitte prüfen Sie die Änderungen und stimmen Sie zu, um Ihr Konto weiter zu nutzen.",
+  "loading": "Suche nach Aktualisierungen…",
+  "loadError": "Die aktualisierten Bedingungen konnten nicht geprüft werden. Bitte versuchen Sie es erneut.",
+  "retry": "Erneut versuchen",
+  "effective": "Gültig ab {{date}}",
+  "whatChanged": "Was sich geändert hat",
+  "noSummary": "Keine Zusammenfassung verfügbar. Bitte lesen Sie das vollständige Dokument.",
+  "kind": {
+    "added": "Hinzugefügt",
+    "changed": "Geändert",
+    "removed": "Entfernt"
+  },
+  "readFull": "{{title}} vollständig lesen",
+  "checkbox": "Ich habe die aktualisierten {{titles}} gelesen und stimme zu.",
+  "accept": "Zustimmen und fortfahren",
+  "accepting": "Wird gespeichert…",
+  "errorGeneric": "Ihre Zustimmung konnte nicht gespeichert werden. Bitte versuchen Sie es erneut.",
+  "signOut": "Stattdessen abmelden"
+}
