@@ -80,6 +80,63 @@ export const SCRIPT_LIBRARY: Record<string, ScriptTemplate> = {
     id: "voicemail_prompt", channel: "voice", required: ["business_name"],
     variants: ["You've reached the voicemail for {{business_name}}. Please leave your name, number and what you need, and we'll call you back."],
   },
+  // ---- accessibility (see voice-accessibility/accessibility.ts, docs/accessibility/VOICE_ACCESSIBILITY.md) ----
+  slow_down_ack: {
+    id: "slow_down_ack", channel: "voice", required: [],
+    variants: ["Of course, I'll go slower. Tell me whenever you're ready.", "Sure, slower it is. Take all the time you need."],
+  },
+  repeat_same: {
+    id: "repeat_same", channel: "voice", required: [],
+    variants: ["Sure, here it is again.", "Of course, once more."],
+  },
+  repeat_simpler: {
+    id: "repeat_simpler", channel: "voice", required: [],
+    variants: ["No problem, let me say that a simpler way."],
+  },
+  offer_text_instead: {
+    id: "offer_text_instead", channel: "voice", required: [],
+    variants: ["If it's easier, I can text you the details instead. Would you like that?", "I can send this as a text message if that works better. Want me to?"],
+  },
+  silence_check_in: {
+    id: "silence_check_in", channel: "voice", required: [],
+    variants: ["Are you still there?"],
+  },
+  silence_check_in_patient: {
+    id: "silence_check_in_patient", channel: "voice", required: [],
+    variants: ["No rush at all. I'm still here whenever you're ready."],
+  },
+  silence_check_in_relay: {
+    id: "silence_check_in_relay", channel: "voice", required: [],
+    variants: ["I'm still here and happy to wait. Go ahead when you're ready."],
+  },
+  silence_offer_text: {
+    id: "silence_offer_text", channel: "voice", required: [],
+    variants: ["Still here. If it's easier, I can text you, or have the office call you back."],
+  },
+  silence_end_with_followup: {
+    id: "silence_end_with_followup", channel: "voice", required: ["business_name"],
+    variants: ["I'll let {{business_name}} know you called, and they'll follow up with you. Take care."],
+  },
+  relay_ack: {
+    id: "relay_ack", channel: "voice", required: [],
+    variants: ["Welcome, and thank you for relaying. I'll speak plainly and wait for your go ahead."],
+  },
+  relay_ask_text_number: {
+    id: "relay_ask_text_number", channel: "voice", required: [],
+    variants: ["To send a text, what number should I use? It can be the caller's own mobile."],
+  },
+  accent_ack: {
+    id: "accent_ack", channel: "voice", required: [],
+    variants: ["No problem at all, I'm happy to go at your pace. I can also spell things back to you."],
+  },
+  spelling_offer: {
+    id: "spelling_offer", channel: "voice", required: [],
+    variants: ["Let me read that back letter by letter so we get it right."],
+  },
+  text_followup_unavailable: {
+    id: "text_followup_unavailable", channel: "voice", required: [],
+    variants: ["I can't send texts from this line right now. I can have the office call you back, or connect you to someone."],
+  },
   sms_missed_call: {
     id: "sms_missed_call", channel: "sms", required: ["business_name"],
     variants: [`{{business_name}}: Sorry we missed your call. How can we help? Reply here and we'll get right back to you. ${STOP}`],
@@ -103,6 +160,10 @@ export const SCRIPT_LIBRARY: Record<string, ScriptTemplate> = {
   sms_help_reply: {
     id: "sms_help_reply", channel: "sms", required: ["business_name", "callback_number"],
     variants: ["{{business_name}}: For help call {{callback_number}}. Msg&data rates may apply. Reply STOP to opt out."],
+  },
+  sms_accessibility_followup: {
+    id: "sms_accessibility_followup", channel: "sms", required: ["business_name"],
+    variants: [`{{business_name}}: Thanks for calling. Reply here with what you need and we'll answer by text. ${STOP}`],
   },
 };
 
