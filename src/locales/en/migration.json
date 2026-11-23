@@ -1,0 +1,211 @@
+{
+  "page": {
+    "title": "Switching to Vireek",
+    "subtitle": "A guided checklist for moving customers, jobs and billing history from your old system — checked against real numbers, not hopes.",
+    "sourceLabel": "Moving from",
+    "noAccessTitle": "You don’t have access to this page",
+    "noAccessBody": "Migration is restricted to the account owner and members who can edit the business profile.",
+    "openImports": "Open Data Imports",
+    "openScreen": "Open",
+    "progress": "{{done}} of {{total}} required steps done",
+    "loadError": "Could not load migration data.",
+    "retry": "Try again",
+    "saving": "Saving…",
+    "saveFailed": "Could not save. Try again."
+  },
+  "sources": {
+    "service_titan": "ServiceTitan",
+    "jobber": "Jobber",
+    "housecall_pro": "Housecall Pro",
+    "csv": "CSV / Excel"
+  },
+  "phases": {
+    "prepare": "1 · Prepare",
+    "import": "2 · Import",
+    "validate": "3 · Validate",
+    "cutover": "4 · Cut over",
+    "stabilize": "5 · Stabilize"
+  },
+  "status": {
+    "done": "Done",
+    "todo": "To do",
+    "attention": "Needs attention",
+    "blocked": "Blocked"
+  },
+  "markDone": "Mark done",
+  "markUndone": "Undo",
+  "steps": {
+    "export_data": {
+      "title": "Export your data from the old system",
+      "body": "Export customers, jobs and (if you want billing history) invoices, line items, payments and equipment as CSV or Excel. Keep the ID column in every file — it is what makes re-imports safe."
+    },
+    "freeze_window": {
+      "title": "Agree a cut-over date and a change freeze",
+      "body": "Pick the day the team stops entering new work in the old system. Anything created after your export has to be re-exported or entered by hand."
+    },
+    "control_totals": {
+      "title": "Write down the old system’s control totals",
+      "body": "From reports in the old system, note the record counts and money totals (job revenue, invoices, payments, open balance). You enter them below and Vireek compares them to what was imported, to the cent."
+    },
+    "invite_team": {
+      "title": "Invite your team",
+      "body": "Add dispatchers, technicians and office staff so they can look at their imported customers and jobs before cut-over."
+    },
+    "import_customers": {
+      "title": "Import customers",
+      "body": "Run the customer import first. Jobs and invoices link to customers through the old system’s customer ID."
+    },
+    "import_jobs": {
+      "title": "Import job history",
+      "body": "Run the jobs import after customers so every job can be linked to its customer."
+    },
+    "import_ledger": {
+      "title": "Import invoices, line items and payments",
+      "body": "Optional. Import all three so invoice totals can be checked against their lines and payments. This step completes only when all three have finished."
+    },
+    "import_equipment": {
+      "title": "Import equipment",
+      "body": "Optional. Installed equipment is linked to customers by the old system’s customer ID."
+    },
+    "connect_price_book": {
+      "title": "Connect or build your price book",
+      "body": "Connect the old system’s price book where supported, or enter your prices, so quotes and calls use your real numbers."
+    },
+    "connect_accounting": {
+      "title": "Connect accounting",
+      "body": "Optional. Connect QuickBooks so new invoices and payments flow to your books. Historical invoices come from the ledger import, not from QuickBooks."
+    },
+    "validation_clean": {
+      "title": "Post-import validation has no failures or warnings",
+      "body": "Every check in the validation report below passes."
+    },
+    "review_duplicates": {
+      "title": "Review possible duplicate customers",
+      "body": "Customers that share an email, a phone number or a name and address with an imported customer. Merge or correct them in Customers."
+    },
+    "review_unmatched": {
+      "title": "Resolve unmatched records",
+      "body": "Jobs, invoices or payments that could not be linked to a customer, job or invoice — usually a missing or changed ID in the export."
+    },
+    "money_reconciled": {
+      "title": "Money reconciles to the old system",
+      "body": "Job revenue, invoice total, payments and open balance match the control totals exactly. Enter the control totals to enable this check."
+    },
+    "spot_check": {
+      "title": "Spot-check records side by side",
+      "body": "Open at least ten customers and ten jobs in both systems and compare names, addresses, phone numbers, dates and amounts."
+    },
+    "phone_forwarding": {
+      "title": "Point your business number at Vireek",
+      "body": "Forward or port your business line so calls reach Sarah. Do this when the team is ready, not before."
+    },
+    "parallel_run": {
+      "title": "Run both systems in parallel",
+      "body": "Keep the old system read-only for a short, agreed period and compare daily totals before relying on Vireek alone."
+    },
+    "cutover_day": {
+      "title": "Cut over",
+      "body": "From the agreed time, all new work is entered in Vireek only. Re-run the import for anything created since the export."
+    },
+    "train_team": {
+      "title": "Train the team",
+      "body": "Owner, dispatcher and technician courses walk through the real screens each role uses."
+    },
+    "old_system_readonly": {
+      "title": "Make the old system read-only",
+      "body": "Keep the export files and read-only access until your finance and tax needs are met. Check contract and data-retention terms with your advisor before cancelling."
+    },
+    "week1_review": {
+      "title": "Week-one review",
+      "body": "Re-run the validation report, review import history and open items, and fix what the team ran into."
+    }
+  },
+  "report": {
+    "title": "Post-import validation report",
+    "subtitle": "Counts, unmatched records, duplicates and money totals for imports from this source.",
+    "refresh": "Re-run",
+    "download": "Download CSV",
+    "loading": "Checking your data…",
+    "emptyTitle": "Nothing imported from this source yet",
+    "emptyBody": "Run an import first, then come back to validate it.",
+    "verdict": {
+      "not_started": "Not started",
+      "ready": "Ready — all checks pass",
+      "review": "Review needed — warnings found",
+      "blocked": "Blocked — a check failed"
+    },
+    "groups": {
+      "counts": "Counts",
+      "unmatched": "Unmatched records",
+      "duplicates": "Duplicates",
+      "money": "Money totals"
+    },
+    "columns": {
+      "check": "Check",
+      "expected": "Expected",
+      "actual": "Actual",
+      "difference": "Difference",
+      "status": "Result"
+    },
+    "status": {
+      "pass": "Pass",
+      "warn": "Warning",
+      "fail": "Fail",
+      "info": "For information",
+      "na": "Not applicable"
+    },
+    "entities": {
+      "customers": "customers",
+      "jobs": "jobs",
+      "invoices": "invoices",
+      "line_items": "invoice lines",
+      "payments": "payments",
+      "equipment": "equipment"
+    },
+    "checks": {
+      "rows_accounted": "Every {{entity}} row in the last import is accounted for (created + updated + skipped + errors = rows in file)",
+      "matches_source": "Rows in the {{entity}} file match the old system’s count",
+      "row_errors": "{{entity}} rows that failed to import",
+      "present_in_account": "Created {{entity}} are still in your account",
+      "unmatched_jobs_without_customer": "Imported jobs not linked to a customer",
+      "unmatched_invoices_without_customer": "Imported invoices not linked to a customer",
+      "unmatched_invoices_without_job": "Invoices that reference a job that was not found",
+      "unmatched_payments_without_invoice": "Payments not linked to an invoice",
+      "unmatched_jobs_without_amount": "Imported jobs with no amount",
+      "duplicates_customer_groups": "Groups of possible duplicate customers",
+      "money_job_revenue": "Job revenue total",
+      "money_invoice_total": "Invoice total",
+      "money_payments_total": "Payments total",
+      "money_open_balance": "Open balance on imported invoices",
+      "money_invoice_lines_dont_add_up": "Invoices whose lines do not add up to their total"
+    },
+    "duplicatesTitle": "Possible duplicate customers",
+    "duplicatesKind": {
+      "email": "Same email",
+      "phone": "Same phone number",
+      "name_address": "Same name and address"
+    },
+    "duplicatesMore": "Showing the first {{shown}} of {{total}} groups.",
+    "importedTag": "imported",
+    "openCustomers": "Open Customers"
+  },
+  "control": {
+    "title": "Control totals from the old system",
+    "body": "Type the numbers from a report in your old system. US format, e.g. 12,345.60. Leave a field empty to skip that comparison.",
+    "save": "Save totals",
+    "saved": "Totals saved",
+    "invalid": "Check the highlighted values.",
+    "fields": {
+      "rows_customers": "Customers",
+      "rows_jobs": "Jobs",
+      "rows_invoices": "Invoices",
+      "rows_line_items": "Invoice lines",
+      "rows_payments": "Payments",
+      "rows_equipment": "Equipment",
+      "jobRevenueCents": "Job revenue ($)",
+      "invoiceTotalCents": "Invoice total ($)",
+      "paymentsTotalCents": "Payments total ($)",
+      "openBalanceCents": "Open balance ($)"
+    }
+  }
+}
