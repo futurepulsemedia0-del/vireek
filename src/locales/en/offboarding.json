@@ -1,0 +1,135 @@
+{
+  "page": {
+    "title": "Leaving Vireek",
+    "subtitle": "Here is exactly what happens next, and how to take your data with you.",
+    "back": "Back to Billing",
+    "loadError": "We could not load this page. Please try again.",
+    "retry": "Try again",
+    "noCaseTitle": "There is nothing to show here",
+    "noCaseText": "No cancellation is in progress on this account. If you want to cancel, start from Billing.",
+    "reactivatedTitle": "Your account is active again",
+    "reactivatedText": "Your subscription is running normally. Nothing else needs doing.",
+    "withdrawnTitle": "Your cancellation was undone",
+    "withdrawnText": "Your subscription will renew as normal. Nothing else needs doing.",
+    "ownerOnly": "Only the account owner can see this page."
+  },
+  "timeline": {
+    "heading": "What happens, step by step",
+    "cancellation": {
+      "scheduled": { "title": "Cancellation scheduled", "text": "Your subscription will not renew. Nothing is charged again." }
+    },
+    "accessEnd": {
+      "upcoming": { "title": "Access ends on {{date}}", "text": "You keep full access until then. {{days}} days left." },
+      "ended": { "title": "Access ended on {{date}}", "text": "Your paid period is over." }
+    },
+    "export": {
+      "todo": { "title": "Download your data", "text": "Do this while you can still sign in. It is self-serve and takes a minute." },
+      "started": { "title": "Export started on {{date}}", "text": "You can download again at any time while you can sign in." }
+    },
+    "deletion": {
+      "none": { "title": "Deleting your data is your call", "text": "Until you ask us to delete it, your data is kept under our Data Retention policy. If you request deletion, it runs after a {{days}}-day grace period that you can cancel." },
+      "grace": { "title": "Deletion scheduled for {{date}}", "text": "Your data will be erased on that date unless you cancel the request first." },
+      "processing": { "title": "Deletion in progress", "text": "Your data is being erased. This can no longer be cancelled." },
+      "blocked": { "title": "Deletion is on hold", "text": "A legal hold prevents deletion right now. Contact support if you think this is a mistake." },
+      "completed": { "title": "Deletion completed", "text": "Your data has been erased." }
+    }
+  },
+  "export": {
+    "heading": "Take your data with you",
+    "intro": "The full archive has your customers, jobs, invoices, price book, call transcripts and audit log in open formats (JSON lines plus a manifest with checksums). The CSV files open in any spreadsheet.",
+    "archive": "Download full archive",
+    "archiveBusy": "Preparing…",
+    "archiveForbidden": "Only the account owner or an admin can export all data.",
+    "archiveError": "The export failed. Please try again in a minute.",
+    "csvCustomers": "Customers (CSV)",
+    "csvJobs": "Jobs (CSV)",
+    "csvCalls": "Calls (CSV)",
+    "csvDone": "Downloaded {{count}} rows.",
+    "csvEmpty": "Nothing to export yet. That list is empty.",
+    "csvError": "The export failed. Please try again.",
+    "note": "Call recordings and anything held by third-party providers are not part of these files."
+  },
+  "deletion": {
+    "heading": "Delete my data",
+    "intro": "Optional. Requesting deletion starts a {{days}}-day grace period. During it you can cancel with one click. After it, your account data is erased and cannot be recovered.",
+    "request": "Request deletion",
+    "confirmTitle": "Schedule deletion of all account data?",
+    "confirmText": "Export first if you need anything. After the grace period this cannot be undone.",
+    "confirm": "Yes, schedule deletion",
+    "keep": "Keep my data",
+    "cancel": "Cancel deletion",
+    "requested": "Deletion scheduled.",
+    "cancelled": "Deletion cancelled.",
+    "error": "We could not update the deletion request. Please try again."
+  },
+  "winback": {
+    "heading": "Keep in touch? (optional)",
+    "intro": "You can ask us to email you up to two times after your access ends, to say the door is open. No discounts or tricks. You can unsubscribe from any message with one click.",
+    "label": "Yes, you may email me up to two times after my access ends.",
+    "helper": "Not ticked by default. You can change your mind here or in any email.",
+    "optedIn": "You will hear from us at most twice. Thank you.",
+    "optedOut": "Understood. We will not email you about this.",
+    "unavailable": "This option is not available right now.",
+    "error": "We could not save your choice. Please try again.",
+    "consentFootnote": "Consent wording version: {{version}}."
+  },
+  "unsubscribe": {
+    "title": "Unsubscribe from Vireek follow-up emails?",
+    "text": "You will not receive any more follow-up emails about {{company}}'s Vireek account. This does not affect service or billing emails.",
+    "confirm": "Unsubscribe",
+    "working": "Working…",
+    "doneTitle": "You are unsubscribed",
+    "doneText": "We will not send you any more follow-up emails.",
+    "alreadyTitle": "You are already unsubscribed",
+    "alreadyText": "Nothing more to do.",
+    "invalidTitle": "This link is not valid",
+    "invalidText": "It may have been copied incompletely. Write to support and we will remove you by hand.",
+    "errorTitle": "Something went wrong",
+    "errorText": "Please try again in a moment.",
+    "retry": "Try again",
+    "fallbackCompany": "this business"
+  },
+  "staff": {
+    "title": "Offboarding & win-back",
+    "subtitle": "Why accounts leave, what happens to their data, and whether the opt-in follow-up brings anyone back.",
+    "range": "Last {{days}} days",
+    "loadError": "We could not load offboarding data.",
+    "funnel": "Funnel",
+    "cases": "Cancellations",
+    "ended": "Access ended",
+    "withdrawn": "Changed their mind",
+    "exported": "Started an export",
+    "optedIn": "Opted in to follow-up",
+    "unsubscribed": "Unsubscribed later",
+    "sent1": "Message 1 sent",
+    "sent2": "Message 2 sent",
+    "failed": "Failed to send",
+    "reactivated": "Came back",
+    "reactivatedAttributed": "Came back within {{days}} days of a message",
+    "reasons": "Reasons and outcomes",
+    "reason": "Reason",
+    "empty": "No cancellations in this period yet.",
+    "settings": "Win-back settings",
+    "enabled": "Win-back sending enabled",
+    "enabledHelp": "Off by default. Turn on only after counsel has approved the wording and WINBACK_POSTAL_ADDRESS is set.",
+    "firstDelay": "Days after access ends for message 1",
+    "gap": "Days between message 1 and 2",
+    "attribution": "Attribution window (days)",
+    "save": "Save settings",
+    "saved": "Settings saved.",
+    "saveError": "Could not save settings.",
+    "invalid": "Check the values: each must be a whole number within its range.",
+    "attributionNote": "\"Came back\" counts reactivations; only those within the attribution window after a sent message are credited to win-back. The rest are organic.",
+    "counsel": "[COUNSEL] Consent wording, sender identity and per-country marketing rules must be approved before enabling."
+  },
+  "reasons": {
+    "too_expensive": "Too expensive",
+    "missing_features": "Missing features",
+    "not_using": "Not using it",
+    "switching": "Switching to another tool",
+    "closing_business": "Closing the business",
+    "technical_issues": "Technical issues",
+    "other": "Other",
+    "unknown": "Not given"
+  }
+}
