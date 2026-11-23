@@ -458,6 +458,8 @@ const FailureAtlasPage = lazy(() => import('@/pages/FailureAtlasPage').then((m) 
 const FeedbackAnalyticsPage = lazy(() => import('@/pages/FeedbackAnalyticsPage').then((m) => ({ default: m.FeedbackAnalyticsPage })));
 const WeeklyScorecardPage = lazy(() => import('@/pages/WeeklyScorecardPage').then((m) => ({ default: m.WeeklyScorecardPage })));
 const ImportsPage = lazy(() => import('@/pages/ImportsPage').then((m) => ({ default: m.ImportsPage })));
+const MigrationChecklistPage = lazy(() => import('@/pages/MigrationChecklistPage').then((m) => ({ default: m.MigrationChecklistPage })));
+const LearnPage = lazy(() => import('@/pages/LearnPage').then((m) => ({ default: m.LearnPage })));
 const PhonePaymentsPage = lazy(() => import('@/pages/PhonePaymentsPage').then((m) => ({ default: m.PhonePaymentsPage })));
 const HiddenTechnicianPage = lazy(() => import('@/pages/HiddenTechnicianPage').then((m) => ({ default: m.HiddenTechnicianPage })));
 const HoursAuditPage = lazy(() => import('@/pages/HoursAuditPage').then((m) => ({ default: m.HoursAuditPage })));
@@ -2470,6 +2472,22 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <ImportsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/migration"
+          element={
+            <ProtectedRoute>
+              <MigrationChecklistPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/learn"
+          element={
+            <ProtectedRoute>
+              <LearnPage />
             </ProtectedRoute>
           }
         />
