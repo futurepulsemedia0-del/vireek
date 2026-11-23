@@ -1,0 +1,21 @@
+{
+  "title": "We updated our legal terms",
+  "intro": "Some of our legal documents changed in a way that affects your agreement with Vireek. Please review what changed and accept to keep using your account.",
+  "loading": "Checking for updates…",
+  "loadError": "We could not check for updated terms. Please try again.",
+  "retry": "Try again",
+  "effective": "Effective {{date}}",
+  "whatChanged": "What changed",
+  "noSummary": "No summary is available. Please read the full document.",
+  "kind": {
+    "added": "Added",
+    "changed": "Changed",
+    "removed": "Removed"
+  },
+  "readFull": "Read the full {{title}}",
+  "checkbox": "I have read and accept the updated {{titles}}.",
+  "accept": "Accept and continue",
+  "accepting": "Saving…",
+  "errorGeneric": "We could not save your acceptance. Please try again.",
+  "signOut": "Sign out instead"
+}
