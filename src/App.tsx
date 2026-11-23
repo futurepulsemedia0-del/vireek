@@ -225,6 +225,7 @@ const InventoryPage = lazy(() => import('@/pages/InventoryPage').then((m) => ({ 
 const InventoryCountsPage = lazy(() => import('@/pages/InventoryCountsPage').then((m) => ({ default: m.InventoryCountsPage })));
 const ToolCribPage = lazy(() => import('@/pages/ToolCribPage').then((m) => ({ default: m.ToolCribPage })));
 const BreakCompliancePage = lazy(() => import('@/pages/BreakCompliancePage').then((m) => ({ default: m.BreakCompliancePage })));
+const LaborSignalsPage = lazy(() => import('@/pages/LaborSignalsPage').then((m) => ({ default: m.LaborSignalsPage })));
 const VendorManagementPage = lazy(() => import('@/pages/VendorManagementPage').then((m) => ({ default: m.VendorManagementPage })));
 const SupplierCatalogPage = lazy(() => import('@/pages/SupplierCatalogPage').then((m) => ({ default: m.SupplierCatalogPage })));
 const PartsSourcingPage = lazy(() => import('@/pages/PartsSourcingPage').then((m) => ({ default: m.PartsSourcingPage })));
@@ -4169,6 +4170,14 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+<Route
+  path="/dashboard/labor-signals"
+  element={
+    <ProtectedRoute>
+      <LaborSignalsPage />
+    </ProtectedRoute>
+  }
+/>
         <Route
           path="/dashboard/inventory/trucks"
           element={
