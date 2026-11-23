@@ -1,5 +1,13 @@
 {
-  "flags": [
+  "flags": 
+    {
+      "key": "shadow_live_listen",
+      "kind": "release",
+      "owner": "platform-oncall",
+      "created": "2026-11-19",
+      "expires": "2027-05-15",
+      "cleanup": "Remove the isOn('shadow_live_listen') gate in shadow-live-authorize and LIVE_FLAG_KEY in _shared/shadow/liveListen.ts, and delete the flag row. If abandoned: drop shadow_live_* tables/functions (rollback note in the migration), the kill switch row, the function and docs/SHADOW_LIVE_LISTEN_DESIGN.md."
+    },
     {
       "key": "personalized_pricing_notice",
       "kind": "ops",
