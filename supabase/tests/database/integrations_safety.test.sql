@@ -2,16 +2,18 @@
 -- NOT RUN by the author (no database available when written) - run before release.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(15);
+select plan(18);
 
 select has_function('public', 'can_manage_integrations', array[]::text[], 'can_manage_integrations() exists');
 select ok(has_function_privilege('authenticated', 'public.can_manage_integrations()', 'EXECUTE'), 'authenticated may call can_manage_integrations');
 select ok(not has_function_privilege('anon', 'public.can_manage_integrations()', 'EXECUTE'), 'anon may NOT call can_manage_integrations');
 
-select is((select enabled from public.feature_flags where key = 'servicetitan_app_key_onboarding'), false, 'ServiceTitan App-Key flag is seeded OFF');
-select is((select rollout_pct from public.feature_flags where key = 'servicetitan_app_key_onboarding'), 0, 'rollout is 0');
-select is(public.flag_evaluate('servicetitan_app_key_onboarding', gen_random_uuid()), false, 'flag evaluates OFF for an arbitrary tenant');
-
+select is((select enabled from public.feature_flags where key = 'servicetitan_app_key_onboarding'), true, 'ServiceTitan App-Key flag is ON by default');
+select is((select rollout_pct from public.feature_flags where key = 'servicetitan_app_key_onboarding'), 100, 'rollout is 100');
+select has_table('public', 'servicetitan_app_key_legacy_tenants', 'legacy tenant snapshot table exists');
+select ok((select relrowsecurity from pg_class where oid = 'public.servicetitan_app_key_legacy_tenants'::regclass), 'RLS is enabled on the legacy tenant table');
+select ok(not has_table_privilege('authenticated', 'public.servicetitan_app_key_legacy_tenants', 'SELECT'), 'authenticated may NOT read the legacy tenant table');
+select ok(has_table_privilege('service_role', 'public.servicetitan_app_key_legacy_tenants', 'SELECT'), 'service_role may read the legacy tenant table');
 select ok(not has_function_privilege('authenticated', 'public.oauth_state_consume(text,text)', 'EXECUTE'), 'authenticated may NOT consume OAuth nonces');
 select ok(has_function_privilege('service_role', 'public.oauth_state_consume(text,text)', 'EXECUTE'), 'service_role may consume OAuth nonces');
 
