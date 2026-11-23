@@ -174,7 +174,6 @@ export function CancelSubscriptionPage() {
   const [step, setStep] = useState<Step>('survey');
   const [reason, setReason] = useState<CancelReason | null>(null);
   const [detail, setDetail] = useState('');
-  const [reasonError, setReasonError] = useState(false);
   const [pauseMonths, setPauseMonths] = useState<PauseMonths>(1);
   const [busy, setBusy] = useState<Busy>(null);
   const [saveOffers, setSaveOffers] = useState<SaveOfferView[]>([]);
@@ -414,7 +413,7 @@ export function CancelSubscriptionPage() {
 
             <fieldset className="mt-5">
               <legend className="mb-2 text-sm font-semibold text-text-primary">
-                What’s the main reason you’re leaving?<span className="ml-0.5 text-danger">*</span>
+                What’s the main reason you’re leaving?< <span className="font-normal text-text-secondary">(optional)</span>
               </legend>
               <div className="space-y-2">
                 {CANCEL_REASON_OPTIONS.map((o, i) => (
@@ -466,12 +465,20 @@ export function CancelSubscriptionPage() {
             <Button type="button" variant="ghost" onClick={goBack}>
               Keep my subscription
             </Button>
-            <Button type="button" onClick={() => void onContinueFromSurvey(ctx)} disabled={busy !== null}>
-              {busy === 'offers' && <Loader2 size={16} className="animate-spin" aria-hidden="true" />}
-              Continue
+                    <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-between">
+            <Button type="button" variant="ghost" onClick={goBack}>
+              Keep my subscription
             </Button>
+            <div className="flex flex-col-reverse gap-2 sm:flex-row">
+              <Button type="button" variant="ghost" onClick={() => setStep('confirm')} disabled={busy !== null}>
+                Skip and cancel now
+              </Button>
+              <Button type="button" onClick={() => void onContinueFromSurvey(ctx)} disabled={busy !== null}>
+                {busy === 'offers' && <Loader2 size={16} className="animate-spin" aria-hidden="true" />}
+                Continue
+              </Button>
+            </div>
           </div>
-        </div>
       );
     } else if (step === 'alternatives') {
       const resume = previewResumeDate(new Date(), pauseMonths);
