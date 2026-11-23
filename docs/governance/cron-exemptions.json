@@ -1,0 +1,22 @@
+{
+  "$comment": "Cron-style edge functions that are intentionally NOT scheduled by pg_cron. Each entry needs a kind and a reason. Checked by scripts/governance/check-cron-coverage.mjs.",
+  "version": 1,
+  "exemptions": [
+    {
+      "function": "failure-genome-refresh",
+      "kind": "covered-by-sql",
+      "reason": "Fallback for projects without pg_cron. The migration already schedules the nightly rebuild in SQL (job vireek-failure-genome-nightly calls run_failure_genome_nightly() directly), so scheduling this function too would run the rebuild twice.",
+      "evidence": "supabase/migrations/20270202000000_failure_genome.sql"
+    },
+    {
+      "function": "provider-credentials-backfill",
+      "kind": "one-off",
+      "reason": "One-off, idempotent copy of legacy plaintext credentials into the encrypted vault. It is run by hand during the migration in docs/runbooks/provider-credentials-migration.md and must never run on a timer."
+    },
+    {
+      "function": "google-redirect-feed",
+      "kind": "external-scheduler",
+      "reason": "Only generates the Google Actions Center feed files and returns them in the HTTP response (merchant names, phones, addresses). Google ingests via SFTP, so an uploader outside the database must call it and push the files. A pg_cron/pg_net call would discard the response and keep merchant data in net._http_response."
+    }
+  ]
+}
