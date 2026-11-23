@@ -13,7 +13,7 @@ function json(body: unknown, status = 200) {
   });
 }
 
-import { OWNED_TABLE_NAMES } from "../_shared/compliance/ownedTables.ts";
+import { OWNED_TABLE_NAMES, TENANT_KEYED_OWNED_TABLES } from "../_shared/compliance/ownedTables.ts";
 import { eraseProviderData } from "../_shared/compliance/providerErasure.ts";
 import { eraseTrustPackData } from "../_shared/trust/vault.ts";
 Deno.serve(async (req: Request) => {
@@ -82,6 +82,9 @@ Deno.serve(async (req: Request) => {
     });
     if (!prov.ok && Deno.env.get("PROVIDER_ERASURE_STRICT") === "true") {
       return json({ error: "Some provider-held data could not be removed yet. Please try again shortly." }, 503);
+        return json({ error: `Failed to delete ${table}: ${error.message}` }, 500);
+      }
+    }
     }
     for (const table of OWNED_TABLE_NAMES) {
       const { error } = await admin.from(table).delete().eq("user_id", userId);
