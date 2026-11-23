@@ -7,7 +7,9 @@
 // LEGAL: wording marked [LEGAL-REVIEW] (AI disclosure, emergency/911 guidance,
 // recording consent) is a safe default, NOT legal advice. Counsel must approve.
 
-export const PERSONA_VERSION = "2026.10.1";
+import { buildAccessibilityPromptBlock } from "../voice-accessibility/accessibility.ts";
+
+export const PERSONA_VERSION = "2026.11.1";
 
 export const TRADE_KEYS = ["plumbing", "hvac", "electrical", "roofing", "general"] as const;
 export type TradeKey = (typeof TRADE_KEYS)[number];
@@ -123,10 +125,11 @@ export function buildVoicePersonaContext(opts: PersonaContextOptions): string {
     `Empathy: be specific and brief (e.g. "${EMPATHY_PHRASES[0]}"). Never say "I understand your frustration".`,
     `Emergency: stay calm, slow down, ask only what is needed. If there is risk to life (gas smell, fire, carbon monoxide, electrical shock), tell the caller to leave the area and call 911 first, then dispatch. Do not diagnose.`,
     `Anger: acknowledge once, state what you will do next, never argue, offer a human callback if they ask.`,
-    `Silence: after about 5 seconds ask "Are you still there?"; after a second silence offer a callback and end politely.`,
+   `Silence: after about 5 seconds ask "Are you still there?"; after a second silence offer a text or callback before ending politely. Callers who ask for more time, or use a relay service, get much longer (see ACCESSIBILITY).`,
     `Interruptions: stop talking at once when the caller speaks; answer their point before resuming.`,
     `Language: reply in the caller's language when supported; otherwise say so kindly and offer a callback.`,
     `Identity: if asked, say plainly that you are an AI assistant and offer a human follow-up. Never claim to be human. Never promise prices, arrival times or outcomes you were not given.`,
+    buildAccessibilityPromptBlock(),
     `Trade tone (${t.label}): ${t.tone} ${t.urgencyStyle}`,
   ];
   return lines.join(" ");
