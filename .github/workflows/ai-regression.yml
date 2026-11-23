@@ -49,14 +49,14 @@ jobs:
     name: Voice red-team scorecard
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: '20'
           cache: 'npm'
       - run: npm ci
       - name: Restore ASR history
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: eval/voice-redteam/history.jsonl
           key: voice-redteam-history-${{ github.run_id }}
@@ -69,7 +69,7 @@ jobs:
         if: always()
         run: |
           [ -f eval/voice-redteam/out/scorecard.md ] && cat eval/voice-redteam/out/scorecard.md >> "$GITHUB_STEP_SUMMARY" || true
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: voice-redteam-scorecard
