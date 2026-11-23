@@ -1,0 +1,117 @@
+{
+  "_notice": "ILLUSTRATIVE DRY-RUN INPUT. Garage door is a hypothetical expansion trade used only to validate the checklist tooling. Every price, benchmark, cause and safety sentence below is a placeholder that no practitioner has reviewed [VERIFY]. Never install or ship this content.",
+  "candidate": {
+    "slug": "garage_door",
+    "name": "Garage Door",
+    "hazards": ["stored_energy", "structural", "electric"],
+    "regulatedWork": true,
+    "usesRegulatedProducts": false,
+    "recurringContracts": true,
+    "markets": ["US"],
+    "languages": ["es"],
+    "joinsOutcomeNetwork": true,
+    "needsNewTables": false
+  },
+  "draft": {
+    "slug": "garage_door",
+    "name": "Garage Door",
+    "tagline": "Spring, opener and door repair seeds for garage door businesses",
+    "catalogVersion": 1,
+    "jobTypes": [
+      {
+        "key": "spring-repair",
+        "label": "Broken spring repair",
+        "match": ["broken spring", "torsion spring", "spring repair", "spring broke"],
+        "checklist": [
+          { "id": "identify-spring", "label": "Identify spring type, wire size and door weight before ordering or fitting" },
+          { "id": "secure-door", "label": "Secure the door closed before touching any spring hardware", "critical": true },
+          { "id": "winding-bars", "label": "Use correctly sized winding bars; never improvised tools", "critical": true },
+          { "id": "offer-pair", "label": "Offer to replace both springs as a pair and record the customer's choice" },
+          { "id": "balance-test", "label": "Balance test: the door stays put at mid-height without drifting", "critical": true },
+          { "id": "cables-drums", "label": "Inspect cables, drums and bottom brackets for wear" },
+          { "id": "photos", "label": "Photograph the finished installation" }
+        ],
+        "troubleshooting": {
+          "symptom": "Loud bang from the garage, then the door will not lift or feels extremely heavy",
+          "safety": "Do not try to lift the door, release the opener, or touch the springs, cables or brackets. They hold stored energy. Keep people and vehicles clear of the door and book a technician.",
+          "causes": [
+            { "key": "spring-fatigue", "label": "Torsion spring worn out and broken", "likelihood": "common", "test": "Visible gap in the spring coil; door cannot be lifted by hand", "fix": "Replace the spring set with the correct size and re-balance the door", "parts": ["Torsion springs (matched pair)", "Winding cones"] },
+            { "key": "cable-snapped", "label": "Lift cable snapped or off the drum", "likelihood": "occasional", "test": "Slack or frayed cable; cable not seated in the drum groove", "fix": "Replace the cable and reseat the drum", "parts": ["Lift cables", "Cable drums"] },
+            { "key": "bearing-seized", "label": "Centre or end bearing seized", "likelihood": "rare", "test": "Shaft does not turn freely; bearing noise before failure", "fix": "Replace the bearing and lubricate the shaft", "parts": ["Bearings"] }
+          ]
+        },
+        "benchmark": { "ticketMinCents": 25000, "ticketMaxCents": 55000, "durationMinutes": 120, "firstTimeFixPct": 85, "maxCallbackPct": 4, "targetMarginPct": 55 },
+        "price": { "serviceName": "Garage door spring repair", "category": "Garage doors", "pricingModel": "starting_at", "priceCents": 29900, "estimatedCostCents": 11500, "keywords": ["broken spring", "garage door spring", "torsion spring", "garage door will not open"], "description": "Replace broken torsion springs and re-balance the door." }
+      },
+      {
+        "key": "opener-repair",
+        "label": "Opener repair",
+        "match": ["opener", "remote", "keypad"],
+        "checklist": [
+          { "id": "power-check", "label": "Confirm power, outlet and fuse before opening the housing" },
+          { "id": "sensors", "label": "Check and align safety sensors; never bypass them", "critical": true },
+          { "id": "limits", "label": "Set travel and force limits to the door manufacturer's guidance" },
+          { "id": "reverse-test", "label": "Run the auto-reverse test with an obstruction", "critical": true },
+          { "id": "remotes", "label": "Re-pair remotes and keypad" },
+          { "id": "photos", "label": "Photograph the unit label and the finished work" }
+        ],
+        "troubleshooting": {
+          "symptom": "Opener hums, clicks, reverses, or does nothing when the button is pressed",
+          "safety": "Unplug the opener before opening the housing. Never bypass or tape over the safety sensors.",
+          "causes": [
+            { "key": "sensor-misaligned", "label": "Safety sensors misaligned or blocked", "likelihood": "common", "test": "Sensor LEDs off or blinking; door closes only when the button is held", "fix": "Clean, realign and secure the sensors", "parts": ["Sensor set", "Brackets"] },
+            { "key": "remote-battery", "label": "Remote battery or pairing lost", "likelihood": "common", "test": "Wall button works, remote does not", "fix": "Replace the battery or re-pair the remote", "parts": ["Remote battery", "Remote"] },
+            { "key": "limit-drift", "label": "Travel limits out of adjustment", "likelihood": "occasional", "test": "Door stops short or reverses at the floor", "fix": "Reset limits and retest force", "parts": [] },
+            { "key": "logic-board", "label": "Logic board failure", "likelihood": "rare", "test": "No response with good power and sensors", "fix": "Replace the board or the opener", "parts": ["Logic board"] }
+          ]
+        },
+        "benchmark": { "ticketMinCents": 12000, "ticketMaxCents": 45000, "durationMinutes": 60, "firstTimeFixPct": 88, "maxCallbackPct": 5, "targetMarginPct": 55 },
+        "price": { "serviceName": "Garage door opener repair", "category": "Garage doors", "pricingModel": "starting_at", "priceCents": 14900, "estimatedCostCents": 5500, "keywords": ["garage door opener", "opener not working", "remote not working"], "description": "Diagnose and repair the garage door opener, sensors and remotes." }
+      },
+      {
+        "key": "off-track-door",
+        "label": "Off-track or damaged door",
+        "match": ["off track", "off-track", "came off", "bent section"],
+        "checklist": [
+          { "id": "secure-door", "label": "Secure the door and keep everyone clear before any work", "critical": true },
+          { "id": "inspect-track", "label": "Inspect rollers, hinges and tracks for damage" },
+          { "id": "panels", "label": "Assess panels; recommend replacement where a section is bent or cracked" },
+          { "id": "realign", "label": "Reset the door in the tracks and realign" },
+          { "id": "balance-test", "label": "Balance test before handing the door back", "critical": true },
+          { "id": "photos", "label": "Photograph before and after" }
+        ],
+        "troubleshooting": {
+          "symptom": "Door is crooked, jammed or hanging out of its tracks",
+          "safety": "Do not operate the opener or stand under a door that has come off its track. Panels and springs can fall.",
+          "causes": [
+            { "key": "roller-failure", "label": "Roller failed or slipped out of the track", "likelihood": "common", "test": "Missing or broken roller; door sits crooked on one side", "fix": "Replace rollers and reset the door in the track", "parts": ["Rollers", "Hinges"] },
+            { "key": "impact-damage", "label": "Vehicle or object impact", "likelihood": "common", "test": "Bent track or panel at the point of impact", "fix": "Replace the damaged track or panel section", "parts": ["Track", "Panel section"] },
+            { "key": "track-loose", "label": "Track brackets loose", "likelihood": "occasional", "test": "Track moves by hand; gap to the jamb", "fix": "Tighten or replace the brackets and re-level", "parts": ["Track brackets"] }
+          ]
+        },
+        "benchmark": { "ticketMinCents": 15000, "ticketMaxCents": 90000, "durationMinutes": 150, "firstTimeFixPct": 78, "maxCallbackPct": 6, "targetMarginPct": 50 },
+        "price": { "serviceName": "Garage door off-track repair", "category": "Garage doors", "pricingModel": "range", "priceCents": 24900, "priceMaxCents": 69900, "estimatedCostCents": 12000, "keywords": ["off track", "door came off", "door crooked", "bent panel"], "description": "Reset or repair a garage door that has come off its tracks." }
+      },
+      {
+        "key": "annual-tune-up",
+        "label": "Maintenance tune-up",
+        "match": ["annual service", "lubrication", "safety service"],
+        "checklist": [
+          { "id": "balance", "label": "Balance test with the opener disconnected", "critical": true },
+          { "id": "hardware", "label": "Inspect springs, cables, rollers and hinges" },
+          { "id": "lubricate", "label": "Lubricate moving parts with a garage-door-rated lubricant" },
+          { "id": "reverse", "label": "Auto-reverse and sensor test", "critical": true },
+          { "id": "report", "label": "Leave a written condition report" }
+        ],
+        "benchmark": { "ticketMinCents": 9900, "ticketMaxCents": 19900, "durationMinutes": 60, "firstTimeFixPct": 98, "maxCallbackPct": 2, "targetMarginPct": 65 },
+        "price": { "serviceName": "Garage door annual service", "category": "Garage doors", "pricingModel": "flat", "priceCents": 12900, "estimatedCostCents": 4000, "keywords": ["tune up", "garage door maintenance", "annual service"], "description": "Annual safety inspection, balance test and lubrication." }
+      }
+    ],
+    "dispatchNotes": [
+      "Broken spring or door off its track with a person or vehicle affected: same-day priority. Tell the caller not to touch the door, springs or cables.",
+      "Door stuck open overnight is a security issue: offer the next available priority slot.",
+      "Opener problems are routine: schedule normally unless the door is stuck open or has a vehicle trapped inside."
+    ],
+    "workflowSlugs": ["membership-welcome", "membership-visit-reminder", "post-job-review-request"]
+  }
+}
