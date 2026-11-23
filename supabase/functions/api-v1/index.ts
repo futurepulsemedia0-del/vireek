@@ -36,12 +36,15 @@ import {
   sandboxResponse,
   type ErrorCode,
 } from "./contract.ts";
-
+import { apiDeprecationList } from "../_shared/lifecycle/deprecations.ts";
+import { DEPRECATION_REGISTRY } from "../_shared/lifecycle/registry.ts";
+// Live deprecations (policy: docs/product/lifecycle-policy.md). Empty today; see _shared/lifecycle/registry.ts.
+const API_DEPRECATION_LIST = apiDeprecationList(DEPRECATION_REGISTRY);
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, OPTIONS",
   "Access-Control-Allow-Headers": "Authorization, Content-Type",
-  "Access-Control-Expose-Headers": "X-Request-Id, X-RateLimit-Limit, Retry-After, X-Vireek-Mode, X-Vireek-Api-Version, Deprecation, Sunset",
+  "Access-Control-Expose-Headers": "X-Request-Id, X-RateLimit-Limit, Retry-After, X-Vireek-Mode, X-Vireek-Api-Version, Deprecation, Sunset, Link",
 };
 
 function json(data: unknown, status = 200, extraHeaders: Record<string, string> = {}) {
@@ -219,7 +222,7 @@ Deno.serve(async (req: Request) => {
   if (ctx.keyId) {
     res.headers.set("X-RateLimit-Limit", String(ctx.rateLimit));
     res.headers.set(MODE_HEADER, ctx.mode);
-    for (const [name, value] of Object.entries(deprecationHeaders(ctx.resource))) res.headers.set(name, value);
+    for (const [name, value] of Object.entries(deprecationHeaders(ctx.resource, API_DEPRECATION_LIST))) res.headers.set(name, value);
   }
 
   const latencyMs = Math.max(0, Date.now() - startedAt);
