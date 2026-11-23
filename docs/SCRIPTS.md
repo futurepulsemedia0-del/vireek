@@ -37,6 +37,14 @@ Run from the repo root. "CI" = run by a workflow in `.github/workflows` (verify 
 | `migrations:plan` | Plan for resolving duplicate versions | when repairing history (see `docs/runbooks/migration-version-repair.md`) |
 | `report:board-pack` | Monthly board pack (markdown) from existing SQL views; missing data shown as "not available". Needs `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`; `--dry-run` needs none. See `docs/finance/board-pack-template.md` | monthly, after month end |
 | `test:scripts:board-pack` | Tests for the board pack generator (no database) | changes to the generator |
+| `report:market-entry` | Market-entry readiness per regional pack from `config/global/market-entry.json` + code facts. No network. `--strict` exits 3 while not ready. See `docs/global/market-entry.md` | before a regional launch |
+| `lint:market-entry` | Validates the market-entry checklist (evidence, COUNSEL/VERIFY rules) | changes to the checklist |
+| `test:scripts:market-entry` | Tests for the market-entry report | changes to the report |
+| `payments-einvoicing:check` | Validates `config/global/payments-einvoicing.json` and that `docs/global/payments-einvoicing.md` is in sync (exit 2 invalid, 4 drift) | CI, changes to the matrix |
+| `payments-einvoicing:report` | Which regions/rows are complete and what is missing; `--strict` exits 3 while a gated pack is incomplete | before clearing a region for billing |
+| `payments-einvoicing:write` | Regenerates the table in the doc from the JSON | after editing the matrix |
+| `payments-einvoicing:hash` | sha256 of a pack's rows, required by `staff_set_billing_region_clearance` | when clearing a pack |
+| `test:scripts:payments-einvoicing` | Tests for the matrix, the gate semantics and the migration wiring | changes to the matrix tooling |
 | `product:trace` | Strategy-to-roadmap trace: flags shipped routes/functions with no linked goal and goals with no shipped work (`docs/product/okrs.json`). `--check` = fail on structural errors, `--strict` = also fail on orphans/placeholders. See `docs/product/okrs.md` | after editing okrs.json; optional CI |
 | `test:scripts:product` | Tests for the trace script (no database, no network) | changes to the script |
 | `db:audit` | DB hygiene check vs `scripts/db-audit.baseline.json` | after migrations; CI (`db-perf.yml`) |
