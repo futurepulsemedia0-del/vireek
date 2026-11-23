@@ -555,6 +555,10 @@ const TrustPackPage = lazy(() => import('@/pages/TrustPackPage').then((m) => ({ 
 const SecurityPortalPage = lazy(() => import('@/pages/SecurityPortalPage').then((m) => ({ default: m.SecurityPortalPage })));
 const StaffTrustAdminPage = lazy(() => import('@/pages/StaffTrustAdminPage').then((m) => ({ default: m.StaffTrustAdminPage })));
 const StaffChurnSavePage = lazy(() => import('@/pages/StaffChurnSavePage').then((m) => ({ default: m.StaffChurnSavePage })));
+const OffboardingPage = lazy(() => import('@/pages/OffboardingPage').then((m) => ({ default: m.OffboardingPage })));
+const StaffOffboardingPage = lazy(() => import('@/pages/StaffOffboardingPage').then((m) => ({ default: m.StaffOffboardingPage })));
+const StaffIncidentCommsPage = lazy(() => import('@/pages/StaffIncidentCommsPage').then((m) => ({ default: m.StaffIncidentCommsPage })));
+const WinbackUnsubscribePage = lazy(() => import('@/pages/WinbackUnsubscribePage'));
 const StaffPmfPage = lazy(() => import('@/pages/StaffPmfPage').then((m) => ({ default: m.StaffPmfPage })));
 const RefundPolicyPage = lazy(() => import('@/pages/RefundPolicyPage').then((m) => ({ default: m.RefundPolicyPage })));
 const SlaPage = lazy(() => import('@/pages/SlaPage').then((m) => ({ default: m.SlaPage })));
@@ -856,6 +860,8 @@ function AppRoutes() {
 />
         <Route path="/staff/trust-admin" element={<StaffRoute><StaffTrustAdminPage /></StaffRoute>} />
         <Route path="/staff/churn-save" element={<StaffRoute><StaffChurnSavePage /></StaffRoute>} />
+        <Route path="/staff/offboarding" element={<StaffRoute><StaffOffboardingPage /></StaffRoute>} />
+        <Route path="/staff/incident-comms" element={<StaffRoute><StaffIncidentCommsPage /></StaffRoute>} />
         <Route path="/staff/pmf" element={<StaffRoute><StaffPmfPage /></StaffRoute>} />
         <Route path="/staff/open-voice-benchmark" element={<StaffRoute><StaffOpenVoiceBenchmarkPage /></StaffRoute>} />
         <Route path="/staff/value-scoreboard" element={<StaffRoute><StaffValueScoreboardPage /></StaffRoute>} />
@@ -1170,6 +1176,7 @@ function AppRoutes() {
         <Route path="/status" element={<StatusPage />} />
         <Route path="/status/unsubscribe" element={<StatusUnsubscribePage />} />
         <Route path="/email/unsubscribe/:token" element={<EmailUnsubscribePage />} />
+        <Route path="/winback/unsubscribe/:token" element={<WinbackUnsubscribePage />} />
         <Route path="/maintenance" element={<MaintenancePage />} />
         <Route path="/case-studies" element={<CaseStudiesPage />} />
         <Route path="/customers" element={<CustomersPage />} />
@@ -5065,6 +5072,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <CancelSubscriptionPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/billing/offboarding"
+          element={
+            <ProtectedRoute>
+              <OffboardingPage />
             </ProtectedRoute>
           }
         />
