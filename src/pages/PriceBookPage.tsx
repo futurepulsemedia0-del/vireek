@@ -58,6 +58,25 @@ function CrmConnections({
   const [hcpApiKey, setHcpApiKey] = useState('');
   const [connectingHcp, setConnectingHcp] = useState(false);
   const [syncingProvider, setSyncingProvider] = useState<CrmProvider | null>(null);
+  // Whether this account may enter a ServiceTitan App Key. The server decides (stOnboardingPolicy.ts); this only mirrors it.
+  const [stAccess, setStAccess] = useState<'checking' | 'allowed' | 'blocked'>('checking');
+  const hasStConnection = connections.some((c) => c.provider === 'service_titan' && c.status !== 'disconnected');
+  useEffect(() => {
+    if (hasStConnection) {
+      setStAccess('allowed');
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      const { data, error } = await supabase.functions.invoke('price-book-connect-servicetitan', { body: { action: 'status' } });
+      if (cancelled) return;
+      // If the check itself fails, keep the form available: the server re-checks on submit and returns the real reason.
+      setStAccess(!error && data?.allowed === false ? 'blocked' : 'allowed');
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [hasStConnection]);
 
   const byProvider = (p: CrmProvider) => connections.find((c) => c.provider === p && c.status !== 'disconnected');
   const handleConnectServiceTitan = async () => {
@@ -66,7 +85,23 @@ function CrmConnections({
     const { data, error } = await supabase.functions.invoke('price-book-connect-servicetitan', { body: stForm });
     setConnectingSt(false);
     if (error || data?.error) {
-      toast(data?.error || 'Could not connect ServiceTitan', 'error');
+      let message: string | undefined = data?.error;
+      let code: string | undefined = data?.code;
+      if (!message && error && 'context' in error) {
+        try {
+          const body = await (error as { context: Response }).context.clone().json();
+          message = body?.error;
+          code = body?.code;
+        } catch {
+          /* keep the generic message */
+        }
+      }
+      if (code === 'servicetitan_certified_pending') {
+        setStAccess('blocked');
+        setShowStForm(false);
+        setStForm(EMPTY_ST_FORM);
+      }
+      toast(message || 'Could not connect ServiceTitan', 'error');
       return;
     }
     toast(`ServiceTitan connected — synced ${data.synced} services.`, 'success');
@@ -165,10 +200,15 @@ function CrmConnections({
     onDisconnected={onChanged}
   />
 </div>
+              ) : provider === 'service_titan' && stAccess === 'blocked' ? (
+                <span className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-text-secondary">
+                  Not available for new connections
+                </span>
               ) : provider === 'service_titan' ? (
                 <button
                   type="button"
                   onClick={() => setShowStForm((v) => !v)}
+                  disabled={stAccess === 'checking'}
                   className="focus-ring flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-on-accent transition-all hover:brightness-110"
                 >
                   <Link2 size={12} /> Connect
@@ -195,7 +235,16 @@ function CrmConnections({
           );
         })}
       </div>
-
+      {stAccess === 'blocked' && !hasStConnection && (
+        <div role="note" className="mt-3 rounded-xl border border-border bg-bg-primary p-4">
+          {/* TODO(owner): approve this wording (and whether to mention a future certified connection). */}
+          <p className="text-sm font-medium text-text-primary">ServiceTitan is not available for new connections right now</p>
+          <p className="mt-1 text-xs text-text-secondary">
+            Vireek does not ask new accounts for a ServiceTitan App Key. You can still connect Jobber or Housecall Pro above,
+            or add and edit your prices by hand below. Accounts that already have ServiceTitan connected are not affected.
+          </p>
+        </div>
+      )}
       {showHcpForm && (
         <div className="mt-3 rounded-xl border border-border bg-bg-primary p-4">
           <p className="mb-3 text-xs text-text-secondary">
@@ -224,7 +273,7 @@ function CrmConnections({
         </div>
       )}
 
-      {showStForm && (
+      {showStForm && stAccess !== 'blocked' && (
         <div className="mt-3 rounded-xl border border-border bg-bg-primary p-4">
           <p className="mb-3 text-xs text-text-secondary">
             From your ServiceTitan developer app (My Apps → your app): Client ID, Client Secret, App Key, and your Tenant ID.
