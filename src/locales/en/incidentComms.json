@@ -1,0 +1,82 @@
+{
+  "title": "Incident communication",
+  "subtitle": "Draft the status post and customer email from an incident record. Nothing is published until a person approves the exact text.",
+  "loadError": "We could not load incident data.",
+  "incidents": "Incidents",
+  "noIncidents": "No open incidents and none in the last 30 days.",
+  "selectIncident": "Select an incident to draft communication for it.",
+  "impact": { "minor": "Minor", "major": "Major" },
+  "status": { "investigating": "Investigating", "monitoring": "Monitoring", "resolved": "Resolved" },
+  "settings": {
+    "requireSecond": "Require a second person to approve SEV1, SEV2 and major incidents",
+    "requireSecondHelp": "On by default. If you are the only staff member, turn this off temporarily and note why in the incident channel.",
+    "saved": "Setting saved.",
+    "saveError": "Could not save the setting."
+  },
+  "new": {
+    "heading": "New draft",
+    "phase": "Phase",
+    "severity": "Severity",
+    "audience": "Audience",
+    "customerAction": "What customers can do (optional)",
+    "customerActionHelp": "Plain words, no links or contact details. Leave empty if there is nothing to do.",
+    "create": "Generate draft",
+    "created": "Draft created.",
+    "noPublic": "SEV4 has no public message.",
+    "emailNotAllowed": "Only SEV1 and SEV2 may email subscribers."
+  },
+  "phase": { "investigating": "Investigating", "identified": "Identified", "monitoring": "Monitoring", "resolved": "Resolved" },
+  "severity": { "sev1": "SEV1 (critical)", "sev2": "SEV2 (major)", "sev3": "SEV3 (limited)", "sev4": "SEV4 (no public message)" },
+  "audience": { "status_page": "Status page only", "status_page_and_subscribers": "Status page + email to subscribers" },
+  "draft": {
+    "heading": "Drafts",
+    "empty": "No drafts for this incident yet.",
+    "statusPost": "Status post (public)",
+    "emailSubject": "Email subject",
+    "emailBody": "Email body",
+    "chars": "{{count}} / {{max}}",
+    "nextUpdate": "Promised next update: {{time}}",
+    "stale": "The promised next-update time has passed. Generate a new draft before sending.",
+    "save": "Save edits",
+    "saved": "Edits saved. Any earlier approval was reset.",
+    "submit": "Submit for approval",
+    "submitted": "Submitted for approval.",
+    "approve": "Approve this exact text",
+    "approved": "Approved.",
+    "reviewed": "I have read the status post and the email exactly as shown above.",
+    "reject": "Reject",
+    "rejectReason": "Reason (optional)",
+    "rejected": "Draft rejected.",
+    "send": "Send now",
+    "retry": "Retry send",
+    "sent": "Published.",
+    "sendConfirm": "This publishes the status post and emails subscribers. It cannot be undone.",
+    "secondPerson": "A second person must approve this one. You drafted or submitted it.",
+    "awaiting": "Waiting for a second person to review.",
+    "emailResult": "Email: {{sent}} sent, {{failed}} failed of {{total}} subscribers.",
+    "postedAt": "Status post published {{time}}.",
+    "partial": "Sending stopped part-way. Steps that already completed will not be repeated on retry.",
+    "preview": "Preview"
+  },
+  "state": {
+    "draft": "Draft",
+    "pending_approval": "Awaiting approval",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "sending": "Sending",
+    "sent": "Sent",
+    "send_failed": "Send failed"
+  },
+  "lint": {
+    "heading": "Checks",
+    "block": "Must fix",
+    "warn": "Review"
+  },
+  "errors": {
+    "forbidden": "You do not have permission to do that.",
+    "conflict": "That action is not allowed in the current state.",
+    "lint_blocked": "The text did not pass the safety checks. See the list below.",
+    "draft_stale": "The promised next-update time has passed. Generate a new draft.",
+    "generic": "Something went wrong. Please try again."
+  }
+}
