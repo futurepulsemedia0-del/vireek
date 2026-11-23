@@ -11,6 +11,7 @@ interface DbError { message?: string; code?: string }
 function fail(error: DbError | null | undefined, fallback: string): never {
   if (error?.code === '42501') throw new Error('You need the “edit business profile” permission for this.');
   if (error?.code === '23505') throw new Error('That entry already exists.');
+  if (error?.code === '55000') throw new Error(error.message || 'This region is not cleared for billing yet.');
   if (error?.code === 'P0002' || error?.code === '22023') throw new Error(error.message || fallback);
   throw new Error(fallback);
 }
