@@ -11,6 +11,10 @@
 //      execute the erasure (full account / one customer / one dataset)
 //      and mark it completed.
 //
+// 3. ERASURE CERTIFICATES — after a full_account erasure completes, a signed deletion certificate is issued
+//    (supabase/functions/_shared/compliance/erasureCertificate.ts). Missing certificates are backfilled on
+//    later runs. A certificate failure never reverts or re-opens a completed erasure.
+//
 // Both paths defer to has_active_legal_hold() and never touch a held
 // account — this is enforced twice (once by the DB trigger on insert,
 // once here again defensively in case a hold was placed mid-grace-period).
@@ -20,6 +24,9 @@ import { OWNED_TABLES } from "../_shared/compliance/ownedTables.ts";
 import { eraseProviderData } from "../_shared/compliance/providerErasure.ts";
 import { sweepOwnedRows, type SweepRpcClient } from "../_shared/compliance/sweepBatches.ts";
 import { eraseTrustPackData } from "../_shared/trust/vault.ts";
+import { loadSigningKeys, parseBackupRetentionDays, type ErasureBaseline, type ErasureEvidence } from "../_shared/compliance/erasureCertificate.ts";
+import { issueErasureCertificate, issueMissingCertificates, recordErasureEvidence } from "../_shared/compliance/erasureCertificateIssuer.ts";
+import erasureBaseline from "../../../docs/compliance/erasure-coverage-baseline.json" with { type: "json" };
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -41,7 +48,15 @@ Deno.serve(async (req: Request) => {
     auth: { persistSession: false },
   });
 
-  const summary = { policiesSwept: 0, rowsAffected: 0, deletionRequestsProcessed: 0, errors: [] as string[] };
+   const summary = { policiesSwept: 0, rowsAffected: 0, deletionRequestsProcessed: 0, certificatesIssued: 0, errors: [] as string[] };
+
+  const signingKeys = loadSigningKeys((n) => Deno.env.get(n));
+  const certOpts = () => ({
+    baseline: erasureBaseline as unknown as ErasureBaseline,
+    signingKey: signingKeys.current,
+    backupRetentionDays: parseBackupRetentionDays(Deno.env.get("BACKUP_RETENTION_DAYS")),
+    now: new Date(),
+  });
 
   // ---------- 1. Retention policies ----------
   const { data: policies, error: policiesError } = await admin
@@ -119,17 +134,22 @@ Deno.serve(async (req: Request) => {
       await admin.from("deletion_requests").update({ status: "processing" }).eq("id", request.id);
 
       let result: Record<string, number> = {};
+      let evidence: ErasureEvidence | null = null;
       if (request.request_type === "full_account") {
         const prov = await eraseProviderData(admin, request.user_id, {
           elevenLabsKey: Deno.env.get("ELEVENLABS_API_KEY") ?? undefined,
           vapiKey: Deno.env.get("VAPI_PRIVATE_KEY") ?? undefined,
         });
         result["provider_failed"] = prov.failed.length;
+        const ev: ErasureEvidence = { provider: prov };
+        evidence = ev;
         if (!prov.ok && Deno.env.get("PROVIDER_ERASURE_STRICT") === "true") {
           throw new Error(`provider_erasure_incomplete:${prov.failed.slice(0, 3).join(",")}`);
         }
         const trust = await eraseTrustPackData(admin, request.user_id);
         if (!trust.ok) throw new Error("trust_pack_erasure_incomplete");
+        ev.trustPack = { ok: true };
+        ev.ownedTables = {};
         for (const owned of OWNED_TABLES) {
           const { data: rows, error } = await admin
             .from(owned.table)
@@ -143,6 +163,7 @@ Deno.serve(async (req: Request) => {
         if (restErr) throw restErr;
         const blockedTables = Object.keys((rest as { blocked?: Record<string, string> } | null)?.blocked ?? {});
         result["blocked_tables"] = blockedTables.length;
+        ev.catalogErase = rest as ErasureEvidence["catalogErase"];
         if (blockedTables.length) throw new Error(`erasure_blocked_tables:${blockedTables.slice(0, 5).join(",")}`);
       } else if (request.request_type === "customer_record" && request.target_customer_id) {
         // Anonymize, don't delete — jobs/quotes/payment history tied to a
@@ -181,9 +202,16 @@ Deno.serve(async (req: Request) => {
         result[owned.table] = rows?.length ?? 0;
       }
 
+      // Persist what the job did BEFORE marking it completed, so a certificate can always be (re)issued from it.
+      if (evidence) {
+        const evErr = await recordErasureEvidence(admin, request, evidence);
+        if (evErr) summary.errors.push(`erasure evidence ${request.id}: ${evErr}`);
+      }
+
+      const completedAt = new Date().toISOString();
       await admin
         .from("deletion_requests")
-        .update({ status: "completed", completed_at: new Date().toISOString(), result })
+        .update({ status: "completed", completed_at: completedAt, result })
         .eq("id", request.id);
 
       await admin.rpc("log_audit_event", {
@@ -194,11 +222,29 @@ Deno.serve(async (req: Request) => {
       });
 
       summary.deletionRequestsProcessed += 1;
+
+      // Deletion certificate. Best effort by design: the erasure is already done and must stay done.
+      // Own try/catch: nothing here may reach the outer catch, which would re-open a completed request.
+      if (evidence) {
+        try {
+          const cert = await issueErasureCertificate(admin, { ...request, status: "completed", completed_at: completedAt }, evidence, certOpts());
+          if (cert.status === "issued") summary.certificatesIssued += 1;
+          else if (cert.status === "error") summary.errors.push(`erasure certificate ${request.id}: ${cert.reason}`);
+          else if (cert.status === "skipped" && cert.reason === "not_configured") {
+            summary.errors.push(`erasure certificate ${request.id}: ERASURE_CERT_SIGNING_KEY is missing or shorter than 32 characters; it will be issued on a later run once configured`);
+          }
+        } catch (certErr) {
+          summary.errors.push(`erasure certificate ${request.id}: ${certErr instanceof Error ? certErr.message : String(certErr)}`);
+        }
+      }
     } catch (err) {
       summary.errors.push(`request ${request.id}: ${err instanceof Error ? err.message : String(err)}`);
       await admin.from("deletion_requests").update({ status: "grace_period" }).eq("id", request.id);
     }
   }
-
+  // ---------- 3. Certificates still missing (crash after completion, or signing key configured later) ----------
+  const backfill = await issueMissingCertificates(admin, certOpts());
+  summary.certificatesIssued += backfill.issued;
+  summary.errors.push(...backfill.errors);
   return json(summary, summary.errors.length ? 207 : 200);
 });
