@@ -169,3 +169,5 @@ verify_jwt = false
 verify_jwt = false
 [functions.results-plan-statement]
 verify_jwt = false
+[functions.shadow-live-authorize]
+verify_jwt = false
