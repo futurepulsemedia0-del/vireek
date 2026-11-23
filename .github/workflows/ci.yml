@@ -85,7 +85,11 @@ jobs:
           npm run i18n:coverage
           npm run i18n:freshness
           npm run i18n:status:check
-
+      - name: Plain-language check (warn-only)
+        continue-on-error: true
+        run: npm run lint:readability
+      - name: Plain-language script tests
+        run: npm run test:scripts:readability
       - name: Unit tests
         run: npm run test -- --coverage
 
