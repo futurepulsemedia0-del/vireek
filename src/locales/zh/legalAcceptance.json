@@ -1,0 +1,21 @@
+{
+  "title": "我们更新了法律条款",
+  "intro": "我们的部分法律文件发生了变更，并影响您与 Vireek 的协议。请查看变更内容并接受，以便继续使用您的账户。",
+  "loading": "正在检查更新…",
+  "loadError": "无法检查更新后的条款。请重试。",
+  "retry": "重试",
+  "effective": "自 {{date}} 起生效",
+  "whatChanged": "变更内容",
+  "noSummary": "暂无摘要。请阅读完整文件。",
+  "kind": {
+    "added": "新增",
+    "changed": "修改",
+    "removed": "删除"
+  },
+  "readFull": "阅读完整的{{title}}",
+  "checkbox": "我已阅读并接受更新后的{{titles}}。",
+  "accept": "接受并继续",
+  "accepting": "正在保存…",
+  "errorGeneric": "无法保存您的接受记录。请重试。",
+  "signOut": "改为退出登录"
+}
