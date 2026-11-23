@@ -13,26 +13,30 @@ export interface FlagEvaluatorOptions {
   maxEntries?: number;  // default 500
 }
 
+export interface FlagContext {
+  userId?: string | null;
+}
+
 export interface FlagEvaluator {
-  /** @param fallback value when the flag cannot be evaluated and nothing fresh is cached (default false). */
-  isOn(key: string, tenantId: string, fallback?: boolean): Promise<boolean>;
+  isOn(key: string, tenantId: string, fallback?: boolean, ctx?: FlagContext): Promise<boolean>;
 }
 
 export function createFlagEvaluator({ rpc, now = Date.now, ttlMs = 10_000, maxStaleMs = 5 * 60_000, maxEntries = 500 }: FlagEvaluatorOptions): FlagEvaluator {
   const cache = new Map<string, { value: boolean; at: number }>();
   const inflight = new Map<string, Promise<boolean | null>>();
 
-  async function fetchValue(key: string, tenantId: string): Promise<boolean | null> {
+    async function fetchValue(key: string, tenantId: string, userId: string | null): Promise<boolean | null> {
     try {
-      const { data, error } = await rpc('flag_evaluate', { p_key: key, p_tenant: tenantId });
-      return error || typeof data !== 'boolean' ? null : data;
-    } catch {
-      return null;
+      const { data, error } = userId
+        ? await rpc('flag_evaluate_for_user', { p_key: key, p_tenant: tenantId, p_user: userId })
+        : await rpc('flag_evaluate', { p_key: key, p_tenant: tenantId });
     }
   }
 
   return {
-    async isOn(key, tenantId, fallback = false) {
+    async isOn(key, tenantId, fallback = false, ctx) {
+      const userId = typeof ctx?.userId === 'string' && ctx.userId !== '' ? ctx.userId : null;
+      const id = `${key}:${tenantId}:${userId ?? ''}`;
       const id = `${key}:${tenantId}`;
       const hit = cache.get(id);
       if (hit && now() - hit.at < ttlMs) return hit.value;
