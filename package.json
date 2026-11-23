@@ -80,6 +80,8 @@
     "test:db:partner-scope": "node scripts/db-tests/partner-scope.pglite.mjs",
     "demo:provision": "node --experimental-strip-types --no-warnings scripts/provision-demo-tenant.mjs",
     "lint:voice": "node scripts/check-voice.mjs",
+    "lint:readability": "node scripts/content/readability.mjs",
+    "test:scripts:readability": "node --test scripts/content/readability.test.mjs",
     "lint:dark-patterns": "node scripts/check-dark-patterns.mjs",
     "test:scripts:dark-patterns": "node --test scripts/dark-patterns.test.mjs",
     "chaos:voice": "node --experimental-strip-types --no-warnings scripts/chaos/voice-all.ts",
