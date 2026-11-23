@@ -165,6 +165,8 @@ const StaffUsagePage = lazy(() => import('@/pages/admin/StaffUsagePage').then((m
 const StaffNexusPage = lazy(() => import('@/pages/admin/StaffNexusPage').then((m) => ({ default: m.StaffNexusPage })));
 const StaffMarginsPage = lazy(() => import('@/pages/admin/StaffMarginsPage').then((m) => ({ default: m.StaffMarginsPage })));
 const StaffPartnerCommissionsPage = lazy(() => import('@/pages/admin/StaffPartnerCommissionsPage').then((m) => ({ default: m.StaffPartnerCommissionsPage })));
+const LegalReacceptancePage = lazy(() => import('@/pages/LegalReacceptancePage').then((m) => ({ default: m.LegalReacceptancePage })));
+const StaffPartnerPayoutsPage = lazy(() => import('@/pages/admin/StaffPartnerPayoutsPage').then((m) => ({ default: m.StaffPartnerPayoutsPage })));
 const FeatureFlagsAdminPage = lazy(() => import('@/pages/admin/FeatureFlagsAdminPage').then((m) => ({ default: m.FeatureFlagsAdminPage })));
 const EntitlementsAdminPage = lazy(() => import('@/pages/admin/EntitlementsAdminPage').then((m) => ({ default: m.EntitlementsAdminPage })));
 const ReleaseSafetyAdminPage = lazy(() => import('@/pages/admin/ReleaseSafetyAdminPage').then((m) => ({ default: m.ReleaseSafetyAdminPage })));
@@ -812,6 +814,7 @@ function AppRoutes() {
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/mfa" element={<MfaChallengePage />} />
+        <Route path="/legal/accept" element={<ProtectedRoute><Suspense fallback={<PageLoader />}><LegalReacceptancePage /></Suspense></ProtectedRoute>} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/onboarding" element={<Navigate to="/dashboard/sarah" replace />} />
         <Route path="/dashboard/sarah" element={<ProtectedRoute><SarahKnowledgePage /></ProtectedRoute>} />
@@ -832,6 +835,7 @@ function AppRoutes() {
         <Route path="/staff/abuse" element={<StaffRoute><StaffAbusePage /></StaffRoute>} />
         <Route path="/staff/customer-health" element={<StaffRoute><StaffCustomerHealthPage /></StaffRoute>} />
         <Route path="/staff/partner-commissions" element={<StaffRoute><Suspense fallback={<PageLoader />}><StaffPartnerCommissionsPage /></Suspense></StaffRoute>} />
+        <Route path="/staff/partner-payouts" element={<StaffRoute><Suspense fallback={<PageLoader />}><StaffPartnerPayoutsPage /></Suspense></StaffRoute>} />
         <Route
           path="/staff/support-inbox"
           element={
