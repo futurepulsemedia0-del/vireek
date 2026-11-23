@@ -1,0 +1,800 @@
+--- a/supabase/functions/_shared/compliance/ownedTables.ts
++++ b/supabase/functions/_shared/compliance/ownedTables.ts
+@@ -50,3 +50,265 @@
+ 
+ /** Just the plain table names, for call sites that don't need PII/date info. */
+ export const OWNED_TABLE_NAMES = OWNED_TABLES.map((t) => t.table);
++
++
++// ===========================================================================
++// Erasure registry (completeness) — enforced in CI by
++// scripts/compliance/check-erasure-coverage.mjs (node scripts/compliance/check-erasure-coverage.mjs --check).
++//
++// HOW ACCOUNT ERASURE ACTUALLY WORKS (verified in code, not assumed):
++//   1. delete-account / data-retention-sweep delete every OWNED_TABLES row by user_id,
++//   2. then every TENANT_KEYED_OWNED_TABLES row by its ownerColumn (listed in deletion order),
++//   3. then call erase_user_rows(p_user) which deletes from EVERY public table that has a uuid
++//      `user_id` column except ERASURE_RPC_EXCLUDED, and reports tables it could not clear as `blocked`
++//      (delete-account answers 503 when anything is blocked),
++//   4. then erase_sensitive_read_log_for_account(), then auth.admin.deleteUser (FK cascades).
++// Therefore a table is covered when it is swept / owned / cascade-deleted, or explicitly exempted below.
++// Every table holding personal data must satisfy one of those; the CI check fails otherwise.
++//
++// RULES FOR EDITING (the CI check parses this file with regexes — keep the literal shapes):
++//   * One object per line: { table: "x", category: "y" } with an optional note: "...".
++//   * Do not add an exemption to silence the check without a real reason. Category reasons below
++//     are engineering statements, NOT legal conclusions; items marked counsel need a lawyer's decision.
++// ===========================================================================
++
++export interface ErasureExemptionCategory {
++  id: string;
++  /** Why rows of this kind are not removed by account erasure. Engineering fact, not legal advice. */
++  reason: string;
++  /** [COUNSEL] a lawyer must confirm the retention basis before this is relied on. */
++  counsel: boolean;
++}
++
++export const ERASURE_EXEMPTION_CATEGORIES: ErasureExemptionCategory[] = [
++  {
++    id: "delete_guarded_ledger",
++    reason: "A BEFORE DELETE trigger on this table can raise (append-only / immutability guard), so erase_user_rows() cannot delete the rows and reports the table as blocked. Rows survive account erasure until a retention decision [COUNSEL] and a purge path exist [VERIFY whether any dedicated purge exists].",
++    counsel: true,
++  },
++  {
++    id: "erasure_evidence",
++    reason: "Evidence of erasure, retention or data-subject decisions; deliberately excluded from erase_user_rows() or kept as the audit trail of the erasure itself. Retention period and content minimisation [COUNSEL].",
++    counsel: true,
++  },
++  {
++    id: "dedicated_erasure_rpc",
++    reason: "Not swept by erase_user_rows() (keyed by account_id and append-only) but erased by the dedicated erase_sensitive_read_log_for_account() RPC that delete-account calls after the sweep.",
++    counsel: false,
++  },
++  {
++    id: "operator_held_records",
++    reason: "Vireek-operator records about prospects, website visitors, vendors, staff or the platform's own audit trail. They have no account-owner key, so account deletion does not touch them; removal is by operator process only. No automated purge exists in this repo [VERIFY] and the lawful retention period is undecided [COUNSEL].",
++    counsel: true,
++  },
++  {
++    id: "needs_remediation",
++    reason: "Known open erasure problem. Each entry carries a note describing it. The check reports these and --strict fails while any remain.",
++    counsel: true,
++  },
++];
++
++/** Default p_exclude of erase_user_rows(); the check compares this with the migrations. */
++export const ERASURE_RPC_EXCLUDED: string[] = [
++  "deletion_requests",
++  "data_subject_requests",
++  "audit_log",
++  "audit_chain_heads",
++  "data_retention_policies",
++];
++
++export interface TenantKeyedOwnedTable {
++  table: string;
++  /** uuid column holding the account owner's user id (these tables have no `user_id`). */
++  ownerColumn: string;
++}
++
++/**
++ * Deleted by delete-account / data-retention-sweep with .eq(ownerColumn, userId).
++ * ORDER MATTERS: children before parents (e.g. authz_approval_requests before authz_approval_policies).
++ */
++export const TENANT_KEYED_OWNED_TABLES: TenantKeyedOwnedTable[] = [
++  { table: "access_requests", ownerColumn: "account_owner_id" },
++  { table: "account_module_events", ownerColumn: "owner_id" },
++  { table: "ai_usage_logs", ownerColumn: "account_id" },
++  { table: "authz_abac_policies", ownerColumn: "tenant_id" },
++  { table: "authz_access_grants", ownerColumn: "tenant_id" },
++  { table: "authz_approval_requests", ownerColumn: "tenant_id" },
++  { table: "authz_approval_policies", ownerColumn: "tenant_id" },
++  { table: "authz_delegations", ownerColumn: "tenant_id" },
++  { table: "authz_field_masks", ownerColumn: "tenant_id" },
++  { table: "authz_guest_invites", ownerColumn: "tenant_id" },
++  { table: "authz_ownership_transfers", ownerColumn: "tenant_id" },
++  { table: "authz_record_acl", ownerColumn: "tenant_id" },
++  { table: "equipment_tag_events", ownerColumn: "owner_user_id" },
++  { table: "equipment_tag_requests", ownerColumn: "owner_user_id" },
++  { table: "equipment_tags", ownerColumn: "owner_user_id" },
++  { table: "field_form_templates", ownerColumn: "owner_id" },
++  { table: "identity_event_payloads", ownerColumn: "owner_user_id" },
++  { table: "identity_external_refs", ownerColumn: "owner_user_id" },
++  { table: "identity_grants", ownerColumn: "owner_user_id" },
++  { table: "reporting_entity_access", ownerColumn: "owner_id" },
++  { table: "support_attachments", ownerColumn: "account_owner_id" },
++  { table: "support_conversations", ownerColumn: "account_owner_id" },
++];
++
++export interface ErasureExemption {
++  table: string;
++  category: string;
++  /** Overrides / extends the category reason for this table. */
++  note?: string;
++}
++
++export const ERASURE_EXEMPTIONS: ErasureExemption[] = [
++// --- erasure_evidence: excluded from erase_user_rows() on purpose (evidence of erasure / retention decisions)
++  { table: "deletion_requests", category: "erasure_evidence" },
++  { table: "data_subject_requests", category: "erasure_evidence" },
++  { table: "audit_log", category: "erasure_evidence" },
++  { table: "audit_chain_heads", category: "erasure_evidence" },
++  { table: "data_retention_policies", category: "erasure_evidence" },
++  { table: "authz_org_deletion_requests", category: "erasure_evidence" },
++// --- dedicated_erasure_rpc: erased by erase_sensitive_read_log_for_account(), called from delete-account
++  { table: "sensitive_read_log", category: "dedicated_erasure_rpc" },
++  { table: "sensitive_read_alerts", category: "dedicated_erasure_rpc" },
++  { table: "sensitive_read_settings", category: "dedicated_erasure_rpc" },
++// --- needs_remediation: known open problems (reported by the check; --strict fails on them)
++  { table: "ai_incidents", category: "needs_remediation", note: "tenant_id references profiles with NO ON DELETE action: once an incident row exists, deleting the profile (auth.users cascade) fails. Decide retention vs deletion [COUNSEL] and then change the FK or register the table as tenant-keyed." },
++// --- operator_held_records: Vireek-operator records about prospects, visitors, vendors or staff (no account owner key)
++  { table: "audit_consents", category: "operator_held_records" },
++  { table: "audit_verifications", category: "operator_held_records" },
++  { table: "audits", category: "operator_held_records" },
++  { table: "blog_subscribers", category: "operator_held_records" },
++  { table: "churn_save_audit", category: "operator_held_records" },
++  { table: "compliance_review_events", category: "operator_held_records" },
++  { table: "compliance_rule_versions", category: "operator_held_records" },
++  { table: "demo_bookings", category: "operator_held_records" },
++  { table: "dmca_notices", category: "operator_held_records" },
++  { table: "evidence_partners", category: "operator_held_records" },
++  { table: "feature_flag_audit", category: "operator_held_records" },
++  { table: "homeowner_profiles", category: "operator_held_records" },
++  { table: "insights_subscribers", category: "operator_held_records" },
++  { table: "job_applications", category: "operator_held_records" },
++  { table: "job_board_feeds", category: "operator_held_records" },
++  { table: "kill_switch_audit", category: "operator_held_records" },
++  { table: "newsletter_subscribers", category: "operator_held_records" },
++  { table: "onboarding_bookings", category: "operator_held_records" },
++  { table: "ovb_agents", category: "operator_held_records" },
++  { table: "ovb_correction_requests", category: "operator_held_records" },
++  { table: "ovb_run_results", category: "operator_held_records" },
++  { table: "ovb_submissions", category: "operator_held_records" },
++  { table: "pn_suppliers", category: "operator_held_records" },
++  { table: "public_event_registrations", category: "operator_held_records" },
++  { table: "public_events", category: "operator_held_records" },
++  { table: "resource_downloads", category: "operator_held_records" },
++  { table: "sales_inquiries", category: "operator_held_records" },
++  { table: "security_report_requests", category: "operator_held_records" },
++  { table: "sla_incidents", category: "operator_held_records" },
++  { table: "staff_audit_log", category: "operator_held_records" },
++  { table: "status_subscribers", category: "operator_held_records" },
++  { table: "subprocessor_notice_deliveries", category: "operator_held_records" },
++  { table: "subprocessor_subscribers", category: "operator_held_records" },
++  { table: "warranty_registrations", category: "operator_held_records" },
++// --- delete_guarded_ledger: a BEFORE DELETE trigger can raise, so erase_user_rows() cannot remove the rows
++  { table: "account_entitlement_events", category: "delete_guarded_ledger" },
++  { table: "agent_action_audit", category: "delete_guarded_ledger" },
++  { table: "agent_action_log", category: "delete_guarded_ledger" },
++  { table: "agent_action_requests", category: "delete_guarded_ledger" },
++  { table: "agent_audit_chain", category: "delete_guarded_ledger" },
++  { table: "asset_decision_log", category: "delete_guarded_ledger" },
++  { table: "asset_measurements", category: "delete_guarded_ledger" },
++  { table: "authz_events", category: "delete_guarded_ledger" },
++  { table: "business_activity_events", category: "delete_guarded_ledger" },
++  { table: "churn_save_events", category: "delete_guarded_ledger" },
++  { table: "commercial_statement_items", category: "delete_guarded_ledger" },
++  { table: "commercial_statements", category: "delete_guarded_ledger" },
++  { table: "commission_records", category: "delete_guarded_ledger" },
++  { table: "compiled_workflow_audit", category: "delete_guarded_ledger" },
++  { table: "cost_ledger", category: "delete_guarded_ledger", note: "Append-only cost ledger keyed by account_id on purpose (see 20281110000000_economics_cost_ledger.sql); no contact data." },
++  { table: "demand_opportunity_events", category: "delete_guarded_ledger" },
++  { table: "dispatch_optimizer_audit", category: "delete_guarded_ledger" },
++  { table: "evidence_consent_log", category: "delete_guarded_ledger" },
++  { table: "evidence_photo_captures", category: "delete_guarded_ledger" },
++  { table: "evidence_photo_derivatives", category: "delete_guarded_ledger" },
++  { table: "evidence_photo_locations", category: "delete_guarded_ledger" },
++  { table: "external_invoice_lines", category: "delete_guarded_ledger" },
++  { table: "external_invoices", category: "delete_guarded_ledger" },
++  { table: "external_payments", category: "delete_guarded_ledger" },
++  { table: "fair_sale_events", category: "delete_guarded_ledger" },
++  { table: "financing_audit_events", category: "delete_guarded_ledger" },
++  { table: "financing_consents", category: "delete_guarded_ledger" },
++  { table: "findings_package_items", category: "delete_guarded_ledger" },
++  { table: "fraud_events", category: "delete_guarded_ledger" },
++  { table: "home_passport_pilot_audit", category: "delete_guarded_ledger" },
++  { table: "identity_entities", category: "delete_guarded_ledger" },
++  { table: "identity_events", category: "delete_guarded_ledger" },
++  { table: "identity_provenance", category: "delete_guarded_ledger" },
++  { table: "identity_relationships", category: "delete_guarded_ledger" },
++  { table: "install_sov_lines", category: "delete_guarded_ledger" },
++  { table: "job_evidence_chain_entries", category: "delete_guarded_ledger" },
++  { table: "job_regulation_snapshots", category: "delete_guarded_ledger" },
++  { table: "job_transition_log", category: "delete_guarded_ledger" },
++  { table: "landscape_contract_events", category: "delete_guarded_ledger" },
++  { table: "landscape_route_changes", category: "delete_guarded_ledger" },
++  { table: "leak_cases", category: "delete_guarded_ledger" },
++  { table: "leak_verification_tests", category: "delete_guarded_ledger" },
++  { table: "location_consent_log", category: "delete_guarded_ledger" },
++  { table: "loyalty_ledger", category: "delete_guarded_ledger" },
++  { table: "lpts_ledger", category: "delete_guarded_ledger" },
++  { table: "marketplace_agent_audit", category: "delete_guarded_ledger" },
++  { table: "marketplace_agent_ledger", category: "delete_guarded_ledger" },
++  { table: "module_entitlement_audit", category: "delete_guarded_ledger" },
++  { table: "no_surprise_requests", category: "delete_guarded_ledger" },
++  { table: "ops_policy_changes", category: "delete_guarded_ledger" },
++  { table: "outcome_clearing_events", category: "delete_guarded_ledger" },
++  { table: "outcome_measurements", category: "delete_guarded_ledger" },
++  { table: "pack_events", category: "delete_guarded_ledger" },
++  { table: "parts_sourcing_audit", category: "delete_guarded_ledger" },
++  { table: "pen_events", category: "delete_guarded_ledger" },
++  { table: "pen_ledger_entries", category: "delete_guarded_ledger" },
++  { table: "pesticide_usage_reports", category: "delete_guarded_ledger" },
++  { table: "phone_payment_audit_events", category: "delete_guarded_ledger" },
++  { table: "phone_payment_sessions", category: "delete_guarded_ledger" },
++  { table: "pilot_attributions", category: "delete_guarded_ledger" },
++  { table: "pilot_outcome_baselines", category: "delete_guarded_ledger" },
++  { table: "project_daily_log_amendments", category: "delete_guarded_ledger" },
++  { table: "project_daily_logs", category: "delete_guarded_ledger" },
++  { table: "proof_ledger", category: "delete_guarded_ledger" },
++  { table: "protection_contracts", category: "delete_guarded_ledger" },
++  { table: "protection_ledger", category: "delete_guarded_ledger" },
++  { table: "pw_job_assignments", category: "delete_guarded_ledger" },
++  { table: "pw_wage_determinations", category: "delete_guarded_ledger" },
++  { table: "pw_wage_rates", category: "delete_guarded_ledger" },
++  { table: "regional_legal_documents", category: "delete_guarded_ledger" },
++  { table: "regulation_edges", category: "delete_guarded_ledger" },
++  { table: "regulation_jurisdictions", category: "delete_guarded_ledger" },
++  { table: "regulation_nodes", category: "delete_guarded_ledger" },
++  { table: "regulation_versions", category: "delete_guarded_ledger" },
++  { table: "remote_resolution_cases", category: "delete_guarded_ledger" },
++  { table: "remote_resolution_signals", category: "delete_guarded_ledger" },
++  { table: "safety_consent_log", category: "delete_guarded_ledger" },
++  { table: "safety_events", category: "delete_guarded_ledger" },
++  { table: "safety_incident_events", category: "delete_guarded_ledger" },
++  { table: "speed_to_lead_consents", category: "delete_guarded_ledger", note: "Consent ledger kept by design (docs/compliance/speed-to-lead-assumptions.md A4); legal-hold basis must be confirmed by counsel." },
++  { table: "truth_decisions", category: "delete_guarded_ledger" },
++  { table: "truth_evidence", category: "delete_guarded_ledger" },
++  { table: "truth_facts", category: "delete_guarded_ledger" },
++  { table: "truth_verifications", category: "delete_guarded_ledger" },
++  { table: "value_event_reviews", category: "delete_guarded_ledger" },
++  { table: "value_events", category: "delete_guarded_ledger" },
++  { table: "voice_autopilot_audit", category: "delete_guarded_ledger" },
++  { table: "voice_call_events", category: "delete_guarded_ledger" },
++  { table: "voice_security_audit", category: "delete_guarded_ledger" },
++  { table: "warranty_claim_actions", category: "delete_guarded_ledger" },
++  { table: "warranty_claims", category: "delete_guarded_ledger" },
++  { table: "webhook_replay_audit", category: "delete_guarded_ledger" },
++  { table: "work_order_visits", category: "delete_guarded_ledger" },
++  { table: "workflow_events", category: "delete_guarded_ledger" },
++];
++
++/** Category lookup used by tests and admin tooling. */
++export function erasureExemptionFor(table: string): (ErasureExemption & { reason: string; counsel: boolean }) | undefined {
++  const e = ERASURE_EXEMPTIONS.find((x) => x.table === table);
++  if (!e) return undefined;
++  const c = ERASURE_EXEMPTION_CATEGORIES.find((x) => x.id === e.category);
++  return { ...e, reason: e.note ?? c?.reason ?? "", counsel: c?.counsel ?? true };
++}
+--- a/supabase/functions/delete-account/index.ts
++++ b/supabase/functions/delete-account/index.ts
+@@ -13,7 +13,7 @@
+   });
+ }
+ 
+-import { OWNED_TABLE_NAMES } from "../_shared/compliance/ownedTables.ts";
++import { OWNED_TABLE_NAMES, TENANT_KEYED_OWNED_TABLES } from "../_shared/compliance/ownedTables.ts";
+ import { eraseProviderData } from "../_shared/compliance/providerErasure.ts";
+ import { eraseTrustPackData } from "../_shared/trust/vault.ts";
+ Deno.serve(async (req: Request) => {
+@@ -88,6 +88,13 @@
+       if (error) {
+         return json({ error: `Failed to delete ${table}: ${error.message}` }, 500);
+       }
++    }
++    // Tables keyed by a tenant column instead of user_id (erase_user_rows cannot see them). Children first.
++    for (const { table, ownerColumn } of TENANT_KEYED_OWNED_TABLES) {
++      const { error } = await admin.from(table).delete().eq(ownerColumn, userId);
++      if (error) {
++        return json({ error: `Failed to delete ${table}: ${error.message}` }, 500);
++      }
+     }
+     const { data: rest, error: restErr } = await admin.rpc("erase_user_rows", { p_user: userId });
+     if (restErr) return json({ error: `Failed to erase remaining data: ${restErr.message}` }, 500);
+--- a/supabase/functions/data-retention-sweep/index.ts
++++ b/supabase/functions/data-retention-sweep/index.ts
+@@ -16,7 +16,7 @@
+ // once here again defensively in case a hold was placed mid-grace-period).
+ 
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+-import { OWNED_TABLES } from "../_shared/compliance/ownedTables.ts";
++import { OWNED_TABLES, TENANT_KEYED_OWNED_TABLES } from "../_shared/compliance/ownedTables.ts";
+ import { eraseProviderData } from "../_shared/compliance/providerErasure.ts";
+ import { sweepOwnedRows, type SweepRpcClient } from "../_shared/compliance/sweepBatches.ts";
+ import { eraseTrustPackData } from "../_shared/trust/vault.ts";
+@@ -139,6 +139,15 @@
+           if (error) throw error;
+           result[owned.table] = rows?.length ?? 0;
+         }
++        for (const { table, ownerColumn } of TENANT_KEYED_OWNED_TABLES) {
++          const { data: rows, error } = await admin
++            .from(table)
++            .delete()
++            .eq(ownerColumn, request.user_id)
++            .select(ownerColumn);
++          if (error) throw error;
++          result[table] = rows?.length ?? 0;
++        }
+         const { data: rest, error: restErr } = await admin.rpc("erase_user_rows", { p_user: request.user_id });
+         if (restErr) throw restErr;
+         const blockedTables = Object.keys((rest as { blocked?: Record<string, string> } | null)?.blocked ?? {});
+--- a/.github/workflows/quality-gates.yml
++++ b/.github/workflows/quality-gates.yml
+@@ -32,6 +32,23 @@
+           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+         run: node scripts/lint-migrations.mjs
+ 
++  erasure-registry:
++    name: Erasure registry completeness (every personal-data table registered or exempted)
++    runs-on: ubuntu-latest
++    timeout-minutes: 5
++    steps:
++      - uses: actions/checkout@v4
++
++      - uses: actions/setup-node@v4
++        with:
++          node-version: '20'
++
++      - name: Fail on unregistered personal-data tables or registry errors
++        run: node scripts/compliance/check-erasure-coverage.mjs --check
++
++      - name: Unit tests for the checker
++        run: node --test scripts/compliance/erasure-lib.test.mjs
++
+   openapi-drift:
+     name: OpenAPI drift (api-v1 routes vs published spec)
+     runs-on: ubuntu-latest
+--- a/package.json
++++ b/package.json
+@@ -40,6 +40,8 @@
+     "lint:locale": "node scripts/check-raw-locale.mjs",
+     "lint:regional": "node scripts/check-regional-assumptions.mjs",
+     "test:scripts:regional": "node --test scripts/lib/regionalAssumptions.test.mjs",
++    "compliance:erasure": "node scripts/compliance/check-erasure-coverage.mjs --check",
++    "test:scripts:erasure": "node --test scripts/compliance/erasure-lib.test.mjs",
+     "test:scripts:insurance": "node --test scripts/compliance/insurance-program.test.mjs",
+     "test:scripts:cross-tenant": "node --test scripts/compliance/cross-tenant-consent.test.mjs",
+     "test:scripts:licenses": "node --test scripts/supply-chain/license-check.test.mjs",
+--- a/supabase/functions/_shared/compliance-rules/jurisdiction.ts
++++ b/supabase/functions/_shared/compliance-rules/jurisdiction.ts
+@@ -36,7 +36,105 @@
+ }
+ 
+ export function stateOfJurisdiction(code: string): string | null {
+-  return code === "US" ? null : normalizeState(code);
++  // "CA" (Canada) and "CA-ON" etc. are NOT California: they must never resolve to a US state.
++  if (code === "US" || jurisdictionCountry(code) === "CA") return null;
++  return normalizeState(code);
++}
++
++// ---------------------------------------------------------------------------
++// Canada. Jurisdiction codes: "CA" (federal) and "CA-XX" (province / territory). "US-CA" is California;
++// the two can never be confused because the country prefix is always checked first.
++// [COUNSEL][VERIFY] Province list and area-code table below are engineering inputs, not legal advice.
++// ---------------------------------------------------------------------------
++
++export const CA_PROVINCES: ReadonlySet<string> = new Set(
++  "AB BC MB NB NL NS NT NU ON PE QC SK YT".split(" "),
++);
++
++export type Country = "US" | "CA";
++
++/** "US" | "US-TX" -> "US"; "CA" | "CA-ON" -> "CA"; anything else -> null. */
++export function jurisdictionCountry(code: string | null | undefined): Country | null {
++  if (!code) return null;
++  if (/^US(-[A-Z]{2})?$/.test(code)) return "US";
++  if (/^CA(-[A-Z]{2})?$/.test(code)) return "CA";
++  return null;
++}
++
++/** "ON", " on ", "CA-ON" -> "ON"; anything else -> null. */
++export function normalizeProvince(v: string | null | undefined): string | null {
++  if (!v) return null;
++  const s = v.trim().toUpperCase().replace(/^CA-/, "");
++  return CA_PROVINCES.has(s) ? s : null;
++}
++
++/** "CA" -> null (federal); "CA-ON" -> "ON"; US codes -> null. */
++export function provinceOfJurisdiction(code: string): string | null {
++  return jurisdictionCountry(code) === "CA" && code !== "CA" ? normalizeProvince(code) : null;
++}
++
++/** True for "CA" or a valid "CA-<province>". */
++export function isValidCanadianJurisdiction(code: string): boolean {
++  return code === "CA" || (/^CA-[A-Z]{2}$/.test(code) && CA_PROVINCES.has(code.slice(3)));
++}
++
++/**
++ * NANP area codes assigned to Canada. [VERIFY] against the current NANPA assignment list before relying
++ * on it: new overlays appear regularly and a Canadian number whose code is missing here is NOT detected
++ * (it falls through to the US path). The engine tests assert this list never overlaps the US table above.
++ */
++export const CA_AREA_CODES: ReadonlySet<string> = new Set(
++  (
++    "204 226 236 249 250 257 263 289 306 343 354 365 367 368 382 403 416 418 428 431 437 438 450 468 474 506 514 " +
++    "519 548 579 581 584 587 604 613 639 647 672 683 705 709 742 753 778 780 782 807 819 825 867 873 879 902 905"
++  ).split(" "),
++);
++
++export function isCanadianAreaCode(code: string): boolean {
++  return CA_AREA_CODES.has(code);
++}
++
++/** "CA" when the NANP number's area code is Canadian, otherwise null (unknown / US / non-NANP). */
++export function countryFromPhone(phone: string | null | undefined): Country | null {
++  if (!phone) return null;
++  const d = phone.replace(/\D/g, "");
++  const ten = d.length === 11 && d.startsWith("1") ? d.slice(1) : d;
++  if (ten.length !== 10) return null;
++  return CA_AREA_CODES.has(ten.slice(0, 3)) ? "CA" : null;
++}
++
++const CA_POSTAL = /\b[ABCEGHJ-NPRSTVXY]\d[ABCEGHJ-NPRSTV-Z][ -]?\d[ABCEGHJ-NPRSTV-Z]\d\b/i;
++
++/** Province from a free-text address. Requires a Canadian postal code OR "Canada" to avoid matching US text. */
++export function provinceFromAddress(address: string | null | undefined): { country: Country; province: string | null } | null {
++  if (!address) return null;
++  const a = address.toUpperCase();
++  const hasPostal = CA_POSTAL.test(a);
++  const hasCanada = /\bCANADA\b/.test(a);
++  if (!hasPostal && !hasCanada) return null;
++  const m = /,\s*(AB|BC|MB|NB|NL|NS|NT|NU|ON|PE|QC|SK|YT)\b\.?/.exec(a) ?? /\b(AB|BC|MB|NB|NL|NS|NT|NU|ON|PE|QC|SK|YT)\s+[A-Z]\d[A-Z]/.exec(a);
++  return { country: "CA", province: m ? m[1] : null };
++}
++
++export interface ResolvedCountry {
++  country: Country | null;
++  province: string | null;
++  basis: "explicit" | "address" | "phone" | "unknown";
++}
++
++/** Address beats phone (an area code only says where a number was issued). Unknown stays null (= US path). */
++export function resolveCounterpartyCountry(input: {
++  explicitCountry?: string | null;
++  explicitProvince?: string | null;
++  address?: string | null;
++  phone?: string | null;
++}): ResolvedCountry {
++  const ec = (input.explicitCountry ?? "").trim().toUpperCase();
++  if (ec === "CA" || ec === "CANADA") return { country: "CA", province: normalizeProvince(input.explicitProvince), basis: "explicit" };
++  const fromAddress = provinceFromAddress(input.address);
++  if (fromAddress) return { ...fromAddress, basis: "address" };
++  if (countryFromPhone(input.phone) === "CA") return { country: "CA", province: null, basis: "phone" };
++  return { country: null, province: null, basis: "unknown" };
+ }
+ 
+ export function stateFromAddress(address: string | null | undefined): string | null {
+--- a/supabase/functions/_shared/compliance-rules/types.ts
++++ b/supabase/functions/_shared/compliance-rules/types.ts
+@@ -116,6 +116,14 @@
+   customerEligibility?: string[];
+ }
+ 
++/** Dates (YYYY-MM-DD or ISO) the relationship windows are measured from. Never inferred by the engine. */
++export interface RelationshipFacts {
++  /** Last purchase / contract with the business (existing business relationship). */
++  transactionAt?: string | null;
++  /** Last inquiry or application the person made to the business. */
++  inquiryAt?: string | null;
++}
++
+ export interface BusinessLicense {
+   state: string; // "TX"
+   number: string;
+@@ -138,6 +146,15 @@
+   counterpartyTimezone?: string | null;
+   businessTimezone?: string | null;
+   outbound?: boolean; // default true
++  /**
++   * Country of the recipient when known to be Canada. null/undefined = unknown or US (existing behaviour).
++   * Canadian outbound contact is BLOCKED until the Canada pack is enabled (see canada.ts). [COUNSEL][VERIFY]
++   */
++  counterpartyCountry?: "US" | "CA" | null;
++  /** Province / territory code (ON, QC, ...) when counterpartyCountry is "CA" and known. */
++  counterpartyProvince?: string | null;
++  /** Existing-relationship facts used by implied-consent windows (consent_required.impliedWindows). */
++  relationship?: RelationshipFacts;
+   aiVoice?: boolean;
+   aiGenerated?: boolean;
+   disclosureGiven?: boolean;
+@@ -224,4 +241,6 @@
+    * an answer and never guess it.
+    */
+   eligibilityPrompts: Array<{ code: string; jurisdiction: string; ruleKey: string }>;
++  /** Set only for Canadian outbound contact: is the Canada pack enabled for this surface? */
++  canadaPack?: { enabled: boolean; missing: string[] };
+ }
+--- a/supabase/functions/_shared/compliance-rules/engine.ts
++++ b/supabase/functions/_shared/compliance-rules/engine.ts
+@@ -8,7 +8,14 @@
+ // approved (status = "approved"); it never ships its own legal conclusions.
+ 
+ import { isValidTimezone, parseHHMM, zonedParts, zonedToUtc } from "../messaging/quietHoursCore.ts";
+-import { normalizeState, stateOfJurisdiction, US_STATES } from "./jurisdiction.ts";
++import {
++  isValidCanadianJurisdiction, jurisdictionCountry, normalizeProvince, normalizeState, provinceOfJurisdiction,
++  stateOfJurisdiction, US_STATES,
++} from "./jurisdiction.ts";
++import {
++  CA_GATE_RULE_KEY, CA_JURISDICTION, CA_PACK_SLUG, canadaGateMessage, canadaPackStatus, impliedConsentMatch,
++  isCaGatedSurface, parseImpliedWindows,
++} from "./canada.ts";
+ import { evalFm, isFmKind, validateFmParams, type FmFix } from "./fmSubmission.ts";
+ import type {
+   ActionType,
+@@ -144,6 +151,9 @@
+       break;
+     case "consent_required":
+       if (!CONSENT_TYPES.includes(p.consentType as ConsentType)) errs.push(`consentType must be one of ${CONSENT_TYPES.join(", ")}`);
++      if (p.impliedWindows !== undefined && parseImpliedWindows(p.impliedWindows) === null) {
++        errs.push("impliedWindows must be a list of up to 2 {basis: transaction | inquiry, months: 1-60} with distinct bases");
++      }
+       break;
+     case "license_display":
+       if (!str(p.licenseLabel)) errs.push("licenseLabel is required");
+@@ -212,8 +222,14 @@
+ /** Everything that must hold before a version can be submitted for review. */
+ export function validateVersionDraft(v: VersionDraft): string[] {
+   const errs: string[] = [];
+-  if (!/^US(-[A-Z]{2})?$/.test(v.jurisdiction) || (v.jurisdiction !== "US" && !US_STATES.has(v.jurisdiction.slice(3)))) {
+-    errs.push("jurisdiction must be US or US-<state code>");
++  const country = jurisdictionCountry(v.jurisdiction);
++  if (country === "CA") {
++    if (!isValidCanadianJurisdiction(v.jurisdiction)) errs.push("jurisdiction must be CA or CA-<province code>");
++    if (!["consent_required", "quiet_hours", "required_notice", "ai_disclosure"].includes(v.kind)) {
++      errs.push(`${v.kind} is not supported for Canadian packs (consent_required, quiet_hours, required_notice, ai_disclosure only)`);
++    }
++  } else if (country !== "US" || (v.jurisdiction !== "US" && !US_STATES.has(v.jurisdiction.slice(3)))) {
++    errs.push("jurisdiction must be US, US-<state code>, CA or CA-<province code>");
+   }
+   if (!(RULE_KINDS as readonly string[]).includes(v.kind)) {
+     errs.push("unknown rule kind");
+@@ -381,7 +397,9 @@
+   }
+      if (isFmSurface) {
+       // Portal requirements are not jurisdiction-based: no state assumptions apply.
+-    } else if (counterparty === null) {
++    } else if (ctx.counterpartyCountry === "CA") {
++    assumptions.push(`Recipient treated as Canadian${normalizeProvince(ctx.counterpartyProvince) ? ` (${normalizeProvince(ctx.counterpartyProvince)})` : " (province unknown — only federal Canadian rules matched)"}. [COUNSEL][VERIFY]`);
++  } else if (counterparty === null) {
+     assumptions.push("Customer state unknown — state-specific rules for the customer's location could not be matched (recording consent defaults to the strictest rule).");
+   } else if (ctx.counterpartyStateBasis === "phone") {
+     assumptions.push(`Customer state (${counterparty}) was inferred from the phone area code and may be wrong — confirm the service address.`);
+@@ -399,10 +417,13 @@
+   let strictRecordingUsed = false;
+ 
+   const skip = (v: RuleVersion, reason: SkippedRule["reason"]) => skipped.push({ versionId: v.id, ruleKey: v.ruleKey, reason });
++  const caContact = !isFmSurface && ctx.counterpartyCountry === "CA";
++  const caProvince = normalizeProvince(ctx.counterpartyProvince);
++  const todayKey = zonedParts(at, localTz).dateKey;
+ 
+   // With an unknown customer state, apply exactly one all-party recording rule (the strictest assumption).
+   const strictRecording =
+-    counterparty === null && ctx.surface === "call"
++    counterparty === null && ctx.surface === "call" && ctx.counterpartyCountry !== "CA"
+       ? active.find((v) => v.kind === "recording_consent" && stateOfJurisdiction(v.jurisdiction) !== null && isObj(v.params) && v.params.mode === "all_party" && v.appliesTo.includes("call"))
+       : undefined;
+ 
+@@ -416,7 +437,14 @@
+     const p = v.params;
+     const matchOn = (str(p.matchOn) as MatchOn | null) ?? DEFAULT_MATCH_ON[v.kind];
+     const st = stateOfJurisdiction(v.jurisdiction);
+-    let matches = st === null || (matchOn === "counterparty" ? counterparty === st : matchOn === "business" ? business === st : counterparty === st || business === st);
++    let matches: boolean;
++    if (jurisdictionCountry(v.jurisdiction) === "CA") {
++      // Canadian rules apply to Canadian recipients only; a province rule needs the matching province.
++      const prov = provinceOfJurisdiction(v.jurisdiction);
++      matches = caContact && (prov === null || caProvince === prov);
++    } else {
++      matches = st === null || (matchOn === "counterparty" ? counterparty === st : matchOn === "business" ? business === st : counterparty === st || business === st);
++    }
+     if (!matches && strictRecording && v.id === strictRecording.id) {
+       matches = true;
+       strictRecordingUsed = true;
+@@ -439,7 +467,7 @@
+     switch (v.kind) {
+       case "recording_consent": r = evalRecording(p, ctx, strictRecordingUsed && strictRecording?.id === v.id); break;
+       case "ai_disclosure": r = evalDisclosure(p, ctx); break;
+-      case "consent_required": r = evalConsent(p, ctx, purpose); break;
++      case "consent_required": r = evalConsent(p, ctx, purpose, todayKey); break;
+       case "quiet_hours": {
+         const purposes = strArr(p.purposes) ?? ["marketing"];
+         if (!purposes.includes(purpose) || (purpose === "emergency" && p.emergencyExempt !== false)) { r = null; break; }
+@@ -474,6 +502,22 @@
+     }
+   }
+ 
++  // Canada gate: Canadian outbound contact is blocked until every required Canadian rule is approved.
++  let canadaPack: EvaluationResult["canadaPack"];
++  if (caContact && ctx.outbound !== false && isCaGatedSurface(ctx.surface)) {
++    const status = canadaPackStatus(active, ctx.surface);
++    canadaPack = { enabled: status.enabled, missing: status.missing };
++    if (!status.enabled) {
++      const message = canadaGateMessage(ctx.surface, status.missing);
++      findings.push({
++        versionId: "", ruleKey: CA_GATE_RULE_KEY, packSlug: CA_PACK_SLUG, jurisdiction: CA_JURISDICTION, kind: "consent_required",
++        severity: "block", status: "fail", title: "Canada: outbound contact blocked until the Canada rule pack is enabled",
++        message, explanation: message, sourceRefs: [], version: 0, effectiveFrom: effectiveDate, effectiveTo: null,
++      });
++      actions.push({ type: "hold_work", text: "Do not contact this person automatically. A human may contact them only after counsel confirms the rules that apply. [COUNSEL]", versionId: "", ruleKey: CA_GATE_RULE_KEY });
++    }
++  }
++
+   // Earliest instant at which EVERY applicable quiet-hours rule is open.
+   let nextAllowedAt: string | null = null;
+   const failingQuiet = findings.filter((f) => f.kind === "quiet_hours" && f.status === "fail");
+@@ -521,6 +565,7 @@
+     evaluatedAt: at.toISOString(), effectiveDate,
+     jurisdictions: { business, counterparty },
+     appliedVersionIds: applied, nextAllowedAt, recording, rescissionDeadline, eligibilityPrompts,
++    ...(canadaPack ? { canadaPack } : {}),
+   };
+ }
+ 
+@@ -550,13 +595,24 @@
+   return { status: "action", message: "Disclose that the customer is interacting with AI.", actions: [{ type: "disclose", text: str(p.script)! }] };
+ }
+ 
+-function evalConsent(p: Record<string, unknown>, ctx: EvalContext, purpose: string): Outcome1 | null {
++function evalConsent(p: Record<string, unknown>, ctx: EvalContext, purpose: string, todayKey: string): Outcome1 | null {
+   const purposes = strArr(p.purposes) ?? ["marketing"];
+   if (ctx.outbound === false || !purposes.includes(purpose)) return null;
+   if (p.requiresAiVoice === true && !ctx.aiVoice) return null;
+   const type = p.consentType as ConsentType;
+   const state = ctx.consent?.[type] ?? "none";
+   if (state === "granted") return { status: "pass", message: `Consent (${type}) is on file.` };
++  // Implied consent (data-driven window). Never overrides an explicit revocation.
++  const windows = state === "none" && p.impliedWindows !== undefined ? parseImpliedWindows(p.impliedWindows) : null;
++  if (windows) {
++    const hit = impliedConsentMatch(windows, ctx.relationship, todayKey);
++    if (hit) {
++      return {
++        status: "pass",
++        message: `Implied consent window applies (${hit.basis} on ${hit.since}, ${hit.months} months, until ${hit.until}). [COUNSEL][VERIFY]`,
++      };
++    }
++  }
+   const evidence = str(p.evidence);
+   return {
+     status: "fail",
+--- a/supabase/functions/_shared/messaging/quietHoursCore.ts
++++ b/supabase/functions/_shared/messaging/quietHoursCore.ts
+@@ -68,7 +68,7 @@
+     }
+   | {
+       allowed: false;
+-      reason: "QUIET_HOURS" | "COMPLIANCE_FLOOR" | "HOLIDAY" | "QUIET_WEEKDAY";
++      reason: "QUIET_HOURS" | "COMPLIANCE_FLOOR" | "HOLIDAY" | "QUIET_WEEKDAY" | "CANADA_PACK_NOT_ENABLED";
+       sendAt: string; // ISO UTC — earliest instant the message may go out
+       timezone: string;
+       tzSource: TzSource;
+--- a/supabase/functions/_shared/messaging/quietHours.ts
++++ b/supabase/functions/_shared/messaging/quietHours.ts
+@@ -13,6 +13,7 @@
+ // use gateAndDefer() which queues the message itself.
+ 
+ import type { SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
++import { canadaOutboundBlock } from "../compliance-rules/canadaGate.ts";
+ import {
+   decideSend,
+   jitterMs,
+@@ -26,6 +27,9 @@
+ 
+ export type { Channel, Purpose } from "./quietHoursCore.ts";
+ 
++/** How long a Canadian contact waits before the gate is re-evaluated (pack may have been enabled meanwhile). */
++export const CANADA_RECHECK_MS = 6 * 3_600_000;
++
+ export interface GateInput {
+   channel: Channel;
+   /** Phone (sms/call) or email address. */
+@@ -126,6 +130,21 @@
+   const purpose = input.purpose ?? "service";
+   const now = input.now ?? new Date();
+   const ctx = await loadContext(admin, userId, input);
++
++  // Canada gate: no Canadian outbound contact until the Canada rule pack is enabled. It runs BEFORE the quiet-hours
++  // decision and cannot be overridden (not even by an emergency/manual override). Callers re-check after CANADA_RECHECK_MS,
++  // so held rows start moving only once the pack is enabled. [COUNSEL][VERIFY]
++  const canada = await canadaOutboundBlock(admin, { channel: input.channel, to: input.to, phone: ctx.customerPhone, address: ctx.customerAddress }, now);
++  if (canada.blocked) {
++    console.error(JSON.stringify({ event: "canada_outbound_blocked", user_id: userId, channel: input.channel, purpose, source: input.source ?? null, reason: canada.reason }));
++    const sendAt = new Date(now.getTime() + CANADA_RECHECK_MS).toISOString();
++    return {
++      proceed: false,
++      sendAt,
++      decision: { allowed: false, reason: "CANADA_PACK_NOT_ENABLED", sendAt, timezone: ctx.settings.timezone, tzSource: "business", localTime: "", detail: canada.message },
++    };
++  }
++
+   const tz = resolveCustomerTimezone({
+     explicit: ctx.customerTimezone,
+     address: ctx.customerAddress,
+--- a/supabase/functions/_shared/speed-to-lead/core.ts
++++ b/supabase/functions/_shared/speed-to-lead/core.ts
+@@ -327,6 +327,11 @@
+   oldestAttemptLast24h: Date | null;
+   /** Result of the account-wide quiet-hours gate (holidays, business window, federal floor). */
+   gate: GateView;
++  /**
++   * true = the recipient is Canadian and the Canada rule pack is not enabled (or could not be verified).
++   * Optional so existing callers keep their behaviour; the runtime always sets it. [COUNSEL][VERIFY]
++   */
++  canadaBlocked?: boolean;
+ }
+ 
+ export type DeferReason = "QUIET_HOURS_GATE" | "CALL_WINDOW" | "ATTEMPT_CAP_24H";
+@@ -336,7 +341,8 @@
+   | "lead_ttl_exceeded"
+   | "dnc"
+   | "voice_opt_out"
+-  | "max_attempts";
++  | "max_attempts"
++  | "canada_pack_not_enabled";
+ 
+ export type DialDecision =
+   | { action: "dial" }
+@@ -367,6 +373,9 @@
+ 
+   if (!s.enabled) return stop("cancelled", "feature_disabled", false);
+ 
++  // 0) Canadian recipient and no enabled Canada rule pack: never dial automatically; a human decides.
++  if (i.canadaBlocked) return stop("suppressed", "canada_pack_not_enabled", true);
++
+   // 1) Consent must exist, be granted, and cover AI-voice calls. Latest ledger row wins (revocation = newer row).
+   if (!i.consent || !i.consent.granted || !i.consent.scope.includes(CONSENT_SCOPE)) {
+     return stop("suppressed", "no_valid_consent", false);
+--- a/supabase/functions/_shared/speed-to-lead/runtime.ts
++++ b/supabase/functions/_shared/speed-to-lead/runtime.ts
+@@ -15,6 +15,7 @@
+ import { getPreferences } from "../compliance/preferenceCheck.ts";
+ import { buildRecordingConsentNotice } from "../compliance/recordingConsent.ts";
+ import { gateOutbound } from "../messaging/quietHours.ts";
++import { canadaOutboundBlock } from "../compliance-rules/canadaGate.ts";
+ import { voiceOverride } from "../voice/voiceMap.ts";
+ import { asFraudDb, attachOutboundCall, gateCustomerOutbound, releaseOutboundReservation } from "../fraud/outboundGate.ts";
+ import {
+@@ -375,6 +376,7 @@
+   ai_call_not_permitted: "has no AI-call consent; call manually",
+   stale_disclosure: "submitted an outdated consent form; review before calling",
+   stale_submission: "was an old submission; review before calling",
++  canada_pack_not_enabled: "is a Canadian number and Canadian calling rules are not enabled yet; call manually after checking the rules",
+   voice_not_configured: "could not be called: voice assistant is not configured",
+   dial_failed: "could not be called: the call was rejected",
+   dial_state_unknown: "may or may not have been called; check before dialing again",
+@@ -430,6 +432,8 @@
+       ? { proceed: true, timezone: g.decision.timezone }
+       : { proceed: false, sendAt: new Date(g.sendAt), timezone: g.decision.timezone, reason: g.decision.reason };
+     tzInfo = { timezone: g.decision.timezone, localTime: g.decision.localTime };
++    // Fail closed for Canadian numbers until the Canada rule pack is enabled (canadaGate.ts). [COUNSEL][VERIFY]
++    const canada = await canadaOutboundBlock(admin, { channel: "call", to: req.phone_e164 }, now);
+ 
+     decision = decideDial({
+       now,
+@@ -441,6 +445,7 @@
+       attemptsLast24h: attempts.count,
+       oldestAttemptLast24h: attempts.oldest,
+       gate,
++      canadaBlocked: canada.blocked,
+     });
+   } catch (e) {
+     // Fail closed: a compliance input could not be verified => do not dial, try again shortly.
+--- a/docs/compliance/speed-to-lead-assumptions.md
++++ b/docs/compliance/speed-to-lead-assumptions.md
+@@ -25,7 +25,7 @@
+ | A8 | National/State DNC registry does not excuse a number after the person later says stop, and written consent may override a registry listing for that seller. | Internal DNC (`dnc_suppressions`) always blocks. The optional external registry scrub (`DNC_SCRUB_API_URL`) also blocks (stricter than the consent-overrides-registry reading). | Without a registry provider configured, registry listings are not checked at all. Counsel to decide if a scrub is mandatory before launch. |
+ | A9 | The AI must identify itself and the business, and offer a way to opt out. | First message override and the brief require AI disclosure up front; brief tells the agent to honor stop requests. Recording notice reuses `recordingConsent.ts`. | Compliance depends on the Vapi assistant prompt including `{{speed_to_lead_context}}`. The first message is applied by override, but the LLM's behavior is not guaranteed. Consider an automated transcript audit. |
+ | A10 | Voicemail: the AI does not intentionally leave a message; retries follow the schedule. | Outcome `voicemail` is treated as no contact and retried (max 3/24 h). | Leaving a prerecorded/AI voicemail may be a separate consent question; configure voicemail detection in Vapi to hang up if desired **[VERIFY]**. |
+-| A11 | Only US/Canada (+1 NANP) numbers are auto-dialed. | `parseNanpPhone`; other regions are saved as leads, never called. | Canadian numbers fall under CRTC rules (not modeled); counsel to decide whether to exclude +1 Canadian area codes. |
++| A11 | Only US/Canada (+1 NANP) numbers are auto-dialed. | `parseNanpPhone`; other regions are saved as leads, never called. | Canadian numbers fall under CRTC/CASL rules. A starter Canada pack (`ca-federal`, `in_review`, all rules **[COUNSEL][VERIFY]**) now exists in the rule-pack system; until counsel approves the required rules, Canadian numbers are never auto-dialed (`canada_pack_not_enabled`). Detection is by Canadian area code (`CA_AREA_CODES`, **[VERIFY]**); a Canadian number with an unlisted area code is not detected. |
+ | A12 | Leads older than the freshness limit (default 48 h) are not auto-called. | `lead_ttl_hours`, intake `stale_submission`. | Ensures consent is contemporaneous with the call. |
+ | A13 | A sender token must not be exposed in browsers. | No CORS; per-source rate limit (30/min); per-number 24 h cap; tokens stored only as SHA-256. | A leaked token could still submit someone else's number with `consent: true`. Residual risk: third-party-submitted consent. Consider double opt-in (SMS confirm) for high-risk sources **[VERIFY]**. |
+ 
+@@ -41,7 +41,7 @@
+ 1. Inbound revocations by SMS STOP or email do not yet write to the consent ledger (they use existing channel-specific suppression).
+ 2. No automated review of call transcripts for disclosure and opt-out compliance.
+ 3. No per-state rule table (hours, caps, recording consent beyond the existing `recordingConsent.ts`); the default is conservative nationwide.
+-4. No Canadian (CRTC) rules, no TCPA safe-harbor reassigned-numbers database check (RND). Reassigned numbers are a real exposure for consent captured by a previous subscriber **[VERIFY]**.
++4. Canadian (CRTC/CASL) rules are data only and unapproved (see A11): Canadian outbound contact is blocked until counsel approves the required rules **[COUNSEL][VERIFY]**. No TCPA safe-harbor reassigned-numbers database check (RND). Reassigned numbers are a real exposure for consent captured by a previous subscriber **[VERIFY]**.
+ 5. DSAR/deletion tooling (`_shared/compliance/ownedTables.ts`) is not updated for the new tables.
+ 6. The intake IP is the form backend's unless the backend forwards `ip_address` and `user_agent`; counsel to decide if forwarding is mandatory evidence.
