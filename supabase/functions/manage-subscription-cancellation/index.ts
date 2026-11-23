@@ -268,6 +268,16 @@ Deno.serve(async (req: Request) => {
           // A pause on a cancelling subscription would be confusing; end it.
           pause_collection: "",
         });
+        // Offboarding case (access-end date, export/deletion guidance, opt-in win-back). Best effort: never blocks a cancellation.
+        const accessEndsAt = iso(sub.current_period_end);
+        if (accessEndsAt) {
+          try {
+            const { error: obErr } = await admin.rpc("offboarding_open_case", { p_user: user.id, p_reason: request.reason, p_plan: null, p_access_ends_at: accessEndsAt });
+            if (obErr) throw new Error(obErr.message);
+          } catch (err) {
+            console.error(JSON.stringify({ event: "offboarding_open_case_failed", error: err instanceof Error ? err.message : String(err) }));
+          }
+        }
         await record("cancel_scheduled", "subscription_cancel_scheduled", { period_end: iso(sub.current_period_end) }, {
           reason: request.reason,
           detail: request.detail,
@@ -495,6 +505,12 @@ Deno.serve(async (req: Request) => {
           pause_collection: "",
         });
         await record("resumed", "subscription_resumed");
+        // The owner changed their mind before access ended: close the offboarding case and its unsent win-back messages. Best effort.
+        try {
+          await admin.rpc("offboarding_withdraw_case", { p_user: user.id });
+        } catch (err) {
+          console.error(JSON.stringify({ event: "offboarding_withdraw_case_failed", error: err instanceof Error ? err.message : String(err) }));
+        }
         return json(buildContext(sub));
       }
     }
