@@ -29,6 +29,7 @@
     "xero-sync-run": { "auth": "jwt", "risk": "medium", "owner": "finance-integrations" },
     "ai-batch-runner": { "auth": "cron-secret", "risk": "medium", "owner": "ai-platform" },
     "gbp-oauth-start": { "auth": "jwt", "risk": "high", "owner": "agent-readiness" },
-    "gbp-oauth-callback": { "auth": "capability-token", "risk": "high", "owner": "agent-readiness" }
+    "gbp-oauth-callback": { "auth": "capability-token", "risk": "high", "owner": "agent-readiness" },
+       "erasure-certificate": { "auth": "jwt", "risk": "high", "owner": "compliance" }
   }
 }
