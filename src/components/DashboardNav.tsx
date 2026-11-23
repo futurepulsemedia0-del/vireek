@@ -196,6 +196,7 @@ export const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Vendor Returns', href: '/dashboard/inventory/rma', icon: Undo2 },
   { label: 'Tool Crib', href: '/dashboard/tools', icon: Wrench },
   { label: 'Break Compliance', href: '/dashboard/break-compliance', icon: Coffee, requiresPermission: 'can_view_billing' },
+  { label: 'Labor Signals', href: '/dashboard/labor-signals', icon: Scale, requiresPermission: 'can_view_billing' },
   { label: 'Truck Operations', href: '/dashboard/inventory/trucks', icon: Truck },
   { label: 'Phone Numbers', href: '/dashboard/phone-numbers', icon: Phone },
   { label: 'Phone Resilience', href: '/dashboard/voice-resilience', icon: ShieldCheck, requiresPermission: 'can_edit_business_profile' },
