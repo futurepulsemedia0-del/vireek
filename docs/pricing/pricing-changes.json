@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "approvers": ["REPLACE_WITH_APPROVER_EMAIL"],
+  "entries": [
+    {
+      "change_ref": "PC-2026-0001",
+      "kind": "baseline",
+      "title": "Baseline: pricing as of the introduction of change control",
+      "summary": "Records the pricing files exactly as they stood when change control was introduced. It is not a price change.",
+      "grandfathering": "not_applicable",
+      "requested_by": null,
+      "approved_by": "REPLACE_WITH_APPROVER_EMAIL",
+      "approved_at": "REPLACE_WITH_YYYY-MM-DD",
+      "effective_date": "REPLACE_WITH_YYYY-MM-DD",
+      "files": {
+        "src/lib/pricing.ts": "49bb642535b9a5a9d95e2adcc3c03a45580856663c63dad26724c9c6e823cc1e",
+        "supabase/functions/_shared/billing/pricingCatalog.ts": "3c46109f47324afbc04bc809c0252d34e800a563eaed250af5370119bf068642"
+      }
+    }
+  ]
+}
