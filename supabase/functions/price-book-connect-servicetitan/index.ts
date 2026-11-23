@@ -2,6 +2,10 @@ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { fetchServiceTitanPricebook } from "../_shared/price-book/servicetitan.ts";
 import { upsertPriceBookItems } from "../_shared/price-book/upsert.ts";
 import { saveSecrets } from "../_shared/secrets/providerCredentials.ts";
+import { requireIntegrationManager } from "../_shared/auth/integrationAccessGuard.ts";
+import { createFlagEvaluator } from "../_shared/flags/flagEval.ts";
+import { loadStOnboardingInputs, type StDb } from "../_shared/price-book/stOnboardingInputs.ts";
+import { decideServiceTitanConnect } from "../_shared/price-book/stOnboardingPolicy.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -14,6 +18,8 @@ function jsonResponse(data: unknown, status = 200) {
 }
 
 interface RequestBody {
+  /** "status" = report whether this account may connect (no credentials are read or stored). */
+  action?: string;
   client_id?: string;
   client_secret?: string;
   app_key?: string;
@@ -36,7 +42,24 @@ Deno.serve(async (req: Request) => {
     if (userError || !userData?.user) return jsonResponse({ error: "Invalid or expired session." }, 401);
     const userId = userData.user.id;
 
-    const body = (await req.json()) as RequestBody;
+    // Same permission as QuickBooks (can_manage_integrations); also resolves the account owner used for flags.
+    const access = await requireIntegrationManager(req, "ServiceTitan", corsHeaders);
+    if (access instanceof Response) return access;
+
+    // Anti-tunneling policy (see _shared/price-book/stOnboardingPolicy.ts). Existing live connections are
+    // grandfathered; new sign-ups are blocked unless staff switch them on. Evaluated BEFORE any credential is read.
+    const inputs = await loadStOnboardingInputs(
+      admin as unknown as StDb,
+      createFlagEvaluator({ rpc: (fn, args) => admin.rpc(fn, args) }),
+      { userId, ownerId: access.ownerId },
+    );
+    const decision = decideServiceTitanConnect(inputs);
+
+    const body = (await req.json().catch(() => ({}))) as RequestBody;
+    if (body.action === "status") {
+      return jsonResponse(decision.allow ? { allowed: true, reason: decision.reason } : { allowed: false, code: decision.code, reason: decision.reason, message: decision.message });
+    }
+    if (!decision.allow) return jsonResponse({ error: decision.message, code: decision.code }, 403);
     const creds = {
       st_client_id: (body.client_id ?? "").trim(),
       st_client_secret: (body.client_secret ?? "").trim(),
