@@ -1,0 +1,1572 @@
+{
+  "schemaVersion": 1,
+  "tool": "scripts/security/crypto-inventory.mjs",
+  "scan": {
+    "filesScanned": 7304,
+    "filesWithFindings": 480
+  },
+  "summary": {
+    "algorithmsInUse": 19,
+    "quantumVulnerablePublicKeyUses": 44,
+    "quantumVulnerableAlgorithms": [
+      "ec-curve",
+      "ecdsa",
+      "eddsa",
+      "forge-rsa",
+      "jwt-es",
+      "jwt-ps",
+      "jwt-rs",
+      "pkcs7",
+      "webcrypto-rsa"
+    ],
+    "criticalFindings": 0,
+    "reviewFindings": 38
+  },
+  "algorithms": [
+    {
+      "id": "aes-256",
+      "name": "AES-256",
+      "family": "symmetric encryption",
+      "quantum": "adequate",
+      "severity": "info",
+      "uses": 14,
+      "mentions": 19,
+      "testReferences": 1,
+      "fileCount": 12,
+      "files": [
+        {
+          "path": "src/components/bi-connectors/ExportsTab.tsx",
+          "kind": "production",
+          "lines": [
+            163
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "src/lib/trustPack/envelope.ts",
+          "kind": "production",
+          "lines": [
+            13
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "src/lib/trustPack/kms.ts",
+          "kind": "production",
+          "lines": [
+            247
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/functions/_shared/bi/s3.ts",
+          "kind": "production",
+          "lines": [
+            155
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/migrations/20271011000000_quickbooks_sync.sql",
+          "kind": "sql",
+          "lines": [
+            22
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/migrations/20271021000000_enterprise_trust_pack.sql",
+          "kind": "sql",
+          "lines": [
+            215,
+            232
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/migrations/20271210000000_accounting_connectors.sql",
+          "kind": "sql",
+          "lines": [
+            22
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/migrations/20271231010000_siem_log_streaming.sql",
+          "kind": "sql",
+          "lines": [
+            100
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/migrations/20271231130000_sage_intacct_sync.sql",
+          "kind": "sql",
+          "lines": [
+            24
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/migrations/20280101000000_xero_sync.sql",
+          "kind": "sql",
+          "lines": [
+            25
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/migrations/20280115000000_netsuite_sync.sql",
+          "kind": "sql",
+          "lines": [
+            21
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/migrations/20280402000000_provider_credentials.sql",
+          "kind": "sql",
+          "lines": [
+            6,
+            30
+          ],
+          "owner": "unassigned",
+          "note": ""
+        }
+      ],
+      "filesOmitted": 0
+    },
+    {
+      "id": "aes-gcm",
+      "name": "AES-GCM/CBC/CTR/KW",
+      "family": "symmetric encryption",
+      "quantum": "adequate",
+      "severity": "info",
+      "uses": 60,
+      "mentions": 25,
+      "testReferences": 2,
+      "fileCount": 29,
+      "files": [
+        {
+          "path": "src/lib/native/vaultCrypto.ts",
+          "kind": "production",
+          "lines": [
+            49,
+            67,
+            79
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "src/lib/trustPack/envelope.ts",
+          "kind": "production",
+          "lines": [
+            13,
+            79,
+            90,
+            98
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/functions/_shared/ads/common.ts",
+          "kind": "production",
+          "lines": [
+            70,
+            75,
+            82
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/functions/_shared/bank/crypto.ts",
+          "kind": "production",
+          "lines": [
+            10,
+            18,
+            25
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/functions/_shared/chat-notify/security.ts",
+          "kind": "production",
+          "lines": [
+            57,
+            63,
+            71
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/functions/_shared/crm/engine.ts",
+          "kind": "production",
+          "lines": [
+            1117,
+            1122,
+            1129
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/functions/_shared/data-platform/secrets.ts",
+          "kind": "production",
+          "lines": [
+            34,
+            42,
+            55
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/functions/_shared/direct-mail/crypto.ts",
+          "kind": "production",
+          "lines": [
+            9,
+            17,
+            24
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/functions/_shared/punchout/security.ts",
+          "kind": "production",
+          "lines": [
+            14,
+            19,
+            26
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/functions/_shared/secrets/credentialVault.ts",
+          "kind": "production",
+          "lines": [
+            34,
+            51,
+            67
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/functions/_shared/telematics/security.ts",
+          "kind": "production",
+          "lines": [
+            14,
+            19,
+            26
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/functions/siem-stream/index.ts",
+          "kind": "production",
+          "lines": [
+            117,
+            122,
+            129
+          ],
+          "owner": "unassigned",
+          "note": ""
+        }
+      ],
+      "filesOmitted": 17
+    },
+    {
+      "id": "ec-curve",
+      "name": "Elliptic curve (P-256/P-384/P-521, secp*)",
+      "family": "public-key",
+      "quantum": "vulnerable",
+      "severity": "info",
+      "uses": 3,
+      "mentions": 0,
+      "testReferences": 1,
+      "fileCount": 3,
+      "files": [
+        {
+          "path": "supabase/functions/_shared/accounting/netsuite.ts",
+          "kind": "production",
+          "lines": [
+            368
+          ],
+          "owner": "customer-chosen",
+          "note": "NetSuite M2M client assertion: ES256 default, PS256 optional."
+        },
+        {
+          "path": "supabase/functions/_shared/bank/plaid.ts",
+          "kind": "production",
+          "lines": [
+            118
+          ],
+          "owner": "vendor-dictated",
+          "note": "Verifies Plaid webhook JWT (ES256). [VERIFY]"
+        },
+        {
+          "path": "supabase/functions/_shared/notify/apns.ts",
+          "kind": "production",
+          "lines": [
+            28
+          ],
+          "owner": "vendor-dictated",
+          "note": "Apple APNs provider token (ES256). [VERIFY]"
+        }
+      ],
+      "filesOmitted": 0
+    },
+    {
+      "id": "ecdsa",
+      "name": "ECDSA",
+      "family": "public-key signature",
+      "quantum": "vulnerable",
+      "severity": "info",
+      "uses": 5,
+      "mentions": 0,
+      "testReferences": 2,
+      "fileCount": 3,
+      "files": [
+        {
+          "path": "supabase/functions/_shared/accounting/netsuite.ts",
+          "kind": "production",
+          "lines": [
+            368
+          ],
+          "owner": "customer-chosen",
+          "note": "NetSuite M2M client assertion: ES256 default, PS256 optional."
+        },
+        {
+          "path": "supabase/functions/_shared/bank/plaid.ts",
+          "kind": "production",
+          "lines": [
+            118,
+            121
+          ],
+          "owner": "vendor-dictated",
+          "note": "Verifies Plaid webhook JWT (ES256). [VERIFY]"
+        },
+        {
+          "path": "supabase/functions/_shared/notify/apns.ts",
+          "kind": "production",
+          "lines": [
+            28,
+            29
+          ],
+          "owner": "vendor-dictated",
+          "note": "Apple APNs provider token (ES256). [VERIFY]"
+        }
+      ],
+      "filesOmitted": 0
+    },
+    {
+      "id": "eddsa",
+      "name": "EdDSA / Ed25519",
+      "family": "public-key signature",
+      "quantum": "vulnerable",
+      "severity": "info",
+      "uses": 2,
+      "mentions": 4,
+      "testReferences": 3,
+      "fileCount": 1,
+      "files": [
+        {
+          "path": "supabase/functions/_shared/consumer-agent/security.ts",
+          "kind": "production",
+          "lines": [
+            203,
+            204
+          ],
+          "owner": "vireek-defined",
+          "note": "Ed25519 request signing for registered agents; Vireek controls the scheme."
+        }
+      ],
+      "filesOmitted": 0
+    },
+    {
+      "id": "forge-rsa",
+      "name": "RSA keys via node-forge",
+      "family": "public-key",
+      "quantum": "vulnerable",
+      "severity": "info",
+      "uses": 3,
+      "mentions": 0,
+      "testReferences": 1,
+      "fileCount": 1,
+      "files": [
+        {
+          "path": "supabase/functions/_shared/wallet/applePkpass.ts",
+          "kind": "production",
+          "lines": [
+            30,
+            31,
+            32
+          ],
+          "owner": "vendor-dictated",
+          "note": "Apple .pkpass: SHA-1 manifest and PKCS#7 signature with the Pass Type ID certificate. [VERIFY]"
+        }
+      ],
+      "filesOmitted": 0
+    },
+    {
+      "id": "hmac",
+      "name": "HMAC / HS256",
+      "family": "message authentication",
+      "quantum": "adequate",
+      "severity": "info",
+      "uses": 136,
+      "mentions": 60,
+      "testReferences": 37,
+      "fileCount": 63,
+      "files": [
+        {
+          "path": "functions/_shared/agent-marketplace/contract.ts",
+          "kind": "production",
+          "lines": [
+            276,
+            277
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "packages/cli/src/help.ts",
+          "kind": "production",
+          "lines": [
+            79
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "packages/cli/src/webhooks.ts",
+          "kind": "production",
+          "lines": [
+            1,
+            35
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "scripts/check-voice.mjs",
+          "kind": "tooling",
+          "lines": [
+            21
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "scripts/gen-docs-catalogs.mjs",
+          "kind": "tooling",
+          "lines": [
+            82,
+            90
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "scripts/gen-function-reference.mjs",
+          "kind": "tooling",
+          "lines": [
+            90
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "scripts/gen-provider-docs.mjs",
+          "kind": "tooling",
+          "lines": [
+            88
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "scripts/run-samples.mjs",
+          "kind": "tooling",
+          "lines": [
+            173,
+            177,
+            282
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "scripts/simulate-partner-webhook.mjs",
+          "kind": "tooling",
+          "lines": [
+            2,
+            12
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "src/components/agent-marketplace/PublisherPanel.tsx",
+          "kind": "production",
+          "lines": [
+            150
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "src/components/developers/WebhookCatalog.tsx",
+          "kind": "production",
+          "lines": [
+            100
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "src/lib/dataPlatform.ts",
+          "kind": "production",
+          "lines": [
+            334,
+            343
+          ],
+          "owner": "unassigned",
+          "note": ""
+        }
+      ],
+      "filesOmitted": 51
+    },
+    {
+      "id": "hsts",
+      "name": "HSTS header",
+      "family": "tls",
+      "quantum": "n/a",
+      "severity": "info",
+      "uses": 7,
+      "mentions": 0,
+      "testReferences": 1,
+      "fileCount": 7,
+      "files": [
+        {
+          "path": ".github/workflows/vercel-preview-smoke.yml",
+          "kind": "tooling",
+          "lines": [
+            50
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "scripts/brand-audit/checks/security.mjs",
+          "kind": "tooling",
+          "lines": [
+            59
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "scripts/brand-audit/crawl/derive.mjs",
+          "kind": "tooling",
+          "lines": [
+            149
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "scripts/check-headers.mjs",
+          "kind": "tooling",
+          "lines": [
+            9
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "scripts/compliance/collect-repo.mjs",
+          "kind": "tooling",
+          "lines": [
+            47
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "src/lib/securityWhitepaper.ts",
+          "kind": "production",
+          "lines": [
+            193
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "vercel.json",
+          "kind": "config",
+          "lines": [
+            37
+          ],
+          "owner": "unassigned",
+          "note": ""
+        }
+      ],
+      "filesOmitted": 0
+    },
+    {
+      "id": "jwt-es",
+      "name": "ES256/ES384/ES512 (ECDSA)",
+      "family": "public-key signature",
+      "quantum": "vulnerable",
+      "severity": "info",
+      "uses": 10,
+      "mentions": 4,
+      "testReferences": 2,
+      "fileCount": 5,
+      "files": [
+        {
+          "path": "supabase/functions/_shared/accounting/netsuite.ts",
+          "kind": "production",
+          "lines": [
+            356,
+            359,
+            367,
+            378
+          ],
+          "owner": "customer-chosen",
+          "note": "NetSuite M2M client assertion: ES256 default, PS256 optional."
+        },
+        {
+          "path": "supabase/functions/_shared/bank/plaid.ts",
+          "kind": "production",
+          "lines": [
+            113
+          ],
+          "owner": "vendor-dictated",
+          "note": "Verifies Plaid webhook JWT (ES256). [VERIFY]"
+        },
+        {
+          "path": "supabase/functions/_shared/notify/apns.ts",
+          "kind": "production",
+          "lines": [
+            24,
+            30
+          ],
+          "owner": "vendor-dictated",
+          "note": "Apple APNs provider token (ES256). [VERIFY]"
+        },
+        {
+          "path": "supabase/functions/acct-oauth-start/index.ts",
+          "kind": "production",
+          "lines": [
+            67,
+            88
+          ],
+          "owner": "customer-chosen",
+          "note": "NetSuite M2M client assertion: ES256 default, PS256 optional."
+        },
+        {
+          "path": "supabase/functions/acct-sync-run/index.ts",
+          "kind": "production",
+          "lines": [
+            230
+          ],
+          "owner": "unassigned",
+          "note": ""
+        }
+      ],
+      "filesOmitted": 0
+    },
+    {
+      "id": "jwt-ps",
+      "name": "PS256/PS384/PS512 (RSASSA-PSS)",
+      "family": "public-key signature",
+      "quantum": "vulnerable",
+      "severity": "info",
+      "uses": 4,
+      "mentions": 2,
+      "testReferences": 0,
+      "fileCount": 2,
+      "files": [
+        {
+          "path": "supabase/functions/_shared/accounting/netsuite.ts",
+          "kind": "production",
+          "lines": [
+            356,
+            359,
+            378
+          ],
+          "owner": "customer-chosen",
+          "note": "NetSuite M2M client assertion: ES256 default, PS256 optional."
+        },
+        {
+          "path": "supabase/functions/acct-oauth-start/index.ts",
+          "kind": "production",
+          "lines": [
+            67
+          ],
+          "owner": "customer-chosen",
+          "note": "NetSuite M2M client assertion: ES256 default, PS256 optional."
+        }
+      ],
+      "filesOmitted": 0
+    },
+    {
+      "id": "jwt-rs",
+      "name": "RS256/RS384/RS512 (RSASSA-PKCS1-v1_5)",
+      "family": "public-key signature",
+      "quantum": "vulnerable",
+      "severity": "info",
+      "uses": 5,
+      "mentions": 2,
+      "testReferences": 2,
+      "fileCount": 4,
+      "files": [
+        {
+          "path": "supabase/functions/_shared/data-platform/adapters/snowflake.ts",
+          "kind": "production",
+          "lines": [
+            18,
+            27
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/functions/_shared/data-platform/googleAuth.ts",
+          "kind": "production",
+          "lines": [
+            54
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/functions/_shared/notify/fcm.ts",
+          "kind": "production",
+          "lines": [
+            56
+          ],
+          "owner": "vendor-dictated",
+          "note": "Google service-account JWT (RS256). [VERIFY]"
+        },
+        {
+          "path": "supabase/functions/_shared/wallet/googleWallet.ts",
+          "kind": "production",
+          "lines": [
+            28
+          ],
+          "owner": "vendor-dictated",
+          "note": "Google Wallet save-link JWT (RS256). [VERIFY]"
+        }
+      ],
+      "filesOmitted": 0
+    },
+    {
+      "id": "kdf",
+      "name": "KDF (PBKDF2/scrypt/argon2/bcrypt/HKDF)",
+      "family": "key derivation",
+      "quantum": "adequate",
+      "severity": "info",
+      "uses": 5,
+      "mentions": 1,
+      "testReferences": 0,
+      "fileCount": 3,
+      "files": [
+        {
+          "path": "supabase/functions/_shared/doc-share/crypto.ts",
+          "kind": "production",
+          "lines": [
+            34,
+            36
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/functions/_shared/voice/callSafety.ts",
+          "kind": "production",
+          "lines": [
+            36,
+            37
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/migrations/20260821101216_seed_demo_data.sql",
+          "kind": "sql",
+          "lines": [
+            61
+          ],
+          "owner": "unassigned",
+          "note": ""
+        }
+      ],
+      "filesOmitted": 0
+    },
+    {
+      "id": "md5",
+      "name": "MD5",
+      "family": "hash (legacy)",
+      "quantum": "n/a",
+      "severity": "review",
+      "uses": 30,
+      "mentions": 1,
+      "testReferences": 7,
+      "fileCount": 20,
+      "files": [
+        {
+          "path": "supabase/functions/_shared/data-platform/reverseEtl.ts",
+          "kind": "production",
+          "lines": [
+            247,
+            292
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/migrations/20261109000000_customer_review_referral.sql",
+          "kind": "sql",
+          "lines": [
+            202
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/migrations/20261110000000_truck_stock_replenishment.sql",
+          "kind": "sql",
+          "lines": [
+            71
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/migrations/20270110000000_ai_security_center.sql",
+          "kind": "sql",
+          "lines": [
+            471
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/migrations/20270202000000_failure_genome.sql",
+          "kind": "sql",
+          "lines": [
+            280
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/migrations/20270202000000_operational_truth_engine.sql",
+          "kind": "sql",
+          "lines": [
+            57
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/migrations/20270205000000_field_intelligence_engine.sql",
+          "kind": "sql",
+          "lines": [
+            900,
+            919
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/migrations/20270210000000_agent_marketplace.sql",
+          "kind": "sql",
+          "lines": [
+            710
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/migrations/20270301000000_skill_liquidity_network.sql",
+          "kind": "sql",
+          "lines": [
+            744,
+            1010
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/migrations/20270401000000_verification_network.sql",
+          "kind": "sql",
+          "lines": [
+            238,
+            248,
+            310,
+            312
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/migrations/20270411000000_membership_public_join.sql",
+          "kind": "sql",
+          "lines": [
+            60,
+            64
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/migrations/20271120000000_google_agentic_booking.sql",
+          "kind": "sql",
+          "lines": [
+            383,
+            446,
+            491
+          ],
+          "owner": "unassigned",
+          "note": ""
+        }
+      ],
+      "filesOmitted": 8
+    },
+    {
+      "id": "node-asym",
+      "name": "Node crypto asymmetric API",
+      "family": "public-key",
+      "quantum": "vulnerable",
+      "severity": "info",
+      "uses": 0,
+      "mentions": 0,
+      "testReferences": 1,
+      "fileCount": 0,
+      "files": [],
+      "filesOmitted": 0
+    },
+    {
+      "id": "pgcrypto",
+      "name": "pgcrypto (digest/hmac/crypt/pgp_*)",
+      "family": "database crypto",
+      "quantum": "n/a",
+      "severity": "info",
+      "uses": 2,
+      "mentions": 0,
+      "testReferences": 1,
+      "fileCount": 2,
+      "files": [
+        {
+          "path": "supabase/migrations/20260821101216_seed_demo_data.sql",
+          "kind": "sql",
+          "lines": [
+            61
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/migrations/20270110000000_property_intelligence_os.sql",
+          "kind": "sql",
+          "lines": [
+            259
+          ],
+          "owner": "unassigned",
+          "note": ""
+        }
+      ],
+      "filesOmitted": 0
+    },
+    {
+      "id": "pkcs7",
+      "name": "PKCS#7 / CMS signature (wallet pass signing)",
+      "family": "public-key signature",
+      "quantum": "vulnerable",
+      "severity": "info",
+      "uses": 1,
+      "mentions": 0,
+      "testReferences": 1,
+      "fileCount": 1,
+      "files": [
+        {
+          "path": "supabase/functions/_shared/wallet/applePkpass.ts",
+          "kind": "production",
+          "lines": [
+            34
+          ],
+          "owner": "vendor-dictated",
+          "note": "Apple .pkpass: SHA-1 manifest and PKCS#7 signature with the Pass Type ID certificate. [VERIFY]"
+        }
+      ],
+      "filesOmitted": 0
+    },
+    {
+      "id": "sha1",
+      "name": "SHA-1",
+      "family": "hash (legacy)",
+      "quantum": "n/a",
+      "severity": "review",
+      "uses": 8,
+      "mentions": 1,
+      "testReferences": 5,
+      "fileCount": 5,
+      "files": [
+        {
+          "path": "scripts/i18n-freshness.mjs",
+          "kind": "tooling",
+          "lines": [
+            25
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/functions/_shared/pbx/twilio.ts",
+          "kind": "production",
+          "lines": [
+            6,
+            26
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/functions/_shared/pci/session.ts",
+          "kind": "production",
+          "lines": [
+            135
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/functions/_shared/pci/twilio.ts",
+          "kind": "production",
+          "lines": [
+            25
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/functions/_shared/wallet/applePkpass.ts",
+          "kind": "production",
+          "lines": [
+            19,
+            20,
+            118
+          ],
+          "owner": "vendor-dictated",
+          "note": "Apple .pkpass: SHA-1 manifest and PKCS#7 signature with the Pass Type ID certificate. [VERIFY]"
+        }
+      ],
+      "filesOmitted": 0
+    },
+    {
+      "id": "sha2",
+      "name": "SHA-256/384/512",
+      "family": "hash",
+      "quantum": "adequate",
+      "severity": "info",
+      "uses": 568,
+      "mentions": 101,
+      "testReferences": 101,
+      "fileCount": 264,
+      "files": [
+        {
+          "path": ".gitleaks.toml",
+          "kind": "config",
+          "lines": [
+            15
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "functions/_shared/agent-marketplace/contract.ts",
+          "kind": "production",
+          "lines": [
+            276
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "packages/cli/src/help.ts",
+          "kind": "production",
+          "lines": [
+            79
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "packages/cli/src/webhooks.ts",
+          "kind": "production",
+          "lines": [
+            35
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "scripts/compliance/collect-repo.mjs",
+          "kind": "tooling",
+          "lines": [
+            40,
+            65,
+            81,
+            108,
+            114
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "scripts/compliance/evidence.mjs",
+          "kind": "tooling",
+          "lines": [
+            94
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "scripts/compliance/lib.mjs",
+          "kind": "tooling",
+          "lines": [
+            83
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "scripts/knowledge-build.mjs",
+          "kind": "tooling",
+          "lines": [
+            34,
+            517
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "scripts/lib/knowledgeChunker.mjs",
+          "kind": "tooling",
+          "lines": [
+            12
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "scripts/mobile-preflight.mjs",
+          "kind": "tooling",
+          "lines": [
+            52
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "scripts/run-samples.mjs",
+          "kind": "tooling",
+          "lines": [
+            173,
+            282
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "scripts/security/function-matrix.mjs",
+          "kind": "tooling",
+          "lines": [
+            37
+          ],
+          "owner": "unassigned",
+          "note": ""
+        }
+      ],
+      "filesOmitted": 252
+    },
+    {
+      "id": "tls-config",
+      "name": "TLS setting (minVersion / ssl mode / verify)",
+      "family": "tls",
+      "quantum": "n/a",
+      "severity": "info",
+      "uses": 3,
+      "mentions": 0,
+      "testReferences": 1,
+      "fileCount": 3,
+      "files": [
+        {
+          "path": "src/components/data-platform/WarehouseTab.tsx",
+          "kind": "production",
+          "lines": [
+            44
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/functions/_shared/data-platform/adapters/postgres.ts",
+          "kind": "production",
+          "lines": [
+            40
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/functions/_shared/data-platform/warehouse.ts",
+          "kind": "production",
+          "lines": [
+            104
+          ],
+          "owner": "unassigned",
+          "note": ""
+        }
+      ],
+      "filesOmitted": 0
+    },
+    {
+      "id": "webcrypto-rsa",
+      "name": "RSA (WebCrypto: RSASSA-PKCS1-v1_5, RSA-PSS, RSA-OAEP)",
+      "family": "public-key signature/encryption",
+      "quantum": "vulnerable",
+      "severity": "info",
+      "uses": 11,
+      "mentions": 0,
+      "testReferences": 4,
+      "fileCount": 5,
+      "files": [
+        {
+          "path": "supabase/functions/_shared/accounting/netsuite.ts",
+          "kind": "production",
+          "lines": [
+            369
+          ],
+          "owner": "customer-chosen",
+          "note": "NetSuite M2M client assertion: ES256 default, PS256 optional."
+        },
+        {
+          "path": "supabase/functions/_shared/data-platform/adapters/snowflake.ts",
+          "kind": "production",
+          "lines": [
+            16,
+            18,
+            29,
+            30
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/functions/_shared/data-platform/googleAuth.ts",
+          "kind": "production",
+          "lines": [
+            57,
+            58
+          ],
+          "owner": "unassigned",
+          "note": ""
+        },
+        {
+          "path": "supabase/functions/_shared/notify/fcm.ts",
+          "kind": "production",
+          "lines": [
+            68,
+            72
+          ],
+          "owner": "vendor-dictated",
+          "note": "Google service-account JWT (RS256). [VERIFY]"
+        },
+        {
+          "path": "supabase/functions/_shared/wallet/googleWallet.ts",
+          "kind": "production",
+          "lines": [
+            24,
+            29
+          ],
+          "owner": "vendor-dictated",
+          "note": "Google Wallet save-link JWT (RS256). [VERIFY]"
+        }
+      ],
+      "filesOmitted": 0
+    }
+  ],
+  "walletPassSigning": [
+    {
+      "path": "supabase/functions/_shared/wallet/applePkpass.ts",
+      "algorithms": [
+        "forge-rsa",
+        "pkcs7",
+        "sha1",
+        "sha2"
+      ],
+      "owner": "vendor-dictated",
+      "note": "Apple .pkpass: SHA-1 manifest and PKCS#7 signature with the Pass Type ID certificate. [VERIFY]"
+    },
+    {
+      "path": "supabase/functions/_shared/wallet/googleWallet.ts",
+      "algorithms": [
+        "jwt-rs",
+        "sha2",
+        "webcrypto-rsa"
+      ],
+      "owner": "vendor-dictated",
+      "note": "Google Wallet save-link JWT (RS256). [VERIFY]"
+    }
+  ],
+  "longLivedConfidentialData": [
+    {
+      "id": "call-recordings",
+      "name": "Call recordings and voicemails",
+      "kind": "confidentiality",
+      "lifetime": "Per-tenant data_retention_policies.retention_days, which is nullable: no automatic expiry unless the tenant sets one.",
+      "cryptoInUse": [],
+      "evidenceFound": true,
+      "evidenceFiles": [
+        "packages/sdk/src/index.ts",
+        "src/lib/events.ts",
+        "src/lib/privacy/accessLog.ts",
+        "src/lib/resultsPlanApi.ts",
+        "src/lib/sandbox.ts",
+        "src/lib/supabase.ts",
+        "src/pages/CallDetailPage.tsx",
+        "src/pages/CallsPage.tsx"
+      ],
+      "evidenceFilesOmitted": 24,
+      "applicationLayerEncryptionEvidenced": false,
+      "symmetricOrHashProtectionEvidenced": false,
+      "harvestNowDecryptLater": "Relies on transport and provider-managed storage encryption. Public-key key exchange in transit is quantum-vulnerable. [VERIFY]",
+      "verify": [
+        "Storage-at-rest encryption is provider-managed and not visible in this repo. [VERIFY]",
+        "Provider-held copies (Vapi, Twilio) follow provider retention. [VERIFY]",
+        "Audio objects in Storage are not removed by the erasure job (see delete-account). [VERIFY]"
+      ]
+    },
+    {
+      "id": "call-transcripts",
+      "name": "Call transcripts",
+      "kind": "confidentiality",
+      "lifetime": "Same retention policy mechanism as recordings (nullable retention_days).",
+      "cryptoInUse": [],
+      "evidenceFound": true,
+      "evidenceFiles": [
+        "supabase/functions/_shared/compliance/ownedTables.ts"
+      ],
+      "evidenceFilesOmitted": 0,
+      "applicationLayerEncryptionEvidenced": false,
+      "symmetricOrHashProtectionEvidenced": false,
+      "harvestNowDecryptLater": "Relies on transport and provider-managed storage encryption. Public-key key exchange in transit is quantum-vulnerable. [VERIFY]",
+      "verify": [
+        "Whether transcripts are sealed per tenant depends on the Trust Pack being enabled. [VERIFY]"
+      ]
+    },
+    {
+      "id": "data-room",
+      "name": "Exit data room packages and links",
+      "kind": "confidentiality",
+      "lifetime": "Links carry expires_at (exit_readiness migration); the packages and items behind them have no schema-level expiry.",
+      "cryptoInUse": [
+        "hmac",
+        "sha2"
+      ],
+      "evidenceFound": true,
+      "evidenceFiles": [
+        "src/lib/exitReadinessApi.ts",
+        "src/lib/exitReadyApi.ts",
+        "src/lib/valuation.ts",
+        "supabase/functions/exit-dataroom-public/index.ts",
+        "supabase/migrations/20271121000000_exit_readiness.sql",
+        "supabase/migrations/20271210000000_valuation_exit_readiness.sql",
+        "supabase/migrations/20281115000000_exit_ready_lineage.sql",
+        "supabase/migrations/20281115000100_exit_addback_evidence.sql"
+      ],
+      "evidenceFilesOmitted": 0,
+      "applicationLayerEncryptionEvidenced": false,
+      "symmetricOrHashProtectionEvidenced": true,
+      "harvestNowDecryptLater": "Relies on transport and provider-managed storage encryption. Public-key key exchange in transit is quantum-vulnerable. [VERIFY]",
+      "verify": [
+        "The share-link token scheme is not determined by this scan beyond the algorithms listed for it below. [VERIFY]",
+        "Diligence material is commercially sensitive for years; retention is a business decision. [VERIFY]"
+      ]
+    },
+    {
+      "id": "voice-clone",
+      "name": "Voice-clone samples and models",
+      "kind": "confidentiality",
+      "lifetime": "Held at the voice provider until deleted; the erasure job calls the provider delete endpoint. [VERIFY]",
+      "cryptoInUse": [],
+      "evidenceFound": true,
+      "evidenceFiles": [
+        "src/components/settings/VoiceCloningCard.tsx",
+        "src/lib/supabase.ts",
+        "src/lib/voiceCloning.ts",
+        "src/lib/voiceStudioApi.ts",
+        "src/pages/AssistantPersonaPage.tsx",
+        "supabase/functions/_shared/compliance/providerErasure.ts",
+        "supabase/functions/_shared/voice-studio/runtime.ts",
+        "supabase/functions/_shared/voice/voiceOverride.ts"
+      ],
+      "evidenceFilesOmitted": 9,
+      "applicationLayerEncryptionEvidenced": false,
+      "symmetricOrHashProtectionEvidenced": false,
+      "harvestNowDecryptLater": "Relies on transport and provider-managed storage encryption. Public-key key exchange in transit is quantum-vulnerable. [VERIFY]",
+      "verify": [
+        "Biometric-adjacent. Provider-side encryption and retention are vendor facts. [VERIFY]"
+      ]
+    },
+    {
+      "id": "trust-pack",
+      "name": "Trust Pack sealed tenant data (envelope encryption)",
+      "kind": "confidentiality",
+      "lifetime": "Until the tenant is erased (eraseTrustPackData).",
+      "cryptoInUse": [
+        "aes-256",
+        "aes-gcm",
+        "hmac",
+        "sha2"
+      ],
+      "evidenceFound": true,
+      "evidenceFiles": [
+        "src/lib/trustPack/envelope.ts",
+        "src/lib/trustPack/kms.ts",
+        "supabase/functions/_shared/trust/vault.ts"
+      ],
+      "evidenceFilesOmitted": 0,
+      "applicationLayerEncryptionEvidenced": true,
+      "symmetricOrHashProtectionEvidenced": true,
+      "harvestNowDecryptLater": "Application-layer AES evidenced in code; transport still uses classical key exchange. [VERIFY]",
+      "verify": [
+        "Key-wrapping algorithm and key size are decided by the configured KMS, not by this repo. [VERIFY]"
+      ]
+    },
+    {
+      "id": "integrity-artefacts",
+      "name": "Long-lived integrity records (audit chain, erasure certificates)",
+      "kind": "integrity",
+      "lifetime": "Retained as evidence; erasure certificates are append-only.",
+      "cryptoInUse": [
+        "hmac",
+        "hsts",
+        "sha2"
+      ],
+      "evidenceFound": true,
+      "evidenceFiles": [
+        "supabase/functions/_shared/compliance/erasureCertificateHandler.ts",
+        "supabase/functions/_shared/compliance/erasureCertificateIssuer.ts",
+        "supabase/migrations/20280401000000_trust_layer_concurrency_audit.sql",
+        "supabase/migrations/20280410000000_erase_user_rows.sql",
+        "supabase/migrations/20290306000000_erasure_certificates.sql"
+      ],
+      "evidenceFilesOmitted": 0,
+      "applicationLayerEncryptionEvidenced": false,
+      "symmetricOrHashProtectionEvidenced": true,
+      "harvestNowDecryptLater": "Integrity, not confidentiality: relevant for signature durability.",
+      "verify": [
+        "Integrity here rests on SHA-256/HMAC. A future switch to public-key signatures would need PQ-capable schemes. [VERIFY]"
+      ]
+    }
+  ],
+  "roadmap": {
+    "note": "Phases are sequencing, not commitments. Every date is a placeholder owned by Security and must be set by a person. [VERIFY dates]",
+    "standards": [
+      "NIST finalized ML-KEM (FIPS 203), ML-DSA (FIPS 204) and SLH-DSA (FIPS 205) in 2024. [VERIFY]",
+      "NIST IR 8547 proposes deprecating quantum-vulnerable RSA/ECC around 2030 and disallowing them around 2035. [VERIFY dates]",
+      "NSA CNSA 2.0 sets its own, earlier timelines for national-security systems. [VERIFY dates]"
+    ],
+    "phases": [
+      {
+        "phase": 0,
+        "name": "Inventory and ownership",
+        "target": "[VERIFY date]",
+        "actions": [
+          "Run this scanner in CI (--check) so new public-key use is visible in review.",
+          "Assign an owner per row in the use table and per data class.",
+          "Confirm every [VERIFY] item against the live deployment and vendor documentation."
+        ]
+      },
+      {
+        "phase": 1,
+        "name": "Reduce harvest-now-decrypt-later exposure",
+        "target": "[VERIFY date]",
+        "actions": [
+          "Set explicit retention_days for call recordings, transcripts and data-room material; decide which have no business reason to outlive 10 years.",
+          "Ask Supabase, Vercel, Twilio, Vapi and ElevenLabs which TLS key-exchange groups they offer and whether hybrid post-quantum groups are available. [VERIFY vendor facts]",
+          "Prefer application-layer AES-256-GCM envelope sealing (already used by Trust Pack) for the longest-lived confidential classes."
+        ]
+      },
+      {
+        "phase": 2,
+        "name": "Crypto agility",
+        "target": "[VERIFY date]",
+        "actions": [
+          "Put an algorithm identifier and key id in every Vireek-defined signed format (consumer-agent request signing, any new token).",
+          "Support two verification algorithms side by side so a switch needs no flag day.",
+          "Keep key material out of code; rotation procedure per key (see key-id rotation in the erasure certificate)."
+        ]
+      },
+      {
+        "phase": 3,
+        "name": "Vireek-defined public-key uses",
+        "target": "[VERIFY date]",
+        "actions": [
+          "Plan a PQ or hybrid signature for consumer-agent request signing once a standard library is available in the runtime. [VERIFY]",
+          "Decide whether any new signed artefact needs third-party verifiability. If not, keep HMAC."
+        ]
+      },
+      {
+        "phase": 4,
+        "name": "Vendor- and customer-dictated uses",
+        "target": "[VERIFY date]",
+        "actions": [
+          "Track vendor roadmaps for Apple (APNs, .pkpass), Google (FCM, Wallet), Plaid and NetSuite. Vireek cannot move these alone.",
+          "Record each vendor answer next to its row in this inventory."
+        ]
+      },
+      {
+        "phase": 5,
+        "name": "Retire classical-only paths",
+        "target": "[VERIFY date]",
+        "actions": [
+          "Remove RSA/ECC-only code paths that a vendor has replaced.",
+          "Re-run the inventory and confirm no quantum-vulnerable use is left without a documented exception."
+        ]
+      }
+    ]
+  },
+  "limitations": [
+    "Static regex scan of source and config. It cannot see TLS terminated by providers (Supabase, Vercel, Twilio, Vapi, ElevenLabs), keys held in secrets, or vendor-side behaviour. [VERIFY]",
+    "Comment lines are counted as mentions, test files as test references. Neither is counted as a use.",
+    "SHA-1 and MD5 hits need a human decision: fingerprinting and deduplication differ from integrity or authentication.",
+    "Ownership (vendor-dictated, customer-chosen, Vireek-defined) is inferred from file paths and comments. [VERIFY]"
+  ]
+}
