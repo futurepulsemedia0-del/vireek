@@ -1,0 +1,45 @@
+name: Pricing change control
+
+# Fails a pull request that changes a guarded pricing file (see GUARDED_FILES in
+# scripts/pricing/pricing-change-check.mjs) without a NEW, valid entry in docs/pricing/pricing-changes.json.
+# Policy: docs/pricing/change-control.md.
+# Separate workflow on purpose: it has no path filter, so it can be a REQUIRED status check in branch
+# protection without ever being "pending" on unrelated pull requests. It needs no secrets and no install.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pricing-change-control-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pricing-change-control:
+    name: Pricing change control
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Unit tests for the check
+        run: node --test scripts/pricing/pricing-change-check.test.mjs
+
+      - name: Pull request - compare with the base branch
+        if: github.event_name == 'pull_request'
+        run: node scripts/pricing/pricing-change-check.mjs --base "origin/${{ github.base_ref }}" --require-base
+
+      - name: Push to main - static check
+        if: github.event_name == 'push'
+        run: node scripts/pricing/pricing-change-check.mjs
