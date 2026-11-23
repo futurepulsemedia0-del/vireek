@@ -105,6 +105,8 @@
     "test:scripts:product": "node --test scripts/product/trace.test.mjs",
     "verify-jwt:check": "node scripts/sync-verify-jwt.mjs check",
     "lint:flags": "node scripts/check-flag-lifecycle.mjs",
+    "pricing:change-check": "node scripts/pricing/pricing-change-check.mjs",
+    "test:scripts:pricing-change": "node --test scripts/pricing/pricing-change-check.test.mjs",
     "naming:screen": "node scripts/naming/screen.mjs",
     "security:matrix": "node scripts/security/function-matrix.mjs --write",
     "security:matrix:check": "node scripts/security/function-matrix.mjs --check",
