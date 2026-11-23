@@ -20,7 +20,7 @@ type SavePicker = (o: { suggestedName: string; types: { description: string; acc
 type Phase = 'idle' | 'running' | 'paused' | 'done' | 'failed';
 const RESUMABLE = new Set(['retries_exhausted', 'network', 'server', 'aborted', 'auth']);
 
-export function FullExportButton() {
+export function FullExportButton({ onDownloaded }: { onDownloaded?: () => void } = {}) {
   const { t } = useExportBundleT();
   const [phase, setPhase] = useState<Phase>('idle');
   const [progress, setProgress] = useState<ExportProgress | null>(null);
