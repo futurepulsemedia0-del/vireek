@@ -47,6 +47,7 @@ import { ActivePlaybookBanner } from '@/components/playbooks/ActivePlaybookBanne
 import { PaymentFailedBanner } from '@/components/PaymentFailedBanner';
 import { UsageLimitBanner } from '@/components/UsageLimitBanner';
 import { TrialBanner } from '@/components/TrialBanner';
+import { DeprecationBanner } from '@/components/DeprecationBanner';
 import { PlanResumeBanner } from '@/components/onboarding/PlanResumeBanner';
 import { NotificationBell } from '@/components/NotificationBell';
 import { WhatsNewButton } from '@/components/whats-new/WhatsNewButton';
@@ -1248,6 +1249,7 @@ function DashboardChrome({
                   <UsageLimitBanner />
                   <SurgeModeBanner />
                   <TrialBanner />
+                  <DeprecationBanner />
                   <PlanResumeBanner />
                   <UpgradeBanner />
                   <ActivePlaybookBanner />
