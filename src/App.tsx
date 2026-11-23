@@ -551,6 +551,7 @@ const TrustPackPage = lazy(() => import('@/pages/TrustPackPage').then((m) => ({ 
 const SecurityPortalPage = lazy(() => import('@/pages/SecurityPortalPage').then((m) => ({ default: m.SecurityPortalPage })));
 const StaffTrustAdminPage = lazy(() => import('@/pages/StaffTrustAdminPage').then((m) => ({ default: m.StaffTrustAdminPage })));
 const StaffChurnSavePage = lazy(() => import('@/pages/StaffChurnSavePage').then((m) => ({ default: m.StaffChurnSavePage })));
+const StaffPmfPage = lazy(() => import('@/pages/StaffPmfPage').then((m) => ({ default: m.StaffPmfPage })));
 const RefundPolicyPage = lazy(() => import('@/pages/RefundPolicyPage').then((m) => ({ default: m.RefundPolicyPage })));
 const SlaPage = lazy(() => import('@/pages/SlaPage').then((m) => ({ default: m.SlaPage })));
 const AcceptableUsePage = lazy(() => import('@/pages/AcceptableUsePage').then((m) => ({ default: m.AcceptableUsePage })));
@@ -849,6 +850,7 @@ function AppRoutes() {
 />
         <Route path="/staff/trust-admin" element={<StaffRoute><StaffTrustAdminPage /></StaffRoute>} />
         <Route path="/staff/churn-save" element={<StaffRoute><StaffChurnSavePage /></StaffRoute>} />
+        <Route path="/staff/pmf" element={<StaffRoute><StaffPmfPage /></StaffRoute>} />
         <Route path="/staff/open-voice-benchmark" element={<StaffRoute><StaffOpenVoiceBenchmarkPage /></StaffRoute>} />
         <Route path="/staff/value-scoreboard" element={<StaffRoute><StaffValueScoreboardPage /></StaffRoute>} />
         <Route path="/staff/founder-kpis" element={<StaffRoute><StaffFounderKpisPage /></StaffRoute>} />
