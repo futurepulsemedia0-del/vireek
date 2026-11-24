@@ -56,6 +56,7 @@ const PAGES: StaticPage[] = [
   { label: 'Insights', href: '/dashboard/insights', icon: Lightbulb },
   { label: 'Notifications', href: '/dashboard/notifications', icon: Bell },
   { label: 'CRM Sync', href: '/dashboard/crm-sync', icon: Workflow, keywords: 'salesforce pipedrive zoho crm sync' },
+  { label: 'Sales Pipeline', href: '/dashboard/sales-pipeline', icon: TrendingUp, keywords: 'deals pipeline forecast discount approval deal desk' },
   { label: 'NetSuite', href: '/dashboard/netsuite', icon: Building2, keywords: 'netsuite oracle erp accounting sync invoices' },
   { label: 'Property Management', href: '/dashboard/property-management', icon: Building2, keywords: 'buildium appfolio yardi propertyware rentvine property management work orders' },
   { label: 'Custom Fields', href: '/dashboard/custom-fields', icon: SlidersHorizontal, keywords: 'fields custom properties' },
