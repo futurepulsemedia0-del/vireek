@@ -50,6 +50,7 @@
     "test:scripts:prioritization": "node --test scripts/product/prioritize.test.mjs",
     "test:scripts:rls-perf": "node --test scripts/security/rls-perf.test.mjs",
     "test:scripts:migrations": "node --test scripts/migrations/check-migration-versioning.test.mjs",
+    "test:scripts:migration-rule": "node --test scripts/lib/migrationVersionRule.test.mjs",
     "test:scripts:insurance": "node --test scripts/compliance/insurance-program.test.mjs",
     "test:scripts:cross-tenant": "node --test scripts/compliance/cross-tenant-consent.test.mjs",
     "test:scripts:antitrust": "node --test scripts/compliance/antitrust-info-exchange.test.mjs",
