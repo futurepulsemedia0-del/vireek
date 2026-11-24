@@ -13,12 +13,19 @@ import { readdirSync, readFileSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import { join } from 'node:path'
 import { checkMigrationSql } from './lib/migrationSafety.mjs'
+import { checkVersionWindow, parseExceptions } from './lib/migrationVersionRule.mjs'
 
 const DIR = 'supabase/migrations'
 const NAME_RE = /^(\d{14})_[a-z0-9_]+\.sql$/
 const strictAll = process.argv.includes('--all-strict')
 
 const all = readdirSync(DIR).filter((f) => !f.startsWith('.')).sort()
+
+// Documented legacy exceptions (ADR-0010): frozen irregular entries that must not be renamed while applied.
+const EXCEPTIONS_FILE = 'scripts/migrations/legacy-exceptions.json'
+let exceptions = { names: new Set(), problems: [] }
+try { exceptions = parseExceptions(readFileSync(EXCEPTIONS_FILE, 'utf8')) } catch { exceptions.problems.push(`${EXCEPTIONS_FILE} is missing or unreadable`) }
+const NOW = process.env.LINT_NOW ? new Date(process.env.LINT_NOW) : new Date()
 
 function git(args) {
   return execFileSync('git', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })
@@ -44,11 +51,16 @@ const report = (f, msg) => (added.has(f) ? err(f, msg) : warn(f, `(legacy) ${msg
 
 // version -> files
 let legacyDupes = 0
+let documentedExceptions = 0
 const legacyDupeList = []
 const versions = new Map()
 for (const f of all) {
   const m = NAME_RE.exec(f)
-  if (!m) { report(f, 'file name must match YYYYMMDDHHMMSS_snake_case.sql (a non-.sql file is never applied)'); continue }
+   if (!m) {
+    if (exceptions.names.has(f) && !added.has(f)) { documentedExceptions++; continue }
+    report(f, 'file name must match YYYYMMDDHHMMSS_snake_case.sql (a non-.sql file is never applied)')
+    continue
+  }
   versions.set(m[1], [...(versions.get(m[1]) ?? []), f])
 }
 for (const [v, fs] of versions) {
@@ -119,6 +131,7 @@ for (const f of all) {
   if (ver && legacyMax && ver <= legacyMax) {
     err(f, `version ${ver} is not newer than the latest existing migration ${legacyMax}; supabase db push rejects out-of-order versions`)
   }
+  if (ver) for (const msg of checkVersionWindow({ version: ver, legacyMax, now: NOW })) err(f, msg)
   const createdHere = new Set([...code.matchAll(/\bcreate\s+table\s+(?:if\s+not\s+exists\s+)?(?:public\.)?"?([a-z0-9_]+)"?/gi)].map((m) => m[1].toLowerCase()))
   for (const stmt of outsideBodies.split(';')) {
     if (/^\s*create\s+policy\b/i.test(stmt)) {
@@ -141,6 +154,10 @@ for (const f of all) {
     }
   }
 }
-
+for (const p of exceptions.problems) err(EXCEPTIONS_FILE, p)
+for (const name of exceptions.names) {
+  if (!all.includes(name)) err(name, `documented legacy exception is gone (renamed or deleted). Applied migrations are never renamed (ADR-0010 R5); a reviewed migration-repair PR must update ${EXCEPTIONS_FILE} in the same change`)
+}
+if (documentedExceptions) console.log(`::notice title=Migration lint::${documentedExceptions} documented legacy name exception(s) (${EXCEPTIONS_FILE}) — frozen, never rename (ADR-0010).`)
 console.log(`Migrations: ${all.length} total, ${added.size} new/renamed checked strictly, ${errors} error(s).`)
 process.exit(errors ? 1 : 0)
