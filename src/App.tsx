@@ -331,6 +331,9 @@ const TechnicianDepositsPage = lazy(() => import('@/pages/TechnicianDepositsPage
 const TechnicianPayPage = lazy(() => import('@/pages/TechnicianPayPage').then((m) => ({ default: m.TechnicianPayPage })));
 const PayCapitalPage = lazy(() => import('@/pages/PayCapitalPage').then((m) => ({ default: m.PayCapitalPage })));
 const PayControlsAdminPage = lazy(() => import('@/pages/admin/PayControlsAdminPage').then((m) => ({ default: m.PayControlsAdminPage })));
+const PaymentProtectionPage = lazy(() => import('@/pages/PaymentProtectionPage').then((m) => ({ default: m.PaymentProtectionPage })));
+const ProtectPage = lazy(() => import('@/pages/ProtectPage').then((m) => ({ default: m.ProtectPage })));
+const PaymentProtectionAdminPage = lazy(() => import('@/pages/admin/PaymentProtectionAdminPage').then((m) => ({ default: m.PaymentProtectionAdminPage })));
 const ExpertAssistInboxPage = lazy(() => import('@/pages/ExpertAssistInboxPage').then((m) => ({ default: m.ExpertAssistInboxPage })));
 const ExpertAssistThreadPage = lazy(() => import('@/pages/ExpertAssistThreadPage').then((m) => ({ default: m.ExpertAssistThreadPage })));
 const OnCallPage = lazy(() => import('@/pages/OnCallPage').then((m) => ({ default: m.OnCallPage })));
@@ -1203,6 +1206,7 @@ function AppRoutes() {
         <Route path="/pay-result" element={<PaymentResultPage />} />
         <Route path="/thank-you" element={<ThankYouPage />} />
         <Route path="/pay/:token" element={<PublicPaymentPage />} />
+        <Route path="/protect/:token" element={<Suspense fallback={<PageLoader />}><ProtectPage /></Suspense>} />
         <Route path="/pay-share/:token" element={<SplitPayerPayPage />} />
         <Route path="/affiliate" element={<AffiliatePage />} />
         <Route path="/referral" element={<ReferralPage />} />
@@ -1609,6 +1613,14 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+<Route
+  path="/dashboard/payment-protection"
+  element={
+    <ProtectedRoute>
+      <PaymentProtectionPage />
+    </ProtectedRoute>
+  }
+/>
         <Route
           path="/dashboard/immune-system"
           element={
@@ -3944,6 +3956,7 @@ function AppRoutes() {
         />
 <Route path="/dashboard/pay" element={<ProtectedRoute><Suspense fallback={<PageLoader />}><PayCapitalPage /></Suspense></ProtectedRoute>} />
 <Route path="/staff/pay-controls" element={<StaffRoute><Suspense fallback={<PageLoader />}><PayControlsAdminPage /></Suspense></StaffRoute>} />
+<Route path="/staff/payment-protection" element={<StaffRoute><Suspense fallback={<PageLoader />}><PaymentProtectionAdminPage /></Suspense></StaffRoute>} />       
         <Route
           path="/dashboard/expert-assist/:requestId"
           element={
