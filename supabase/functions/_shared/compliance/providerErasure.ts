@@ -1,4 +1,6 @@
 // supabase/functions/_shared/compliance/providerErasure.ts
+// DEPRECATED: delete-account and data-retention-sweep now use providerErasureQueue.ts (adapters in providerAdapters.ts:
+// retry queue, per-job proof, Twilio coverage). This one-shot version is kept only so existing imports/tests keep working.
 //
 // Provider-side erasure for full-account deletion (gap E5). Local rows are not enough: the voice
 // clone lives at ElevenLabs and call data at Vapi. Dependency-injected fetch => unit-testable.
