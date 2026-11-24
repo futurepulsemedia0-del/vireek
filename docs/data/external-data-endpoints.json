@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "note": "Every edge function that releases Vireek-derived (aggregate or cross-tenant) data outside the owning tenant. Each MUST call assertDataProductApproved(<client>, <productKey>, <function>, ...) and the product MUST have a data_product_reviews path (seed or staff request). Enforced by scripts/data/check-data-product-gates.mjs. Tenant-directed exports and sharing (tenant-export, bi-*, exit-dataroom-public, financing-partner-*) are out of scope: the tenant is the data owner and initiates them.",
+  "endpoints": [
+    { "function": "insights-api", "productKey": "vireek_insights" },
+    { "function": "evidence-marketplace-api", "productKey": "evidence_marketplace" },
+    { "function": "state-of-calls-public", "productKey": "state_of_calls" }
+  ],
+  "exempt": []
+}
