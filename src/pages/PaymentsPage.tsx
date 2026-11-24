@@ -8,6 +8,7 @@ import { formatMoney as fmtRegional, getActiveRegional } from '@/lib/regional';
 import { useRegional } from '@/contexts/RegionalContext';
 import { Card } from '@/components/ui/Card';
 import { TippingToggle } from '@/components/payments/TippingToggle';
+import { InstantPayoutCard } from '@/components/payments/InstantPayoutCard';
 import { useToast } from '@/contexts/ToastContext';
 import { supabase, Job } from '@/lib/supabase';
 import {
@@ -165,6 +166,7 @@ const stats = useMemo(() => {
           </div>
         </Card>
 
+        {connected && <InstantPayoutCard />}
         {/* Stats */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Card><p className="text-sm text-text-secondary">Total Collected</p><p className="mt-1 text-2xl font-bold text-text-primary">{formatMoney(stats.collected)}</p></Card>
