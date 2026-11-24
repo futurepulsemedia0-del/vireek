@@ -1,0 +1,802 @@
+{
+  "$comment": "Source of truth for docs/global/payments-einvoicing.md (generated: npm run payments-einvoicing:write). EVERY value below is a starting hypothesis marked [VERIFY] until verification.status is \"verified\" with a primary source, a reviewer and a [COUNSEL] reviewer. Not legal advice.",
+  "schemaVersion": 1,
+  "verificationMaxAgeDays": 365,
+  "b2bValues": [
+    "mandatory",
+    "phased",
+    "voluntary",
+    "none",
+    "unknown"
+  ],
+  "rows": [
+    {
+      "country": "US",
+      "pack": "US",
+      "localMethods": [
+        "card",
+        "us_bank_account"
+      ],
+      "taxInvoiceRequirements": "No federal VAT-style invoice format. Sales tax is shown per state/jurisdiction rules; some states require specific line items or exemption wording.",
+      "eInvoicing": {
+        "b2b": "none",
+        "b2g": "unknown",
+        "system": null,
+        "vireekSupport": "none",
+        "workaround": null,
+        "note": "No general B2B e-invoicing mandate is assumed. Federal procurement invoicing rules need checking."
+      },
+      "verification": {
+        "status": "unverified",
+        "source": null,
+        "verifiedOn": null,
+        "reviewer": null,
+        "counselReviewer": null,
+        "counselReviewedOn": null
+      }
+    },
+    {
+      "country": "CA",
+      "pack": "CA",
+      "localMethods": [
+        "card",
+        "acss_debit",
+        "interac_etransfer"
+      ],
+      "taxInvoiceRequirements": "GST/HST registrants must show the registration number and tax amounts above CRA thresholds; Quebec adds a QST number and QST line.",
+      "eInvoicing": {
+        "b2b": "none",
+        "b2g": "unknown",
+        "system": null,
+        "vireekSupport": "none",
+        "workaround": null,
+        "note": "No general B2B e-invoicing mandate is assumed."
+      },
+      "verification": {
+        "status": "unverified",
+        "source": null,
+        "verifiedOn": null,
+        "reviewer": null,
+        "counselReviewer": null,
+        "counselReviewedOn": null
+      }
+    },
+    {
+      "country": "GB",
+      "pack": "GB",
+      "localMethods": [
+        "card",
+        "bacs_debit"
+      ],
+      "taxInvoiceRequirements": "VAT invoice: supplier VAT number, tax point, rate and amount per rate, customer details above HMRC simplified-invoice limits.",
+      "eInvoicing": {
+        "b2b": "unknown",
+        "b2g": "unknown",
+        "system": null,
+        "vireekSupport": "none",
+        "workaround": null,
+        "note": "Government plans for e-invoicing have been published; the legal status and dates must be checked."
+      },
+      "verification": {
+        "status": "unverified",
+        "source": null,
+        "verifiedOn": null,
+        "reviewer": null,
+        "counselReviewer": null,
+        "counselReviewedOn": null
+      }
+    },
+    {
+      "country": "AU",
+      "pack": "AU",
+      "localMethods": [
+        "card",
+        "au_becs_debit",
+        "payid"
+      ],
+      "taxInvoiceRequirements": "Tax invoice for taxable supplies above the ATO threshold: words \"tax invoice\", ABN, date, GST amount or a statement that the total includes GST.",
+      "eInvoicing": {
+        "b2b": "unknown",
+        "b2g": "unknown",
+        "system": "Peppol (A-NZ)",
+        "vireekSupport": "none",
+        "workaround": null,
+        "note": "Peppol e-invoicing exists; whether it is mandatory for any flow must be checked."
+      },
+      "verification": {
+        "status": "unverified",
+        "source": null,
+        "verifiedOn": null,
+        "reviewer": null,
+        "counselReviewer": null,
+        "counselReviewedOn": null
+      }
+    },
+    {
+      "country": "AT",
+      "pack": "EU",
+      "localMethods": [
+        "card",
+        "sepa_debit",
+        "eps"
+      ],
+      "taxInvoiceRequirements": "EU VAT Directive invoice content (supplier and customer identity, VAT ids, date, number, description, rate and amount per rate, reverse-charge wording where used) plus national additions.",
+      "eInvoicing": {
+        "b2b": "unknown",
+        "b2g": "mandatory",
+        "system": null,
+        "vireekSupport": "none",
+        "workaround": null,
+        "note": "B2G receipt by contracting authorities follows the EU e-invoicing directive; B2B status for this country is not yet checked."
+      },
+      "verification": {
+        "status": "unverified",
+        "source": null,
+        "verifiedOn": null,
+        "reviewer": null,
+        "counselReviewer": null,
+        "counselReviewedOn": null
+      }
+    },
+    {
+      "country": "BE",
+      "pack": "EU",
+      "localMethods": [
+        "card",
+        "sepa_debit",
+        "bancontact"
+      ],
+      "taxInvoiceRequirements": "EU VAT Directive invoice content (supplier and customer identity, VAT ids, date, number, description, rate and amount per rate, reverse-charge wording where used) plus national additions.",
+      "eInvoicing": {
+        "b2b": "phased",
+        "b2g": "mandatory",
+        "system": "Peppol",
+        "vireekSupport": "none",
+        "workaround": null,
+        "note": "B2B mandate announced for 2026; check scope and penalty start."
+      },
+      "verification": {
+        "status": "unverified",
+        "source": null,
+        "verifiedOn": null,
+        "reviewer": null,
+        "counselReviewer": null,
+        "counselReviewedOn": null
+      }
+    },
+    {
+      "country": "BG",
+      "pack": "EU",
+      "localMethods": [
+        "card",
+        "sepa_debit"
+      ],
+      "taxInvoiceRequirements": "EU VAT Directive invoice content (supplier and customer identity, VAT ids, date, number, description, rate and amount per rate, reverse-charge wording where used) plus national additions.",
+      "eInvoicing": {
+        "b2b": "unknown",
+        "b2g": "mandatory",
+        "system": null,
+        "vireekSupport": "none",
+        "workaround": null,
+        "note": "B2G receipt by contracting authorities follows the EU e-invoicing directive; B2B status for this country is not yet checked."
+      },
+      "verification": {
+        "status": "unverified",
+        "source": null,
+        "verifiedOn": null,
+        "reviewer": null,
+        "counselReviewer": null,
+        "counselReviewedOn": null
+      }
+    },
+    {
+      "country": "HR",
+      "pack": "EU",
+      "localMethods": [
+        "card",
+        "sepa_debit"
+      ],
+      "taxInvoiceRequirements": "EU VAT Directive invoice content (supplier and customer identity, VAT ids, date, number, description, rate and amount per rate, reverse-charge wording where used) plus national additions.",
+      "eInvoicing": {
+        "b2b": "phased",
+        "b2g": "mandatory",
+        "system": "Fiscalisation 2.0 / eRačun",
+        "vireekSupport": "none",
+        "workaround": null,
+        "note": "New fiscalisation and e-invoicing rules phased in."
+      },
+      "verification": {
+        "status": "unverified",
+        "source": null,
+        "verifiedOn": null,
+        "reviewer": null,
+        "counselReviewer": null,
+        "counselReviewedOn": null
+      }
+    },
+    {
+      "country": "CY",
+      "pack": "EU",
+      "localMethods": [
+        "card",
+        "sepa_debit"
+      ],
+      "taxInvoiceRequirements": "EU VAT Directive invoice content (supplier and customer identity, VAT ids, date, number, description, rate and amount per rate, reverse-charge wording where used) plus national additions.",
+      "eInvoicing": {
+        "b2b": "unknown",
+        "b2g": "mandatory",
+        "system": null,
+        "vireekSupport": "none",
+        "workaround": null,
+        "note": "B2G receipt by contracting authorities follows the EU e-invoicing directive; B2B status for this country is not yet checked."
+      },
+      "verification": {
+        "status": "unverified",
+        "source": null,
+        "verifiedOn": null,
+        "reviewer": null,
+        "counselReviewer": null,
+        "counselReviewedOn": null
+      }
+    },
+    {
+      "country": "CZ",
+      "pack": "EU",
+      "localMethods": [
+        "card",
+        "sepa_debit"
+      ],
+      "taxInvoiceRequirements": "EU VAT Directive invoice content (supplier and customer identity, VAT ids, date, number, description, rate and amount per rate, reverse-charge wording where used) plus national additions.",
+      "eInvoicing": {
+        "b2b": "unknown",
+        "b2g": "mandatory",
+        "system": null,
+        "vireekSupport": "none",
+        "workaround": null,
+        "note": "B2G receipt by contracting authorities follows the EU e-invoicing directive; B2B status for this country is not yet checked."
+      },
+      "verification": {
+        "status": "unverified",
+        "source": null,
+        "verifiedOn": null,
+        "reviewer": null,
+        "counselReviewer": null,
+        "counselReviewedOn": null
+      }
+    },
+    {
+      "country": "DK",
+      "pack": "EU",
+      "localMethods": [
+        "card",
+        "sepa_debit",
+        "mobilepay"
+      ],
+      "taxInvoiceRequirements": "EU VAT Directive invoice content (supplier and customer identity, VAT ids, date, number, description, rate and amount per rate, reverse-charge wording where used) plus national additions.",
+      "eInvoicing": {
+        "b2b": "unknown",
+        "b2g": "mandatory",
+        "system": null,
+        "vireekSupport": "none",
+        "workaround": null,
+        "note": "B2G receipt by contracting authorities follows the EU e-invoicing directive; B2B status for this country is not yet checked."
+      },
+      "verification": {
+        "status": "unverified",
+        "source": null,
+        "verifiedOn": null,
+        "reviewer": null,
+        "counselReviewer": null,
+        "counselReviewedOn": null
+      }
+    },
+    {
+      "country": "EE",
+      "pack": "EU",
+      "localMethods": [
+        "card",
+        "sepa_debit"
+      ],
+      "taxInvoiceRequirements": "EU VAT Directive invoice content (supplier and customer identity, VAT ids, date, number, description, rate and amount per rate, reverse-charge wording where used) plus national additions.",
+      "eInvoicing": {
+        "b2b": "unknown",
+        "b2g": "mandatory",
+        "system": null,
+        "vireekSupport": "none",
+        "workaround": null,
+        "note": "B2G receipt by contracting authorities follows the EU e-invoicing directive; B2B status for this country is not yet checked."
+      },
+      "verification": {
+        "status": "unverified",
+        "source": null,
+        "verifiedOn": null,
+        "reviewer": null,
+        "counselReviewer": null,
+        "counselReviewedOn": null
+      }
+    },
+    {
+      "country": "FI",
+      "pack": "EU",
+      "localMethods": [
+        "card",
+        "sepa_debit"
+      ],
+      "taxInvoiceRequirements": "EU VAT Directive invoice content (supplier and customer identity, VAT ids, date, number, description, rate and amount per rate, reverse-charge wording where used) plus national additions.",
+      "eInvoicing": {
+        "b2b": "unknown",
+        "b2g": "mandatory",
+        "system": null,
+        "vireekSupport": "none",
+        "workaround": null,
+        "note": "B2G receipt by contracting authorities follows the EU e-invoicing directive; B2B status for this country is not yet checked."
+      },
+      "verification": {
+        "status": "unverified",
+        "source": null,
+        "verifiedOn": null,
+        "reviewer": null,
+        "counselReviewer": null,
+        "counselReviewedOn": null
+      }
+    },
+    {
+      "country": "FR",
+      "pack": "EU",
+      "localMethods": [
+        "card",
+        "sepa_debit"
+      ],
+      "taxInvoiceRequirements": "EU VAT Directive invoice content (supplier and customer identity, VAT ids, date, number, description, rate and amount per rate, reverse-charge wording where used) plus national additions.",
+      "eInvoicing": {
+        "b2b": "phased",
+        "b2g": "mandatory",
+        "system": "Certified platform (PDP) / PPF",
+        "vireekSupport": "none",
+        "workaround": null,
+        "note": "Phased reform; dates differ for receiving and issuing and by company size."
+      },
+      "verification": {
+        "status": "unverified",
+        "source": null,
+        "verifiedOn": null,
+        "reviewer": null,
+        "counselReviewer": null,
+        "counselReviewedOn": null
+      }
+    },
+    {
+      "country": "DE",
+      "pack": "EU",
+      "localMethods": [
+        "card",
+        "sepa_debit",
+        "paypal"
+      ],
+      "taxInvoiceRequirements": "EU VAT Directive invoice content (supplier and customer identity, VAT ids, date, number, description, rate and amount per rate, reverse-charge wording where used) plus national additions.",
+      "eInvoicing": {
+        "b2b": "phased",
+        "b2g": "mandatory",
+        "system": "XRechnung / ZUGFeRD (EN 16931)",
+        "vireekSupport": "none",
+        "workaround": null,
+        "note": "Receiving B2B e-invoices first, issuing obligations phased by turnover."
+      },
+      "verification": {
+        "status": "unverified",
+        "source": null,
+        "verifiedOn": null,
+        "reviewer": null,
+        "counselReviewer": null,
+        "counselReviewedOn": null
+      }
+    },
+    {
+      "country": "GR",
+      "pack": "EU",
+      "localMethods": [
+        "card",
+        "sepa_debit"
+      ],
+      "taxInvoiceRequirements": "EU VAT Directive invoice content (supplier and customer identity, VAT ids, date, number, description, rate and amount per rate, reverse-charge wording where used) plus national additions.",
+      "eInvoicing": {
+        "b2b": "phased",
+        "b2g": "mandatory",
+        "system": "myDATA",
+        "vireekSupport": "none",
+        "workaround": null,
+        "note": "Invoice data transmitted to the tax authority; e-invoicing phased."
+      },
+      "verification": {
+        "status": "unverified",
+        "source": null,
+        "verifiedOn": null,
+        "reviewer": null,
+        "counselReviewer": null,
+        "counselReviewedOn": null
+      }
+    },
+    {
+      "country": "HU",
+      "pack": "EU",
+      "localMethods": [
+        "card",
+        "sepa_debit"
+      ],
+      "taxInvoiceRequirements": "EU VAT Directive invoice content (supplier and customer identity, VAT ids, date, number, description, rate and amount per rate, reverse-charge wording where used) plus national additions.",
+      "eInvoicing": {
+        "b2b": "mandatory",
+        "b2g": "mandatory",
+        "system": "NAV Online Számla (real-time reporting)",
+        "vireekSupport": "none",
+        "workaround": null,
+        "note": "Invoice data reported to the tax authority in real time."
+      },
+      "verification": {
+        "status": "unverified",
+        "source": null,
+        "verifiedOn": null,
+        "reviewer": null,
+        "counselReviewer": null,
+        "counselReviewedOn": null
+      }
+    },
+    {
+      "country": "IE",
+      "pack": "EU",
+      "localMethods": [
+        "card",
+        "sepa_debit"
+      ],
+      "taxInvoiceRequirements": "EU VAT Directive invoice content (supplier and customer identity, VAT ids, date, number, description, rate and amount per rate, reverse-charge wording where used) plus national additions.",
+      "eInvoicing": {
+        "b2b": "unknown",
+        "b2g": "mandatory",
+        "system": null,
+        "vireekSupport": "none",
+        "workaround": null,
+        "note": "B2G receipt by contracting authorities follows the EU e-invoicing directive; B2B status for this country is not yet checked."
+      },
+      "verification": {
+        "status": "unverified",
+        "source": null,
+        "verifiedOn": null,
+        "reviewer": null,
+        "counselReviewer": null,
+        "counselReviewedOn": null
+      }
+    },
+    {
+      "country": "IT",
+      "pack": "EU",
+      "localMethods": [
+        "card",
+        "sepa_debit"
+      ],
+      "taxInvoiceRequirements": "EU VAT Directive invoice content (supplier and customer identity, VAT ids, date, number, description, rate and amount per rate, reverse-charge wording where used) plus national additions.",
+      "eInvoicing": {
+        "b2b": "mandatory",
+        "b2g": "mandatory",
+        "system": "SDI (FatturaPA)",
+        "vireekSupport": "none",
+        "workaround": null,
+        "note": "National exchange system, issuer must transmit through it."
+      },
+      "verification": {
+        "status": "unverified",
+        "source": null,
+        "verifiedOn": null,
+        "reviewer": null,
+        "counselReviewer": null,
+        "counselReviewedOn": null
+      }
+    },
+    {
+      "country": "LV",
+      "pack": "EU",
+      "localMethods": [
+        "card",
+        "sepa_debit"
+      ],
+      "taxInvoiceRequirements": "EU VAT Directive invoice content (supplier and customer identity, VAT ids, date, number, description, rate and amount per rate, reverse-charge wording where used) plus national additions.",
+      "eInvoicing": {
+        "b2b": "unknown",
+        "b2g": "mandatory",
+        "system": null,
+        "vireekSupport": "none",
+        "workaround": null,
+        "note": "B2G receipt by contracting authorities follows the EU e-invoicing directive; B2B status for this country is not yet checked."
+      },
+      "verification": {
+        "status": "unverified",
+        "source": null,
+        "verifiedOn": null,
+        "reviewer": null,
+        "counselReviewer": null,
+        "counselReviewedOn": null
+      }
+    },
+    {
+      "country": "LT",
+      "pack": "EU",
+      "localMethods": [
+        "card",
+        "sepa_debit"
+      ],
+      "taxInvoiceRequirements": "EU VAT Directive invoice content (supplier and customer identity, VAT ids, date, number, description, rate and amount per rate, reverse-charge wording where used) plus national additions.",
+      "eInvoicing": {
+        "b2b": "unknown",
+        "b2g": "mandatory",
+        "system": null,
+        "vireekSupport": "none",
+        "workaround": null,
+        "note": "B2G receipt by contracting authorities follows the EU e-invoicing directive; B2B status for this country is not yet checked."
+      },
+      "verification": {
+        "status": "unverified",
+        "source": null,
+        "verifiedOn": null,
+        "reviewer": null,
+        "counselReviewer": null,
+        "counselReviewedOn": null
+      }
+    },
+    {
+      "country": "LU",
+      "pack": "EU",
+      "localMethods": [
+        "card",
+        "sepa_debit"
+      ],
+      "taxInvoiceRequirements": "EU VAT Directive invoice content (supplier and customer identity, VAT ids, date, number, description, rate and amount per rate, reverse-charge wording where used) plus national additions.",
+      "eInvoicing": {
+        "b2b": "unknown",
+        "b2g": "mandatory",
+        "system": null,
+        "vireekSupport": "none",
+        "workaround": null,
+        "note": "B2G receipt by contracting authorities follows the EU e-invoicing directive; B2B status for this country is not yet checked."
+      },
+      "verification": {
+        "status": "unverified",
+        "source": null,
+        "verifiedOn": null,
+        "reviewer": null,
+        "counselReviewer": null,
+        "counselReviewedOn": null
+      }
+    },
+    {
+      "country": "MT",
+      "pack": "EU",
+      "localMethods": [
+        "card",
+        "sepa_debit"
+      ],
+      "taxInvoiceRequirements": "EU VAT Directive invoice content (supplier and customer identity, VAT ids, date, number, description, rate and amount per rate, reverse-charge wording where used) plus national additions.",
+      "eInvoicing": {
+        "b2b": "unknown",
+        "b2g": "mandatory",
+        "system": null,
+        "vireekSupport": "none",
+        "workaround": null,
+        "note": "B2G receipt by contracting authorities follows the EU e-invoicing directive; B2B status for this country is not yet checked."
+      },
+      "verification": {
+        "status": "unverified",
+        "source": null,
+        "verifiedOn": null,
+        "reviewer": null,
+        "counselReviewer": null,
+        "counselReviewedOn": null
+      }
+    },
+    {
+      "country": "NL",
+      "pack": "EU",
+      "localMethods": [
+        "card",
+        "sepa_debit",
+        "ideal"
+      ],
+      "taxInvoiceRequirements": "EU VAT Directive invoice content (supplier and customer identity, VAT ids, date, number, description, rate and amount per rate, reverse-charge wording where used) plus national additions.",
+      "eInvoicing": {
+        "b2b": "unknown",
+        "b2g": "mandatory",
+        "system": null,
+        "vireekSupport": "none",
+        "workaround": null,
+        "note": "B2G receipt by contracting authorities follows the EU e-invoicing directive; B2B status for this country is not yet checked."
+      },
+      "verification": {
+        "status": "unverified",
+        "source": null,
+        "verifiedOn": null,
+        "reviewer": null,
+        "counselReviewer": null,
+        "counselReviewedOn": null
+      }
+    },
+    {
+      "country": "PL",
+      "pack": "EU",
+      "localMethods": [
+        "card",
+        "sepa_debit",
+        "blik",
+        "p24"
+      ],
+      "taxInvoiceRequirements": "EU VAT Directive invoice content (supplier and customer identity, VAT ids, date, number, description, rate and amount per rate, reverse-charge wording where used) plus national additions.",
+      "eInvoicing": {
+        "b2b": "phased",
+        "b2g": "mandatory",
+        "system": "KSeF",
+        "vireekSupport": "none",
+        "workaround": null,
+        "note": "National system with phased start dates by company size."
+      },
+      "verification": {
+        "status": "unverified",
+        "source": null,
+        "verifiedOn": null,
+        "reviewer": null,
+        "counselReviewer": null,
+        "counselReviewedOn": null
+      }
+    },
+    {
+      "country": "PT",
+      "pack": "EU",
+      "localMethods": [
+        "card",
+        "sepa_debit",
+        "multibanco",
+        "mb_way"
+      ],
+      "taxInvoiceRequirements": "EU VAT Directive invoice content (supplier and customer identity, VAT ids, date, number, description, rate and amount per rate, reverse-charge wording where used) plus national additions.",
+      "eInvoicing": {
+        "b2b": "phased",
+        "b2g": "mandatory",
+        "system": "SAF-T / ATCUD / certified software",
+        "vireekSupport": "none",
+        "workaround": null,
+        "note": "Certified invoicing software and QR/ATCUD rules; e-invoicing phased."
+      },
+      "verification": {
+        "status": "unverified",
+        "source": null,
+        "verifiedOn": null,
+        "reviewer": null,
+        "counselReviewer": null,
+        "counselReviewedOn": null
+      }
+    },
+    {
+      "country": "RO",
+      "pack": "EU",
+      "localMethods": [
+        "card",
+        "sepa_debit"
+      ],
+      "taxInvoiceRequirements": "EU VAT Directive invoice content (supplier and customer identity, VAT ids, date, number, description, rate and amount per rate, reverse-charge wording where used) plus national additions.",
+      "eInvoicing": {
+        "b2b": "mandatory",
+        "b2g": "mandatory",
+        "system": "RO e-Factura (ANAF)",
+        "vireekSupport": "none",
+        "workaround": null,
+        "note": "National system covering B2B and B2G."
+      },
+      "verification": {
+        "status": "unverified",
+        "source": null,
+        "verifiedOn": null,
+        "reviewer": null,
+        "counselReviewer": null,
+        "counselReviewedOn": null
+      }
+    },
+    {
+      "country": "SK",
+      "pack": "EU",
+      "localMethods": [
+        "card",
+        "sepa_debit"
+      ],
+      "taxInvoiceRequirements": "EU VAT Directive invoice content (supplier and customer identity, VAT ids, date, number, description, rate and amount per rate, reverse-charge wording where used) plus national additions.",
+      "eInvoicing": {
+        "b2b": "unknown",
+        "b2g": "mandatory",
+        "system": null,
+        "vireekSupport": "none",
+        "workaround": null,
+        "note": "B2G receipt by contracting authorities follows the EU e-invoicing directive; B2B status for this country is not yet checked."
+      },
+      "verification": {
+        "status": "unverified",
+        "source": null,
+        "verifiedOn": null,
+        "reviewer": null,
+        "counselReviewer": null,
+        "counselReviewedOn": null
+      }
+    },
+    {
+      "country": "SI",
+      "pack": "EU",
+      "localMethods": [
+        "card",
+        "sepa_debit"
+      ],
+      "taxInvoiceRequirements": "EU VAT Directive invoice content (supplier and customer identity, VAT ids, date, number, description, rate and amount per rate, reverse-charge wording where used) plus national additions.",
+      "eInvoicing": {
+        "b2b": "unknown",
+        "b2g": "mandatory",
+        "system": null,
+        "vireekSupport": "none",
+        "workaround": null,
+        "note": "B2G receipt by contracting authorities follows the EU e-invoicing directive; B2B status for this country is not yet checked."
+      },
+      "verification": {
+        "status": "unverified",
+        "source": null,
+        "verifiedOn": null,
+        "reviewer": null,
+        "counselReviewer": null,
+        "counselReviewedOn": null
+      }
+    },
+    {
+      "country": "ES",
+      "pack": "EU",
+      "localMethods": [
+        "card",
+        "sepa_debit",
+        "bizum"
+      ],
+      "taxInvoiceRequirements": "EU VAT Directive invoice content (supplier and customer identity, VAT ids, date, number, description, rate and amount per rate, reverse-charge wording where used) plus national additions.",
+      "eInvoicing": {
+        "b2b": "phased",
+        "b2g": "mandatory",
+        "system": "Facturae / B2B platform / VeriFactu",
+        "vireekSupport": "none",
+        "workaround": null,
+        "note": "B2B rules pending regulation; invoicing-software integrity rules apply separately."
+      },
+      "verification": {
+        "status": "unverified",
+        "source": null,
+        "verifiedOn": null,
+        "reviewer": null,
+        "counselReviewer": null,
+        "counselReviewedOn": null
+      }
+    },
+    {
+      "country": "SE",
+      "pack": "EU",
+      "localMethods": [
+        "card",
+        "sepa_debit",
+        "swish"
+      ],
+      "taxInvoiceRequirements": "EU VAT Directive invoice content (supplier and customer identity, VAT ids, date, number, description, rate and amount per rate, reverse-charge wording where used) plus national additions.",
+      "eInvoicing": {
+        "b2b": "unknown",
+        "b2g": "mandatory",
+        "system": null,
+        "vireekSupport": "none",
+        "workaround": null,
+        "note": "B2G receipt by contracting authorities follows the EU e-invoicing directive; B2B status for this country is not yet checked."
+      },
+      "verification": {
+        "status": "unverified",
+        "source": null,
+        "verifiedOn": null,
+        "reviewer": null,
+        "counselReviewer": null,
+        "counselReviewedOn": null
+      }
+    }
+  ]
+}
