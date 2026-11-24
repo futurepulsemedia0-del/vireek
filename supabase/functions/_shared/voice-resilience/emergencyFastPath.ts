@@ -16,6 +16,7 @@ const LIFE_SAFETY: { id: string; re: RegExp }[] = [
   { id: "fire", re: /\b(fire|on fire|burning|smoke|smoking|sparking|sparks|electrical fire)\b/i },
   { id: "flood", re: /\b(flood(ed|ing)?|burst pipe|pipe burst|water (everywhere|pouring|gushing)|sewage (backup|overflow))\b/i },
   { id: "shock", re: /\b(electrocut|shock(ed)?|live wire|downed (power )?line)\b/i },
+  { id: "medical", re: /\b(heart attack|cardiac arrest|chest pain|not breathing|stopped breathing|can'?t breathe|unconscious|unresponsive|overdos(e|ed))\b/i },
   { id: "trapped", re: /\b(locked (in|out) (with )?(a )?(baby|child|kid|infant)|trapped)\b/i },
   // Spanish
   { id: "es", re: /\b(fuga de gas|huele a gas|incendio|fuego|humo|inundaci[oó]n|tuber[ií]a rota|mon[oó]xido de carbono)\b/i },
