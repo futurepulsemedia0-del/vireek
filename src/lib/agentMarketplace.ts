@@ -46,7 +46,7 @@ export interface MarketplaceAgent {
   category: AgentCategory;
   runtime: 'builtin' | 'webhook';
   endpoint_url: string | null;
-  status: 'draft' | 'in_review' | 'published' | 'suspended';
+  status: 'draft' | 'in_review' | 'published' | 'suspended' | 'delisted';
   pricing_model: PricingModel;
   price_cents: number;
   platform_fee_bps: number;
@@ -60,7 +60,7 @@ export interface MarketplaceVersion {
   version: string;
   manifest: AgentManifest;
   manifest_hash: string;
-  status: 'submitted' | 'approved' | 'rejected' | 'deprecated';
+  status: 'submitted' | 'changes_requested' | 'approved' | 'rejected' | 'deprecated';
   review_notes: string | null;
   created_at: string;
 }
