@@ -51,7 +51,7 @@ const MAX_PHOTO_BYTES = 1_500_000;
 const MAX_AUDIO_BYTES = 1_000_000;
 const HOURLY_SIGNAL_CAP = 40;
 const BUCKET = "remote-resolution-media";
-const SAFETY_KEYS: SafetyReason[] = ["gas", "carbon_monoxide", "electrical_hazard", "fire_smoke", "flooding", "sewage", "structural", "vulnerable_extreme_temp"];
+const SAFETY_KEYS: SafetyReason[] = ["gas", "carbon_monoxide", "electrical_hazard", "fire_smoke", "medical_emergency", "flooding", "sewage", "structural", "vulnerable_extreme_temp"];
 
 function json(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
