@@ -44,7 +44,7 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, OPTIONS",
   "Access-Control-Allow-Headers": "Authorization, Content-Type",
-  "Access-Control-Expose-Headers": "X-Request-Id, X-RateLimit-Limit, Retry-After, X-Vireek-Mode, X-Vireek-Api-Version, Deprecation, Sunset, Link",
+  "Access-Control-Expose-Headers": "X-Request-Id, X-RateLimit-Limit, X-Quota-Limit, X-Quota-Remaining, Retry-After, X-Vireek-Mode, X-Vireek-Api-Version, Deprecation, Sunset, Link",
 };
 
 function json(data: unknown, status = 200, extraHeaders: Record<string, string> = {}) {
@@ -71,12 +71,10 @@ interface LogCtx {
   keyId: string | null;
   userId: string | null;
   rateLimit: number;
+  quota: { limit: number; remaining: number } | null;
   resource: string | null;
 }
 
-function fail(ctx: LogCtx, code: ErrorCode, message: string, extraHeaders: Record<string, string> = {}): Response {
-  return json(errorBody(code, message, ctx.requestId), errorStatus(code), extraHeaders);
-}
 async function handle(req: Request, ctx: LogCtx): Promise<Response> {
   if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: corsHeaders });
   if (req.method !== "GET") return fail(ctx, "method_not_allowed", "Method not allowed", { Allow: "GET, OPTIONS" });
@@ -122,18 +120,33 @@ async function handle(req: Request, ctx: LogCtx): Promise<Response> {
       `Requests from ${callerIp ?? "an unknown address"} are not allowed for this key. Update its IP allowlist in Settings → API Keys.`,
     );
   }
-  // Per-key limiter (fixed 60 s window, counted from api_request_logs).
-  // Fail-open: a limiter error must never take the API down.
-  const { data: withinLimit } = await admin.rpc("api_v1_rate_limit_ok", {
+  // Admission: per-minute limiter and, when the `api_usage_plans` flag is on for the account, the monthly quota.
+  // One RPC (api_v1_admit). Fail-open: an admission error must never take the API down.
+  const { data: admitData } = await admin.rpc("api_v1_admit", {
     p_key_id: keyRow.id,
-   p_limit: ctx.rateLimit,
+    p_default_limit: RATE_LIMIT_PER_MINUTE,
   });
-  if (withinLimit === false) {
+  const admit = (admitData ?? null) as {
+    allowed?: boolean; reason?: string; rate_limit?: number; quota?: number | null; remaining?: number | null; retry_after?: number;
+  } | null;
+  if (admit && Number.isInteger(admit.rate_limit) && (admit.rate_limit as number) > 0) ctx.rateLimit = admit.rate_limit as number;
+  if (admit && typeof admit.quota === "number") ctx.quota = { limit: admit.quota, remaining: Math.max(0, Number(admit.remaining ?? 0)) };
+  if (admit?.allowed === false) {
+    if (admit.reason === "unknown_key") return fail(ctx, "invalid_api_key", "Invalid or revoked API key");
+    if (admit.reason === "quota_exceeded") {
+      ctx.quota = { limit: Number(admit.quota ?? 0), remaining: 0 };
+      return fail(
+        ctx,
+        "quota_exceeded",
+        `Monthly request quota exceeded (${admit.quota} requests). It resets at the start of the next UTC month.`,
+        { "Retry-After": String(admit.retry_after ?? 3600) },
+      );
+    }
     return fail(
       ctx,
       "rate_limited",
-      `Rate limit exceeded (${RATE_LIMIT_PER_MINUTE} requests/minute per key). Retry shortly.`,
-      { "Retry-After": "60" },
+      `Rate limit exceeded (${ctx.rateLimit} requests/minute per key). Retry shortly.`,
+      { "Retry-After": String(admit.retry_after ?? 60) },
     );
   }
   // Fire-and-forget last_used_at update — doesn't block the response.
@@ -209,7 +222,7 @@ async function handle(req: Request, ctx: LogCtx): Promise<Response> {
 // The raw key is never logged; unauthenticated requests have no key to attribute.
 Deno.serve(async (req: Request) => {
   const startedAt = Date.now();
-  const ctx: LogCtx = { requestId: crypto.randomUUID(), mode: "live", admin: null, keyId: null, userId: null, rateLimit: RATE_LIMIT_PER_MINUTE, resource: null };
+  const ctx: LogCtx = { requestId: crypto.randomUUID(), mode: "live", admin: null, keyId: null, userId: null, rateLimit: RATE_LIMIT_PER_MINUTE, quota: null, resource: null };
 
   let res: Response;
   try {
@@ -221,6 +234,10 @@ Deno.serve(async (req: Request) => {
   res.headers.set(API_VERSION_HEADER, API_VERSION);
   if (ctx.keyId) {
     res.headers.set("X-RateLimit-Limit", String(ctx.rateLimit));
+    if (ctx.quota) {
+      res.headers.set("X-Quota-Limit", String(ctx.quota.limit));
+      res.headers.set("X-Quota-Remaining", String(ctx.quota.remaining));
+    }
     res.headers.set(MODE_HEADER, ctx.mode);
     for (const [name, value] of Object.entries(deprecationHeaders(ctx.resource, API_DEPRECATION_LIST))) res.headers.set(name, value);
   }
