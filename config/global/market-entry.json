@@ -1,0 +1,205 @@
+{
+  "$comment": "Data for scripts/global/market-entry-report.mjs. Rules: nothing is 'done' without evidence; items tagged VERIFY also need source + verifiedOn; items tagged COUNSEL also need reviewer + reviewedOn. Items with a probe are derived from the code and cannot be set here. Nothing in this file is legal advice.",
+  "schemaVersion": 1,
+  "categories": [
+    { "id": "legal_entity", "label": "Legal entity" },
+    { "id": "payments", "label": "Payments" },
+    { "id": "telephony", "label": "Telephony numbers" },
+    { "id": "support_hours", "label": "Support hours" },
+    { "id": "compliance", "label": "Compliance rules" },
+    { "id": "localization", "label": "Localization" }
+  ],
+  "items": [
+    {
+      "id": "legal_entity.contracting_entity",
+      "category": "legal_entity",
+      "title": "Contracting entity and establishment decided",
+      "description": "Which Vireek entity signs customer contracts in this market, and whether it counts as established there.",
+      "tags": ["COUNSEL"]
+    },
+    {
+      "id": "legal_entity.tax_registration",
+      "category": "legal_entity",
+      "title": "Seller tax registration path decided",
+      "description": "VAT / GST / sales-tax registration duty and thresholds for Vireek as a seller (not the tenant's registrations in tax_registrations).",
+      "tags": ["COUNSEL", "VERIFY"]
+    },
+    {
+      "id": "legal_entity.local_representative",
+      "category": "legal_entity",
+      "title": "Local representative requirement assessed",
+      "description": "Statutory representative or similar local presence (data protection, tax, consumer). 'not_applicable' is only valid with counsel's written conclusion.",
+      "tags": ["COUNSEL"]
+    },
+    {
+      "id": "payments.methods_in_code",
+      "category": "payments",
+      "title": "Local payment methods and currency supported in code",
+      "description": "Country profile lists at least one method that can settle in the country's currency, and the currency is chargeable.",
+      "tags": [],
+      "probe": "payment_methods"
+    },
+    {
+      "id": "payments.einvoicing_matrix_row",
+      "category": "payments",
+      "title": "Payments and e-invoicing matrix row complete and verified",
+      "description": "The country's row in config/global/payments-einvoicing.json is complete (verified source, reviewer, counsel reviewer, fresh).",
+      "tags": [],
+      "probe": "billing_matrix"
+    },
+    {
+      "id": "payments.processor_capability",
+      "category": "payments",
+      "title": "Processor account can settle the currency and methods",
+      "description": "The live processor account is approved for the currency and each enabled method (account-level, not only API support).",
+      "tags": ["VERIFY"]
+    },
+    {
+      "id": "telephony.number_inventory",
+      "category": "telephony",
+      "title": "Local number inventory confirmed",
+      "description": "Number types available to provision in the country (local / mobile / toll-free), cost and any capacity limits.",
+      "tags": ["VERIFY"]
+    },
+    {
+      "id": "telephony.number_registration",
+      "category": "telephony",
+      "title": "Number registration and sender rules cleared",
+      "description": "Identity/address bundles, brand or sender registration for voice and SMS required before numbers can be used.",
+      "tags": ["COUNSEL", "VERIFY"]
+    },
+    {
+      "id": "telephony.recording_consent",
+      "category": "telephony",
+      "title": "Call-recording consent and AI-disclosure profile approved",
+      "description": "Recording mode and scripts for this market, reviewed against docs/compliance/voice-consent-and-ai-disclosure.md.",
+      "tags": ["COUNSEL"]
+    },
+    {
+      "id": "support_hours.coverage_window",
+      "category": "support_hours",
+      "title": "Human support window covers the market",
+      "description": "Declared human-support hours overlap the market's business day. Today a single window exists in src/lib/supportHours.ts.",
+      "tags": []
+    },
+    {
+      "id": "support_hours.local_language_macros",
+      "category": "support_hours",
+      "title": "Support macros and escalation path ready in the market language",
+      "description": "Reviewed canned replies, escalation owner and out-of-hours behaviour.",
+      "tags": []
+    },
+    {
+      "id": "compliance.privacy_tooling",
+      "category": "compliance",
+      "title": "Privacy-request tooling covers the regime",
+      "description": "Access / erasure / portability handling and deadlines exist in code for the regimes that apply.",
+      "tags": []
+    },
+    {
+      "id": "compliance.marketing_consent",
+      "category": "compliance",
+      "title": "Marketing and messaging consent rules approved",
+      "description": "Email / SMS / call consent rules (CASL, PECR, Spam Act, CAN-SPAM, TCPA, ePrivacy) reviewed for this market.",
+      "tags": ["COUNSEL"]
+    },
+    {
+      "id": "compliance.data_transfer_basis",
+      "category": "compliance",
+      "title": "Data residency and transfer basis decided",
+      "description": "Transfer mechanism and residency stance for this market's customers, see docs/compliance/adr-0001-data-residency.md.",
+      "tags": ["COUNSEL"]
+    },
+    {
+      "id": "compliance.subprocessor_disclosure",
+      "category": "compliance",
+      "title": "Sub-processor list matches the real data flow",
+      "description": "Public sub-processor page and DPA annex reflect the providers actually called for this market.",
+      "tags": ["VERIFY"]
+    },
+    {
+      "id": "localization.ui_language",
+      "category": "localization",
+      "title": "UI language available at release quality",
+      "description": "The country's main language is a non-beta locale in src/i18n/locales.config.ts.",
+      "tags": [],
+      "probe": "ui_locale"
+    },
+    {
+      "id": "localization.address_phone_rules",
+      "category": "localization",
+      "title": "Phone, postal and address rules implemented",
+      "description": "The country has a CountryProfile with phone and postal validation in the regional pack.",
+      "tags": [],
+      "probe": "country_profile"
+    },
+    {
+      "id": "localization.holiday_calendar",
+      "category": "localization",
+      "title": "Holiday calendar coverage",
+      "description": "Public/bank holiday calendar used for scheduling and deadline maths.",
+      "tags": [],
+      "probe": "holiday_calendar"
+    },
+    {
+      "id": "localization.legal_pages",
+      "category": "localization",
+      "title": "Required legal pages published in the market language",
+      "description": "Legal notice / privacy / terms pages the market requires (for example a German Impressum), in the right language.",
+      "tags": ["COUNSEL"]
+    }
+  ],
+  "packs": {
+    "US": {
+      "owner": null,
+      "shared": {
+        "compliance.privacy_tooling": {
+          "state": "done",
+          "evidence": "repo:src/lib/regionalPacks/packPrivacy.ts",
+          "note": "Code inspection only (CCPA, CAN-SPAM regimes present). Legal fitness is covered by the COUNSEL items."
+        }
+      }
+    },
+    "CA": {
+      "owner": null,
+      "shared": {
+        "compliance.privacy_tooling": {
+          "state": "done",
+          "evidence": "repo:src/lib/regionalPacks/packPrivacy.ts",
+          "note": "Code inspection only (PIPEDA, QC_LAW25, CASL regimes present)."
+        }
+      }
+    },
+    "GB": {
+      "owner": null,
+      "shared": {
+        "compliance.privacy_tooling": {
+          "state": "done",
+          "evidence": "repo:src/lib/regionalPacks/packPrivacy.ts",
+          "note": "Code inspection only (UK_GDPR regime present)."
+        }
+      }
+    },
+    "EU": {
+      "owner": null,
+      "shared": {
+        "compliance.privacy_tooling": {
+          "state": "done",
+          "evidence": "repo:src/lib/regionalPacks/packPrivacy.ts",
+          "note": "Code inspection only (GDPR regime present)."
+        }
+      }
+    },
+    "AU": {
+      "owner": null,
+      "shared": {
+        "compliance.privacy_tooling": {
+          "state": "done",
+          "evidence": "repo:src/lib/regionalPacks/packPrivacy.ts",
+          "note": "Code inspection only (AU_PRIVACY, AU_SPAM regimes present)."
+        }
+      }
+    }
+  },
+  "markets": {}
+}
