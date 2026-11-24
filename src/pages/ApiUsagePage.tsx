@@ -7,6 +7,7 @@ import { DashboardLayout } from '@/components/DashboardNav';
 import { Card } from '@/components/ui/Card';
 import { EmptyState } from '@/components/EmptyState';
 import { UsageChart } from '@/components/apiUsage/UsageChart';
+import { ApiPlanPanel } from '@/components/apiUsage/ApiPlanPanel';
 import {
   DEFAULT_RULES,
   RANGES,
@@ -273,6 +274,7 @@ export function ApiUsagePage() {
         <EmptyState icon={KeyRound} title="No API keys yet" description="Create an API key to start using the Vireek API. Usage appears here as soon as requests arrive." action={{ label: 'Create an API key', onClick: () => navigate('/dashboard/settings/api-keys') }} />
       ) : (
         <div className="space-y-6">
+          {ownerId && <ApiPlanPanel ownerId={ownerId} keys={keys} />}
           {breaches.length > 0 ? (
             <div role="alert" className="rounded-2xl border border-danger/30 bg-danger/5 p-4">
               <p className="flex items-center gap-2 text-sm font-semibold text-danger"><AlertTriangle size={16} /> {breaches.length} active alert{breaches.length === 1 ? '' : 's'}</p>
