@@ -92,6 +92,7 @@ import { assignBestTechnician } from "../_shared/dispatch/assign.ts";
 import { extractVapiCostLines, recordCallCostLines } from "../_shared/billing/callCostCapture.ts";
 import { syncJobToExternalProviders } from "../_shared/dispatch/externalJobSync.ts";
 import { voiceBookingGuard, voiceCheckAvailability } from "../_shared/booking/voiceBooking.ts";
+import { holdBookingIfNeeded, holdPriceQuoteIfNeeded } from "../_shared/governance/commitThresholds.ts";
 import { isAutomationEnabled } from "../_shared/automation/gate.ts";
 import { sendSms, sendEmail } from "../_shared/notify/deliver.ts";
 import { analyzeCallIntelligence } from "../_shared/ai-core/callIntelligence.ts";
@@ -1497,6 +1498,21 @@ async function toolBookAppointment(
         : `Booked for ${customerName}. Exact time still needs to be confirmed.`;
     }
   }
+  // AI commit controls: above the owner's thresholds the assistant may not promise this visit; a human decides.
+  const heldBooking = await holdBookingIfNeeded(admin, {
+    userId: tenant.userId,
+    startsAt: scheduledDatetime,
+    durationMinutes: capacityGuard.mode === "ok" ? capacityGuard.durationMinutes : null,
+    correlationId: `${vapiCallId ?? crypto.randomUUID()}:book:${toolCallId ?? `${scheduledDatetime}:${customerName.toLowerCase()}`}`,
+    context: {
+      customer_name: customerName,
+      phone: (typeof args.phone === "string" && args.phone.trim()) || callerNumber || null,
+      address: addressArg || null,
+      service_type: serviceType,
+      requested_time: scheduledDatetime,
+    },
+  });
+  if (heldBooking !== null) return heldBooking;
   const suggestedNote = await suggestTechnicianNote(admin, tenant, serviceType, scheduledDatetime);
   const incidentNote = await getBookingIncidentNote(admin, tenant.userId, vapiCallId ?? null);
   const dispatchNote = [suggestedNote, areaNote, incidentNote].filter(Boolean).join(" | ") || null;
@@ -1710,6 +1726,12 @@ async function toolLookupPrice(
     afterHoursFee: tenant.afterHoursFee,
     emergency: false,
     vapiCallId: vapiCallId ?? null,
+    commitGate: (maxCents) => holdPriceQuoteIfNeeded(admin, {
+      userId: tenant.userId,
+      amountCents: maxCents,
+      correlationId: `${vapiCallId ?? crypto.randomUUID()}:price:${query.toLowerCase().slice(0, 80)}:${maxCents}`,
+      context: { service: query.slice(0, 120) },
+    }),
   });
 }
 async function toolFlagEmergencyCall(
