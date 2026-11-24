@@ -1,0 +1,43 @@
+{
+  "title": "Plan & quota",
+  "loading": "Loading plan usage…",
+  "loadError": "Couldn’t load plan usage.",
+  "retry": "Try again",
+  "preview": "Preview only. Usage plans are not enforced on your account yet, so nothing is counted or limited by this plan.",
+  "proposed": "Proposed",
+  "proposedNote": "Limits and prices on this card are proposed and may change before they apply.",
+  "plan": "Plan",
+  "planSource": {
+    "assigned": "Assigned by Vireek",
+    "default": "Based on your account plan"
+  },
+  "rateLimit": "{{count}} requests per minute per key",
+  "unlimited": "Unlimited requests",
+  "usedOf": "{{used}} of {{quota}} requests used",
+  "usedOnly": "{{used}} requests this month",
+  "remaining": "{{count}} remaining",
+  "projected": "On pace for about {{count}} requests this month.",
+  "resets": "Resets {{date}} (UTC).",
+  "state": {
+    "unlimited": "No monthly limit",
+    "ok": "Within quota",
+    "warning": "Approaching quota",
+    "over_quota": "Over quota",
+    "blocked": "Limit reached"
+  },
+  "overage": {
+    "title": "Overage",
+    "block": "Requests beyond the quota are rejected with 429 quota_exceeded until the next UTC month.",
+    "meter": "Requests beyond the quota continue, up to {{pct}}% extra, at {{price}} per 1,000. Overage is recorded but not billed automatically.",
+    "now": "{{count}} requests over quota, estimated {{amount}}."
+  },
+  "perKey": {
+    "title": "Counted requests by key",
+    "key": "Key",
+    "requests": "Requests",
+    "empty": "No counted requests yet this month.",
+    "revoked": "revoked",
+    "deleted": "Unknown key"
+  },
+  "testNote": "Requests made with test keys are never counted."
+}
