@@ -1,4 +1,14 @@
 {
+  "net": {
+    "pending_one": "{{count}} change waiting to sync",
+    "pending_other": "{{count}} changes waiting to sync",
+    "syncing": "Syncing now.",
+    "recovered": "Back online. Everything is up to date.",
+    "dataSaver": "Data Saver is on, so some images and live updates are reduced.",
+    "slow": { "title": "Slow connection", "body": "Pages may load more slowly than usual." },
+    "degraded": { "title": "Connection is unstable", "body": "Some actions may not go through until the connection improves." },
+    "update": { "title": "A new version of Vireek is available", "later": "Later", "action": "Update" }
+  },
   "nav": {
     "features": "Meet Sarah",
     "platform": "How It Works",
