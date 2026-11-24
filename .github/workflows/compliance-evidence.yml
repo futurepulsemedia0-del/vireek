@@ -16,6 +16,10 @@ on:
   pull_request:
     paths:
       - 'docs/compliance/soc2/**'
+      - 'docs/compliance/risk-register.json'
+      - 'docs/compliance/insider-risk-monitoring.md'
+      - 'docs/compliance/ethics-channel.md'
+      - 'supabase/migrations/20290307000000_staff_insider_risk.sql'
       - 'docs/compliance/policies/**'
       - 'scripts/compliance/**'
       - '.github/workflows/compliance-evidence.yml'
@@ -40,6 +44,12 @@ jobs:
       - name: Registry is valid and CONTROL_MAP.md is current
         run: |
           node scripts/compliance/validate-controls.mjs --check
+      - name: Risk register (structure fails; stale / unowned / unscored reviews warn)
+        run: |
+          npm run test:scripts:risk-register
+          npm run risk-register:check
+      - name: Insider-risk guards (static; SQL tests need a database)
+        run: npm run test:scripts:insider-risk
 
   collect:
     name: Collect and store evidence
