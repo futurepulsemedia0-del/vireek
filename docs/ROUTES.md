@@ -233,6 +233,7 @@ Routes found: **683**.
 | `/dashboard/feedback` | `FeedbackPage` | ProtectedRoute |
 | `/dashboard/notifications` | `NotificationsPage` | ProtectedRoute |
 | `/dashboard/crm-sync` | `CrmSyncPage` | ProtectedRoute |
+| `/dashboard/sales-pipeline` | `SalesPipelinePage` | ProtectedRoute |
 | `/dashboard/netsuite` | `NetSuiteSyncPage` | ProtectedRoute |
 | `/dashboard/sage-intacct` | `SageIntacctSyncPage` | ProtectedRoute |
 | `/dashboard/xero` | `XeroSyncPage` | public |
