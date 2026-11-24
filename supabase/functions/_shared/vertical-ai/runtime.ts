@@ -113,6 +113,8 @@ export interface PriceToolInput {
   afterHoursFee: number | string | null;
   emergency: boolean;
   vapiCallId?: string | null;
+  /** AI commit controls: given the highest amount (cents) the assistant is about to speak, returns an instruction to use INSTEAD of the quote, or null. */
+  commitGate?: (spokenMaxCents: number) => Promise<string | null>;
 }
 
 export async function lookupPriceDeterministic(admin: Admin, trace: TraceCtx | null, input: PriceToolInput): Promise<string> {
@@ -153,7 +155,11 @@ export async function lookupPriceDeterministic(admin: Admin, trace: TraceCtx | n
       matched_items: res.candidates.map((c) => ({ service_name: c.serviceName, pricing_model: c.model, price_cents: c.baseCents, price_max_cents: c.baseMaxCents })),
     });
   } catch { /* logging is best-effort */ }
-
+  if (input.commitGate) {
+    const spokenMax = Math.max(...res.candidates.map((c) => c.totalToCents ?? c.totalFromCents));
+    const held = await input.commitGate(spokenMax);
+    if (held !== null) return held;
+  }
   if (res.status === "ambiguous") {
     return `A few things matched "${input.query.slice(0, 80)}": ${res.candidates.map((c) => c.spoken).join(" ")} Ask which one the caller means before quoting; never combine or average amounts.`;
   }
