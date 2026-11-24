@@ -38,6 +38,11 @@ export interface OntologyEntry {
   jurisdiction: string; // "US" = generic US; narrower values e.g. "US-CA"
   confidence: number; // 0..1
   reviewed: boolean;
+  /** Governance (hazard content): who reviewed, when, until when. See safety-governance/hazardGovernance.ts. */
+  reviewedBy?: string | null;
+  reviewedAt?: string | null;
+  reviewExpiresOn?: string | null;
+  declaredHazardDomains?: readonly string[] | null;
 }
 
 export function evidenceIdOf(e: Pick<OntologyEntry, "trade" | "kind" | "key" | "version">): string {
