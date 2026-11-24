@@ -13,6 +13,7 @@ export type SafetyFlag =
   | "gas_odor"
   | "carbon_monoxide"
   | "fire_or_smoke"
+  | "medical_emergency"
   | "sparking_or_burning"
   | "electric_shock"
   | "downed_line"
