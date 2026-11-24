@@ -13,6 +13,7 @@ import { invoiceRecipientEmails, resolveContactRecipients } from "../_shared/cus
 import { resolveCustomerLanguage } from "../_shared/i18n/customerLanguage.ts";
 import { escapeHtml, formatDate, formatMoney, htmlLangAttrs, renderTemplate } from "../_shared/i18n/templates.ts";
 import { buildDemandDraft, daysBetween, nextLadderAction } from "../_shared/commercialCash/logic.ts";
+import { planLadderTz } from "../_shared/commercialCash/ladderTz.ts";
 
 const corsHeaders = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type, X-Cron-Secret" };
 const json = (data: unknown, status = 200) =>
@@ -70,11 +71,18 @@ Deno.serve(async (req: Request) => {
         const doneReminders = mine.filter((d) => d.kind === "reminder" && d.status !== "failed").map((d) => d.step_day as number);
         const failedRetry = mine.filter((d) => d.kind === "reminder" && d.status === "failed").map((d) => d.step_day as number);
         const draftDone = mine.some((d) => d.kind === "demand_draft" && d.status !== "failed");
-        const action = nextLadderAction({
-          anchor, today, ladderDays: r.ladder_days, demandDraftAfterDays: r.demand_draft_after_days,
+        const plan = planLadderTz({
+          basis: r.ladder_basis === "due" ? "due" : "sent",
+          anchor, now: new Date(), timeZone: r.timezone ?? "UTC",
+          quietStartMin: r.timezone ? Number(r.quiet_start_min) : 0,
+          quietEndMin: r.timezone ? Number(r.quiet_end_min) : 0,
+          ladderDays: r.ladder_days, demandDraftAfterDays: r.demand_draft_after_days,
           doneReminders: doneReminders.filter((s) => !failedRetry.includes(s)), draftDone,
+          stage: r.stage, snoozedUntil: r.snoozed_until ?? null,
         });
-        if (action.action === "none") continue;
+        if (plan.action === "none") continue;
+        if (plan.action === "defer") { stats.skipped++; continue; } // ساعت سکوت: اجرای بعدی cron برش می‌دارد
+        const action = plan.step;
 
         const ok = await admin.rpc("commercial_claim_followup", { p_invoice_id: r.invoice_id, p_step_day: action.stepDay, p_kind: action.action });
         if (ok.error) throw ok.error;
