@@ -1,0 +1,8 @@
+[
+  {
+    "rule": "DP-01",
+    "path": "src/components/paymentPlans/CreatePlanDialog.tsx",
+    "match": "sendNow",
+    "reason": "Operator convenience in a staff-side form: sends the approval link, charges nothing and shares no data; the button label states the effect ('Create and send') and the customer must still approve."
+  }
+]
