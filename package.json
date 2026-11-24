@@ -70,6 +70,7 @@
     "export-coverage:check": "node scripts/compliance/export-coverage.mjs --check",
     "data-sources:check": "node scripts/compliance/check-data-sources.mjs",
     "vendor-exit:check": "node scripts/compliance/gen-vendor-exit.mjs --check",
+    "vendor-review:check": "node scripts/compliance/gen-vendor-review-seed.mjs --check",
     "subprocessors:reconcile": "node scripts/compliance/subprocessor-reconcile.mjs",
     "data:register": "node scripts/data/ownership-register.mjs --write",
     "data:register:check": "node scripts/data/ownership-register.mjs --check",
