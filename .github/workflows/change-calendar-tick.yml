@@ -1,0 +1,33 @@
+name: Change calendar reminders
+
+# Daily: emails the owner of each change-calendar entry whose notice / approval / effective date needs attention.
+# The edge function is idempotent (exactly one email per entry and reminder kind), so a retry or a manual run is harmless.
+# Needs repository secrets: SUPABASE_URL and CHANGE_CALENDAR_CRON_SECRET (the same value as the function's secret).
+on:
+  schedule:
+    - cron: '41 6 * * *' # 06:41 UTC daily
+  workflow_dispatch:
+
+concurrency:
+  group: change-calendar-tick
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  tick:
+    name: Send due reminders
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Call change-calendar-tick
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          CRON_SECRET: ${{ secrets.CHANGE_CALENDAR_CRON_SECRET }}
+        run: |
+          set -u
+          if [ -z "${SUPABASE_URL:-}" ] || [ -z "${CRON_SECRET:-}" ]; then echo "::error::SUPABASE_URL / CHANGE_CALENDAR_CRON_SECRET not configured"; exit 1; fi
+          code=$(curl -sS -m 60 -o out.json -w '%{http_code}' -X POST -H "X-Cron-Secret: ${CRON_SECRET}" "${SUPABASE_URL}/functions/v1/change-calendar-tick")
+          cat out.json; echo
+          if [ "$code" != "200" ]; then echo "::error::change-calendar-tick returned HTTP $code (207 = at least one email failed and will be retried)"; exit 1; fi
