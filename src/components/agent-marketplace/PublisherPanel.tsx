@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Check, Copy, Loader2, Plus, ShieldAlert } from 'lucide-react';
 import { useToast } from '@/contexts/ToastContext';
+import { Link } from 'react-router-dom';
 import {
   CATEGORY_LABELS,
   MANIFEST_TEMPLATE,
@@ -11,7 +12,6 @@ import {
   formatPrice,
   parseManifestInput,
   registerAgent,
-  reviewVersion,
   submitAgentVersion,
   type AgentCategory,
   type MarketplaceAgent,
@@ -30,6 +30,8 @@ const STATUS_STYLES: Record<string, string> = {
   approved: 'bg-success-subtle text-success',
   rejected: 'bg-danger/10 text-danger',
   deprecated: 'bg-bg-tertiary text-text-secondary',
+  changes_requested: 'bg-warning-subtle text-warning',
+  delisted: 'bg-danger/10 text-danger',
 };
 
 export function PublisherPanel({ userId }: { userId: string }) {
@@ -50,7 +52,6 @@ export function PublisherPanel({ userId }: { userId: string }) {
   const [versionAgent, setVersionAgent] = useState<string | null>(null);
   const [versionText, setVersionText] = useState('1.0.0');
   const [manifestText, setManifestText] = useState(MANIFEST_TEMPLATE);
-  const [notes, setNotes] = useState<Record<string, string>>({});
 
   const load = useCallback(async () => {
     try {
@@ -108,21 +109,6 @@ export function PublisherPanel({ userId }: { userId: string }) {
       await load();
     } catch (e) {
       toast(e instanceof Error ? e.message : 'Could not submit this version.', 'error');
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const handleReview = async (item: ReviewQueueItem, approve: boolean) => {
-    const note = (notes[item.version_id] ?? '').trim();
-    if (!approve && !note) return toast('Add a short note explaining the rejection.', 'error');
-    setBusy(true);
-    try {
-      await reviewVersion(item.version_id, approve, note || null);
-      toast(approve ? 'Version approved and published.' : 'Version rejected.', 'success');
-      await load();
-    } catch (e) {
-      toast(e instanceof Error ? e.message : 'Review failed.', 'error');
     } finally {
       setBusy(false);
     }
@@ -246,11 +232,7 @@ export function PublisherPanel({ userId }: { userId: string }) {
                   <p className="text-sm font-medium text-text-primary">{q.agent_name} v{q.version} <span className="text-xs font-normal text-text-secondary">· {q.publisher_name}</span></p>
                   <p className="truncate text-xs text-text-secondary">{q.endpoint_url}</p>
                   <pre className="my-2 max-h-40 overflow-auto rounded-lg bg-bg-secondary p-2 text-[11px] text-text-primary">{JSON.stringify(q.manifest, null, 2)}</pre>
-                  <input className={`${field} mb-2`} placeholder="Review note (required to reject)" value={notes[q.version_id] ?? ''} onChange={(e) => setNotes((n) => ({ ...n, [q.version_id]: e.target.value }))} />
-                  <div className="flex gap-2">
-                    <button disabled={busy} onClick={() => handleReview(q, true)} className="focus-ring rounded-xl bg-success px-3 py-1.5 text-xs font-medium text-on-success disabled:opacity-50">Approve & publish</button>
-                    <button disabled={busy} onClick={() => handleReview(q, false)} className="focus-ring rounded-xl bg-danger px-3 py-1.5 text-xs font-medium text-on-danger disabled:opacity-50">Reject</button>
-                  </div>
+                  <Link to="/staff/marketplace-vetting" className="focus-ring inline-flex rounded-xl bg-cta px-3 py-1.5 text-xs font-medium text-on-cta">Open in vetting review</Link>
                 </div>
               ))}
             </div>
