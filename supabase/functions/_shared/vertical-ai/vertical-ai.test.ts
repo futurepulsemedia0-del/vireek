@@ -229,7 +229,8 @@ describe("ontology", () => {
     expect(lookupSymptoms(expired, { text: "my ac is not cooling", now: new Date("2026-11-07") })).toHaveLength(0);
   });
   it("the SQL migration seed matches the bundled seed exactly (trade:kind:key:version)", () => {
-    const sql = readFileSync(new URL("../../../migrations/20281120000000_vertical_ai_ontology_outcomes.sql", import.meta.url), "utf8");
+    const sql = ["20281120000000_vertical_ai_ontology_outcomes.sql", "20290311000000_hazard_content_governance.sql"]
+      .map((f) => readFileSync(new URL(`../../../migrations/${f}`, import.meta.url), "utf8")).join("\n");
     const rows = [...sql.matchAll(/^\s+\('(hvac|plumbing|electrical|all)', '(\w+)', '(\w+)', (\d+),/gm)].map((m) => `${m[1]}:${m[2]}:${m[3]}:${m[4]}`).sort();
     const seed = ONTOLOGY_SEED.map((e) => `${e.trade}:${e.kind}:${e.key}:${e.version}`).sort();
     expect(rows).toEqual(seed);
