@@ -54,7 +54,15 @@ describe('RouteFallback', () => {
     expect(copy).toHaveClass('absolute', 'top-full');
     expect(markBox.contains(copy)).toBe(true);
   });
-
+  it('fullScreen (auth guards, cold start) shows the mark from the first frame; the default still waits', async () => {
+    const guard = render(<RouteFallback variant="data" fullScreen />);
+    await tick(1);
+    expect(guard.container.querySelector('.vrk-v')).not.toBeNull();
+    guard.unmount();
+    const normal = render(<RouteFallback variant="data" />);
+    await tick(1);
+    expect(normal.container.querySelector('.vrk-v')).toBeNull();
+  });
   it('keeps one polite status region for assistive tech', async () => {
     const { container } = render(<RouteFallback variant="data" />);
     await tick(800);
