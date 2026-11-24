@@ -21,6 +21,7 @@
 //   supabase functions deploy evidence-marketplace-api --no-verify-jwt
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { assertDataProductApproved } from "../_shared/data-products/guard.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -97,6 +98,10 @@ Deno.serve(async (req: Request) => {
     return json({ error: "Rate limit exceeded" }, 429, { "Retry-After": "30" });
   }
 
+  // Data-product approval gate (docs/data/monetization-ethics.md): no approved review => no data.
+  const blocked = await assertDataProductApproved(admin, "evidence_marketplace", "evidence-marketplace-api", corsHeaders);
+  if (blocked) return blocked;
+  
   const url = new URL(req.url);
   const route = url.pathname.replace(/^\/evidence-marketplace-api\/?/, "").split("/").filter(Boolean)[0] ?? "";
 
