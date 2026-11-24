@@ -13,6 +13,8 @@ import { HomePage } from '@/pages/HomePage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { StaffRoute } from '@/components/StaffRoute';
 import { SupplierRoute } from '@/components/SupplierRoute';
+import { UpdatePrompt } from '@/components/system/UpdatePrompt';
+import { NetworkStatusStrip } from '@/components/system/NetworkStatusStrip';
 import { RouteTitle } from '@/components/brand/RouteTitle';
 import { TechnicianRoute } from '@/components/TechnicianRoute';
 import { PartnerRoute } from '@/components/PartnerRoute';
@@ -149,6 +151,7 @@ const ProcurementNetworkPage = lazy(() => import('@/pages/ProcurementNetworkPage
 const SupplierPortalPage = lazy(() => import('@/pages/SupplierPortalPage').then((m) => ({ default: m.SupplierPortalPage })));
 const StaffWebVitalsPage = lazy(() => import('@/pages/StaffWebVitalsPage').then((m) => ({ default: m.StaffWebVitalsPage })));
 const StaffDisputeRatioPage = lazy(() => import('@/pages/StaffDisputeRatioPage').then((m) => ({ default: m.StaffDisputeRatioPage })));
+const StaffAssistantGapsPage = lazy(() => import('@/pages/StaffAssistantGapsPage').then((m) => ({ default: m.StaffAssistantGapsPage })));
 const StaffAbusePage = lazy(() => import('@/pages/admin/StaffAbusePage').then((m) => ({ default: m.StaffAbusePage })));
 const SupplierApplyPage = lazy(() => import('@/pages/SupplierApplyPage').then((m) => ({ default: m.SupplierApplyPage })));
 const StaffProcurementNetworkPage = lazy(() => import('@/pages/StaffProcurementNetworkPage').then((m) => ({ default: m.StaffProcurementNetworkPage })));
@@ -794,6 +797,10 @@ const CoachingReportsPage = lazy(() => import('@/pages/CoachingReportsPage').the
 const InviteAcceptPage = lazy(() => import('@/pages/InviteAcceptPage').then((m) => ({ default: m.InviteAcceptPage })));
 const LoadingDemo = import.meta.env.DEV ? lazy(() => import('@/pages/dev/LoadingDemo')) : null; // dev-only
 const DesignSystemPage = import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEV_STATES === 'true' ? lazy(() => import('@/pages/dev/DesignSystemPage')) : null; // dev-only
+const DEV_PAGES_ON = import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEV_STATES === 'true';
+const StatesPage = DEV_PAGES_ON ? lazy(() => import('@/pages/dev/StatesPage')) : null; // dev-only
+const DocumentsGalleryPage = DEV_PAGES_ON ? lazy(() => import('@/pages/dev/DocumentsGalleryPage')) : null; // dev-only
+const TokensPreview = DEV_PAGES_ON ? lazy(() => import('@/pages/TokensPreview').then((m) => ({ default: m.TokensPreview }))) : null; // dev-only
 const InterpreterPlayground = import.meta.env.DEV ? lazy(() => import('@/pages/dev/InterpreterPlayground')) : null; // dev-only
 
 function RouteLoadingFallback() {
@@ -810,7 +817,10 @@ function AppRoutes() {
       <Routes>
         {LoadingDemo && <Route path="/dev/loading" element={<Suspense fallback={<RouteFallback />}><LoadingDemo /></Suspense>} />}
         {DesignSystemPage && <Route path="/dev/design-system" element={<Suspense fallback={<RouteFallback />}><DesignSystemPage /></Suspense>} />}
-        {InterpreterPlayground && <Route path="/dev/interpreter" element={<Suspense fallback={<RouteFallback />}><InterpreterPlayground /></Suspense>} />}
+        {StatesPage && <Route path="/dev/states" element={<Suspense fallback={<RouteFallback />}><StatesPage /></Suspense>} />}
+        {DocumentsGalleryPage && <Route path="/dev/documents" element={<Suspense fallback={<RouteFallback />}><DocumentsGalleryPage /></Suspense>} />}
+        {TokensPreview && <Route path="/dev/tokens" element={<Suspense fallback={<RouteFallback />}><TokensPreview /></Suspense>} />}
+       {InterpreterPlayground && <Route path="/dev/interpreter" element={<Suspense fallback={<RouteFallback />}><InterpreterPlayground /></Suspense>} />}
         <Route path="/" element={<HomeTargetGate><HomePage /></HomeTargetGate>} />
         <Route path="/login" element={<LoginPage />} />
         {/*
@@ -842,6 +852,7 @@ function AppRoutes() {
         <Route path="/staff/packs" element={<StaffRoute><StaffPacksPage /></StaffRoute>} />
         <Route path="/staff/web-vitals" element={<StaffRoute><StaffWebVitalsPage /></StaffRoute>} />
         <Route path="/staff/dispute-ratio" element={<StaffRoute><StaffDisputeRatioPage /></StaffRoute>} />
+        <Route path="/staff/assistant-gaps" element={<StaffRoute><StaffAssistantGapsPage /></StaffRoute>} />
         <Route path="/staff/abuse" element={<StaffRoute><StaffAbusePage /></StaffRoute>} />
         <Route path="/staff/customer-health" element={<StaffRoute><StaffCustomerHealthPage /></StaffRoute>} />
         <Route path="/staff/partner-commissions" element={<StaffRoute><Suspense fallback={<PageLoader />}><StaffPartnerCommissionsPage /></Suspense></StaffRoute>} />
@@ -5198,6 +5209,8 @@ function App() {
       <CustomDomainGate>
         <PdfBrandSync />
         <AppRoutes />
+        <UpdatePrompt />
+        <NetworkStatusStrip />
       </CustomDomainGate>
     </>
   );
