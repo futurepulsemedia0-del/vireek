@@ -1,0 +1,1237 @@
+{
+  "$comment": "Operational risk register. Seeded ONLY from risks already documented in this repository (each entry cites its source file and an anchor string that scripts/compliance/check-risk-register.mjs verifies). No likelihood or impact score exists in those sources, so every entry is unscored; owners and review dates are for the company to set. Not an assessment, not evidence of a performed review, makes no compliance claim.",
+  "schema": "vireek.risk-register/v1",
+  "policy": "docs/compliance/policies/risk-assessment.md",
+  "scoring": {
+    "status": "PROPOSED, not approved (risk-assessment.md lists the scoring method as an open gap)",
+    "method": "score = likelihood x impact, both integers 1-5; null = not yet scored",
+    "likelihood_scale": {
+      "1": "Rare",
+      "2": "Unlikely",
+      "3": "Possible",
+      "4": "Likely",
+      "5": "Almost certain"
+    },
+    "impact_scale": {
+      "1": "Minor",
+      "2": "Moderate",
+      "3": "Significant",
+      "4": "Major",
+      "5": "Severe"
+    }
+  },
+  "review": {
+    "default_interval_days": 90,
+    "basis": "docs/compliance/SOC2_READINESS.md lists a quarterly review cadence",
+    "rule": "A risk is stale when today > last_reviewed + (review_interval_days or default_interval_days). last_reviewed = null means never reviewed."
+  },
+  "enums": {
+    "category": [
+      "security",
+      "compliance",
+      "billing",
+      "availability",
+      "operational"
+    ],
+    "status": [
+      "open",
+      "mitigating",
+      "accepted",
+      "closed"
+    ],
+    "control_status": [
+      "documented",
+      "partial",
+      "gap"
+    ]
+  },
+  "risks": [
+    {
+      "id": "RR-001",
+      "title": "Cross-tenant data read or write",
+      "description": "A user reaches another tenant's data through any table (information disclosure / tampering).",
+      "category": "security",
+      "source": {
+        "path": "docs/security/THREAT_MODEL.md",
+        "anchor": "| T1 |"
+      },
+      "owner": {
+        "area": "security",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "RLS scoped by get_account_owner_id()",
+          "status": "documented",
+          "ref": "docs/security/rls-audit.md"
+        },
+        {
+          "description": "RLS audit script",
+          "status": "documented",
+          "ref": "scripts/security/rls-audit.mjs"
+        },
+        {
+          "description": "pgTAP CI job is continue-on-error; baseline replay issue noted in supabase/tests/README.md",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[VERIFY]"
+      ]
+    },
+    {
+      "id": "RR-002",
+      "title": "Forged provider webhook",
+      "description": "An attacker sends a forged webhook to a *-webhook / *-callback edge function (spoofing).",
+      "category": "security",
+      "source": {
+        "path": "docs/security/THREAT_MODEL.md",
+        "anchor": "| T2 |"
+      },
+      "owner": {
+        "area": "integrations",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "Signature checks on webhook functions",
+          "status": "documented",
+          "ref": "docs/generated/WEBHOOKS.md"
+        },
+        {
+          "description": "Functions marked \"none detected\" in WEBHOOKS.md need review; replay protection is not uniform",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[VERIFY]"
+      ]
+    },
+    {
+      "id": "RR-003",
+      "title": "Unauthenticated edge-function abuse",
+      "description": "Functions with verify_jwt=false are abused (spoofing, denial of service).",
+      "category": "security",
+      "source": {
+        "path": "docs/security/THREAT_MODEL.md",
+        "anchor": "| T3 |"
+      },
+      "owner": {
+        "area": "security",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "Cron/API-key/signature gates, rate limits, function-matrix ratchet in CI",
+          "status": "documented",
+          "ref": "docs/security/function-matrix.md"
+        },
+        {
+          "description": "config.toml lists fewer verify_jwt=false functions than the matrix reports; reconcile",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[VERIFY]"
+      ]
+    },
+    {
+      "id": "RR-004",
+      "title": "Privilege escalation (staff / owner / technician)",
+      "description": "A user obtains a role they should not have through routes or RPCs.",
+      "category": "security",
+      "source": {
+        "path": "docs/security/THREAT_MODEL.md",
+        "anchor": "| T4 |"
+      },
+      "owner": {
+        "area": "security",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "Route guards, RLS, staff RPC checks, MFA (AAL2) when enrolled",
+          "status": "documented"
+        },
+        {
+          "description": "Confirm every privileged RPC checks the role server-side, not only in the UI",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[VERIFY]"
+      ]
+    },
+    {
+      "id": "RR-005",
+      "title": "Secret leakage",
+      "description": "Secrets leak through the repository, logs or the client bundle.",
+      "category": "security",
+      "source": {
+        "path": "docs/security/THREAT_MODEL.md",
+        "anchor": "| T5 |"
+      },
+      "owner": {
+        "area": "security",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "gitleaks in security.yml",
+          "status": "documented",
+          "ref": ".gitleaks.toml"
+        },
+        {
+          "description": "Rotation and leak response in RUNBOOK.md section 7",
+          "status": "documented",
+          "ref": "RUNBOOK.md"
+        },
+        {
+          "description": "Rotation cadence undecided",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[VERIFY]"
+      ]
+    },
+    {
+      "id": "RR-006",
+      "title": "Provider token theft or misuse",
+      "description": "Stored accounting, ads, bank or calendar tokens are stolen or misused.",
+      "category": "security",
+      "source": {
+        "path": "docs/security/THREAT_MODEL.md",
+        "anchor": "| T6 |"
+      },
+      "owner": {
+        "area": "integrations",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "Encrypted token storage (*_TOKEN_ENCRYPTION_KEY) and OAuth state secrets",
+          "status": "documented"
+        },
+        {
+          "description": "Key rotation requires a re-encryption plan",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[VERIFY]"
+      ]
+    },
+    {
+      "id": "RR-007",
+      "title": "Prompt injection and data exfiltration through AI",
+      "description": "Voice agent, interpreter or Ask Vireek is manipulated into leaking or altering data.",
+      "category": "security",
+      "source": {
+        "path": "docs/security/THREAT_MODEL.md",
+        "anchor": "| T7 |"
+      },
+      "owner": {
+        "area": "voice",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "Grounded prompts and tool gating; DPIA",
+          "status": "documented",
+          "ref": "docs/compliance/dpia-voice-ai.md"
+        },
+        {
+          "description": "Per-tool authorization review for agent tools",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[VERIFY]"
+      ]
+    },
+    {
+      "id": "RR-008",
+      "title": "Card data exposure in pay-by-phone",
+      "description": "Card details captured by phone are exposed (information disclosure).",
+      "category": "security",
+      "source": {
+        "path": "docs/security/THREAT_MODEL.md",
+        "anchor": "| T8 |"
+      },
+      "owner": {
+        "area": "voice",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "Recording paused and verified, fail closed",
+          "status": "documented",
+          "ref": "docs/pci-pay-by-phone.md"
+        },
+        {
+          "description": "Not a PCI attestation (as stated in the threat model)",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[VERIFY]"
+      ]
+    },
+    {
+      "id": "RR-009",
+      "title": "Malicious input to edge functions",
+      "description": "Insufficient input validation allows tampering through function bodies.",
+      "category": "security",
+      "source": {
+        "path": "docs/security/THREAT_MODEL.md",
+        "anchor": "| T9 |"
+      },
+      "owner": {
+        "area": "security",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "Mostly manual validation; schema validation in a few functions",
+          "status": "documented",
+          "ref": "docs/security/function-matrix.md"
+        },
+        {
+          "description": "Increase schema validation coverage (matrix \"No validation detected\")",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[VERIFY]"
+      ]
+    },
+    {
+      "id": "RR-010",
+      "title": "Supply-chain compromise",
+      "description": "A malicious dependency or GitHub Action is introduced.",
+      "category": "security",
+      "source": {
+        "path": "docs/security/THREAT_MODEL.md",
+        "anchor": "| T10 |"
+      },
+      "owner": {
+        "area": "security",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "npm audit, CodeQL, weekly Dependabot",
+          "status": "documented"
+        },
+        {
+          "description": "Pin and review action versions",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[VERIFY]"
+      ]
+    },
+    {
+      "id": "RR-011",
+      "title": "Repudiation of admin and data changes",
+      "description": "Admin or data changes cannot be attributed.",
+      "category": "compliance",
+      "source": {
+        "path": "docs/security/THREAT_MODEL.md",
+        "anchor": "| T11 |"
+      },
+      "owner": {
+        "area": "compliance",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "audit_log without client write policy; flag audit",
+          "status": "documented",
+          "ref": "supabase/migrations/20271215090000_audit_log_cross_tenant_guard.sql"
+        },
+        {
+          "description": "Platform log retention undefined",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[VERIFY]"
+      ]
+    },
+    {
+      "id": "RR-012",
+      "title": "Availability and cost abuse (AI, SMS, telephony)",
+      "description": "Abuse of metered services causes outage or runaway cost.",
+      "category": "billing",
+      "source": {
+        "path": "docs/security/THREAT_MODEL.md",
+        "anchor": "| T12 |"
+      },
+      "owner": {
+        "area": "billing",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "Rate limits, AI usage logs, capacity guard",
+          "status": "documented"
+        },
+        {
+          "description": "Document budgets per provider",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[VERIFY]"
+      ]
+    },
+    {
+      "id": "RR-013",
+      "title": "Over-broad Chrome extension",
+      "description": "The extension reads more than disclosed (information disclosure).",
+      "category": "security",
+      "source": {
+        "path": "docs/security/THREAT_MODEL.md",
+        "anchor": "| T13 |"
+      },
+      "owner": {
+        "area": "security",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "Tokens only in the service worker; only origin and path stored",
+          "status": "documented"
+        },
+        {
+          "description": "Content script runs on all http(s) pages; keep the disclosure accurate",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[VERIFY]"
+      ]
+    },
+    {
+      "id": "RR-014",
+      "title": "Misuse of privileged Vireek-staff access",
+      "description": "Staff impersonate, export or bulk-read customer data without a business reason.",
+      "category": "security",
+      "source": {
+        "path": "docs/security/THREAT_MODEL.md",
+        "anchor": "| T4 |"
+      },
+      "owner": {
+        "area": "security",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "Append-only staff audit trail and impersonation sessions",
+          "status": "documented",
+          "ref": "supabase/migrations/20270504000000_staff_account_explorer.sql"
+        },
+        {
+          "description": "Staff insider-risk alert rules and quarterly access review (added in this change set; not yet scheduled or reviewed)",
+          "status": "partial",
+          "ref": "docs/compliance/insider-risk-monitoring.md"
+        },
+        {
+          "description": "No notification channel or staff UI for alerts; ethics channel designed but not live (docs/compliance/ethics-channel.md); service-role and provider-console access is outside the logs",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[VERIFY]"
+      ],
+      "related_sources": [
+        {
+          "path": "docs/compliance/insider-risk-monitoring.md",
+          "anchor": "## 6. Known limits"
+        }
+      ]
+    },
+    {
+      "id": "RR-015",
+      "title": "Erasure incomplete across tables",
+      "description": "Full-account erasure covers a small owned-table list while many more tables hold a user_id; uncovered data may survive deletion.",
+      "category": "compliance",
+      "source": {
+        "path": "docs/compliance/gap-list.md",
+        "anchor": "| E4 |"
+      },
+      "owner": {
+        "area": "compliance",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "Erasure coverage check and baseline (exist in the repo; effectiveness not re-verified)",
+          "status": "documented",
+          "ref": "scripts/compliance/check-erasure-coverage.mjs"
+        },
+        {
+          "description": "Gap list proposes generating the owned-table list from the schema",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[VERIFY]",
+        "[COUNSEL]"
+      ]
+    },
+    {
+      "id": "RR-016",
+      "title": "No provider-side erasure",
+      "description": "Vapi, Twilio, ElevenLabs and Resend copies (recordings, logs, cloned voices) are not removed on erasure.",
+      "category": "compliance",
+      "source": {
+        "path": "docs/compliance/gap-list.md",
+        "anchor": "| E5 |"
+      },
+      "owner": {
+        "area": "compliance",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "Per-provider erasure adapters with retry queue and proof record (proposed in the gap list)",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[VERIFY]",
+        "[COUNSEL]"
+      ]
+    },
+    {
+      "id": "RR-017",
+      "title": "Public sub-processor list incomplete",
+      "description": "The public sub-processor page omits providers that the code calls.",
+      "category": "compliance",
+      "source": {
+        "path": "docs/compliance/gap-list.md",
+        "anchor": "| E6 |"
+      },
+      "owner": {
+        "area": "compliance",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "Generator with --check mode",
+          "status": "documented",
+          "ref": "scripts/compliance/gen-subprocessors-by-region.mjs"
+        },
+        {
+          "description": "Classify core vs customer-optional providers and update the list; do not wire --check into CI until fixed",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[VERIFY]",
+        "[COUNSEL]"
+      ]
+    },
+    {
+      "id": "RR-018",
+      "title": "Recording consent logic limited to US area codes",
+      "description": "Call-recording consent is keyed to the caller number and US area codes only; no DE/EU/UK/CA/AU logic.",
+      "category": "compliance",
+      "source": {
+        "path": "docs/compliance/gap-list.md",
+        "anchor": "| E7 |"
+      },
+      "owner": {
+        "area": "voice",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "Region/profile resolver by business location (gap list)",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[COUNSEL]",
+        "[VERIFY]"
+      ],
+      "related_sources": [
+        {
+          "path": "docs/compliance/gap-list.md",
+          "anchor": "L4 Recording-consent law"
+        }
+      ]
+    },
+    {
+      "id": "RR-019",
+      "title": "Data residency not enforced",
+      "description": "Regions other than US are not enforceable; provider-hosted recordings and the LLM chain are not region-pinned.",
+      "category": "compliance",
+      "source": {
+        "path": "docs/compliance/gap-list.md",
+        "anchor": "| E8 |"
+      },
+      "owner": {
+        "area": "compliance",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "Residency decision record",
+          "status": "documented",
+          "ref": "docs/compliance/adr-0001-data-residency.md"
+        },
+        {
+          "description": "Migration and enforcement probe; region-pinning of provider data (ADR phases 1-2)",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[VERIFY]",
+        "[COUNSEL]"
+      ],
+      "related_sources": [
+        {
+          "path": "docs/compliance/gap-list.md",
+          "anchor": "| E9 |"
+        }
+      ]
+    },
+    {
+      "id": "RR-020",
+      "title": "Contracts, lawful bases and legal texts not counsel-reviewed",
+      "description": "Contracting entity, DPA and SCC annexes, AI Act roles and wording, retention periods, Impressum and messaging-consent rules are open legal items.",
+      "category": "compliance",
+      "source": {
+        "path": "docs/compliance/gap-list.md",
+        "anchor": "L1 Contracting entity"
+      },
+      "owner": {
+        "area": "compliance",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "Counsel review of items L1-L12 in the gap list",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[COUNSEL]"
+      ],
+      "related_sources": [
+        {
+          "path": "docs/compliance/gap-list.md",
+          "anchor": "L6 AI Act roles"
+        }
+      ]
+    },
+    {
+      "id": "RR-021",
+      "title": "Public security claims ahead of evidence",
+      "description": "Marketing copy suggests SOC 2 readiness or end-to-end encryption while the repository records no SOC 2 report and the claim register does not support it (misrepresentation risk).",
+      "category": "compliance",
+      "source": {
+        "path": "docs/compliance/SOC2_READINESS.md",
+        "anchor": "| F1 |"
+      },
+      "owner": {
+        "area": "compliance",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "Claims register and drift check",
+          "status": "documented",
+          "ref": "docs/claims-register.json"
+        },
+        {
+          "description": "Replace the copy flagged in F1 and in NEEDS_HUMAN item 12",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[COUNSEL]",
+        "[VERIFY]"
+      ],
+      "related_sources": [
+        {
+          "path": "docs/NEEDS_HUMAN.md",
+          "anchor": "End-to-End Encryption"
+        }
+      ]
+    },
+    {
+      "id": "RR-022",
+      "title": "Disaster-recovery data readable by all tenants",
+      "description": "DR tables are readable by all authenticated tenants and consumed by src/lib/dataGovernance.ts; needs a design decision.",
+      "category": "security",
+      "source": {
+        "path": "docs/compliance/SOC2_READINESS.md",
+        "anchor": "| F3 |"
+      },
+      "owner": {
+        "area": "security",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "Staff-only access plus a sanitised status RPC (not auto-fixed to avoid breaking the DR health UI)",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[VERIFY]"
+      ]
+    },
+    {
+      "id": "RR-023",
+      "title": "Possible anon/PUBLIC execute on log_audit_event",
+      "description": "The default function grant may let anon execute log_audit_event; verification query pending.",
+      "category": "security",
+      "source": {
+        "path": "docs/compliance/SOC2_READINESS.md",
+        "anchor": "| F4 |"
+      },
+      "owner": {
+        "area": "security",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "Cross-tenant write guard on log_audit_event()",
+          "status": "documented",
+          "ref": "supabase/migrations/20271215090000_audit_log_cross_tenant_guard.sql"
+        },
+        {
+          "description": "Verify grants in production; revoke only after confirming no anon flow depends on it",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[VERIFY]"
+      ]
+    },
+    {
+      "id": "RR-024",
+      "title": "Demo account with a known password",
+      "description": "A migration creates a demo account with a known password; high impact if present in production.",
+      "category": "security",
+      "source": {
+        "path": "docs/compliance/SOC2_READINESS.md",
+        "anchor": "| F5 |"
+      },
+      "owner": {
+        "area": "security",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "Verify in production; remove through a reviewed procedure",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[VERIFY]"
+      ]
+    },
+    {
+      "id": "RR-025",
+      "title": "MFA not enforced for staff and tenant admins",
+      "description": "MFA is opt-in and not enforced for Vireek staff or tenant owners/admins.",
+      "category": "security",
+      "source": {
+        "path": "docs/compliance/soc2/controls.json",
+        "anchor": "MFA is opt-in; it is not enforced for Vireek staff"
+      },
+      "owner": {
+        "area": "security",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "AAL2 required for step-up on sensitive actions when MFA is enrolled",
+          "status": "documented"
+        },
+        {
+          "description": "Enforce MFA for staff and workforce accounts (policy gap in access-control.md)",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[VERIFY]"
+      ]
+    },
+    {
+      "id": "RR-026",
+      "title": "No measured recovery objectives or restore-drill evidence",
+      "description": "RPO/RTO targets, PITR retention, restore owner and drill evidence are not recorded.",
+      "category": "security",
+      "source": {
+        "path": "docs/compliance/policies/backup-disaster-recovery.md",
+        "anchor": "Measured RPO/RTO targets and drill evidence location"
+      },
+      "owner": {
+        "area": "security",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "Backup and restore runbook sections",
+          "status": "documented",
+          "ref": "RUNBOOK.md"
+        },
+        {
+          "description": "Measure targets; run and record a restore drill",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[VERIFY]"
+      ],
+      "related_sources": [
+        {
+          "path": "docs/compliance/internal-audit-program.md",
+          "anchor": "no restore-drill evidence"
+        }
+      ]
+    },
+    {
+      "id": "RR-027",
+      "title": "No business-continuity plan",
+      "description": "Critical-service list, continuity plan and communication tree are not defined.",
+      "category": "compliance",
+      "source": {
+        "path": "docs/compliance/policies/business-continuity.md",
+        "anchor": "Continuity plan, critical-service list, communication tree"
+      },
+      "owner": {
+        "area": "compliance",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "Write and test the plan",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[VERIFY]"
+      ]
+    },
+    {
+      "id": "RR-028",
+      "title": "Vendor risk not assessed",
+      "description": "DPA status per provider, vendor reviews and collection of provider assurance reports are missing.",
+      "category": "compliance",
+      "source": {
+        "path": "docs/compliance/policies/vendor-management.md",
+        "anchor": "DPA status per provider and annual review process"
+      },
+      "owner": {
+        "area": "compliance",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "Public /subprocessors and /dpa pages exist; subprocessor generator",
+          "status": "documented",
+          "ref": "scripts/compliance/gen-subprocessors-by-region.mjs"
+        },
+        {
+          "description": "Per-vendor review register and DPA tracking",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[COUNSEL]",
+        "[VERIFY]"
+      ],
+      "related_sources": [
+        {
+          "path": "docs/compliance/SOC2_READINESS.md",
+          "anchor": "No vendor risk assessments"
+        }
+      ]
+    },
+    {
+      "id": "RR-029",
+      "title": "Incident response not operational",
+      "description": "No adopted severity targets, on-call roster, or owner for breach-notification decisions.",
+      "category": "security",
+      "source": {
+        "path": "docs/compliance/policies/incident-response.md",
+        "anchor": "Breach-notification decision owner and legal obligations"
+      },
+      "owner": {
+        "area": "security",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "Incident process in RUNBOOK.md section 6",
+          "status": "documented",
+          "ref": "RUNBOOK.md"
+        },
+        {
+          "description": "Adopt targets and roster; name the breach-notification decision owner",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[COUNSEL]",
+        "[VERIFY]"
+      ]
+    },
+    {
+      "id": "RR-030",
+      "title": "Platform logging and alerting undefined",
+      "description": "Platform log retention/export, alert thresholds and recipients are not defined.",
+      "category": "security",
+      "source": {
+        "path": "docs/compliance/policies/logging-monitoring.md",
+        "anchor": "Platform log retention/export and alert thresholds and recipients"
+      },
+      "owner": {
+        "area": "security",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "Alert routing code exists for voice SLIs (Slack/PagerDuty webhooks optional)",
+          "status": "documented",
+          "ref": "supabase/functions/observability-alerts/index.ts"
+        },
+        {
+          "description": "Define retention, thresholds and recipients",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[VERIFY]"
+      ]
+    },
+    {
+      "id": "RR-031",
+      "title": "No vulnerability-remediation targets or third-party penetration test",
+      "description": "Severity-based remediation times and a pen-test schedule are not defined; no penetration-test report exists.",
+      "category": "security",
+      "source": {
+        "path": "docs/compliance/policies/vulnerability-management.md",
+        "anchor": "Remediation time targets by severity; pentest schedule"
+      },
+      "owner": {
+        "area": "security",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "CodeQL, Dependabot, npm audit in CI",
+          "status": "documented"
+        },
+        {
+          "description": "Set remediation targets; commission a third-party penetration test",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[VERIFY]"
+      ],
+      "related_sources": [
+        {
+          "path": "docs/NEEDS_HUMAN.md",
+          "anchor": "Penetration test by a third party"
+        }
+      ]
+    },
+    {
+      "id": "RR-032",
+      "title": "Offboarding not covering all systems",
+      "description": "The onboarding/offboarding checklist does not yet cover GitHub, hosting, Supabase, Stripe, Twilio, Vapi, Firebase and shared secrets.",
+      "category": "security",
+      "source": {
+        "path": "docs/compliance/policies/onboarding-offboarding.md",
+        "anchor": "Checklist covering GitHub, Vercel, Supabase"
+      },
+      "owner": {
+        "area": "security",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "Complete checklist; tie it to the quarterly access review (docs/compliance/insider-risk-monitoring.md)",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[VERIFY]"
+      ]
+    },
+    {
+      "id": "RR-033",
+      "title": "Credentials possibly exposed in the archive or in chats",
+      "description": "A .env file travelled inside the ZIP, and credentials may have been pasted into chats, patches or docs.",
+      "category": "security",
+      "source": {
+        "path": "docs/NEEDS_HUMAN.md",
+        "anchor": "Confirm `.env` (included in the ZIP)"
+      },
+      "owner": {
+        "area": "security",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "gitleaks configuration",
+          "status": "documented",
+          "ref": ".gitleaks.toml"
+        },
+        {
+          "description": "Check git history, rotate anything in doubt, store secrets only in secret managers (NEEDS_HUMAN items 5-7)",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[VERIFY]"
+      ]
+    },
+    {
+      "id": "RR-034",
+      "title": "Migration history with duplicate versions",
+      "description": "Duplicate migration versions make a database push unsafe until cleaned up and rehearsed.",
+      "category": "security",
+      "source": {
+        "path": "docs/NEEDS_HUMAN.md",
+        "anchor": "129 duplicate versions"
+      },
+      "owner": {
+        "area": "security",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "Migration rehearsal workflow",
+          "status": "documented",
+          "ref": ".github/workflows/migration-rehearsal.yml"
+        },
+        {
+          "description": "Review the cleanup, rehearse on staging, then push (NEEDS_HUMAN item 8)",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[VERIFY]"
+      ]
+    },
+    {
+      "id": "RR-035",
+      "title": "Change control not enforced",
+      "description": "Branch protection and required code-owner reviews are not enabled; CODEOWNERS holds placeholders.",
+      "category": "security",
+      "source": {
+        "path": "docs/NEEDS_HUMAN.md",
+        "anchor": "enable branch protection and required reviews"
+      },
+      "owner": {
+        "area": "security",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "CODEOWNERS file exists (placeholders unassigned)",
+          "status": "documented",
+          "ref": ".github/CODEOWNERS"
+        },
+        {
+          "description": "Enable branch protection; replace @OWNER_* placeholders",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[VERIFY]"
+      ]
+    },
+    {
+      "id": "RR-036",
+      "title": "No accountable owners for risk areas",
+      "description": "Every area in docs/OWNERS.md is unassigned; risks, runbooks and reviews have no named person.",
+      "category": "compliance",
+      "source": {
+        "path": "docs/OWNERS.md",
+        "anchor": "TBD — assign a person"
+      },
+      "owner": {
+        "area": "compliance",
+        "person": null
+      },
+      "likelihood": null,
+      "impact": null,
+      "controls": [
+        {
+          "description": "Warn-only owners check in CI",
+          "status": "documented",
+          "ref": "scripts/governance/check-owners.mjs"
+        },
+        {
+          "description": "Assign owners and run the check with --strict on release branches",
+          "status": "gap"
+        }
+      ],
+      "status": "open",
+      "last_reviewed": null,
+      "tags": [
+        "[VERIFY]"
+      ],
+      "related_sources": [
+        {
+          "path": "docs/compliance/internal-audit-program.md",
+          "anchor": "No named owners"
+        }
+      ]
+    }
+  ]
+}
