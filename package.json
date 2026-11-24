@@ -55,6 +55,8 @@
     "test:scripts:antitrust": "node --test scripts/compliance/antitrust-info-exchange.test.mjs",
     "test:scripts:outcome-chain": "node --experimental-strip-types --no-warnings --test supabase/functions/_shared/outcomes/outcomeLearningChain.test.mjs",
     "test:scripts:licenses": "node --test scripts/supply-chain/license-check.test.mjs",
+    "runbooks:check": "node scripts/governance/check-runbooks.mjs",
+    "test:scripts:runbooks": "node --test scripts/governance/check-runbooks.test.mjs",
     "test:scripts:vendor-exit": "node --test scripts/compliance/gen-vendor-exit.test.mjs",
     "test:scripts:audit-program": "node --test scripts/compliance/internal-audit-program.test.mjs",
     "test:scripts:data-sources": "node --test scripts/compliance/check-data-sources.test.mjs",
