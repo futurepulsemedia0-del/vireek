@@ -709,6 +709,7 @@ const FeedbackPage = lazy(() => import('@/pages/FeedbackPage').then((m) => ({ de
 const MyFeedbackPage = lazy(() => import('@/pages/MyFeedbackPage').then((m) => ({ default: m.MyFeedbackPage })));
 const StaffFeedbackPage = lazy(() => import('@/pages/admin/StaffFeedbackPage').then((m) => ({ default: m.StaffFeedbackPage })));
 const StaffAiIncidentsPage = lazy(() => import('@/pages/admin/StaffAiIncidentsPage').then((m) => ({ default: m.StaffAiIncidentsPage })));
+const StaffMarketplaceVettingPage = lazy(() => import('@/pages/admin/StaffMarketplaceVettingPage').then((m) => ({ default: m.StaffMarketplaceVettingPage })));
 const StaffRatingDisputesPage = lazy(() => import('@/pages/admin/StaffRatingDisputesPage').then((m) => ({ default: m.StaffRatingDisputesPage })));
 const TechnicianProfilePage = lazy(() => import('@/pages/TechnicianProfilePage').then((m) => ({ default: m.TechnicianProfilePage })));
 const NotificationsPage = lazy(() => import('@/pages/NotificationsPage').then((m) => ({ default: m.NotificationsPage })));
@@ -1328,6 +1329,7 @@ function AppRoutes() {
         <Route path="/dashboard/feedback/mine" element={<ProtectedRoute><MyFeedbackPage /></ProtectedRoute>} />
         <Route path="/staff/feedback" element={<StaffRoute><Suspense fallback={<PageLoader />}><StaffFeedbackPage /></Suspense></StaffRoute>} />
         <Route path="/staff/ai-incidents" element={<StaffRoute><Suspense fallback={<PageLoader />}><StaffAiIncidentsPage /></Suspense></StaffRoute>} />
+        <Route path="/staff/marketplace-vetting" element={<StaffRoute><Suspense fallback={<PageLoader />}><StaffMarketplaceVettingPage /></Suspense></StaffRoute>} />
         <Route path="/staff/rating-disputes" element={<StaffRoute><Suspense fallback={<PageLoader />}><StaffRatingDisputesPage /></Suspense></StaffRoute>} />
         <Route
           path="/dashboard/feedback"
