@@ -1,0 +1,572 @@
+{
+  "version": 1,
+  "note": "Vocabulary lives in scripts/data/ownership-register.mjs. Rules are ORDERED (first match wins) and only ever produce INFERRED rows. Entries are reviewed decisions and win over rules. Every ownership value is [COUNSEL].",
+  "rules": [
+    {
+      "id": "vireek-issued-keys",
+      "match": "^(evidence_partner_keys|insights_api_keys)$",
+      "dataClass": "credential_secret",
+      "steward": "security",
+      "ownership": "vireek"
+    },
+    {
+      "id": "usage-metering",
+      "match": "(^|_)(usage|metering|meter)(_|$)|token_usage|cost_log|^ai_(budget|eval|usage)",
+      "dataClass": "telemetry_operational",
+      "steward": "platform",
+      "ownership": "vireek"
+    },
+    {
+      "id": "credentials",
+      "match": "(^|_)(salt|secrets?|credentials?|api_keys?|key_hashes?|tokens?|oauth_states?|passkeys?|totp|trusted_devices|device_keys?|signing_keys?)(_|$)",
+      "dataClass": "credential_secret",
+      "steward": "security",
+      "ownership": "customer"
+    },
+    {
+      "id": "recordings-voice",
+      "match": "recording|transcript|voice_clone|voiceprint|biometric|call_audio|voicemail|(^|_)audio(_|$)",
+      "dataClass": "personal_sensitive",
+      "steward": "voice",
+      "ownership": "customer"
+    },
+    {
+      "id": "bank-data",
+      "match": "^bank_|plaid",
+      "dataClass": "personal_sensitive",
+      "steward": "integrations",
+      "ownership": "customer"
+    },
+    {
+      "id": "precise-location",
+      "match": "(^|_)(gps|geofence|location_pings?|technician_locations?|trip_shares?|vehicle_locations?|breadcrumbs?)(_|$)",
+      "dataClass": "personal_sensitive",
+      "steward": "backend",
+      "ownership": "customer"
+    },
+    {
+      "id": "identity-documents",
+      "match": "id_verification|identity_document|background_check|checkr|(^|_)i9(_|$)|(^|_)w4(_|$)",
+      "dataClass": "personal_sensitive",
+      "steward": "compliance",
+      "ownership": "customer"
+    },
+    {
+      "id": "sensitive-read-log",
+      "match": "^sensitive_read_",
+      "dataClass": "audit_security_log",
+      "steward": "security",
+      "ownership": "vireek"
+    },
+    {
+      "id": "compliance-notices",
+      "match": "^subprocessor_|^legal_requests$|^security_(pentests|report_requests)$",
+      "dataClass": "compliance_evidence",
+      "steward": "compliance",
+      "ownership": "vireek"
+    },
+    {
+      "id": "fraud-abuse",
+      "match": "^fraud_",
+      "dataClass": "audit_security_log",
+      "steward": "security",
+      "ownership": "vireek"
+    },
+    {
+      "id": "platform-ops-telemetry",
+      "match": "^(kill_switch|observability_|synthetic_|rum_|release_|execution_reliability|status_maintenance)",
+      "dataClass": "telemetry_operational",
+      "steward": "platform",
+      "ownership": "vireek"
+    },
+    {
+      "id": "public-status",
+      "match": "^status_(incidents|incident_updates)$|^sla_incidents$",
+      "dataClass": "platform_reference",
+      "steward": "platform",
+      "ownership": "vireek"
+    },
+    {
+      "id": "pricing-reference",
+      "match": "^(plan_cost_limits|plan_enforcement_config|provider_cost_rates|fx_rates|refrigerant_gwp)$",
+      "dataClass": "platform_reference",
+      "steward": "billing",
+      "ownership": "vireek"
+    },
+    {
+      "id": "growth-feedback",
+      "match": "^(growth_|founder_|nexus_|acquisition_|feedback_themes|product_feedback|you_asked|help_search|docs_feedback|broken_link|report_download|resource_downloads|blog_subscribers|insights_subscribers|win_card_reports)",
+      "dataClass": "vireek_internal",
+      "steward": "platform",
+      "ownership": "vireek"
+    },
+    {
+      "id": "identity-graph",
+      "match": "^identity_",
+      "dataClass": "derived_analytics",
+      "steward": "data",
+      "ownership": "derived"
+    },
+    {
+      "id": "evidence-marketplace",
+      "match": "^evidence_(partners|patterns|products|releases)$",
+      "dataClass": "derived_analytics",
+      "steward": "data",
+      "ownership": "derived"
+    },
+    {
+      "id": "cross-tenant-outcomes",
+      "match": "^outcome_(aggregate|cross_tenant)|learned|vertical_intelligence|negative_knowledge",
+      "dataClass": "derived_analytics",
+      "steward": "data",
+      "ownership": "derived"
+    },
+    {
+      "id": "knowledge-seeds",
+      "match": "^(adn_|diag_|pfn_|vertical_ontology|trade_(packs|log)|pack_versions)",
+      "dataClass": "platform_reference",
+      "steward": "platform",
+      "ownership": "vireek"
+    },
+    {
+      "id": "franchise",
+      "match": "^franchise_",
+      "dataClass": "tenant_business",
+      "steward": "data",
+      "ownership": "customer"
+    },
+    {
+      "id": "homeowner",
+      "match": "^homeowner_",
+      "dataClass": "personal_contact",
+      "steward": "data",
+      "ownership": "customer"
+    },
+    {
+      "id": "platform-registries",
+      "match": "^(marketplace_|mcp_|consumer_agent_)",
+      "dataClass": "tenant_config",
+      "steward": "backend",
+      "ownership": "vireek"
+    },
+    {
+      "id": "procurement-network",
+      "match": "^pn_",
+      "dataClass": "tenant_business",
+      "steward": "data",
+      "ownership": "customer"
+    },
+    {
+      "id": "consent-dsar-retention",
+      "match": "consent|dsar|data_subject|deletion_request|retention|legal_hold|pii_field|ai_disclosure|dnc_|suppression|erasure|opt_?out",
+      "dataClass": "compliance_evidence",
+      "steward": "compliance",
+      "ownership": "vireek"
+    },
+    {
+      "id": "compliance-controls",
+      "match": "^compliance_|^soc2_|^audit_program|^control_|^evidence_(policy|access_log)$|^risk_register|^vendor_review|^trust_",
+      "dataClass": "compliance_evidence",
+      "steward": "compliance",
+      "ownership": "vireek"
+    },
+    {
+      "id": "audit-logs",
+      "match": "(^|_)(audit|access_log|request_log|api_request_logs|security_events?|login_attempts?|impersonation|read_access)(_|$)",
+      "dataClass": "audit_security_log",
+      "steward": "security",
+      "ownership": "vireek"
+    },
+    {
+      "id": "authz-identity-security",
+      "match": "^(authz|mfa|scim|sso|session)_",
+      "dataClass": "audit_security_log",
+      "steward": "security",
+      "ownership": "vireek"
+    },
+    {
+      "id": "webhook-queue-ratelimit",
+      "match": "rate_limit|webhook_(logs?|events?|outbox|deliveries)|(^|_)outbox(_|$)|(^|_)queue(_|$)|dead_letter|(^|_)probes?(_|$)|health_(tick|check)|heartbeat|(^|_)cron(_|$)|_runs?$|run_steps?$|backup_runs|restore_drills|idempoten|dedupe|(^|_)locks?$|job_runs",
+      "dataClass": "telemetry_operational",
+      "steward": "platform",
+      "ownership": "vireek"
+    },
+    {
+      "id": "payroll-pay",
+      "match": "^(payroll|pay_run|pay_stub|paystub|garnish|tip_pool)|(^|_)w2(_|$)",
+      "dataClass": "financial_record",
+      "steward": "billing",
+      "ownership": "customer"
+    },
+    {
+      "id": "billing-invoices-payments",
+      "match": "^(invoice|invoices|ar_|ap_|journal|ledger|payment|payments|pay_|stripe_|billing|subscription|dunning|refund|chargeback|tax_|commission|payout|instant_payout|financing|wisetack|capital_|credit_|price_adj|quickbooks|qbo_|xero_)|(^|_)(invoice|invoices|payments?|payouts?|ledger|billing)(_|$)",
+      "dataClass": "financial_record",
+      "steward": "billing",
+      "ownership": "customer"
+    },
+    {
+      "id": "derived-aggregates",
+      "match": "benchmark|cohort|regional_demand|network_stats|(^|_)atlas(_|$)|global_(patterns|priors|totals)|failure_patterns|insights_(publications|index|cell|suppression)|^report_(editions|cells)|(^|_)indexes$|market_intelligence|^oin_|sde_intelligence|(^|_)priors?$|genome|outcome_learning",
+      "dataClass": "derived_analytics",
+      "steward": "data",
+      "ownership": "derived"
+    },
+    {
+      "id": "derived-ai-scores",
+      "match": "^ai_(insights?|summar|scor|forecast|recommend|embedding)|embedding|(^|_)(scores?|forecasts?|predictions?|propensity|health_scores?|churn_)(_|$)|vector|knowledge_(chunks?|embed)",
+      "dataClass": "derived_analytics",
+      "steward": "data",
+      "ownership": "derived"
+    },
+    {
+      "id": "ai-platform",
+      "match": "^(ai|agent|llm|model|prompt|eval|guardrail)_",
+      "dataClass": "tenant_config",
+      "steward": "backend",
+      "ownership": "customer"
+    },
+    {
+      "id": "voice-platform",
+      "match": "^(voice|pbx|call|calls|phone|sip|ivr|vapi|twilio|number|forwarding|queue_)",
+      "dataClass": "tenant_business",
+      "steward": "voice",
+      "ownership": "customer"
+    },
+    {
+      "id": "messaging-content",
+      "match": "^(sms|email|chat|dm|message|messages|conversation|inbox|whatsapp|telegram|slack|teams)_?|(^|_)(sms|email|dm|chat)_(messages?|threads?|logs?)$",
+      "dataClass": "personal_contact",
+      "steward": "integrations",
+      "ownership": "customer"
+    },
+    {
+      "id": "people-contacts",
+      "match": "^(lead|leads|customer|customers|contact|contacts|household|property|properties|home_passport|tenant_contacts|resident|residents|caller|subscriber|subscribers|member|members|membership)_?|(^|_)(customers?|contacts?|leads?|callers?|residents?|applicants?|candidates?)(_|$)",
+      "dataClass": "personal_contact",
+      "steward": "data",
+      "ownership": "customer"
+    },
+    {
+      "id": "workforce",
+      "match": "^(team|technician|technicians|talent|employee|employees|crew|staff|job_postings|job_applications|applicant|hr_|shift|timesheet|time_entr|on_call|training|certification|pto|skill)_?",
+      "dataClass": "personal_contact",
+      "steward": "compliance",
+      "ownership": "customer"
+    },
+    {
+      "id": "vireek-commercial",
+      "match": "^(sales_inquiries|demo_|newsletter|waitlist|affiliate|partner_(referral|link)|status_subscribers|roadmap|community|help_article|onboarding_bookings|support_|academy|csm_|nps_|marketing_site|site_)",
+      "dataClass": "vireek_internal",
+      "steward": "support",
+      "ownership": "vireek"
+    },
+    {
+      "id": "platform-catalogs",
+      "match": "(^|_)(catalog|taxonomy|taxonomies|seed|reference|templates?|library|glossary|schemas?|presets?|rulesets?|definitions?|domains?|oem_|utility_territories|verification_sources|app_release|feature_flags?)(_|$)|^oem_",
+      "dataClass": "platform_reference",
+      "steward": "platform",
+      "ownership": "vireek"
+    },
+    {
+      "id": "tenant-settings",
+      "match": "(^|_)(settings?|preferences?|config|configs|policies|policy|rules?|automations?|workflows?|views|saved_views|templates?)(_|$)",
+      "dataClass": "tenant_config",
+      "steward": "backend",
+      "ownership": "customer",
+      "tenantKey": "present"
+    },
+    {
+      "id": "tenant-ops",
+      "match": "^(job|jobs|dispatch|schedule|appointment|route|quote|quotes|estimate|price_book|inventory|equipment|vehicle|fleet|asset|work_order|warranty|install|service|visit|closeout|checklist|sop|playbook|agreement|contract|proposal|permit|inspection|safety|supplier|vendor|parts|procure|pn_|material|landscape|pest|home_)_?",
+      "dataClass": "tenant_business",
+      "steward": "data",
+      "ownership": "customer"
+    }
+  ],
+  "entries": {
+    "ai_disclosure_versions": {
+      "dataClass": "compliance_evidence",
+      "steward": "compliance",
+      "ownership": "vireek",
+      "retentionRef": "docs/compliance/data-map.md#1-data-classes"
+    },
+    "ai_insights": {
+      "dataClass": "derived_analytics",
+      "steward": "data",
+      "ownership": "derived",
+      "counsel": "Per-call AI analysis of tenant data: confirm whether the tenant owns the output and what Vireek may reuse."
+    },
+    "api_keys": {
+      "dataClass": "credential_secret",
+      "steward": "security",
+      "ownership": "customer"
+    },
+    "api_request_logs": {
+      "dataClass": "audit_security_log",
+      "steward": "security",
+      "ownership": "vireek",
+      "retentionRef": "docs/compliance/data-map.md#1-data-classes"
+    },
+    "audit_log": {
+      "dataClass": "audit_security_log",
+      "steward": "security",
+      "ownership": "vireek",
+      "retentionRef": "docs/compliance/data-map.md#1-data-classes"
+    },
+    "bank_transactions": {
+      "dataClass": "personal_sensitive",
+      "steward": "integrations",
+      "ownership": "customer",
+      "counsel": "Bank data via a data aggregator (data-map D7): own DPIA trigger."
+    },
+    "benchmark_cohort_stats": {
+      "dataClass": "derived_analytics",
+      "steward": "data",
+      "ownership": "derived",
+      "counsel": "Cross-tenant aggregate; contributor consent runs through the Service Data Exchange (docs/compliance/cross-tenant-data-flows.md). Who owns the aggregate, and the licence terms for any external release, are open."
+    },
+    "benchmark_snapshots": {
+      "dataClass": "derived_analytics",
+      "steward": "data",
+      "ownership": "derived",
+      "counsel": "Cross-tenant aggregate; contributor consent runs through the Service Data Exchange (docs/compliance/cross-tenant-data-flows.md). Who owns the aggregate, and the licence terms for any external release, are open."
+    },
+    "call_ai_disclosures": {
+      "dataClass": "compliance_evidence",
+      "steward": "compliance",
+      "ownership": "customer",
+      "retentionRef": "docs/compliance/data-map.md#1-data-classes",
+      "counsel": "Evidence must outlive the calls it proves (data-map D11); retention period is undefined."
+    },
+    "calls": {
+      "dataClass": "personal_sensitive",
+      "steward": "voice",
+      "ownership": "customer",
+      "counsel": "Call audio, transcripts and caller identity are third-party personal data (data-map D1-D4); recording and AI-disclosure duties vary by region."
+    },
+    "compliance_controls": {
+      "dataClass": "compliance_evidence",
+      "steward": "compliance",
+      "ownership": "vireek"
+    },
+    "compliance_evidence": {
+      "dataClass": "compliance_evidence",
+      "steward": "compliance",
+      "ownership": "vireek"
+    },
+    "consent_records": {
+      "dataClass": "compliance_evidence",
+      "steward": "compliance",
+      "ownership": "customer",
+      "retentionRef": "docs/compliance/data-map.md#1-data-classes",
+      "counsel": "Evidence must outlive the calls it proves (data-map D11); retention period is undefined."
+    },
+    "conversation_recordings": {
+      "dataClass": "personal_sensitive",
+      "steward": "voice",
+      "ownership": "customer",
+      "counsel": "Conversation Intelligence audio (data-map D2); confirm lawful basis and the account-deletion hook."
+    },
+    "cross_tenant_flows": {
+      "dataClass": "compliance_evidence",
+      "steward": "compliance",
+      "ownership": "vireek"
+    },
+    "customer_memory": {
+      "dataClass": "derived_analytics",
+      "steward": "data",
+      "ownership": "derived",
+      "counsel": "AI-derived facts about identifiable end customers: personal data of the tenant’s customer, or Vireek-derived output? Decide owner and erasure behaviour."
+    },
+    "customers": {
+      "dataClass": "personal_contact",
+      "steward": "data",
+      "ownership": "customer"
+    },
+    "data_product_review_events": {
+      "dataClass": "compliance_evidence",
+      "steward": "compliance",
+      "ownership": "vireek",
+      "retentionRef": "docs/data/monetization-ethics.md#4-review-lifecycle-database",
+      "counsel": "Approval evidence for releasing derived data externally; how long it must be kept is undefined."
+    },
+    "data_product_reviews": {
+      "dataClass": "compliance_evidence",
+      "steward": "compliance",
+      "ownership": "vireek",
+      "retentionRef": "docs/data/monetization-ethics.md#4-review-lifecycle-database",
+      "counsel": "Approval evidence for releasing derived data externally; how long it must be kept is undefined."
+    },
+    "data_retention_policies": {
+      "dataClass": "compliance_evidence",
+      "steward": "compliance",
+      "ownership": "customer"
+    },
+    "data_subject_requests": {
+      "dataClass": "compliance_evidence",
+      "steward": "compliance",
+      "ownership": "vireek",
+      "counsel": "Requests from people who may have no account; retention of the request record is undefined."
+    },
+    "deletion_requests": {
+      "dataClass": "compliance_evidence",
+      "steward": "compliance",
+      "ownership": "customer"
+    },
+    "device_push_tokens": {
+      "dataClass": "credential_secret",
+      "steward": "mobile",
+      "ownership": "vireek",
+      "retentionRef": "docs/compliance/data-map.md#1-data-classes"
+    },
+    "email_messages": {
+      "dataClass": "personal_contact",
+      "steward": "integrations",
+      "ownership": "customer",
+      "counsel": "Consent rules apply to message content (data-map D8: CASL, PECR, Spam Act)."
+    },
+    "evidence_partner_keys": {
+      "dataClass": "credential_secret",
+      "steward": "security",
+      "ownership": "vireek"
+    },
+    "evidence_patterns": {
+      "dataClass": "derived_analytics",
+      "steward": "data",
+      "ownership": "derived",
+      "counsel": "Cross-tenant aggregate; contributor consent runs through the Service Data Exchange (docs/compliance/cross-tenant-data-flows.md). Who owns the aggregate, and the licence terms for any external release, are open."
+    },
+    "evidence_releases": {
+      "dataClass": "derived_analytics",
+      "steward": "data",
+      "ownership": "derived",
+      "counsel": "Cross-tenant aggregate; contributor consent runs through the Service Data Exchange (docs/compliance/cross-tenant-data-flows.md). Who owns the aggregate, and the licence terms for any external release, are open."
+    },
+    "failure_patterns": {
+      "dataClass": "derived_analytics",
+      "steward": "data",
+      "ownership": "derived",
+      "counsel": "Cross-tenant aggregate; contributor consent runs through the Service Data Exchange (docs/compliance/cross-tenant-data-flows.md). Who owns the aggregate, and the licence terms for any external release, are open."
+    },
+    "insights_api_keys": {
+      "dataClass": "credential_secret",
+      "steward": "security",
+      "ownership": "vireek"
+    },
+    "insights_index_cells": {
+      "dataClass": "derived_analytics",
+      "steward": "data",
+      "ownership": "derived",
+      "counsel": "Cross-tenant aggregate; contributor consent runs through the Service Data Exchange (docs/compliance/cross-tenant-data-flows.md). Who owns the aggregate, and the licence terms for any external release, are open."
+    },
+    "insights_publications": {
+      "dataClass": "derived_analytics",
+      "steward": "data",
+      "ownership": "derived",
+      "counsel": "Cross-tenant aggregate; contributor consent runs through the Service Data Exchange (docs/compliance/cross-tenant-data-flows.md). Who owns the aggregate, and the licence terms for any external release, are open."
+    },
+    "insights_subscribers": {
+      "dataClass": "vireek_internal",
+      "steward": "platform",
+      "ownership": "vireek"
+    },
+    "jobs": {
+      "dataClass": "tenant_business",
+      "steward": "data",
+      "ownership": "customer"
+    },
+    "leads": {
+      "dataClass": "personal_contact",
+      "steward": "data",
+      "ownership": "customer"
+    },
+    "outcome_benchmark_cohorts": {
+      "dataClass": "derived_analytics",
+      "steward": "data",
+      "ownership": "derived",
+      "counsel": "Cross-tenant aggregate; contributor consent runs through the Service Data Exchange (docs/compliance/cross-tenant-data-flows.md). Who owns the aggregate, and the licence terms for any external release, are open."
+    },
+    "payment_requests": {
+      "dataClass": "financial_record",
+      "steward": "billing",
+      "ownership": "customer",
+      "counsel": "Tax-retention duty can conflict with erasure (data-map D6)."
+    },
+    "pii_field_registry": {
+      "dataClass": "compliance_evidence",
+      "steward": "compliance",
+      "ownership": "vireek"
+    },
+    "platform_backup_runs": {
+      "dataClass": "telemetry_operational",
+      "steward": "platform",
+      "ownership": "vireek"
+    },
+    "profiles": {
+      "dataClass": "personal_contact",
+      "steward": "security",
+      "ownership": "vireek",
+      "counsel": "Account-holder identity (owners and staff). Confirm whether Vireek acts as controller for account data and as processor for everything the tenant uploads."
+    },
+    "push_subscriptions": {
+      "dataClass": "credential_secret",
+      "steward": "mobile",
+      "ownership": "vireek",
+      "retentionRef": "docs/compliance/data-map.md#1-data-classes"
+    },
+    "quotes": {
+      "dataClass": "tenant_business",
+      "steward": "data",
+      "ownership": "customer"
+    },
+    "regional_demand_snapshots": {
+      "dataClass": "derived_analytics",
+      "steward": "data",
+      "ownership": "derived",
+      "counsel": "Cross-tenant aggregate; contributor consent runs through the Service Data Exchange (docs/compliance/cross-tenant-data-flows.md). Who owns the aggregate, and the licence terms for any external release, are open."
+    },
+    "report_editions": {
+      "dataClass": "derived_analytics",
+      "steward": "data",
+      "ownership": "derived",
+      "counsel": "Cross-tenant aggregate; contributor consent runs through the Service Data Exchange (docs/compliance/cross-tenant-data-flows.md). Who owns the aggregate, and the licence terms for any external release, are open."
+    },
+    "review_requests": {
+      "dataClass": "personal_contact",
+      "steward": "data",
+      "ownership": "customer"
+    },
+    "sde_consent_events": {
+      "dataClass": "compliance_evidence",
+      "steward": "compliance",
+      "ownership": "customer"
+    },
+    "sde_consents": {
+      "dataClass": "compliance_evidence",
+      "steward": "compliance",
+      "ownership": "customer"
+    },
+    "sms_messages": {
+      "dataClass": "personal_contact",
+      "steward": "integrations",
+      "ownership": "customer",
+      "counsel": "Consent rules apply to message content (data-map D8: CASL, PECR, Spam Act)."
+    },
+    "team_members": {
+      "dataClass": "personal_contact",
+      "steward": "security",
+      "ownership": "customer"
+    },
+    "trusted_devices": {
+      "dataClass": "credential_secret",
+      "steward": "security",
+      "ownership": "vireek"
+    },
+    "webhook_logs": {
+      "dataClass": "telemetry_operational",
+      "steward": "integrations",
+      "ownership": "customer"
+    }
+  }
+}
