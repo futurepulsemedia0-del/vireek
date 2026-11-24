@@ -13,6 +13,7 @@
 
 import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { askVireekAi } from "../_shared/ai-core/index.ts";
+import { classifyUrgency } from "../_shared/vertical-ai/emergencyRules.ts";
 import {
   applyAnswer, blendLikelihoods, blendPriors, classifyDomain, computePosterior, detectHazard, entropyBits,
   pickNext, summarize, topTwo, UNSURE,
@@ -157,7 +158,7 @@ Deno.serve(async (req: Request) => {
     // ---------------------------------------------------------------- start
     if (action === "start") {
       const text = str(body.text, MAX_TEXT);
-      const hazard = body.hazard === true || detectHazard(text);
+      const hazard = body.hazard === true || detectHazard(text) || classifyUrgency({ text }).override;
 
       const since = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
       const { data: recent, error: rErr } = await admin.from("diag_sessions")
@@ -223,7 +224,7 @@ Deno.serve(async (req: Request) => {
       // After completion the customer may still add free text for the technician (hazard-checked, never reopens the session).
       const late = action === "note" && s.status === "completed" ? str(body.text, MAX_TEXT) : "";
       if (late.length >= 4) {
-        const hazardLate = detectHazard(late);
+        const hazardLate = detectHazard(late) || classifyUrgency({ text: late }).override;
         await admin.from("diag_sessions").update({
           customer_text: [s.customer_text, late].filter(Boolean).join("\n---\n").slice(0, 1500),
           ...(hazardLate ? { status: "hazard", hazard: true, stop_reason: "hazard", updated_at: new Date().toISOString() } : {}),
