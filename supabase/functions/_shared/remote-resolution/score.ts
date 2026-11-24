@@ -7,11 +7,15 @@
 // dispatch decision and the filtering of troubleshooting steps. No I/O, no Deno or DOM APIs,
 // so it runs unchanged in edge functions and in unit tests.
 
+import { classifyUrgency } from "../vertical-ai/emergencyRules.ts";
+import type { SafetyFlag } from "../vertical-ai/types.ts";
+
 export type SafetyReason =
   | "gas"
   | "carbon_monoxide"
   | "electrical_hazard"
   | "fire_smoke"
+  | "medical_emergency"
   | "flooding"
   | "sewage"
   | "structural"
@@ -41,7 +45,8 @@ const SAFETY_RULES: { reason: SafetyReason; re: RegExp }[] = [
   { reason: "carbon_monoxide", re: /\b(carbon monoxide|co (alarm|detector)|monoxide (alarm|detector)|monóxido)\b|مونوکسید/gi },
   { reason: "electrical_hazard", re: /\b(spark(s|ing|ed)?|arcing|electric(al)? shock|got shocked|shocked me|exposed (live )?wir(e|es|ing)|burning (smell|plastic|wire)|smell(s)? (like )?burning|melted (outlet|plug|wire|breaker)|hot (outlet|breaker|panel|plug)|buzzing (panel|breaker)|chispas)\b|جرقه/gi },
   { reason: "fire_smoke", re: /\b(on fire|caught fire|flames?|smoking|smoke (is )?coming|visible smoke|fuego|humo)\b|دود|آتش/gi },
-  { reason: "flooding", re: /\b(flood(ed|ing)?|water (is )?(pouring|gushing|spraying)|burst pipe|pipe burst|ceiling (is )?(dripping|collapsing|leaking badly)|inundaci[oó]n)\b|سیل|ترکیدگی لوله/gi },
+  { reason: "medical_emergency", re: /\b(heart attack|cardiac arrest|chest pains?|not breathing|stopped breathing|can'?t breathe|cannot breathe|unconscious|unresponsive|overdos(e|ed)|having a stroke|collapsed and|passed out|no respira|inconsciente)\b|بی‌?هوش|سکته قلبی/gi },
+  { reason: "flooding", re: /\b(flood(?! ?(?:light|lights|lamp|zone|plain|insurance|sensor|valve))(ed|ing)?|water (is )?(pouring|gushing|spraying)|burst pipe|pipe burst|ceiling (is )?(dripping|collapsing|leaking badly)|inundaci[oó]n)\b|سیل|ترکیدگی لوله/gi },
   { reason: "sewage", re: /\b(sewage|sewer (backup|smell)|raw sewage|toilet (is )?overflowing|aguas negras)\b|فاضلاب/gi },
   { reason: "structural", re: /\b(ceiling (is )?(sagging|bulging)|structural damage|foundation crack|roof (is )?collaps)\b/gi },
   { reason: "vulnerable_extreme_temp", re: /\b((infant|baby|newborn|elderly|oxygen|dialysis|medical equipment|insulin)\b.{0,80}\b(no (heat|cooling|ac|a\/c|power)|too (hot|cold))|(no (heat|cooling|ac|a\/c)|too (hot|cold))\b.{0,80}\b(infant|baby|newborn|elderly|oxygen|dialysis|medical equipment|insulin))\b/gi },
@@ -76,6 +81,19 @@ export function screenSafety(texts: ReadonlyArray<string | null | undefined>): S
       }
     }
   }
+  // Second, independent opinion: the deterministic trade-emergency layer (symptom phrases such as "everyone has a headache
+  // since the furnace came on", "basement is filling with water", medical emergencies). Union only: it can ADD a hold,
+  // never remove one found above, so this change cannot weaken an existing safety hold.
+  for (const raw of texts) {
+    if (typeof raw !== "string" || !raw) continue;
+    let v;
+    try { v = classifyUrgency({ text: raw.slice(0, 4000) }); } catch { continue; }
+    if (!v.override) continue;
+    for (const f of v.flags) {
+      const r = FLAG_TO_REASON[f];
+      if (r) found.add(r);
+    }
+  }
   const reasons = [...found];
   return { hold: reasons.length > 0, reasons };
 }
@@ -85,6 +103,7 @@ const SAFETY_GUIDANCE: Record<SafetyReason, string> = {
   carbon_monoxide: "If a carbon monoxide alarm is sounding or anyone feels dizzy or sick: get everyone outside into fresh air and call 911.",
   electrical_hazard: "Do not touch the equipment. If it is safe to do so, switch off the power at the main breaker. If you see fire or feel unwell, call 911.",
   fire_smoke: "If there is fire or smoke: leave the building and call 911 immediately.",
+  medical_emergency: "Call 911 right now for anyone who is unconscious, not breathing, has chest pain or is badly hurt, and stay with them.",
   flooding: "If water is actively flooding: shut off the main water valve if you can reach it safely, and keep clear of anything electrical that is wet.",
   sewage: "Avoid contact with the water, keep children and pets away, and do not run more water down the drains.",
   structural: "Stay out of the affected area until it has been inspected.",
