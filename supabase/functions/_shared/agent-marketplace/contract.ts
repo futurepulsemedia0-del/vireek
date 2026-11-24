@@ -281,3 +281,23 @@ export async function hmacSha256Hex(secret: string, message: string): Promise<st
 export async function signRequest(secret: string, timestamp: number, body: string): Promise<string> {
   return `v1=${await hmacSha256Hex(secret, `${timestamp}.${body}`)}`;
 }
+
+// ---------------------------------------------------------------------
+// Data-exposure map (used by the vetting static checks). Mirrors projectJob /
+// projectCustomer exactly: contract.test.ts / vetting.test.ts assert the two agree.
+// ---------------------------------------------------------------------
+export function fieldsExposedBy(granted: readonly string[]): { jobs: string[]; customers: string[] } {
+  const jobs: string[] = [];
+  const customers: string[] = [];
+  if (granted.includes("read:jobs")) {
+    jobs.push(...JOB_BASE);
+    if (granted.includes("read:job_financials")) jobs.push(...JOB_FINANCIAL);
+    if (granted.includes("read:customers")) jobs.push(...JOB_CUSTOMER);
+    if (granted.includes("read:customer_contact")) jobs.push(...JOB_CONTACT);
+  }
+  if (granted.includes("read:customers")) {
+    customers.push(...CUSTOMER_PROFILE);
+    if (granted.includes("read:customer_contact")) customers.push(...CUSTOMER_CONTACT);
+  }
+  return { jobs, customers };
+}
