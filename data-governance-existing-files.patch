@@ -1,0 +1,75 @@
+--- a/package.json
++++ b/package.json
+@@ -53,6 +53,10 @@
+     "test:scripts:audit-program": "node --test scripts/compliance/internal-audit-program.test.mjs",
+     "vendor-exit:check": "node scripts/compliance/gen-vendor-exit.mjs --check",
+     "subprocessors:reconcile": "node scripts/compliance/subprocessor-reconcile.mjs",
++    "data:register": "node scripts/data/ownership-register.mjs --write",
++    "data:register:check": "node scripts/data/ownership-register.mjs --check",
++    "data:products:check": "node scripts/data/check-data-product-gates.mjs",
++    "test:scripts:data": "node --test scripts/data/ownership-register.test.mjs scripts/data/check-data-product-gates.test.mjs",
+     "subprocessors:check": "node scripts/compliance/subprocessor-reconcile.mjs --check && node scripts/compliance/gen-subprocessors-by-region.mjs --check",
+     "test:scripts:subprocessors": "node --test scripts/compliance/subprocessor-reconcile.test.mjs",
+     "report:board-pack": "node scripts/reporting/board-pack.mjs",
+--- a/supabase/functions/insights-api/index.ts
++++ b/supabase/functions/insights-api/index.ts
+@@ -12,6 +12,7 @@
+ // Deploy:  supabase functions deploy insights-api --no-verify-jwt
+ 
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
++import { assertDataProductApproved } from "../_shared/data-products/guard.ts";
+ 
+ const corsHeaders = {
+   "Access-Control-Allow-Origin": "*",
+@@ -109,6 +110,10 @@
+       "X-RateLimit-Limit": String(limit),
+     });
+   }
++  // Data-product approval gate (docs/data/monetization-ethics.md): no approved review => no data.
++  const blocked = await assertDataProductApproved(admin, "vireek_insights", "insights-api", corsHeaders);
++  if (blocked) return blocked;
++
+   admin.from("insights_api_keys").update({ last_used_at: new Date().toISOString() }).eq("id", keyRow.id).then(() => {});
+ 
+   const url = new URL(req.url);
+--- a/supabase/functions/evidence-marketplace-api/index.ts
++++ b/supabase/functions/evidence-marketplace-api/index.ts
+@@ -21,6 +21,7 @@
+ //   supabase functions deploy evidence-marketplace-api --no-verify-jwt
+ 
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
++import { assertDataProductApproved } from "../_shared/data-products/guard.ts";
+ 
+ const corsHeaders = {
+   "Access-Control-Allow-Origin": "*",
+@@ -97,6 +98,10 @@
+     return json({ error: "Rate limit exceeded" }, 429, { "Retry-After": "30" });
+   }
+ 
++  // Data-product approval gate (docs/data/monetization-ethics.md): no approved review => no data.
++  const blocked = await assertDataProductApproved(admin, "evidence_marketplace", "evidence-marketplace-api", corsHeaders);
++  if (blocked) return blocked;
++
+   const url = new URL(req.url);
+   const route = url.pathname.replace(/^\/evidence-marketplace-api\/?/, "").split("/").filter(Boolean)[0] ?? "";
+ 
+--- a/supabase/functions/state-of-calls-public/index.ts
++++ b/supabase/functions/state-of-calls-public/index.ts
+@@ -7,6 +7,7 @@
+ // Deploy with --no-verify-jwt (public, read-only, cacheable). No cookies, no identifiers, no per-visitor logging.
+ 
+ import { adminClient } from "../_shared/data-platform/http.ts";
++import { assertDataProductApproved } from "../_shared/data-products/guard.ts";
+ import { toCsv } from "../_shared/state-of-calls/csv.ts";
+ import { chartCells, renderBarChartSvg } from "../_shared/state-of-calls/chart.ts";
+ import { METRICS, metricByKey, type PublishedCell } from "../_shared/state-of-calls/schema.ts";
+@@ -27,6 +28,9 @@
+   if (!["json", "csv", "svg"].includes(format)) return err(400, "Invalid format.");
+ 
+   const admin = adminClient();
++  // Data-product approval gate (docs/data/monetization-ethics.md). A CDN may still serve a copy cached before a revocation (s-maxage=3600).
++  const blocked = await assertDataProductApproved(admin, "state_of_calls", "state-of-calls-public", BASE);
++  if (blocked) return blocked;
+   let query = admin.from("report_editions").select("id,slug,status,cells_hash,published_at,document");
+   query = edition === "latest"
+     ? query.eq("status", "published").eq("document->>synthetic", "false").order("published_at", { ascending: false }).limit(1)
