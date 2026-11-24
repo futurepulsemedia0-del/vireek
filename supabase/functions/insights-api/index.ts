@@ -12,6 +12,7 @@
 // Deploy:  supabase functions deploy insights-api --no-verify-jwt
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+import { assertDataProductApproved } from "../_shared/data-products/guard.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -109,6 +110,9 @@ async function handle(req: Request, ctx: Ctx): Promise<Response> {
       "X-RateLimit-Limit": String(limit),
     });
   }
+  // Data-product approval gate (docs/data/monetization-ethics.md): no approved review => no data.
+  const blocked = await assertDataProductApproved(admin, "vireek_insights", "insights-api", corsHeaders);
+  if (blocked) return blocked;
   admin.from("insights_api_keys").update({ last_used_at: new Date().toISOString() }).eq("id", keyRow.id).then(() => {});
 
   const url = new URL(req.url);
