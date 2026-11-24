@@ -20,10 +20,18 @@ const INJECTION = /\b(?:ignore (?:all |any |your |the )?(?:previous|prior|above|
 const DIY_VERB = /\b(?:whats the (?:trick|way|secret)|what is the (?:trick|way|secret)|is there a way to|any way to|walk me through|how to|how (?:do|can|would|should) (?:i|you|we)|can i|should i|tell me how|show me how|what is the way to|walk me through|steps to)\b/;
 const DIY_HAZARD = /\b(?:bypass(?:ing)?|by pass|jumper|jump (?:the )?(?:limit|safety|switch|breaker)|disable (?:the )?(?:safety|limit|flame sensor|flamesensor|flamepart|gfci|breaker)|remove (?:the )?(?:co|smoke|carbon monoxide) (?:detector|alarm)|take (?:the )?batteries? out of (?:the )?(?:co|smoke|carbon monoxide)|open(?:ing)? (?:the )?(?:breaker |electrical |service )?(?:panel|box)|(?:swap|swapping|replace|replacing|change|changing) (?:the )?(?:main )?breaker|work on (?:the )?(?:panel|live|wiring)|live wires?|splice|rewir(?:e|ing)|(?:tape|taping|patch|patching|seal|fix|fixing) (?:a |the )?gas (?:line|leak|pipe)|disconnect (?:the )?gas|turn (?:the )?gas back on|recharg(?:e|ing) (?:the |my |our )?(?:ac|freon|refrigerant)|add (?:freon|refrigerant)|vent (?:the )?refrigerant|replace (?:the )?(?:breaker|main breaker|panel))\b/;
 
-export function screenRequest(text: string | null | undefined): RequestVerdict {
+/**
+ * During a life-safety emergency ANY request to fix, test, light, reset or work around the hazard remotely is refused,
+ * even when it is phrased innocently ("can you just tell me how to stop the smell"). Only applied when the caller
+ * (planAnswer) already knows the urgency verdict is an emergency override, so it never affects routine calls.
+ */
+const EMERGENCY_REMOTE_FIX = /\b(?:(?:fix|repair|stop|seal|patch|tape|plug|relight|re light|light|reset|restart|bypass|disable|test|check|inspect|diagnose|troubleshoot|open|look at|vent|clear|handle|deal with|take care of)(?: \S+){0,6} (?:myself|my self|on my own|by myself|without (?:a )?(?:tech|technician|plumber|electrician))|(?:remotely|over the phone|on the phone|from here|from there|through chat|by chat) (?:\S+ )?(?:fix|repair|stop|seal|patch|reset|restart|handle)|(?:walk me through|talk me through|guide me through|show me how|tell me how|how (?:do|can|should) i|what should i do to|what can i do to|is there a way to|can i just|can you (?:help me )?)(?: \S+){0,8} (?:fix|repair|stop|seal|patch|tape|plug|relight|light|reset|restart|bypass|disable|vent|clear))\b/;
+
+export function screenRequest(text: string | null | undefined, opts?: { emergency?: boolean }): RequestVerdict {
   const t = normalizeText(text);
   if (!t) return { intent: "none", action: "none", rule: null };
   if (INJECTION.test(t)) return { intent: "prompt_injection", action: "refuse_and_handoff", rule: "injection" };
+  if (opts?.emergency && EMERGENCY_REMOTE_FIX.test(t)) return { intent: "unsafe_diy", action: "refuse_and_handoff", rule: "emergency_remote_fix" };
   if (DIY_VERB.test(t) && DIY_HAZARD.test(t)) return { intent: "unsafe_diy", action: "refuse_and_handoff", rule: "diy_hazard" };
   if (DIY_HAZARD.test(t) && /\b(?:myself|on my own|by myself|diy|without (?:a )?(?:tech|technician|electrician|plumber))\b/.test(t)) return { intent: "unsafe_diy", action: "refuse_and_handoff", rule: "diy_hazard_self" };
   if (PRICE_OVERRIDE.test(t)) return { intent: "price_override", action: "refuse_and_handoff", rule: "price_override" };
