@@ -1,0 +1,253 @@
+{
+  "title": "Marketplace vetting",
+  "subtitle": "Review third-party agents before they are listed, and delist them when they stop meeting the bar. Automated checks inform the review; they never replace it.",
+  "refresh": "Refresh",
+  "loading": "Loading…",
+  "loadError": "Could not load this section.",
+  "tabs": {
+    "queue": "Review queue",
+    "listed": "Listed agents",
+    "history": "Delisting history"
+  },
+  "queue": {
+    "by": "by {{publisher}}",
+    "emptyTitle": "Nothing waiting for review",
+    "emptyDescription": "New agent versions appear here as soon as a publisher submits them."
+  },
+  "categories": {
+    "manifest": "Manifest",
+    "scopes": "Requested scopes",
+    "outbound": "Outbound domains",
+    "data": "Data access",
+    "identity": "Identity"
+  },
+  "status": {
+    "pass": "Pass",
+    "warn": "Warning",
+    "fail": "Fail",
+    "published": "Published",
+    "suspended": "Suspended",
+    "delisted": "Delisted"
+  },
+  "checks": {
+    "manifest.shape": {
+      "title": "Manifest structure",
+      "pass": "The manifest is well-formed.",
+      "fail": "The manifest is malformed. See the details below."
+    },
+    "manifest.limits": {
+      "title": "Run limits",
+      "pass": "Limits are within the recommended range.",
+      "warn": "A limit is above the recommended ceiling."
+    },
+    "manifest.prompt": {
+      "title": "System prompt",
+      "pass": "No conflict.",
+      "fail": "A system prompt is only allowed for built-in agents."
+    },
+    "scopes.known": {
+      "title": "Known scopes",
+      "pass": "All requested scopes exist.",
+      "fail": "The manifest requests scopes that do not exist."
+    },
+    "scopes.risk": {
+      "title": "High-risk scopes",
+      "pass": "No high-risk scopes requested.",
+      "warn": "High-risk scopes need a written justification."
+    },
+    "scopes.coherence": {
+      "title": "Scope coherence",
+      "pass": "The scopes fit together.",
+      "warn": "Some scopes look unnecessary or unusable."
+    },
+    "outbound.endpoint": {
+      "title": "Endpoint",
+      "pass": "A public https endpoint on port 443.",
+      "warn": "A built-in agent should not have an endpoint.",
+      "fail": "The endpoint is missing or unsafe."
+    },
+    "outbound.host": {
+      "title": "Endpoint host",
+      "pass": "Nothing unusual.",
+      "warn": "The host needs a closer look (look-alike or shared host)."
+    },
+    "outbound.dns": {
+      "title": "DNS resolution",
+      "pass": "Resolves to public addresses only.",
+      "warn": "DNS was not checked for this report.",
+      "fail": "The host does not resolve, or resolves to a private address."
+    },
+    "outbound.declared": {
+      "title": "Declared processors",
+      "pass": "Valid (self-attested, not enforced).",
+      "warn": "Contact data is requested but no processors were declared.",
+      "fail": "The declared domain list is invalid."
+    },
+    "data.exposure": {
+      "title": "Data exposure",
+      "pass": "No personal contact data leaves Vireek.",
+      "warn": "Personal contact data (phone, email, address) leaves Vireek."
+    },
+    "data.messaging": {
+      "title": "Customer messaging",
+      "pass": "The agent cannot message customers.",
+      "warn": "The agent can propose SMS messages to customers."
+    },
+    "identity.publisher": {
+      "title": "Publisher identity",
+      "pass": "No impersonation signal.",
+      "fail": "A third-party name uses the Vireek brand."
+    },
+    "identity.lookalike": {
+      "title": "Name similarity",
+      "pass": "The name is distinct.",
+      "warn": "The name is identical or very close to another agent."
+    }
+  },
+  "review": {
+    "report": "Automated checks",
+    "noReport": "No automated checks have been run for this version yet.",
+    "runChecks": "Run checks",
+    "rerun": "Run again",
+    "running": "Running…",
+    "verdict": {
+      "pass": "Checks passed",
+      "warn": "Passed with warnings",
+      "fail": "Checks failed"
+    },
+    "risk": "Risk: {{level}}",
+    "riskLevel": {
+      "low": "low",
+      "medium": "medium",
+      "high": "high"
+    },
+    "ranAt": "Run {{when}}",
+    "selfAttested": "Declared outbound domains are self-attested by the publisher and are not enforced. A passing report is an input to your review, not a certification.",
+    "checklist": "Review checklist",
+    "progress": "{{done}} of {{total}} items done",
+    "note": "Note",
+    "noteRequired": "Add a note of at least 5 characters.",
+    "counsel": "Needs legal review [COUNSEL]",
+    "answer": {
+      "pass": "Pass",
+      "fail": "Fail",
+      "na": "Not applicable"
+    },
+    "decision": "Decision",
+    "blockedTitle": "Approval is blocked until these are resolved",
+    "decisionNote": "Decision note",
+    "decisionHelp": "Required to reject or request changes. Visible to the publisher.",
+    "approve": "Approve and publish",
+    "requestChanges": "Request changes",
+    "reject": "Reject",
+    "done": {
+      "approve": "Version approved and published.",
+      "changes": "Changes requested.",
+      "reject": "Version rejected."
+    }
+  },
+  "blockers": {
+    "self_review": "You cannot review your own agent.",
+    "agent_suspended": "The agent is suspended.",
+    "agent_delisted": "The agent is delisted.",
+    "no_report": "Run the automated checks first.",
+    "report_manifest_mismatch": "The report is for a different manifest. Run the checks again.",
+    "report_endpoint_mismatch": "The endpoint changed since the report. Run the checks again.",
+    "report_stale": "The report is older than 14 days. Run the checks again.",
+    "report_failed": "The automated checks failed.",
+    "checklist_failed": "A checklist item is marked as failed.",
+    "checklist_incomplete": "Some checklist items are not answered yet.",
+    "version_missing": "The version no longer exists."
+  },
+  "listed": {
+    "firstParty": "Built by Vireek",
+    "reinstate": "Reinstate",
+    "delist": "Delist",
+    "warning": "Delisting removes the agent from the marketplace, revokes every install immediately and stops queued runs. Reinstating later requires a new version to pass vetting again.",
+    "reason": "Reason",
+    "internal": "Internal detail",
+    "internalHelp": "For staff only. Not shown to the publisher or customers.",
+    "publisherMessage": "Message to the publisher",
+    "publisherMessageHelp": "Shown to the publisher. Do not include customer data.",
+    "confirmDelist": "Delist agent",
+    "confirmReinstate": "Reinstate as draft",
+    "cancel": "Cancel",
+    "reinstated": "Agent reinstated as a draft.",
+    "delistedDone": "Agent delisted. {{count}} installs revoked.",
+    "emptyTitle": "No listed agents",
+    "emptyDescription": "Published, suspended and delisted agents appear here."
+  },
+  "reasons": {
+    "security": "Security",
+    "privacy": "Privacy",
+    "policy": "Policy violation",
+    "fraud": "Fraud or abuse",
+    "quality": "Quality",
+    "publisher_request": "Publisher request",
+    "legal": "Legal",
+    "other": "Other"
+  },
+  "history": {
+    "delisted": "Delisted",
+    "reinstated": "Reinstated",
+    "installs": "{{count}} installs revoked",
+    "emptyTitle": "No delisting history",
+    "emptyDescription": "Delisting and reinstatement events are recorded here permanently."
+  },
+  "errors": {
+    "forbidden": "Only Vireek staff can use this page.",
+    "blocked": "Approval is blocked. See the list above.",
+    "notFound": "That item no longer exists. Refresh and try again.",
+    "generic": "Something went wrong. Please try again."
+  },
+  "checklist": {
+    "publisher_identity": {
+      "label": "Publisher identity verified",
+      "hint": "Company name, registration and a working contact were confirmed out of band."
+    },
+    "security_contact": {
+      "label": "Security contact",
+      "hint": "The publisher gave a monitored address for vulnerability reports."
+    },
+    "endpoint_control": {
+      "label": "Endpoint ownership",
+      "hint": "The publisher demonstrably controls the endpoint domain."
+    },
+    "signature_verification": {
+      "label": "Signature verification",
+      "hint": "In a test run the agent verified the HMAC signature and rejected a stale timestamp."
+    },
+    "scopes_justified": {
+      "label": "Scopes justified",
+      "hint": "Each requested scope has a stated, proportionate reason."
+    },
+    "pii_minimisation": {
+      "label": "Personal data minimised",
+      "hint": "Contact data is needed for the agent's purpose and is not kept longer than necessary."
+    },
+    "subprocessors_match": {
+      "label": "Processors match disclosures",
+      "hint": "Declared outbound domains match the publisher's privacy information. Not applicable if none are declared."
+    },
+    "dpa_in_place": {
+      "label": "Data processing agreement",
+      "hint": "A data processing agreement is in place for this high-risk agent."
+    },
+    "sandbox_run_reviewed": {
+      "label": "Sandbox run reviewed",
+      "hint": "A sample run in a test account stayed within the granted scopes."
+    },
+    "sms_compliance": {
+      "label": "SMS compliance",
+      "hint": "A2P registration, opt-out handling and quiet hours were reviewed."
+    },
+    "pricing_terms_clear": {
+      "label": "Pricing is clear",
+      "hint": "Price, billing period and platform fee are stated accurately."
+    },
+    "delisting_terms_ack": {
+      "label": "Delisting terms acknowledged",
+      "hint": "The publisher accepted the delisting terms in docs/marketplace/vetting.md."
+    }
+  }
+}
