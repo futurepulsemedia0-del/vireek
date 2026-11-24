@@ -56,7 +56,7 @@ export function planAnswer(inp: PlanInput): Plan {
   const now = inp.now ?? new Date();
   const text = normalizeText(inp.text);
   let urgency = classifyUrgency({ text: inp.text, outdoorTempF: inp.outdoorTempF ?? null });
-  const request = screenRequest(inp.text);
+  const request = screenRequest(inp.text, { emergency: urgency.override });
   const trade = inferTrade(inp.text, inp.entries, now);
   const assertions: Assertion[] = [];
   const evidenceIds = new Set<string>();
