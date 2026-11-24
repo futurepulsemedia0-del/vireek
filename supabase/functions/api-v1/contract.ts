@@ -174,6 +174,7 @@ export const ERROR_CATALOG = [
   { code: 'record_not_found', status: 404, cause: 'No record with this id exists on your account.', fix: 'Confirm the id and that the record belongs to the account that owns the key.' },
   { code: 'method_not_allowed', status: 405, cause: 'The API is read-only; only GET is supported.', fix: 'Use GET.' },
   { code: 'rate_limited', status: 429, cause: `More than ${RATE_LIMIT_PER_MINUTE} requests in one minute with the same key.`, fix: 'Wait the number of seconds in the Retry-After header, then retry with backoff.' },
+  { code: 'quota_exceeded', status: 429, cause: "The account's monthly request quota for its API plan is used up (only when usage plans are enabled for the account).", fix: 'Wait for the Retry-After seconds (the quota resets at the start of the next UTC month) or contact support about a larger plan.' },
   { code: 'query_failed', status: 500, cause: 'The database query failed.', fix: 'Retry with backoff. If it persists, contact support with the X-Request-Id value.' },
   { code: 'server_not_configured', status: 500, cause: 'The API deployment is missing required configuration.', fix: 'Self-hosted deployments: set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY for the function.' },
   { code: 'internal_error', status: 500, cause: 'An unexpected error occurred.', fix: 'Retry with backoff. If it persists, contact support with the X-Request-Id value.' },
