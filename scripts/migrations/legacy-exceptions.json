@@ -1,0 +1,35 @@
+{
+  "$comment": "Frozen legacy migration entries that break the naming rule in ADR-0010. NEVER rename or edit these while any environment may have applied them (R5). They are only changed in a reviewed `migration-repair` PR (docs/runbooks/migration-versioning.md, Phase 1), which must update this file in the same PR. Used by scripts/lint-migrations.mjs.",
+  "schema": 1,
+  "decision": "D-11",
+  "entries": [
+    {
+      "name": "20260915_phone_numbers.sql",
+      "kind": "irregular-name",
+      "reason": "8-digit prefix (YYYYMMDD) instead of 14 digits",
+      "appliedRemotely": null,
+      "verify": "TODO(owner): run `supabase migration list` per environment and record whether this version is recorded remotely"
+    },
+    {
+      "name": "20260916_job_cost_entries.sql",
+      "kind": "irregular-name",
+      "reason": "8-digit prefix (YYYYMMDD) instead of 14 digits",
+      "appliedRemotely": null,
+      "verify": "TODO(owner): run `supabase migration list` per environment and record whether this version is recorded remotely"
+    },
+    {
+      "name": "<timestamp>_daily_briefing.sql",
+      "kind": "irregular-name",
+      "reason": "literal placeholder instead of a timestamp; the only file in the tree that creates daily_briefings, so it is probably never applied by the CLI",
+      "appliedRemotely": null,
+      "verify": "TODO(owner): check whether table public.daily_briefings exists in each environment; if not, ship its SQL as a NEW correctly-versioned migration instead of renaming this file"
+    },
+    {
+      "name": "split",
+      "kind": "irregular-name",
+      "reason": "directory (arrival_windows_part1..6 helper files), not a migration; sits inside supabase/migrations",
+      "appliedRemotely": null,
+      "verify": "TODO(owner): confirm the CLI ignores sub-directories in your CLI version and whether the parts are superseded by 20271011000000_arrival_windows.sql"
+    }
+  ]
+}
