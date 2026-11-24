@@ -714,6 +714,7 @@ const StaffRatingDisputesPage = lazy(() => import('@/pages/admin/StaffRatingDisp
 const TechnicianProfilePage = lazy(() => import('@/pages/TechnicianProfilePage').then((m) => ({ default: m.TechnicianProfilePage })));
 const NotificationsPage = lazy(() => import('@/pages/NotificationsPage').then((m) => ({ default: m.NotificationsPage })));
 const CrmSyncPage = lazy(() => import('@/pages/CrmSyncPage').then((m) => ({ default: m.CrmSyncPage })));
+const SalesPipelinePage = lazy(() => import('@/pages/SalesPipelinePage').then((m) => ({ default: m.SalesPipelinePage })));
 const NetSuiteSyncPage = lazy(() => import('@/pages/NetSuiteSyncPage').then((m) => ({ default: m.NetSuiteSyncPage })));
 const SageIntacctSyncPage = lazy(() => import('@/pages/SageIntacctSyncPage').then((m) => ({ default: m.SageIntacctSyncPage })));
 const XeroSyncPage = lazy(() => import('@/pages/XeroSyncPage'));
@@ -1352,6 +1353,16 @@ function AppRoutes() {
     element={
       <ProtectedRoute>
         <CrmSyncPage />
+      </ProtectedRoute>
+    }
+  />
+  <Route
+    path="/dashboard/sales-pipeline"
+    element={
+      <ProtectedRoute>
+        <Suspense fallback={<PageLoader />}>
+          <SalesPipelinePage />
+        </Suspense>
       </ProtectedRoute>
     }
   />
