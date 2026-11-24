@@ -21,7 +21,8 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { OWNED_TABLES } from "../_shared/compliance/ownedTables.ts";
-import { eraseProviderData } from "../_shared/compliance/providerErasure.ts";
+import { eraseProviderDataQueued, processDueProviderErasureJobs, readProviderEnv } from "../_shared/compliance/providerErasureQueue.ts";
+import { eraseAccountStorage } from "../_shared/compliance/storageErasure.ts";
 import { sweepOwnedRows, type SweepRpcClient } from "../_shared/compliance/sweepBatches.ts";
 import { eraseTrustPackData } from "../_shared/trust/vault.ts";
 import { loadSigningKeys, parseBackupRetentionDays, type ErasureBaseline, type ErasureEvidence } from "../_shared/compliance/erasureCertificate.ts";
@@ -136,18 +137,18 @@ Deno.serve(async (req: Request) => {
       let result: Record<string, number> = {};
       let evidence: ErasureEvidence | null = null;
       if (request.request_type === "full_account") {
-        const prov = await eraseProviderData(admin, request.user_id, {
-          elevenLabsKey: Deno.env.get("ELEVENLABS_API_KEY") ?? undefined,
-          vapiKey: Deno.env.get("VAPI_PRIVATE_KEY") ?? undefined,
-        });
+        const prov = await eraseProviderDataQueued(admin, request.user_id, readProviderEnv((k) => Deno.env.get(k)), { requestId: request.id });
         result["provider_failed"] = prov.failed.length;
-        const ev: ErasureEvidence = { provider: prov };
-        evidence = ev;
+        result["provider_unsupported"] = prov.unsupported.length;
+        if (!prov.snapshotOk) throw new Error(`provider_snapshot_incomplete:${prov.failed.slice(0, 3).join(",")}`);
         if (!prov.ok && Deno.env.get("PROVIDER_ERASURE_STRICT") === "true") {
           throw new Error(`provider_erasure_incomplete:${prov.failed.slice(0, 3).join(",")}`);
         }
         const trust = await eraseTrustPackData(admin, request.user_id);
         if (!trust.ok) throw new Error("trust_pack_erasure_incomplete");
+        const files = await eraseAccountStorage(admin, request.user_id);
+        result["storage_objects_removed"] = files.removed;
+        if (!files.ok) throw new Error(`storage_erasure_incomplete:${files.errors.slice(0, 3).join(",")}`);
         ev.trustPack = { ok: true };
         ev.ownedTables = {};
         for (const owned of OWNED_TABLES) {
@@ -246,5 +247,9 @@ Deno.serve(async (req: Request) => {
   const backfill = await issueMissingCertificates(admin, certOpts());
   summary.certificatesIssued += backfill.issued;
   summary.errors.push(...backfill.errors);
-  return json(summary, summary.errors.length ? 207 : 200);
+  // ---------- 3. Retry queue for provider-side erasure (backoff; proof stored per job) ----------
+  const providerQueue = await processDueProviderErasureJobs(admin, readProviderEnv((k) => Deno.env.get(k)));
+  if (providerQueue.error) summary.errors.push(`provider erasure queue: ${providerQueue.error}`);
+
+  return json({ ...summary, providerErasureQueue: providerQueue }, summary.errors.length ? 207 : 200);
 });
