@@ -1,0 +1,34 @@
+{
+  "_notice": "SYNTHETIC SAMPLE DATA. Every name and number in this file is fictional and does not describe Vireek, its customers, its bank or its processors. Copy to reports/finance/ (git-ignored) before entering real figures.",
+  "schema_version": 1,
+  "data_classification": "SYNTHETIC_SAMPLE",
+  "as_of": "2026-12-31",
+  "currency": "USD",
+  "cash_minor": 48000000,
+  "restricted_cash_minor": 3000000,
+  "gross_monthly_burn_minor": 6200000,
+  "assumptions": {
+    "revenue_growth_pct_per_month": 0,
+    "cost_growth_pct_per_month": 0,
+    "horizon_months": 36
+  },
+  "thresholds": {
+    "top1_share_pct": 20,
+    "top3_share_pct": 50,
+    "processor_share_pct": 60,
+    "min_runway_months": 12
+  },
+  "revenue": [
+    { "customer": "FAKE-CUSTOMER-001", "processor": "FAKE-PROCESSOR-A", "monthly_minor": 1500000 },
+    { "customer": "FAKE-CUSTOMER-002", "processor": "FAKE-PROCESSOR-A", "monthly_minor": 900000 },
+    { "customer": "FAKE-CUSTOMER-003", "processor": "FAKE-PROCESSOR-A", "monthly_minor": 650000 },
+    { "customer": "FAKE-CUSTOMER-004", "processor": "FAKE-PROCESSOR-B", "monthly_minor": 400000 },
+    { "customer": "FAKE-CUSTOMER-005", "processor": "FAKE-PROCESSOR-B", "monthly_minor": 300000 },
+    { "customer": "FAKE-CUSTOMER-006", "processor": "FAKE-PROCESSOR-A", "monthly_minor": 200000 },
+    { "customer": "FAKE-CUSTOMER-006", "processor": "FAKE-PROCESSOR-B", "monthly_minor": 100000 },
+    { "customer": "FAKE-CUSTOMER-007", "processor": "FAKE-BANK-TRANSFER", "monthly_minor": 250000 },
+    { "customer": "FAKE-CUSTOMER-008", "processor": "FAKE-PROCESSOR-A", "monthly_minor": 120000 },
+    { "customer": "FAKE-CUSTOMER-009", "processor": "FAKE-PROCESSOR-B", "monthly_minor": 80000 },
+    { "customer": "FAKE-CUSTOMER-010", "processor": "FAKE-PROCESSOR-A", "monthly_minor": 50000 }
+  ]
+}
