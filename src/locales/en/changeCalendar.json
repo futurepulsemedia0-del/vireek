@@ -1,0 +1,160 @@
+{
+  "page": {
+    "title": "Change calendar",
+    "subtitle": "Planned changes to Vireek's own pricing, terms, SLA and policies: who owns each, who approved it, when customers must be told and when it takes effect. Platform staff only.",
+    "new": "New change",
+    "showClosed": "Show completed and cancelled",
+    "hideClosed": "Hide completed and cancelled",
+    "loadError": "Could not load the calendar.",
+    "retry": "Try again",
+    "emptyTitle": "No changes planned",
+    "emptyBody": "Add a change to track its owner, approval, notice date and effective date.",
+    "noMatch": "Nothing to show with this filter.",
+    "disclaimer": "This calendar is a reminder system. It does not send customer notices and does not decide how much notice is legally required. [COUNSEL]"
+  },
+  "summary": {
+    "open": "Open",
+    "critical": "Needs action now",
+    "warning": "Due soon",
+    "awaitingApproval": "Awaiting approval",
+    "noticeToSend": "Notice to send"
+  },
+  "category": {
+    "pricing": "Pricing",
+    "terms": "Terms",
+    "sla": "SLA",
+    "policy": "Policy"
+  },
+  "audience": {
+    "all_customers": "All customers",
+    "affected_plans": "Affected plans",
+    "partners": "Partners",
+    "internal": "Internal only"
+  },
+  "status": {
+    "draft": "Draft",
+    "pending_approval": "Pending approval",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "cancelled": "Cancelled",
+    "completed": "Completed"
+  },
+  "level": {
+    "critical": "Critical",
+    "warning": "Due soon",
+    "info": "Upcoming",
+    "none": "On track",
+    "closed": "Closed"
+  },
+  "reminder": {
+    "unapproved_past_notice": "Notice date reached, not approved",
+    "approval_needed": "Approval needed (notice within 7 days)",
+    "notice_overdue": "Notice overdue",
+    "notice_1d": "Notice due within a day",
+    "notice_7d": "Notice due within 7 days",
+    "completion_due": "Effective date passed: confirm and complete",
+    "effective_7d": "Takes effect within 7 days"
+  },
+  "table": {
+    "change": "Change",
+    "category": "Category",
+    "owner": "Owner",
+    "status": "Status",
+    "notice": "Notice date",
+    "effective": "Effective date",
+    "attention": "Attention"
+  },
+  "when": {
+    "today": "today",
+    "inDays_one": "in {{count}} day",
+    "inDays_other": "in {{count}} days",
+    "daysAgo_one": "{{count}} day ago",
+    "daysAgo_other": "{{count}} days ago"
+  },
+  "noticeSent": "Notice recorded {{date}}",
+  "noticeNotSent": "Notice not recorded",
+  "locked": "The notice was sent, so the content is locked. To change course, cancel this entry and create a new one.",
+  "shortfall_one": "Recorded notice was {{count}} day short of the minimum you set. Informational only.",
+  "shortfall_other": "Recorded notice was {{count}} days short of the minimum you set. Informational only.",
+  "form": {
+    "newTitle": "New change",
+    "editTitle": "Edit change",
+    "category": "Category",
+    "audience": "Audience",
+    "title": "Title",
+    "summary": "Summary",
+    "owner": "Owner",
+    "noticeDate": "Notice date",
+    "effectiveDate": "Effective date",
+    "minNotice": "Minimum notice (days, optional)",
+    "minNoticeHelp": "Leave empty unless counsel has told you a number. [COUNSEL]",
+    "referenceUrl": "Reference link (https, optional)",
+    "noticeLink": "Customer notice record id (optional)",
+    "noticeLinkHelp": "Id of the matching price change notice, if one exists.",
+    "save": "Save",
+    "cancel": "Close",
+    "editResets": "Saving a change to an approved or pending entry returns it to draft and clears the approval."
+  },
+  "errors": {
+    "title_length": "Title must be 3 to 140 characters.",
+    "category": "Choose a category.",
+    "audience": "Choose an audience.",
+    "owner_required": "Choose an owner.",
+    "summary_too_long": "Summary is limited to 2000 characters.",
+    "notice_date_invalid": "Enter a valid notice date.",
+    "effective_date_invalid": "Enter a valid effective date.",
+    "effective_in_past": "The effective date cannot be in the past.",
+    "dates_order": "The effective date cannot be before the notice date.",
+    "min_notice_invalid": "Enter a whole number from 0 to 365.",
+    "min_notice_not_met": "Notice date and effective date are closer than the minimum notice.",
+    "url_invalid": "Use a link that starts with https://.",
+    "notice_link_invalid": "Enter a valid id."
+  },
+  "actions": {
+    "edit": "Edit",
+    "submit": "Submit for approval",
+    "approve": "Approve",
+    "reject": "Reject",
+    "markNoticeSent": "Record notice as sent",
+    "complete": "Mark completed",
+    "cancel": "Cancel change",
+    "history": "History",
+    "noteLabel": "Reason",
+    "noteRejectHelp": "A rejection needs a reason (at least 3 characters).",
+    "noteCancelHelp": "A cancellation needs a reason (at least 3 characters).",
+    "confirm": "Confirm",
+    "back": "Back",
+    "markNoticeHelp": "Only record this after the notice has really been sent. This system does not send it."
+  },
+  "history": {
+    "title": "History",
+    "empty": "No events.",
+    "loadError": "Could not load the history."
+  },
+  "event": {
+    "created": "Created",
+    "updated": "Edited",
+    "reset_to_draft": "Approval cleared by edit",
+    "submitted": "Submitted for approval",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "notice_sent": "Notice recorded as sent",
+    "completed": "Completed",
+    "cancelled": "Cancelled"
+  },
+  "toast": {
+    "saved": "Saved.",
+    "submitted": "Submitted for approval.",
+    "approved": "Approved.",
+    "rejected": "Rejected.",
+    "noticeRecorded": "Notice recorded.",
+    "completed": "Marked completed.",
+    "cancelled": "Cancelled.",
+    "failed": "That did not work. Nothing was changed.",
+    "selfApproval": "You cannot approve a change you requested yourself.",
+    "locked": "The notice was already sent: this entry can no longer be edited.",
+    "notYetEffective": "The effective date has not arrived yet.",
+    "noticeFirst": "Record when the notice was sent first.",
+    "pastEffective": "The effective date is in the past."
+  }
+}
