@@ -21,13 +21,13 @@ jobs:
     env:
       REHEARSAL_DB_URL: ${{ secrets.REHEARSAL_DB_URL }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: '20'
       - name: Release-safety lint
         run: node scripts/lint-migrations.mjs
-      - uses: supabase/setup-cli@v1
+      - uses: supabase/setup-cli@v3
         if: env.REHEARSAL_DB_URL != ''
       - name: Pending migrations (dry run)
         if: env.REHEARSAL_DB_URL != ''

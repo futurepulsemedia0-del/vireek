@@ -37,8 +37,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: '20'
       - name: Registry is valid and CONTROL_MAP.md is current
@@ -63,8 +63,8 @@ jobs:
       COMPLIANCE_INGEST_TOKEN: ${{ secrets.COMPLIANCE_INGEST_TOKEN }}
       COMPLIANCE_GITHUB_TOKEN: ${{ secrets.COMPLIANCE_GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: '20'
 
@@ -80,7 +80,7 @@ jobs:
 
       # Redundant copy outside Supabase: 400-day retention, hash manifest included.
       - name: Upload evidence artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: compliance-evidence-${{ github.run_id }}
           path: evidence-out/
