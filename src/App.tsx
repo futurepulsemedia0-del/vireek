@@ -555,6 +555,7 @@ const TrustPackPage = lazy(() => import('@/pages/TrustPackPage').then((m) => ({ 
 const SecurityPortalPage = lazy(() => import('@/pages/SecurityPortalPage').then((m) => ({ default: m.SecurityPortalPage })));
 const StaffTrustAdminPage = lazy(() => import('@/pages/StaffTrustAdminPage').then((m) => ({ default: m.StaffTrustAdminPage })));
 const StaffChurnSavePage = lazy(() => import('@/pages/StaffChurnSavePage').then((m) => ({ default: m.StaffChurnSavePage })));
+const StaffChangeCalendarPage = lazy(() => import('@/pages/StaffChangeCalendarPage').then((m) => ({ default: m.StaffChangeCalendarPage })));
 const OffboardingPage = lazy(() => import('@/pages/OffboardingPage').then((m) => ({ default: m.OffboardingPage })));
 const StaffOffboardingPage = lazy(() => import('@/pages/StaffOffboardingPage').then((m) => ({ default: m.StaffOffboardingPage })));
 const StaffIncidentCommsPage = lazy(() => import('@/pages/StaffIncidentCommsPage').then((m) => ({ default: m.StaffIncidentCommsPage })));
@@ -860,6 +861,7 @@ function AppRoutes() {
 />
         <Route path="/staff/trust-admin" element={<StaffRoute><StaffTrustAdminPage /></StaffRoute>} />
         <Route path="/staff/churn-save" element={<StaffRoute><StaffChurnSavePage /></StaffRoute>} />
+        <Route path="/staff/change-calendar" element={<StaffRoute><StaffChangeCalendarPage /></StaffRoute>} />
         <Route path="/staff/offboarding" element={<StaffRoute><StaffOffboardingPage /></StaffRoute>} />
         <Route path="/staff/incident-comms" element={<StaffRoute><StaffIncidentCommsPage /></StaffRoute>} />
         <Route path="/staff/pmf" element={<StaffRoute><StaffPmfPage /></StaffRoute>} />
