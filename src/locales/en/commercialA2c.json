@@ -1,0 +1,161 @@
+{
+  "title": "Approval to cash",
+  "flagOff": "The rule-based invoice check is not turned on for your account yet.",
+  "gate": {
+    "pass": "Ready to send. This invoice meets the customer's billing rules.",
+    "warn": "Can be sent, but check these points first.",
+    "blocked_needs_approval": "Not ready to send. Fix the items below or ask an owner to override.",
+    "mode": { "block": "Block", "warn": "Warn only", "off": "Off" },
+    "codes": {
+      "missing_po": "No PO number is recorded.",
+      "po_format_mismatch": "The PO number does not match this customer's format.",
+      "missing_work_order": "No work-order number is recorded.",
+      "missing_nte_approval": "No approved amount (NTE) is recorded for this job.",
+      "approval_expired": "The recorded approval has expired.",
+      "over_approved_amount": "Billing is {{excess}} over the approved amount. A change order is needed first.",
+      "nte_near_limit": "Billing is close to the approved amount.",
+      "missing_completion_photos": "The job has no completion photo.",
+      "missing_signature": "The job has no customer signature.",
+      "missing_service_report": "No service report is attached.",
+      "missing_documents": "Required attachments are missing: {{list}}.",
+      "late_submission": "This customer's submission window after completion has passed."
+    },
+    "override": {
+      "action": "Override and send",
+      "reasonLabel": "Why is it fine to send anyway?",
+      "reasonHint": "At least 10 characters. This is saved in the audit log.",
+      "ownerOnly": "Only the account owner can override."
+    }
+  },
+  "rules": {
+    "title": "Billing rules",
+    "version": "Version {{version}}",
+    "effectiveFrom": "In effect since {{date}}",
+    "save": "Save as new version",
+    "saved": "Saved as version {{version}}.",
+    "reason": "Reason for this change",
+    "gateMode": "When an invoice breaks a rule",
+    "requiresPo": "A PO number is required",
+    "poFormatRegex": "PO number pattern (optional)",
+    "poFormatHint": "Letters, digits and simple patterns only, up to 120 characters.",
+    "requiresWorkOrderNumber": "A work-order number is required",
+    "requiresNteApproval": "An approved amount (NTE) is required",
+    "requiresCompletionPhotos": "Completion photos are required",
+    "requiresSignature": "A customer signature is required",
+    "requiresServiceReport": "A service report is required",
+    "invoiceDueWindowDays": "Days allowed to invoice after completion",
+    "submissionChannel": "How this customer receives invoices",
+    "channel": { "email": "Email", "portal": "Customer portal", "edi": "EDI", "manual": "Manual" },
+    "requiredAttachments": "Required attachments",
+    "attachment": {
+      "po_copy": "PO copy", "approval_proof": "Approval proof", "completion_photos": "Completion photos",
+      "signature": "Signature", "service_report": "Service report", "other": "Other document"
+    },
+    "packetOrder": "Order of pages in the invoice packet",
+    "remitTo": "Remit-to details",
+    "apContact": "Accounts payable contact",
+    "nteWarnPct": "Warn at this share of the approved amount (%)",
+    "nteBlockPct": "Block above this share of the approved amount (%)",
+    "notes": "Notes",
+    "history": "Earlier versions",
+    "errorRegex": "This pattern is not supported. Use letters, digits and simple patterns without groups that repeat.",
+    "errorSave": "The rules could not be saved. Nothing was changed.",
+    "permissionDenied": "You do not have permission to edit billing rules."
+  },
+  "authorization": {
+    "title": "Customer authorization",
+    "po": "PO number",
+    "wo": "Work-order number",
+    "amount": "Approved amount (NTE)",
+    "approver": "Approved by",
+    "approverRole": "Role",
+    "approverContact": "Contact",
+    "expires": "Expires",
+    "evidence": "Approval evidence",
+    "evidenceHash": "File fingerprint (SHA-256)",
+    "uploadedBy": "Uploaded {{when}}",
+    "empty": "No approval is recorded yet.",
+    "add": "Record approval",
+    "void": "Void approval"
+  },
+  "nte": {
+    "title": "Approved amount used",
+    "ok": "Within the approved amount.",
+    "warn": "{{pct}}% of the approved amount is used.",
+    "exceeded": "The approved amount is used up. Request a change order before billing more work.",
+    "none": "No approved amount is recorded.",
+    "remaining": "{{amount}} left",
+    "changeOrder": {
+      "request": "Request a change order",
+      "reason": "Why is more money needed?",
+      "newAmount": "New approved amount",
+      "pending": "A change order is waiting for the customer.",
+      "approve": "Customer approved",
+      "reject": "Customer declined",
+      "evidenceRequired": "Add the customer's written approval before saving."
+    }
+  },
+  "stage": {
+    "draft": "Draft", "ready": "Ready", "blocked_needs_approval": "Needs approval", "sent": "Sent", "received": "Received",
+    "approved": "Approved", "rejected": "Rejected", "disputed": "Disputed", "paid": "Paid", "written_off": "Written off", "void": "Void"
+  },
+  "timeline": {
+    "title": "Invoice history",
+    "by": "{{actor}} via {{source}}",
+    "source": { "user": "a team member", "system": "the system", "portal": "the customer portal", "email_parse": "an email reply" },
+    "empty": "Nothing has happened to this invoice yet."
+  },
+  "rejection": {
+    "title": "Why was it rejected?",
+    "detail": "Details from the customer",
+    "code": {
+      "missing_po": "Missing PO", "po_mismatch": "PO does not match", "amount_exceeds_nte": "Over the approved amount",
+      "missing_documents": "Missing documents", "wrong_billing_entity": "Wrong billing entity", "late_submission": "Submitted late",
+      "pricing_dispute": "Pricing dispute", "duplicate": "Duplicate invoice", "other": "Other"
+    },
+    "fix": {
+      "title": "Fix and resubmit",
+      "action": "Create corrected packet",
+      "open": "{{count}} invoice needs a fix before it can be sent again.",
+      "resubmit": "Mark as resubmitted"
+    }
+  },
+  "packet": {
+    "title": "Invoice packet",
+    "generate": "Generate packet",
+    "regenerate": "Generate a new version",
+    "version": "Version {{version}}",
+    "fileName": "File name",
+    "download": "Download",
+    "sections": {
+      "invoice": "Invoice", "po": "Purchase order", "approval_proof": "Approval proof", "change_order": "Change order",
+      "completion_photos": "Completion photos", "signature": "Signature", "service_report": "Service report", "other_documents": "Other documents"
+    },
+    "notIncluded": "Not available for this job",
+    "immutable": "Saved versions can never be changed. A new version is created instead."
+  },
+  "followup": {
+    "title": "Payment follow-up",
+    "snooze": "Pause reminders",
+    "snoozeUntil": "Pause until",
+    "demandDraft": "A payment-request draft is ready for your review. It has not been sent.",
+    "quietHours": "Reminders are not sent between {{start}} and {{end}}."
+  },
+  "metrics": {
+    "firstPass": "First-time acceptance rate",
+    "rejections": "Rejection reasons",
+    "daysToApproval": "Days to approval",
+    "daysToCash": "Days to cash",
+    "noData": "Not enough invoices yet."
+  },
+  "state": {
+    "loading": "Loading…",
+    "empty": "Nothing here yet.",
+    "error": "Something went wrong. Nothing was changed.",
+    "retry": "Try again",
+    "partial": "Some information could not be loaded.",
+    "offline": "You are offline. Changes will not be saved until you reconnect.",
+    "denied": "You do not have access to this.",
+    "success": "Done."
+  }
+}
