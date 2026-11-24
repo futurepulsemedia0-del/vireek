@@ -31,6 +31,7 @@ export type SafetyReason =
   | 'carbon_monoxide'
   | 'electrical_hazard'
   | 'fire_smoke'
+  | 'medical_emergency'
   | 'flooding'
   | 'sewage'
   | 'structural'
@@ -234,6 +235,7 @@ export const SAFETY_GUIDANCE: Record<SafetyReason, string> = {
   carbon_monoxide: 'If a carbon monoxide alarm is sounding or anyone feels dizzy or sick: get everyone outside into fresh air and call 911.',
   electrical_hazard: 'Do not touch the equipment. If it is safe to do so, switch off the power at the main breaker. If you see fire or feel unwell, call 911.',
   fire_smoke: 'If there is fire or smoke: leave the building and call 911 immediately.',
+  medical_emergency: 'Call 911 right now for anyone who is unconscious, not breathing, has chest pain or is badly hurt, and stay with them.',
   flooding: 'If water is actively flooding: shut off the main water valve if you can reach it safely, and keep clear of anything electrical that is wet.',
   sewage: 'Avoid contact with the water, keep children and pets away, and do not run more water down the drains.',
   structural: 'Stay out of the affected area until it has been inspected.',
