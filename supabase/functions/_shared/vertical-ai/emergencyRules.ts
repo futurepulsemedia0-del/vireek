@@ -46,7 +46,11 @@ const RULES: Rule[] = [
   { id: "co_symptoms", flag: "carbon_monoxide", severity: "emergency", re: near("headache|headaches|dizzy|dizziness|nausea|nauseous|passed out|fainted|light headed|lightheaded", "furnace|heater|boiler|water heater|gas stove|generator|gas oven|fireplace", 8) },
   // ---- fire / smoke ---------------------------------------------------------------------------------------------
   { id: "alarm_going_off", flag: "fire_or_smoke", severity: "emergency", re: near("smoke alarm|smoke alarms|smoke detector|smoke detectors|fire alarm", "going off|blaring|sounding|screaming|wont stop|keeps going off|is going off|are going off", 3) },
-  { id: "fire_words", flag: "fire_or_smoke", severity: "emergency", re: re("\\b(?:on fire|caught fire|catching fire|is burning|are burning|flames?|house fire|electrical fire|fire in|smoke|smoking|smokey|smoky|incendio|humo)\\b") },
+   { id: "fire_words", flag: "fire_or_smoke", severity: "emergency", re: re("\\b(?:on fire|caught fire|catching fire|is burning|are burning|flames?|house fire|electrical fire|fire in|smoke|smoking|smokey|smoky|incendio|humo)\\b") },
+  // ---- medical emergency (life safety that is not a trade hazard) -------------------------------------------------
+  { id: "medical_named", flag: "medical_emergency", severity: "emergency", re: re("\\b(?:heart attack|cardiac arrest|chest pain|chest pains|pain in (?:my|his|her|their) chest|having a stroke|had a stroke|overdose|overdosed|anaphylaxis|anaphylactic|ambulance|dolor de pecho|ataque al corazon|ataque cardiaco)\\b"), guard: re("\\b(?:compressor|motor|piston|engine|2 stroke|two stroke|stroke length|insurance|ambulance (?:service|company|bill))\\b") },
+  { id: "medical_breathing", flag: "medical_emergency", severity: "emergency", re: re("\\b(?:not breathing|stopped breathing|isnt breathing|cant breathe|cannot breathe|trouble breathing|difficulty breathing|struggling to breathe|gasping for air|no respira|no puede respirar)\\b") },
+  { id: "medical_unresponsive", flag: "medical_emergency", severity: "emergency", re: re("\\b(?:unconscious|unresponsive|inconsciente|(?:he|she|they|someone|somebody|person|husband|wife|mother|father|mom|dad|child|baby|kid|grandma|grandpa|neighbor|worker|technician) (?:is |was |has |just |just has )?(?:collapsed|passed out|fainted|not waking up|wont wake up|not responding|bleeding (?:heavily|badly|a lot)))\\b") },
   // ---- sparking / burning electrical ----------------------------------------------------------------------------
   { id: "spark_alone", flag: "sparking_or_burning", severity: "emergency", re: re("\\b(?:spark|sparks|sparking|sparked|arcing)\\b") },
   { id: "elec_hot_or_burning", flag: "sparking_or_burning", severity: "emergency", re: near(ELEC, SPARK, 6), guard: re("\\b(?:hot water|water heater|pilot light|hot tub)\\b") },
@@ -176,7 +180,7 @@ export function classifyUrgency(input: UrgencyInput): UrgencyVerdict {
     // ---- backstop: the existing degraded-mode detector, unless THIS layer saw an explicit negation ---------------
     const fp = detectEmergencyText(raw);
     if (fp.emergency) {
-      const map: Record<string, SafetyFlag> = { gas: "gas_odor", co: "carbon_monoxide", fire: "fire_or_smoke", flood: "active_flooding" };
+      const map: Record<string, SafetyFlag> = { gas: "gas_odor", co: "carbon_monoxide", fire: "fire_or_smoke", flood: "active_flooding", medical: "medical_emergency" };
       for (const id of fp.matched) {
         const flag = map[id];
         if (!flag || suppressed.has(flag) || flags.has(flag)) continue;
@@ -192,7 +196,7 @@ export function classifyUrgency(input: UrgencyInput): UrgencyVerdict {
 }
 
 const FLAG_PRIORITY: SafetyFlag[] = [
-  "gas_odor", "carbon_monoxide", "fire_or_smoke", "electric_shock", "downed_line", "sparking_or_burning",
+  "gas_odor", "carbon_monoxide", "fire_or_smoke", "medical_emergency", "electric_shock", "downed_line", "sparking_or_burning",
   "water_near_electrical", "active_flooding", "sewage_backup", "no_heat_freezing", "vulnerable_occupant_no_climate", "caller_declared_emergency",
 ];
 function sortFlags(f: SafetyFlag[]): SafetyFlag[] {
