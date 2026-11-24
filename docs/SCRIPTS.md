@@ -37,6 +37,9 @@ Run from the repo root. "CI" = run by a workflow in `.github/workflows` (verify 
 | `migrations:plan` | Plan for resolving duplicate versions | when repairing history (see `docs/runbooks/migration-version-repair.md`) |
 | `report:board-pack` | Monthly board pack (markdown) from existing SQL views; missing data shown as "not available". Needs `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`; `--dry-run` needs none. See `docs/finance/board-pack-template.md` | monthly, after month end |
 | `test:scripts:board-pack` | Tests for the board pack generator (no database) | changes to the generator |
+| `finance:resilience` | Runway scenarios + revenue concentration (customer, processor) from a JSON file you fill in; offline, one currency per file. See `docs/finance/resilience.md` | monthly, with the board pack |
+| `test:scripts:resilience` | Tests for the resilience model (no database) | changes to the model |
+| `test:scripts:fx-exposure` | Static checks of the currency-exposure migration and its pgTAP plan (no database; behaviour is covered by `supabase test db`) | changes to `20290307000000_currency_exposure_views.sql` |
 | `report:market-entry` | Market-entry readiness per regional pack from `config/global/market-entry.json` + code facts. No network. `--strict` exits 3 while not ready. See `docs/global/market-entry.md` | before a regional launch |
 | `lint:market-entry` | Validates the market-entry checklist (evidence, COUNSEL/VERIFY rules) | changes to the checklist |
 | `test:scripts:market-entry` | Tests for the market-entry report | changes to the report |
