@@ -12,9 +12,13 @@ vi.mock('npm:@supabase/supabase-js@2.57.4', () => ({ createClient: (...a: unknow
 const trust = vi.hoisted(() => ({ erase: vi.fn() }));
 vi.mock('../_shared/trust/vault.ts', () => ({ eraseTrustPackData: (...a: unknown[]) => trust.erase(...a) }));
 
-const prov = vi.hoisted(() => ({ erase: vi.fn() }));
-vi.mock('../_shared/compliance/providerErasure.ts', () => ({ eraseProviderData: (...a: unknown[]) => prov.erase(...a) }));
-
+const prov = vi.hoisted(() => ({ erase: vi.fn(), due: vi.fn(), files: vi.fn() }));
+vi.mock('../_shared/compliance/providerErasureQueue.ts', () => ({
+  eraseProviderDataQueued: (...a: unknown[]) => prov.erase(...a),
+  processDueProviderErasureJobs: (...a: unknown[]) => prov.due(...a),
+  readProviderEnv: () => ({}),
+}));
+vi.mock('../_shared/compliance/storageErasure.ts', () => ({ eraseAccountStorage: (...a: unknown[]) => prov.files(...a) }));
 const USER = 'u1';
 const PAST = '2020-01-01T00:00:00.000Z';
 let db: FakeDb;
@@ -37,7 +41,9 @@ beforeEach(async () => {
   db.rpcHandlers['erase_user_rows'] = () => ({ blocked: {} });
   sb.create = db.createClient;
   trust.erase.mockReset().mockResolvedValue({ ok: true });
-  prov.erase.mockReset().mockResolvedValue({ ok: true, failed: [] });
+  prov.erase.mockReset().mockResolvedValue({ ok: true, snapshotOk: true, failed: [], unsupported: [] });
+  prov.due.mockReset().mockResolvedValue({ claimed: 0, erased: 0, retryScheduled: 0, dead: 0, unsupported: 0, notApplicable: 0, deferred: 0 });
+  prov.files.mockReset().mockResolvedValue({ ok: true, removed: 0, buckets: [], errors: [] });
   handler = await loadHandler(() => import('./index.ts'), { SUPABASE_URL: 'http://db.test', SUPABASE_SERVICE_ROLE_KEY: 'svc' });
 });
 
@@ -82,5 +88,29 @@ describe('eraseTrustPackData scope in data-retention-sweep', () => {
     expect(db.rows('jobs')).toHaveLength(1);
     expect(db.rows('deletion_requests')[0].status).toBe('grace_period');
     expect(body.errors.join(' ')).toContain('trust_pack_erasure_incomplete');
+  });
+  it('full_account: removes storage objects and passes the request id to provider erasure', async () => {
+    prov.files.mockResolvedValue({ ok: true, removed: 3, buckets: ['pbx-media'], errors: [] });
+    await runWith(request({ request_type: 'full_account' }));
+    expect(prov.files).toHaveBeenCalledTimes(1);
+    expect(prov.files.mock.calls[0][1]).toBe(USER);
+    expect(prov.erase.mock.calls[0][3]).toEqual({ requestId: 'r1' });
+    expect(db.rows('deletion_requests')[0].result.storage_objects_removed).toBe(3);
+  });
+
+  it('full_account: incomplete provider snapshot or storage removal keeps local data and returns to grace_period', async () => {
+    db.seed('jobs', [{ id: 'j1', user_id: USER }]);
+    prov.files.mockResolvedValue({ ok: false, removed: 0, buckets: [], errors: ['objects_remaining'] });
+    const { body } = await runWith(request({ request_type: 'full_account' }));
+    expect(db.rows('jobs')).toHaveLength(1);
+    expect(db.rows('deletion_requests')[0].status).toBe('grace_period');
+    expect(body.errors.join(' ')).toContain('storage_erasure_incomplete');
+  });
+
+  it('never touches provider or storage erasure for customer_record requests, but still drains the retry queue', async () => {
+    db.seed('customers', [{ id: 'c1', user_id: USER, name: 'Ann', phone: '1', email: 'a@x.test' }]);
+    await runWith(request({ request_type: 'customer_record', target_customer_id: 'c1' }));
+    expect(prov.files).not.toHaveBeenCalled();
+    expect(prov.due).toHaveBeenCalledTimes(1);
   });
 });
