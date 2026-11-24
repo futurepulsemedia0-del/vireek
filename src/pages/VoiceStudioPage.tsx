@@ -6,6 +6,7 @@ import { DashboardLayout } from '@/components/DashboardNav';
 import { Card } from '@/components/ui/Card';
 import { VoiceStudioExtras } from '@/components/voice-studio/VoiceStudioExtras';
 import { CloneConsentCard } from '@/components/voice-studio/CloneConsentCard';
+import { ExperimentsPanel } from '@/components/voice-studio/ExperimentsPanel';
 import { supabase } from '@/lib/supabase';
 import {
   DEFAULT_TUNING, SCENARIOS, LIMITS, sanitizeTuning, tuningForScenario,
@@ -217,6 +218,7 @@ export function VoiceStudioPage() {
         <div className="mt-6 space-y-6">
           <VoiceStudioExtras voiceKey={cur.voiceKey} tuning={cur.tuning} greeting={greeting} />
           <CloneConsentCard />
+          <ExperimentsPanel />
         </div>
       )}
     </DashboardLayout>
