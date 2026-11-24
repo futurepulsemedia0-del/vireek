@@ -14,6 +14,7 @@ import type { SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { isDncSuppressed, normalizePhone } from "../compliance/dncCheck.ts";
 import { getPreferences } from "../compliance/preferenceCheck.ts";
 import { buildRecordingConsentNotice } from "../compliance/recordingConsent.ts";
+import { resolveRegionalConsentContext } from "../compliance/consentContext.ts";
 import { gateOutbound } from "../messaging/quietHours.ts";
 import { gateContact } from "../compliance/consentChecks.ts";
 import { voiceOverride } from "../voice/voiceMap.ts";
@@ -537,6 +538,9 @@ async function dial(deps: Deps, req: RequestRow, settings: StlSettings, tz: { ti
   const attemptId = await logAttempt(admin, req, { decision: "dialed", reason: "OK", timezone: tz.timezone, local_time: tz.localTime, detail: { sla_ms: sla.ms, sla_met: sla.met } });
 
   let callId: string | null = null;
+  // Legacy US area-code notice, plus the region-aware rule for non-US numbers/businesses (never throws; "" keeps today's behaviour).
+  const legacyConsentNotice = buildRecordingConsentNotice(req.phone_e164);
+  const recordingConsentContext = [legacyConsentNotice, await resolveRegionalConsentContext(admin, owner, req.phone_e164, legacyConsentNotice)].filter(Boolean).join(" ");
   try {
     const res = await (deps.fetchImpl ?? fetch)(VAPI_CALL_URL, {
       method: "POST",
@@ -556,7 +560,7 @@ async function dial(deps: Deps, req: RequestRow, settings: StlSettings, tz: { ti
             first_name: req.first_name ?? "",
             business_name: businessName,
             service_requested: req.service ?? "",
-            recording_consent_context: buildRecordingConsentNotice(req.phone_e164),
+            recording_consent_context: recordingConsentContext,
             speed_to_lead_context: buildAssistantBrief({
               businessName,
               firstName: req.first_name,
