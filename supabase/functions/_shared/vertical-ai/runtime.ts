@@ -9,6 +9,7 @@
 
 import { recordTraceEvent, type AdminLike, type TraceCtx } from "../observability/recorder.ts";
 import { classifyUrgency, emergencyInstruction } from "./emergencyRules.ts";
+import { gateEntriesForAi, type GovernedEntry } from "../safety-governance/hazardGovernance.ts";
 import { normalizeIntake, type NormalizedIntake } from "./intake.ts";
 import { ONTOLOGY_SEED } from "./ontologySeed.ts";
 import type { OntologyEntry, OntologyPayload } from "./ontology.ts";
@@ -27,25 +28,42 @@ const TTL_MS = 5 * 60_000;
 interface OntologyRow {
   trade: string; kind: string; key: string; version: number; title: string; payload: OntologyPayload;
   source: string; effective_on: string; expires_on: string | null; jurisdiction: string; confidence: number | string; reviewed: boolean;
+  reviewed_by?: string | null; reviewed_at?: string | null; review_expires_on?: string | null; hazard_domains?: string[] | null;
+}
+
+/**
+ * Hazard-content gate (docs/safety/hazard-content-governance.md). Instructional gas / CO / electrical / refrigerant rows
+ * without a CURRENT human review never reach the planner. Safety-rule floor rows are never blocked. Set the edge secret
+ * HAZARD_CONTENT_GATE=report to log instead of block during a staged rollout.
+ */
+function applyHazardGate(entries: OntologyEntry[], now: number): OntologyEntry[] {
+  const enforce = (globalThis as { Deno?: { env: { get(k: string): string | undefined } } }).Deno?.env.get("HAZARD_CONTENT_GATE") !== "report";
+  const r = gateEntriesForAi(entries as unknown as GovernedEntry[], new Date(now), enforce);
+  if (r.blocked.length > 0 || r.unreviewedFloor.length > 0) {
+    console.warn(JSON.stringify({ event: "hazard_content_gate", enforce, blocked: r.blocked.map((b) => `${b.kind}:${b.key}@v${b.version}`), unreviewed_floor: r.unreviewedFloor }));
+  }
+  return r.allowed as unknown as OntologyEntry[];
 }
 
 export async function loadOntology(admin: Admin, now: number = Date.now()): Promise<OntologyEntry[]> {
   if (cache && now - cache.at < TTL_MS) return cache.entries;
   try {
     const { data, error } = await admin.from("vertical_ontology_entries")
-      .select("trade, kind, key, version, title, payload, source, effective_on, expires_on, jurisdiction, confidence, reviewed")
+      .select("trade, kind, key, version, title, payload, source, effective_on, expires_on, jurisdiction, confidence, reviewed, reviewed_by, reviewed_at, review_expires_on, hazard_domains")
       .eq("status", "active");
     if (!error && Array.isArray(data) && data.length > 0) {
       const entries = (data as OntologyRow[]).map((r) => ({
         trade: r.trade as OntologyEntry["trade"], kind: r.kind as OntologyEntry["kind"], key: r.key, version: r.version, title: r.title,
         payload: r.payload, source: r.source, effectiveOn: r.effective_on, expiresOn: r.expires_on, jurisdiction: r.jurisdiction,
         confidence: Number(r.confidence), reviewed: r.reviewed === true,
+        reviewedBy: r.reviewed_by ?? null, reviewedAt: r.reviewed_at ?? null, reviewExpiresOn: r.review_expires_on ?? null, declaredHazardDomains: r.hazard_domains ?? null,
       }));
-      cache = { at: now, entries };
-      return entries;
+      const gated = applyHazardGate(entries, now);
+      cache = { at: now, entries: gated };
+      return gated;
     }
   } catch { /* fall through to the bundled seed */ }
-  return ONTOLOGY_SEED;
+  return applyHazardGate([...ONTOLOGY_SEED], now);
 }
 
 /** Test hook. */
