@@ -1,0 +1,42 @@
+name: Runbook ownership
+
+# Lists runbooks / security docs that are ownerless, never tested, stale or overdue (docs/runbooks, docs/security).
+# Reminder system: it does NOT prove any drill happened. Warn-only by default (same policy as scripts/governance/check-owners.mjs);
+# invalid frontmatter always fails. To make the listing blocking on a release branch run:
+#   node scripts/governance/check-runbooks.mjs --strict
+# No secrets are used.
+
+on:
+  schedule:
+    - cron: '23 5 * * 1' # Mondays 05:23 UTC: staleness is a matter of time, not of commits
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'docs/runbooks/**'
+      - 'docs/security/**'
+      - 'scripts/governance/check-runbooks.mjs'
+      - 'scripts/governance/check-runbooks.test.mjs'
+      - 'scripts/governance/add-runbook-frontmatter.mjs'
+      - '.github/workflows/runbook-ownership.yml'
+
+concurrency:
+  group: runbook-ownership-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  runbooks:
+    name: Runbook frontmatter, owners and test dates
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Unit tests for the checker (Node built-in runner, no install needed)
+        run: node --test scripts/governance/check-runbooks.test.mjs
+      - name: List ownerless and stale runbooks (invalid frontmatter fails; the rest is reported)
+        run: node scripts/governance/check-runbooks.mjs
