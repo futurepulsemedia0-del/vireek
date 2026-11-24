@@ -7,6 +7,7 @@
 // Deploy with --no-verify-jwt (public, read-only, cacheable). No cookies, no identifiers, no per-visitor logging.
 
 import { adminClient } from "../_shared/data-platform/http.ts";
+import { assertDataProductApproved } from "../_shared/data-products/guard.ts";
 import { toCsv } from "../_shared/state-of-calls/csv.ts";
 import { chartCells, renderBarChartSvg } from "../_shared/state-of-calls/chart.ts";
 import { METRICS, metricByKey, type PublishedCell } from "../_shared/state-of-calls/schema.ts";
@@ -27,6 +28,9 @@ Deno.serve(async (req: Request) => {
   if (!["json", "csv", "svg"].includes(format)) return err(400, "Invalid format.");
 
   const admin = adminClient();
+  // Data-product approval gate (docs/data/monetization-ethics.md). A CDN may still serve a copy cached before a revocation (s-maxage=3600).
+  const blocked = await assertDataProductApproved(admin, "state_of_calls", "state-of-calls-public", BASE);
+  if (blocked) return blocked;
   let query = admin.from("report_editions").select("id,slug,status,cells_hash,published_at,document");
   query = edition === "latest"
     ? query.eq("status", "published").eq("document->>synthetic", "false").order("published_at", { ascending: false }).limit(1)
