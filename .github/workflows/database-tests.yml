@@ -28,8 +28,8 @@ jobs:
     # including warranty_claims_rls, purchase_orders_rls and revenue_recovery_events_rls.
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
-      - uses: supabase/setup-cli@v1
+      - uses: actions/checkout@v7
+      - uses: supabase/setup-cli@v3
         with:
           version: latest
       - name: Start local stack
