@@ -1,0 +1,61 @@
+name: Data Governance
+
+# Ownership register (every table needs an entry) and data-product approval gates (every external data endpoint
+# references an approved-review check). Static checks over the checked-out tree; no database is touched.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/migrations/**'
+      - 'supabase/functions/**'
+      - 'supabase/tests/database/data_product_reviews.test.sql'
+      - 'docs/data/**'
+      - 'scripts/data/**'
+      - 'scripts/security/rls-audit.mjs'
+      - 'src/lib/dataGovernance.ts'
+      - '.github/workflows/data-governance.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'supabase/migrations/**'
+      - 'supabase/functions/**'
+      - 'supabase/tests/database/data_product_reviews.test.sql'
+      - 'docs/data/**'
+      - 'scripts/data/**'
+      - 'scripts/security/rls-audit.mjs'
+      - 'src/lib/dataGovernance.ts'
+      - '.github/workflows/data-governance.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: data-governance-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  data-governance:
+    name: Ownership register + data product gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci --ignore-scripts
+
+      - name: Ownership register (fails on a new table without an entry, a stale register, stale entries)
+        run: npm run data:register:check
+
+      - name: Data product gates (every external data endpoint references an approval check)
+        run: npm run data:products:check
+
+      - name: Script tests
+        run: npm run test:scripts:data
+
+      - name: Guard unit tests
+        run: npx vitest run supabase/functions/_shared/data-products
