@@ -173,3 +173,5 @@ verify_jwt = false
 verify_jwt = false
 [functions.change-calendar-tick]
 verify_jwt = false
+[functions.payment-protection]
+verify_jwt = false
