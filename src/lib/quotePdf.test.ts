@@ -47,6 +47,11 @@ describe('buildQuoteDocInput', () => {
     expect(buildQuoteDocInput(quote({ service_address: null }), null, labels).serviceAddress).toBeNull();
     expect(quoteReference('abc-def')).toBe('Q-ABCDEF');
   });
+  it('passes disclosures through unchanged and defaults to null', () => {
+    const disclosures = { clauses: [{ title: 'T', text: 'X' }], licenseLines: ['L 1'] };
+    expect(buildQuoteDocInput(quote(), 'Acme', labels, disclosures).disclosures).toEqual(disclosures);
+    expect(buildQuoteDocInput(quote(), 'Acme', labels).disclosures).toBeNull();
+  });
   it('filename follows the export scheme and is path-safe', () => {
     expect(quotePdfFilename({ id: 'x', customer_name: '../Jane Doe' }, 'Acme HVAC', new Date('2026-10-30T00:00:00Z'))).toBe('acme-hvac-quote-2026-10-30-jane-doe.pdf');
   });
