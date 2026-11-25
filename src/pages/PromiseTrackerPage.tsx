@@ -25,6 +25,7 @@ import {
   type PromiseStatus,
 } from '@/lib/promises';
 import { EmptyState } from '@/components/EmptyState';
+import { CallbackPromiseCard } from '@/components/promises/CallbackPromiseCard';
 import { SkeletonStatGrid, SkeletonTable, FadeIn } from '@/components/Skeleton';
 
 type FilterTab = 'pending' | 'overdue' | 'fulfilled' | 'broken' | 'all';
@@ -181,7 +182,7 @@ export function PromiseTrackerPage() {
           <p className="mt-1 text-sm text-text-secondary">Every commitment made on a call, tracked until it's kept</p>
         </div>
       </div>
-
+      <CallbackPromiseCard canEdit={isOwner} />
       {loading ? (
         <>
           <SkeletonStatGrid count={4} />
@@ -239,6 +240,9 @@ export function PromiseTrackerPage() {
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="rounded-full bg-bg-tertiary px-2 py-0.5 text-[11px] font-medium text-text-secondary">{CATEGORY_LABELS[p.category]}</span>
+                          {p.origin === 'callback_policy' && (
+                            <span className="rounded-full bg-accent/10 px-2 py-0.5 text-[11px] font-medium text-accent">Callback rule{p.escalation_stage === 'escalated' ? ' · escalated' : ''}</span>
+                          )}
                           <StatusBadge status={p.status} overdue={overdue} />
                         </div>
                         <p className="mt-2 text-sm font-medium text-text-primary">{p.promise_text}</p>
