@@ -1,8 +1,10 @@
 import type { PartnerAdapter } from './types.ts';
 import { mockPartner } from './mock.ts';
+import { protectionStub } from './protection.ts';
 
 const PARTNERS: Record<string, PartnerAdapter> = {
   [mockPartner.key]: mockPartner,
+  [protectionStub.key]: protectionStub,
 };
 
 export function getPartner(key: string): PartnerAdapter | null {
