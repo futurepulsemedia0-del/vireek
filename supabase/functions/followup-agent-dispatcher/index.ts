@@ -212,6 +212,22 @@ async function runCallStep(admin: SupabaseClient, enrollment: Enrollment, step: 
       step_number: stepNumber, lead_id: enrollment.lead_id, job_id: enrollment.job_id,
       customer_name: enrollment.customer_name, customer_phone: enrollment.customer_phone,
       status: "failed", outcome_notes: "No Vapi assistant/phone number configured for this business.",
+    });
+    return false;
+  }
+  const stateDnc = await scrubForDial(admin, {
+    ownerId: enrollment.user_id, phone: enrollment.customer_phone ?? "", source: "followup-agent-dispatcher",
+    correlationId: enrollment.id, purpose: followupFraudPurpose(enrollment.campaign_type),
+  });
+  if (!stateDnc.allow) {
+    await admin.from("outbound_calls").insert({
+      user_id: enrollment.user_id, campaign_type: enrollment.campaign_type, enrollment_id: enrollment.id,
+      step_number: stepNumber, lead_id: enrollment.lead_id, job_id: enrollment.job_id,
+      customer_name: enrollment.customer_name, customer_phone: enrollment.customer_phone,
+      status: stateDnc.decision === "suppressed" ? "opted_out" : "failed", outcome_notes: `Blocked by state DNC scrub (${stateDnc.reasonCode}).`,
+    });
+    return false;
+  }
   // Fraud guard immediately before the provider call (shadow/enforce per fraud_settings.outbound_guard_mode).
   const fraud = await gateCustomerOutbound(asFraudDb(admin), {
     userId: enrollment.user_id, kind: "call", to: enrollment.customer_phone ?? "", purpose: followupFraudPurpose(enrollment.campaign_type),
@@ -225,10 +241,6 @@ async function runCallStep(admin: SupabaseClient, enrollment: Enrollment, step: 
       status: "failed", outcome_notes: `Blocked by safety checks (${fraud.blocked.code}): ${fraud.blocked.message}`,
     });
     return { blocked: fraud.blocked };
-  }
-    });
-    return false;
-  }
 
   const variableValues: Record<string, string> = {
     customer_name: enrollment.customer_name,
@@ -245,12 +257,14 @@ async function runCallStep(admin: SupabaseClient, enrollment: Enrollment, step: 
         assistantId: business.vapi_assistant_id,
         phoneNumberId: business.vapi_phone_number_id,
         customer: { number: fraud.e164 },
-        assistantOverrides: { ...voiceOverride(business.assistant_voice), variableValues, maxDurationSeconds: fraud.maxCallSeconds },
+        assistantOverrides: { ...voiceOverride(business.assistant_voice), variableValues: await outboundDisclosureVariables(admin, enrollment.user_id, variableValues), maxDurationSeconds: fraud.maxCallSeconds },
       }),
     });
 
     if (!res.ok) {
       const bodyText = await res.text();
+    await attachOutboundCall(asFraudDb(admin), fraud, json.id ?? null);
+    await registerOutboundDisclosure(admin, { userId: enrollment.user_id, vapiCallId: json.id ?? null });
       await admin.from("outbound_calls").insert({
         user_id: enrollment.user_id, campaign_type: enrollment.campaign_type, enrollment_id: enrollment.id,
         step_number: stepNumber, lead_id: enrollment.lead_id, job_id: enrollment.job_id,
@@ -300,7 +314,11 @@ async function placeVapiCall(
     call_purpose: CAMPAIGN_CONTEXT[enrollment.campaign_type],
   };
   if (step !== "legacy_call" && step.call_context) variableValues.followup_context = step.call_context;
-
+  const stateDnc = await scrubForDial(admin, {
+    ownerId: enrollment.user_id, phone: enrollment.customer_phone ?? "", source: "followup-agent-dispatcher",
+    correlationId: enrollment.id, purpose: followupFraudPurpose(enrollment.campaign_type),
+  });
+  if (!stateDnc.allow) throw new ToolError(`state_dnc:${stateDnc.reasonCode}`, "policy_blocked", false, false);
   const fraud = await gateCustomerOutbound(asFraudDb(admin), {
     userId: enrollment.user_id, kind: "call", to: enrollment.customer_phone ?? "", purpose: followupFraudPurpose(enrollment.campaign_type),
     source: "followup-agent-dispatcher", campaign: enrollment.campaign_type,
@@ -317,7 +335,7 @@ async function placeVapiCall(
         assistantId: business.vapi_assistant_id,
         phoneNumberId: business.vapi_phone_number_id,
         customer: { number: fraud.e164 },
-        assistantOverrides: { ...voiceOverride(business.assistant_voice), variableValues, maxDurationSeconds: fraud.maxCallSeconds },
+        assistantOverrides: { ...voiceOverride(business.assistant_voice), variableValues: await outboundDisclosureVariables(admin, enrollment.user_id, variableValues), maxDurationSeconds: fraud.maxCallSeconds },
       }),
     });
   } catch (e) {
