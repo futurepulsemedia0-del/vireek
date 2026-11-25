@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Outcome event data (PROPOSED)",
+  "description": "PROPOSED. The \"data\" member of outcome.recorded: one measured or estimated result (recovered revenue, saved time, avoided cost). Derived from Vireek's value ledger (table `value_events`); no outcome event is emitted or exposed in the public API today. The producer-internal `source_feature` and account id are left out.",
+  "type": "object",
+  "required": ["id", "type", "amount", "unit", "confidence", "evidence_ref", "occurred_at"],
+  "properties": {
+    "id": { "type": "string", "format": "uuid", "description": "Unique outcome id." },
+    "type": { "type": "string", "enum": ["recovered_revenue", "saved_hours", "avoided_cost"], "description": "What kind of result this is." },
+    "amount": { "type": "integer", "minimum": 1, "maximum": 100000000000, "description": "Whole units: cents for money, minutes for saved time." },
+    "unit": { "type": "string", "enum": ["cents", "minutes"], "description": "Unit of amount." },
+    "currency": { "type": ["string", "null"], "pattern": "^[A-Z]{3}$", "description": "ISO 4217 code. Required for money, null for time." },
+    "confidence": { "type": "string", "enum": ["measured", "estimated"], "description": "Whether the amount was observed or estimated." },
+    "method_note": { "type": "string", "minLength": 1, "maxLength": 600, "description": "How the amount was worked out, in plain words." },
+    "evidence_ref": { "type": "string", "minLength": 3, "maxLength": 200, "description": "Pointer to the record that proves it (producer-defined)." },
+    "supersedes_ref": { "type": ["string", "null"], "minLength": 3, "maxLength": 200, "description": "evidence_ref of an estimate this measured value replaces." },
+    "occurred_at": { "type": "string", "format": "date-time", "description": "When the result happened." },
+    "created_at": { "type": "string", "format": "date-time", "description": "When the record was created." }
+  },
+  "if": { "properties": { "type": { "const": "saved_hours" } }, "required": ["type"] },
+  "then": {
+    "properties": { "unit": { "const": "minutes" }, "currency": { "type": "null" } }
+  },
+  "else": {
+    "required": ["currency"],
+    "properties": { "unit": { "const": "cents" }, "currency": { "type": "string" } }
+  },
+  "additionalProperties": true
+}
