@@ -149,6 +149,7 @@ export const PRIMARY_ITEMS: NavItem[] = [
   { label: 'AI Quality', href: '/dashboard/ai-quality', icon: Gauge, requiresPermission: 'can_edit_business_profile' },
   { label: 'AI Disclosure Ledger', href: '/dashboard/ai-disclosure-ledger', icon: ShieldCheck, requiresPermission: 'can_edit_business_profile' },
   { label: 'CSR Phone Desk', href: '/dashboard/csr-desk', icon: Headset, requiresPermission: 'can_view_all_jobs' },
+  { label: 'AI Call QA', href: '/dashboard/ai-call-qa', icon: ClipboardCheck, requiresPermission: 'can_edit_business_profile' },
   { label: 'Leaderboard', href: '/dashboard/leaderboard', icon: Medal },
   { label: 'Inbox', href: '/dashboard/inbox', icon: Inbox },
   { label: 'Goals', href: '/dashboard/goals', icon: Target },
