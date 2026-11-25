@@ -11,7 +11,7 @@ export type RouteFallbackVariant = 'marketing' | 'app' | 'portal' | 'data';
 
 interface RouteFallbackProps {
   variant?: RouteFallbackVariant;
-  /** @deprecated No longer needed: the loader is always centred in the visible area. Kept so existing call sites compile. */
+   /** Auth guards that replace the whole screen (cold start): show the mark from the first frame so there is never a blank gap after the boot loader is gone. */
   fullScreen?: boolean;
   /** Suspense fallbacks of lazy routes: show the mark from the first frame (routeLazy guarantees one full loop). */
   immediate?: boolean;
@@ -27,9 +27,9 @@ const COPY_ROTATE_MS = 2400;
  * Known limit: React unmounts a Suspense fallback the instant the chunk arrives, so the 400ms
  * minimum cannot apply here (it does for LoadingBoundary, Button, Overlay and PullToRefresh).
  */
-export function RouteFallback({ variant = 'marketing', immediate = false }: RouteFallbackProps) {
+export function RouteFallback({ variant = 'marketing', fullScreen = false, immediate = false }: RouteFallbackProps) {
   const { t } = useTranslation('common', { useSuspense: false });
-  const stage = useStagedReveal(true, immediate ? IMMEDIATE_STAGES : STAGES);
+  const stage = useStagedReveal(true, immediate || fullScreen ? IMMEDIATE_STAGES : STAGES);
   const [copyIndex, setCopyIndex] = useState(0);
   const showCopy = stage >= 3 && variant !== 'marketing';
 
