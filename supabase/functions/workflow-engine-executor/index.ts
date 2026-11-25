@@ -196,6 +196,13 @@ async function runCallStep(admin: SupabaseClient, run: Run, config: Record<strin
     .maybeSingle();
   if (!business?.vapi_assistant_id || !business?.vapi_phone_number_id) {
     return { ok: false, terminal: true, error: "No Vapi assistant/phone number configured." };
+  const stateDnc = await scrubForDial(admin, {
+    ownerId: run.user_id, phone: run.customer_phone, source: "workflow-engine-executor",
+    correlationId: String(run.id ?? ""), purpose: workflowFraudPurpose(run),
+  });
+  if (!stateDnc.allow) {
+    return { ok: false, terminal: !stateDnc.retryable, retryAt: stateDnc.retryAt ?? undefined, error: `state_dnc:${stateDnc.reasonCode}` };
+  }
   // Fraud guard immediately before the provider call (shadow/enforce per fraud_settings.outbound_guard_mode).
   const fraud = await gateCustomerOutbound(asFraudDb(admin), {
     userId: run.user_id, kind: "call", to: run.customer_phone, purpose: workflowFraudPurpose(run),
@@ -216,7 +223,7 @@ async function runCallStep(admin: SupabaseClient, run: Run, config: Record<strin
         phoneNumberId: business.vapi_phone_number_id,
         customer: { number: fraud.e164 },
         assistantOverrides: {
-          variableValues: { customer_name: run.customer_name ?? "", followup_context: String(config.call_context ?? "") },
+variableValues: await outboundDisclosureVariables(admin, run.user_id, { customer_name: run.customer_name ?? "", followup_context: String(config.call_context ?? "") }),
         ...voiceOverride(business.assistant_voice),
           maxDurationSeconds: fraud.maxCallSeconds,
         },
@@ -228,6 +235,7 @@ async function runCallStep(admin: SupabaseClient, run: Run, config: Record<strin
     }
     const json = await res.json();
     await attachOutboundCall(asFraudDb(admin), fraud, json.id ?? null);
+    await registerOutboundDisclosure(admin, { userId: run.user_id, vapiCallId: json.id ?? null });
     return { ok: true, result: { vapi_call_id: json.id ?? null } };
   } catch (err) {
     await releaseOutboundReservation(asFraudDb(admin), fraud);
