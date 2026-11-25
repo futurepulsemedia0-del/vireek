@@ -302,6 +302,7 @@ export const BLOCKER_LABELS: Record<string, string> = {
   NOT_APPROVED: 'Not an approved subcontractor tier',
   NOT_ENROLLED: 'Not enrolled on the board',
   DOCS: 'Compliance documents missing or expired',
+  COI: 'Insurance certificate missing, unverified or expired',
   SUBS_DISABLED: 'Subcontractors are switched off',
 };
 
