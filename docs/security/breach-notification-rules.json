@@ -1,0 +1,16 @@
+{
+  "_comment": "Machine-readable twin of the matrix in breach-notification.md. deadline stays null until counsel confirms it; then set verifiedBy to the counsel's name/date. A test rejects any non-null deadline without verifiedBy.",
+  "rules": [
+    { "id": "eu_regulator", "jurisdiction": "EU/EEA", "audience": "regulator", "clockStart": "awareness", "deadline": null, "verifiedBy": null, "source": "TODO(counsel)" },
+    { "id": "eu_individuals", "jurisdiction": "EU/EEA", "audience": "individuals", "clockStart": "determination", "deadline": null, "verifiedBy": null, "source": "TODO(counsel)" },
+    { "id": "uk_regulator", "jurisdiction": "UK", "audience": "regulator", "clockStart": "awareness", "deadline": null, "verifiedBy": null, "source": "TODO(counsel)" },
+    { "id": "uk_individuals", "jurisdiction": "UK", "audience": "individuals", "clockStart": "determination", "deadline": null, "verifiedBy": null, "source": "TODO(counsel)" },
+    { "id": "us_state_regulator", "jurisdiction": "US (per state)", "audience": "regulator", "clockStart": "determination", "deadline": null, "verifiedBy": null, "source": "TODO(counsel)" },
+    { "id": "us_state_individuals", "jurisdiction": "US (per state)", "audience": "individuals", "clockStart": "determination", "deadline": null, "verifiedBy": null, "source": "TODO(counsel)" },
+    { "id": "ca_regulator", "jurisdiction": "Canada", "audience": "regulator", "clockStart": "determination", "deadline": null, "verifiedBy": null, "source": "TODO(counsel)" },
+    { "id": "ca_individuals", "jurisdiction": "Canada", "audience": "individuals", "clockStart": "determination", "deadline": null, "verifiedBy": null, "source": "TODO(counsel)" },
+    { "id": "au_regulator", "jurisdiction": "Australia", "audience": "regulator", "clockStart": "determination", "deadline": null, "verifiedBy": null, "source": "TODO(counsel)" },
+    { "id": "au_individuals", "jurisdiction": "Australia", "audience": "individuals", "clockStart": "determination", "deadline": null, "verifiedBy": null, "source": "TODO(counsel)" },
+    { "id": "customer_contract", "jurisdiction": "Per customer contract", "audience": "customers", "clockStart": "awareness", "deadline": null, "verifiedBy": null, "source": "docs/registers/commitments.json (TODO(owner): not yet created, see D-10)" }
+  ]
+}
