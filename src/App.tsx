@@ -521,6 +521,8 @@ const FirstTimeFixAutopilotPage = lazy(() => import('@/pages/FirstTimeFixAutopil
 const ResolutionProbabilityPage = lazy(() => import('@/pages/ResolutionProbabilityPage').then((m) => ({ default: m.ResolutionProbabilityPage })));
 const OpsExperimentsPage = lazy(() => import('@/pages/OpsExperimentsPage').then((m) => ({ default: m.OpsExperimentsPage })));
 const OutcomeBenchmarkNetworkPage = lazy(() => import('@/pages/OutcomeBenchmarkNetworkPage').then((m) => ({ default: m.OutcomeBenchmarkNetworkPage })));
+const NetworkPage = lazy(() => import('@/pages/NetworkPage').then((m) => ({ default: m.NetworkPage })));
+const AiCallQaPage = lazy(() => import('@/pages/AiCallQaPage').then((m) => ({ default: m.AiCallQaPage })));
 const InsightsPublicPage = lazy(() => import('@/pages/InsightsPublicPage').then((m) => ({ default: m.InsightsPublicPage })));
 const InsightsSettingsPage = lazy(() => import('@/pages/InsightsSettingsPage').then((m) => ({ default: m.InsightsSettingsPage })));
 const ClickToCashAttributionPage = lazy(() => import('@/pages/ClickToCashAttributionPage').then((m) => ({ default: m.ClickToCashAttributionPage })));
@@ -1058,6 +1060,7 @@ function AppRoutes() {
         <Route path="/msa" element={<MsaPage />} />
         <Route path="/ai-disclosure" element={<AiDisclosurePage />} />
         <Route path="/open-voice-benchmark" element={<OpenVoiceBenchmarkPage />} />
+        <Route path="/network" element={<NetworkPage />} />
         <Route path="/trademark-policy" element={<TrademarkPolicyPage />} />
         <Route path="/legal/company" element={<CompanyPage />} />
         <Route path="/dmca" element={<DmcaPage />} />
@@ -4819,6 +4822,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <AdoptionOSPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/ai-call-qa"
+          element={
+            <ProtectedRoute>
+              <AiCallQaPage />
             </ProtectedRoute>
           }
         />
