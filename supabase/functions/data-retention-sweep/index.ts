@@ -25,6 +25,10 @@ import { eraseProviderDataQueued, processDueProviderErasureJobs, readProviderEnv
 import { eraseAccountStorage } from "../_shared/compliance/storageErasure.ts";
 import { sweepOwnedRows, type SweepRpcClient } from "../_shared/compliance/sweepBatches.ts";
 import { eraseTrustPackData } from "../_shared/trust/vault.ts";
+import { AuthUserErasureIncomplete, eraseAuthUser, safeErrorCode, type AuthErasureClient } from "../_shared/compliance/authUserErasure.ts";
+
+// A 'processing' request whose lease is older than this is treated as abandoned (crash / timeout) and retried.
+const PROCESSING_LEASE_MS = 15 * 60_000;
 import { loadSigningKeys, parseBackupRetentionDays, type ErasureBaseline, type ErasureEvidence } from "../_shared/compliance/erasureCertificate.ts";
 import { issueErasureCertificate, issueMissingCertificates, recordErasureEvidence } from "../_shared/compliance/erasureCertificateIssuer.ts";
 import erasureBaseline from "../../../docs/compliance/erasure-coverage-baseline.json" with { type: "json" };
@@ -113,12 +117,13 @@ Deno.serve(async (req: Request) => {
   }
 
   // ---------- 2. Due deletion requests ----------
+    const nowIso = new Date().toISOString();
+  const staleBefore = new Date(Date.now() - PROCESSING_LEASE_MS).toISOString();
   const { data: dueRequests, error: dueError } = await admin
     .from("deletion_requests")
     .select("*")
-    .eq("status", "grace_period")
-    .lte("scheduled_for", new Date().toISOString());
-
+    .or(`status.eq.grace_period,and(status.eq.processing,processing_started_at.lt.${staleBefore})`)
+    .lte("scheduled_for", nowIso);
   if (dueError) summary.errors.push(`load deletion_requests: ${dueError.message}`);
 
   for (const request of dueRequests ?? []) {
@@ -132,7 +137,17 @@ Deno.serve(async (req: Request) => {
         continue;
       }
 
-      await admin.from("deletion_requests").update({ status: "processing" }).eq("id", request.id);
+      // Atomic claim (compare-and-set): a concurrent run, or a run whose lease is still fresh, wins nothing here.
+      let claimQuery = admin
+        .from("deletion_requests")
+        .update({ status: "processing", processing_started_at: new Date().toISOString(), attempts: (request.attempts ?? 0) + 1 })
+        .eq("id", request.id)
+        .eq("status", request.status);
+      if (request.status === "processing") claimQuery = claimQuery.eq("processing_started_at", request.processing_started_at);
+      const { data: claimed, error: claimErr } = await claimQuery.select("id");
+      if (claimErr) throw claimErr;
+      if (!claimed?.length) continue;
+      const attempt = (request.attempts ?? 0) + 1;
 
       let result: Record<string, number> = {};
       let evidence: ErasureEvidence | null = null;
@@ -166,6 +181,16 @@ Deno.serve(async (req: Request) => {
         result["blocked_tables"] = blockedTables.length;
         ev.catalogErase = rest as ErasureEvidence["catalogErase"];
         if (blockedTables.length) throw new Error(`erasure_blocked_tables:${blockedTables.slice(0, 5).join(",")}`);
+        // All data is gone: remove the login itself (idempotent; already-deleted counts as success).
+        const authOutcome = await eraseAuthUser(admin as unknown as AuthErasureClient, { userId: request.user_id, requestId: request.id, attempt });
+        if (authOutcome.state === "blocked_legal_hold") {
+          await admin.from("deletion_requests").update({ status: "blocked_legal_hold", last_error: null }).eq("id", request.id);
+          continue;
+        }
+        if (authOutcome.state === "failed") throw new AuthUserErasureIncomplete(authOutcome.code ?? "unknown");
+        result["auth_user_deleted"] = authOutcome.state === "deleted" ? 1 : 0;
+        result["auth_user_already_absent"] = authOutcome.state === "already_absent" ? 1 : 0;
+        result["auth_audit_failed"] = authOutcome.audited ? 0 : 1;
       } else if (request.request_type === "customer_record" && request.target_customer_id) {
         // Anonymize, don't delete — jobs/quotes/payment history tied to a
         // customer are financial/legal records, not just contact data.
@@ -240,7 +265,12 @@ Deno.serve(async (req: Request) => {
       }
     } catch (err) {
       summary.errors.push(`request ${request.id}: ${err instanceof Error ? err.message : String(err)}`);
-      await admin.from("deletion_requests").update({ status: "grace_period" }).eq("id", request.id);
+      if (err instanceof AuthUserErasureIncomplete) {
+        // Data is already erased: stay 'processing' (owner cannot cancel) and retry once the lease expires.
+        await admin.from("deletion_requests").update({ status: "processing", processing_started_at: new Date().toISOString(), last_error: err.code }).eq("id", request.id);
+      } else {
+        await admin.from("deletion_requests").update({ status: "grace_period", last_error: safeErrorCode(err) }).eq("id", request.id);
+      }
     }
   }
   // ---------- 3. Certificates still missing (crash after completion, or signing key configured later) ----------
