@@ -1,0 +1,327 @@
+{
+  "_comment": "Every file that places or answers a call. Rules: scripts/compliance/voice-disclosure-lib.mjs. DRAFT, TODO(counsel).",
+  "flows": [
+    {
+      "path": "supabase/functions/vapi-webhook/index.ts",
+      "kind": "inbound_ai_answer",
+      "aiSpeaksToThirdParty": true,
+      "disclosure": {
+        "mode": "webhook_plan",
+        "timing": "first utterance: disclosure -> recording notice/consent -> greeting (callStartPlan.ts)",
+        "evidence": [
+          {
+            "file": "supabase/functions/vapi-webhook/index.ts",
+            "pattern": "aiDisclosureText:\\s*disclosurePlan\\?\\.text"
+          },
+          {
+            "file": "supabase/functions/vapi-webhook/index.ts",
+            "pattern": "buildCallStartPlan\\("
+          },
+          {
+            "file": "supabase/functions/_shared/compliance/callStartPlan.ts",
+            "pattern": "\\|\\|\\s*DEFAULT_DISCLOSURE_SCRIPT"
+          }
+        ]
+      }
+    },
+    {
+      "path": "supabase/functions/outbound-dialer/index.ts",
+      "kind": "outbound_ai_call",
+      "aiSpeaksToThirdParty": true,
+      "disclosure": {
+        "mode": "variable_injection",
+        "timing": "first utterance IF the saved assistant's first message starts with {{ai_disclosure}} (checked by ai-disclosure-drift-scan); proof row via registerOutboundDisclosure",
+        "evidence": [
+          {
+            "file": "supabase/functions/outbound-dialer/index.ts",
+            "pattern": "outboundDisclosureVariables\\("
+          },
+          {
+            "file": "supabase/functions/outbound-dialer/index.ts",
+            "pattern": "registerOutboundDisclosure\\("
+          }
+        ]
+      }
+    },
+    {
+      "path": "supabase/functions/followup-agent-dispatcher/index.ts",
+      "kind": "outbound_ai_call",
+      "aiSpeaksToThirdParty": true,
+      "disclosure": {
+        "mode": "variable_injection",
+        "timing": "first utterance IF the saved assistant's first message starts with {{ai_disclosure}} (checked by ai-disclosure-drift-scan); proof row via registerOutboundDisclosure",
+        "evidence": [
+          {
+            "file": "supabase/functions/followup-agent-dispatcher/index.ts",
+            "pattern": "outboundDisclosureVariables\\("
+          },
+          {
+            "file": "supabase/functions/followup-agent-dispatcher/index.ts",
+            "pattern": "registerOutboundDisclosure\\("
+          }
+        ]
+      }
+    },
+    {
+      "path": "supabase/functions/workflow-engine-executor/index.ts",
+      "kind": "outbound_ai_call",
+      "aiSpeaksToThirdParty": true,
+      "disclosure": {
+        "mode": "variable_injection",
+        "timing": "first utterance IF the saved assistant's first message starts with {{ai_disclosure}} (checked by ai-disclosure-drift-scan); proof row via registerOutboundDisclosure",
+        "evidence": [
+          {
+            "file": "supabase/functions/workflow-engine-executor/index.ts",
+            "pattern": "outboundDisclosureVariables\\("
+          },
+          {
+            "file": "supabase/functions/workflow-engine-executor/index.ts",
+            "pattern": "registerOutboundDisclosure\\("
+          }
+        ]
+      }
+    },
+    {
+      "path": "supabase/functions/first-call-start/index.ts",
+      "kind": "outbound_ai_call",
+      "aiSpeaksToThirdParty": true,
+      "disclosure": {
+        "mode": "variable_injection",
+        "timing": "first utterance IF the saved assistant's first message starts with {{ai_disclosure}} (checked by ai-disclosure-drift-scan); proof row via registerOutboundDisclosure",
+        "evidence": [
+          {
+            "file": "supabase/functions/first-call-start/index.ts",
+            "pattern": "outboundDisclosureVariables\\("
+          },
+          {
+            "file": "supabase/functions/first-call-start/index.ts",
+            "pattern": "registerOutboundDisclosure\\("
+          }
+        ]
+      }
+    },
+    {
+      "path": "supabase/functions/_shared/speed-to-lead/runtime.ts",
+      "kind": "outbound_ai_call",
+      "aiSpeaksToThirdParty": true,
+      "disclosure": {
+        "mode": "explicit_first_message",
+        "timing": "first utterance: \"this is Sarah, an AI assistant calling on behalf of ...\"",
+        "evidence": [
+          {
+            "file": "supabase/functions/_shared/speed-to-lead/runtime.ts",
+            "pattern": "firstMessage:\\s*buildFirstMessage\\("
+          },
+          {
+            "file": "supabase/functions/_shared/speed-to-lead/core.ts",
+            "pattern": "an AI assistant calling on behalf of"
+          }
+        ]
+      }
+    },
+    {
+      "path": "supabase/functions/voice-studio-test-call/index.ts",
+      "kind": "owner_test_call",
+      "aiSpeaksToThirdParty": true,
+      "disclosure": {
+        "mode": "fixed_script",
+        "timing": "first utterance; fixed non-editable text, dials only the owner's own number",
+        "evidence": [
+          {
+            "file": "supabase/functions/voice-studio-test-call/index.ts",
+            "pattern": "const TEST_LINE = \"[^\"]*AI voice assistant"
+          }
+        ]
+      }
+    },
+    {
+      "path": "supabase/functions/_shared/audit/providers.ts",
+      "kind": "outbound_ai_call",
+      "aiSpeaksToThirdParty": true,
+      "disclosure": {
+        "mode": "fixed_script",
+        "timing": "first words once a live person speaks (firstMessageMode assistant-waits-for-user)",
+        "evidence": [
+          {
+            "file": "supabase/functions/_shared/audit/script.ts",
+            "pattern": "I'm an AI assistant, not a person"
+          },
+          {
+            "file": "supabase/functions/_shared/audit/script.ts",
+            "pattern": "STEP 2a\\. If a live person speaks"
+          }
+        ]
+      }
+    },
+    {
+      "path": "supabase/functions/_shared/ovb/runtime.ts",
+      "kind": "synthetic_caller",
+      "aiSpeaksToThirdParty": true,
+      "disclosure": {
+        "mode": "none",
+        "timing": "n/a"
+      },
+      "note": "AI role-plays a human caller and is told never to reveal it is a test. TODO(owner): prove every OVB target is a Vireek-controlled or consenting test line, or add a disclosure. TODO(counsel)."
+    },
+    {
+      "path": "supabase/functions/interpreter-bridge-twiml/index.ts",
+      "kind": "ai_interpreter_bridge",
+      "aiSpeaksToThirdParty": true,
+      "disclosure": {
+        "mode": "none",
+        "timing": "n/a"
+      },
+      "note": "AI interpreter speaks to the caller. languages.ts holds an `aiDisclosure` string per language but no code in this repo plays it (the bridge worker is a separate service). TODO(owner): confirm the worker plays it first and add evidence, or wire it. TODO(counsel)."
+    },
+    {
+      "path": "supabase/functions/synthetic-probe/index.ts",
+      "kind": "internal_probe",
+      "aiSpeaksToThirdParty": false,
+      "reason": "Vireek probe assistant calls Vireek-provisioned tenant AI lines to measure uptime; the callee is an AI line, not a person."
+    },
+    {
+      "path": "supabase/functions/interpreter/index.ts",
+      "kind": "control_plane",
+      "aiSpeaksToThirdParty": false,
+      "reason": "Control plane (translate, start/set session, ingest). It speaks nothing; the spoken leg is interpreter-bridge-twiml (registered separately)."
+    },
+    {
+      "path": "supabase/functions/csr-call-transfer/index.ts",
+      "kind": "call_control",
+      "aiSpeaksToThirdParty": false,
+      "reason": "Transfers a live call to a human; no new AI speech."
+    },
+    {
+      "path": "supabase/functions/live-call-control/index.ts",
+      "kind": "call_control",
+      "aiSpeaksToThirdParty": false,
+      "reason": "Take-over/transfer of a live call to staff; no new AI speech."
+    },
+    {
+      "path": "supabase/functions/_shared/voice-engine/vapiEngine.ts",
+      "kind": "provider_adapter",
+      "aiSpeaksToThirdParty": false,
+      "reason": "Engine adapter; callers inject variableValues (disclosure added by each outbound flow above)."
+    },
+    {
+      "path": "supabase/functions/_shared/voice-engine/types.ts",
+      "kind": "provider_adapter",
+      "aiSpeaksToThirdParty": false,
+      "reason": "Type contract only."
+    },
+    {
+      "path": "supabase/functions/_shared/voice/vapiProvider.ts",
+      "kind": "provider_adapter",
+      "aiSpeaksToThirdParty": false,
+      "reason": "Provider adapter delegating to VapiEngine.startCall; callers own the variables."
+    },
+    {
+      "path": "supabase/functions/_shared/voice-engine/openAiRealtimeEngine.ts",
+      "kind": "provider_adapter",
+      "aiSpeaksToThirdParty": false,
+      "reason": "Stub: startCall returns NOT_IMPLEMENTED and places no call. Re-register with disclosure evidence before enabling."
+    },
+    {
+      "path": "supabase/functions/dialer-call/index.ts",
+      "kind": "human_bridge",
+      "aiSpeaksToThirdParty": false,
+      "reason": "Human agent power dialer (Twilio bridges the agent to the contact); no AI voice."
+    },
+    {
+      "path": "supabase/functions/browser-extension/index.ts",
+      "kind": "human_bridge",
+      "aiSpeaksToThirdParty": false,
+      "reason": "Click-to-call: Twilio calls the staff member first, then the contact; human conversation."
+    },
+    {
+      "path": "supabase/functions/proxy-call-bridge/index.ts",
+      "kind": "human_bridge",
+      "aiSpeaksToThirdParty": false,
+      "reason": "Number-masking bridge between two humans."
+    },
+    {
+      "path": "supabase/functions/_shared/pbx/runtime.ts",
+      "kind": "human_bridge",
+      "aiSpeaksToThirdParty": false,
+      "reason": "PBX extension to extension / outbound human calls."
+    },
+    {
+      "path": "supabase/functions/_shared/browser-extension/logic.ts",
+      "kind": "human_bridge",
+      "aiSpeaksToThirdParty": false,
+      "reason": "TwiML for the click-to-call staff leg."
+    },
+    {
+      "path": "supabase/functions/call-bridge-voice/index.ts",
+      "kind": "human_bridge",
+      "aiSpeaksToThirdParty": false,
+      "reason": "TwiML connecting staff to a customer; prompts are for the staff leg."
+    },
+    {
+      "path": "supabase/functions/_shared/call-bridge/logic.ts",
+      "kind": "human_bridge",
+      "aiSpeaksToThirdParty": false,
+      "reason": "TwiML builders for the staff-to-customer bridge."
+    },
+    {
+      "path": "supabase/functions/pbx-voice/index.ts",
+      "kind": "ivr_or_infra",
+      "aiSpeaksToThirdParty": false,
+      "reason": "Auto-attendant menu and voicemail prompts (recorded/TTS), not an AI conversation. TODO(counsel): confirm an IVR menu is outside bot-disclosure statutes."
+    },
+    {
+      "path": "supabase/functions/voice-front-door/index.ts",
+      "kind": "ivr_or_infra",
+      "aiSpeaksToThirdParty": false,
+      "reason": "Failover TwiML (voicemail, forward, static message). The AI leg is vapi-webhook."
+    },
+    {
+      "path": "supabase/functions/_shared/voice-resilience/twimlFallback.ts",
+      "kind": "ivr_or_infra",
+      "aiSpeaksToThirdParty": false,
+      "reason": "Static degraded-mode prompts (voicemail/forward/emergency key)."
+    },
+    {
+      "path": "supabase/functions/voice-resilience-admin/index.ts",
+      "kind": "ivr_or_infra",
+      "aiSpeaksToThirdParty": false,
+      "reason": "Admin control plane; carrier-forwarding test prompts only."
+    },
+    {
+      "path": "supabase/functions/_shared/voice-resilience/adapters.ts",
+      "kind": "ivr_or_infra",
+      "aiSpeaksToThirdParty": false,
+      "reason": "Carrier adapter used to place forwarding/health test calls."
+    },
+    {
+      "path": "supabase/functions/_shared/voice/callSafety.ts",
+      "kind": "ivr_or_infra",
+      "aiSpeaksToThirdParty": false,
+      "reason": "TwiML for emergency-dial blocking messages."
+    },
+    {
+      "path": "supabase/functions/_shared/pci/twilio.ts",
+      "kind": "ivr_or_infra",
+      "aiSpeaksToThirdParty": false,
+      "reason": "Secure card-capture prompts on a staff-initiated call (DTMF)."
+    },
+    {
+      "path": "supabase/functions/_shared/shadow/liveListen.ts",
+      "kind": "ivr_or_infra",
+      "aiSpeaksToThirdParty": false,
+      "reason": "One-way listen-in fork; asserts the TwiML contains no <Say>."
+    },
+    {
+      "path": "supabase/functions/voice-call/index.ts",
+      "kind": "owner_facing_assistant",
+      "aiSpeaksToThirdParty": false,
+      "reason": "Voice assistant for the signed-in owner/staff after step-up verification; the listener knows it is Vireek's assistant."
+    },
+    {
+      "path": "supabase/functions/_shared/notify/deliver.ts",
+      "kind": "automated_notification",
+      "aiSpeaksToThirdParty": false,
+      "reason": "One-way TTS alert call to the account owner/staff (sendVoiceCall). TODO(counsel): TCPA artificial-voice consent basis and any disclosure expectation for notification calls."
+    }
+  ]
+}
