@@ -1,7 +1,10 @@
 // supabase/functions/_shared/notify/mobilePayload.ts
 // Pure (no I/O) rules for mobile push: severity, privacy-safe lock-screen text, action category,
 // Android channel, iOS interruption level, haptic pattern. Unit tested in mobilePayload.test.ts.
+import { resolveTier, tierFor, TIER_CONFIG, type SoundTier } from "./soundTiers.ts";
+import { versionAtLeast } from "./versionAtLeast.ts";
 
+export { versionAtLeast };
 export type Severity = "critical" | "high" | "normal" | "low";
 
 export interface MobileNotifInput {
@@ -13,8 +16,14 @@ export interface MobileNotifInput {
 export interface MobilePrefs {
   hide_customer_names: boolean;
   time_sensitive_enabled: boolean;
+  /** Tiers whose sound the person switched off (user_mobile_surface_prefs.sound_off_tiers). */
+  sound_off_tiers?: SoundTier[];
 }
 
+/** Per-device context. Unknown appVersion keeps the legacy Android channel ids (fails closed). */
+export interface MobileDeviceContext {
+  appVersion?: string | null;
+}
 export const DEFAULT_PREFS: MobilePrefs = { hide_customer_names: true, time_sensitive_enabled: true };
 
 export interface MobilePayload {
@@ -26,17 +35,10 @@ export interface MobilePayload {
   interruptionLevel: "time-sensitive" | "active" | "passive";
   haptic: "emergency" | "urgent" | "default" | "none";
 }
-
-const SEVERITY_BY_TYPE: Record<string, Severity> = {
-  emergency_call: "critical",
-  on_call: "high",
-  missed_call: "high",
-  payment_failed: "high",
-  payment_request: "normal",
-  job: "normal",
-  job_update: "normal",
-  job_summary: "low",
-};
+  tier: SoundTier;
+  /** "default" = system sound; null = omit `sound` from aps entirely. */
+  iosSound: "default" | null;
+  webSilent: boolean;
 
 const CATEGORY_BY_TYPE: Record<string, string> = {
   emergency_call: "EMERGENCY_CALL",
@@ -54,26 +56,38 @@ const GENERIC_BODY: Record<string, string> = {
   job_update: "Job update. Open Vireek for details.",
 };
 
+/** Derived from the sound tier, so the two can never disagree. Unknown types stay "normal". */
 export function severityFor(type: string): Severity {
-  return SEVERITY_BY_TYPE[type] ?? "normal";
+  return TIER_CONFIG[tierFor(type)].severity;
 }
 
 /** Only the types listed in GENERIC_BODY are redacted; every other type keeps today's text unchanged. */
-export function buildMobilePayload(n: MobileNotifInput, prefs: MobilePrefs = DEFAULT_PREFS): MobilePayload {
-  const severity = severityFor(n.type);
+export function buildMobilePayload(
+  n: MobileNotifInput,
+  prefs: MobilePrefs = DEFAULT_PREFS,
+  device: MobileDeviceContext = {},
+): MobilePayload {
+  const tier = tierFor(n.type);
+  const r = resolveTier(n.type, {
+    appVersion: device.appVersion,
+    soundOff: prefs.sound_off_tiers?.includes(tier) === true,
+    timeSensitiveEnabled: prefs.time_sensitive_enabled,
+  });
   const hide = prefs.hide_customer_names && n.type in GENERIC_BODY;
   const title = hide ? (n.type === "emergency_call" ? "Emergency call" : "Vireek") : n.title;
   const body = hide ? GENERIC_BODY[n.type] : n.message;
-  const urgent = severity === "critical" || severity === "high";
   return {
     title,
     body,
-    severity,
+    severity: r.severity,
     category: CATEGORY_BY_TYPE[n.type] ?? "DEFAULT",
-    androidChannel: `vireek_${severity}`,
+    androidChannel: r.androidChannel,
     // Time-sensitive only if the user allows it. Critical Alerts are NOT used (entitlement not requested).
-    interruptionLevel: urgent && prefs.time_sensitive_enabled ? "time-sensitive" : severity === "low" ? "passive" : "active",
-    haptic: severity === "critical" ? "emergency" : severity === "high" ? "urgent" : severity === "low" ? "none" : "default",
+    interruptionLevel: r.interruptionLevel,
+    haptic: r.haptic,
+    tier: r.tier,
+    iosSound: r.iosSound,
+    webSilent: r.webSilent,
   };
 }
 
