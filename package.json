@@ -228,6 +228,8 @@
     "registers:check": "node scripts/registers/check-registers.mjs",
     "owners:check": "node scripts/governance/check-codeowners.mjs",
     "owners:generate": "node scripts/governance/gen-codeowners.mjs",
+    "test:scripts:ledger": "node --experimental-strip-types --no-warnings --import ./scripts/ledger/ts-register.mjs --test scripts/ledger/ledger.test.mjs",
+    "ledger:evaluate": "node --experimental-strip-types --no-warnings --import ./scripts/ledger/ts-register.mjs scripts/ledger/evaluate.mjs",
     "test:scripts:trade-vocab": "node --test scripts/voice/trade-vocab-eval.test.mjs",
     "test:scripts:governance": "node --test scripts/governance/check-codeowners.test.mjs scripts/governance/check-cron-coverage.test.mjs",
     "cron:check": "node scripts/governance/check-cron-coverage.mjs",
