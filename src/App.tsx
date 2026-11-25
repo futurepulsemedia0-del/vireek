@@ -513,6 +513,8 @@ const TechnicianSkillGraphPage = lazy(() => import('@/pages/TechnicianSkillGraph
 const TechnicianTrustPassportPage = lazy(() => import('@/pages/TechnicianTrustPassportPage').then((m) => ({ default: m.TechnicianTrustPassportPage })));
 const TechnicianIdentityGraphPage = lazy(() => import('@/pages/TechnicianIdentityGraphPage').then((m) => ({ default: m.TechnicianIdentityGraphPage })));
 const PublicTechnicianPassportPage = lazy(() => import('@/pages/PublicTechnicianPassportPage').then((m) => ({ default: m.PublicTechnicianPassportPage })));
+const ReputationCredentialsPage = lazy(() => import('@/pages/ReputationCredentialsPage').then((m) => ({ default: m.ReputationCredentialsPage })));
+const PublicReputationCredentialPage = lazy(() => import('@/pages/PublicReputationCredentialPage').then((m) => ({ default: m.PublicReputationCredentialPage })));
 const HomeServicePassportPage = lazy(() => import('@/pages/HomeServicePassportPage').then((m) => ({ default: m.HomeServicePassportPage })));
 const TechnicianSimulatorPage = lazy(() => import('@/pages/TechnicianSimulatorPage').then((m) => ({ default: m.TechnicianSimulatorPage })));
 const TechnicianApprenticeshipPage = lazy(() => import('@/pages/TechnicianApprenticeshipPage').then((m) => ({ default: m.TechnicianApprenticeshipPage })));
@@ -1166,6 +1168,7 @@ function AppRoutes() {
         <Route path="/join/:planSlug" element={<JoinMembershipPage />} />
         <Route path="/financing/:token" element={<FinancingOfferPage />} />
         <Route path="/verify/technician/:token" element={<PublicTechnicianPassportPage />} />
+        <Route path="/verify/reputation/:id" element={<PublicReputationCredentialPage />} />
         <Route path="/verify/home/:token" element={<PublicHomePassportPage />} />
         <Route path="/verify/photo/:token" element={<PublicPhotoEvidencePage />} />
         <Route path="/e/:code" element={<PublicEquipmentPassportPage />} />
@@ -5022,6 +5025,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <TechnicianIdentityGraphPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/reputation-credentials"
+          element={
+            <ProtectedRoute>
+              <ReputationCredentialsPage />
             </ProtectedRoute>
           }
         />
