@@ -8,6 +8,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { isFcmConfigured, sendFcmData } from "../_shared/notify/fcm.ts";
+import { resolveTier } from "../_shared/notify/soundTiers.ts";
 import { isApnsConfigured, sendLiveActivity, type ApnsLiveKind } from "../_shared/notify/apns.ts";
 import { buildLiveState, dismissalDateSec, type LiveCallRow, type LiveEvent } from "../_shared/notify/liveSurface.ts";
 
@@ -40,7 +41,7 @@ Deno.serve(async (req: Request) => {
   const call = row as unknown as LiveCallRow;
 
   const [{ data: devices }, { data: tokens }] = await Promise.all([
-    admin.from("device_push_tokens").select("id, token, platform, subscriber_user_id").eq("user_id", accountId),
+    admin.from("device_push_tokens").select("id, token, platform, subscriber_user_id, app_version").eq("user_id", accountId),
     admin.from("live_activity_tokens").select("id, token, kind, target, subscriber_user_id").eq("user_id", accountId),
   ]);
 
@@ -62,11 +63,12 @@ Deno.serve(async (req: Request) => {
       const p = prefOf(d.subscriber_user_id);
       if (!p.live) continue;
       const s = buildLiveState(call, p.hide);
+      const tier = resolveTier(s.emergency ? "emergency_call" : "job_update", { appVersion: d.app_version as string | null });
       const r = await sendFcmData(d.token as string, {
         kind: event === "ended" ? "live_end" : "live", tag: s.callId, stage: s.stage, emergency: String(s.emergency),
         title: s.headline, body: s.detail, startedAt: String(s.startedAtMs),
-        url: "/dashboard/live-calls", severity: s.emergency ? "critical" : "normal",
-      }, { androidChannel: s.emergency ? "vireek_critical" : "vireek_normal" });
+        url: "/dashboard/live-calls", severity: tier.severity, tier: tier.tier, channel: tier.androidChannel,
+      }, { androidChannel: tier.androidChannel });
       if (r.ok) sent++;
       else if (r.unregistered) { await admin.from("device_push_tokens").delete().eq("id", d.id); pruned++; }
     }
