@@ -10,6 +10,7 @@ import { trackLiveCallEvent } from "../_shared/live-calls/runtime.ts";
 import { buildPorts } from "../_shared/pci/ports.ts";
 import { startPhonePayment } from "../_shared/pci/orchestrator.ts";
 import { buildRegionalVoiceContext, loadRegional, spokenMoney, type Regional } from "../_shared/regional/regional.ts";
+import { loadTradeVocabularyContext, type VocabDb } from "../_shared/trade-vocab/loader.ts";
 import { deepRedact, redactCardData } from "../_shared/pci/cardData.ts";
 import { redactCallTranscript } from "../_shared/pci/transcript.ts";
 import { UUID_RE } from "../_shared/pci/session.ts";
@@ -839,9 +840,11 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
   // Voice Platform: "" for home-services accounts (and on any error), so existing prompts are unaffected.
   const verticalContext = await loadVerticalContext(admin, tenant.userId, tenant.voiceAssistantId ?? null);
     // Voice brand: single-source persona block ("" on any error → prompt unchanged).
+  let vocabTrade = "general";
   let voicePersonaContext = "";
   try {
     const { data: bp } = await admin.from("business_profile").select("primary_industry").eq("user_id", tenant.userId).maybeSingle();
+    vocabTrade = resolveTrade((bp as { primary_industry?: string | null } | null)?.primary_industry);
     voicePersonaContext = buildVoicePersonaContext({
       trade: resolveTrade((bp as { primary_industry?: string | null } | null)?.primary_industry),
       assistantName: tenant.assistantName ?? undefined,
@@ -871,6 +874,8 @@ async function handleAssistantRequest(admin: SupabaseClient, message: VapiMessag
     securityRef = "";
   }
 const callScriptsContext = await buildCallScriptsContextVariable(admin, tenant.userId, message.call?.id ?? null, afterHoursContext.length > 0);
+  // Trade vocabulary (published glossary for this trade + locale). "" when TRADE_VOCAB_ENABLED is not "true", nothing is published, or on any error.
+  const tradeVocabularyContext = await loadTradeVocabularyContext(admin as unknown as VocabDb, { trade: vocabTrade, locale: tenant.regional.locale });
   const sharedVariableValues = {
     security_ref: securityRef,
     caller_context: callerContext,
@@ -885,6 +890,7 @@ service_area_context: [serviceAreaContext, buildRegionalVoiceContext(tenant.regi
     voice_persona: voicePersonaContext,
      ai_disclosure: disclosurePlan?.text ?? "",
     interpreter_context: buildInterpreterContext(interpSettings),
+    trade_vocabulary: tradeVocabularyContext,
   };
   // Per-call duration cap (PLAN_LIMITS[plan].maxCallSeconds). Applied only when fraud_settings.outbound_guard_mode =
   // 'enforce'; in shadow it is logged. An unreadable plan applies nothing (fail open: never cut live calls short on a hiccup).
