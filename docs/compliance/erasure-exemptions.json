@@ -1,0 +1,9 @@
+{
+  "note": "Owner-column tables that are deliberately NOT erased. Every entry needs a written reason. Facts here come from the repo only; legal bases are TODO(owner).",
+  "exemptions": {
+    "audit_log": { "reason": "Excluded by default in erase_user_rows(p_exclude) (migration 20280410000000): evidence/ledger table. TODO(owner): counsel to record the legal basis and retention period.", "review": "pending-counsel" },
+    "audit_chain_heads": { "reason": "Excluded by default in erase_user_rows(p_exclude) (migration 20280410000000): evidence/ledger table. TODO(owner): counsel to record the legal basis and retention period.", "review": "pending-counsel" },
+    "data_retention_policies": { "reason": "Excluded by default in erase_user_rows(p_exclude) (migration 20280410000000): the policy record that governs erasure. TODO(owner): counsel to confirm it may be kept after account erasure.", "review": "pending-counsel" },
+    "deletion_requests": { "reason": "Excluded by default in erase_user_rows(p_exclude) (migration 20280410000000): proof that the erasure request was handled; also holds the resumable state used by data-retention-sweep. TODO(owner): counsel to set the retention period.", "review": "pending-counsel" }
+  }
+}
