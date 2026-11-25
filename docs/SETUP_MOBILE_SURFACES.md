@@ -181,3 +181,21 @@ and for Android, in `android-bundle` after "Sync Capacitor" add `- run: ./gradle
 | 12 | Cross-account: sign in as a different owner on the same phone → no old snapshot, no old Live Activity | both |
 Simulator-testable: widget layouts and timelines (Xcode previews), deep links (`xcrun simctl openurl booted vireek://tech/today`), push payloads
 (`xcrun simctl push booted com.vireek.field payload.apns`), Android widget layout and channels.
+
+## H. Notification sound tiers (system sounds only)
+Source of truth: `supabase/functions/_shared/notify/soundTiers.ts`. Full type-to-tier table: `docs/notifications/sound-tiers.md`
+(regenerate: `node --experimental-strip-types --no-warnings scripts/notifications/gen-sound-tiers-doc.mjs`).
+
+| Tier | Android channel | Importance | Android sound | iOS | Web push |
+| --- | --- | --- | --- | --- | --- |
+| emergency | `vireek_emergency_v2` | high | system default ringtone, strong vibration | default sound, time-sensitive (if allowed) | normal |
+| alert | `vireek_alert_v2` | high | system default notification sound, medium vibration | default sound, time-sensitive (if allowed) | normal |
+| normal | `vireek_normal_v2` | default | system default notification sound | default sound, active | normal |
+| message | `vireek_message_v2` | default | system default notification sound | default sound, active | normal |
+| quiet | `vireek_quiet_v2` | low | none, no vibration | no `sound` key, passive | `silent: true` |
+
+- **iOS limitation:** a system sound cannot be chosen by name; only the default sound or none. Critical Alerts are not used.
+- **Android rule:** a channel's sound is immutable once created. To change it, bump the `_v2` suffix in `VireekNotificationChannels.java` and `soundTiers.ts` together.
+- **Old apps:** v1 channels are kept. The server sends `_v2` ids only to devices whose `app_version` >= `ANDROID_V2_CHANNELS_MIN_VERSION`.
+- **Per-person override:** `user_mobile_surface_prefs.sound_off_tiers` (migration `20290312000000_mobile_sound_tier_overrides.sql`, apply before deploying `send-push-notification`). No settings screen yet.
+- Tests: `npm run test:scripts:notify-tiers`.
