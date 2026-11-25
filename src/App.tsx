@@ -567,6 +567,7 @@ const StaffOffboardingPage = lazy(() => import('@/pages/StaffOffboardingPage').t
 const StaffIncidentCommsPage = lazy(() => import('@/pages/StaffIncidentCommsPage').then((m) => ({ default: m.StaffIncidentCommsPage })));
 const WinbackUnsubscribePage = lazy(() => import('@/pages/WinbackUnsubscribePage'));
 const StaffPmfPage = lazy(() => import('@/pages/StaffPmfPage').then((m) => ({ default: m.StaffPmfPage })));
+const StaffTradeVocabPage = lazy(() => import('@/pages/StaffTradeVocabPage').then((m) => ({ default: m.StaffTradeVocabPage })));
 const RefundPolicyPage = lazy(() => import('@/pages/RefundPolicyPage').then((m) => ({ default: m.RefundPolicyPage })));
 const SlaPage = lazy(() => import('@/pages/SlaPage').then((m) => ({ default: m.SlaPage })));
 const AcceptableUsePage = lazy(() => import('@/pages/AcceptableUsePage').then((m) => ({ default: m.AcceptableUsePage })));
@@ -881,6 +882,7 @@ function AppRoutes() {
         <Route path="/staff/offboarding" element={<StaffRoute><StaffOffboardingPage /></StaffRoute>} />
         <Route path="/staff/incident-comms" element={<StaffRoute><StaffIncidentCommsPage /></StaffRoute>} />
         <Route path="/staff/pmf" element={<StaffRoute><StaffPmfPage /></StaffRoute>} />
+        <Route path="/staff/trade-vocabulary" element={<StaffRoute><StaffTradeVocabPage /></StaffRoute>} />
         <Route path="/staff/open-voice-benchmark" element={<StaffRoute><StaffOpenVoiceBenchmarkPage /></StaffRoute>} />
         <Route path="/staff/value-scoreboard" element={<StaffRoute><StaffValueScoreboardPage /></StaffRoute>} />
         <Route path="/staff/founder-kpis" element={<StaffRoute><StaffFounderKpisPage /></StaffRoute>} />
