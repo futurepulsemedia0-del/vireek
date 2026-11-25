@@ -16,6 +16,7 @@
 
 import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { askVireekAi } from "../_shared/ai-core/index.ts";
+import { runRrCertify } from "../_shared/rr-certify/runtime.ts";
 import {
   MAX_TURNS,
   decide,
@@ -614,7 +615,7 @@ Deno.serve(async (req: Request) => {
     const audioRequest = counts.audio < MAX_AUDIO && counts.audio === 0 ? str(raw.audio_request, 300) : "";
     const hasNext = !!question || !!photoRequest || !!audioRequest;
 
-    const decision = decide({
+    const baseDecision = decide({
       probability: scored.probability,
       threshold,
       completeness: evidenceCompleteness(counts),
@@ -625,6 +626,17 @@ Deno.serve(async (req: Request) => {
       remainingSteps: remaining,
       safetyHold: false,
     });
+
+    // rrCertify: restrict-only risk gate. Flag/mode off => identical to before. Hard exclusions were already
+    // handled by the deterministic safety screen above; the gate also re-checks them (it cannot allow them).
+    const rrc = await runRrCertify(admin, {
+      userId: c.user_id, caseId: c.id, turn: c.turns + 1, category, score: scored.probability, threshold,
+      existing: baseDecision.action, safetyHold: false, safetyReasons: [],
+    });
+    const decision: typeof baseDecision =
+      baseDecision.action === "troubleshoot" && rrc.action === "dispatch"
+        ? { action: "dispatch", reason: "low_probability" }
+        : baseDecision;
 
     await persistMedia(admin, photoPath, photoBytes, photoKind?.mime ?? "image/jpeg", audioPath, audioBytes);
     addMediaSignals(sig, observations, photoPath, audioPath);
