@@ -314,6 +314,15 @@ describe('renderQuoteDocument', () => {
     for (const s of ['QUOTE', 'Q-AB12CD34', 'Jane Doe', '1 Main St, Austin, TX, 78701', 'November 30, 2026', '$40.00', '$4.00', '$44.00', 'Tax (10%)', 'Valid for 30 days.']) expect(t).toContain(s);
     expect(d.props.title).toBe('Quote Q-AB12CD34');
   });
+  it('renders counsel-approved notices and license lines only when provided', () => {
+    const d = fakeDoc();
+    renderQuoteDocument(d, input({ disclosures: { clauses: [{ title: 'Written estimate', text: 'Approved clause text.' }], licenseLines: ['Contractor License TX-12345'] } }), env());
+    const t = texts(d).join('\n');
+    for (const s of ['Written estimate', 'Approved clause text.', 'Contractor License TX-12345']) expect(t).toContain(s);
+    const plain = fakeDoc();
+    renderQuoteDocument(plain, input(), env());
+    expect(texts(plain).join('\n')).not.toContain('Approved clause text.');
+  });
   it('renders tiered options with tags and a deposit row', () => {
     const d = fakeDoc();
     renderQuoteDocument(d, input({ depositPercent: 25, groups: [
