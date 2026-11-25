@@ -1,0 +1,7 @@
+{
+  "_comment": "Legacy gaps only (shrink-only). Each needs an owner decision; see docs/compliance/state-ai-laws.md section 5.",
+  "knownGaps": [
+    "supabase/functions/_shared/ovb/runtime.ts",
+    "supabase/functions/interpreter-bridge-twiml/index.ts"
+  ]
+}
