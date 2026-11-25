@@ -1,0 +1,368 @@
+--- a/supabase/functions/outbound-dialer/index.ts
++++ b/supabase/functions/outbound-dialer/index.ts
+@@ -1,5 +1,7 @@
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+ import { isDncSuppressed, normalizePhone } from "../_shared/compliance/dncCheck.ts";
++import { outboundDisclosureVariables, registerOutboundDisclosure } from "../_shared/ai-disclosure/outbound.ts";
++import { scrubForDial } from "../_shared/compliance/stateDnc/gate.ts";
+ import { gateContact } from "../_shared/compliance/consentChecks.ts";
+ import { gateOutbound } from "../_shared/messaging/quietHours.ts";
+ import { governedGate } from "../_shared/governance/shadowGate.ts";
+@@ -150,6 +152,27 @@
+       }).eq("id", call.id);
+       continue;
+     }
++    // State DNC registries (imported lists): scrub + stored proof BEFORE the budget reservation, so a held call has nothing to
++    // release. Shadow unless STATE_DNC_GATE_MODE=enforce; a hold re-schedules without using an attempt.
++    if (call.customer_phone) {
++      const scrub = await scrubForDial(admin, {
++        ownerId: call.user_id, phone: call.customer_phone, source: "outbound-dialer", correlationId: call.id,
++        purpose: call.campaign_type === "appointment_reminder" ? "service" : "marketing",
++      });
++      if (!scrub.allow) {
++        if (scrub.retryable && scrub.retryAt) {
++          await admin.from("outbound_calls").update({
++            scheduled_for: scrub.retryAt, outcome_notes: `Held by state DNC scrub (${scrub.reasonCode}); retrying later.`,
++          }).eq("id", call.id);
++        } else {
++          await admin.from("outbound_calls").update({
++            status: scrub.decision === "suppressed" ? "opted_out" : "failed",
++            outcome_notes: `Blocked by state DNC scrub (${scrub.reasonCode}).`, attempt_count: call.attempt_count + 1,
++          }).eq("id", call.id);
++        }
++        continue;
++      }
++    }
+     // Fraud guard (shadow/enforce per fraud_settings.outbound_guard_mode): budget reservation + destination policy,
+     // immediately before the provider call. A blocked call is parked or failed, NEVER left in the queue to be retried
+     // on the next tick: a cap that resets is rescheduled to retryAt without using an attempt, anything else fails now.
+@@ -184,7 +207,7 @@
+         assistantId: business.vapi_assistant_id,
+         phoneNumberId: pick.vapiPhoneNumberId,
+         customerNumber: fraud.e164,
+-        variableValues: { customer_name: call.customer_name, call_purpose: CAMPAIGN_CONTEXT[call.campaign_type] },
++        variableValues: await outboundDisclosureVariables(admin, call.user_id, { customer_name: call.customer_name, call_purpose: CAMPAIGN_CONTEXT[call.campaign_type] }),
+         maxDurationSeconds: fraud.maxCallSeconds,
+       });
+ 
+@@ -200,6 +223,7 @@
+         continue;
+       }
+       await attachOutboundCall(asFraudDb(admin), fraud, started.callId);
++      await registerOutboundDisclosure(admin, { userId: call.user_id, vapiCallId: started.callId });
+ 
+       await admin.from("outbound_calls").update({
+         status: "calling", vapi_call_id: started.callId, called_at: new Date().toISOString(), attempt_count: call.attempt_count + 1,
+--- a/supabase/functions/followup-agent-dispatcher/index.ts
++++ b/supabase/functions/followup-agent-dispatcher/index.ts
+@@ -29,6 +29,8 @@
+ 
+ import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
+ import { isDncSuppressed, normalizePhone } from "../_shared/compliance/dncCheck.ts";
++import { outboundDisclosureVariables, registerOutboundDisclosure } from "../_shared/ai-disclosure/outbound.ts";
++import { scrubForDial } from "../_shared/compliance/stateDnc/gate.ts";
+ import { gateContact } from "../_shared/compliance/consentChecks.ts";
+ import { sendCompliantSms } from "../_shared/messaging/sendSms.ts";
+ import { claimCoordinationSlot, recordCoordinationOutcome } from "../_shared/ai-core/emergentCoordination.ts";
+@@ -212,6 +214,24 @@
+       step_number: stepNumber, lead_id: enrollment.lead_id, job_id: enrollment.job_id,
+       customer_name: enrollment.customer_name, customer_phone: enrollment.customer_phone,
+       status: "failed", outcome_notes: "No Vapi assistant/phone number configured for this business.",
++    });
++    return false;
++  }
++
++  // State DNC registries (imported lists): scrub + stored proof before the budget reservation. Shadow unless STATE_DNC_GATE_MODE=enforce.
++  const stateDnc = await scrubForDial(admin, {
++    ownerId: enrollment.user_id, phone: enrollment.customer_phone ?? "", source: "followup-agent-dispatcher",
++    correlationId: enrollment.id, purpose: followupFraudPurpose(enrollment.campaign_type),
++  });
++  if (!stateDnc.allow) {
++    await admin.from("outbound_calls").insert({
++      user_id: enrollment.user_id, campaign_type: enrollment.campaign_type, enrollment_id: enrollment.id,
++      step_number: stepNumber, lead_id: enrollment.lead_id, job_id: enrollment.job_id,
++      customer_name: enrollment.customer_name, customer_phone: enrollment.customer_phone,
++      status: stateDnc.decision === "suppressed" ? "opted_out" : "failed", outcome_notes: `Blocked by state DNC scrub (${stateDnc.reasonCode}).`,
++    });
++    return false;
++  }
+   // Fraud guard immediately before the provider call (shadow/enforce per fraud_settings.outbound_guard_mode).
+   const fraud = await gateCustomerOutbound(asFraudDb(admin), {
+     userId: enrollment.user_id, kind: "call", to: enrollment.customer_phone ?? "", purpose: followupFraudPurpose(enrollment.campaign_type),
+@@ -226,9 +246,6 @@
+     });
+     return { blocked: fraud.blocked };
+   }
+-    });
+-    return false;
+-  }
+ 
+   const variableValues: Record<string, string> = {
+     customer_name: enrollment.customer_name,
+@@ -237,7 +254,6 @@
+   if (step !== "legacy_call" && step.call_context) variableValues.followup_context = step.call_context;
+ 
+   try {
+-      await releaseOutboundReservation(asFraudDb(admin), fraud);
+     const res = await fetch(VAPI_CALL_URL, {
+       method: "POST",
+       headers: { Authorization: `Bearer ${vapiKey}`, "Content-Type": "application/json" },
+@@ -245,23 +261,25 @@
+         assistantId: business.vapi_assistant_id,
+         phoneNumberId: business.vapi_phone_number_id,
+         customer: { number: fraud.e164 },
+-        assistantOverrides: { ...voiceOverride(business.assistant_voice), variableValues, maxDurationSeconds: fraud.maxCallSeconds },
++        assistantOverrides: { ...voiceOverride(business.assistant_voice), variableValues: await outboundDisclosureVariables(admin, enrollment.user_id, variableValues), maxDurationSeconds: fraud.maxCallSeconds },
+       }),
+     });
+ 
+     if (!res.ok) {
++      await releaseOutboundReservation(asFraudDb(admin), fraud);
+       const bodyText = await res.text();
+       await admin.from("outbound_calls").insert({
+         user_id: enrollment.user_id, campaign_type: enrollment.campaign_type, enrollment_id: enrollment.id,
+         step_number: stepNumber, lead_id: enrollment.lead_id, job_id: enrollment.job_id,
+         customer_name: enrollment.customer_name, customer_phone: enrollment.customer_phone,
+         status: "failed", outcome_notes: `Vapi error ${res.status}: ${bodyText.slice(0, 300)}`,
+-    await attachOutboundCall(asFraudDb(admin), fraud, json.id ?? null);
+       });
+       return false;
+     }
+ 
+     const json = await res.json();
++    await attachOutboundCall(asFraudDb(admin), fraud, json.id ?? null);
++    await registerOutboundDisclosure(admin, { userId: enrollment.user_id, vapiCallId: json.id ?? null });
+     await admin.from("outbound_calls").insert({
+       user_id: enrollment.user_id, campaign_type: enrollment.campaign_type, enrollment_id: enrollment.id,
+       step_number: stepNumber, lead_id: enrollment.lead_id, job_id: enrollment.job_id,
+@@ -301,6 +319,13 @@
+   };
+   if (step !== "legacy_call" && step.call_context) variableValues.followup_context = step.call_context;
+ 
++  // State DNC registries (imported lists): scrub + stored proof before the budget reservation. Shadow unless STATE_DNC_GATE_MODE=enforce.
++  const stateDnc = await scrubForDial(admin, {
++    ownerId: enrollment.user_id, phone: enrollment.customer_phone ?? "", source: "followup-agent-dispatcher",
++    correlationId: enrollment.id, purpose: followupFraudPurpose(enrollment.campaign_type),
++  });
++  if (!stateDnc.allow) throw new ToolError(`state_dnc:${stateDnc.reasonCode}`, "policy_blocked", false, false);
++
+   const fraud = await gateCustomerOutbound(asFraudDb(admin), {
+     userId: enrollment.user_id, kind: "call", to: enrollment.customer_phone ?? "", purpose: followupFraudPurpose(enrollment.campaign_type),
+     source: "followup-agent-dispatcher", campaign: enrollment.campaign_type,
+@@ -317,7 +342,7 @@
+         assistantId: business.vapi_assistant_id,
+         phoneNumberId: business.vapi_phone_number_id,
+         customer: { number: fraud.e164 },
+-        assistantOverrides: { ...voiceOverride(business.assistant_voice), variableValues, maxDurationSeconds: fraud.maxCallSeconds },
++        assistantOverrides: { ...voiceOverride(business.assistant_voice), variableValues: await outboundDisclosureVariables(admin, enrollment.user_id, variableValues), maxDurationSeconds: fraud.maxCallSeconds },
+       }),
+     });
+   } catch (e) {
+@@ -328,9 +353,10 @@
+     await releaseOutboundReservation(asFraudDb(admin), fraud);
+     const bodyText = await res.text();
+     throw Object.assign(new Error(`Vapi error ${res.status}: ${bodyText.slice(0, 300)}`), { status: res.status });
+-  await attachOutboundCall(asFraudDb(admin), fraud, json.id ?? null);
+   }
+   const json = await res.json();
++  await attachOutboundCall(asFraudDb(admin), fraud, json.id ?? null);
++  await registerOutboundDisclosure(admin, { userId: enrollment.user_id, vapiCallId: json.id ?? null });
+   return { providerId: json.id ?? null };
+ }
+ 
+--- a/supabase/functions/workflow-engine-executor/index.ts
++++ b/supabase/functions/workflow-engine-executor/index.ts
+@@ -25,6 +25,8 @@
+ 
+ import { createClient, SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
+ import { isDncSuppressed } from "../_shared/compliance/dncCheck.ts";
++import { outboundDisclosureVariables, registerOutboundDisclosure } from "../_shared/ai-disclosure/outbound.ts";
++import { scrubForDial } from "../_shared/compliance/stateDnc/gate.ts";
+ import { sendCompliantSms } from "../_shared/messaging/sendSms.ts";
+ import { appendBookingLink, buildTrackedBookingLink, wantsBookingLink } from "../_shared/rescue/bookingLink.ts";
+ import { authorizeAgentAction, recordAgentActionOutcome } from "../_shared/governance/agentGovernance.ts";
+@@ -196,6 +198,15 @@
+     .maybeSingle();
+   if (!business?.vapi_assistant_id || !business?.vapi_phone_number_id) {
+     return { ok: false, terminal: true, error: "No Vapi assistant/phone number configured." };
++  }
++  // State DNC registries (imported lists): scrub + stored proof before the budget reservation. Shadow unless STATE_DNC_GATE_MODE=enforce.
++  const stateDnc = await scrubForDial(admin, {
++    ownerId: run.user_id, phone: run.customer_phone, source: "workflow-engine-executor",
++    correlationId: String(run.id ?? ""), purpose: workflowFraudPurpose(run),
++  });
++  if (!stateDnc.allow) {
++    return { ok: false, terminal: !stateDnc.retryable, retryAt: stateDnc.retryAt ?? undefined, error: `state_dnc:${stateDnc.reasonCode}` };
++  }
+   // Fraud guard immediately before the provider call (shadow/enforce per fraud_settings.outbound_guard_mode).
+   const fraud = await gateCustomerOutbound(asFraudDb(admin), {
+     userId: run.user_id, kind: "call", to: run.customer_phone, purpose: workflowFraudPurpose(run),
+@@ -205,7 +216,6 @@
+     const b = fraud.blocked;
+     return { ok: false, terminal: !b.retryable, retryAt: b.retryAt ?? undefined, error: `fraud_guard:${b.code}: ${b.message}` };
+   }
+-  }
+ 
+   try {
+     const res = await fetch(VAPI_CALL_URL, {
+@@ -216,7 +226,7 @@
+         phoneNumberId: business.vapi_phone_number_id,
+         customer: { number: fraud.e164 },
+         assistantOverrides: {
+-          variableValues: { customer_name: run.customer_name ?? "", followup_context: String(config.call_context ?? "") },
++          variableValues: await outboundDisclosureVariables(admin, run.user_id, { customer_name: run.customer_name ?? "", followup_context: String(config.call_context ?? "") }),
+         ...voiceOverride(business.assistant_voice),
+           maxDurationSeconds: fraud.maxCallSeconds,
+         },
+@@ -228,6 +238,7 @@
+     }
+     const json = await res.json();
+     await attachOutboundCall(asFraudDb(admin), fraud, json.id ?? null);
++    await registerOutboundDisclosure(admin, { userId: run.user_id, vapiCallId: json.id ?? null });
+     return { ok: true, result: { vapi_call_id: json.id ?? null } };
+   } catch (err) {
+     await releaseOutboundReservation(asFraudDb(admin), fraud);
+--- a/supabase/functions/first-call-start/index.ts
++++ b/supabase/functions/first-call-start/index.ts
+@@ -23,6 +23,7 @@
+ import { sendSms } from "../_shared/notify/deliver.ts";
+ import { loadVoiceOverride } from "../_shared/voice/voiceOverride.ts";
+ import { asFraudDb, blockedBody, gateDestinationOnly } from "../_shared/fraud/outboundGate.ts";
++import { outboundDisclosureVariables, registerOutboundDisclosure } from "../_shared/ai-disclosure/outbound.ts";
+ import { DEFAULT_ALLOWED_CODES, parseDestination, rateDecision, type FailureCode } from "../_shared/first-call/logic.ts";
+ 
+ const cors = {
+@@ -109,14 +110,15 @@
+       phone_last4: dest.last4,
+       notify_when_ready: optIn,
+       notify_phone_e164: optIn ? dest.e164 : null,
++    });
++  }
++
+   // Fraud guard, destination policy only: this demo dials the number the owner typed, so a premium / unroutable /
+   // not-allowed destination must never reach Vapi. No budget reservation and no "verified account" requirement: the
+   // demo exists so an UNVERIFIED new account can hear Sarah, and it is already capped at 3/hour and 8/day above.
+   // The provider duration cap is the plan cap. Shadow/enforce per fraud_settings.outbound_guard_mode.
+   const fraud = await gateDestinationOnly(asFraudDb(admin), ownerId, dest.e164, "first-call-start");
+   if (!fraud.allowed) return json(blockedBody(fraud.blocked), fraud.blocked.httpStatus);
+-    });
+-  }
+ 
+   const created = await record({ status: "created", phone_calling_code: dest.callingCode, phone_last4: dest.last4 });
+   try {
+@@ -127,10 +129,10 @@
+         assistantId: bp.vapi_assistant_id,
+         phoneNumberId: bp.vapi_phone_number_id,
+         customer: { number: fraud.e164 },
+-        assistantOverrides: { ...voiceOverride(bp.assistant_voice), maxDurationSeconds: fraud.maxCallSeconds, variableValues: {
++        assistantOverrides: { ...voiceOverride(bp.assistant_voice), maxDurationSeconds: fraud.maxCallSeconds, variableValues: await outboundDisclosureVariables(admin, ownerId, {
+           customer_name: "you", call_purpose: "first_call_demo",
+           company_name: prof?.company_name || "your business", assistant_name: bp.assistant_name || "Sarah", industry: bp.primary_industry || "home services",
+-        } },
++        }) },
+       }),
+     });
+     if (!res.ok) {
+@@ -139,6 +141,7 @@
+       return json({ session: out.data });
+     }
+     const v = await res.json();
++    await registerOutboundDisclosure(admin, { userId: ownerId, vapiCallId: v.id ?? null });
+     const upd = await admin.from("first_call_sessions").update({ vapi_call_id: v.id ?? null, updated_at: new Date().toISOString() }).eq("id", created.id).select(SESSION_COLS).single();
+     return json({ session: upd.data });
+   } catch (_e) {
+--- a/supabase/functions/_shared/speed-to-lead/runtime.ts
++++ b/supabase/functions/_shared/speed-to-lead/runtime.ts
+@@ -12,6 +12,7 @@
+ 
+ import type { SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
+ import { isDncSuppressed, normalizePhone } from "../compliance/dncCheck.ts";
++import { scrubForDial } from "../compliance/stateDnc/gate.ts";
+ import { getPreferences } from "../compliance/preferenceCheck.ts";
+ import { buildRecordingConsentNotice } from "../compliance/recordingConsent.ts";
+ import { gateOutbound } from "../messaging/quietHours.ts";
+@@ -515,6 +516,21 @@
+   const businessName = (profile?.company_name as string | null) ?? "our team";
+   const seq = req.attempt_count + 1;
+   const sla = slaResult(new Date(req.received_at), now, settings.slaSeconds);
++  // State DNC registries (imported lists): scrub + stored proof BEFORE the budget reservation. Marketing purpose = strictest,
++  // like the quiet-hours gate for this flow. Shadow unless STATE_DNC_GATE_MODE=enforce.
++  const stateDnc = await scrubForDial(admin, { ownerId: owner, phone: req.phone_e164, purpose: "marketing", source: "speed-to-lead", correlationId: req.id });
++  if (!stateDnc.allow) {
++    log("state_dnc_blocked", { id: req.id, decision: stateDnc.decision, reason: stateDnc.reasonCode });
++    if (stateDnc.retryable && stateDnc.retryAt) {
++      await logAttempt(admin, req, { decision: "failed", reason: `state_dnc:${stateDnc.reasonCode}`, timezone: tz.timezone, local_time: tz.localTime });
++      await patchRequest(admin, req.id, { status: "queued", next_attempt_at: stateDnc.retryAt });
++      return "failed";
++    }
++    await logAttempt(admin, req, { decision: "skipped", reason: `state_dnc:${stateDnc.reasonCode}`, timezone: tz.timezone, local_time: tz.localTime });
++    await patchRequest(admin, req.id, { status: "suppressed", final_reason: `state_dnc:${stateDnc.reasonCode}`, needs_human: false, human_reason: null, next_attempt_at: null });
++    return "stopped";
++  }
++
+   // Fraud guard (shadow/enforce per fraud_settings.outbound_guard_mode) BEFORE the attempt is logged or the provider is
+   // called. The lead asked to be contacted, so this is transactional traffic ("service"). A refusal is never left
+   // to be retried on the next sweep: a cap that resets re-queues at retryAt, anything else goes to a human now.
+--- a/supabase/functions/dialer-call/index.ts
++++ b/supabase/functions/dialer-call/index.ts
+@@ -14,6 +14,7 @@
+ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
+ import { twilioApi } from "../_shared/pbx/twilio.ts";
+ import { isDncSuppressed } from "../_shared/compliance/dncCheck.ts";
++import { scrubForDial } from "../_shared/compliance/stateDnc/gate.ts";
+ import { requirePlanFeature } from "../_shared/billing/requirePlanFeature.ts";
+ import { gateOutbound } from "../_shared/messaging/quietHours.ts";
+ import { requirePlanFeature } from "../_shared/billing/requirePlanFeature.ts";
+@@ -77,6 +78,16 @@
+       await authClient.rpc("dialer_complete_attempt", { p_contact_id: contact.id, p_disposition: "do_not_call", p_note: "Suppressed by DNC list at dial time." });
+       return json({ blocked: "dnc" }, 200);
+     }
++    // State DNC registries (imported lists): scrub + stored proof. Shadow unless STATE_DNC_GATE_MODE=enforce.
++    const scrub = await scrubForDial(admin, { ownerId: attempt.account_owner_id, phone: contact.phone_e164, purpose: "marketing", source: "dialer-call", correlationId: contact.id });
++    if (!scrub.allow) {
++      if (scrub.retryable && scrub.retryAt) {
++        await authClient.rpc("dialer_defer_contact", { p_contact_id: contact.id, p_until: scrub.retryAt });
++        return json({ blocked: "state_dnc", reason: scrub.reasonCode, retry_at: scrub.retryAt }, 200);
++      }
++      await authClient.rpc("dialer_complete_attempt", { p_contact_id: contact.id, p_disposition: "do_not_call", p_note: `Suppressed by state DNC registry (${scrub.reasonCode}).` });
++      return json({ blocked: "state_dnc", reason: scrub.reasonCode }, 200);
++    }
+ 
+         const planDenied = await requirePlanFeature(admin, attempt.account_owner_id, "outboundCalling", cors);
+     if (planDenied) {
+--- a/supabase/functions/browser-extension/index.ts
++++ b/supabase/functions/browser-extension/index.ts
+@@ -19,6 +19,7 @@
+ 
+ import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
+ import { isDncSuppressed } from "../_shared/compliance/dncCheck.ts";
++import { scrubForDial } from "../_shared/compliance/stateDnc/gate.ts";
+ import { gateOutbound } from "../_shared/messaging/quietHours.ts";
+ import { resolveCallerId } from "../_shared/pbx/runtime.ts";
+ import { twilioApi } from "../_shared/pbx/twilio.ts";
+@@ -235,6 +236,13 @@
+   if (!rl.ok) return fail(429, "rate_limited", "Call limit reached. Try again later.", { retry_after: rl.retryAfterSeconds });
+ 
+   if (await isDncSuppressed(c.admin, c.owner, to)) return fail(409, "dnc_suppressed", "This number is on your Do-Not-Call list.");
++  // State DNC registries (imported lists): scrub + stored proof. Shadow unless STATE_DNC_GATE_MODE=enforce.
++  const scrub = await scrubForDial(c.admin, { ownerId: c.owner, phone: to, purpose: leadId ? "service" : "marketing", source: "browser-extension" });
++  if (!scrub.allow) {
++    return scrub.decision === "suppressed"
++      ? fail(409, "dnc_suppressed", "This number is on a Do-Not-Call registry list you imported.")
++      : fail(503, "dnc_scrub_unavailable", "The Do-Not-Call check could not be completed. Try again shortly.");
++  }
+ 
+   const override = typeof body.override_reason === "string" && body.override_reason.trim() ? { reason: body.override_reason.trim().slice(0, 200) } : null;
+   const gate = await gateOutbound(c.admin, c.owner, {
+--- a/package.json
++++ b/package.json
+@@ -22,6 +22,9 @@
+     "lint:motion": "node scripts/check-motion.mjs",
+     "test:motion": "node --test scripts/motion/codemod-lib.test.mjs && playwright test e2e/reduced-motion.spec.ts",
+     "compliance:check": "node scripts/compliance/validate-controls.mjs --check",
++    "compliance:voice-disclosure": "node scripts/compliance/voice-disclosure-check.mjs",
++    "test:scripts:voice-disclosure": "node --test scripts/compliance/voice-disclosure.test.mjs",
++    "test:scripts:state-dnc": "node --experimental-strip-types --no-warnings --test scripts/compliance/state-dnc.test.mjs",
+     "compliance:calendar": "node scripts/compliance/calendar-check.mjs --check",
+     "compliance:calendar:write": "node scripts/compliance/calendar-check.mjs --write",
+     "compliance:map": "node scripts/compliance/validate-controls.mjs --write",
