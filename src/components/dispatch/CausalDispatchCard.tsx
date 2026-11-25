@@ -16,6 +16,7 @@ import {
   type ExplorationSettings,
 } from '@/lib/causalDispatchApi';
 import { OUTCOME_META, type WeightSuggestion } from '@/lib/causalDispatch';
+import { CausalPowerPanel } from '@/components/dispatch/CausalPowerPanel';
 
 interface Props {
   ownerId: string;
@@ -43,7 +44,7 @@ export function ExplorationPicks({ picks }: { picks: ExplorationPick[] }) {
           <p className="mt-0.5 text-text-secondary">
             Why: {p.chosenName} was drawn at random from {p.setSize} technicians the rules score within {p.delta ?? 'a few'} points of each other
             {p.topName && p.topName !== p.chosenName ? ` (top-ranked was ${p.topName})` : ''}
-            {p.propensity !== null ? `; chance of this pick ${Math.round(p.propensity * 100)}%` : ''}. Randomizing here is how Vireek learns who is really best.
+            {p.propensity !== null ? `; chance of this pick ${Math.round(p.propensity * 100)}%` : ''}. Randomizing here lets Vireek measure, over many jobs, whether differences between near-equal technicians are real.
           </p>
         </li>
       ))}
@@ -151,8 +152,7 @@ export function CausalDispatchCard({ ownerId, canManage }: Props) {
     }
   };
 
-  const ftfEffects = report?.analysis.effects.ftf.filter((e) => e.n >= 1) ?? [];
-  const strong = ftfEffects.filter((e) => e.grade !== 'C').sort((a, b) => Math.abs(b.est) - Math.abs(a.est)).slice(0, 8);
+ const strong = (report?.network.effects.ftf ?? []).filter((e) => e.reportable).sort((a, b) => Math.abs(b.shrunk) - Math.abs(a.shrunk)).slice(0, 8);
   const diag = report?.analysis.diagnostics;
 
   return (
@@ -165,7 +165,7 @@ export function CausalDispatchCard({ ownerId, canManage }: Props) {
       >
         <FlaskConical size={13} className="text-accent" aria-hidden="true" />
         <span className="flex-1">
-          Learn who is really best (randomized dispatch)
+          Learn from near-ties (randomized dispatch)
           {status && <span className="ml-2 rounded-full border border-border px-1.5 py-px text-[10px]">{status}</span>}
         </span>
         <ChevronDown size={12} className={`transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden="true" />
@@ -179,7 +179,7 @@ export function CausalDispatchCard({ ownerId, canManage }: Props) {
           {settings && (
             <>
               <p className="text-xs text-text-secondary">
-                Today, the best technicians get the hardest jobs, so their results can’t tell us who is really better. When several eligible
+                Today, the most experienced technicians get the hardest jobs, so raw results can’t show whether one technician actually performs differently. When several eligible
                 technicians are practically tied, Vireek can pick one of them at random for a small share of jobs. Emergencies, VIP and SLA jobs,
                 jobs the First-Time-Fix Autopilot flags, and anyone who breaks a required rule are never randomized. Dispatchers can always override.
               </p>
@@ -274,15 +274,15 @@ export function CausalDispatchCard({ ownerId, canManage }: Props) {
                         </ul>
                       </div>
                     )}
-
+                    <CausalPowerPanel ownerId={ownerId} budgetPct={draft.budgetPct} />
                     {strong.length > 0 && (
                       <div>
-                        <h4 className="text-[11px] font-semibold uppercase tracking-wide text-text-secondary">Technician × job type ({OUTCOME_META.ftf.label}, vs. their near-equal peers)</h4>
+                        <h4 className="text-[11px] font-semibold uppercase tracking-wide text-text-secondary">Technician × job type ({OUTCOME_META.ftf.label}, relative to near-equal peers). Advisory only: not a ranking, and never used for pay, discipline or exclusion.</h4>
                         <ul className="mt-1 space-y-1">
                           {strong.map((e) => (
                             <li key={`${e.technicianId}-${e.jobType}`} className="flex flex-wrap justify-between gap-2 text-xs text-text-secondary">
                               <span>{e.technicianId.slice(0, 8)} · {e.jobType}</span>
-                              <span className="tabular-nums">{e.est >= 0 ? '+' : ''}{pct(e.est)} (95% CI {pct(e.ciLow)} to {pct(e.ciHigh)}) · n={e.n} · evidence {e.grade}</span>
+                              <span className="tabular-nums">{e.shrunk >= 0 ? 'above' : 'below'} peers by {pct(Math.abs(e.shrunk))} (95% interval {pct(e.ciLow)} to {pct(e.ciHigh)}) · n={e.nSet} · evidence {e.grade}</span>
                             </li>
                           ))}
                         </ul>
