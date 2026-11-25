@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Service event envelope",
+  "description": "The outer object of every service event. Identical to the WebhookEnvelope Vireek POSTs today (supabase/functions/api-v1/contract.ts). `data` is validated by the schema named in event-types.json for the given `event`.",
+  "type": "object",
+  "required": ["id", "event", "created_at", "data"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Delivery id. Identical across automatic retries of the same delivery; consumers de-duplicate on it."
+    },
+    "event": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$",
+      "description": "Event type: <object>.<verb>, lowercase, e.g. call.created."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the delivery was created (RFC 3339)."
+    },
+    "data": {
+      "type": "object",
+      "description": "The record the event is about."
+    }
+  },
+  "additionalProperties": true
+}
