@@ -59,6 +59,32 @@ export const MAX_REVIEW_AGE_DAYS = 180;
 
 export const CLAIMS: Claim[] = [
   {
+    id: 'outcomes.verified_repair',
+    category: 'social_proof',
+    statement: 'Repair outcome tracking is an internal pilot in shadow mode; Vireek does not claim verified repair outcomes or validated first-visit-fix predictions.',
+    status: 'not_held',
+    kind: 'fact',
+    reviewedOn: '2026-11-24',
+    owner: 'ali',
+    assertive: [
+      'verified repair outcomes?',
+      'validated (?:first[- ]visit|repair)[- ](?:fix )?(?:prediction|accuracy|rate)s?',
+      'proven (?:to )?(?:predict|improve) first[- ]visit',
+    ],
+    needs: 'A completed, preregistered evaluation (docs/ledger/PREREGISTRATION.md) on real data that meets its own success criteria, reviewed by the owner.',
+  },
+  {
+    id: 'outcomes.technician_reliability',
+    category: 'social_proof',
+    statement: 'Vireek does not publish or claim technician reliability scores.',
+    status: 'not_held',
+    kind: 'fact',
+    reviewedOn: '2026-11-24',
+    owner: 'ali',
+    assertive: ['technician reliability scores? (?:are|is) (?:accurate|validated|verified)', 'reliability[- ]weighted (?:repair )?labels? (?:predict|are (?:accurate|validated))'],
+    needs: 'Validation on the randomized-assignment subset with preregistered criteria, plus legal review of any employee-facing metric.',
+  },
+  {
     id: 'product.causal_dispatch_validated',
     category: 'social_proof',
     statement: 'Randomized dispatch is an advisory, off-by-default experiment. Vireek has not validated, on real customer data, that it identifies better technicians or improves first-time fix.',
