@@ -34,6 +34,8 @@ import { hideNativeSplash } from '@/lib/native/shell';
 import { initInstallPrompt } from '@/lib/pwa/installPrompt';
 import { initSentry } from '@/lib/sentry';
 import { installChunkRecovery } from '@/lib/chunkRecovery';
+import { installBootWatchdog } from '@/lib/bootWatchdog';
+import { RootErrorBoundary } from '@/components/system/RootErrorBoundary';
 import { installErrorBuffer } from '@/lib/supportAgent/errorBuffer';
 import { registerServiceWorker } from '@/lib/pwa/swUpdate';
 import { initWebVitals } from '@/lib/perf/webVitals';
@@ -48,6 +50,7 @@ import './styles/print.css';
 const SupportAgent = lazy(() => import('@/components/support/SupportAgent').then((m) => ({ default: m.SupportAgent })));
 const LiveChatWidget = lazy(() => import('@/components/LiveChatWidget').then((m) => ({ default: m.LiveChatWidget })));
 
+installBootWatchdog(); // launch safety net: stuck boot loader / blank #root → recovery panel with Reload
 installMotionRuntime(); // data-motion روی <html> (OS + Accessibility Center) + توقف انیمیشن‌ها در تب پنهان
 initWebVitals();
 initSentry();
@@ -61,6 +64,7 @@ if (!isNative()) registerServiceWorker();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
+    <RootErrorBoundary>
     <DataRouterShell>
       <RouteEffects />
       <RouteProgressBar />
@@ -110,6 +114,7 @@ createRoot(document.getElementById('root')!).render(
         </AccessibilityProvider>
       </ThemeProvider>
     </DataRouterShell>
+    </RootErrorBoundary>
   </StrictMode>,
 );
 
