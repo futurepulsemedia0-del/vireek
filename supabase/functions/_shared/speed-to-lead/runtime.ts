@@ -12,6 +12,7 @@
 
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2.57.4";
 import { isDncSuppressed, normalizePhone } from "../compliance/dncCheck.ts";
+import { scrubForDial } from "../compliance/stateDnc/gate.ts";
 import { getPreferences } from "../compliance/preferenceCheck.ts";
 import { buildRecordingConsentNotice } from "../compliance/recordingConsent.ts";
 import { resolveRegionalConsentContext } from "../compliance/consentContext.ts";
@@ -516,6 +517,19 @@ async function dial(deps: Deps, req: RequestRow, settings: StlSettings, tz: { ti
   const businessName = (profile?.company_name as string | null) ?? "our team";
   const seq = req.attempt_count + 1;
   const sla = slaResult(new Date(req.received_at), now, settings.slaSeconds);
+  // State DNC registries (imported lists): scrub + stored proof BEFORE the budget reservation.
+  const stateDnc = await scrubForDial(admin, { ownerId: owner, phone: req.phone_e164, purpose: "marketing", source: "speed-to-lead", correlationId: req.id });
+  if (!stateDnc.allow) {
+    log("state_dnc_blocked", { id: req.id, decision: stateDnc.decision, reason: stateDnc.reasonCode });
+    if (stateDnc.retryable && stateDnc.retryAt) {
+      await logAttempt(admin, req, { decision: "failed", reason: `state_dnc:${stateDnc.reasonCode}`, timezone: tz.timezone, local_time: tz.localTime });
+      await patchRequest(admin, req.id, { status: "queued", next_attempt_at: stateDnc.retryAt });
+      return "failed";
+    }
+    await logAttempt(admin, req, { decision: "skipped", reason: `state_dnc:${stateDnc.reasonCode}`, timezone: tz.timezone, local_time: tz.localTime });
+    await patchRequest(admin, req.id, { status: "suppressed", final_reason: `state_dnc:${stateDnc.reasonCode}`, needs_human: false, human_reason: null, next_attempt_at: null });
+    return "stopped";
+  }
   // Fraud guard (shadow/enforce per fraud_settings.outbound_guard_mode) BEFORE the attempt is logged or the provider is
   // called. The lead asked to be contacted, so this is transactional traffic ("service"). A refusal is never left
   // to be retried on the next sweep: a cap that resets re-queues at retryAt, anything else goes to a human now.
