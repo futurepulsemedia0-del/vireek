@@ -225,3 +225,26 @@ describe('assignJobsWithRules + causal dispatch loop', () => {
     for (const row of inserts) { expect(row).not.toHaveProperty('propensity'); expect(row).toMatchObject({ mode: 'auto' }); }
   });
 });
+describe('flag OFF is behaviour-identical', () => {
+  const offStates: World['settings'][] = [
+    null,
+    { error: 'relation does not exist' },
+    { ...SETTINGS_ON, enabled: false },
+    { ...SETTINGS_ON, kill_switch: true },
+    { ...SETTINGS_ON, auto_disabled_at: '2026-10-01T00:00:00Z' },
+  ];
+  it('assignments and reasons are byte-identical in every "off" state', async () => {
+    const outs: string[] = [];
+    for (const settings of offStates) {
+      const { res } = await run({ jobs: manyJobs(6), techs: ['a', 'b', 'c'], settings });
+      outs.push(JSON.stringify(res));
+    }
+    expect(new Set(outs).size).toBe(1);
+  });
+  it('equals the plain deterministic top-ranked result and never randomizes', async () => {
+    const { res, inserts } = await run({ jobs: manyJobs(6), techs: ['a', 'b', 'c'], settings: null });
+    expect(res.every((r) => r.technicianId === 'a' && r.reason.startsWith('Rules engine: '))).toBe(true);
+    expect(res.some((r) => /exploration pick/.test(r.reason))).toBe(false);
+    for (const row of inserts) expect(row).toMatchObject({ arm: 'exploit', propensity: 1 });
+  });
+});
