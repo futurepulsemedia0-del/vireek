@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Equipment event data (PROPOSED)",
+  "description": "PROPOSED. The \"data\" member of equipment.registered. Vireek stores equipment (table `equipment`) but does not emit an equipment event or expose equipment in its public API today, so this schema is derived from the table definition, not from a published contract. Free-text columns (notes, warranty_notes) and the account id are intentionally left out.",
+  "type": "object",
+  "required": ["id", "equipment_type", "status", "created_at"],
+  "properties": {
+    "id": { "type": "string", "format": "uuid", "description": "Unique equipment id." },
+    "customer_id": { "type": ["string", "null"], "format": "uuid", "description": "Customer the equipment belongs to." },
+    "equipment_type": { "type": "string", "minLength": 1, "description": "Kind of equipment, free text (for example a trade-specific category)." },
+    "make": { "type": ["string", "null"], "description": "Manufacturer." },
+    "model": { "type": ["string", "null"], "description": "Model." },
+    "serial_number": { "type": ["string", "null"], "description": "Manufacturer serial number. Identifies a physical unit; treat as sensitive." },
+    "install_date": { "type": ["string", "null"], "format": "date", "description": "Date installed (YYYY-MM-DD)." },
+    "install_job_id": { "type": ["string", "null"], "format": "uuid", "description": "Job that installed it, when known." },
+    "warranty_expires_at": { "type": ["string", "null"], "format": "date", "description": "Warranty end date (YYYY-MM-DD)." },
+    "status": { "type": "string", "enum": ["active", "replaced", "removed"], "description": "Lifecycle status." },
+    "expected_lifespan_years": { "type": "integer", "minimum": 1, "description": "Expected service life in years." },
+    "service_interval_months": { "type": "integer", "minimum": 1, "description": "Recommended months between services." },
+    "last_service_date": { "type": ["string", "null"], "format": "date", "description": "Date of the last service (YYYY-MM-DD)." },
+    "created_at": { "type": "string", "format": "date-time", "description": "When the record was created." }
+  },
+  "additionalProperties": true
+}
