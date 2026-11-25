@@ -235,7 +235,12 @@ async function clickToCall(c: Ctx, body: Row): Promise<Response> {
   if (!rl.ok) return fail(429, "rate_limited", "Call limit reached. Try again later.", { retry_after: rl.retryAfterSeconds });
 
   if (await isDncSuppressed(c.admin, c.owner, to)) return fail(409, "dnc_suppressed", "This number is on your Do-Not-Call list.");
-
+  const scrub = await scrubForDial(c.admin, { ownerId: c.owner, phone: to, purpose: leadId ? "service" : "marketing", source: "browser-extension" });
+  if (!scrub.allow) {
+    return scrub.decision === "suppressed"
+      ? fail(409, "dnc_suppressed", "This number is on a Do-Not-Call registry list you imported.")
+      : fail(503, "dnc_scrub_unavailable", "The Do-Not-Call check could not be completed. Try again shortly.");
+  }
   const override = typeof body.override_reason === "string" && body.override_reason.trim() ? { reason: body.override_reason.trim().slice(0, 200) } : null;
   const gate = await gateOutbound(c.admin, c.owner, {
     channel: "call", to, purpose: leadId ? "service" : "marketing", source: "browser-extension", override,
