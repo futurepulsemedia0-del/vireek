@@ -59,6 +59,7 @@
     "test:scripts:licensing-gate": "node --experimental-strip-types --no-warnings --test supabase/functions/_shared/licensing/gate.test.mjs scripts/compliance/licensing-gate-guard.test.mjs",
     "test:scripts:cross-tenant": "node --test scripts/compliance/cross-tenant-consent.test.mjs",
     "test:scripts:antitrust": "node --test scripts/compliance/antitrust-info-exchange.test.mjs",
+    "test:scripts:open-spec": "node --experimental-strip-types --no-warnings --test docs/open/validate.test.mjs",
     "test:scripts:outcome-chain": "node --experimental-strip-types --no-warnings --test supabase/functions/_shared/outcomes/outcomeLearningChain.test.mjs",
     "test:scripts:notify-tiers": "node --experimental-strip-types --no-warnings --test supabase/functions/_shared/notify/mobilePayload.test.mjs supabase/functions/_shared/notify/soundTiers.test.mjs supabase/functions/_shared/notify/fcm.test.mjs",
     "test:scripts:licenses": "node --test scripts/supply-chain/license-check.test.mjs",
