@@ -23,6 +23,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import webpush from "npm:web-push@3.6.7";
 import { isFcmConfigured, sendFcm } from "../_shared/notify/fcm.ts";
 import { buildMobilePayload, DEFAULT_PREFS, type MobilePrefs } from "../_shared/notify/mobilePayload.ts";
+import { parseSoundOffTiers, resolveTier } from "../_shared/notify/soundTiers.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -48,6 +49,7 @@ interface DeviceTokenRow {
   id: string;
   token: string;
   subscriber_user_id: string | null;
+  app_version: string | null;
 }
 
 interface Delivery {
@@ -173,7 +175,7 @@ Deno.serve(async (req: Request) => {
     if (isFcmConfigured()) {
       const { data: deviceRows, error: devicesError } = await admin
         .from("device_push_tokens")
-        .select("id, token, subscriber_user_id")
+        .select("id, token, subscriber_user_id, app_version")
         .eq("user_id", notification.user_id);
       if (devicesError) {
         console.error(JSON.stringify({ event: "device_tokens_lookup_failed", requestId, error: devicesError }));
@@ -190,11 +192,14 @@ Deno.serve(async (req: Request) => {
     const url = notification.action_url || "/dashboard";
     // Person-addressed notifications keep their own tag so two mentions never replace each other.
     const tag = notification.recipient_id ? notification.id : notification.type;
+    // Web cannot choose a sound; the only control is `silent` (quiet tier). Read by public/sw.js.
+    const webTier = resolveTier(String(notification.type));
     const notificationPayload = JSON.stringify({
       title: notification.title,
       body: notification.message,
       url,
       tag,
+      silent: webTier.webSilent,
     });
 
     const webResults: Delivery[] = await Promise.all(
@@ -231,17 +236,36 @@ Deno.serve(async (req: Request) => {
         });
       }
     }
+    // Per-tier "sound off" override. Separate, failure-tolerant query: if the column is not migrated yet,
+    // the privacy prefs above still apply and nobody is muted.
+    const soundOffById = new Map<string, ReturnType<typeof parseSoundOffTiers>>();
+    if (subIds.length) {
+      const { data: soundRows, error: soundErr } = await admin
+        .from("user_mobile_surface_prefs")
+        .select("user_id, sound_off_tiers")
+        .in("user_id", subIds);
+      if (!soundErr) {
+        for (const r of soundRows ?? []) soundOffById.set(r.user_id as string, parseSoundOffTiers(r.sound_off_tiers));
+      }
+    }
     const deviceResults: Delivery[] = await Promise.all(
       devices.map(async (device): Promise<Delivery> => {
         try {
-                    const mp = buildMobilePayload(
+          const basePrefs = (device.subscriber_user_id && prefsById.get(device.subscriber_user_id)) || DEFAULT_PREFS;
+          const prefs: MobilePrefs = {
+            ...basePrefs,
+            sound_off_tiers: (device.subscriber_user_id && soundOffById.get(device.subscriber_user_id)) || [],
+          };
+          const mp = buildMobilePayload(
             { type: String(notification.type), title: notification.title, message: notification.message },
-            (device.subscriber_user_id && prefsById.get(device.subscriber_user_id)) || DEFAULT_PREFS,
+            prefs,
+            { appVersion: device.app_version },
           );
           const result = await sendFcm(device.token, {
             title: mp.title, body: mp.body, url, tag,
             androidChannel: mp.androidChannel, interruptionLevel: mp.interruptionLevel,
             category: mp.category, severity: mp.severity, haptic: mp.haptic,
+            tier: mp.tier, iosSound: mp.iosSound,
           });
           if (result.ok) return { id: device.id, ok: true };
           if (result.unregistered) {
