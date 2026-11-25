@@ -39,7 +39,7 @@ export interface CreateInsuranceReferralResult { partnerReference: string }
 
 export interface PartnerWebhookEvent {
   eventId: string;
-  kind: 'financing' | 'insurance';
+  kind: 'financing' | 'insurance' | 'protection';
   partnerReference: string;
   status: string;
 }
