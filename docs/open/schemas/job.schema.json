@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Job event data",
+  "description": "Service job (booked and scheduled work). The \"data\" member of job.created and job.completed. Derived from the Vireek public API \"Job\" schema (supabase/functions/api-v1/contract.ts); docs/open/validate.test.mjs fails if they drift apart.",
+  "type": "object",
+  "required": [
+    "id",
+    "customer_name",
+    "job_status",
+    "invoice_status",
+    "created_at"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique job ID."
+    },
+    "user_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Owning account ID.",
+      "x-vireek": "Account identifier of the producing platform. Consumers must not require it."
+    },
+    "lead_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid",
+      "description": "Source lead."
+    },
+    "call_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid",
+      "description": "Source call."
+    },
+    "customer_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid",
+      "description": "Linked customer ID."
+    },
+    "customer_name": {
+      "type": "string",
+      "description": "Customer name."
+    },
+    "service_type": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Type of service."
+    },
+    "address": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Service address."
+    },
+    "scheduled_datetime": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time",
+      "description": "Scheduled start time."
+    },
+    "assigned_technician_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid",
+      "description": "Assigned technician."
+    },
+    "job_status": {
+      "type": "string",
+      "description": "Job status, e.g. scheduled."
+    },
+    "invoice_amount": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "description": "Invoice total."
+    },
+    "invoice_status": {
+      "type": "string",
+      "description": "Invoice status, e.g. not_sent."
+    },
+    "notes": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Free-form notes."
+    },
+    "completed_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time",
+      "description": "When the job was completed."
+    },
+    "custom_status_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid",
+      "description": "Your own status for this job, when one is set. job_status always holds the standard status it counts as."
+    },
+    "custom_data": {
+      "type": "object",
+      "description": "Your custom field values, keyed by field key (see the custom fields settings)."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the record was created."
+    }
+  },
+  "additionalProperties": true
+}
