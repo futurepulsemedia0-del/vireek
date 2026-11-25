@@ -57,6 +57,8 @@ export const GATE_REASON_COPY: Record<string, string> = {
   not_entitled: 'Partner financing isn’t enabled for your account. Contact Vireek to request access.',
   region_unknown: 'Set your business country in Settings to check availability.',
   region_blocked: 'Partner financing isn’t available in your region.',
+  licensing_not_confirmed: 'Partner financing isn’t available yet.',
+  killed: 'Partner financing is paused right now.',
   forbidden: 'You don’t have permission to manage financing.',
   invalid: 'Partner financing isn’t available.',
 };
