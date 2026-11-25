@@ -28,7 +28,7 @@ export const STATIC_PUBLIC_PATHS = [
   '/sitemap',
   '/call-recording-consent', '/data-retention', '/billing-terms', '/disclaimer',
   '/limitation-of-liability', '/intellectual-property', '/incident-response', '/export-control',
-  '/agent-readiness', '/ai-disclosure', '/contact-sales', '/customers', '/data-request', '/dmca', '/events',
+  '/agent-readiness', '/ai-disclosure', '/contact-sales', '/cost-index', '/customers', '/data-request', '/dmca', '/events',
   '/fair-sale-promise', '/how-we-verify', '/impressum', '/insights', '/locations', '/msa', '/resources',
   '/security/whitepaper', '/sms-terms', '/state-of-home-service-calls', '/trust/compliance', '/trust/security',
   '/developers/api-reference', '/developers/quickstarts',
