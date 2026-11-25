@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import java.util.Map;
@@ -35,9 +36,13 @@ final class VireekNotifier {
         String tag = d.getOrDefault("tag", "alert");
         String category = d.getOrDefault("category", "DEFAULT");
         String url = d.getOrDefault("url", "/dashboard");
-        String channel = d.getOrDefault("channel", "vireek_normal");
-        boolean critical = "critical".equals(d.get("severity"));
-        int rc = tag.hashCode();
+        // The channel may not exist yet if the app was updated but not opened since: create all of them (idempotent).
+        VireekNotificationChannels.ensure(c);
+        String channel = d.getOrDefault("channel", VireekNotificationChannels.NORMAL);
+        String tier = d.containsKey("tier") ? d.get("tier") : VireekNotificationChannels.tierOfChannel(channel);
+        boolean critical = "emergency".equals(tier) || "critical".equals(d.get("severity"));
+        // Message tier is grouped per conversation thread (tag); everything else shares one group.
+        String group = "message".equals(tier) ? GROUP + "_" + tag : GROUP;
 
         NotificationCompat.Builder b = new NotificationCompat.Builder(c, channel)
                 .setSmallIcon(R.drawable.ic_stat_vireek)
@@ -46,9 +51,9 @@ final class VireekNotifier {
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(d.getOrDefault("body", "")))
                 .setContentIntent(open(c, url, rc))
                 .setAutoCancel(true)
-                .setGroup(GROUP)
-                .setCategory(critical ? NotificationCompat.CATEGORY_CALL : NotificationCompat.CATEGORY_MESSAGE)
-                .setPriority(critical ? NotificationCompat.PRIORITY_MAX : NotificationCompat.PRIORITY_DEFAULT)
+                .setGroup(group)
+                .setCategory(categoryFor(tier))
+                .setPriority(priorityFor(tier))
                 .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
                 .setPublicVersion(new NotificationCompat.Builder(c, channel)
                         .setSmallIcon(R.drawable.ic_stat_vireek).setContentTitle("Vireek").setContentText("New alert").build());
@@ -72,41 +77,42 @@ final class VireekNotifier {
             default:
                 break;
         }
+        // Android 7.1 and below have no channels: sound comes from the notification itself. Quiet gets none.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            if ("quiet".equals(tier)) b.setDefaults(0);
+            else if ("emergency".equals(tier)) b.setDefaults(Notification.DEFAULT_ALL);
+            else b.setDefaults(Notification.DEFAULT_SOUND);
+        }
         b.extend(new NotificationCompat.WearableExtender());
         NotificationManagerCompat.from(c).notify(tag, ID_ALERT, b.build());
-        postSummary(c, channel);
+        postSummary(c, channel, group, "message".equals(tier) ? "summary_" + tag : "summary");
     }
 
-    private static void postSummary(Context c, String channel) {
+    /** Importance of the channel drives sound on Android 8+; these only matter below that. */
+    static int priorityFor(String tier) {
+        switch (tier == null ? "normal" : tier) {
+            case "emergency": return NotificationCompat.PRIORITY_MAX;
+            case "alert": return NotificationCompat.PRIORITY_HIGH;
+            case "quiet": return NotificationCompat.PRIORITY_LOW;
+            default: return NotificationCompat.PRIORITY_DEFAULT;
+        }
+    }
+
+    static String categoryFor(String tier) {
+        switch (tier == null ? "normal" : tier) {
+            case "emergency": return NotificationCompat.CATEGORY_CALL;
+            case "alert": return NotificationCompat.CATEGORY_ALARM;
+            case "quiet": return NotificationCompat.CATEGORY_STATUS;
+            default: return NotificationCompat.CATEGORY_MESSAGE;
+        }
+    }
+
+    private static void postSummary(Context c, String channel, String group, String summaryTag) {
+        // The summary never makes a sound of its own: the child notification already did.
         Notification summary = new NotificationCompat.Builder(c, channel)
                 .setSmallIcon(R.drawable.ic_stat_vireek).setContentTitle("Vireek").setContentText("New alerts")
-                .setGroup(GROUP).setGroupSummary(true).setAutoCancel(true)
+                .setGroup(group).setGroupSummary(true).setAutoCancel(true)
+                .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_CHILDREN)
                 .setVisibility(NotificationCompat.VISIBILITY_PRIVATE).build();
-        NotificationManagerCompat.from(c).notify("summary", 0, summary);
+        NotificationManagerCompat.from(c).notify(summaryTag, 0, summary);
     }
-
-    /** Ongoing notification with a live chronometer: the system counts up from startedAt, so no per-second pushes. */
-    static void showLive(Context c, Map<String, String> d) {
-        if (!NotificationManagerCompat.from(c).areNotificationsEnabled()) return;
-        String tag = d.getOrDefault("tag", "live");
-        long started;
-        try { started = Long.parseLong(d.getOrDefault("startedAt", "0")); } catch (NumberFormatException e) { started = System.currentTimeMillis(); }
-        String channel = d.getOrDefault("channel", "vireek_normal");
-        NotificationCompat.Builder b = new NotificationCompat.Builder(c, channel)
-                .setSmallIcon(R.drawable.ic_stat_vireek)
-                .setContentTitle(d.getOrDefault("title", "Live call"))
-                .setContentText(d.getOrDefault("body", ""))
-                .setOngoing(true).setOnlyAlertOnce(true)
-                .setUsesChronometer(true).setShowWhen(true).setWhen(started)
-                .setCategory(NotificationCompat.CATEGORY_CALL)
-                .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
-                .setContentIntent(open(c, d.getOrDefault("url", "/dashboard/live-calls"), tag.hashCode()))
-                .setPublicVersion(new NotificationCompat.Builder(c, channel)
-                        .setSmallIcon(R.drawable.ic_stat_vireek).setContentTitle("Vireek").setContentText("Call in progress").build());
-        NotificationManagerCompat.from(c).notify(tag, ID_LIVE, b.build());
-    }
-
-    static void endLive(Context c, Map<String, String> d) {
-        NotificationManagerCompat.from(c).cancel(d.getOrDefault("tag", "live"), ID_LIVE);
-    }
-}
