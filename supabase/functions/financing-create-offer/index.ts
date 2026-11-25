@@ -1,4 +1,4 @@
-// supabase/functions/financing-create-offer/index.ts
+// supabase/functions/financing-create-offer/index.ts { sendGuardedSms } from "../_shared/messaging/gatedSend.ts";
 //
 // Same dual-client convention as create-payment-request: a single
 // service-role admin client authenticates the caller's JWT by hand
@@ -11,6 +11,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 import { getFinancingProvider } from "../_shared/financing/registry.ts";
 import { sendEmail } from "../_shared/notify/deliver.ts";
 import { sendGuardedSms } from "../_shared/messaging/gatedSend.ts";
+import { requireLicensingGate } from "../_shared/licensing/gate.ts";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -53,6 +54,10 @@ Deno.serve(async (req: Request) => {
     if (!jobId) return jsonResponse({ error: "job_id is required." }, 400);
 
     const ownerId = await resolveAccountOwnerId(admin, caller);
+
+    // Licensing gate: no loan offer may be created until counsel-confirmed licensing is recorded (fails closed).
+    const gateRefusal = await requireLicensingGate(admin, "bnpl_legacy", corsHeaders);
+    if (gateRefusal) return gateRefusal;
 
     const { data: job } = await admin
       .from("jobs")
