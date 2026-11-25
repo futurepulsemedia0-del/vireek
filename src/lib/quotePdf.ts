@@ -22,7 +22,10 @@ export function quotePdfFilename(q: Pick<QuotePdfSource, 'id' | 'customer_name'>
 }
 
 /** Builds the document model from a quote using the SAME pricing helpers the screen uses. */
-export function buildQuoteDocInput(q: QuotePdfSource, businessName: string | null, labels: Pick<DocLabels, 'recommended' | 'selected'>): QuoteDocInput {
+export function buildQuoteDocInput(
+  q: QuotePdfSource, businessName: string | null, labels: Pick<DocLabels, 'recommended' | 'selected'>,
+  disclosures: QuoteDocInput['disclosures'] = null,
+): QuoteDocInput {
   const options = (q.options ?? []) as SnapshotOption[];
   const tax = q.tax_percent;
   const mkGroup = (items: SnapshotOption['line_items'], total: number, over: Partial<QuoteDocGroup> = {}): QuoteDocGroup => {
@@ -69,13 +72,14 @@ export function buildQuoteDocInput(q: QuotePdfSource, businessName: string | nul
     depositPercent: q.deposit_percent,
     note: q.presentation_note,
     groups,
+    disclosures,
   };
 }
 
-export async function downloadQuotePdf(q: QuotePdfSource, businessName: string | null): Promise<void> {
+export async function downloadQuotePdf(q: QuotePdfSource, businessName: string | null, disclosures: QuoteDocInput['disclosures'] = null): Promise<void> {
   const { jsPDF } = await import('jspdf');
   const env = await buildDocEnv();
   const doc = new jsPDF({ unit: 'pt', format: 'a4', compress: true });
-  renderQuoteDocument(doc as unknown as Parameters<typeof renderQuoteDocument>[0], buildQuoteDocInput(q, businessName, env.labels), env);
+  renderQuoteDocument(doc as unknown as Parameters<typeof renderQuoteDocument>[0], buildQuoteDocInput(q, businessName, env.labels, disclosures), env);
   doc.save(quotePdfFilename(q, businessName));
 }
