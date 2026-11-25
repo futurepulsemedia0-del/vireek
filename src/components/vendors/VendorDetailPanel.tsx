@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { VendorComplianceSection } from '@/components/vendors/VendorComplianceSection';
 import { EmptyState } from '@/components/EmptyState';
 import { Skeleton } from '@/components/Skeleton';
 import { useAuth } from '@/contexts/AuthContext';
@@ -1051,6 +1052,7 @@ function ComplianceTab({ insight, onChanged }: { insight: VendorInsight; onChang
 
   return (
     <div className="space-y-4">
+      <VendorComplianceSection vendorId={r.vendor_id} onChanged={onChanged} />
       <Section title="Required documents">
         {r.required_documents.length === 0 ? (
           <p className="text-sm text-text-secondary">No documents are required for this vendor. Use Edit to choose which ones are.</p>
