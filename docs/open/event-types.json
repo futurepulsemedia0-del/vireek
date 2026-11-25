@@ -1,0 +1,18 @@
+{
+  "spec_version": "0.1.0-draft",
+  "description": "Registry of event types and the schema that validates each one's `data`. status: emitted = Vireek sends it today (catalog in supabase/functions/api-v1/contract.ts WEBHOOK_EVENTS); proposed = defined here, not emitted by anyone yet.",
+  "events": [
+    { "event": "call.created", "status": "emitted", "stability": "stable", "data_schema": "call.schema.json" },
+    { "event": "call.emergency", "status": "emitted", "stability": "beta", "data_schema": "call.schema.json" },
+    { "event": "job.created", "status": "emitted", "stability": "stable", "data_schema": "job.schema.json" },
+    { "event": "job.completed", "status": "emitted", "stability": "beta", "data_schema": "job.schema.json" },
+    { "event": "equipment.registered", "status": "proposed", "stability": "proposed", "data_schema": "equipment.schema.json" },
+    { "event": "outcome.recorded", "status": "proposed", "stability": "proposed", "data_schema": "outcome.schema.json" },
+
+    { "event": "lead.created", "status": "emitted", "stability": "stable", "data_schema": null, "note": "Outside this draft's scope; only the envelope is checked." },
+    { "event": "quote.sent", "status": "emitted", "stability": "beta", "data_schema": null, "note": "Outside this draft's scope; only the envelope is checked." },
+    { "event": "quote.accepted", "status": "emitted", "stability": "beta", "data_schema": null, "note": "Outside this draft's scope; only the envelope is checked." },
+    { "event": "review.completed", "status": "emitted", "stability": "beta", "data_schema": null, "note": "Outside this draft's scope; only the envelope is checked." },
+    { "event": "automation.installed", "status": "emitted", "stability": "beta", "data_schema": null, "note": "Outside this draft's scope; only the envelope is checked." }
+  ]
+}
