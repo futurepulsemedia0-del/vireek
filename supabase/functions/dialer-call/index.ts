@@ -77,7 +77,15 @@ Deno.serve(async (req: Request) => {
       await authClient.rpc("dialer_complete_attempt", { p_contact_id: contact.id, p_disposition: "do_not_call", p_note: "Suppressed by DNC list at dial time." });
       return json({ blocked: "dnc" }, 200);
     }
-
+    const scrub = await scrubForDial(admin, { ownerId: attempt.account_owner_id, phone: contact.phone_e164, purpose: "marketing", source: "dialer-call", correlationId: contact.id });
+    if (!scrub.allow) {
+      if (scrub.retryable && scrub.retryAt) {
+        await authClient.rpc("dialer_defer_contact", { p_contact_id: contact.id, p_until: scrub.retryAt });
+        return json({ blocked: "state_dnc", reason: scrub.reasonCode, retry_at: scrub.retryAt }, 200);
+      }
+      await authClient.rpc("dialer_complete_attempt", { p_contact_id: contact.id, p_disposition: "do_not_call", p_note: `Suppressed by state DNC registry (${scrub.reasonCode}).` });
+      return json({ blocked: "state_dnc", reason: scrub.reasonCode }, 200);
+    }
         const planDenied = await requirePlanFeature(admin, attempt.account_owner_id, "outboundCalling", cors);
     if (planDenied) {
       await authClient.rpc("dialer_defer_contact", { p_contact_id: contact.id, p_until: new Date(Date.now() + 24 * 3600 * 1000).toISOString() });
