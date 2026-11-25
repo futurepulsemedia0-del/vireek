@@ -416,6 +416,7 @@ export const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Skill Graph', href: '/dashboard/skill-graph', icon: GitBranch, requiresPermission: 'can_view_billing' },
   { label: 'Trust Passport', href: '/dashboard/trust-passport', icon: Fingerprint, requiresPermission: 'can_view_billing' },
   { label: 'Technician Identity Graph', href: '/dashboard/technician-identity', icon: Network },
+  { label: 'Reputation credentials', href: '/dashboard/reputation-credentials', icon: BadgeCheck },
   { label: 'Technician Simulator', href: '/dashboard/technician-simulator', icon: FlaskConical },
   { label: 'Apprenticeship Engine', href: '/dashboard/apprenticeship', icon: GraduationCap },
   { label: 'Adoption OS', href: '/dashboard/adoption', icon: Activity },
