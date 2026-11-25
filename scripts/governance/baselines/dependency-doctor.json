@@ -1,0 +1,137 @@
+{
+  "$comment": "Known dependency drift (ratchet). Only ever shrink this list: fix the drift, then remove the entry. Checked by scripts/dependency-doctor.mjs --check.",
+  "entries": [
+    {
+      "key": "lock-missing:husky",
+      "kind": "lock-missing",
+      "name": "husky",
+      "note": "[TRIAGE] declare + lock the package, or remove the import."
+    },
+    {
+      "key": "lock-missing:lint-staged",
+      "kind": "lock-missing",
+      "name": "lint-staged",
+      "note": "[TRIAGE] declare + lock the package, or remove the import."
+    },
+    {
+      "key": "lock-root-drift:husky",
+      "kind": "lock-root-drift",
+      "name": "husky",
+      "note": "[TRIAGE] declare + lock the package, or remove the import."
+    },
+    {
+      "key": "lock-root-drift:lint-staged",
+      "kind": "lock-root-drift",
+      "name": "lint-staged",
+      "note": "[TRIAGE] declare + lock the package, or remove the import."
+    },
+    {
+      "key": "undeclared:@capacitor/cli",
+      "kind": "undeclared",
+      "name": "@capacitor/cli",
+      "note": "[TRIAGE] declare + lock the package, or remove the import."
+    },
+    {
+      "key": "undeclared:@capsizecss/metrics",
+      "kind": "undeclared",
+      "name": "@capsizecss/metrics",
+      "note": "[TRIAGE] declare + lock the package, or remove the import."
+    },
+    {
+      "key": "undeclared:@capsizecss/unpack",
+      "kind": "undeclared",
+      "name": "@capsizecss/unpack",
+      "note": "[TRIAGE] declare + lock the package, or remove the import."
+    },
+    {
+      "key": "undeclared:@electric-sql/pglite",
+      "kind": "undeclared",
+      "name": "@electric-sql/pglite",
+      "note": "[TRIAGE] declare + lock the package, or remove the import."
+    },
+    {
+      "key": "undeclared:@resvg/resvg-js",
+      "kind": "undeclared",
+      "name": "@resvg/resvg-js",
+      "note": "[TRIAGE] declare + lock the package, or remove the import."
+    },
+    {
+      "key": "undeclared:@storybook/react-vite",
+      "kind": "undeclared",
+      "name": "@storybook/react-vite",
+      "note": "[TRIAGE] declare + lock the package, or remove the import."
+    },
+    {
+      "key": "undeclared:@testing-library/user-event",
+      "kind": "undeclared",
+      "name": "@testing-library/user-event",
+      "note": "[TRIAGE] declare + lock the package, or remove the import."
+    },
+    {
+      "key": "undeclared:axe-core",
+      "kind": "undeclared",
+      "name": "axe-core",
+      "note": "[TRIAGE] declare + lock the package, or remove the import."
+    },
+    {
+      "key": "undeclared:esbuild",
+      "kind": "undeclared",
+      "name": "esbuild",
+      "note": "[TRIAGE] declare + lock the package, or remove the import."
+    },
+    {
+      "key": "undeclared:eslint-plugin-jsx-a11y",
+      "kind": "undeclared",
+      "name": "eslint-plugin-jsx-a11y",
+      "note": "[TRIAGE] declare + lock the package, or remove the import."
+    },
+    {
+      "key": "undeclared:satori",
+      "kind": "undeclared",
+      "name": "satori",
+      "note": "[TRIAGE] declare + lock the package, or remove the import."
+    },
+    {
+      "key": "undeclared:sharp",
+      "kind": "undeclared",
+      "name": "sharp",
+      "note": "[TRIAGE] declare + lock the package, or remove the import."
+    },
+    {
+      "key": "undeclared:storybook",
+      "kind": "undeclared",
+      "name": "storybook",
+      "note": "[TRIAGE] declare + lock the package, or remove the import."
+    },
+    {
+      "key": "unlocked-install:@fontsource-variable/inter",
+      "kind": "unlocked-install",
+      "name": "@fontsource-variable/inter",
+      "note": "[TRIAGE] declare + lock the package, or remove the import."
+    },
+    {
+      "key": "unlocked-install:@fontsource-variable/source-serif-4",
+      "kind": "unlocked-install",
+      "name": "@fontsource-variable/source-serif-4",
+      "note": "[TRIAGE] declare + lock the package, or remove the import."
+    },
+    {
+      "key": "unlocked-install:@fontsource/caveat",
+      "kind": "unlocked-install",
+      "name": "@fontsource/caveat",
+      "note": "[TRIAGE] declare + lock the package, or remove the import."
+    },
+    {
+      "key": "unlocked-install:@fontsource/dancing-script",
+      "kind": "unlocked-install",
+      "name": "@fontsource/dancing-script",
+      "note": "[TRIAGE] declare + lock the package, or remove the import."
+    },
+    {
+      "key": "unlocked-install:@fontsource/great-vibes",
+      "kind": "unlocked-install",
+      "name": "@fontsource/great-vibes",
+      "note": "[TRIAGE] declare + lock the package, or remove the import."
+    }
+  ]
+}
