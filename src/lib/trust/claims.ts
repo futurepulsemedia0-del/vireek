@@ -227,6 +227,22 @@ export const CLAIMS: Claim[] = [
     assertive: ['multi[- ]?region'],
     needs: 'Enforced regional data planes (see docs/compliance/adr-0001-data-residency.md) verified in production before this can become verified.',
   },
+  {
+    id: 'product.rre_certified_remote_resolution',
+    category: 'compliance',
+    statement: 'Vireek does not claim certified or statistically guaranteed remote resolution. The risk-control layer is in shadow evaluation only.',
+    status: 'not_held',
+    kind: 'fact',
+    reviewedOn: '2026-11-24',
+    owner: 'ali',
+    assertive: [
+      'certified remote resolution',
+      'remote resolution (?:is |are )?(?:guaranteed|certified|statistically (?:safe|guaranteed|proven))',
+      '(?:guaranteed|certified|provably) (?:low )?false[- ]resolution (?:rate|risk)',
+      'false[- ]resolution rate (?:is )?(?:guaranteed|bounded|certified)',
+    ],
+    needs: 'Real outcome data from live accounts, an independent review of the exchangeability and failure-detection assumptions, and the owner sign-off in docs/rre-certification.md before any public copy.',
+  },
 ];
 
 export const CLAIM_BY_ID: Record<string, Claim> = Object.fromEntries(CLAIMS.map((c) => [c.id, c]));
