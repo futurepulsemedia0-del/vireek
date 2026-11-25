@@ -565,6 +565,8 @@ const SubprocessorsPage = lazy(() => import('@/pages/SubprocessorsPage').then((m
 const TrustPackPage = lazy(() => import('@/pages/TrustPackPage').then((m) => ({ default: m.TrustPackPage })));
 const SecurityPortalPage = lazy(() => import('@/pages/SecurityPortalPage').then((m) => ({ default: m.SecurityPortalPage })));
 const StaffTrustAdminPage = lazy(() => import('@/pages/StaffTrustAdminPage').then((m) => ({ default: m.StaffTrustAdminPage })));
+const StaffTerritoriesPage = lazy(() => import('@/pages/StaffTerritoriesPage').then((m) => ({ default: m.StaffTerritoriesPage })));
+const TerritoriesPage = lazy(() => import('@/pages/TerritoriesPage').then((m) => ({ default: m.TerritoriesPage })));
 const StaffChurnSavePage = lazy(() => import('@/pages/StaffChurnSavePage').then((m) => ({ default: m.StaffChurnSavePage })));
 const StaffChangeCalendarPage = lazy(() => import('@/pages/StaffChangeCalendarPage').then((m) => ({ default: m.StaffChangeCalendarPage })));
 const OffboardingPage = lazy(() => import('@/pages/OffboardingPage').then((m) => ({ default: m.OffboardingPage })));
@@ -882,6 +884,7 @@ function AppRoutes() {
   }
 />
         <Route path="/staff/trust-admin" element={<StaffRoute><StaffTrustAdminPage /></StaffRoute>} />
+        <Route path="/staff/territories" element={<StaffRoute><StaffTerritoriesPage /></StaffRoute>} />
         <Route path="/staff/churn-save" element={<StaffRoute><StaffChurnSavePage /></StaffRoute>} />
         <Route path="/staff/change-calendar" element={<StaffRoute><StaffChangeCalendarPage /></StaffRoute>} />
         <Route path="/staff/offboarding" element={<StaffRoute><StaffOffboardingPage /></StaffRoute>} />
@@ -5033,6 +5036,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <ReputationCredentialsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/territories"
+          element={
+            <ProtectedRoute>
+              <TerritoriesPage />
             </ProtectedRoute>
           }
         />
