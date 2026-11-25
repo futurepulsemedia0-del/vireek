@@ -1,42 +1,106 @@
 #!/usr/bin/env node
 // scripts/compliance/check-erasure-coverage.mjs
-// Erasure-registry completeness gate. Every public table that holds personal data must be covered by
-// account erasure (swept by erase_user_rows(), OWNED_TABLES, TENANT_KEYED_OWNED_TABLES, FK cascade)
-// or explicitly exempted with a reason in supabase/functions/_shared/compliance/ownedTables.ts.
-// Heuristic (names/regex over supabase/migrations) — see scripts/compliance/erasure-lib.mjs for limits.
 //
-//   node scripts/compliance/check-erasure-coverage.mjs            # report (never fails)
-//   node scripts/compliance/check-erasure-coverage.mjs --check    # CI: exit 1 on any gap or registry error
-//   node scripts/compliance/check-erasure-coverage.mjs --strict   # like --check, also fails on needs_remediation entries
-//   node scripts/compliance/check-erasure-coverage.mjs --json     # machine-readable result
-import { readFileSync } from 'node:fs';
-import { join, resolve, dirname } from 'node:path';
+// Account-erasure coverage ratchet (gap E4). Lists every public table that carries an owner column
+// (user_id / owner_id / account_owner_id) and classifies HOW its rows disappear on full-account erasure:
+//
+//   listed       explicitly deleted by code  (OWNED_TABLES in ownedTables.ts, TRUST_TENANT_TABLES in trust/vault.ts)
+//   cascade      FK ON DELETE CASCADE to auth.users / profiles (removed when the auth user is deleted)
+//   catalog_rpc  uuid user_id table, deleted at run time by the erase_user_rows() RPC
+//   exempt       deliberately kept; reason recorded in docs/compliance/erasure-exemptions.json
+//   uncovered    no erasure path  -> ratcheted by docs/compliance/erasure-coverage-baseline.json
+//
+//   node scripts/compliance/check-erasure-coverage.mjs                 # report (first line = uncovered count)
+//   node scripts/compliance/check-erasure-coverage.mjs --json          # full classification as JSON
+//   node scripts/compliance/check-erasure-coverage.mjs --baseline      # accept the current uncovered set
+//   node scripts/compliance/check-erasure-coverage.mjs --check         # CI: fail on anything NEW (see below)
+//   node scripts/compliance/check-erasure-coverage.mjs --catalog-json <file>   # use a real DB catalog dump instead
+//                                                                              # of parsing migrations (see erasure-catalog.sql)
+//
+// --check fails (exit 1) when: a table is uncovered and not in the baseline; an exemption has no reason or points
+// at a table that no longer exists; a name in OWNED_TABLES / TRUST_TENANT_TABLES is not a real owner table.
+// Stale baseline entries (table now covered or gone) only warn: run --baseline to ratchet down.
+import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { classify, parseMigrations, parseRegistry, parseTrustTables, readMigrations } from './erasure-lib.mjs';
+import { classify, fromCatalogRows, parseMigrations, parseRpcExclude, validateExemptions } from './erasure-lib.mjs';
 
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
+export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
+const MIG = join(ROOT, 'supabase/migrations');
+const BASELINE = join(ROOT, 'docs/compliance/erasure-coverage-baseline.json');
+const EXEMPTIONS = join(ROOT, 'docs/compliance/erasure-exemptions.json');
+const RPC_MIGRATION = '20280410000000_erase_user_rows.sql';
 
-export function run(root = ROOT) {
-  const model = parseMigrations(readMigrations(join(root, 'supabase/migrations')));
-  const registry = parseRegistry(readFileSync(join(root, 'supabase/functions/_shared/compliance/ownedTables.ts'), 'utf8'));
-  const trust = parseTrustTables(readFileSync(join(root, 'supabase/functions/_shared/trust/vault.ts'), 'utf8'));
-  return { model, ...classify(model, registry, trust) };
-}
+const readJson = (p, fallback) => (existsSync(p) ? JSON.parse(readFileSync(p, 'utf8')) : fallback);
 
-if (import.meta.url === `file://${process.argv[1]}`) {
-  const args = new Set(process.argv.slice(2));
-  const res = run();
-  if (args.has('--json')) {
-    console.log(JSON.stringify({ counts: res.counts, errors: res.errors, gaps: res.gaps, remediation: res.remediation }, null, 2));
-  } else {
-    const c = res.counts;
-    console.log(`tables: ${res.rows.length} | swept: ${c.swept ?? 0} | owned: ${(c.owned ?? 0) + (c.owned_tenant ?? 0)} | cascade: ${c.cascade ?? 0} | exempt: ${c.exempt ?? 0} | no personal-data signal: ${c.no_signal ?? 0} | GAPS: ${res.gaps.length} | registry errors: ${res.errors.length}`);
-    for (const e of res.errors) console.error(`REGISTRY ERROR: ${e}`);
-    for (const g of res.gaps) console.error(`GAP [${g.kind}] ${g.table}: ${g.detail}`);
-    if (res.remediation.length) console.warn(`NEEDS REMEDIATION (${res.remediation.length}): ${res.remediation.join(', ')}`);
-    if (res.gaps.length) console.error('\nFix: register the table in TENANT_KEYED_OWNED_TABLES / OWNED_TABLES, or add an ERASURE_EXEMPTIONS entry with a category (see ownedTables.ts).');
+/** Loads everything from disk and returns the classification. Pure of side effects. */
+export function analyse({ catalogJson } = {}) {
+  const owned = new Set([...readFileSync(join(ROOT, 'supabase/functions/_shared/compliance/ownedTables.ts'), 'utf8').matchAll(/table:\s*"(\w+)"/g)].map((m) => m[1]));
+  const trustSrc = readFileSync(join(ROOT, 'supabase/functions/_shared/trust/vault.ts'), 'utf8');
+  const trust = new Set([...(/TRUST_TENANT_TABLES\s*=\s*\[([\s\S]*?)\]\s*as const/.exec(trustSrc)?.[1] ?? '').matchAll(/"(\w+)"/g)].map((m) => m[1]));
+  const rpcExclude = parseRpcExclude(readFileSync(join(MIG, RPC_MIGRATION), 'utf8'));
+  const exemptions = readJson(EXEMPTIONS, { exemptions: {} }).exemptions ?? {};
+
+  let tables;
+  let skipped = [];
+  if (catalogJson) tables = fromCatalogRows(JSON.parse(readFileSync(catalogJson, 'utf8')));
+  else {
+    const all = readdirSync(MIG).filter((n) => n.endsWith('.sql')).sort();
+    skipped = all.filter((n) => !/^\d+_/.test(n));
+    tables = parseMigrations(all.filter((n) => /^\d+_/.test(n)).map((name) => ({ name, sql: readFileSync(join(MIG, name), 'utf8') })));
   }
-  const fail = res.errors.length > 0 || res.gaps.length > 0 || (args.has('--strict') && res.remediation.length > 0);
-  if ((args.has('--check') || args.has('--strict')) && fail) process.exit(1);
-  if (args.has('--check') || args.has('--strict')) console.log('OK: erasure registry is complete.');
+  const result = classify({ tables, owned, trust, exemptions, rpcExclude });
+  const problems = validateExemptions(exemptions, tables);
+  for (const t of [...owned, ...trust]) if (!tables.get(t)?.has('user_id')) problems.push(`${t}: listed in OWNED_TABLES/TRUST_TENANT_TABLES but no user_id column found`);
+  return { ...result, problems, skipped, rpcExclude, source: catalogJson ? 'catalog' : 'migrations' };
 }
+
+/** Pure decision used by --check and by the unit test. */
+export function evaluate({ rows, problems }, baselineUncovered) {
+  const known = new Set(baselineUncovered);
+  const uncovered = rows.filter((r) => r.class === 'uncovered').map((r) => r.table);
+  return {
+    fresh: uncovered.filter((t) => !known.has(t)),
+    stale: [...known].filter((t) => !uncovered.includes(t)),
+    problems,
+  };
+}
+
+function main(argv) {
+  const flag = (f) => argv.includes(f);
+  const ci = argv.indexOf('--catalog-json');
+  const a = analyse({ catalogJson: ci >= 0 ? argv[ci + 1] : undefined });
+  const { summary } = a;
+  const uncovered = a.rows.filter((r) => r.class === 'uncovered');
+
+  if (flag('--json')) {
+    process.stdout.write(JSON.stringify({ source: a.source, summary, rows: a.rows }, null, 2) + '\n');
+    return 0;
+  }
+  console.log(`uncovered: ${summary.uncovered} of ${summary.total} tables with an owner column (source: ${a.source})`);
+  console.log(`  listed ${summary.listed} | cascade ${summary.cascade} | catalog_rpc ${summary.catalog_rpc} | exempt ${summary.exempt} | uncovered ${summary.uncovered}`);
+  if (a.skipped.length) console.log(`  skipped non-versioned migration files: ${a.skipped.join(', ')}`);
+
+  if (flag('--baseline')) {
+    writeFileSync(BASELINE, JSON.stringify({ note: 'Owner-column tables with no erasure path, accepted until reviewed. New entries fail --check. Regenerate: node scripts/compliance/check-erasure-coverage.mjs --baseline', uncovered: uncovered.map((r) => r.table) }, null, 2) + '\n');
+    console.log(`baseline written: ${uncovered.length} tables`);
+    return 0;
+  }
+  if (flag('--check')) {
+    if (!existsSync(BASELINE)) { console.error('No baseline. Run with --baseline first.'); return 2; }
+    const { fresh, stale, problems } = evaluate(a, readJson(BASELINE, { uncovered: [] }).uncovered);
+    if (stale.length) console.warn(`warning: ${stale.length} baseline entries are now covered or gone (run --baseline to ratchet down): ${stale.join(', ')}`);
+    if (problems.length) console.error('Problems:\n  ' + problems.join('\n  '));
+    if (fresh.length) {
+      const by = Object.fromEntries(a.rows.map((r) => [r.table, r]));
+      console.error('NEW owner-column tables with no erasure path. Fix by ONE of: add ON DELETE CASCADE to profiles/auth.users, list in OWNED_TABLES, or add an entry (with reason) to docs/compliance/erasure-exemptions.json:\n  ' + fresh.map((t) => `${t} (${by[t].detail})`).join('\n  '));
+    }
+    if (fresh.length || problems.length) return 1;
+    console.log('OK: nothing new is uncovered.');
+    return 0;
+  }
+  for (const r of uncovered) console.log(`  - ${r.table}  [${r.columns.join(', ')}]  ${r.detail}`);
+  return 0;
+}
+
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) process.exit(main(process.argv.slice(2)));
