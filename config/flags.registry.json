@@ -1,6 +1,14 @@
 {
   "flags": 
     {
+     "key": "rre_certify",
+     "kind": "release",
+      "owner": "platform-oncall",
+      "created": "2026-11-24",
+      "expires": "2027-05-01",
+      "cleanup": "Remove the flag_evaluate('rre_certify') check in remote-resolution and rr-certify edge functions and the isEnabled('rre_certify') gate in the settings panel, then delete the flag row (the rollback block of 20290312000000_rre_certify.sql lists the tables)."
+    }
+    {
       "key": "shadow_live_listen",
       "kind": "release",
       "owner": "platform-oncall",
