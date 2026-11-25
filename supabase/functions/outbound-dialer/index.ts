@@ -150,6 +150,27 @@ Deno.serve(async (req: Request) => {
       }).eq("id", call.id);
       continue;
     }
+    // State DNC registries (imported lists): scrub + stored proof BEFORE the budget reservation.
+    // Shadow unless STATE_DNC_GATE_MODE=enforce; a hold re-schedules without using an attempt.
+    if (call.customer_phone) {
+      const scrub = await scrubForDial(admin, {
+        ownerId: call.user_id, phone: call.customer_phone, source: "outbound-dialer", correlationId: call.id,
+        purpose: call.campaign_type === "appointment_reminder" ? "service" : "marketing",
+      });
+      if (!scrub.allow) {
+        if (scrub.retryable && scrub.retryAt) {
+          await admin.from("outbound_calls").update({
+            scheduled_for: scrub.retryAt, outcome_notes: `Held by state DNC scrub (${scrub.reasonCode}); retrying later.`,
+          }).eq("id", call.id);
+        } else {
+          await admin.from("outbound_calls").update({
+            status: scrub.decision === "suppressed" ? "opted_out" : "failed",
+            outcome_notes: `Blocked by state DNC scrub (${scrub.reasonCode}).`, attempt_count: call.attempt_count + 1,
+          }).eq("id", call.id);
+        }
+        continue;
+      }
+    }
     // Fraud guard (shadow/enforce per fraud_settings.outbound_guard_mode): budget reservation + destination policy,
     // immediately before the provider call. A blocked call is parked or failed, NEVER left in the queue to be retried
     // on the next tick: a cap that resets is rescheduled to retryAt without using an attempt, anything else fails now.
@@ -184,7 +205,7 @@ Deno.serve(async (req: Request) => {
         assistantId: business.vapi_assistant_id,
         phoneNumberId: pick.vapiPhoneNumberId,
         customerNumber: fraud.e164,
-        variableValues: { customer_name: call.customer_name, call_purpose: CAMPAIGN_CONTEXT[call.campaign_type] },
+variableValues: await outboundDisclosureVariables(admin, call.user_id, { customer_name: call.customer_name, call_purpose: CAMPAIGN_CONTEXT[call.campaign_type] }),
         maxDurationSeconds: fraud.maxCallSeconds,
       });
 
@@ -200,6 +221,7 @@ Deno.serve(async (req: Request) => {
         continue;
       }
       await attachOutboundCall(asFraudDb(admin), fraud, started.callId);
+      await registerOutboundDisclosure(admin, { userId: call.user_id, vapiCallId: started.callId });
 
       await admin.from("outbound_calls").update({
         status: "calling", vapi_call_id: started.callId, called_at: new Date().toISOString(), attempt_count: call.attempt_count + 1,
