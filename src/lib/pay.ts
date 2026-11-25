@@ -171,6 +171,7 @@ export const UNAVAILABLE_COPY: Record<string, string> = {
   platform_disabled: 'This feature is not available yet.',
   tenant_frozen: 'This feature is paused for your account. Contact support.',
   disclosures_not_reviewed: 'This feature is being prepared and is not available yet.',
+  licensing_not_confirmed: 'This feature is being prepared and is not available yet.',
   unknown_product: 'This feature is not available.',
   no_tenant: 'Sign in to use this feature.',
 };
