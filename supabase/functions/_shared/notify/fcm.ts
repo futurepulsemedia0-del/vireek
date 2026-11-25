@@ -20,8 +20,13 @@ export interface FcmMessage {
   category?: string;
   severity?: string;
   haptic?: string;
+  /** Sound tier id (soundTiers.ts); sent as data.tier. */
+  tier?: string;
+  /** "default" (also when omitted) = system sound; null = no sound, the `sound` key is omitted from aps. */
+  iosSound?: "default" | null;
 }
-
+/** Exists on every installed app version, so it is a safe fallback when no channel is given. */
+export const DEFAULT_ANDROID_CHANNEL = "vireek_normal";
 export type FcmResult = { ok: true } | { ok: false; unregistered: boolean };
 
 let account: ServiceAccount | null | undefined;
@@ -85,33 +90,42 @@ async function accessToken(a: ServiceAccount): Promise<string> {
   return json.access_token;
 }
 
-export async function sendFcm(token: string, m: FcmMessage): Promise<FcmResult> {
-  const a = loadAccount();
-  if (!a) return { ok: false, unregistered: false };
+/** Pure builder (no I/O). Every message carries a channel id. */
+export function buildFcmMessage(token: string, m: FcmMessage): Record<string, unknown> {
+  const channel = m.androidChannel || DEFAULT_ANDROID_CHANNEL;
+  return {
+    token,
+    notification: { title: m.title, body: m.body },
+    data: {
+      url: m.url, tag: m.tag, channel,
+      ...(m.severity ? { severity: m.severity } : {}),
+      ...(m.haptic ? { haptic: m.haptic } : {}),
+      ...(m.tier ? { tier: m.tier } : {}),
+    },
+    android: { priority: "HIGH", notification: { tag: m.tag, channel_id: channel } },
+    apns: {
+      headers: { "apns-priority": "10" },
+      payload: { aps: {
+        ...(m.iosSound === null ? {} : { sound: "default" }),
+        "thread-id": m.tag,
+        ...(m.interruptionLevel ? { "interruption-level": m.interruptionLevel } : {}),
+        ...(m.category ? { category: m.category } : {}),
+      } },
+    },
+  };
+}
 
-  const res = await fetch(`https://fcm.googleapis.com/v1/projects/${a.project_id}/messages:send`, {
+/** Data-only message for Android. `channel` is always included. */
+export function buildFcmDataMessage(token: string, data: Record<string, string>, opts: { androidChannel?: string } = {}): Record<string, unknown> {
+  const channel = opts.androidChannel || data.channel || DEFAULT_ANDROID_CHANNEL;
+  return { token, data: { ...data, channel }, android: { priority: "HIGH" } };
+}
+
+async function postFcm(account: ServiceAccount, message: Record<string, unknown>): Promise<FcmResult> {
+  const res = await fetch(`https://fcm.googleapis.com/v1/projects/${account.project_id}/messages:send`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${await accessToken(a)}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      message: {
-        token,
-        notification: { title: m.title, body: m.body },
-                data: {
-          url: m.url, tag: m.tag,
-          ...(m.severity ? { severity: m.severity } : {}),
-          ...(m.haptic ? { haptic: m.haptic } : {}),
-        },
-        android: { priority: "HIGH", notification: { tag: m.tag, ...(m.androidChannel ? { channel_id: m.androidChannel } : {}) } },
-        apns: {
-          headers: { "apns-priority": "10" },
-          payload: { aps: {
-            sound: "default", "thread-id": m.tag,
-            ...(m.interruptionLevel ? { "interruption-level": m.interruptionLevel } : {}),
-            ...(m.category ? { category: m.category } : {}),
-          } },
-        },
-      },
-    }),
+    headers: { Authorization: `Bearer ${await accessToken(account)}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ message }),
   });
   if (res.ok) return { ok: true };
 
@@ -123,4 +137,16 @@ export async function sendFcm(token: string, m: FcmMessage): Promise<FcmResult> 
     /* non-JSON error body */
   }
   return { ok: false, unregistered: res.status === 404 || code === "UNREGISTERED" };
+}
+
+export async function sendFcm(token: string, m: FcmMessage): Promise<FcmResult> {
+  const a = loadAccount();
+  if (!a) return { ok: false, unregistered: false };
+  return postFcm(a, buildFcmMessage(token, m));
+}
+
+export async function sendFcmData(token: string, data: Record<string, string>, opts: { androidChannel?: string } = {}): Promise<FcmResult> {
+  const a = loadAccount();
+  if (!a) return { ok: false, unregistered: false };
+  return postFcm(a, buildFcmDataMessage(token, data, opts));
 }
