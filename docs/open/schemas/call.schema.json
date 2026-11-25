@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Call event data",
+  "description": "Service call (inbound call handled for a business). The \"data\" member of call.created and call.emergency. Derived from the Vireek public API \"Call\" schema (supabase/functions/api-v1/contract.ts); docs/open/validate.test.mjs fails if they drift apart.",
+  "type": "object",
+  "required": [
+    "id",
+    "call_datetime",
+    "status",
+    "created_at"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique call ID."
+    },
+    "user_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Owning account ID.",
+      "x-vireek": "Account identifier of the producing platform. Consumers must not require it."
+    },
+    "external_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "ID of the call in the telephony provider."
+    },
+    "caller_phone": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Caller phone number."
+    },
+    "caller_name": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Caller name, when captured."
+    },
+    "call_datetime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the call happened."
+    },
+    "duration_seconds": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "Call length in seconds."
+    },
+    "summary": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "AI-written summary of the call."
+    },
+    "transcript": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Full call transcript."
+    },
+    "recording_url": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "URL of the call recording."
+    },
+    "is_emergency": {
+      "type": "boolean",
+      "description": "True when the call was flagged as an emergency."
+    },
+    "sentiment": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Caller sentiment label."
+    },
+    "status": {
+      "type": "string",
+      "description": "Pipeline status, e.g. new_lead or booked."
+    },
+    "tags": {
+      "type": "array",
+      "description": "Free-form tags."
+    },
+    "customer_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid",
+      "description": "Linked customer ID."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the record was created."
+    }
+  },
+  "additionalProperties": true
+}
