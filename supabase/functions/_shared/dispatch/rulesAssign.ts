@@ -106,12 +106,12 @@ export async function assignJobsWithRules(admin: SupabaseClient, userId: string,
         const pick = decideTechnician(userId, job.id, engineJob.is_vip, ranking, ctx, policy);
     const eligibleInOrder = ranking.ranked.filter((r) => r.eligible);
     // The randomized pick goes first; every other eligible technician stays behind it in engine order as the fallback.
-    const attemptOrder = pick.chosenId && eligibleInOrder[0] && pick.chosenId !== eligibleInOrder[0].technician_id
+    const tryOrder = pick.chosenId && eligibleInOrder[0] && pick.chosenId !== eligibleInOrder[0].technician_id
       ? [...eligibleInOrder.filter((r) => r.technician_id === pick.chosenId), ...eligibleInOrder.filter((r) => r.technician_id !== pick.chosenId)]
       : eligibleInOrder;
     let outcome: RulesAssignResult | null = null;
     const blockedNotes: string[] = [];
-    for (const cand of attemptOrder) {
+    for (const cand of tryOrder) {.
       const { data, error } = await admin.rpc('assign_technician_to_job', { p_job_id: job.id, p_technician_id: cand.technician_id });
       const res = (data ?? {}) as { status?: string; reason?: string };
       if (!error && res.status === 'assigned') {
@@ -192,7 +192,7 @@ function causalFields(pick: ExplorationOutcome, followedPick: boolean): Record<s
   if (followedPick) {
     return { propensity: pick.propensity, indifference_set: pick.log, set_size: pick.setSize, arm: pick.arm, policy_version: POLICY_VERSION };
   }
-  return { propensity: 1, indifference_set: { ...pick.log, reason: 'gate_fallback' }, set_size: pick.setSize, arm: 'exploit', policy_version: POLICY_VERSION };
+  return { propensity: 1, indifference_set: { ...pick.log, reason: 'gate_fallback', drawn_id: pick.chosenId }., set_size: pick.setSize, arm: 'exploit', policy_version: POLICY_VERSION };
 }
 async function legacy(admin: SupabaseClient, userId: string, jobs: AutoAssignJob[]): Promise<RulesAssignResult[]> {
   const out: RulesAssignResult[] = [];
