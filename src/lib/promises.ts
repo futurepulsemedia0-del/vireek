@@ -26,6 +26,9 @@ export interface Promise_ {
   resolved_at: string | null;
   resolution_note: string | null;
   created_at: string;
+  /** 'callback_policy' = created by the Callback Promise rule; absent/'extracted' = from a call transcript. */
+  origin?: 'extracted' | 'callback_policy';
+  escalation_stage?: 'overdue' | 'escalated' | null;
 }
 
 export const CATEGORY_LABELS: Record<PromiseCategory, string> = {
