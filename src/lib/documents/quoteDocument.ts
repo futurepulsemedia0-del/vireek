@@ -41,6 +41,8 @@ export interface QuoteDocInput {
   depositPercent: number;
   note: string | null;
   groups: QuoteDocGroup[];
+  /** Counsel-approved notices and license lines for the job state (see estimateDisclosures.ts). Omit when none. */
+  disclosures?: { clauses: Array<{ title: string; text: string }>; licenseLines: string[] } | null;
 }
 
 export interface QuoteDocEnv {
@@ -51,6 +53,8 @@ export interface QuoteDocEnv {
   rtl: boolean;
   money: (cents: number) => string;
   legalLine?: string | null;
+  /** Heading for the required-notices block (localised by the caller). Defaults to the Notes label. */
+  noticesLabel?: string;
 }
 
 export function renderQuoteDocument(doc: PdfDocLike, input: QuoteDocInput, env: QuoteDocEnv): PdfDocLike {
@@ -120,6 +124,16 @@ export function renderQuoteDocument(doc: PdfDocLike, input: QuoteDocInput, env: 
     w.section(L.notes);
     w.paragraph(input.note.trim());
   }
-
+  const disc = input.disclosures;
+  if (disc && (disc.licenseLines.length > 0 || disc.clauses.length > 0)) {
+    w.y += 4;
+    w.section(env.noticesLabel ?? L.notes);
+    for (const line of disc.licenseLines) w.paragraph(line, { size: 9 });
+    for (const c of disc.clauses) {
+      w.paragraph(c.title, { size: 9, bold: true });
+      w.paragraph(c.text, { size: 9 });
+      w.y += 4;
+    }
+  }
   return w.finish();
 }
