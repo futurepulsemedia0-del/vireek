@@ -59,6 +59,17 @@ export const MAX_REVIEW_AGE_DAYS = 180;
 
 export const CLAIMS: Claim[] = [
   {
+    id: 'product.causal_dispatch_validated',
+    category: 'social_proof',
+    statement: 'Randomized dispatch is an advisory, off-by-default experiment. Vireek has not validated, on real customer data, that it identifies better technicians or improves first-time fix.',
+    status: 'not_held',
+    kind: 'fact',
+    reviewedOn: '2026-11-24',
+    owner: 'ali',
+    assertive: ['causal(?:ly)?[- ](?:proven|validated|verified)', 'scientifically (?:proven|validated)', 'identif(?:y|ies) (?:the )?(?:best|top) technicians?', 'proven to (?:improve|raise|increase) first[- ]time[- ]fix'],
+    needs: 'Real-tenant results from the simulation-validated estimator with intervals that exclude zero, plus owner and legal sign-off on the wording.',
+  },
+  {
     id: 'cert.soc2',
     category: 'certification',
     statement: 'Vireek has not completed a SOC 2 audit and holds no SOC 2 report.',
