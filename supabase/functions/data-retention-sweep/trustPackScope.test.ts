@@ -19,7 +19,7 @@ vi.mock('../_shared/compliance/providerErasureQueue.ts', () => ({
   readProviderEnv: () => ({}),
 }));
 vi.mock('../_shared/compliance/storageErasure.ts', () => ({ eraseAccountStorage: (...a: unknown[]) => prov.files(...a) }));
-const USER = 'u1';
+const USER = '11111111-1111-4111-8111-111111111111';
 const PAST = '2020-01-01T00:00:00.000Z';
 let db: FakeDb;
 let handler: Handler;
@@ -39,7 +39,11 @@ beforeEach(async () => {
   db = new FakeDb();
   db.rpcHandlers['has_active_legal_hold'] = () => false;
   db.rpcHandlers['erase_user_rows'] = () => ({ blocked: {} });
-  sb.create = db.createClient;
+  sb.create = (...a: unknown[]) => {
+    const c: any = (db.createClient as any)(...a);
+    c.auth.admin = { deleteUser: async () => ({ error: null }) };
+    return c;
+  };
   trust.erase.mockReset().mockResolvedValue({ ok: true });
   prov.erase.mockReset().mockResolvedValue({ ok: true, snapshotOk: true, failed: [], unsupported: [] });
   prov.due.mockReset().mockResolvedValue({ claimed: 0, erased: 0, retryScheduled: 0, dead: 0, unsupported: 0, notApplicable: 0, deferred: 0 });
