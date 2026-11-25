@@ -109,6 +109,8 @@ async function start(admin: SupabaseClient, userId: string, body: Row): Promise<
       phone_last4: dest.last4,
       notify_when_ready: optIn,
       notify_phone_e164: optIn ? dest.e164 : null,
+    });
+  }
   // Fraud guard, destination policy only: this demo dials the number the owner typed, so a premium / unroutable /
   // not-allowed destination must never reach Vapi. No budget reservation and no "verified account" requirement: the
   // demo exists so an UNVERIFIED new account can hear Sarah, and it is already capped at 3/hour and 8/day above.
@@ -116,7 +118,7 @@ async function start(admin: SupabaseClient, userId: string, body: Row): Promise<
   const fraud = await gateDestinationOnly(asFraudDb(admin), ownerId, dest.e164, "first-call-start");
   if (!fraud.allowed) return json(blockedBody(fraud.blocked), fraud.blocked.httpStatus);
     });
-  }
+
 
   const created = await record({ status: "created", phone_calling_code: dest.callingCode, phone_last4: dest.last4 });
   try {
@@ -127,7 +129,10 @@ async function start(admin: SupabaseClient, userId: string, body: Row): Promise<
         assistantId: bp.vapi_assistant_id,
         phoneNumberId: bp.vapi_phone_number_id,
         customer: { number: fraud.e164 },
-        assistantOverrides: { ...voiceOverride(bp.assistant_voice), maxDurationSeconds: fraud.maxCallSeconds, variableValues: {
+        assistantOverrides: { ...voiceOverride(bp.assistant_voice), maxDurationSeconds: fraud.maxCallSeconds, variableValues: await outboundDisclosureVariables(admin, ownerId, {
+          customer_name: "you", call_purpose: "first_call_demo",
+          company_name: prof?.company_name || "your business", assistant_name: bp.assistant_name || "Sarah", industry: bp.primary_industry || "home services",
+        }) },
           customer_name: "you", call_purpose: "first_call_demo",
           company_name: prof?.company_name || "your business", assistant_name: bp.assistant_name || "Sarah", industry: bp.primary_industry || "home services",
         } },
@@ -139,6 +144,7 @@ async function start(admin: SupabaseClient, userId: string, body: Row): Promise<
       return json({ session: out.data });
     }
     const v = await res.json();
+    await registerOutboundDisclosure(admin, { userId: ownerId, vapiCallId: v.id ?? null });
     const upd = await admin.from("first_call_sessions").update({ vapi_call_id: v.id ?? null, updated_at: new Date().toISOString() }).eq("id", created.id).select(SESSION_COLS).single();
     return json({ session: upd.data });
   } catch (_e) {
