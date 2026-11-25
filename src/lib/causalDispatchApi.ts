@@ -9,6 +9,7 @@ import {
   type RawOutcomeJob,
   type WeightSuggestion,
 } from '@/lib/causalDispatch';
+import { analyzeCausalNetwork, type NetworkAnalysis } from '@/lib/causal';
 import { saveRule, type DispatchRule } from '@/lib/dispatchRulesApi';
 
 /**
@@ -183,6 +184,7 @@ function chunks<T>(a: T[]): T[][] {
 
 export interface CausalReport {
   analysis: CausalAnalysis;
+ network: NetworkAnalysis;
   suggestions: WeightSuggestion[];
   generatedAt: string;
 }
@@ -223,8 +225,9 @@ export async function fetchCausalReport(ownerId: string, days = 180): Promise<Ca
   }
 
   const analysis = analyzeCausalDispatch({ decisions, jobs, reworks, durationResidual, now: new Date() });
+  const network = analyzeCausalNetwork({ decisions, jobs, reworks, durationResidual, now: new Date() });
   const rules = await loadRules(supabase, ownerId).catch(() => []);
-  return { analysis, suggestions: suggestWeightChanges(analysis.factors, rules), generatedAt: new Date().toISOString() };
+  return { analysis, network, suggestions: suggestWeightChanges(analysis.factors, rules), generatedAt: new Date().toISOString() };
 }
 
 /** The owner approved this exact suggestion: write the single new weight through the normal rule save. */
