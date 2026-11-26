@@ -723,6 +723,9 @@ const FeedbackPage = lazy(() => import('@/pages/FeedbackPage').then((m) => ({ de
 const MyFeedbackPage = lazy(() => import('@/pages/MyFeedbackPage').then((m) => ({ default: m.MyFeedbackPage })));
 const StaffFeedbackPage = lazy(() => import('@/pages/admin/StaffFeedbackPage').then((m) => ({ default: m.StaffFeedbackPage })));
 const StaffAiIncidentsPage = lazy(() => import('@/pages/admin/StaffAiIncidentsPage').then((m) => ({ default: m.StaffAiIncidentsPage })));
+const StaffTransparencyPage = lazy(() => import('@/pages/admin/StaffTransparencyPage').then((m) => ({ default: m.StaffTransparencyPage })));
+const TransparencyPage = lazy(() => import('@/pages/TransparencyPage').then((m) => ({ default: m.TransparencyPage })));
+const DataPromisePage = lazy(() => import('@/pages/DataPromisePage').then((m) => ({ default: m.DataPromisePage })));
 const StaffMarketplaceVettingPage = lazy(() => import('@/pages/admin/StaffMarketplaceVettingPage').then((m) => ({ default: m.StaffMarketplaceVettingPage })));
 const StaffRatingDisputesPage = lazy(() => import('@/pages/admin/StaffRatingDisputesPage').then((m) => ({ default: m.StaffRatingDisputesPage })));
 const TechnicianProfilePage = lazy(() => import('@/pages/TechnicianProfilePage').then((m) => ({ default: m.TechnicianProfilePage })));
@@ -1196,6 +1199,8 @@ function AppRoutes() {
         <Route path="/audit/:token" element={<AuditReportPage />} />
         <Route path="/security" element={<SecurityPage />} />
         <Route path="/security/whitepaper" element={<SecurityWhitepaperPage />} />
+        <Route path="/transparency" element={<TransparencyPage />} />
+        <Route path="/data-promise" element={<DataPromisePage />} />
         <Route path="/trust" element={<TrustCenterPage />} />
         <Route path="/insights" element={<InsightsPublicPage />} />
         <Route path="/trust/compliance" element={<ComplianceStatusPage />} />
@@ -1358,6 +1363,7 @@ function AppRoutes() {
         <Route path="/dashboard/feedback/mine" element={<ProtectedRoute><MyFeedbackPage /></ProtectedRoute>} />
         <Route path="/staff/feedback" element={<StaffRoute><Suspense fallback={<PageLoader />}><StaffFeedbackPage /></Suspense></StaffRoute>} />
         <Route path="/staff/ai-incidents" element={<StaffRoute><Suspense fallback={<PageLoader />}><StaffAiIncidentsPage /></Suspense></StaffRoute>} />
+        <Route path="/staff/transparency" element={<StaffRoute><Suspense fallback={<PageLoader />}><StaffTransparencyPage /></Suspense></StaffRoute>} />
         <Route path="/staff/marketplace-vetting" element={<StaffRoute><Suspense fallback={<PageLoader />}><StaffMarketplaceVettingPage /></Suspense></StaffRoute>} />
         <Route path="/staff/rating-disputes" element={<StaffRoute><Suspense fallback={<PageLoader />}><StaffRatingDisputesPage /></Suspense></StaffRoute>} />
         <Route
