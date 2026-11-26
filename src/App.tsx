@@ -317,6 +317,7 @@ const RecurringJobsPage = lazy(() => import('@/pages/RecurringJobsPage').then((m
 const TradePacksPage = lazy(() => import('@/pages/TradePacksPage').then((m) => ({ default: m.TradePacksPage })));
 const LandscapingPage = lazy(() => import('@/pages/LandscapingPage').then((m) => ({ default: m.LandscapingPage })));
 const CommercialPackPage = lazy(() => import('@/pages/CommercialPackPage').then((m) => ({ default: m.CommercialPackPage })));
+const PortalSubmissionsPage = lazy(() => import('@/pages/PortalSubmissionsPage').then((m) => ({ default: m.PortalSubmissionsPage })));
 const PacksPage = lazy(() => import('@/pages/PacksPage').then((m) => ({ default: m.PacksPage })));
 const PestOpsPage = lazy(() => import('@/pages/PestOpsPage').then((m) => ({ default: m.PestOpsPage })));
 const StaffPacksPage = lazy(() => import('@/pages/staff/StaffPacksPage').then((m) => ({ default: m.StaffPacksPage })));
@@ -3859,6 +3860,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <PacksPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/portal-submissions"
+          element={
+            <ProtectedRoute>
+              <PortalSubmissionsPage />
             </ProtectedRoute>
           }
         />
