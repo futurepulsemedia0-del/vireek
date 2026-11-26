@@ -1,0 +1,362 @@
+--- a/src/lib/estimates.ts
++++ b/src/lib/estimates.ts
+@@ -184,7 +184,7 @@
+  * amortisation so the number is defensible; it is labelled as an estimate in
+  * the UI and never presented as an approved offer.
+  */
+-export function monthlyPaymentCents(totalCents: number, months = 24, annualRatePercent = 9.99): number {
++export function monthlyPaymentCents(totalCents: number, months: number, annualRatePercent: number): number {
+   if (totalCents <= 0 || months <= 0) return 0;
+   const monthlyRate = annualRatePercent / 100 / 12;
+   if (monthlyRate === 0) return Math.round(totalCents / months);
+--- a/src/components/quotes/EstimatePresentation.tsx
++++ b/src/components/quotes/EstimatePresentation.tsx
+@@ -17,7 +17,6 @@
+ import type { PublicQuoteInfo } from '@/lib/quotes';
+ import {
+   depositCents,
+-  monthlyPaymentCents,
+   optionTotals,
+   PHOTO_KIND_LABELS,
+   photosForOption,
+@@ -381,7 +380,6 @@
+     setSelectedAddonIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+ 
+   const deposit = selectedTotals ? depositCents(grandTotal, depositPercent) : 0;
+-  const monthly = selectedTotals ? monthlyPaymentCents(grandTotal) : 0;
+ 
+   const validUntil = quote.valid_until
+     ? new Date(quote.valid_until).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+@@ -447,7 +445,7 @@
+           <span className="font-semibold text-text-primary">
+             Financing available{quote.financing_partner_name ? ` through ${quote.financing_partner_name}` : ''}.
+           </span>{' '}
+-          {quote.financing_note || `Roughly ${formatCents(monthly)}/month over 24 months, subject to approval.`}
++          {quote.financing_note || 'Ask us about financing. Any rate, term and monthly payment come from the lender and are shown to you before you apply.'}
+         </p>
+       )}
+ 
+--- a/src/components/technician/EstimateDraftCard.tsx
++++ b/src/components/technician/EstimateDraftCard.tsx
+@@ -3,7 +3,6 @@
+ import { useEffect, useState } from 'react';
+ import { AlertTriangle, CheckCircle2, Loader2, X } from 'lucide-react';
+ import type { FieldEstimateResult } from '@/lib/fieldEstimate';
+-import { monthlyPaymentCents } from '@/lib/estimates';
+ import { MIN_FINANCING_AMOUNT_CENTS, fetchFinancingConnection } from '@/lib/financing';
+ import { formatCents } from '@/lib/priceBook';
+ import { useVoiceLogT } from '@/i18n/voiceLogNamespace';
+@@ -101,9 +100,6 @@
+                 {fin.status === 'eligible' && <CheckCircle2 className="h-4 w-4 text-success" aria-hidden="true" />}
+                 {fin.status === 'eligible' ? tt('financingEligible') : fin.status === 'below_minimum' ? tt('financingBelowMin', { min: formatCents(fin.minCents) }) : tt('financingNotConnected')}
+               </p>
+-              {fin.status === 'eligible' && recommendedTotal !== null && (
+-                <p className="text-text-secondary">{tt('financingMonthly', { amount: formatCents(monthlyPaymentCents(recommendedTotal)) })}</p>
+-              )}
+             </div>
+           )}
+ 
+--- a/src/locales/en/voiceLog.json
++++ b/src/locales/en/voiceLog.json
+@@ -92,7 +92,6 @@
+   "financingEligible": "May qualify for financing (pre-check only).",
+   "financingBelowMin": "Below the {{min}} financing minimum.",
+   "financingNotConnected": "Financing is not connected for this account.",
+-  "financingMonthly": "About {{amount}} per month — an indication, not an offer.",
+   "invoiceAssistTitle": "Invoice check",
+   "invoiceAssistIntro": "Flags to review before you send. Nothing was changed.",
+   "invoiceAssistNone": "Nothing to flag: logged parts, time and prices line up.",
+--- a/src/locales/fa/voiceLog.json
++++ b/src/locales/fa/voiceLog.json
+@@ -92,7 +92,6 @@
+   "financingEligible": "ممکن است واجد تأمین مالی باشد (فقط پیش‌بررسی).",
+   "financingBelowMin": "کمتر از حداقل تأمین مالی ({{min}}).",
+   "financingNotConnected": "تأمین مالی برای این حساب وصل نیست.",
+-  "financingMonthly": "حدود {{amount}} در ماه — صرفاً یک برآورد، نه پیشنهاد رسمی.",
+   "invoiceAssistTitle": "بررسی فاکتور",
+   "invoiceAssistIntro": "مواردی که پیش از ارسال باید بررسی شوند. چیزی تغییر نکرده است.",
+   "invoiceAssistNone": "موردی نیست: قطعات، زمان و قیمت‌ها هماهنگ‌اند.",
+--- a/src/locales/es/voiceLog.json
++++ b/src/locales/es/voiceLog.json
+@@ -92,7 +92,6 @@
+   "financingEligible": "Podría calificar para financiamiento (solo verificación previa).",
+   "financingBelowMin": "Por debajo del mínimo de financiamiento de {{min}}.",
+   "financingNotConnected": "El financiamiento no está conectado en esta cuenta.",
+-  "financingMonthly": "Unos {{amount}} al mes — una indicación, no una oferta.",
+   "invoiceAssistTitle": "Revisión de factura",
+   "invoiceAssistIntro": "Puntos por revisar antes de enviar. No se cambió nada.",
+   "invoiceAssistNone": "Nada que señalar: piezas, tiempo y precios coinciden.",
+--- a/src/lib/inHomeSales.ts
++++ b/src/lib/inHomeSales.ts
+@@ -22,7 +22,7 @@
+   type EstimateOption,
+   type EstimatePhoto,
+ } from '@/lib/estimates';
+-import { estimateMonthlyPaymentCents } from '@/lib/financing';
++import { estimateMonthlyPaymentCents, formatApr } from '@/lib/financing';
+ import { periodStart, resolveCommission, type CommissionTier, type TierMode, type TierPeriod } from '@/lib/commissionEngine';
+ 
+ // ============================================================
+@@ -137,8 +137,8 @@
+ export interface PaymentTerm {
+   term_months: number;
+   apr_bps: number;
+-  /** 'lender' = observed on this account's approved financing_offers; 'indicative' = default estimate. */
+-  source: 'lender' | 'indicative';
++  /** Always provider-supplied (observed on this account's approved financing_offers). There is no default rate. */
++  source: 'lender';
+ }
+ 
+ export interface PresentationPayload {
+@@ -300,15 +300,13 @@
+ // MONTHLY PAYMENT  (financing_offers terms, indicative fallback)
+ // ============================================================
+ 
+-/** Shown only when this account has no approved financing history yet; always labelled "indicative". */
+-export const INDICATIVE_TERM: PaymentTerm = { term_months: 60, apr_bps: 999, source: 'indicative' };
+-
+ export function resolvePaymentTerms(terms: FinancingTerm[]): PaymentTerm[] {
+   const clean = terms
+     .filter((t) => Number.isInteger(t.term_months) && t.term_months > 0 && Number.isFinite(t.apr_bps) && t.apr_bps >= 0)
+     .map((t): PaymentTerm => ({ term_months: t.term_months, apr_bps: t.apr_bps, source: 'lender' }))
+     .sort((a, b) => a.term_months - b.term_months);
+-  return clean.length > 0 ? clean : [INDICATIVE_TERM];
++  // No lender data means no payment is shown. A rate is never invented (TILA / Reg Z, roadmap item 110).
++  return clean;
+ }
+ 
+ /** Amount to finance = total minus the deposit paid up front (never negative). */
+@@ -321,8 +319,7 @@
+ }
+ 
+ export function describeTerm(term: PaymentTerm): string {
+-  const apr = term.apr_bps === 0 ? '0% APR' : `${(term.apr_bps / 100).toFixed(2)}% APR`;
+-  return `${term.term_months} mo · ${apr}`;
++  return `${term.term_months} mo · ${formatApr(term.apr_bps)}`;
+ }
+ 
+ // ============================================================
+--- a/src/lib/inHomeSales.test.ts
++++ b/src/lib/inHomeSales.test.ts
+@@ -5,7 +5,7 @@
+ 
+ import { createEmptyOption, type EstimateOption } from '@/lib/estimates';
+ import {
+-  INDICATIVE_TERM,
++  describeTerm,
+   SalesError,
+   advisorCommission,
+   avgTicketCents,
+@@ -60,8 +60,9 @@
+ });
+ 
+ describe('payments', () => {
+-  it('uses lender terms when available, otherwise a clearly indicative default', () => {
+-    expect(resolvePaymentTerms([])).toEqual([INDICATIVE_TERM]);
++  it('uses lender terms only; with none it returns no terms instead of inventing a rate', () => {
++    expect(resolvePaymentTerms([])).toEqual([]);
++    expect(resolvePaymentTerms([{ term_months: 0, apr_bps: 100, samples: 1 }])).toEqual([]);
+     const t = resolvePaymentTerms([
+       { term_months: 120, apr_bps: 899, samples: 2 },
+       { term_months: 60, apr_bps: 999, samples: 5 },
+@@ -85,7 +86,12 @@
+   });
+ 
+   it('returns null when nothing is left to finance', () => {
+-    expect(monthlyForTerm(100_000, 100_000, INDICATIVE_TERM)).toBeNull();
++    expect(monthlyForTerm(100_000, 100_000, { term_months: 60, apr_bps: 1200, source: 'lender' })).toBeNull();
++  });
++
++  it('describes a term from the supplied APR, including a lender-supplied 0%', () => {
++    expect(describeTerm({ term_months: 12, apr_bps: 0, source: 'lender' })).toBe('12 mo · 0.00% APR');
++    expect(describeTerm({ term_months: 60, apr_bps: 1234, source: 'lender' })).toBe('60 mo · 12.34% APR');
+   });
+ 
+   it('derives and validates the deposit', () => {
+--- a/src/components/sales/LadderView.tsx
++++ b/src/components/sales/LadderView.tsx
+@@ -9,7 +9,7 @@
+   selectedId: string | null;
+   onSelect: (optionId: string) => void;
+   mode: PaymentMode;
+-  term: PaymentTerm;
++  term: PaymentTerm | null;
+   depositCents: number;
+   locked?: boolean;
+ }
+@@ -23,8 +23,8 @@
+         const { option } = entry;
+         const meta = TIER_META[option.tier];
+         const selected = option.id === selectedId;
+-        const monthly = mode === 'monthly' ? monthlyForTerm(entry.totalCents, depositCents, term) : null;
+-        const showMonthly = mode === 'monthly' && monthly !== null;
++        const monthly = mode === 'monthly' && term ? monthlyForTerm(entry.totalCents, depositCents, term) : null;
++        const showMonthly = mode === 'monthly' && term !== null && monthly !== null;
+         return (
+           <button
+             key={option.id}
+--- a/src/pages/SalesPresentationPage.tsx
++++ b/src/pages/SalesPresentationPage.tsx
+@@ -105,7 +105,7 @@
+ 
+   const ladder = useMemo(() => (payload ? buildLadder(payload.quote.options, payload.quote.tax_percent) : []), [payload]);
+   const terms = useMemo(() => resolvePaymentTerms(payload?.financing.terms ?? []), [payload?.financing.terms]);
+-  const term = terms.find((t) => t.term_months === termMonths) ?? terms[Math.floor((terms.length - 1) / 2)];
++  const term = terms.length === 0 ? null : (terms.find((t) => t.term_months === termMonths) ?? terms[Math.floor((terms.length - 1) / 2)]);
+   const entry = ladder.find((l) => l.option.id === selectedId) ?? null;
+ 
+   const defaultDeposit = entry && payload ? defaultDepositCents(entry.totalCents, payload.quote.deposit_percent) : 0;
+@@ -132,7 +132,7 @@
+ 
+   const sp = payload.presentation;
+   const closed = sp.status === 'sold' || sp.status === 'lost';
+-  const monthly = entry && mode === 'monthly' ? monthlyForTerm(entry.totalCents, depositCents, term) : null;
++  const monthly = entry && term && mode === 'monthly' ? monthlyForTerm(entry.totalCents, depositCents, term) : null;
+   const tabs: { id: Tab; label: string; icon: typeof Layers }[] = [
+     { id: 'options', label: 'Your options', icon: Layers },
+     { id: 'compare', label: 'Repair vs replace', icon: Scale },
+@@ -190,7 +190,7 @@
+                       </button>
+                     ))}
+                   </div>
+-                  {mode === 'monthly' && (
++                  {mode === 'monthly' && term && (
+                     <label className="text-sm text-text-secondary">
+                       Term
+                       <select className="focus-ring mt-1 block min-h-[44px] rounded-xl border border-border bg-bg-primary px-3 text-base text-text-primary" value={term.term_months} onChange={(e) => setTermMonths(Number(e.target.value))}>
+@@ -201,9 +201,15 @@
+                   <div className="w-40">
+                     <Input label="Deposit today ($)" inputMode="decimal" disabled={closed} value={depositText ?? (defaultDeposit / 100).toFixed(2)} onChange={(e) => setDepositText(e.target.value)} error={depositError ?? undefined} />
+                   </div>
+-                  {mode === 'monthly' && (
++                  {mode === 'monthly' && !term && (
++                    <p className="basis-full text-xs text-text-secondary" role="status">
++                      No lender terms are available yet, so a monthly payment can’t be shown. Ask us about financing.
++                    </p>
++                  )}
++                  {mode === 'monthly' && term && (
+                     <p className="basis-full text-xs text-text-secondary">
+-                      {term.source === 'lender' ? 'Based on terms recently approved for our customers.' : 'Indicative estimate only.'} Final approval and terms are set by the lender.
++                      {/* TODO(counsel): confirm that showing another customer’s approved terms is acceptable as an illustration. */}
++                      Illustration using terms a lender recently approved. Your rate, term and payment are set by the lender and may differ. Final approval is the lender’s decision.
+                     </p>
+                   )}
+                 </section>
+@@ -247,7 +253,7 @@
+           payload={payload}
+           entry={(sp.status === 'sold' ? ladder.find((l) => l.option.id === sp.selected_option_id) : null) ?? entry ?? ladder[0]}
+           depositCents={sp.status === 'sold' ? sp.deposit_due_cents : depositCents}
+-          termMonths={sp.status === 'sold' ? sp.financing_term_months : mode === 'monthly' ? term.term_months : null}
++          termMonths={sp.status === 'sold' ? sp.financing_term_months : mode === 'monthly' && term ? term.term_months : null}
+           onChanged={load}
+         />
+       )}
+--- a/src/lib/repairReplaceProposal.ts
++++ b/src/lib/repairReplaceProposal.ts
+@@ -83,7 +83,7 @@
+ function aprText(o: FinancingOption): string | null {
+   if (o.aprBps === null) return null;
+   const apr = `${(o.aprBps / 100).toFixed(2)}% APR`;
+-  return o.aprSource === 'lender_quote' ? apr : `about ${apr} (estimate)`;
++  return o.aprSource === 'lender_quote' ? apr : null;
+ }
+ 
+ export function proposalFileName(customerName: string, equipmentName: string, now: number): string {
+@@ -164,7 +164,9 @@
+   }));
+ 
+   const financing: ProposalFinancing[] = result.financing
+-    .filter((o) => o.feasible)
++    // Customer-facing: only cash and real lender quotes. Planning-rate estimates are internal and never
++    // become a stated payment or APR in a proposal (TILA / Reg Z, roadmap item 110).
++    .filter((o) => o.feasible && (o.kind === 'cash' || o.aprSource === 'lender_quote'))
+     .map((o) => ({
+       label: o.label,
+       monthlyCents: o.monthlyCents,
+@@ -173,7 +175,7 @@
+       totalPaidCents: o.totalPaidCents,
+       note:
+         o.kind === 'cash'
+-          ? 'No interest. Rebates arrive after install.'
++          ? 'Paid in full, no financing. Rebates arrive after install.'
+           : o.monthlyAfterRebatePaydownCents !== null && o.monthlyAfterRebatePaydownCents < (o.monthlyCents ?? 0)
+             ? `Drops to about ${usd(o.monthlyAfterRebatePaydownCents)} a month if post-install rebates are applied to the loan.`
+             : null,
+@@ -232,7 +234,7 @@
+   }
+   if (p.rebateTotalCents > 0) lines.push('', `Expected rebates and tax credits: about ${usd(p.rebateTotalCents)} (not guaranteed until approved).`);
+   if (p.financing.some((f) => f.monthlyCents !== null)) {
+-    lines.push('', 'Financing options (estimates):');
++    lines.push('', 'Financing options (lender-quoted; final terms are set by the lender):');
+     for (const f of p.financing) {
+       if (f.monthlyCents !== null) lines.push(`- ${f.label}: about ${usd(f.monthlyCents)}/month${f.aprText ? ` at ${f.aprText}` : ''}${f.recommended ? ' (suggested)' : ''}`);
+     }
+--- a/src/pages/BusinessProfilePage.tsx
++++ b/src/pages/BusinessProfilePage.tsx
+@@ -911,7 +911,7 @@
+                   type="text"
+                   value={financingNote}
+                   onChange={(e) => setFinancingNote(e.target.value)}
+-                  placeholder="e.g. 0% APR for 12 months on jobs over $500"
++                  placeholder="e.g. Financing available on larger jobs, subject to lender approval"
+                   className={inputClass}
+                 />
+               </div>
+--- a/src/pages/SiteSafetyPage.tsx
++++ b/src/pages/SiteSafetyPage.tsx
+@@ -3,6 +3,7 @@
+ import { DashboardLayout } from '@/components/DashboardNav';
+ import { useToast } from '@/contexts/ToastContext';
+ import { HeatSettingsCard } from '@/components/safety/HeatSettingsCard';
++import { OshaRecordkeepingPanel } from '@/components/safety/OshaRecordkeepingPanel';
+ import {
+   EMERGENCY_SERVICES_NOTICE,
+   PRECAUTIONS,
+@@ -41,11 +42,12 @@
+   type Trends,
+ } from '@/lib/siteSafety';
+ 
+-type TabId = 'live' | 'facts' | 'incidents' | 'declines' | 'settings' | 'audits';
++type TabId = 'live' | 'facts' | 'incidents' | 'osha' | 'declines' | 'settings' | 'audits';
+ const TABS: { id: TabId; label: string }[] = [
+   { id: 'live', label: 'Live' },
+   { id: 'facts', label: 'Fact review' },
+   { id: 'incidents', label: 'Incidents' },
++  { id: 'osha', label: 'OSHA records' },
+   { id: 'declines', label: 'Declines' },
+   { id: 'settings', label: 'Settings' },
+   { id: 'audits', label: 'Fairness' },
+@@ -131,6 +133,7 @@
+         {tab === 'live' && <LiveTab />}
+         {tab === 'facts' && <FactsTab />}
+         {tab === 'incidents' && <IncidentsTab />}
++        {tab === 'osha' && <OshaRecordkeepingPanel />}
+         {tab === 'declines' && <DeclinesTab />}
+         {tab === 'settings' && <SettingsTab />}
+         {tab === 'audits' && <AuditsTab />}
+--- a/docs/compliance/export-coverage-baseline.json
++++ b/docs/compliance/export-coverage-baseline.json
+@@ -784,6 +784,11 @@
+     "ops_loop_events",
+     "ops_policy_changes",
+     "org_memory_entries",
++    "osha_annual_summaries",
++    "osha_audit_events",
++    "osha_case_counters",
++    "osha_cases",
++    "osha_settings",
+     "outbound_calls",
+     "outbound_campaigns",
+     "outbound_sms",
+--- a/package.json
++++ b/package.json
+@@ -22,6 +22,9 @@
+     "lint:motion": "node scripts/check-motion.mjs",
+     "test:motion": "node --test scripts/motion/codemod-lib.test.mjs && playwright test e2e/reduced-motion.spec.ts",
+     "compliance:check": "node scripts/compliance/validate-controls.mjs --check",
++    "compliance:financing-rates": "node scripts/compliance/financing-rate-guard.mjs --check",
++    "test:scripts:osha": "node --experimental-strip-types --no-warnings --test scripts/compliance/osha-recordkeeping.test.mjs",
++    "test:scripts:financing-rates": "node --test scripts/compliance/financing-rate-guard.test.mjs",
+     "compliance:calendar": "node scripts/compliance/calendar-check.mjs --check",
+     "compliance:calendar:write": "node scripts/compliance/calendar-check.mjs --write",
+     "compliance:map": "node scripts/compliance/validate-controls.mjs --write",
