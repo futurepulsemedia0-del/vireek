@@ -8,6 +8,7 @@ import {
   ChevronDown,
   Clock,
   Landmark,
+  LifeBuoy,
   MapPin,
   Minus,
   PhoneIncoming,
@@ -69,6 +70,7 @@ const COMPARE_ROW_ICONS: Record<CompareRow['key'], typeof PhoneIncoming> = {
   recording: Voicemail,
   analytics: BarChart3,
   api: PlugZap,
+  support: LifeBuoy,
 };
 
 /**
