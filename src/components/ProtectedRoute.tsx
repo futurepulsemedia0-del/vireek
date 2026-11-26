@@ -7,6 +7,8 @@ import { useLoginAlert } from '@/hooks/useLoginAlert';
 import { useMfaEnforcement } from '@/hooks/useMfaEnforcement';
 import { useLegalAcceptance } from '@/hooks/useLegalAcceptance';
 import { MfaGraceBanner } from '@/components/security/MfaGraceBanner';
+import { LegalGraceBanner } from '@/components/security/LegalGraceBanner';
+import { graceDeadline } from '@/lib/legalAcceptance';
 import { SECURITY_SETTINGS_PATH } from '@/lib/mfaChallenge';
 import { trackActivity, getIdleMinutes, getSessionAgeHours, clearSessionStart } from '@/lib/enterpriseSecurity';
 
@@ -123,6 +125,7 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   return (
     <>
       {enforcement.decision === 'grace' && <MfaGraceBanner daysLeft={enforcement.state?.days_left ?? null} />}
+      {legal.decision !== 'must_accept' && !location.pathname.startsWith('/legal/accept') && <LegalGraceBanner deadline={graceDeadline(legal.state)} />}
       {children}
     </>
   );
