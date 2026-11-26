@@ -31,7 +31,7 @@ export const STATIC_PUBLIC_PATHS = [
   '/agent-readiness', '/ai-disclosure', '/contact-sales', '/cost-index', '/customers', '/data-request', '/dmca', '/events',
   '/fair-sale-promise', '/how-we-verify', '/impressum', '/insights', '/locations', '/msa', '/resources',
   '/security/whitepaper', '/sms-terms', '/state-of-home-service-calls', '/trust/compliance', '/trust/security',
-  '/developers/api-reference', '/developers/quickstarts',
+  '/developers/api-reference', '/developers/quickstarts', '/transparency', '/data-promise',
 ];
 export const FLAG_GATED_PUBLIC_PATHS = ['/legal/company'];
 /** Routes whose pages come from data modules (one URL per slug). */
