@@ -4,6 +4,7 @@
 
 import { transact, idb, newId, nextSeq, notifyData, notifyEnqueue, type OutboxOp, type OutboxOpType, type StoredBlob } from './db';
 import { getCachedIdentity } from './identity';
+import { assertRoomFor } from './queueLimits';
 import { forgetFromVault, mirrorToVault } from '../native/vault';
 
 export interface EnqueueOptions {
@@ -18,7 +19,7 @@ export async function enqueue(
 ): Promise<OutboxOp> {
   const identity = getCachedIdentity();
   if (!identity) throw new Error('No technician is signed in on this device.');
-
+  if (options.blob) await assertRoomFor(options.blob.data.size);
   const stored: StoredBlob | undefined = options.blob
     ? {
         id: newId(),
