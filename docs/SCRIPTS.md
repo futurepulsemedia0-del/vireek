@@ -39,6 +39,8 @@ Run from the repo root. "CI" = run by a workflow in `.github/workflows` (verify 
 | `test:scripts:board-pack` | Tests for the board pack generator (no database) | changes to the generator |
 | `finance:resilience` | Runway scenarios + revenue concentration (customer, processor) from a JSON file you fill in; offline, one currency per file. See `docs/finance/resilience.md` | monthly, with the board pack |
 | `test:scripts:resilience` | Tests for the resilience model (no database) | changes to the model |
+| `finance:nexus-revenue` | Own subscription revenue by US state / country and UTC month (CSV or JSON) from the Stripe-derived `nexus_revenue_facts` ledger. Needs `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`, or `--input rows.json`. See `docs/finance/sales-tax-nexus.md` | monthly, and before each nexus review |
+| `test:scripts:nexus-revenue` | Tests for the nexus revenue export (no database, fake fetch) | changes to the export |
 | `test:scripts:fx-exposure` | Static checks of the currency-exposure migration and its pgTAP plan (no database; behaviour is covered by `supabase test db`) | changes to `20290307000000_currency_exposure_views.sql` |
 | `report:market-entry` | Market-entry readiness per regional pack from `config/global/market-entry.json` + code facts. No network. `--strict` exits 3 while not ready. See `docs/global/market-entry.md` | before a regional launch |
 | `lint:market-entry` | Validates the market-entry checklist (evidence, COUNSEL/VERIFY rules) | changes to the checklist |
