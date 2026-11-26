@@ -7,7 +7,7 @@ import { Loader2, ScrollText } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLegalAcceptanceT } from '@/i18n/legalAcceptanceNamespace';
-import { flattenChanges, localizedSummary, safeReturnPath, type LegalAcceptanceState } from '@/lib/legalAcceptance';
+import { flattenChanges, graceDeadline, localizedSummary, safeReturnPath, type LegalAcceptanceState } from '@/lib/legalAcceptance';
 import { acceptRequiredLegal, fetchLegalAcceptanceState } from '@/lib/legalAcceptanceApi';
 
 export function LegalReacceptancePage() {
@@ -55,7 +55,7 @@ export function LegalReacceptancePage() {
     }
   };
 
-  if (!loading && !loadFailed && state && state.decision === 'ok') return <Navigate to={from} replace />;
+  if (!loading && !loadFailed && state.required.length === 0 to={from} replace />;
 
   const date = (iso: string) => new Date(iso).toLocaleDateString(language, { year: 'numeric', month: 'long', day: 'numeric' });
   const titles = (state?.required ?? []).map((d) => d.title).join(', ');
@@ -68,7 +68,9 @@ export function LegalReacceptancePage() {
           <h1 className="text-xl font-bold tracking-tight text-text-primary">{t('title')}</h1>
         </div>
         <p className="mt-3 text-sm leading-relaxed text-text-secondary">{t('intro')}</p>
-
+        {state && state.decision === 'ok' && graceDeadline(state) && (
+          <p className="mt-2 text-sm font-medium text-text-primary">{t('graceUntil', { date: date(graceDeadline(state) as string) })}</p>
+        )}
         {loading && <div className="mt-8 flex items-center gap-2 text-sm text-text-secondary"><Loader2 className="animate-spin" size={16} aria-hidden="true" /> {t('loading')}</div>}
 
         {!loading && loadFailed && (
