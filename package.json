@@ -75,6 +75,8 @@
     "test:scripts:data-sources": "node --test scripts/compliance/check-data-sources.test.mjs",
     "test:scripts:export-coverage": "node --test scripts/compliance/export-coverage.test.mjs",
     "export-coverage:check": "node scripts/compliance/export-coverage.mjs --check",
+    "export-schema:check": "node scripts/compliance/gen-export-schema.mjs --check",
+    "export-schema:write": "node scripts/compliance/gen-export-schema.mjs --write",
     "data-sources:check": "node scripts/compliance/check-data-sources.mjs",
     "vendor-exit:check": "node scripts/compliance/gen-vendor-exit.mjs --check",
     "vendor-review:check": "node scripts/compliance/gen-vendor-review-seed.mjs --check",
