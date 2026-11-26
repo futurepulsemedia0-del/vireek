@@ -57,7 +57,14 @@ Deno.serve(async (req: Request) => {
       .select("id, user_id, campaign_id, email")
       .eq("provider_ref", emailId)
       .maybeSingle();
-    if (!r) return json({ received: true }); // not one of ours (e.g. transactional mail)
+    if (!r) {
+      // Customer-portal e-mails (portal-api send_email) are tracked in portal_email_deliveries; unknown ids are a harmless no-op.
+      const { error: pe } = await admin.rpc("portal_apply_email_event", {
+        p_message_id: emailId, p_event: event.type, p_bounce_type: event.data?.bounce?.type ?? null,
+      });
+      if (pe) { console.error("portal email event failed", pe.code); return json({ error: "Processing failed" }, 500); } // Resend retries
+      return json({ received: true });
+    }
 
     const now = new Date().toISOString();
     if (event.type === "email.delivered") {
