@@ -8,6 +8,7 @@ Internal playbook for Vireek support. **Not a customer contract.** Targets here 
 | [tier-model.md](tier-model.md) | T1 / T2 / T3 roles and hand-off rules |
 | [escalation-to-engineering.md](escalation-to-engineering.md) | How a ticket reaches engineering and what it must contain |
 | [response-time-targets.md](response-time-targets.md) | Internal targets and how to change them |
+| [support-tiers.md](support-tiers.md) | Plan → support tier, per-tier targets (all `TODO(owner)`) |
 | [qa-checklist.md](qa-checklist.md) | Ticket QA rubric + verification checklist for the severity/overdue feature |
 
 ## What is implemented in code
