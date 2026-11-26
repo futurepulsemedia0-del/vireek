@@ -231,7 +231,7 @@ export function parseOverageRate(overage: string | null): number | null {
 
 export interface CompareRow {
   label: string;
-  key: 'minutes' | 'overage' | 'seats' | 'locations' | 'dispatch' | 'crm' | 'recording' | 'analytics' | 'api';
+  key: 'minutes' | 'overage' | 'seats' | 'locations' | 'dispatch' | 'crm' | 'recording' | 'analytics' | 'api' | 'support';
 }
 
 export const COMPARE_ROWS: CompareRow[] = [
@@ -244,6 +244,7 @@ export const COMPARE_ROWS: CompareRow[] = [
   { label: 'Call recording', key: 'recording' },
   { label: 'Advanced analytics', key: 'analytics' },
   { label: 'API access', key: 'api' },
+  { label: 'Support', key: 'support' },
 ];
 
 export const COMPARE_VALUES: Record<string, Partial<Record<PlanId, string | boolean>>> = {
@@ -258,6 +259,8 @@ enterprise: 'Custom + API',
   recording: { free: false, starter: false, professional: true, business: true, enterprise: true },
   analytics: { free: false, starter: false, professional: 'Standard', business: 'Advanced', enterprise: 'Advanced' },
   api: { free: false, starter: false, professional: false, business: false, enterprise: true },
+  // Labels only, no response times. Keep equal to SUPPORT_TIERS[*].label in supportTiers.ts (tested).
+  support: { free: 'Community', starter: 'Email', professional: 'Priority', business: 'Dedicated Slack', enterprise: 'Account manager' },
 };
 
 export const PRICING_FAQS: { q: string; a: string }[] = [
