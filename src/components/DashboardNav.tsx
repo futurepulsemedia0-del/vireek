@@ -325,6 +325,7 @@ export const PRIMARY_ITEMS: NavItem[] = [
   { label: 'Landscaping', href: '/dashboard/landscaping', icon: Leaf, requiresPermission: 'can_view_all_jobs', gate: 'landscaping' },
   { label: 'Pest Ops', href: '/dashboard/pest-ops', icon: Bug, hiddenUnless: 'pest_ops' },
   { label: 'Commercial', href: '/dashboard/commercial', icon: PackageCheck, requiresPermission: 'can_view_billing', requiresFlag: 'commercial_pack' },
+  { label: 'Portal submissions', href: '/dashboard/portal-submissions', icon: PackageCheck, requiresPermission: 'can_view_billing' },
   { label: 'My Day (Field)', href: '/tech/today', icon: Wrench },
   { label: 'Weekly Schedule (Field)', href: '/tech/schedule', icon: Calendar },
   { label: 'Expert Assist', href: '/dashboard/expert-assist', icon: LifeBuoy },
