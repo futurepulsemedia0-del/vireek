@@ -12,7 +12,7 @@ The legal text itself lives in `src/components/sections/TermsContent.tsx` / `Pri
 - `legal_document_versions`: immutable once published; `(doc_key, version)` unique and sequential; `effective_at` strictly increasing;
   `is_material`; `changes` = diff summary `[{section, kind: added|changed|removed, summary, i18n?: {lang: summary}}]`;
   `content_path` (same-site route), `content_sha256` (optional hash of the published text); who published and who confirmed legal review.
-- `legal_acceptances`: append-only `(user, version, timestamp, source)`; no IP or user agent stored; survives account deletion (`user_id` set null).
+- `legal_acceptances`: append-only `(user, version, timestamp, source)`; IP address, user agent, document hash and account owner are stored since 20290312000000 (see docs/TERMS_ACCEPTANCE_EVIDENCE.md);  survives account deletion (`user_id` set null).
 - Seeded baselines: `terms` v1 (2026-08-20) and `privacy` v1 (2026-10-31), taken from the "Last updated" lines of the current pages; not material, no counsel confirmation recorded.
 
 ## The gate
