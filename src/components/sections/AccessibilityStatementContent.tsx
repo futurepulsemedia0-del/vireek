@@ -23,21 +23,21 @@ export function AccessibilityStatementContent() {
       <section className="mt-10">
         <h2 className="text-xl font-semibold text-text-primary">What we've built</h2>
         <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-relaxed text-text-secondary">
-          <li>Full keyboard operability across the dashboard, including modals, menus, and data tables.</li>
-          <li>Visible, high-contrast focus indicators on every interactive element.</li>
-          <li>Semantic landmarks, headings, and a "skip to main content" link on every page.</li>
-          <li>Screen-reader announcements for async actions (saves, errors, loading states).</li>
+          <li>Dialogs keep keyboard focus inside and return it when closed, and dashboard widgets can be moved and resized with the keyboard.</li>
+          <li>A shared visible focus style, plus an optional stronger focus mode in the accessibility toolbar.</li>
+          <li>A skip link at the start of the page, and status messages announced to screen readers through a live region.</li>
           <li>A built-in accessibility toolbar (text size, contrast, motion, and reading preferences) available from any page.</li>
-          <li>Color contrast checked against WCAG AA thresholds (4.5:1 text, 3:1 UI components) across our design tokens.</li>
+          <li>Automated color-contrast checks on sampled pages and an audit script for our design tokens.</li>
         </ul>
       </section>
 
       <section className="mt-10">
         <h2 className="text-xl font-semibold text-text-primary">Ongoing work</h2>
         <p className="mt-3 text-sm leading-relaxed text-text-secondary">
-          Accessibility is an ongoing process, not a one-time audit. We test new features with
-          keyboard navigation and screen readers (NVDA and VoiceOver) before release, and we run
-          automated WCAG checks in our CI pipeline on every change.
+        <p className="mt-3 text-sm leading-relaxed text-text-secondary">
+          Accessibility is an ongoing process, not a one-time audit. Automated axe-core checks run on a sample of
+          pages in our continuous integration for pull requests. For the current status and known issues, see our{' '}
+          <a href="/accessibility/conformance" className="font-semibold text-accent underline underline-offset-2">WCAG conformance statement</a>.
         </p>
       </section>
 
