@@ -10,6 +10,12 @@ import { useToast } from '@/contexts/ToastContext';
 import { resolveDeepLink } from '@/lib/native/deepLinks';
 import { isNative } from '@/lib/native/platform';
 import { startNativePushListeners, syncNativePushToken } from '@/lib/native/push';
+import { runPushJobAction, type ActionOutcome } from '@/lib/native/pushJobActions';
+import { advanceStatusLocal } from '@/lib/offline/fieldApi';
+import { listOutbox } from '@/lib/offline/outbox';
+import { getCachedIdentity } from '@/lib/offline/identity';
+import { getLocalJobs } from '@/lib/offline/store';
+import type { JobStatus } from '@/lib/technicianOS';
 import { syncStatusBarWithTheme } from '@/lib/native/shell';
 
 type Handle = { remove: () => Promise<void> };
@@ -79,6 +85,23 @@ export function NativeBridge(): null {
     let stop: (() => void) | null = null;
     void startNativePushListeners({
       onOpen: open,
+      onAction: (e) => {
+        void runPushJobAction(e, {
+          hasIdentity: () => getCachedIdentity() !== null,
+          getLocalJobStatus: async (id) => {
+            const jobs = await getLocalJobs<{ id: string; job_status: JobStatus }>();
+            return jobs.find((j) => j.id === id)?.job_status ?? null;
+          },
+          hasQueuedStatus: async (id, status) =>
+            (await listOutbox()).some((o) => o.type === 'status' && o.job_id === id && o.payload.status === status),
+          queueStatus: (id, status) => advanceStatusLocal(id, status),
+        })
+          .then((r: ActionOutcome) => {
+            if (r.kind === 'open') open(`/tech/job/${r.jobId}`);
+            else if (r.kind === 'queued') toast('Saved. It will sync when you have signal.', 'info');
+          })
+          .catch(() => toast('Could not save that action. Open the job to retry.', 'error'));
+      },
       onForeground: (n) => toast([n.title, n.body].filter(Boolean).join(' — ') || 'New notification', 'info'),
     })
       .then((s) => {
