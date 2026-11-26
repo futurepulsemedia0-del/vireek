@@ -1,6 +1,7 @@
 # Transparency report: template
 
 Status: TEMPLATE. Do not publish until counsel has approved the content, the period, and any rounding or delay rules **[COUNSEL]**.
+Tooling: figures can now be compiled and published from /staff/transparency (see docs/compliance/transparency-reporting.md).
 Source of figures: view `legal_requests_counts` (see `docs/compliance/legal-request-process.md`). Fill every bracket from the
 database; delete this status block before publishing. No figure may be estimated.
 
