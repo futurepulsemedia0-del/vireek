@@ -184,7 +184,7 @@ export function depositCents(totalCents: number, depositPercent: number): number
  * amortisation so the number is defensible; it is labelled as an estimate in
  * the UI and never presented as an approved offer.
  */
-export function monthlyPaymentCents(totalCents: number, months = 24, annualRatePercent = 9.99): number {
+export function monthlyPaymentCents(totalCents: number, months: number, annualRatePercent: number): number {
   if (totalCents <= 0 || months <= 0) return 0;
   const monthlyRate = annualRatePercent / 100 / 12;
   if (monthlyRate === 0) return Math.round(totalCents / months);
