@@ -133,6 +133,8 @@ const StaffFounderKpisPage = lazy(() => import('@/pages/StaffFounderKpisPage').t
 const StaffActivationFunnelPage = lazy(() => import('@/pages/StaffActivationFunnelPage').then((m) => ({ default: m.StaffActivationFunnelPage })));
 const StaffWinLossPage = lazy(() => import('@/pages/StaffWinLossPage').then((m) => ({ default: m.StaffWinLossPage })));
 const ResultsPlanPage = lazy(() => import('@/pages/ResultsPlanPage').then((m) => ({ default: m.ResultsPlanPage })));
+const InvoiceOutcomesPage = lazy(() => import('@/pages/InvoiceOutcomesPage').then((m) => ({ default: m.InvoiceOutcomesPage })));
+const StaffInvoiceOutcomesPage = lazy(() => import('@/pages/StaffInvoiceOutcomesPage').then((m) => ({ default: m.StaffInvoiceOutcomesPage })));
 const HowWeVerifyPage = lazy(() => import('@/pages/HowWeVerifyPage').then((m) => ({ default: m.HowWeVerifyPage })));
 const StaffResultsPlanPage = lazy(() => import('@/pages/StaffResultsPlanPage').then((m) => ({ default: m.StaffResultsPlanPage })));
 const RevenueProtectionPage = lazy(() => import('@/pages/RevenueProtectionPage').then((m) => ({ default: m.RevenueProtectionPage })));
@@ -901,6 +903,7 @@ function AppRoutes() {
         <Route path="/staff/activation" element={<StaffRoute><StaffActivationFunnelPage /></StaffRoute>} />
         <Route path="/staff/win-loss" element={<StaffRoute><StaffWinLossPage /></StaffRoute>} />
         <Route path="/staff/results-plan" element={<StaffRoute><StaffResultsPlanPage /></StaffRoute>} />
+        <Route path="/staff/invoice-outcomes" element={<StaffRoute><StaffInvoiceOutcomesPage /></StaffRoute>} />
         <Route
           path="/staff/partners"
           element={
@@ -3080,6 +3083,8 @@ function AppRoutes() {
           }
         />
         <Route path="/dashboard/results-plan" element={<ProtectedRoute><ResultsPlanPage /></ProtectedRoute>} />
+        <Route path="/dashboard/invoice-outcomes" element={<ProtectedRoute><InvoiceOutcomesPage /></ProtectedRoute>} />
+        <Route path="/dashboard/invoice-outcomes/:statementId" element={<ProtectedRoute><InvoiceOutcomesPage /></ProtectedRoute>} />
         <Route path="/dashboard/pilot-results" element={<ProtectedRoute><PilotResultsPage /></ProtectedRoute>} />
         <Route
           path="/dashboard/results"
