@@ -17,7 +17,6 @@ import { formatCents } from '@/lib/quotes';
 import type { PublicQuoteInfo } from '@/lib/quotes';
 import {
   depositCents,
-  monthlyPaymentCents,
   optionTotals,
   PHOTO_KIND_LABELS,
   photosForOption,
