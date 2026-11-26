@@ -96,6 +96,8 @@ export function extractNotificationUrl(data: unknown): string | null {
 export interface NativePushHandlers {
   onOpen: (url: string) => void;
   onForeground: (n: { title?: string; body?: string }) => void;
+  /** Notification action button (e.g. "Start job") pressed on the phone or mirrored on a watch. */
+  onAction?: (e: { actionId: string; data: unknown }) => void;
 }
 
 export async function startNativePushListeners(h: NativePushHandlers): Promise<() => void> {
@@ -103,7 +105,12 @@ export async function startNativePushListeners(h: NativePushHandlers): Promise<(
   const handles = await Promise.all([
     m.addListener('tokenReceived', ({ token }) => void syncNativePushToken(token)),
     m.addListener('notificationReceived', ({ notification }) => h.onForeground({ title: notification.title, body: notification.body })),
-    m.addListener('notificationActionPerformed', ({ notification }) => {
+    m.addListener('notificationActionPerformed', ({ actionId, notification }) => {
+      // "tap" = the notification body itself; anything else is one of our action buttons.
+      if (h.onAction && actionId && actionId !== 'tap') {
+        h.onAction({ actionId, data: notification.data });
+        return;
+      }
       const url = extractNotificationUrl(notification.data);
       if (url) h.onOpen(url);
     }),
