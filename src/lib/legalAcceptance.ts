@@ -25,6 +25,10 @@ export interface RequiredDocument {
   effective_at: string;
   content_path: string | null;
   accepted_version: number;
+  /** false inside the grace window; defaults to true for older payloads */
+  blocking: boolean;
+  /** oldest pending effective_at + grace; null when not sent */
+  deadline: string | null;
   versions: RequiredVersionInfo[];
 }
 
@@ -78,6 +82,8 @@ export function parseLegalAcceptanceState(raw: unknown): LegalAcceptanceState | 
       effective_at: str(d.effective_at),
       content_path: safeContentPath(d.content_path),
       accepted_version: Number(d.accepted_version) || 0,
+      blocking: d.blocking !== false,
+      deadline: typeof d.deadline === 'string' && d.deadline !== '' ? d.deadline : null,
       versions,
     });
   }
@@ -115,4 +121,11 @@ export function safeReturnPath(from: unknown): string {
   if (!from.startsWith('/') || from.startsWith('//') || from.startsWith('/\\')) return '/dashboard';
   if (from.startsWith('/legal/accept')) return '/dashboard';
   return from;
+}
+/** Earliest deadline among documents still inside their grace window (null when none). */
+export function graceDeadline(state: LegalAcceptanceState | null): string | null {
+  if (!state) return null;
+  const times = state.required.filter((d) => !d.blocking && d.deadline !== null).map((d) => d.deadline as string);
+  if (times.length === 0) return null;
+  return times.reduce((a, b) => (new Date(a).getTime() <= new Date(b).getTime() ? a : b));
 }
