@@ -4,6 +4,7 @@ import { MsaContent } from '@/components/sections/MsaContent';
 import { BackButton } from '@/components/ui/BackButton';
 import { CookieConsent } from '@/components/CookieConsent';
 import { useSEO } from '@/lib/seo';
+import { MsaAcceptanceCard } from '@/components/legal/MsaAcceptanceCard';
 
 export function MsaPage() {
   useSEO({
@@ -23,6 +24,7 @@ export function MsaPage() {
           </div>
         </div>
         <MsaContent />
+        <div className="mx-auto max-w-7xl px-6 pb-16"><MsaAcceptanceCard /></div>
       </main>
       <Footer />
       <CookieConsent />
