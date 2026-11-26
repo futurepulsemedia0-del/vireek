@@ -49,6 +49,7 @@ import {
   previewPlanChange,
   startPlanCheckout,
 } from '@/lib/planChangeApi';
+import { recordPlanChangeAcceptance } from '@/lib/legalEvidenceApi';
 
 // ============================================================
 // HELPERS
@@ -224,6 +225,8 @@ function ChangePlanDialog({ plan, currentPlan, minutesUsed, onClose, onApplied }
     setError(null);
     setNotice(null);
     try {
+      // evidence of the click (terms version, time, IP, browser, hash); best effort, never blocks the change
+      await recordPlanChangeAcceptance(plan.id, currentPlan.id);
       if (preview.kind === 'new') {
         window.location.assign(await startPlanCheckout(plan.id));
         return; // leaving the page — keep the button locked
@@ -363,7 +366,10 @@ function ChangePlanDialog({ plan, currentPlan, minutesUsed, onClose, onApplied }
             </>
           )}
         </div>
-
+        <p className="mt-4 text-xs text-text-secondary">
+          By confirming, you agree to the{' '}
+          <a href="/terms" target="_blank" rel="noopener noreferrer" className="font-medium text-accent underline">Terms of Service</a>.
+        </p>
         <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <Button variant="secondary" size="sm" onClick={onClose} disabled={submitting}>
             Cancel
