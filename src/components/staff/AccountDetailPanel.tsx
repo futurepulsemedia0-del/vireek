@@ -7,6 +7,7 @@ import { Skeleton } from '@/components/Skeleton';
 import { HealthBadge } from './HealthBadge';
 import { ImpersonateDialog } from './ImpersonateDialog';
 import { AccountSuccessSection } from './AccountSuccessSection';
+import { LegalAcceptanceHistorySection } from './LegalAcceptanceHistorySection';
 import { AUDIT_ACTION_LABELS, fetchAccountDetail, type AccountDetail, type DailyUsage, type StaffAccount } from '@/lib/staffCustomers';
 
 /** Last 30 calendar days, zero-filled, oldest first. */
@@ -189,7 +190,7 @@ export function AccountDetailPanel({ account, onClose }: AccountDetailPanelProps
           </Card>
         </>
       )}
-
+       <LegalAcceptanceHistorySection accountId={account.id} />
       <ImpersonateDialog open={impersonating} accountId={account.id} accountLabel={`${label} · ${account.email}`} onClose={() => { setImpersonating(false); void load(); }} />
     </div>
   );
