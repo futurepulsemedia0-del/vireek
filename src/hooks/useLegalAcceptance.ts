@@ -33,7 +33,7 @@ export function useLegalAcceptance(userId: string | null, pathname: string) {
     setRes((p) => ({ ...p, loading: true }));
     fetchLegalAcceptanceState().then(
       (state) => {
-        if (state && state.decision === 'ok') okCache = { userId, at: Date.now() };
+        if (state && state.decision === 'ok' && state.required.length === 0) okCache = { userId, at: Date.now() };
         else okCache = null;
         if (!cancelled) setRes({ loading: false, state });
       },
