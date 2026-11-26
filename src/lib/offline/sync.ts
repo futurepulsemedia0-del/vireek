@@ -17,6 +17,7 @@ import { forgetFromVault, rehydrateFromVault } from '../native/vault';
 import { replaceBundle, type Bundle } from './store';
 import { isDataSaverActive } from '../native/dataSaver';
 import { prepareInOrder } from './replayOrder';
+import { resolveConflict } from './conflictRules';
 
 // ------------------------------------------------------------
 // Observable sync state
@@ -179,9 +180,8 @@ async function finishOp(op: OutboxOp): Promise<void> {
   await forgetFromVault(op);
 }
 
-/** Conflicts where the office is simply ahead of the device: nothing for the technician to decide. */
 export function isBenignConflict(type: string, reason: string | undefined): boolean {
-  return (type === 'status' && reason === 'server_ahead') || (type === 'safety_flag' && reason === 'newer_flag_on_server');
+  return resolveConflict(type, reason) === 'discard';
 }
 
 async function sendChunk(chunk: OutboxOp[]): Promise<boolean> {
