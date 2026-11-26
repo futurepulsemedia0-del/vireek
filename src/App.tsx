@@ -152,6 +152,7 @@ const SupplierIntelligencePage = lazy(() => import('@/pages/SupplierIntelligence
 const ProcurementNetworkPage = lazy(() => import('@/pages/ProcurementNetworkPage').then((m) => ({ default: m.ProcurementNetworkPage })));
 const SupplierPortalPage = lazy(() => import('@/pages/SupplierPortalPage').then((m) => ({ default: m.SupplierPortalPage })));
 const StaffWebVitalsPage = lazy(() => import('@/pages/StaffWebVitalsPage').then((m) => ({ default: m.StaffWebVitalsPage })));
+const StaffLegalTermsPage = lazy(() => import('@/pages/StaffLegalTermsPage').then((m) => ({ default: m.StaffLegalTermsPage })));
 const StaffDisputeRatioPage = lazy(() => import('@/pages/StaffDisputeRatioPage').then((m) => ({ default: m.StaffDisputeRatioPage })));
 const StaffAssistantGapsPage = lazy(() => import('@/pages/StaffAssistantGapsPage').then((m) => ({ default: m.StaffAssistantGapsPage })));
 const StaffAbusePage = lazy(() => import('@/pages/admin/StaffAbusePage').then((m) => ({ default: m.StaffAbusePage })));
@@ -866,6 +867,7 @@ function AppRoutes() {
         <Route path="/staff/packs" element={<StaffRoute><StaffPacksPage /></StaffRoute>} />
         <Route path="/staff/web-vitals" element={<StaffRoute><StaffWebVitalsPage /></StaffRoute>} />
         <Route path="/staff/dispute-ratio" element={<StaffRoute><StaffDisputeRatioPage /></StaffRoute>} />
+        <Route path="/staff/legal-terms" element={<StaffRoute><StaffLegalTermsPage /></StaffRoute>} />
         <Route path="/staff/assistant-gaps" element={<StaffRoute><StaffAssistantGapsPage /></StaffRoute>} />
         <Route path="/staff/abuse" element={<StaffRoute><StaffAbusePage /></StaffRoute>} />
         <Route path="/staff/customer-health" element={<StaffRoute><StaffCustomerHealthPage /></StaffRoute>} />
