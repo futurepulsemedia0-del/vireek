@@ -13,6 +13,7 @@ import { useLongPress } from '@/hooks/useLongPress';
 import { BottomSheet } from '@/components/mobile/BottomSheet';
 import { PullToRefresh } from '@/components/mobile/PullToRefresh';
 import { SwipeActionRow, type SwipeAction } from '@/components/mobile/SwipeActionRow';
+import { SyncStatusIndicator } from '@/components/technician/SyncStatusIndicator';
 import { ReplayTourMenu } from '@/components/tour/ReplayTourMenu';
 import { ContextualTip } from '@/components/tour/ContextualTip';
 
@@ -165,6 +166,7 @@ export function TechnicianTodayPage() {
 
       <PullToRefresh onRefresh={refreshAll}>
         <main className="mx-auto max-w-lg px-4 py-4 md:max-w-3xl">
+          <SyncStatusIndicator className="mb-3" />
           {failed && (
             <div role="alert" className="mb-3 flex items-center gap-3 rounded-xl border border-warning/40 bg-warning-subtle p-3 text-sm text-text-primary">
               <CloudOff className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
