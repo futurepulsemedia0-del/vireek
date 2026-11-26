@@ -34,6 +34,9 @@ export const SUPPLEMENTARY_TABLES = [
   "vendors", "vendor_contracts", "purchase_orders", "purchase_order_lines",
   // communication and reputation
   "sms_conversations", "call_dispositions", "call_scripts", "reviews", "review_requests", "documents",
+  // account profile, lead events, pest-control records, quote videos, AI insights, agent holds (owned tables; see portability.ts)
+  "business_profile", "lead_marketplace_events", "pest_service_plans", "pest_plan_events", "pest_callbacks", "pest_visit_notices",
+  "pest_stock", "pest_stock_movements", "pest_region_profiles", "quote_videos", "quote_video_events", "agent_holds", "ai_insights",
 ] as const;
 
 export type SupplementaryTable = (typeof SUPPLEMENTARY_TABLES)[number];
